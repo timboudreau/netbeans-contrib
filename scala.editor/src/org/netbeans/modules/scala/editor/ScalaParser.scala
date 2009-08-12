@@ -61,7 +61,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.tools.nsc.{Global, Settings}
 import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
 import scala.tools.nsc.reporters.Reporter
-import scala.tools.nsc.util.{BatchSourceFile, Position,SourceFile}
+import scala.tools.nsc.util.{Position, SourceFile, BatchSourceFile}
 
 /**
  * 

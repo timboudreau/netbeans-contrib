@@ -60,18 +60,18 @@ import org.netbeans.modules.scala.editor.element.{ScalaElements}
 import scala.tools.nsc.{Phase, Settings}
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
-import scala.tools.nsc.util.BatchSourceFile
 import scala.tools.nsc.io.AbstractFile
 import scala.collection.mutable.ArrayBuffer
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.reporters.Reporter
-import scala.tools.nsc.util.Position
+import scala.tools.nsc.util.{Position, SourceFile}
 
 /**
  *
  * @author Caoyuan Deng
  */
 object ScalaGlobal {
+  
   private class SrcOutDirs {
     var srcOutDirs: Map[FileObject, FileObject] = Map()
     var testSrcOutDirs: Map[FileObject, FileObject] = Map()
@@ -101,21 +101,21 @@ object ScalaGlobal {
   // a source group type for separate scala source roots, as seen in maven projects for example.
   private val SOURCES_TYPE_SCALA = "scala" //NOI18N
 
-  private val ProjectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
-  private val ProjectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
-  private val ProjectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
-  private var GlobalForStdLib: Option[ScalaGlobal] = None
+  private val projectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
+  private val projectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
+  private val projectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
+  private var globalForStdLib: Option[ScalaGlobal] = None
 
   private val dummyReport = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   def resetAll {
-    ProjectToGlobal.clear
-    GlobalForStdLib = None
+    projectToGlobal.clear
+    globalForStdLib = None
   }
 
   def reset(global: Global) {
-    ProjectToGlobal.remove(global)
-    if (global == GlobalForStdLib) GlobalForStdLib = None
+    projectToGlobal.remove(global)
+    if (global == globalForStdLib) globalForStdLib = None
   }
 
   /**
@@ -130,25 +130,25 @@ object ScalaGlobal {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // it may be a standalone file, or file in standard lib
-      return GlobalForStdLib match {
+      return globalForStdLib match {
         case None =>
           val g = ScalaHome.getGlobalForStdLib
-          GlobalForStdLib = Some(g)
+          globalForStdLib = Some(g)
           g
         case Some(x) => x
       }
     }
 
-    val dirs = ProjectToDirs.get(project) match {
+    val dirs = projectToDirs.get(project) match {
       case null =>
-        val dirsx = findDirResouces(project)
-        ProjectToDirs.put(project, new WeakReference(dirsx))
+        val dirsx = findDirResources(project)
+        projectToDirs.put(project, new WeakReference(dirsx))
         dirsx
       case ref =>
         ref.get match {
           case null =>
-            val dirsx = findDirResouces(project)
-            ProjectToDirs.put(project, new WeakReference(dirsx))
+            val dirsx = findDirResources(project)
+            projectToDirs.put(project, new WeakReference(dirsx))
             dirsx
           case x => x
         }
@@ -158,7 +158,7 @@ object ScalaGlobal {
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
-    val globalRef = if (forTest) ProjectToGlobalForTest.get(project) else ProjectToGlobal.get(project)
+    val globalRef = if (forTest) projectToGlobalForTest.get(project) else projectToGlobal.get(project)
     if (globalRef != null) {
       globalRef.get match {
         case null =>
@@ -228,25 +228,25 @@ object ScalaGlobal {
     val global = new ScalaGlobal(settings)
 
     if (forTest) {
-      ProjectToGlobalForTest.put(project, new WeakReference(global))
+      projectToGlobalForTest.put(project, new WeakReference(global))
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileRenamed(fe: FileRenameEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileDeleted(fe: FileEvent): Unit = {
               // * maybe a clean task invoked
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
           })
 
@@ -260,43 +260,43 @@ object ScalaGlobal {
         out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileRenamed(fe: FileRenameEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileDeleted(fe: FileEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToDirs.remove(project)
             }
           })
 
         visited += out
       }
     } else {
-      ProjectToGlobal.put(project, new WeakReference(global))
+      projectToGlobal.put(project, new WeakReference(global))
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileRenamed(fe: FileRenameEvent): Unit = {
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileDeleted(fe: FileEvent): Unit = {
               // maybe a clean task invoked
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
           })
         
@@ -371,7 +371,7 @@ object ScalaGlobal {
     }
   }
 
-  private def findDirResouces(project: Project): SrcOutDirs = {
+  private def findDirResources(project: Project): SrcOutDirs = {
     val dirs = new SrcOutDirs
 
     val sources = ProjectUtils.getSources(project)
@@ -484,22 +484,22 @@ object ScalaGlobal {
         FileUtil.toFileObject(rootFile).addFileChangeListener(new FileChangeAdapter {
 
             override def fileChanged(fe: FileEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileRenamed(fe: FileRenameEvent): Unit = {
-              ProjectToGlobalForTest.remove(project)
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
 
             override def fileDeleted(fe: FileEvent): Unit = {
               // maybe a clean task invoked
-              ProjectToGlobalForTest.remove(project)
-              ProjectToGlobal.remove(project)
-              ProjectToDirs.remove(project)
+              projectToGlobalForTest.remove(project)
+              projectToGlobal.remove(project)
+              projectToDirs.remove(project)
             }
           })
 
@@ -549,17 +549,17 @@ with ScalaUtils {
     }
   }
 
-  def compileSourceForPresentation(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def compileSourceForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, superAccessors.phaseName, th)
   }
 
   // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built
-  def compileSourceForDebugger(srcFile: BatchSourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def compileSourceForDebugger(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, constructors.phaseName, th)
   }
 
   // * @Note the following setting exlcudes 'stopPhase' itself
-  def compileSource(srcFile: BatchSourceFile, stopPhaseName: String, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
+  def compileSource(srcFile: SourceFile, stopPhaseName: String, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(stopPhaseName))
     resetSelectTypeErrors
