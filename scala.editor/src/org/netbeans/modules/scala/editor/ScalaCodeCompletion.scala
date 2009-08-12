@@ -195,7 +195,7 @@ object ScalaCodeCompletion {
   }
 }
 
-class ScalaCodeCompletion extends CodeCompletionHandler {
+class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters {
   import ScalaCodeCompletion._
 
   override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: int,
