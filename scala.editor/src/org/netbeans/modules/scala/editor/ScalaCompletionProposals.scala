@@ -276,7 +276,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
       // Facilitate method parameter completion on this item
       try {
-        CompletionRequest.callLineStart = Utilities.getRowStart(request.doc, request.anchor)
+        ScalaCodeCompletion.CompletionRequest.callLineStart = Utilities.getRowStart(request.doc, request.anchor)
         //ScalaCodeCompletion.callMethod = function;
       } catch {case ble: BadLocationException => Exceptions.printStackTrace(ble)}
 
