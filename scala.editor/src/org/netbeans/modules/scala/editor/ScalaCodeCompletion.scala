@@ -193,6 +193,642 @@ object ScalaCodeCompletion {
       case _ => true
     }
   }
+
+  object CompletionRequest {
+    var callLineStart = -1
+    var callMethod: ExecutableElement = _
+
+    private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
+                                             ScalaTokenId.This,
+                                             ScalaTokenId.Super,
+                                             ScalaTokenId.Class,
+                                             ScalaTokenId.Wild)
+
+    private val JSDOC_WORDS = Array("@augments",
+                                    "@class",
+                                    "@config",
+                                    "@constructor",
+                                    "@deprecated",
+                                    "@description",
+                                    "@event",
+                                    "@example",
+                                    "@exception",
+                                    "@fileOverview",
+                                    "@function",
+                                    "@ignore",
+                                    "@inherits",
+                                    "@memberOf",
+                                    "@name",
+                                    "@namespace",
+                                    "@param",
+                                    "@param",
+                                    "@private",
+                                    "@property",
+                                    "@return",
+                                    "@scope",
+                                    "@scope",
+                                    "@static",
+                                    "@type")
+
+  }
+
+  abstract class CompletionRequest {
+    import CompletionRequest._
+
+    val global: ScalaGlobal
+    import global._
+
+    class Call {
+      var base: Option[AstItem] = None
+      var select: Option[String] = None
+      var caretAfterDot: Boolean = _
+    }
+
+    var caseSensitive: Boolean = _
+    var completionResult: DefaultCompletionResult = _
+    var th: TokenHierarchy[_] = _
+    var info: ParserResult = _
+    var node: Option[AstItem] = None
+    var root: ScalaRootScope = _
+    var anchor: Int = _
+    var lexOffset: Int = _
+    var astOffset: Int = _
+    var doc: BaseDocument = _
+    var prefix: String = _
+    var kind: QuerySupport.Kind = _
+    var result: ScalaParserResult = _
+    var queryType: QueryType = _
+    var fileObject: FileObject = _
+    // MaybeCall call;
+    var fqn: String = _
+    //var index: ScalaIndex = _
+
+    private def startsWith(theString: String, prefix: String): Boolean = {
+      if (prefix.length == 0) {
+        return true
+      }
+
+      if (caseSensitive) theString.startsWith(prefix)
+      else theString.toLowerCase.startsWith(prefix.toLowerCase)
+    }
+
+
+    def completeKeywords(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
+      // No keywords possible in the RHS of a call (except for "this"?)
+      //        if (request.call.getLhs() != null) {
+      //            return;
+      //        }
+      val itr = ParserScala.SCALA_KEYWORDS.iterator
+      while (itr.hasNext) {
+        val keyword = itr.next
+        if (startsWith(keyword, prefix)) {
+          val item = KeywordProposal(keyword, null, this)
+          proposals.add(item)
+        }
+      }
+    }
+
+    @throws(classOf[BadLocationException])
+    def completeComments(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+      val rowStart = Utilities.getRowFirstNonWhite(doc, lexOffset)
+      if (rowStart == -1) {
+        return false
+      }
+
+      val line = doc.getText(rowStart, Utilities.getRowEnd(doc, lexOffset) - rowStart)
+      val delta = lexOffset - rowStart
+
+      var i = delta - 1
+      var break = false
+      while (i >= 0 && !break) {
+        val c = line.charAt(i)
+        if (Character.isWhitespace(c) || (!Character.isLetterOrDigit(c) && c != '@' && c != '.' && c != '_')) {
+          break = true
+        }
+        i -= 1
+      }
+      i += 1
+      prefix = line.substring(i, delta)
+      anchor = rowStart + i
+
+      // Regular expression matching.  {
+      for (j <- 0 to JSDOC_WORDS.length) {
+        val word = JSDOC_WORDS(j)
+        if (startsWith(word, prefix)) {
+          val item = KeywordProposal(word, null, this)
+          proposals.add(item)
+        }
+      }
+
+      true
+    }
+
+    def addLocals(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
+      val root = result.rootScope match {
+        case Some(x) => x
+        case None => return
+      }
+
+      val closestScope = root.closestScope(th, astOffset) match {
+        case Some(x) => x
+        case None => return
+      }
+
+      var localVars = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.FIELD)
+      localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.PARAMETER)
+      localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.VARIABLE)
+      for (v <- localVars;
+           if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
+               (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix))))
+      {
+        proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
+      }
+
+
+      val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
+      for (fun <- localFuns;
+           if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
+               (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix))))
+      {
+        proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
+      }
+
+      // Add in "arguments" local variable which is available to all functions
+      //        String ARGUMENTS = "arguments"; // NOI18N
+      //        if (startsWith(ARGUMENTS, prefix)) {
+      //            // Make sure we're in a function before adding the arguments property
+      //            for (Node n = node; n != null; n = n.getParentNode()) {
+      //                if (n.getType() == org.mozilla.javascript.Token.FUNCTION) {
+      //                    KeywordElement node = new KeywordElement(ARGUMENTS, ElementKind.VARIABLE);
+      //                    proposals.add(new PlainItem(node, request));
+      //                    break;
+      //                }
+      //            }
+      //        }
+    }
+
+    /** Determine if we're trying to complete the name for a "new" (in which case
+     * we show available constructors.
+     */
+    def completeNew(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+      //val index = request.index;
+
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+        case Some(x) => x
+        case None => return false
+      }
+      ts.move(lexOffset)
+      if (!ts.moveNext && !ts.movePrevious) {
+        return false
+      }
+
+      if (true /* && index != null */) {
+
+        if (ts.offset == lexOffset) {
+          // We're looking at the offset to the RIGHT of the caret
+          // position, which could be whitespace, e.g.
+          //  "def fo| " <-- looking at the whitespace
+          ts.movePrevious
+        }
+
+        var token = ts.token
+        if (token != null) {
+          var id = token.id
+
+          // See if we're in the identifier - "foo" in "def foo"
+          // I could also be a keyword in case the prefix happens to currently
+          // match a keyword, such as "next"
+          if (id == ScalaTokenId.Identifier || id == ScalaTokenId.CONSTANT || id.primaryCategory == "keyword") {
+            if (!ts.movePrevious) {
+              return false
+            }
+
+            token = ts.token
+            id = token.id
+          }
+
+          // If we're not in the identifier we need to be in the whitespace after "def"
+          if (id != ScalaTokenId.Ws && id != ScalaTokenId.Nl & id != ScalaTokenId.Colon) {
+            // Do something about http://www.netbeans.org/issues/show_bug.cgi?id=100452 here
+            // In addition to checking for whitespace I should look for "Foo." here
+            return false
+          }
+
+          // There may be more than one whitespace; skip them
+          if (id == ScalaTokenId.Ws || id == ScalaTokenId.Nl) {
+            var break = false
+            while (ts.movePrevious && !break) {
+              token = ts.token
+              if (token.id != ScalaTokenId.Ws) {
+                break = true
+              }
+            }
+          }
+
+          if (token.id == ScalaTokenId.New || token.id == ScalaTokenId.Colon) {
+            if (prefix.length < 2) {
+              /** @todo return imported types */
+              return false
+            }
+
+            /**
+             * @Todo : we should implement completion for "new" in two phase:
+             * 1. get Type name
+             * 2. get constructors of this type when use pressed enter
+             */
+            //val cslElements = index.getDeclaredTypes(prefix, kind, request.result);
+            //val lhs = if (call == None) null else request.call.getLhs();
+            /**
+             if (lhs != null && lhs.length() > 0) {
+             Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
+             if (m.size() > 0) {
+             if (gsdElements.size() == 0) {
+             gsdElements = new HashSet<GsfElement>();
+             }
+             for (IndexedElement f : m) {
+             if (f.getKind() == ElementKind.CONSTRUCTOR) {
+             gsdElements.add(f);
+             }
+             }
+             }
+             } else if (prefix.length() > 0) {
+             Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
+             if (m.size() > 0) {
+             if (gsdElements.size() == 0) {
+             gsdElements = new HashSet<GsfElement>();
+             }
+             for (IndexedElement f : m) {
+             if (f.getKind() == ElementKind.CONSTRUCTOR) {
+             gsdElements.add(f);
+             }
+             }
+             }
+             } */
+            //for (GsfElement cslElement : cslElements) {
+            // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
+            //if (!cslElement.getName().startsWith(prefix)) {
+            //continue;
+            //}
+
+
+            //                        // For def completion, skip local methods, only include superclass and included
+            //                        if ((fqn != null) && fqn.equals(method.getClz())) {
+            //                            continue;
+            //                        }
+
+            // If a method is an "initialize" method I should do something special so that
+            // it shows up as a "constructor" (in a new() statement) but not as a directly
+            // callable initialize method (it should already be culled because it's private)
+            //                        ScalaCompletionItem item;
+            //                        if (gsfElement instanceof IndexedFunction) {
+            //                            item = new FunctionItem((IndexedFunction) gsfElement, request);
+            //                        } else {
+            //                            item = new PlainItem(request, gsfElement);
+            //                        }
+            //val item = new PlainItem(cslElement, request);
+            // Exact matches
+            //                        item.setSmart(method.isSmart());
+            //proposals.add(item);
+            //}
+
+            //return true;
+            //                } else if (token.id() == ScalaTokenId.IDENTIFIER && "include".equals(token.text().toString())) {
+            //                    // Module completion
+            //                    Set<IndexedClass> classes = index.getClasses(prefix, kind, false, true, false);
+            //                    for (IndexedClass clz : classes) {
+            //                        if (clz.isNoDoc()) {
+            //                            continue;
+            //                        }
+            //
+            //                        ClassItem item = new ClassItem(clz, anchor, request);
+            //                        item.setSmart(true);
+            //                        proposals.add(item);
+            //                    }
+            //
+            //                    return true;
+          }
+        }
+      }
+
+      false
+    }
+
+    def completeImport(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+      val fqnPrefix = prefix match {
+        case null => ""
+        case x => x
+      }
+      /*_
+       for (GsfElement gsfElement : request.index.getPackagesAndContent(fqnPrefix, request.kind)) {
+       IndexedElement element = (IndexedElement) gsfElement.getElement();
+       if (element.getKind() == ElementKind.PACKAGE) {
+       proposals.add(new PackageItem(new GsfElement(element, request.fileObject, request.info), request));
+       } else if (element instanceof IndexedTypeElement) {
+       proposals.add(new TypeItem(request, element));
+       }
+       }
+       */
+      true
+    }
+
+    /** Compute the current method call at the given offset. Returns false if we're not in a method call.
+     * The argument index is returned in parameterIndexHolder[0] and the method being
+     * called in methodHolder[0].
+     */
+    protected def computeMethodCall(info: ParserResult, lexOffset: Int, astOffset: Int,
+                                    methodHolder: Array[ExecutableElement],
+                                    parameterIndexHolder: Array[int],
+                                    anchorOffsetHolder: Array[Int],
+                                    alternativesHolder: Array[Set[Function]]): Boolean = {
+      try {
+        val pResult = info.asInstanceOf[ScalaParserResult]
+        val root = pResult.rootScope match {
+          case Some(x) => x
+          case None => return false
+        }
+
+        var targetMethod: ExecutableElement = null
+        var index = -1
+
+        // Account for input sanitation
+        // TODO - also back up over whitespace, and if I hit the method
+        // I'm parameter number 0
+        val originalAstOffset = astOffset
+
+        // Adjust offset to the left
+        val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
+        if (doc == null) {
+          return false
+        }
+
+        val th = info.getSnapshot.getTokenHierarchy
+        val newLexOffset = ScalaLexUtil.findSpaceBegin(doc, lexOffset);
+        var astOffset1 = if (newLexOffset < lexOffset) {
+          astOffset - (lexOffset - newLexOffset)
+        } else astOffset
+
+        val range = pResult.sanitizedRange
+        if (range != OffsetRange.NONE && range.containsInclusive(astOffset1)) {
+          if (astOffset1 != range.getStart) {
+            astOffset1 = range.getStart - 1
+            if (astOffset1 < 0) {
+              astOffset1 = 0
+            }
+          }
+        }
+
+        val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
+          case Some(x) => x
+          case None => return false
+        }
+        ts.move(lexOffset)
+        if (!ts.moveNext && !ts.movePrevious) {
+          return false
+        }
+
+        var closestOpt = root.findItemAt(th, astOffset1)
+        var closestOffset = astOffset1 - 1
+        while (closestOpt == None && closestOffset > 0) {
+          closestOffset -= 1
+          closestOpt = root.findItemAt(th, closestOffset)
+        }
+
+        //Symbol call = findCallSymbol(visitor, ts, th, request, true);
+        val call = closestOpt.getOrElse(null)
+
+        val currentLineStart = Utilities.getRowStart(doc, lexOffset)
+        if (callLineStart != -1 && currentLineStart == callLineStart) {
+          // We know the method call
+          targetMethod = callMethod
+          if (targetMethod != null) {
+            // Somehow figure out the argument index
+            // Perhaps I can keep the node tree around and look in it
+            // (This is all trying to deal with temporarily broken
+            // or ambiguous calls.
+          }
+        }
+        // Compute the argument index
+
+        var anchorOffset = -1
+
+        //            if (targetMethod != null) {
+        //                Iterator<Node> it = path.leafToRoot();
+        //                String name = targetMethod.getName();
+        //                while (it.hasNext()) {
+        //                    Node node = it.next();
+        //                }
+        //            }
+
+        var haveSanitizedComma = (pResult.getSanitized == Sanitize.EDITED_DOT ||
+                                  pResult.getSanitized == Sanitize.ERROR_DOT)
+        if (haveSanitizedComma) {
+          // We only care about removed commas since that
+          // affects the parameter count
+          if (pResult.sanitizedContents.indexOf(',') == -1) {
+            haveSanitizedComma = false
+          }
+        }
+
+        if (call == null) {
+          // Find the call in around the caret. Beware of
+          // input sanitization which could have completely
+          // removed the current parameter (e.g. with just
+          // a comma, or something like ", @" or ", :")
+          // where we accidentally end up in the previous
+          // parameter.
+          //                ListIterator<Node> it = path.leafToRoot();
+          //             nodesearch:
+          //                while (it.hasNext()) {
+          //                    Node node = it.next();
+          //
+          //                    if (node.getType() == org.mozilla.javascript.Token.CALL) {
+          //                        call = node;
+          //                        index = AstUtilities.findArgumentIndex(call, astOffset, path);
+          //                        break;
+          //                    }
+          //
+          //                }
+        }
+
+        if (index != -1 && haveSanitizedComma && call != null) {
+          //                if (call.nodeId == NodeTypes.FCALLNODE) {
+          //                    an = ((FCallNode)call).getArgsNode();
+          //                } else if (call.nodeId == NodeTypes.CALLNODE) {
+          //                    an = ((CallNode)call).getArgsNode();
+          //                }
+          //                if (an != null && index < an.childNodes().size() &&
+          //                        ((Node)an.childNodes().get(index)).nodeId == NodeTypes.HASHNODE) {
+          //                    // We should stay within the hashnode, so counteract the
+          //                    // index++ which follows this if-block
+          //                    index--;
+          //                }
+
+          // Adjust the index to account for our removed
+          // comma
+          index += 1
+        }
+
+        if (call == null || index == -1) {
+          callLineStart = -1
+          callMethod = null
+          return false
+        } else if (targetMethod == null) {
+          // Look up the
+          // See if we can find the method corresponding to this call
+
+          //targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
+          if (targetMethod == null) {
+            return false
+          }
+        }
+
+        callLineStart = currentLineStart
+        callMethod = targetMethod
+
+        methodHolder(0) = callMethod
+        parameterIndexHolder(0) = index
+
+        if (anchorOffset == -1 && call.idToken.isDefined) {
+          anchorOffset = call.idToken.get.offset(th) // TODO - compute
+
+        }
+        anchorOffsetHolder(0) = anchorOffset
+      } catch {
+        case ble: BadLocationException => Exceptions.printStackTrace(ble); return false
+      }
+
+      true
+    }
+
+
+
+    def completeSymbolMembers(item: AstItem, proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+      val sym = item.symbol.asInstanceOf[Symbol]
+      //        if (symbol.nameString().equals("<none>")) {
+      //            // this maybe an object, which can not be resolved by scala's compiler
+      //            symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
+      //        }
+
+      // * use explict assigned `resultType` first
+      val resType = item.resultType match {
+        case null => getResultType(sym.tpe)
+        case x => x.asInstanceOf[Type]
+      }
+      //val resType = if (sym == NoSymbol || tpe == ErrorType) {
+      //  item.resultType.asInstanceOf[Type]
+      //} else getResultType(sym.tpe)
+
+      if (resType == null) {
+        return false
+      }
+
+      try {
+        val members = resType.members
+        for (member <- members if startsWith(member.nameString, prefix) && !member.isConstructor) {
+          var element:  ScalaElement = null
+          var proposal: CompletionProposal = null
+          if (!member.hasFlag(Flags.PRIVATE)) {
+            if (member.isMethod) {
+              element  = ScalaElement(member, info)
+              proposal = FunctionProposal(element, this)
+            } else if (member.isVariable) {
+            } else if (member.isValue) {
+              element  = ScalaElement(member, info)
+              proposal = PlainProposal(element, this)
+            } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
+              element  = ScalaElement(member, info)
+              proposal = PlainProposal(element, this)
+            }
+          }
+
+          if (proposal != null) {
+            val resTypeSymbol = resType.typeSymbol
+            val inherited = ScalaUtil.isInherited(resTypeSymbol, member)
+            element.setInherited(inherited)
+
+            proposals.add(proposal)
+          }
+        }
+      } catch {
+        case ex: AssertionError =>
+          // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
+          ScalaGlobal.reset(global)
+      }
+
+      true
+    }
+
+    private def getResultType(tpe: Type): Type = {
+      tpe.resultType match {
+        case x: MethodType => x
+        case x => x
+      }
+    }
+
+    def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th:TokenHierarchy[_], call: Call , times: Int): Unit = {
+      assert(rootScope != null)
+
+      val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
+      var idToken = if (closest.get.id == ScalaTokenId.Dot) {
+        call.caretAfterDot = true
+        // skip RParen if it's the previous
+        if (ts.movePrevious) {
+          ScalaLexUtil.findPreviousNoWs(ts) match {
+            case None =>
+            case Some(prev) => prev.id match {
+                case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
+                case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
+                case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+                case _ =>
+              }
+          }
+        }
+
+        ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
+      } else if (CALL_IDs.contains(closest.get.id)) {
+        closest
+      } else None
+
+      if (idToken.isDefined) {
+        val items = rootScope.findItemsAt(th, idToken.get.offset(th))
+        val item = items.find{_.resultType != null} match {
+          case Some(x) => Some(x)
+          case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
+              case Some(x) => Some(x)
+              case None => if (items.isEmpty) None else Some(items.head)
+            }
+        }
+
+        if (times == 0) {
+          if (call.caretAfterDot) {
+            call.base = item
+            return
+          }
+
+          val prev = if (ts.movePrevious) {
+            ScalaLexUtil.findPreviousNoWsNoComment(ts)
+          } else None
+
+          prev match {
+            case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
+              call.caretAfterDot = true
+              call.select = Some(idToken.get.text.toString)
+              findCall(rootScope, ts, th, call, times + 1)
+            case _ =>
+              call.base = item
+              return
+          }
+        } else {
+          call.base = item
+          return
+        }
+      }
+
+      return
+    }
+
+  }
+
 }
 
 class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters {
@@ -1310,637 +1946,3 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
   }
 }
 
-object CompletionRequest {
-  var callLineStart = -1
-  var callMethod: ExecutableElement = _
-
-  private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
-                                           ScalaTokenId.This,
-                                           ScalaTokenId.Super,
-                                           ScalaTokenId.Class,
-                                           ScalaTokenId.Wild)
-
-  private val JSDOC_WORDS = Array("@augments",
-                                  "@class",
-                                  "@config",
-                                  "@constructor",
-                                  "@deprecated",
-                                  "@description",
-                                  "@event",
-                                  "@example",
-                                  "@exception",
-                                  "@fileOverview",
-                                  "@function",
-                                  "@ignore",
-                                  "@inherits",
-                                  "@memberOf",
-                                  "@name",
-                                  "@namespace",
-                                  "@param",
-                                  "@param",
-                                  "@private",
-                                  "@property",
-                                  "@return",
-                                  "@scope",
-                                  "@scope",
-                                  "@static",
-                                  "@type")
-
-}
-
-abstract class CompletionRequest {
-  import CompletionRequest._
-
-  val global: ScalaGlobal
-  import global._
-
-  class Call {
-    var base: Option[AstItem] = None
-    var select: Option[String] = None
-    var caretAfterDot: Boolean = _
-  }
-
-  var caseSensitive: Boolean = _
-  var completionResult: DefaultCompletionResult = _
-  var th: TokenHierarchy[_] = _
-  var info: ParserResult = _
-  var node: Option[AstItem] = None
-  var root: ScalaRootScope = _
-  var anchor: Int = _
-  var lexOffset: Int = _
-  var astOffset: Int = _
-  var doc: BaseDocument = _
-  var prefix: String = _
-  var kind: QuerySupport.Kind = _
-  var result: ScalaParserResult = _
-  var queryType: QueryType = _
-  var fileObject: FileObject = _
-  // MaybeCall call;
-  var fqn: String = _
-  //var index: ScalaIndex = _
-
-  private def startsWith(theString: String, prefix: String): Boolean = {
-    if (prefix.length == 0) {
-      return true
-    }
-
-    if (caseSensitive) theString.startsWith(prefix)
-    else theString.toLowerCase.startsWith(prefix.toLowerCase)
-  }
-
-
-  def completeKeywords(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
-    // No keywords possible in the RHS of a call (except for "this"?)
-    //        if (request.call.getLhs() != null) {
-    //            return;
-    //        }
-    val itr = ParserScala.SCALA_KEYWORDS.iterator
-    while (itr.hasNext) {
-      val keyword = itr.next
-      if (startsWith(keyword, prefix)) {
-        val item = KeywordProposal(keyword, null, this)
-        proposals.add(item)
-      }
-    }
-  }
-
-  @throws(classOf[BadLocationException])
-  def completeComments(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
-    val rowStart = Utilities.getRowFirstNonWhite(doc, lexOffset)
-    if (rowStart == -1) {
-      return false
-    }
-
-    val line = doc.getText(rowStart, Utilities.getRowEnd(doc, lexOffset) - rowStart)
-    val delta = lexOffset - rowStart
-
-    var i = delta - 1
-    var break = false
-    while (i >= 0 && !break) {
-      val c = line.charAt(i)
-      if (Character.isWhitespace(c) || (!Character.isLetterOrDigit(c) && c != '@' && c != '.' && c != '_')) {
-        break = true
-      }
-      i -= 1
-    }
-    i += 1
-    prefix = line.substring(i, delta)
-    anchor = rowStart + i
-
-    // Regular expression matching.  {
-    for (j <- 0 to JSDOC_WORDS.length) {
-      val word = JSDOC_WORDS(j)
-      if (startsWith(word, prefix)) {
-        val item = KeywordProposal(word, null, this)
-        proposals.add(item)
-      }
-    }
-
-    true
-  }
-
-  def addLocals(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
-    val root = result.rootScope match {
-      case Some(x) => x
-      case None => return
-    }
-
-    val closestScope = root.closestScope(th, astOffset) match {
-      case Some(x) => x
-      case None => return
-    }
-
-    var localVars = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.FIELD)
-    localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.PARAMETER)
-    localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.VARIABLE)
-    for (v <- localVars;
-         if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
-             (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix))))
-    {
-      proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
-    }
-
-
-    val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
-    for (fun <- localFuns;
-         if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
-             (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix))))
-    {
-      proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
-    }
-
-    // Add in "arguments" local variable which is available to all functions
-    //        String ARGUMENTS = "arguments"; // NOI18N
-    //        if (startsWith(ARGUMENTS, prefix)) {
-    //            // Make sure we're in a function before adding the arguments property
-    //            for (Node n = node; n != null; n = n.getParentNode()) {
-    //                if (n.getType() == org.mozilla.javascript.Token.FUNCTION) {
-    //                    KeywordElement node = new KeywordElement(ARGUMENTS, ElementKind.VARIABLE);
-    //                    proposals.add(new PlainItem(node, request));
-    //                    break;
-    //                }
-    //            }
-    //        }
-  }
-
-  /** Determine if we're trying to complete the name for a "new" (in which case
-   * we show available constructors.
-   */
-  def completeNew(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
-    //val index = request.index;
-
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-      case Some(x) => x
-      case None => return false
-    }
-    ts.move(lexOffset)
-    if (!ts.moveNext && !ts.movePrevious) {
-      return false
-    }
-
-    if (true /* && index != null */) {
-
-      if (ts.offset == lexOffset) {
-        // We're looking at the offset to the RIGHT of the caret
-        // position, which could be whitespace, e.g.
-        //  "def fo| " <-- looking at the whitespace
-        ts.movePrevious
-      }
-
-      var token = ts.token
-      if (token != null) {
-        var id = token.id
-
-        // See if we're in the identifier - "foo" in "def foo"
-        // I could also be a keyword in case the prefix happens to currently
-        // match a keyword, such as "next"
-        if (id == ScalaTokenId.Identifier || id == ScalaTokenId.CONSTANT || id.primaryCategory == "keyword") {
-          if (!ts.movePrevious) {
-            return false
-          }
-
-          token = ts.token
-          id = token.id
-        }
-
-        // If we're not in the identifier we need to be in the whitespace after "def"
-        if (id != ScalaTokenId.Ws && id != ScalaTokenId.Nl & id != ScalaTokenId.Colon) {
-          // Do something about http://www.netbeans.org/issues/show_bug.cgi?id=100452 here
-          // In addition to checking for whitespace I should look for "Foo." here
-          return false
-        }
-
-        // There may be more than one whitespace; skip them
-        if (id == ScalaTokenId.Ws || id == ScalaTokenId.Nl) {
-          var break = false
-          while (ts.movePrevious && !break) {
-            token = ts.token
-            if (token.id != ScalaTokenId.Ws) {
-              break = true
-            }
-          }
-        }
-
-        if (token.id == ScalaTokenId.New || token.id == ScalaTokenId.Colon) {
-          if (prefix.length < 2) {
-            /** @todo return imported types */
-            return false
-          }
-
-          /**
-           * @Todo : we should implement completion for "new" in two phase:
-           * 1. get Type name
-           * 2. get constructors of this type when use pressed enter
-           */
-          //val cslElements = index.getDeclaredTypes(prefix, kind, request.result);
-          //val lhs = if (call == None) null else request.call.getLhs();
-          /**
-           if (lhs != null && lhs.length() > 0) {
-           Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
-           if (m.size() > 0) {
-           if (gsdElements.size() == 0) {
-           gsdElements = new HashSet<GsfElement>();
-           }
-           for (IndexedElement f : m) {
-           if (f.getKind() == ElementKind.CONSTRUCTOR) {
-           gsdElements.add(f);
-           }
-           }
-           }
-           } else if (prefix.length() > 0) {
-           Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
-           if (m.size() > 0) {
-           if (gsdElements.size() == 0) {
-           gsdElements = new HashSet<GsfElement>();
-           }
-           for (IndexedElement f : m) {
-           if (f.getKind() == ElementKind.CONSTRUCTOR) {
-           gsdElements.add(f);
-           }
-           }
-           }
-           } */
-          //for (GsfElement cslElement : cslElements) {
-          // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-          //if (!cslElement.getName().startsWith(prefix)) {
-          //continue;
-          //}
-
-
-          //                        // For def completion, skip local methods, only include superclass and included
-          //                        if ((fqn != null) && fqn.equals(method.getClz())) {
-          //                            continue;
-          //                        }
-
-          // If a method is an "initialize" method I should do something special so that
-          // it shows up as a "constructor" (in a new() statement) but not as a directly
-          // callable initialize method (it should already be culled because it's private)
-          //                        ScalaCompletionItem item;
-          //                        if (gsfElement instanceof IndexedFunction) {
-          //                            item = new FunctionItem((IndexedFunction) gsfElement, request);
-          //                        } else {
-          //                            item = new PlainItem(request, gsfElement);
-          //                        }
-          //val item = new PlainItem(cslElement, request);
-          // Exact matches
-          //                        item.setSmart(method.isSmart());
-          //proposals.add(item);
-          //}
-
-          //return true;
-          //                } else if (token.id() == ScalaTokenId.IDENTIFIER && "include".equals(token.text().toString())) {
-          //                    // Module completion
-          //                    Set<IndexedClass> classes = index.getClasses(prefix, kind, false, true, false);
-          //                    for (IndexedClass clz : classes) {
-          //                        if (clz.isNoDoc()) {
-          //                            continue;
-          //                        }
-          //
-          //                        ClassItem item = new ClassItem(clz, anchor, request);
-          //                        item.setSmart(true);
-          //                        proposals.add(item);
-          //                    }
-          //
-          //                    return true;
-        }
-      }
-    }
-
-    false
-  }
-
-  def completeImport(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
-    val fqnPrefix = prefix match {
-      case null => ""
-      case x => x
-    }
-    /*_
-     for (GsfElement gsfElement : request.index.getPackagesAndContent(fqnPrefix, request.kind)) {
-     IndexedElement element = (IndexedElement) gsfElement.getElement();
-     if (element.getKind() == ElementKind.PACKAGE) {
-     proposals.add(new PackageItem(new GsfElement(element, request.fileObject, request.info), request));
-     } else if (element instanceof IndexedTypeElement) {
-     proposals.add(new TypeItem(request, element));
-     }
-     }
-     */
-    true
-  }
-
-  /** Compute the current method call at the given offset. Returns false if we're not in a method call.
-   * The argument index is returned in parameterIndexHolder[0] and the method being
-   * called in methodHolder[0].
-   */
-  protected def computeMethodCall(info: ParserResult, lexOffset: Int, astOffset: Int,
-                                  methodHolder: Array[ExecutableElement],
-                                  parameterIndexHolder: Array[int],
-                                  anchorOffsetHolder: Array[Int],
-                                  alternativesHolder: Array[Set[Function]]): Boolean = {
-    try {
-      val pResult = info.asInstanceOf[ScalaParserResult]
-      val root = pResult.rootScope match {
-        case Some(x) => x
-        case None => return false
-      }
-
-      var targetMethod: ExecutableElement = null
-      var index = -1
-
-      // Account for input sanitation
-      // TODO - also back up over whitespace, and if I hit the method
-      // I'm parameter number 0
-      val originalAstOffset = astOffset
-
-      // Adjust offset to the left
-      val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-      if (doc == null) {
-        return false
-      }
-
-      val th = info.getSnapshot.getTokenHierarchy
-      val newLexOffset = ScalaLexUtil.findSpaceBegin(doc, lexOffset);
-      var astOffset1 = if (newLexOffset < lexOffset) {
-        astOffset - (lexOffset - newLexOffset)
-      } else astOffset
-
-      val range = pResult.sanitizedRange
-      if (range != OffsetRange.NONE && range.containsInclusive(astOffset1)) {
-        if (astOffset1 != range.getStart) {
-          astOffset1 = range.getStart - 1
-          if (astOffset1 < 0) {
-            astOffset1 = 0
-          }
-        }
-      }
-
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-        case Some(x) => x
-        case None => return false
-      }
-      ts.move(lexOffset)
-      if (!ts.moveNext && !ts.movePrevious) {
-        return false
-      }
-
-      var closestOpt = root.findItemAt(th, astOffset1)
-      var closestOffset = astOffset1 - 1
-      while (closestOpt == None && closestOffset > 0) {
-        closestOffset -= 1
-        closestOpt = root.findItemAt(th, closestOffset)
-      }
-
-      //Symbol call = findCallSymbol(visitor, ts, th, request, true);
-      val call = closestOpt.getOrElse(null)
-
-      val currentLineStart = Utilities.getRowStart(doc, lexOffset)
-      if (callLineStart != -1 && currentLineStart == callLineStart) {
-        // We know the method call
-        targetMethod = callMethod
-        if (targetMethod != null) {
-          // Somehow figure out the argument index
-          // Perhaps I can keep the node tree around and look in it
-          // (This is all trying to deal with temporarily broken
-          // or ambiguous calls.
-        }
-      }
-      // Compute the argument index
-
-      var anchorOffset = -1
-
-      //            if (targetMethod != null) {
-      //                Iterator<Node> it = path.leafToRoot();
-      //                String name = targetMethod.getName();
-      //                while (it.hasNext()) {
-      //                    Node node = it.next();
-      //                }
-      //            }
-
-      var haveSanitizedComma = (pResult.getSanitized == Sanitize.EDITED_DOT ||
-                                pResult.getSanitized == Sanitize.ERROR_DOT)
-      if (haveSanitizedComma) {
-        // We only care about removed commas since that
-        // affects the parameter count
-        if (pResult.sanitizedContents.indexOf(',') == -1) {
-          haveSanitizedComma = false
-        }
-      }
-
-      if (call == null) {
-        // Find the call in around the caret. Beware of
-        // input sanitization which could have completely
-        // removed the current parameter (e.g. with just
-        // a comma, or something like ", @" or ", :")
-        // where we accidentally end up in the previous
-        // parameter.
-        //                ListIterator<Node> it = path.leafToRoot();
-        //             nodesearch:
-        //                while (it.hasNext()) {
-        //                    Node node = it.next();
-        //
-        //                    if (node.getType() == org.mozilla.javascript.Token.CALL) {
-        //                        call = node;
-        //                        index = AstUtilities.findArgumentIndex(call, astOffset, path);
-        //                        break;
-        //                    }
-        //
-        //                }
-      }
-
-      if (index != -1 && haveSanitizedComma && call != null) {
-        //                if (call.nodeId == NodeTypes.FCALLNODE) {
-        //                    an = ((FCallNode)call).getArgsNode();
-        //                } else if (call.nodeId == NodeTypes.CALLNODE) {
-        //                    an = ((CallNode)call).getArgsNode();
-        //                }
-        //                if (an != null && index < an.childNodes().size() &&
-        //                        ((Node)an.childNodes().get(index)).nodeId == NodeTypes.HASHNODE) {
-        //                    // We should stay within the hashnode, so counteract the
-        //                    // index++ which follows this if-block
-        //                    index--;
-        //                }
-
-        // Adjust the index to account for our removed
-        // comma
-        index += 1
-      }
-
-      if (call == null || index == -1) {
-        callLineStart = -1
-        callMethod = null
-        return false
-      } else if (targetMethod == null) {
-        // Look up the
-        // See if we can find the method corresponding to this call
-
-        //targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
-        if (targetMethod == null) {
-          return false
-        }
-      }
-
-      callLineStart = currentLineStart
-      callMethod = targetMethod
-
-      methodHolder(0) = callMethod
-      parameterIndexHolder(0) = index
-
-      if (anchorOffset == -1 && call.idToken.isDefined) {
-        anchorOffset = call.idToken.get.offset(th) // TODO - compute
-
-      }
-      anchorOffsetHolder(0) = anchorOffset
-    } catch {
-      case ble: BadLocationException => Exceptions.printStackTrace(ble); return false
-    }
-
-    true
-  }
-
-
-
-  def completeSymbolMembers(item: AstItem, proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
-    val sym = item.symbol.asInstanceOf[Symbol]
-    //        if (symbol.nameString().equals("<none>")) {
-    //            // this maybe an object, which can not be resolved by scala's compiler
-    //            symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
-    //        }
-
-    // * use explict assigned `resultType` first
-    val resType = item.resultType match {
-      case null => getResultType(sym.tpe)
-      case x => x.asInstanceOf[Type]
-    }
-    //val resType = if (sym == NoSymbol || tpe == ErrorType) {
-    //  item.resultType.asInstanceOf[Type]
-    //} else getResultType(sym.tpe)
-
-    if (resType == null) {
-      return false
-    }
-
-    try {
-      val members = resType.members
-      for (member <- members if startsWith(member.nameString, prefix) && !member.isConstructor) {
-        var element:  ScalaElement = null
-        var proposal: CompletionProposal = null
-        if (!member.hasFlag(Flags.PRIVATE)) {
-          if (member.isMethod) {
-            element  = ScalaElement(member, info)
-            proposal = FunctionProposal(element, this)
-          } else if (member.isVariable) {
-          } else if (member.isValue) {
-            element  = ScalaElement(member, info)
-            proposal = PlainProposal(element, this)
-          } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
-            element  = ScalaElement(member, info)
-            proposal = PlainProposal(element, this)
-          } 
-        }
-
-        if (proposal != null) {
-          val resTypeSymbol = resType.typeSymbol
-          val inherited = ScalaUtil.isInherited(resTypeSymbol, member)
-          element.setInherited(inherited)
-
-          proposals.add(proposal)
-        }
-      }
-    } catch {
-      case ex: AssertionError =>
-        // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
-        ScalaGlobal.reset(global)
-    }
-
-    true
-  }
-
-  private def getResultType(tpe: Type): Type = {
-    tpe.resultType match {
-      case x: MethodType => x
-      case x => x
-    }
-  }
-
-  def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th:TokenHierarchy[_], call: Call , times: Int): Unit = {
-    assert(rootScope != null)
-
-    val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
-    var idToken = if (closest.get.id == ScalaTokenId.Dot) {
-      call.caretAfterDot = true
-      // skip RParen if it's the previous
-      if (ts.movePrevious) {
-        ScalaLexUtil.findPreviousNoWs(ts) match {
-          case None =>
-          case Some(prev) => prev.id match {
-              case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
-              case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
-              case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-              case _ =>
-            }
-        }
-      }
-
-      ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
-    } else if (CALL_IDs.contains(closest.get.id)) {
-      closest
-    } else None
-
-    if (idToken.isDefined) {
-      val items = rootScope.findItemsAt(th, idToken.get.offset(th))
-      val item = items.find{_.resultType != null} match {
-        case Some(x) => Some(x)
-        case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
-            case Some(x) => Some(x)
-            case None => if (items.isEmpty) None else Some(items.head)
-          }
-      }
-
-      if (times == 0) {
-        if (call.caretAfterDot) {
-          call.base = item
-          return
-        }
-
-        val prev = if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousNoWsNoComment(ts)
-        } else None
-        
-        prev match {
-          case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
-            call.caretAfterDot = true
-            call.select = Some(idToken.get.text.toString)
-            findCall(rootScope, ts, th, call, times + 1)
-          case _ =>
-            call.base = item
-            return
-        }
-      } else {
-        call.base = item
-        return
-      }
-    }
-
-    return
-  }
-
-}

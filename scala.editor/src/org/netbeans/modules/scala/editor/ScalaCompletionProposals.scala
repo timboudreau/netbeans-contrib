@@ -51,7 +51,7 @@ import org.openide.util.Exceptions
  */
 trait ScalaCompletionProposals {self: ScalaGlobal =>
   
-  abstract class ScalaCompletionProposal(element: ScalaElement, request: CompletionRequest) extends CompletionProposal {
+  abstract class ScalaCompletionProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
       request.anchor
@@ -144,7 +144,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  case class FunctionProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class FunctionProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     private val methodType: Type = element.symbol.tpe
 
@@ -289,7 +289,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     private val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
 
   }
-  case class KeywordProposal(keyword: String, description: String, request: CompletionRequest) extends ScalaCompletionProposal(null, request) {
+  case class KeywordProposal(keyword: String, description: String, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(null, request) {
     import KeywordProposal._
 
     override def getName: String = {
@@ -337,9 +337,9 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
  
-  case class PlainProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {}
+  case class PlainProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {}
 
-  case class PackageItem(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class PackageItem(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
       ElementKind.PACKAGE
@@ -371,7 +371,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  class TypeProposal(element: ScalaElement, request: CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  class TypeProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
       ElementKind.CLASS
