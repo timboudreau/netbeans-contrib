@@ -47,6 +47,8 @@ import org.netbeans.modules.parsing.spi.{Parser, Scheduler, SchedulerEvent}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
+import scala.tools.nsc.symtab.Flags
+
 /**
  *
  * @author Caoyuan Deng
@@ -147,46 +149,36 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
           val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)
           item match {
             case dfn: ScalaDfns#ScalaDfn =>
-              dfn.getKind match {
-                case ElementKind.MODULE =>
+              dfn.symbol match {
+                case sym if sym.isModule =>
                   highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                case ElementKind.CLASS =>
+                case sym if sym.isClass =>
                   highlights.put(hiRange, ColoringAttributes.CLASS_SET)
-                case ElementKind.METHOD =>
+                case sym if sym.isMethod =>
                   highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                  //                case ElementKind.FIELD =>
-                  //                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
                 case _ =>
               }
-            case ref: ScalaRefs#ScalaRef => ref.getKind match {
-                case ElementKind.CLASS =>
+            case ref: ScalaRefs#ScalaRef =>
+              ref.symbol match {
+                case sym if sym.isClass =>
                   highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                case ElementKind.MODULE =>
+                case sym if sym.isModule =>
                   highlights.put(hiRange, ColoringAttributes.GLOBAL_SET)
-                case ElementKind.CALL =>
-                  try {
-                    val sym = ref.symbol
-                    sym.tpe match {
-                      // @todo doesn't work yet
-                      //case _:Types#ImplicitMethodType => highlights.put(hiRange, IMPLICIT_METHOD)
-                      case _ =>
-                        val symbolName = sym.nameString
-                        if (symbolName.equals("apply") || symbolName.startsWith("unapply")) {
-                          highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                        } else {
-                          highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                        }
-                    }
-                  } catch {
-                    case t:Throwable =>
+                case sym if sym.isConstructor =>
+                  highlights.put(hiRange, ColoringAttributes.STATIC_SET)
+                case sym if sym.isMethod  =>
+                  if (ref.getKind == ElementKind.RULE) {
+                    // * implicit call
+                    highlights.put(hiRange, IMPLICIT)
+                  } else {
+                    highlights.put(hiRange, ColoringAttributes.FIELD_SET)
                   }
-                case ElementKind.RULE =>
-                  // * implicit call
+                case sym if sym.hasFlag(Flags.IMPLICIT) =>
                   highlights.put(hiRange, IMPLICIT)
                 case _ =>
               }
           }
-          
+
           if (item.getModifiers.contains(Modifier.DEPRECATED)) {
             highlights.put(hiRange, DEPRECATED)
           }

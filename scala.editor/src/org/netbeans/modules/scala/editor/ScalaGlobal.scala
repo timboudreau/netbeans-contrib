@@ -515,11 +515,11 @@ object ScalaGlobal {
 }
 
 class ScalaGlobal(settings: Settings) extends Global(settings, null)
-with ScalaDfns
-with ScalaRefs
-with ScalaElements
-with ScalaCompletionProposals
-with ScalaUtils {
+                                         with ScalaDfns
+                                         with ScalaRefs
+                                         with ScalaElements
+                                         with ScalaCompletionProposals
+                                         with ScalaUtils {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
