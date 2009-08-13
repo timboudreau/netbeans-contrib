@@ -101,9 +101,9 @@ object ScalaGlobal {
   // a source group type for separate scala source roots, as seen in maven projects for example.
   private val SOURCES_TYPE_SCALA = "scala" //NOI18N
 
-  private val projectToDirs = new WeakHashMap[Project, Reference[SrcOutDirs]]
-  private val projectToGlobal = new WeakHashMap[Project, Reference[ScalaGlobal]]
-  private val projectToGlobalForTest = new WeakHashMap[Project, Reference[ScalaGlobal]]
+  private val projectToDirs = new WeakHashMap[Project, SrcOutDirs]
+  private val projectToGlobal = new WeakHashMap[Project, ScalaGlobal]
+  private val projectToGlobalForTest = new WeakHashMap[Project, ScalaGlobal]
   private var globalForStdLib: Option[ScalaGlobal] = None
 
   private val dummyReport = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
@@ -137,28 +137,18 @@ object ScalaGlobal {
     val dirs = projectToDirs.get(project) match {
       case null =>
         val dirsx = findDirResources(project)
-        projectToDirs.put(project, new WeakReference(dirsx))
+        projectToDirs.put(project, dirsx)
         dirsx
-      case ref =>
-        ref.get match {
-          case null =>
-            val dirsx = findDirResources(project)
-            projectToDirs.put(project, new WeakReference(dirsx))
-            dirsx
-          case x => x
-        }
+      case x => x
     }
 
     // * is this `fo` under test source?
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
-    val globalRef = if (forTest) projectToGlobalForTest.get(project) else projectToGlobal.get(project)
-    if (globalRef != null) {
-      globalRef.get match {
-        case null =>
-        case global => return global
-      }
+    val existGlobal = if (forTest) projectToGlobalForTest.get(project) else projectToGlobal.get(project)
+    if (existGlobal != null) {
+      return existGlobal
     }
 
     val settings = new Settings
@@ -223,7 +213,7 @@ object ScalaGlobal {
     val global = new ScalaGlobal(settings)
 
     if (forTest) {
-      projectToGlobalForTest.put(project, new WeakReference(global))
+      projectToGlobalForTest.put(project, global)
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
@@ -273,7 +263,7 @@ object ScalaGlobal {
         visited += out
       }
     } else {
-      projectToGlobal.put(project, new WeakReference(global))
+      projectToGlobal.put(project, global)
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
