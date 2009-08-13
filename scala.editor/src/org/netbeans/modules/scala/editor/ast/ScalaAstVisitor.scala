@@ -267,7 +267,7 @@ abstract class ScalaAstVisitor {
         }
         
         def nodeinfo(tree: Tree): String =
-        if (infolevel == InfoLevel.Quiet) ""
+          if (infolevel == InfoLevel.Quiet) ""
         else {
           val buf = new StringBuilder(" // sym=" + tree.symbol)
           if (tree.hasSymbol) {
@@ -508,8 +508,8 @@ abstract class ScalaAstVisitor {
             }
 
             //* is this tree marked as select type error? if so, the qualifier may be below type
+            //* @Note: since `selectTypeErrors` are gathered upon `Select` tree, this detecting should happen here only
             qualiferMaybeType = global.selectTypeErrors.get(tree)
-              
 
             println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)

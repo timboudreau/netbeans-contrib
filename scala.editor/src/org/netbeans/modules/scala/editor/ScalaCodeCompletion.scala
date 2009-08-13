@@ -200,12 +200,6 @@ object ScalaCodeCompletion {
     var callLineStart = -1
     var callMethod: ExecutableElement = _
 
-    private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
-                                             ScalaTokenId.This,
-                                             ScalaTokenId.Super,
-                                             ScalaTokenId.Class,
-                                             ScalaTokenId.Wild)
-
     private val JSDOC_WORDS = Array("@augments",
                                     "@class",
                                     "@config",
@@ -240,11 +234,9 @@ object ScalaCodeCompletion {
     val global: ScalaGlobal
     import global._
 
-    class Call {
-      var base: Option[AstItem] = None
-      var select: Option[String] = None
-      var caretAfterDot: Boolean = _
-    }
+    private object resolver extends {
+      val global = CompletionRequest.this.global
+    } with ScalaSymbolResolver
 
     var caseSensitive: Boolean = _
     var completionResult: DefaultCompletionResult = _
@@ -517,7 +509,7 @@ object ScalaCodeCompletion {
 
     def completeImport(proposals: java.util.List[CompletionProposal]): Boolean = {
       val fqnPrefix = prefix match {
-        case null => ""
+        case null => return false
         case x => x
       }
 
@@ -526,16 +518,32 @@ object ScalaCodeCompletion {
         case Some(x) => x
       }
 
-
-      val typeElems = cpInfo.getClassIndex.getDeclaredTypes(fqnPrefix, NameKind.SIMPLE_NAME,
-                                                            java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
-      val itr = typeElems.iterator
-      while (itr.hasNext) {
-        val elem = itr.next
-        val element  = JavaElement(elem)
-        val proposal = PlainProposal(element, this)
-        proposals.add(proposal)
+      val lastDot = fqnPrefix.lastIndexOf('.')
+      val (fulledPath, lastPart) =  if (lastDot == -1) {
+        (fqnPrefix, "")
+      } else if (lastDot == fqnPrefix.length - 1) {
+        (fqnPrefix.substring(0, lastDot), "")
+      } else {
+        (fqnPrefix.substring(0, lastDot), fqnPrefix.substring(lastDot + 1, fqnPrefix.length))
       }
+
+      resolver.resolveQualifieredName("", fulledPath) match {
+        case None => false
+        case Some(x) =>
+          prefix = lastPart
+          completeSymbolMembers(x, proposals)
+      }
+
+
+      //      val typeElems = cpInfo.getClassIndex.getDeclaredTypes(fqnPrefix, NameKind.SIMPLE_NAME,
+      //                                                            java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
+      //      val itr = typeElems.iterator
+      //      while (itr.hasNext) {
+      //        val elem = itr.next
+      //        val jElement = JavaElement(elem)
+      //        val proposal = PlainProposal(jElement, this)
+      //        proposals.add(proposal)
+      //      }
       
       /*_
        for (GsfElement gsfElement : request.index.getPackagesAndContent(fqnPrefix, request.kind)) {
@@ -547,7 +555,7 @@ object ScalaCodeCompletion {
        }
        }
        */
-      true
+      //true
     }
 
     /** Compute the current method call at the given offset. Returns false if we're not in a method call.
@@ -719,23 +727,14 @@ object ScalaCodeCompletion {
       true
     }
 
-
-
-    def completeSymbolMembers(item: AstItem, proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+    def completeSymbolMembers(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
       val sym = item.symbol.asInstanceOf[Symbol]
-      //        if (symbol.nameString().equals("<none>")) {
-      //            // this maybe an object, which can not be resolved by scala's compiler
-      //            symbol = ErrorRecoverGlobal.resolveObject(global.settings(), pResult, doc, call.base);
-      //        }
 
       // * use explict assigned `resultType` first
       val resType = item.resultType match {
         case null => getResultType(sym.tpe)
         case x => x.asInstanceOf[Type]
       }
-      //val resType = if (sym == NoSymbol || tpe == ErrorType) {
-      //  item.resultType.asInstanceOf[Type]
-      //} else getResultType(sym.tpe)
 
       if (resType == null) {
         return false
@@ -784,70 +783,7 @@ object ScalaCodeCompletion {
       }
     }
 
-    def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th:TokenHierarchy[_], call: Call , times: Int): Unit = {
-      assert(rootScope != null)
-
-      val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
-      var idToken = if (closest.get.id == ScalaTokenId.Dot) {
-        call.caretAfterDot = true
-        // skip RParen if it's the previous
-        if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousNoWs(ts) match {
-            case None =>
-            case Some(prev) => prev.id match {
-                case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
-                case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
-                case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-                case _ =>
-              }
-          }
-        }
-
-        ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
-      } else if (CALL_IDs.contains(closest.get.id)) {
-        closest
-      } else None
-
-      if (idToken.isDefined) {
-        val items = rootScope.findItemsAt(th, idToken.get.offset(th))
-        val item = items.find{_.resultType != null} match {
-          case Some(x) => Some(x)
-          case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
-              case Some(x) => Some(x)
-              case None => if (items.isEmpty) None else Some(items.head)
-            }
-        }
-
-        if (times == 0) {
-          if (call.caretAfterDot) {
-            call.base = item
-            return
-          }
-
-          val prev = if (ts.movePrevious) {
-            ScalaLexUtil.findPreviousNoWsNoComment(ts)
-          } else None
-
-          prev match {
-            case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
-              call.caretAfterDot = true
-              call.select = Some(idToken.get.text.toString)
-              findCall(rootScope, ts, th, call, times + 1)
-            case _ =>
-              call.base = item
-              return
-          }
-        } else {
-          call.base = item
-          return
-        }
-      }
-
-      return
-    }
-
   }
-
 }
 
 class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters {
@@ -967,8 +903,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         request.root = root
         request.node = closestOpt
 
-        val call = new request.Call
-        request.findCall(root, ts, th, call, 0)
+        val call = new request.global.Call
+        request.global.findCall(root, ts, th, call, 0)
         for (base <- call.base) {
           call.select foreach {x => request.prefix = x}
           if (base.symbol != null) {
@@ -992,7 +928,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         case Nil =>
         case importPrefixs =>
           val sb = new StringBuilder
-          for (prefix <- importPrefixs) {
+          for (prefix <- importPrefixs.reverse) {
             sb.append(prefix.text.toString.trim)
           }
 

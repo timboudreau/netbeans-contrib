@@ -251,34 +251,35 @@ object ScalaSourceUtil {
     }
   }
 
-  val scalaFileToSource = new _root_.java.util.WeakHashMap[FileObject, Reference[Source]]
-  val scalaFileToCompilationInfo = new _root_.java.util.WeakHashMap[FileObject, Reference[Parser.Result]]
+  val scalaFileToSource = new java.util.WeakHashMap[FileObject, Reference[Source]]
+  val scalaFileToParserResult = new java.util.WeakHashMap[FileObject, Reference[Parser.Result]]
 
-  def getCompilationInfoForScalaFile(fo: FileObject): Parser.Result = {
-    var info: Parser.Result = scalaFileToCompilationInfo.get(fo) match {
+  def getParserResultForScalaFile(fo: FileObject): Option[Parser.Result] = {
+    var info: Parser.Result = scalaFileToParserResult.get(fo) match {
       case null => null
-      case ref => ref.get
+      case ref => ref.get match {
+          case null => null
+          case x => x
+        }
     }
 
     if (info == null) {
       val pResults = new Array[Parser.Result](1)
       val source = getSourceForScalaFile(fo)
       try {
-        ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
+        ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
             @throws(classOf[Exception])
             override def run(resultIterator: ResultIterator): Unit = {
               pResults(0) = resultIterator.getParserResult
             }
           })
-      } catch {
-        case ex:ParseException => Exceptions.printStackTrace(ex)
-      }
+      } catch {case ex:ParseException => Exceptions.printStackTrace(ex)}
 
       info = pResults(0)
-      scalaFileToCompilationInfo.put(fo, new WeakReference[Parser.Result](info))
+      scalaFileToParserResult.put(fo, new WeakReference[Parser.Result](info))
     }
 
-    info
+    if (info == null) None else Some(info)
   }
 
   /**

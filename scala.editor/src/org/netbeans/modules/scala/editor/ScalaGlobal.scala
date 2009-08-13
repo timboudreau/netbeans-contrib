@@ -63,8 +63,7 @@ import scala.tools.nsc.{Phase, Settings}
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.io.AbstractFile
-import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.reporters.Reporter
+import scala.tools.nsc.reporters.{Reporter}
 import scala.tools.nsc.util.{Position, SourceFile}
 
 /**
@@ -577,9 +576,7 @@ class ScalaGlobal(settings: Settings) extends Global(settings, null)
       case ex: Throwable => // just ignore all ex
     }
 
-    if (ScalaGlobal.debug) {
-      println("selectTypeErrors:" + selectTypeErrors)
-    }
+    println("selectTypeErrors:" + selectTypeErrors)
 
     val units = run.units
     while (units.hasNext) {
