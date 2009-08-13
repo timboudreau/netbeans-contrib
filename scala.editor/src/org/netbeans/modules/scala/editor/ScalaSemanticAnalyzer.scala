@@ -56,7 +56,7 @@ import scala.tools.nsc.symtab.Flags
 class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
   private var cancelled: Boolean = _
-  private var semanticHighlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = _
+  private var semanticHighlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]] = _
 
   protected final def isCancelled: Boolean = synchronized {
     cancelled
@@ -66,7 +66,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     cancelled = false
   }
 
-  override def getHighlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]] = {
+  override def getHighlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]] = {
     semanticHighlights
   }
 
@@ -108,7 +108,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
       return
     }
 
-    val highlights = new _root_.java.util.HashMap[OffsetRange, _root_.java.util.Set[ColoringAttributes]](100)
+    val highlights = new java.util.HashMap[OffsetRange, java.util.Set[ColoringAttributes]](100)
     //visitScopeRecursively(doc, th, rootScope, highlights);
     visitItems(th, rootScope, highlights)
 
@@ -129,21 +129,20 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     } else null
   }
 
-  val DEPRECATED = new _root_.java.util.HashSet[ColoringAttributes]
+  val DEPRECATED = new java.util.HashSet[ColoringAttributes]
   DEPRECATED.add(ColoringAttributes.DEPRECATED)
-  val IMPLICIT = new _root_.java.util.HashSet[ColoringAttributes]
+  val IMPLICIT = new java.util.HashSet[ColoringAttributes]
   IMPLICIT.add(ColoringAttributes.INTERFACE)
 
   private def visitItems(th: TokenHierarchy[_], rootScope: ScalaRootScope,
-                         highlights: _root_.java.util.Map[OffsetRange, _root_.java.util.Set[ColoringAttributes]]): Unit =
-  {
+                         highlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]]): Unit = {
     for (items <- rootScope.idTokenToItems(th).valuesIterator;
          item <- items;
          idToken <- item.idToken;
          name = item.getName;
          if name != "this" && name != "super")
     {
-      // token may be xml tokens, @see AstVisit#getTokenId
+      // * token may be xml tokens, @see AstVisit#getTokenId
       idToken.id match {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>
           val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)

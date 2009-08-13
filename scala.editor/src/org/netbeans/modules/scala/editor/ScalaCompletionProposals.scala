@@ -42,8 +42,10 @@ package org.netbeans.modules.scala.editor
 import javax.swing.ImageIcon
 import javax.swing.text.BadLocationException
 import org.netbeans.editor.Utilities
-import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier}
-import org.openide.util.Exceptions
+import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier,OffsetRange}
+import org.netbeans.modules.csl.spi.ParserResult
+import org.openide.filesystems.FileObject
+import org.openide.util.{Exceptions, ImageUtilities}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 
@@ -55,7 +57,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
   object ScalaCompletionProposal {
     val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png" //NOI18N
-    val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
+    val keywordIcon = ImageUtilities.loadImageIcon(KEYWORD, false)
   }
 
   abstract class ScalaCompletionProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
@@ -248,25 +250,19 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         return sb.toString
       }
 
-      val startDelimiter = "("
-      val endDelimiter = ")"
-
-      sb.append(startDelimiter)
+      sb.append("(")
 
       var id = 1
       val itr = params.iterator
       while (itr.hasNext) {
         val paramDesc = itr.next
         sb.append("${") //NOI18N
-        // Ensure that we don't use one of the "known" logical parameters
-        // such that a parameter like "path" gets replaced with the source file
-        // path!
 
-        sb.append("js-cc-") // NOI18N
+        sb.append("scala-cc-") // NOI18N
         id += 1
         sb.append(id)
+        
         sb.append(" default=\"") // NOI18N
-
         val typeIndex = paramDesc.indexOf(':')
         if (typeIndex != -1) {
           sb.append(paramDesc.toArray, 0, typeIndex)
@@ -281,8 +277,8 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           sb.append(", ") //NOI18N
         }
       }
-      sb.append(endDelimiter)
 
+      sb.append(")")
       sb.append("${cursor}") // NOI18N
 
       // Facilitate method parameter completion on this item
@@ -413,25 +409,22 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
   case class PseudoElement(name: String, kind: ElementKind) extends ElementHandle {
-    import org.netbeans.modules.csl.api.OffsetRange
-    import org.netbeans.modules.csl.spi.ParserResult
-    import org.openide.filesystems.FileObject
 
-    def getFileObject :FileObject = null
+    def getFileObject: FileObject = null
 
-    def getMimeType :String = "text/x-scala"
+    def getMimeType: String = "text/x-scala"
 
     def getName :String = name
 
-    def getIn : String = null
+    def getIn: String = null
 
-    def getKind :ElementKind = kind
+    def getKind: ElementKind = kind
 
-    def getModifiers :_root_.java.util.Set[Modifier] = _root_.java.util.Collections.emptySet[Modifier]
+    def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
 
-    def signatureEquals(handle:ElementHandle) :Boolean = false
+    def signatureEquals(handle: ElementHandle): Boolean = false
 
-    def getOffsetRange(result:ParserResult) :OffsetRange = OffsetRange.NONE
+    def getOffsetRange(result: ParserResult): OffsetRange = OffsetRange.NONE
   }
 
 }

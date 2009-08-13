@@ -49,9 +49,9 @@ import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
 import org.netbeans.modules.scala.editor.element.{JavaElements}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
-import _root_.scala.tools.nsc.util.Position
-import _root_.scala.tools.nsc.symtab.Symbols
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.tools.nsc.util.Position
+import scala.tools.nsc.symtab.Symbols
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
@@ -626,9 +626,7 @@ object ScalaSourceUtil {
 
   
   def isMainMethodExists(obj: ScalaDfns#ScalaDfn): Boolean = {
-    obj.symbol.tpe.members exists {
-      member => member.isMethod && isMainMethod(member)
-    }
+    obj.symbol.tpe.members exists {member => member.isMethod && isMainMethod(member)}
   }
 
   /**

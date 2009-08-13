@@ -46,14 +46,8 @@ import org.netbeans.api.java.source.ClassIndex.NameKind
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType
-import org.netbeans.modules.csl.api.{CodeCompletionContext,
-                                     CodeCompletionHandler,
-                                     CodeCompletionResult,
-                                     CompletionProposal,
-                                     ElementHandle,
-                                     HtmlFormatter,
-                                     OffsetRange,
-                                     ParameterInfo}
+import org.netbeans.modules.csl.api.{CodeCompletionContext, CodeCompletionHandler, CodeCompletionResult, CompletionProposal,
+                                     ElementHandle, HtmlFormatter, OffsetRange, ParameterInfo}
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.filesystems.FileObject
@@ -177,6 +171,32 @@ object ScalaCodeCompletion {
   )
 
 
+  private val JSDOC_WORDS = Array("@augments",
+                                  "@class",
+                                  "@config",
+                                  "@constructor",
+                                  "@deprecated",
+                                  "@description",
+                                  "@event",
+                                  "@example",
+                                  "@exception",
+                                  "@fileOverview",
+                                  "@function",
+                                  "@ignore",
+                                  "@inherits",
+                                  "@memberOf",
+                                  "@name",
+                                  "@namespace",
+                                  "@param",
+                                  "@param",
+                                  "@private",
+                                  "@property",
+                                  "@return",
+                                  "@scope",
+                                  "@scope",
+                                  "@static",
+                                  "@type"
+  )
 
   def isJsContext(doc: BaseDocument, offset: Int): Boolean = {
     val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
@@ -199,33 +219,6 @@ object ScalaCodeCompletion {
   object CompletionRequest {
     var callLineStart = -1
     var callMethod: ExecutableElement = _
-
-    private val JSDOC_WORDS = Array("@augments",
-                                    "@class",
-                                    "@config",
-                                    "@constructor",
-                                    "@deprecated",
-                                    "@description",
-                                    "@event",
-                                    "@example",
-                                    "@exception",
-                                    "@fileOverview",
-                                    "@function",
-                                    "@ignore",
-                                    "@inherits",
-                                    "@memberOf",
-                                    "@name",
-                                    "@namespace",
-                                    "@param",
-                                    "@param",
-                                    "@private",
-                                    "@property",
-                                    "@return",
-                                    "@scope",
-                                    "@scope",
-                                    "@static",
-                                    "@type")
-
   }
 
   abstract class CompletionRequest {

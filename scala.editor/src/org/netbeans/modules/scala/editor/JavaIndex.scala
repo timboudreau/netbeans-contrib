@@ -75,11 +75,11 @@ object JavaIndex {
 
   def get(fo: FileObject): Option[JavaIndex] = {
     val index = ScalaSourceUtil.getClasspathInfoForFileObject(fo) match {
-      case None => return None
       case Some(cpInfo) => cpInfo.getClassIndex match {
           case null => return None
           case x => x
         }
+      case None => return None
     }
 
     ScalaSourceUtil.getParserResultForScalaFile(fo) match {
