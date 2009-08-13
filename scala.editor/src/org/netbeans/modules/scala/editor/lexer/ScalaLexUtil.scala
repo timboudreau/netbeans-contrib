@@ -233,7 +233,7 @@ object ScalaLexUtil extends LexUtil {
     }
   }
 
-  def findImportPrefix(th: TokenHierarchy[_], lexOffset: Int): List[Token[_ <: TokenId]] = {
+  def findImportPrefix(th: TokenHierarchy[_], lexOffset: Int): List[Token[TokenId]] = {
     val ts = getTokenSequence(th, lexOffset) match {
       case Some(x) => x
       case None => return Nil
@@ -243,7 +243,7 @@ object ScalaLexUtil extends LexUtil {
     var lbraceMet = false
     var lbraceExpected = false
     var extractBehindComma = false
-    val paths = new ArrayBuffer[Token[_ <: TokenId]]
+    var paths = new ArrayBuffer[Token[TokenId]]
     while (ts.isValid && ts.movePrevious) {
       val token = ts.token
       token.id match {

@@ -576,7 +576,7 @@ class ScalaGlobal(settings: Settings) extends Global(settings, null)
       case ex: Throwable => // just ignore all ex
     }
 
-    println("selectTypeErrors:" + selectTypeErrors)
+    //println("selectTypeErrors:" + selectTypeErrors)
 
     val units = run.units
     while (units.hasNext) {
