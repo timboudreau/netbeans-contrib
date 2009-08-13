@@ -46,7 +46,7 @@ import org.openide.util.{Exceptions, NbBundle}
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
-import org.netbeans.modules.scala.editor.element.{JavaElement}
+import org.netbeans.modules.scala.editor.element.{JavaElements}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import _root_.scala.tools.nsc.util.Position
@@ -300,7 +300,8 @@ object ScalaSourceUtil {
     source
   }
 
-  def getDocComment(info: Parser.Result, element: JavaElement): String = {
+  /** @todo */
+  def getDocComment(info: Parser.Result, element: JavaElements#JavaElement): String = {
     if (info == null) {
       return null
     }
@@ -313,7 +314,8 @@ object ScalaSourceUtil {
     val th = info.getSnapshot.getTokenHierarchy
 
     doc.readLock // Read-lock due to token hierarchy use
-    val range = ScalaLexUtil.getDocumentationRange(th, element.getBoundsOffset(th))
+    val offset = 0//element.getBoundsOffset(th)
+    val range = ScalaLexUtil.getDocumentationRange(th, offset)
     doc.readUnlock
 
     if (range.getEnd < doc.getLength) {
@@ -348,13 +350,15 @@ object ScalaSourceUtil {
     ""
   }
 
-  def getOffset(info: Parser.Result, element: JavaElement): Int = {
+  /** @todo */
+  def getOffset(info: Parser.Result, element: JavaElements#JavaElement): Int = {
     if (info == null) {
       return -1
     }
 
     val th = info.getSnapshot.getTokenHierarchy
-    element.getPickOffset(th)
+    //element.getPickOffset(th)
+    return -1
   }
 
   def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {

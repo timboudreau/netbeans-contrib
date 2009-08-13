@@ -147,6 +147,7 @@ class FixImportsHelper {
 
           val candidate = new ImportCandidate(missingClass, fqnName, icon, level)
           result = candidate :: result
+        case _ =>
       }
 
     }

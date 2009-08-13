@@ -55,7 +55,7 @@ import org.openide.util.{Exceptions, RequestProcessor}
 
 import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
-import org.netbeans.modules.scala.editor.element.{ScalaElements}
+import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -514,6 +514,7 @@ class ScalaGlobal(settings: Settings) extends Global(settings, null)
                                          with ScalaDfns
                                          with ScalaRefs
                                          with ScalaElements
+                                         with JavaElements
                                          with ScalaCompletionProposals
                                          with ScalaUtils {
 

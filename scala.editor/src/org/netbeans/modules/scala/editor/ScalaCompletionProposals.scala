@@ -45,13 +45,15 @@ import org.netbeans.editor.Utilities
 import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier}
 import org.openide.util.Exceptions
 
+import org.netbeans.api.language.util.ast.{AstElementHandle}
+
 /**
  *
  * @author Caoyuan Deng
  */
 trait ScalaCompletionProposals {self: ScalaGlobal =>
   
-  abstract class ScalaCompletionProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
+  abstract class ScalaCompletionProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
       request.anchor
@@ -108,17 +110,21 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     override def getRhsHtml(formatter: HtmlFormatter): String = {
-      val symbol = element.symbol
+      element match {
+        case x: ScalaElement =>
+          val sym = x.symbol
 
-      formatter.`type`(true)
-      val retType =  try {
-        symbol.tpe.resultType
-      } catch {case ex: Throwable => ScalaGlobal.reset(self); null}
-    
-      if (retType != null && !symbol.isConstructor) {
-        formatter.appendText(ScalaUtil.typeToString(retType))
+          formatter.`type`(true)
+          val retType =  try {
+            sym.tpe.resultType
+          } catch {case ex: Throwable => ScalaGlobal.reset(self); null}
+
+          if (retType != null && !sym.isConstructor) {
+            formatter.appendText(ScalaUtil.typeToString(retType))
+          }
+          formatter.`type`(false)
+        case _ =>
       }
-      formatter.`type`(false)
 
       formatter.getText
     }
@@ -253,7 +259,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
         sb.append("js-cc-") // NOI18N
         id += 1
-        sb.append(Integer.toString(id))
+        sb.append(id)
         sb.append(" default=\"") // NOI18N
 
         val typeIndex = paramDesc.indexOf(':')
@@ -323,8 +329,8 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       keywordIcon
     }
 
-    override def getModifiers: _root_.java.util.Set[Modifier] = {
-      return _root_.java.util.Collections.emptySet[Modifier]
+    override def getModifiers: java.util.Set[Modifier] = {
+      return java.util.Collections.emptySet[Modifier]
     }
 
     override def getElement: ElementHandle = {
@@ -337,9 +343,9 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
  
-  case class PlainProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {}
+  case class PlainProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {}
 
-  case class PackageItem(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class PackageItem(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
       ElementKind.PACKAGE
@@ -371,7 +377,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  class TypeProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  class TypeProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
 
     override def getKind: ElementKind = {
       ElementKind.CLASS
@@ -406,7 +412,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  case class PseudoElement(name:String, kind:ElementKind) extends ElementHandle {
+  case class PseudoElement(name: String, kind: ElementKind) extends ElementHandle {
     import org.netbeans.modules.csl.api.OffsetRange
     import org.netbeans.modules.csl.spi.ParserResult
     import org.openide.filesystems.FileObject

@@ -41,6 +41,8 @@ package org.netbeans.modules.scala.editor
 
 import javax.lang.model.element.{ElementKind, ExecutableElement}
 import javax.swing.text.{BadLocationException, Document, JTextComponent}
+import org.netbeans.api.java.source.ClassIndex
+import org.netbeans.api.java.source.ClassIndex.NameKind
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType
@@ -64,8 +66,8 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
 import org.netbeans.modules.scala.editor.rats.ParserScala
 
-import _root_.scala.tools.nsc.Global
-import _root_.scala.tools.nsc.symtab.Flags
+import scala.tools.nsc.Global
+import scala.tools.nsc.symtab.Flags
 
 /**
  * Code completion handler for JavaScript
@@ -273,7 +275,7 @@ object ScalaCodeCompletion {
     }
 
 
-    def completeKeywords(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
+    def completeKeywords(proposals: java.util.List[CompletionProposal]): Unit = {
       // No keywords possible in the RHS of a call (except for "this"?)
       //        if (request.call.getLhs() != null) {
       //            return;
@@ -289,7 +291,7 @@ object ScalaCodeCompletion {
     }
 
     @throws(classOf[BadLocationException])
-    def completeComments(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+    def completeComments(proposals: java.util.List[CompletionProposal]): Boolean = {
       val rowStart = Utilities.getRowFirstNonWhite(doc, lexOffset)
       if (rowStart == -1) {
         return false
@@ -323,7 +325,7 @@ object ScalaCodeCompletion {
       true
     }
 
-    def addLocals(proposals: _root_.java.util.List[CompletionProposal]): Unit = {
+    def addLocals(proposals: java.util.List[CompletionProposal]): Unit = {
       val root = result.rootScope match {
         case Some(x) => x
         case None => return
@@ -370,7 +372,7 @@ object ScalaCodeCompletion {
     /** Determine if we're trying to complete the name for a "new" (in which case
      * we show available constructors.
      */
-    def completeNew(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+    def completeNew(proposals: java.util.List[CompletionProposal]): Boolean = {
       //val index = request.index;
 
       val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
@@ -513,11 +515,28 @@ object ScalaCodeCompletion {
       false
     }
 
-    def completeImport(proposals: _root_.java.util.List[CompletionProposal]): Boolean = {
+    def completeImport(proposals: java.util.List[CompletionProposal]): Boolean = {
       val fqnPrefix = prefix match {
         case null => ""
         case x => x
       }
+
+      val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fileObject) match {
+        case None => return false
+        case Some(x) => x
+      }
+
+
+      val typeElems = cpInfo.getClassIndex.getDeclaredTypes(fqnPrefix, NameKind.SIMPLE_NAME,
+                                                            java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
+      val itr = typeElems.iterator
+      while (itr.hasNext) {
+        val elem = itr.next
+        val element  = JavaElement(elem)
+        val proposal = PlainProposal(element, this)
+        proposals.add(proposal)
+      }
+      
       /*_
        for (GsfElement gsfElement : request.index.getPackagesAndContent(fqnPrefix, request.kind)) {
        IndexedElement element = (IndexedElement) gsfElement.getElement();
@@ -859,7 +878,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
       case x => x.asInstanceOf[BaseDocument]
     }
 
-    val proposals = new _root_.java.util.ArrayList[CompletionProposal]
+    val proposals = new java.util.ArrayList[CompletionProposal]
     val completionResult = new DefaultCompletionResult(proposals, false)
 
     val pResult = info.asInstanceOf[ScalaParserResult]

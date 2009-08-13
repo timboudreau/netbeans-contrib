@@ -39,7 +39,7 @@
 
 package org.netbeans.modules.scala.editor.element
 
-import _root_.java.io.{File, IOException}
+import java.io.{File, IOException}
 import javax.lang.model.element.Element
 import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.TokenHierarchy
@@ -49,9 +49,9 @@ import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.Exceptions
 
-import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
-import _root_.scala.tools.nsc.util.BatchSourceFile
-import _root_.scala.tools.nsc.symtab.{Flags}
+import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.util.BatchSourceFile
+import scala.tools.nsc.symtab.{Flags}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 import org.netbeans.modules.scala.editor.{JavaSourceUtil, ScalaGlobal, ScalaParserResult, ScalaSourceUtil, ScalaMimeResolver}
