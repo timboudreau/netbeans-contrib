@@ -928,20 +928,10 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         case Nil =>
         case importPrefixs =>
           val sb = new StringBuilder
-          for (prefix <- importPrefixs.reverse) {
+          for (prefix <- importPrefixs) {
             sb.append(prefix.text.toString.trim)
           }
 
-          /** @todo, we may get a lot of "error: error while loading TopScope$ ....... " likeness when try to get pkgSymbol's members
-           int lastDot = sb.lastIndexOf(".");
-           String pkgQName = lastDot == -1 ? sb.toString() : sb.substring(0, lastDot);
-           Symbol pkgSymbol = ErrorRecoverGlobal.resolvePackage(global.settings(), pResult, doc, pkgQName);
-           if (pkgSymbol != null) {
-           request.prefix = lastDot == -1 ? "" : sb.substring(lastDot + 1, sb.length());
-           completeSymbolMembers(pkgSymbol, proposals, request);
-           return completionResult;
-           }
-           */
           request.prefix = sb.toString
           request.completeImport(proposals)
           return completionResult

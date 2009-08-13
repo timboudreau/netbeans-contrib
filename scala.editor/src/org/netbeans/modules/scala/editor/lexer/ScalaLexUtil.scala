@@ -249,8 +249,8 @@ object ScalaLexUtil extends LexUtil {
       token.id match {
         case ScalaTokenId.Import =>
           if (!lbraceExpected || lbraceExpected && lbraceMet) {
-            paths.reverse
-            return paths.toList
+            // * since we are looking forward, should reverse the final result
+            return paths.reverse.toList
           }
         case ScalaTokenId.Dot =>
           paths += token
@@ -258,12 +258,12 @@ object ScalaLexUtil extends LexUtil {
           paths += token
         case ScalaTokenId.LBrace =>
           if (lbraceMet) {
-            // we can only meet LBrace once
+            // * we can only meet LBrace once
             return Nil
           }
           lbraceMet = true
-          if (paths.size > 0) {
-            // keep first met id token only
+          if (!paths.isEmpty) {
+            // * keep first met idToken only
             val idToken = paths(0)
             paths.clear
             if (!extractBehindComma) {

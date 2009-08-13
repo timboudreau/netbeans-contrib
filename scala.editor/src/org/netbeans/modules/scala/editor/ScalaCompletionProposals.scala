@@ -52,7 +52,12 @@ import org.netbeans.api.language.util.ast.{AstElementHandle}
  * @author Caoyuan Deng
  */
 trait ScalaCompletionProposals {self: ScalaGlobal =>
-  
+
+  object ScalaCompletionProposal {
+    val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png" //NOI18N
+    val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
+  }
+
   abstract class ScalaCompletionProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
@@ -290,11 +295,6 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  object KeywordProposal {
-    private val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png" //NOI18N
-    private val keywordIcon: ImageIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD))
-
-  }
   case class KeywordProposal(keyword: String, description: String, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(null, request) {
     import KeywordProposal._
 
@@ -326,7 +326,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     override def getIcon: ImageIcon = {
-      keywordIcon
+      ScalaCompletionProposal.keywordIcon
     }
 
     override def getModifiers: java.util.Set[Modifier] = {

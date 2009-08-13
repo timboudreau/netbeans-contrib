@@ -447,9 +447,7 @@ object ScalaGlobal {
             case null => projectDir.createFolder(tmpClasses)
             case x => x
           }
-        } catch {
-          case ex: IOException => Exceptions.printStackTrace(ex)
-        }
+        } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
       }
     }
 
@@ -471,9 +469,7 @@ object ScalaGlobal {
             case _ => FileUtil.toFile(entryRoot)
           }
         } else null
-      } catch {
-        case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null
-      }
+      } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
 
       if (rootFile != null) {
         FileUtil.toFileObject(rootFile).addFileChangeListener(new FileChangeAdapter {
