@@ -625,25 +625,22 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     // --- Compute indent for next line
     
     var nextIndent = 0
-    val (latestOpenBrace, latestOpenId) = if (!openingBraces.isEmpty) {
-      (openingBraces.top, openingBraces.top.token.id)
-    } else (null, null)
+    val latestOpenBrace = if (!openingBraces.isEmpty) {
+      openingBraces.top
+    } else null
 
     // * decide if next line is new or continued continute line
     val isContinueLine = if (latestNoWSToken == null) {
       // * empty line or comment line
       false
     } else {
-
-      if (latestNoWSToken.id == ScalaTokenId.Comma) {
+      if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine) {
         // * we have special case
-        if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine && (latestOpenId == ScalaTokenId.LParen ||
-                                                                          latestOpenId == ScalaTokenId.LBracket ||
-                                                                          latestOpenId == ScalaTokenId.LBrace)) {
-
-          true
-        } else false // default
-      } else false   // default
+        (latestOpenBrace.token.id, latestNoWSToken.id) match {
+          case (ScalaTokenId.LParen | ScalaTokenId.LBracket | ScalaTokenId.LBrace, ScalaTokenId.Comma) => true
+          case _ => false
+        }
+      } else false
     }
 
     if (isContinueLine) {
@@ -665,8 +662,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
         // All braces resolved
         nextIndent = 0
       } else {
-        val offset = latestOpenBrace.offsetOnline
-        nextIndent = latestOpenId match {
+        nextIndent = latestOpenBrace.token.id match {
           case ScalaTokenId.RArrow =>
             var nearestHangableBrace: Brace = null
             var depth1 = 0
@@ -691,11 +687,11 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
             if !latestOpenBrace.isLatestOnLine && (latestOpenBrace.lasestTokenOnLine == null ||
                                                    latestOpenBrace.lasestTokenOnLine.id != ScalaTokenId.RArrow) =>
 
-            offset + latestOpenBrace.token.text.toString.length
+            latestOpenBrace.offsetOnline + latestOpenBrace.token.text.toString.length
 
           case ScalaTokenId.BlockCommentStart | ScalaTokenId.DocCommentStart =>
 
-            offset + 1
+            latestOpenBrace.offsetOnline + 1
 
           case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For | ScalaTokenId.Yield | ScalaTokenId.While =>
 
