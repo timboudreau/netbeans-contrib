@@ -261,7 +261,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
     var token: Token[TokenId] = _
     var offsetOnline: Int = _ // offset of this token on its line after indent
-    var ordinalOnline: Int = _ // ordinal of this token on its line (we only count non-white tokens)
     var isLatestOnLine: Boolean = _ // last one on this line?
     var onProcessingLine: Boolean = _ // on the processing line?
     var lasestTokenOnLine: Token[TokenId] = _ // lastest non-white token on this line
@@ -366,7 +365,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     openingBraces foreach {_.onProcessingLine = false}
     specialBraces foreach {_.onProcessingLine = false}
 
-    //StringBuilder sb = new StringBuilder(); // for debug
+    //val sb = new StringBuilder(); // for debug
     
     // --- Compute new balance and adjust indent (computed by previous `computeLineIndent`) of this line
 
@@ -460,7 +459,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                     newBrace.token = token
                     // will add indent of this line to offsetOnline later
                     newBrace.offsetOnline = offset - lineBegin
-                    newBrace.ordinalOnline = noWSIdx
                     newBrace.onProcessingLine = true
                     specialBraces push newBrace
                   case _ =>
@@ -486,7 +484,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                     newBrace.token = token
                     // will add indent of this line to offsetOnline later
                     newBrace.offsetOnline = offset - lineBegin
-                    newBrace.ordinalOnline = noWSIdx
                     newBrace.onProcessingLine = true
                     openingBraces push newBrace
                   }
@@ -526,7 +523,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
               newBrace.token = latestNoWSToken
               // will add indent of this line to offsetOnline later
               newBrace.offsetOnline = offset - lineBegin
-              newBrace.ordinalOnline = noWSIdx
               newBrace.onProcessingLine = true
               openingBraces push newBrace
             case ScalaTokenId.RParen =>
@@ -540,7 +536,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                       newBrace.token = x
                       // will add indent of this line to offsetOnline later
                       newBrace.offsetOnline = offset - lineBegin
-                      newBrace.ordinalOnline = noWSIdx
                       newBrace.onProcessingLine = true
                       openingBraces push newBrace
                       
@@ -563,7 +558,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                               newBrace.token = x
                               // will add indent of this line to offsetOnline later
                               newBrace.offsetOnline = offset - lineBegin
-                              newBrace.ordinalOnline = noWSIdx
                               newBrace.onProcessingLine = true
                               openingBraces push newBrace
                             case _ =>
@@ -573,7 +567,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                           newBrace.token = x
                           // will add indent of this line to offsetOnline later
                           newBrace.offsetOnline = offset - lineBegin
-                          newBrace.ordinalOnline = noWSIdx
                           newBrace.onProcessingLine = true
                           openingBraces push newBrace
                       }
@@ -583,7 +576,6 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                       newBrace.token = x
                       // will add indent of this line to offsetOnline later
                       newBrace.offsetOnline = offset - lineBegin
-                      newBrace.ordinalOnline = noWSIdx
                       newBrace.onProcessingLine = true
                       openingBraces push newBrace
                     case _ =>
@@ -608,7 +600,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     // * braces (which should be on this line)
     for (brace <- openingBraces if brace.onProcessingLine) {
       brace.offsetOnline += indent
-      if (brace.ordinalOnline == noWSIdx) {
+      if (brace.token == latestNoWSToken) {
         brace.isLatestOnLine = true
       }
       brace.lasestTokenOnLine = latestNoWSToken
@@ -616,7 +608,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
     for (brace <- specialBraces if brace.onProcessingLine) {
       brace.offsetOnline += indent
-      if (brace.ordinalOnline == noWSIdx) {
+      if (brace.token == latestNoWSToken) {
         brace.isLatestOnLine = true
       }
       brace.lasestTokenOnLine = latestNoWSToken
