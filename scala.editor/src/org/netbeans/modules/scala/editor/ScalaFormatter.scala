@@ -522,7 +522,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
               ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen, ScalaTokenId.RParen)
               ScalaLexUtil.findPreviousNoWsNoComment(ts) match {
                 case Some(x) => x.id match {
-                    case ScalaTokenId.If | ScalaTokenId.For | ScalaTokenId.While =>
+                    case ScalaTokenId.If | ScalaTokenId.For =>
                       val newBrace = new Brace
                       newBrace.token = x
                       // will add indent of this line to offsetOnline later
@@ -641,7 +641,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
             offset + 1
 
-          case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For | ScalaTokenId.While =>
+          case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For =>
             val y = openingBraces.size * indentSize
             // * close this brace initiative
             openingBraces.pop
