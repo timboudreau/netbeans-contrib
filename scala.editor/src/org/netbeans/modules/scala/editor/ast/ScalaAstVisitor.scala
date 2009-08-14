@@ -186,11 +186,11 @@ abstract class ScalaAstVisitor {
           val str = new StringBuilder
           str.append(annot.atp.toString())
           if (!annot.args.isEmpty)
-          str.append(annot.args.mkString("(", ",", ")"))
+            str.append(annot.args.mkString("(", ",", ")"))
           if (!annot.assocs.isEmpty)
-          for (((name, value), index) <- annot.assocs.zipWithIndex) {
+            for (((name, value), index) <- annot.assocs.zipWithIndex) {
             if (index > 0)
-            str.append(", ")
+              str.append(", ")
             str.append(name).append(" = ").append(value)
           }
           str.toString
@@ -272,11 +272,11 @@ abstract class ScalaAstVisitor {
           val buf = new StringBuilder(" // sym=" + tree.symbol)
           if (tree.hasSymbol) {
             if (tree.symbol.isPrimaryConstructor)
-            buf.append(", isPrimaryConstructor")
+              buf.append(", isPrimaryConstructor")
             else if (tree.symbol.isConstructor)
-            buf.append(", isConstructor")
+              buf.append(", isConstructor")
             if (tree.symbol != NoSymbol)
-            buf.append(", sym.owner=" + tree.symbol.owner)
+              buf.append(", sym.owner=" + tree.symbol.owner)
             buf.append(", sym.tpe=" + tree.symbol.tpe)
           }
           buf.append(", tpe=" + tree.tpe)
@@ -291,7 +291,7 @@ abstract class ScalaAstVisitor {
                   !sym.isModuleClass && !sym.isPackageClass &&
                   !sym.hasFlag(JAVA)) {
                 val members = for (m <- tree.tpe.decls.toList)
-                yield m.toString() + ": " + m.tpe + ", "
+                  yield m.toString() + ": " + m.tpe + ", "
                 buf.append(", tpe.decls=" + members)
               }
             }
@@ -641,7 +641,7 @@ abstract class ScalaAstVisitor {
               val n = args.length
               println("  List(")
               for (i <- 0 until n)
-              traverse(args(i), level + 1, i < n-1)
+                traverse(args(i), level + 1, i < n-1)
               println("  )")
             }
             printcln(")")
