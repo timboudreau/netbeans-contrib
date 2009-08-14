@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.mount;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -66,11 +67,7 @@ final class WorkDir {
      * Get the directory to be used for various purposes by this module.
      */
     public static FileObject get() throws IOException {
-        FileObject mounts = FileUtil.getConfigFile(PATH_MOUNTS);
-        if (mounts == null) {
-            mounts = FileUtil.createFolder(FileUtil.getConfigRoot(), PATH_MOUNTS);
-        }
-        return mounts;
+        return FileUtil.createFolder(new File(System.getProperty("netbeans.user"), PATH_MOUNTS));
     }
     
     /**

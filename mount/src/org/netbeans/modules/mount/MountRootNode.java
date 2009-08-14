@@ -75,6 +75,7 @@ final class MountRootNode extends AbstractNode {
     
     public MountRootNode() {
         super(new MountChildren());
+        setIconBaseWithExtension("org/netbeans/modules/mount/mount.gif");
         // XXX add Index cookie so user can reorder mounts
         // XXX add DummyProject.instance to its lookup, just for fun
     }
@@ -86,8 +87,6 @@ final class MountRootNode extends AbstractNode {
     public String getDisplayName() {
         return "Filesystems";
     }
-
-    //XXX: public Image getIcon(int type) {}
 
     public boolean canRename() {
         return false;
@@ -200,6 +199,7 @@ final class MountRootNode extends AbstractNode {
             actions.remove(SystemAction.get(RenameAction.class));
             actions.remove(SystemAction.get(DeleteAction.class));
             actions.add(0, null);
+            // XXX needs to use a singleton action which is a ContextAwareAction to support multiselections
             actions.add(0, new UnmountAction(root()));
             return (Action[]) actions.toArray(new Action[actions.size()]);
         }
