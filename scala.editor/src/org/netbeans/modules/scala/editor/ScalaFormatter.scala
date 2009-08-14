@@ -406,9 +406,9 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                   val brace = openingBraces.top
                   val braceId = brace.token.id
 
+                  // * `if`, `else`, `for` etc is not contained in BRACE_MATCH_MAP, we'll process them later
                   val matchingIds = BRACE_MATCH_MAP.get(braceId)
-                  assert(matchingIds.isDefined)
-                  if (matchingIds.get.contains(id)) { // matched
+                  if (matchingIds.isDefined && matchingIds.get.contains(id)) { // matched
 
                     var numClosed = 1 // default
 
@@ -502,6 +502,17 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
             }
           }
         } while (ts.moveNext && ts.offset < lineEnd)
+        
+        // --- now tokens of this line have been processed totally, let's go on some special cases
+
+        if (!openingBraces.isEmpty) {
+          openingBraces.top.token.id match {
+            case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For =>
+              // * close these braces here, now, since the indentation has been done in previous computation
+              openingBraces pop  
+            case _ =>
+          }
+        }
 
         // * special case for next line indent with `=` is at the end of this line, or unfinished `if` `else` `for`
         // * since this line has been processed totally, we can now traverse ts freely
@@ -642,10 +653,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
             offset + 1
 
           case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For =>
-            val y = openingBraces.size * indentSize
-            // * close this brace initiative
-            openingBraces.pop
-            y
+            openingBraces.size * indentSize
 
           case _ => openingBraces.size * indentSize // default
         }
