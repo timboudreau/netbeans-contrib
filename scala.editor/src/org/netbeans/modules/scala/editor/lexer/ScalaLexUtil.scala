@@ -278,5 +278,17 @@ object ScalaLexUtil extends LexUtil {
 
     Nil
   }
+
+  /** @Require: move ts to `else` token first */
+  def findMatchedIfOfElse(ts: TokenSequence[_]) = {
+    assert(ts.token.id == ScalaTokenId.Else, "Should move TokenSequence to `else` token first!")
+
+    while (ts.movePrevious) {
+      ts.token.id match {
+        case ScalaTokenId.If =>
+        
+      }
+    }
+  }
 }
 
