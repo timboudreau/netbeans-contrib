@@ -189,10 +189,10 @@ abstract class ScalaAstVisitor {
             str.append(annot.args.mkString("(", ",", ")"))
           if (!annot.assocs.isEmpty)
             for (((name, value), index) <- annot.assocs.zipWithIndex) {
-            if (index > 0)
-              str.append(", ")
-            str.append(name).append(" = ").append(value)
-          }
+              if (index > 0)
+                str.append(", ")
+              str.append(name).append(" = ").append(value)
+            }
           str.toString
         }
         def symflags(tree: Tree): String = {
