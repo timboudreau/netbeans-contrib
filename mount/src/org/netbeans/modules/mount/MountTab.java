@@ -50,6 +50,7 @@ import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.ImageUtilities;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -86,7 +87,7 @@ public class MountTab extends TopComponent
         associateLookup( ExplorerUtils.createLookup(manager, map) );
 
         setName("Filesystems");
-        // XXX setIcon
+        setIcon(ImageUtilities.loadImage("org/netbeans/modules/mount/mount.gif", true));
         if ( rootNode == null ) {
             // Create the node which lists open projects      
             rootNode = new MountRootNode();

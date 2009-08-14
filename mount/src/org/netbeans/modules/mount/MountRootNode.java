@@ -75,6 +75,7 @@ final class MountRootNode extends AbstractNode {
     
     public MountRootNode() {
         super(new MountChildren());
+        setIconBaseWithExtension("org/netbeans/modules/mount/mount.gif");
         // XXX add Index cookie so user can reorder mounts
         // XXX add DummyProject.instance to its lookup, just for fun
     }
@@ -86,8 +87,6 @@ final class MountRootNode extends AbstractNode {
     public String getDisplayName() {
         return "Filesystems";
     }
-
-    //XXX: public Image getIcon(int type) {}
 
     public boolean canRename() {
         return false;

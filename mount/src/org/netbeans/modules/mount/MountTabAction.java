@@ -44,12 +44,13 @@ package org.netbeans.modules.mount;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.netbeans.modules.mount.MountTab;
+import org.openide.util.ImageUtilities;
 import org.openide.windows.TopComponent;
 
 public class MountTabAction extends AbstractAction {
 
     public MountTabAction() {
-        super("Mount"/* XXX icon */);
+        super("Filesystems", ImageUtilities.loadImageIcon("org/netbeans/modules/mount/mount.gif", true));
     }
 
     public void actionPerformed(ActionEvent e) {
