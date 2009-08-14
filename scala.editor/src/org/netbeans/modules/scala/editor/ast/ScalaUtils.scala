@@ -67,8 +67,8 @@ trait ScalaUtils {self: ScalaGlobal =>
   )
 
   object ScalaUtil {
-    def getModifiers(symbol: Symbol): _root_.java.util.Set[Modifier] = {
-      val modifiers = new _root_.java.util.HashSet[Modifier]
+    def getModifiers(symbol: Symbol): java.util.Set[Modifier] = {
+      val modifiers = new java.util.HashSet[Modifier]
 
       if (symbol hasFlag Flags.PROTECTED) {
         modifiers.add(Modifier.PROTECTED)
@@ -172,7 +172,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       val str = try {
         tpe.toString
       } catch {
-        case ex: _root_.java.lang.AssertionError => ScalaGlobal.reset(self); null // ignore assert ex from scala
+        case ex: java.lang.AssertionError => ScalaGlobal.reset(self); null // ignore assert ex from scala
         case ex: Throwable => ScalaGlobal.reset(self); null
       }
 

@@ -384,7 +384,7 @@ trait LexUtil {
   }
 
   /**
-   * Tries to skip parenthesis
+   * Tries to skip pair, ts will be put at the found `left` token
    */
   def skipPair(ts: TokenSequence[TokenId], back: boolean, left: TokenId, right: TokenId): Boolean = {
     var balance = 0
@@ -394,14 +394,13 @@ trait LexUtil {
       return false
     }
 
+    // * skip whitespace and comment
     var id = token.id
-
-    // skip whitespace and comment
     if (isWsComment(id)) {
       while ((if (back) ts.movePrevious else ts.moveNext) && isWsComment(id)) {}
     }
 
-    // if current token is not parenthesis
+    // * if current token is not of pair
     if (ts.token.id != (if (back) right else left)) {
       return false
     }
