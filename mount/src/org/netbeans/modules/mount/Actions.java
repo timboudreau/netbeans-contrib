@@ -52,6 +52,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 
+// XXX rewrite to use JavaRunner rather than placeholder Ant scripts
+
 /**
  * Manages actions for the mount dummy project.
  * @author Jesse Glick

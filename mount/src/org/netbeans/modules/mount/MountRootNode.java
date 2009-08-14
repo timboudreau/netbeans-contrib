@@ -199,6 +199,7 @@ final class MountRootNode extends AbstractNode {
             actions.remove(SystemAction.get(RenameAction.class));
             actions.remove(SystemAction.get(DeleteAction.class));
             actions.add(0, null);
+            // XXX needs to use a singleton action which is a ContextAwareAction to support multiselections
             actions.add(0, new UnmountAction(root()));
             return (Action[]) actions.toArray(new Action[actions.size()]);
         }
