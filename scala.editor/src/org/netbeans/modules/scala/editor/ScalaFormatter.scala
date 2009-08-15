@@ -76,6 +76,7 @@ object ScalaFormatter {
 
 class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) extends Formatter {
   import ScalaFormatter._
+  import org.netbeans.modules.csl.api.OffsetRange
 
   def this() = this(-1)
   
@@ -118,7 +119,12 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     do {
       val token = ts.token
       token.id match {
-        case ScalaTokenId.Object | ScalaTokenId.Trait | ScalaTokenId.Class => return ts.offset
+        case ScalaTokenId.Object | ScalaTokenId.Trait | ScalaTokenId.Class => 
+          // * is this `class`/`object`/`trait` enlcosed in an outer `class`/`object`/`trait`?
+          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
+            case OffsetRange.NONE => return ts.offset
+            case range => // go on for outer `class`/`object`/`trait`
+          }
         case _ =>
       }
     } while (ts.movePrevious)
@@ -459,15 +465,15 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
                           indent = x.offsetOnline + 3 // indent `with` right align with `extends`
                         case _ =>
                       }
-                    /* case ScalaTokenId.Else =>
-                      specialBraces.find{_.token.id == ScalaTokenId.If} match {
-                        case Some(x) if x.lineIdx != lineIdx => // not on same line
-                          val nextLineOfIf = x.lineIdx + 1
-                          if (indents.size > nextLineOfIf) {
-                            indent = indents(nextLineOfIf) - indentSize // indent `else` left align with next line of `if`
-                          }
-                        case _ =>
-                      } */
+                      /* case ScalaTokenId.Else =>
+                       specialBraces.find{_.token.id == ScalaTokenId.If} match {
+                       case Some(x) if x.lineIdx != lineIdx => // not on same line
+                       val nextLineOfIf = x.lineIdx + 1
+                       if (indents.size > nextLineOfIf) {
+                       indent = indents(nextLineOfIf) - indentSize // indent `else` left align with next line of `if`
+                       }
+                       case _ =>
+                       } */
                     case _ =>
                   }
                 }
@@ -537,7 +543,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
           openingBraces.top.token.id match {
             case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.If | ScalaTokenId.For | ScalaTokenId.Yield | ScalaTokenId.While =>
               // * close these braces here, now, since the indentation has been done in previous computation
-              openingBraces pop  
+              openingBraces pop
             case _ =>
           }
         }
@@ -546,7 +552,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
         // * since this line has been processed totally, we can now traverse ts freely
         if (latestNoWSToken != null) {
           // * make sure ts is at latestNoWSToken by these 2 steps:
-          ts.move(latestNoWSTokenOffset); ts.moveNext 
+          ts.move(latestNoWSTokenOffset); ts.moveNext
           latestNoWSToken.id match {
             case ScalaTokenId.Eq | ScalaTokenId.Else | ScalaTokenId.Yield =>
               val offset = ts.offset
