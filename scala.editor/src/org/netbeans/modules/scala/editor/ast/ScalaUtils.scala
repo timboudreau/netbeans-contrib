@@ -307,19 +307,19 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
-  }
+    def paramNames(sym: Symbol): List[List[Symbol]] = {
+      assert(sym.isMethod)
 
-  def paramNames(sym: Symbol): List[List[Symbol]] = {
-    assert(sym.isMethod)
+      /** @todo not work yet */
+      val argNamesMap = self.methodArgumentNames
+      if (argNamesMap != null) {
+        argNamesMap.get(sym) match {
+          case Some(x) => x
+          case None => Nil
+        }
+      } else Nil
+    }
 
-    /** @todo not work yet */
-    val argNamesMap = self.methodArgumentNames
-    if (argNamesMap != null) {
-      argNamesMap.get(sym) match {
-        case Some(x) => x
-        case None => Nil
-      }
-    } else Nil
   }
 
   def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {

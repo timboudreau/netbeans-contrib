@@ -273,17 +273,5 @@ trait ScalaElements {self: ScalaGlobal =>
       symbol.toString
     }
 
-    def paramNames: List[List[Symbol]] = {
-      assert(symbol.isMethod)
-
-      /** @todo not work yet */
-      val argNamesMap = methodArgumentNames
-      if (argNamesMap != null) {
-        argNamesMap.get(symbol) match {
-          case Some(x) => x
-          case None => Nil
-        }
-      } else Nil
-    }
   }
 }

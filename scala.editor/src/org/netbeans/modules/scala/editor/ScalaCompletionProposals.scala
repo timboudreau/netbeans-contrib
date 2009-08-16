@@ -199,7 +199,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       }
 
       val paramTypes = methodType.paramTypes
-      val paramNames = element.paramNames
+      val paramNames = ScalaUtil.paramNames(element.symbol)
 
       if (!paramTypes.isEmpty) {
         formatter.appendHtml("(") // NOI18N
