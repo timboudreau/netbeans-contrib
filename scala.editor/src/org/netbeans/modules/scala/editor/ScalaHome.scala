@@ -83,7 +83,7 @@ object ScalaHome {
     val sb = new StringBuilder
     sb.append(System.getProperty("sun.boot.class.path"))
     sb.append(File.pathSeparator)
-    sb.append(scalaLib.getAbsolutePath() + File.separator + "scala-library.jar")
+    sb.append(scalaLib.getAbsolutePath + File.separator + "scala-library.jar")
         
     //System.out.println("boot:" + sb);
     settings.bootclasspath.tryToSet(List(sb.toString))
