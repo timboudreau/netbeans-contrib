@@ -94,7 +94,7 @@ final class TodoSourceParsing {
                      if (ts != null && ts.isValid()) {
                         ts.move(next);
 
-                        if (ts.moveNext()) {
+                        if (ts.isValid() && ts.moveNext()) {
                            Token token = ts.token();
                            pos = Math.min(Utilities.getRowEnd(doc, next),
                                  ts.offset() + token.length());
