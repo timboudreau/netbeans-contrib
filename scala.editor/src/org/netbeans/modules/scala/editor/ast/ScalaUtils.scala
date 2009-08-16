@@ -200,7 +200,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     def htmlTypeName(sym: Symbol, fm: HtmlFormatter): Unit = {
       try {
         htmlTypeName(sym.tpe, fm)
-      } catch {case _ =>}
+      } catch {case _ => ScalaGlobal.reset(self)}
     }
 
     def htmlTypeName(tpe: Type, fm: HtmlFormatter): Unit = {

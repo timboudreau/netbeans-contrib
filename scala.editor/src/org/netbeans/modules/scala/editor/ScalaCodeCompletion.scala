@@ -310,7 +310,7 @@ object ScalaCodeCompletion {
       true
     }
 
-    def addLocals(proposals: java.util.List[CompletionProposal]): Unit = {
+    def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
       val root = result.rootScope match {
         case Some(x) => x
         case None => return
@@ -326,19 +326,16 @@ object ScalaCodeCompletion {
       localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.VARIABLE)
       for (v <- localVars;
            if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
-               (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix))))
-                 {
-          proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
-        }
-
+               (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix)))) {
+        proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
+      }
 
       val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
       for (fun <- localFuns;
            if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
-               (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix))))
-                 {
-          proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
-        }
+               (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix)))) {
+        proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
+      }
 
       // Add in "arguments" local variable which is available to all functions
       //        String ARGUMENTS = "arguments"; // NOI18N
@@ -870,8 +867,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         return completionResult
       }
 
-      val closetToken = ScalaLexUtil.findPreviousNoWsNoComment(ts).get
-      if (closetToken.id == ScalaTokenId.Import) {
+      val closestToken = ScalaLexUtil.findPreviousNoWsNoComment(ts).get
+      if (closestToken.id == ScalaTokenId.Import) {
         request.prefix = ""
         request.completeImport(proposals)
         return completionResult
@@ -948,7 +945,7 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
 
       request.completeKeywords(proposals)
 
-      request.addLocals(proposals)
+      request.completeLocals(proposals)
 
       //            if (completeTemplateMembers(proposals, request)) {
       //                return completionResult;
