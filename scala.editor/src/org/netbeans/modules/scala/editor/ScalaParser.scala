@@ -395,16 +395,17 @@ class ScalaParser extends Parser {
     val ignoreErrors = sanitizedSource
 
     val file = if (context.fileObject != null) FileUtil.toFile(context.fileObject) else null
+    val af = if (file != null)  new PlainFile(file) else new VirtualFile("<current>", "")
+    val srcFile = new BatchSourceFile(af, source.toCharArray)
     // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
     //String filePath = file != null ? file.getAbsolutePath():  "<current>";
-
+    context.srcFile = srcFile
+    
     var rootScope: Option[ScalaRootScope] = None
 
     global = ScalaGlobal.getGlobal(context.fileObject)
     global.reporter = new ErrorReporter(context, doc, sanitizing)
 
-    val af = if (file != null)  new PlainFile(file) else new VirtualFile("<current>", "")
-    val srcFile = new BatchSourceFile(af, source.toCharArray)
     try {
       rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
@@ -454,7 +455,7 @@ class ScalaParser extends Parser {
       }
     }
 
-    new ScalaParserResult(this, context.snapshot, context.rootScope, context.errors)
+    new ScalaParserResult(this, context.snapshot, context.rootScope, context.errors, context.srcFile)
   }
 
   private def processObjectSymbolError(context: Context, root: ScalaRootScope): Sanitize = {
@@ -520,7 +521,7 @@ class ScalaParser extends Parser {
                                                 start, end, isLineError, severity).asInstanceOf[DefaultError]
     params match {
       case null =>
-      case x:Array[Object] => error.setParameters(x)
+      case x: Array[Object] => error.setParameters(x)
       case _ => error.setParameters(Array(params))
     }
 
@@ -548,6 +549,7 @@ class ScalaParser extends Parser {
     var sanitized: Sanitize = Sanitize.NONE
     var errors: List[Error] = Nil
     var rootScope: Option[ScalaRootScope] = None
+    var srcFile: SourceFile = _
 
     def notifyError(error: Error): Unit = {
       errors = error :: errors

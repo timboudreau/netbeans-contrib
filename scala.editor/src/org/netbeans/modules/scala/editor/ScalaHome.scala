@@ -96,7 +96,7 @@ object ScalaHome {
     //System.out.println("comp:" + sb);
     settings.classpath.tryToSet(List(sb.toString))
 
-    val global = new ScalaGlobal(settings) {
+    val global = new ScalaGlobal(settings, ScalaGlobal.dummyReporter) {
       override def onlyPresentation = true
     }
 

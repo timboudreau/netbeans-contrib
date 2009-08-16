@@ -62,6 +62,7 @@ import org.netbeans.modules.scala.editor.rats.ParserScala
 
 import scala.tools.nsc.Global
 import scala.tools.nsc.symtab.Flags
+import scala.tools.nsc.util.OffsetPosition
 
 /**
  * Code completion handler for JavaScript
@@ -316,39 +317,35 @@ object ScalaCodeCompletion {
         case None => return
       }
 
-      val closestScope = root.closestScope(th, astOffset) match {
-        case Some(x) => x
-        case None => return
-      }
+      val pos = new OffsetPosition(result.srcFile, lexOffset)
+      try {
+        for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
+             if startsWith(sym.nameString, prefix) && !sym.isConstructor) {
+          createSymbolProposal(sym) foreach {proposals add _}
+        }
+      } catch {case _ =>} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
 
-      var localVars = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.FIELD)
-      localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.PARAMETER)
-      localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.VARIABLE)
-      for (v <- localVars;
-           if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
-               (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix)))) {
-        proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
-      }
+      /* val closestScope = root.closestScope(th, astOffset) match {
+       case Some(x) => x
+       case None => return
+       }
 
-      val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
-      for (fun <- localFuns;
-           if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
-               (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix)))) {
-        proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
-      }
+       var localVars = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.FIELD)
+       localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.PARAMETER)
+       localVars ++= closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.VARIABLE)
+       for (v <- localVars;
+       if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
+       (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix)))) {
+       proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
+       }
 
-      // Add in "arguments" local variable which is available to all functions
-      //        String ARGUMENTS = "arguments"; // NOI18N
-      //        if (startsWith(ARGUMENTS, prefix)) {
-      //            // Make sure we're in a function before adding the arguments property
-      //            for (Node n = node; n != null; n = n.getParentNode()) {
-      //                if (n.getType() == org.mozilla.javascript.Token.FUNCTION) {
-      //                    KeywordElement node = new KeywordElement(ARGUMENTS, ElementKind.VARIABLE);
-      //                    proposals.add(new PlainItem(node, request));
-      //                    break;
-      //                }
-      //            }
-      //        }
+       val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
+       for (fun <- localFuns;
+       if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
+       (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix)))) {
+       proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
+       } */
+
     }
 
     /** Determine if we're trying to complete the name for a "new" (in which case
@@ -731,29 +728,11 @@ object ScalaCodeCompletion {
       }
 
       try {
-        val members = resType.members
-        for (member <- members if startsWith(member.nameString, prefix) && !member.isConstructor) {
-          var element:  ScalaElement = null
-          var proposal: CompletionProposal = null
-          if (!member.hasFlag(Flags.PRIVATE)) {
-            if (member.isMethod) {
-              element  = ScalaElement(member, info)
-              proposal = FunctionProposal(element, this)
-            } else if (member.isVariable) {
-            } else if (member.isValue) {
-              element  = ScalaElement(member, info)
-              proposal = PlainProposal(element, this)
-            } else if (member.isClass || member.isTrait || member.isModule || member.isPackage) {
-              element  = ScalaElement(member, info)
-              proposal = PlainProposal(element, this)
-            }
-          }
-
-          if (proposal != null) {
+        for (member <- resType.members if startsWith(member.nameString, prefix) && !member.isConstructor) {
+          createSymbolProposal(member) foreach {proposal =>
             val resTypeSymbol = resType.typeSymbol
             val inherited = ScalaUtil.isInherited(resTypeSymbol, member)
-            element.setInherited(inherited)
-
+            proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
             proposals.add(proposal)
           }
         }
@@ -764,6 +743,26 @@ object ScalaCodeCompletion {
       }
 
       true
+    }
+
+    private def createSymbolProposal(symbol: Symbol): Option[CompletionProposal] = {
+      var element:  ScalaElement = null
+      var proposal: CompletionProposal = null
+      if (!symbol.hasFlag(Flags.PRIVATE)) {
+        if (symbol.isMethod) {
+          element  = ScalaElement(symbol, info)
+          proposal = FunctionProposal(element, this)
+        } else if (symbol.isVariable) {
+        } else if (symbol.isValue) {
+          element  = ScalaElement(symbol, info)
+          proposal = PlainProposal(element, this)
+        } else if (symbol.isClass || symbol.isTrait || symbol.isModule || symbol.isPackage) {
+          element  = ScalaElement(symbol, info)
+          proposal = PlainProposal(element, this)
+        }
+      }
+
+      if (proposal != null) Some(proposal) else None
     }
 
     private def getResultType(tpe: Type): Type = {
@@ -932,29 +931,14 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         return completionResult
       }
 
-      // Try to complete "new" RHS
       if (request.completeNew(proposals)) {
         return completionResult
       }
 
 
-      //            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
-      //                completeTemplateMembers(proposals, request);
-      //                return completionResult;
-      //            }
-
+      request.completeLocals(proposals)
       request.completeKeywords(proposals)
 
-      request.completeLocals(proposals)
-
-      //            if (completeTemplateMembers(proposals, request)) {
-      //                return completionResult;
-      //            }
-
-      // @todo Try to complete methods inheried and predef's methods
-      //            if (completeFunctions(proposals, request)) {
-      //                return proposals;
-      //            }
     } finally {
       doc.readUnlock
     }

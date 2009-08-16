@@ -106,7 +106,7 @@ object ScalaGlobal {
   private val projectToGlobalForTest = new WeakHashMap[Project, ScalaGlobal]
   private var globalForStdLib: Option[ScalaGlobal] = None
 
-  private val dummyReport = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
+  val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   def resetAll {
     projectToGlobal.clear
@@ -210,7 +210,7 @@ object ScalaGlobal {
     }
     settings.classpath.tryToSet(List(sb.toString))
 
-    val global = new ScalaGlobal(settings)
+    val global = new ScalaGlobal(settings, dummyReporter)
 
     if (forTest) {
       projectToGlobalForTest.put(project, global)
@@ -302,7 +302,7 @@ object ScalaGlobal {
           override def fileDataCreated(fe: FileEvent): Unit = {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReport
+              global.reporter = dummyReporter
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -310,7 +310,7 @@ object ScalaGlobal {
           override def fileChanged(fe: FileEvent): Unit = {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReport
+              global.reporter = dummyReporter
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -318,7 +318,7 @@ object ScalaGlobal {
           override def fileRenamed(fe: FileRenameEvent): Unit = {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReport
+              global.reporter = dummyReporter
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -338,7 +338,7 @@ object ScalaGlobal {
         //srcCp.getRoots foreach {x => findAllSources("text/x-scala", x, scalaSrcs)}
 
         // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
-        global.reporter = dummyReport
+        global.reporter = dummyReporter
         global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
       }
     }
@@ -495,7 +495,7 @@ object ScalaGlobal {
 
 }
 
-class ScalaGlobal(settings: Settings) extends Global(settings, null)
+class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(settings, reporter)
                                          with ScalaDfns
                                          with ScalaRefs
                                          with ScalaElements

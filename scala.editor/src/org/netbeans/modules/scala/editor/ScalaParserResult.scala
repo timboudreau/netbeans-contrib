@@ -40,16 +40,16 @@
  */
 package org.netbeans.modules.scala.editor
 
-import _root_.java.io.File
+import java.io.File
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.scala.editor.ast.ScalaRootScope
 import org.openide.filesystems.{FileObject, FileUtil}
-import _root_.scala.tools.nsc.Global
-import _root_.scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
-import _root_.scala.tools.nsc.util.BatchSourceFile
+import scala.tools.nsc.Global
+import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.util.{BatchSourceFile, SourceFile}
 
 /**
  *
@@ -58,7 +58,8 @@ import _root_.scala.tools.nsc.util.BatchSourceFile
 class ScalaParserResult(val parser: ScalaParser,
                         snapshot: Snapshot,
                         val rootScope: Option[ScalaRootScope] = None,
-                        var errors: List[Error]
+                        var errors: List[Error],
+                        val srcFile: SourceFile
 ) extends ParserResult(snapshot) {
 
   var source: String = _
