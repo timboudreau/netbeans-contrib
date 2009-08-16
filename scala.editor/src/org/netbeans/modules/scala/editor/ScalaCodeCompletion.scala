@@ -327,18 +327,18 @@ object ScalaCodeCompletion {
       for (v <- localVars;
            if ((kind == QuerySupport.Kind.EXACT && prefix.equals(v.getName)) ||
                (kind != QuerySupport.Kind.EXACT && startsWith(v.getName, prefix))))
-      {
-        proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
-      }
+                 {
+          proposals.add(PlainProposal(ScalaElement(v.asInstanceOf[ScalaDfn].symbol, info), this))
+        }
 
 
       val localFuns = closestScope.visibleDfns(org.netbeans.modules.csl.api.ElementKind.METHOD)
       for (fun <- localFuns;
            if ((kind == QuerySupport.Kind.EXACT && prefix.equals(fun.getName)) ||
                (kind != QuerySupport.Kind.EXACT && startsWith(fun.getName, prefix))))
-      {
-        proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
-      }
+                 {
+          proposals.add(FunctionProposal(ScalaElement(fun.asInstanceOf[ScalaDfn].symbol, info), this))
+        }
 
       // Add in "arguments" local variable which is available to all functions
       //        String ARGUMENTS = "arguments"; // NOI18N
@@ -1411,9 +1411,9 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
         if (lineOffset > 0) {
           for (i <- lineOffset - 1 to 0;
                c = line.charAt(i) if ScalaSourceUtil.isIdentifierChar(c))
-          {
-            start = i
-          }
+                 {
+              start = i
+            }
         }
 
         // Find identifier end
@@ -1427,10 +1427,10 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
             var end = lineOffset
             for (j <- lineOffset until n; 
                  d = line.charAt(j) if ScalaSourceUtil.isStrictIdentifierChar(d))
-            {
-              // Try to accept Foo::Bar as well
-              end = j + 1
-            }
+                   {
+                // Try to accept Foo::Bar as well
+                end = j + 1
+              }
             line.substring(start, end)
           }
         }
@@ -1464,14 +1464,14 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
             var break = false
             for (i <- prefix.length - 2 to 0; // -2: the last position (-1) can legally be =, ! or ?
                  c = prefix.charAt(i) if !break)
-            { 
-              if (i == 0 && c == ':') {
-                // : is okay at the begining of prefixes
-              } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
-                prefix = prefix.substring(i + 1)
-                break = true
+                   {
+                if (i == 0 && c == ':') {
+                  // : is okay at the begining of prefixes
+                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
+                  prefix = prefix.substring(i + 1)
+                  break = true
+                }
               }
-            }
           }
 
           prefix
@@ -1832,8 +1832,8 @@ class ScalaCodeCompletion extends CodeCompletionHandler with ScalaHtmlFormatters
     html.toString
   }
 
-  override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): _root_.java.util.Set[String] = {
-    _root_.java.util.Collections.emptySet[String]
+  override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): java.util.Set[String] = {
+    java.util.Collections.emptySet[String]
   }
 
   override def parameters(info: ParserResult, lexOffset: Int, proposal: CompletionProposal): ParameterInfo = {

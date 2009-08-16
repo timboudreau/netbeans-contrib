@@ -111,25 +111,8 @@ trait ScalaDfns {self: ScalaGlobal =>
     }
 
     def htmlFormat(fm: HtmlFormatter): Unit = {
-      symbol match {
-        case sym if sym.isPackage | sym.isClass | sym.isModule => fm.appendText(getName)
-        case sym if sym.isConstructor =>
-          fm.appendText(sym.owner.nameString)
-          fm.appendText(ScalaUtil.typeName(sym))
-        case sym if sym.isMethod =>
-          fm.appendText(sym.nameString)
-          try {
-            fm.appendText(ScalaUtil.typeName(sym))
-          } catch {case _ =>}
-        case sym =>
-          fm.appendText(getName)
-          fm.appendText(": ")
-          try {
-            fm.appendText(ScalaUtil.typeName(sym))
-          } catch {case _ =>}
-      }
+      ScalaUtil.htmlFormat(symbol, fm)
     }
-
   }
-}
 
+}

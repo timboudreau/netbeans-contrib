@@ -41,15 +41,16 @@ package org.netbeans.modules.scala.editor.ast
 
 import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
 
-import scala.tools.nsc.symtab.Flags
 import org.netbeans.api.lexer.TokenSequence
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.api.lexer.TokenId
+import org.netbeans.modules.csl.api.HtmlFormatter
 
 import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.modules.scala.editor.ScalaGlobal
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
+import scala.tools.nsc.symtab.Flags
 
 trait ScalaUtils {self: ScalaGlobal =>
   
@@ -179,63 +180,146 @@ trait ScalaUtils {self: ScalaGlobal =>
       if (str != null) str else tpe.termSymbol.nameString
     }
 
-    def typeName(sym: Symbol): String = {
-      try {
-        typeName(sym.tpe)
-      } catch {case _ => ""}
+    def htmlFormat(symbol: Symbol, fm: HtmlFormatter): Unit = {
+      symbol match {
+        case sym if sym.isPackage | sym.isClass | sym.isModule => fm.appendText(sym.nameString)
+        case sym if sym.isConstructor =>
+          fm.appendText(sym.owner.nameString)
+          htmlTypeName(sym, fm)
+        case sym if sym.isMethod =>
+          fm.appendText(sym.nameString)
+          htmlTypeName(sym, fm)
+        case sym =>
+          fm.appendText(sym.nameString)
+          fm.appendText(": ")
+          htmlTypeName(sym, fm)
+      }
     }
 
-    def typeName(tpe: Type): String = {
+
+    def htmlTypeName(sym: Symbol, fm: HtmlFormatter): Unit = {
+      try {
+        htmlTypeName(sym.tpe, fm)
+      } catch {case _ =>}
+    }
+
+    def htmlTypeName(tpe: Type, fm: HtmlFormatter): Unit = {
       tpe match {
-        case ErrorType => "<error>"
+        case ErrorType => fm.appendText("<error>")
           // internal: error
         case WildcardType => "_"
           // internal: unknown
-        case NoType => "<notype>"
-        case NoPrefix => "<noprefix>"
-        case ThisType(sym) => sym.nameString + ".this.type"
+        case NoType => fm.appendText("<notype>")
+        case NoPrefix => fm.appendText("<noprefix>")
+        case ThisType(sym) => 
+          fm.appendText(sym.nameString)
+          fm.appendText(".this.type")
           // sym.this.type
-        case SingleType(pre, sym) => sym.nameString + ".type"
+        case SingleType(pre, sym) =>
+          fm.appendText(sym.nameString)
+          fm.appendText(".type")
           // pre.sym.type
-        case ConstantType(value) => ""
+        case ConstantType(value) => 
+          
           // int(2)
         case TypeRef(pre, sym, args) =>
-          sym.nameString + {if (args.isEmpty) "" else args.map{typeName(_)}.mkString("[", ", ", "]")}
+          fm.appendText(sym.nameString)
+          if (!args.isEmpty) {
+            fm.appendText("[")
+            val itr = args.iterator
+            while (itr.hasNext) {
+              htmlTypeName(itr.next, fm)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText("]")
+          }
           // pre.sym[targs]
-        case RefinedType(parents, defs) => ""
+        case RefinedType(parents, defs) =>
           // parent1 with ... with parentn { defs }
-        case AnnotatedType(annots, tp, selfsym) => typeName(tp)
+        case AnnotatedType(annots, tp, selfsym) => htmlTypeName(tp, fm)
           // tp @annots
 
           // the following are non-value types; you cannot write them down in Scala source.
 
-        case TypeBounds(lo, hi) => ">: " + typeName(lo) + " <: " + typeName(hi)
+        case TypeBounds(lo, hi) =>
+          fm.appendText(">: ")
+          htmlTypeName(lo, fm)
+          fm.appendText(" <: ")
+          htmlTypeName(hi, fm)
           // >: lo <: hi
-        case ClassInfoType(parents, defs, clazz) => typeName(clazz.tpe)
+        case ClassInfoType(parents, defs, clazz) => 
+          htmlTypeName(clazz.tpe, fm)
           // same as RefinedType except as body of class
         case MethodType(paramtypes, result) =>
-          {if (paramtypes.isEmpty) ": " else paramtypes.map{typeName(_)}.mkString("(", ", ", "): ")} + typeName(result)
+          if (!paramtypes.isEmpty) {
+            fm.appendText("(")
+            val itr = paramtypes.iterator
+            while (itr.hasNext) {
+              fm.`type`(true)
+              htmlTypeName(itr.next, fm)
+              fm.`type`(false)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText(")")
+          }
+          fm.appendText(": ")
+          htmlTypeName(result, fm)
           // (paramtypes)result
         case PolyType(tparams, result) =>
-          {if (tparams.isEmpty) ": " else tparams.map{typeName(_)}.mkString("(", ", ", "): ")} + typeName(result)
+          if (!tparams.isEmpty) {
+            fm.appendText("(")
+            val itr = tparams.iterator
+            while (itr.hasNext) {
+              fm.`type`(true)
+              htmlTypeName(itr.next, fm)
+              fm.`type`(false)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText(")")
+          }
+          fm.appendText(": ")
+          htmlTypeName(result, fm)
           // [tparams]result where result is a MethodType or ClassInfoType
           // or
           // []T  for a eval-by-name type
-        case ExistentialType(tparams, result) => "ExistantialType"
+        case ExistentialType(tparams, result) => 
+          fm.appendText("ExistantialType")
           // exists[tparams]result
 
           // the last five types are not used after phase `typer'.
 
           //case OverloadedType(pre, tparams, alts) => "Overlaod"
           // all alternatives of an overloaded ident
-        case AntiPolyType(pre: Type, targs) => "AntiPolyType"
+        case AntiPolyType(pre: Type, targs) => 
+          fm.appendText("AntiPolyType")
         case TypeVar(_, _) => tpe.safeToString
           // a type variable
-        case DeBruijnIndex(level, index) => "DeBruijnIndex"
-        case _ => tpe.getClass.getSimpleName
+        case DeBruijnIndex(level, index) => 
+          fm.appendText("DeBruijnIndex")
+        case _ => 
+          fm.appendText(tpe.getClass.getSimpleName)
       }
     }
 
+  }
+
+  def paramNames(sym: Symbol): List[List[Symbol]] = {
+    assert(sym.isMethod)
+
+    /** @todo not work yet */
+    val argNamesMap = self.methodArgumentNames
+    if (argNamesMap != null) {
+      argNamesMap.get(sym) match {
+        case Some(x) => x
+        case None => Nil
+      }
+    } else Nil
   }
 
   def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {
