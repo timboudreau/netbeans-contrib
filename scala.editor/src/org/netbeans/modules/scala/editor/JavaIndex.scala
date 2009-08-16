@@ -73,24 +73,18 @@ import org.netbeans.modules.scala.editor.element.JavaElements
  */
 object JavaIndex {
 
-  def get(fo: FileObject): Option[JavaIndex] = {
-    val index = ScalaSourceUtil.getClasspathInfoForFileObject(fo) match {
+  def get(fo: FileObject, pResult: ScalaParserResult): Option[JavaIndex] = {
+    ScalaSourceUtil.getClasspathInfoForFileObject(fo) match {
       case Some(cpInfo) => cpInfo.getClassIndex match {
-          case null => return None
-          case x => x
+          case null => None
+          case index => Some(new JavaIndex(index, pResult))
         }
-      case None => return None
-    }
-
-    ScalaSourceUtil.getParserResultForScalaFile(fo) match {
-      case Some(x: ScalaParserResult) => Some(new JavaIndex(index, x))
-      case _ => None
+      case None => None
     }
   }
-
 }
 
-class JavaIndex(index: ClassIndex, info: ScalaParserResult) extends JavaElements {
+class JavaIndex(index: ClassIndex, pResult: ScalaParserResult) extends JavaElements {
   //public static final Map<String, List<? extends Element>> TypeQNameToMemebersCache = new HashMap<String, List<? extends Element>>();
   //public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
   //public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);

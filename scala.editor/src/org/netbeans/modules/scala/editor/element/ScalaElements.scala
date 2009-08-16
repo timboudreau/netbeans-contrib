@@ -68,12 +68,12 @@ import org.netbeans.modules.scala.editor.{JavaSourceUtil, ScalaGlobal, ScalaPars
 trait ScalaElements {self: ScalaGlobal =>
 
   object ScalaElement {
-    def apply(symbol: Symbol, info: ParserResult) = {
-      new ScalaElement(symbol, info)
+    def apply(symbol: Symbol, pResult: ParserResult) = {
+      new ScalaElement(symbol, pResult)
     }
   }
 
-  class ScalaElement(val symbol: Symbol, val info: ParserResult) extends AstElementHandle {
+  class ScalaElement(val symbol: Symbol, val pResult: ParserResult) extends AstElementHandle {
     import ScalaElement._
   
     private var kind: ElementKind = _
@@ -101,7 +101,7 @@ trait ScalaElements {self: ScalaGlobal =>
       fo match {
         case Some(x) => return x
         case None =>
-          fo = ScalaSourceUtil.getFileObject(info, symbol) // try to get
+          fo = ScalaSourceUtil.getFileObject(pResult, symbol) // try to get
           fo match {
             case Some(x) => path = x.getPath; x
             case None => null
@@ -143,7 +143,7 @@ trait ScalaElements {self: ScalaGlobal =>
         if (isJava) {
           javaElement foreach {x =>
             try {
-              val docComment: String = JavaSourceUtil.getDocComment(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
+              val docComment: String = JavaSourceUtil.getDocComment(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), x)
               if (docComment.length > 0) {
                 return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString
               }
@@ -163,7 +163,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         javaElement foreach {x =>
           try {
-            return JavaSourceUtil.getOffset(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), x)
+            return JavaSourceUtil.getOffset(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), x)
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
@@ -208,7 +208,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isLoaded) return
 
       if (isJava) {
-        javaElement = JavaSourceUtil.getJavaElement(JavaSourceUtil.getCompilationInfoForScalaFile(info.getSnapshot.getSource.getFileObject), symbol)
+        javaElement = JavaSourceUtil.getJavaElement(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), symbol)
       } else {
         getDoc foreach {srcDoc =>
           assert(path != null)

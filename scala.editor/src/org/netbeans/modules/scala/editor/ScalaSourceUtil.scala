@@ -250,34 +250,6 @@ object ScalaSourceUtil {
     }
   }
 
-  val scalaFileToParserResult = new java.util.WeakHashMap[Source, Parser.Result]
-
-  def getParserResultForScalaFile(fo: FileObject): Option[Parser.Result] = {
-    // * do not need to cache `source` for `fo`, source has been cached in org.netbeans.modules.parsing.api.Source.java
-    val source = Source.create(fo)
-    var pResult: Parser.Result = scalaFileToParserResult.get(source) match {
-      case null => null
-      case x => x
-    }
-
-    if (pResult == null) {
-      val pResults = new Array[Parser.Result](1)
-      try {
-        ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
-            @throws(classOf[Exception])
-            override def run(resultIterator: ResultIterator): Unit = {
-              pResults(0) = resultIterator.getParserResult
-            }
-          })
-      } catch {case ex:ParseException => Exceptions.printStackTrace(ex)}
-
-      pResult = pResults(0)
-      scalaFileToParserResult.put(source, pResult)
-    }
-
-    if (pResult != null) Some(pResult) else None
-  }
-
   /** @todo */
   def getDocComment(pResult: Parser.Result, element: JavaElements#JavaElement): String = {
     if (pResult == null) {
@@ -339,7 +311,7 @@ object ScalaSourceUtil {
     return -1
   }
 
-  def getFileObject(info: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
+  def getFileObject(pResult: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
     val pos = symbol.pos
     if (pos.isDefined) {
       val srcFile = pos.source
@@ -379,7 +351,7 @@ object ScalaSourceUtil {
     val clzName = qName + ".class"
 
     try {
-      val srcFo = info.getSnapshot.getSource.getFileObject
+      val srcFo = pResult.getSnapshot.getSource.getFileObject
       val cpInfo = ClasspathInfo.create(srcFo)
       val cp = ClassPathSupport.createProxyClassPath(
         Array(cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
