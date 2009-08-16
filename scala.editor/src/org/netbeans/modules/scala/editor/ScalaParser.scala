@@ -75,7 +75,7 @@ class ScalaParser extends Parser {
   var global: ScalaGlobal = _
 
   private def asString(sequence: CharSequence): String = sequence match {
-    case x:String => x
+    case x: String => x
     case _ => sequence.toString
   }
 

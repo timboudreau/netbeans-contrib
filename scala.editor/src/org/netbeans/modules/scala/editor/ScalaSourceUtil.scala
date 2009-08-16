@@ -250,18 +250,18 @@ object ScalaSourceUtil {
     }
   }
 
-  val scalaFileToSource = new java.util.WeakHashMap[FileObject, Source]
-  val scalaFileToParserResult = new java.util.WeakHashMap[FileObject, Parser.Result]
+  val scalaFileToParserResult = new java.util.WeakHashMap[Source, Parser.Result]
 
   def getParserResultForScalaFile(fo: FileObject): Option[Parser.Result] = {
-    var info: Parser.Result = scalaFileToParserResult.get(fo) match {
+    // * do not need to cache `source` for `fo`, source has been cached in org.netbeans.modules.parsing.api.Source.java
+    val source = Source.create(fo)
+    var pResult: Parser.Result = scalaFileToParserResult.get(source) match {
       case null => null
-      case ref => ref
+      case x => x
     }
 
-    if (info == null) {
+    if (pResult == null) {
       val pResults = new Array[Parser.Result](1)
-      val source = getSourceForScalaFile(fo)
       try {
         ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
             @throws(classOf[Exception])
@@ -271,44 +271,25 @@ object ScalaSourceUtil {
           })
       } catch {case ex:ParseException => Exceptions.printStackTrace(ex)}
 
-      info = pResults(0)
-      scalaFileToParserResult.put(fo, info)
+      pResult = pResults(0)
+      scalaFileToParserResult.put(source, pResult)
     }
 
-    if (info == null) None else Some(info)
-  }
-
-  /**
-   * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
-   * does not support virtual source yet (only ".java" and ".class" files
-   * are supported), but we can create js via JavaSource.create(cpInfo);
-   */
-  private def getSourceForScalaFile(fo: FileObject): Source = {
-    var source: Source = scalaFileToSource.get(fo) match {
-      case null => null
-      case ref => ref
-    }
-
-    if (source == null) {
-      source = Source.create(fo)
-      scalaFileToSource.put(fo, source)
-    }
-
-    source
+    if (pResult != null) Some(pResult) else None
   }
 
   /** @todo */
-  def getDocComment(info: Parser.Result, element: JavaElements#JavaElement): String = {
-    if (info == null) {
+  def getDocComment(pResult: Parser.Result, element: JavaElements#JavaElement): String = {
+    if (pResult == null) {
       return null
     }
 
-    val doc = info.getSnapshot.getSource.getDocument(true) match {
+    val doc = pResult.getSnapshot.getSource.getDocument(true) match {
       case null => return null
       case x: BaseDocument => x
     }
 
-    val th = info.getSnapshot.getTokenHierarchy
+    val th = pResult.getSnapshot.getTokenHierarchy
 
     doc.readLock // Read-lock due to token hierarchy use
     val offset = 0//element.getBoundsOffset(th)
