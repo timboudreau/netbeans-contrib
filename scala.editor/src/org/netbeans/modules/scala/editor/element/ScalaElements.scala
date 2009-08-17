@@ -86,6 +86,7 @@ trait ScalaElements {self: ScalaGlobal =>
     private var offset: Int = _
     private var javaElement: Option[Element] = None
     private var loaded: Boolean = _
+    var isImplicit: Boolean = _
 
 
     def this(kind: ElementKind) = {
@@ -110,7 +111,9 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getIn: String = {
-      symbol.owner.nameString
+      try {
+        symbol.owner.nameString
+      } catch {case _ => ""}
     }
 
     override def getKind: ElementKind = {

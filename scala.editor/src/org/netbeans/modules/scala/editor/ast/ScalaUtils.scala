@@ -319,69 +319,70 @@ trait ScalaUtils {self: ScalaGlobal =>
         }
       } else Nil
     }
+    
+    def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {
+      assert(rootScope != null)
 
-  }
+      val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
+      var idToken = if (closest.get.id == ScalaTokenId.Dot) {
+        call.caretAfterDot = true
+        // skip RParen if it's the previous
+        if (ts.movePrevious) {
+          ScalaLexUtil.findPreviousNoWs(ts) match {
+            case None =>
+            case Some(prev) => prev.id match {
+                case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
+                case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
+                case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+                case _ =>
+              }
+          }
+        }
 
-  def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {
-    assert(rootScope != null)
+        ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
+      } else if (CALL_IDs.contains(closest.get.id)) {
+        closest
+      } else None
 
-    val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
-    var idToken = if (closest.get.id == ScalaTokenId.Dot) {
-      call.caretAfterDot = true
-      // skip RParen if it's the previous
-      if (ts.movePrevious) {
-        ScalaLexUtil.findPreviousNoWs(ts) match {
-          case None =>
-          case Some(prev) => prev.id match {
-              case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
-              case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
-              case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-              case _ =>
+      if (idToken.isDefined) {
+        val items = rootScope.findItemsAt(th, idToken.get.offset(th))
+        val item = items.find{_.resultType != null} match {
+          case Some(x) => Some(x)
+          case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
+              case Some(x) => Some(x)
+              case None => if (items.isEmpty) None else Some(items.head)
             }
         }
-      }
 
-      ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
-    } else if (CALL_IDs.contains(closest.get.id)) {
-      closest
-    } else None
-
-    if (idToken.isDefined) {
-      val items = rootScope.findItemsAt(th, idToken.get.offset(th))
-      val item = items.find{_.resultType != null} match {
-        case Some(x) => Some(x)
-        case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
-            case Some(x) => Some(x)
-            case None => if (items.isEmpty) None else Some(items.head)
+        if (times == 0) {
+          if (call.caretAfterDot) {
+            call.base = item
+            return
           }
-      }
 
-      if (times == 0) {
-        if (call.caretAfterDot) {
+          val prev = if (ts.movePrevious) {
+            ScalaLexUtil.findPreviousNoWsNoComment(ts)
+          } else None
+
+          prev match {
+            case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
+              call.caretAfterDot = true
+              call.select = Some(idToken.get.text.toString)
+              findCall(rootScope, ts, th, call, times + 1)
+            case _ =>
+              call.base = item
+              return
+          }
+        } else {
           call.base = item
           return
         }
-
-        val prev = if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousNoWsNoComment(ts)
-        } else None
-
-        prev match {
-          case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
-            call.caretAfterDot = true
-            call.select = Some(idToken.get.text.toString)
-            findCall(rootScope, ts, th, call, times + 1)
-          case _ =>
-            call.base = item
-            return
-        }
-      } else {
-        call.base = item
-        return
       }
+
+      return
     }
 
-    return
   }
+
 
 }

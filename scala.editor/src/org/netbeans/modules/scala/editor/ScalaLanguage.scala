@@ -94,7 +94,7 @@ class ScalaLanguage extends DefaultLanguageConfig {
 
   override def getInstantRenamer = new ScalaInstantRenamer
   
-  override def getCompletionHandler = new ScalaCodeCompletion
+  override def getCompletionHandler = new ScalaCodeCompletionHandler
   
   override def getKeystrokeHandler = new ScalaKeystrokeHandler
   

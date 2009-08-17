@@ -49,6 +49,7 @@ import org.openide.util.{Exceptions, ImageUtilities}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 
+import scala.tools.nsc.symtab.Flags
 /**
  *
  * @author Caoyuan Deng
@@ -60,10 +61,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     val keywordIcon = ImageUtilities.loadImageIcon(KEYWORD, false)
   }
 
-  abstract class ScalaCompletionProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends CompletionProposal {
+  abstract class ScalaCompletionProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends CompletionProposal {
 
     def getAnchorOffset: Int = {
-      request.anchor
+      completer.anchor
     }
 
     override def getName: String = {
@@ -98,42 +99,42 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       null
     }
 
-    def getLhsHtml(formatter: HtmlFormatter): String = {
+    def getLhsHtml(fm: HtmlFormatter): String = {
       val emphasize = !element.isInherited
       val strike = element.isDeprecated
 
-      if (emphasize) formatter.emphasis(true)
-      if (strike) formatter.deprecated(true)
+      if (emphasize) fm.emphasis(true)
+      if (strike) fm.deprecated(true)
       
       val kind = getKind
-      formatter.name(kind, true)
-      formatter.appendText(getName)
-      formatter.name(kind, false)
+      fm.name(kind, true)
+      fm.appendText(getName)
+      fm.name(kind, false)
 
-      if (strike) formatter.deprecated(false)
-      if (emphasize) formatter.emphasis(false)
+      if (strike) fm.deprecated(false)
+      if (emphasize) fm.emphasis(false)
 
-      formatter.getText
+      fm.getText
     }
 
-    override def getRhsHtml(formatter: HtmlFormatter): String = {
+    override def getRhsHtml(fm: HtmlFormatter): String = {
       element match {
         case x: ScalaElement =>
           val sym = x.symbol
 
-          formatter.`type`(true)
-          val retType =  try {
+          fm.`type`(true)
+          val retType = try {
             sym.tpe.resultType
           } catch {case ex: Throwable => ScalaGlobal.reset(self); null}
 
           if (retType != null && !sym.isConstructor) {
-            formatter.appendText(ScalaUtil.typeToString(retType))
+            fm.appendText(ScalaUtil.typeToString(retType))
           }
-          formatter.`type`(false)
+          fm.`type`(false)
         case _ =>
       }
 
-      formatter.getText
+      fm.getText
     }
 
     override def getModifiers: _root_.java.util.Set[Modifier] = {
@@ -157,9 +158,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  case class FunctionProposal(element: ScalaElement, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
-
-    private val methodType: Type = element.symbol.tpe
+  case class FunctionProposal(element: ScalaElement, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
 
     override def getInsertPrefix: String = {
       getName
@@ -169,78 +168,83 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       ElementKind.METHOD
     }
 
-    override def getLhsHtml(formatter: HtmlFormatter): String = {
+    override def getLhsHtml(fm: HtmlFormatter): String = {
       val strike = element.isDeprecated
       val emphasize = !element.isInherited
       if (strike) {
-        formatter.deprecated(true)
+        fm.deprecated(true)
       }
       if (emphasize) {
-        formatter.emphasis(true)
+        fm.emphasis(true)
       }
 
       val kind = getKind
-      formatter.name(kind, true)
-      formatter.appendText(getName)
-      formatter.name(kind, false)
+      fm.name(kind, true)
+      fm.appendText(getName)
+      if (element.isImplicit) {
+        fm.appendText(" *")
+      }
+      fm.name(kind, false)
 
       if (emphasize) {
-        formatter.emphasis(false)
+        fm.emphasis(false)
       }
       if (strike) {
-        formatter.deprecated(false)
+        fm.deprecated(false)
       }
 
-      val typeParams = methodType.typeParams
+      val typeParams = try {
+        element.symbol.tpe.typeParams
+      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
       if (!typeParams.isEmpty) {
-        formatter.appendHtml("[")
-        formatter.appendText(typeParams.elements.map{_.nameString}.mkString(", "))
-        formatter.appendHtml("]")
+        fm.appendHtml("[")
+        fm.appendText(typeParams.elements.map{_.nameString}.mkString(", "))
+        fm.appendHtml("]")
       }
 
       val paramTypes = try {
-        methodType.paramTypes
-      } catch {case _ => ScalaGlobal.reset(request.global); Nil}
+        element.symbol.tpe.paramTypes
+      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
       val paramNames = ScalaUtil.paramNames(element.symbol)
 
       if (!paramTypes.isEmpty) {
-        formatter.appendHtml("(") // NOI18N
+        fm.appendHtml("(") // NOI18N
 
         var i = 0
         val nameItr = if (paramNames == null) Nil else paramNames
         val typeItr = paramTypes.iterator
         while (typeItr.hasNext) {
           val param = typeItr.next
-          formatter.parameters(true)
-          formatter.appendText("a" + Integer.toString(i))
+          fm.parameters(true)
+          fm.appendText("a" + Integer.toString(i))
           //if (nameItr != null && nameItr.hasNext()) {
           //    formatter.appendText(nameItr.next().toString());
           //} else {
           //    formatter.appendText("a" + Integer.toString(i));
           //}
-          formatter.parameters(false)
-          formatter.appendText(": ")
-          formatter.`type`(true)
-          formatter.appendText(param.toString)
-          formatter.`type`(false)
+          fm.parameters(false)
+          fm.appendText(": ")
+          fm.`type`(true)
+          fm.appendText(param.toString)
+          fm.`type`(false)
 
           if (typeItr.hasNext) {
-            formatter.appendText(", ") // NOI18N
+            fm.appendText(", ") // NOI18N
           }
 
           i += 1
         }
 
-        formatter.appendHtml(")") // NOI18N
+        fm.appendHtml(")") // NOI18N
       }
 
-      formatter.getText
+      fm.getText
     }
 
     def getInsertParams: List[String] = {
       val paramTypes = try {
-        methodType.paramTypes
-      } catch {case _ => ScalaGlobal.reset(request.global); Nil}
+        element.symbol.tpe.paramTypes
+      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
 
       paramTypes map {_.typeSymbol.nameString.toLowerCase}
     }
@@ -289,7 +293,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
       // Facilitate method parameter completion on this item
       try {
-        ScalaCodeCompletion.CompletionRequest.callLineStart = Utilities.getRowStart(request.doc, request.anchor)
+        ScalaCodeCompleter.callLineStart = Utilities.getRowStart(completer.doc, completer.anchor)
         //ScalaCodeCompletion.callMethod = function;
       } catch {case ble: BadLocationException => Exceptions.printStackTrace(ble)}
 
@@ -297,7 +301,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  case class KeywordProposal(keyword: String, description: String, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(null, request) {
+  case class KeywordProposal(keyword: String, description: String, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(null, completer) {
     import KeywordProposal._
 
     override def getName: String = {
@@ -317,11 +321,11 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    override def getRhsHtml(formatter: HtmlFormatter): String = {
+    override def getRhsHtml(fm: HtmlFormatter): String = {
       if (description != null) {
-        formatter.appendText(description)
+        fm.appendText(description)
 
-        formatter.getText
+        fm.getText
       } else {
         null
       }
@@ -345,9 +349,9 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
   }
 
  
-  case class PlainProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {}
+  case class PlainProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {}
 
-  case class PackageItem(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  case class PackageItem(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
 
     override def getKind: ElementKind = {
       ElementKind.PACKAGE
@@ -379,7 +383,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  class TypeProposal(element: AstElementHandle, request: ScalaCodeCompletion.CompletionRequest) extends ScalaCompletionProposal(element, request) {
+  class TypeProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
 
     override def getKind: ElementKind = {
       ElementKind.CLASS
@@ -393,23 +397,23 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       } else name
     }
 
-    override def getLhsHtml(formatter: HtmlFormatter): String = {
+    override def getLhsHtml(fm: HtmlFormatter): String = {
       val kind = getKind
       val strike = element.isDeprecated
       if (strike) {
-        formatter.deprecated(true)
+        fm.deprecated(true)
       }
-      formatter.name(kind, true)
-      formatter.appendText(getName)
-      formatter.name(kind, false)
+      fm.name(kind, true)
+      fm.appendText(getName)
+      fm.name(kind, false)
       if (strike) {
-        formatter.deprecated(false)
+        fm.deprecated(false)
       }
 
-      formatter.getText
+      fm.getText
     }
 
-    override def getRhsHtml(formatter: HtmlFormatter): String = {
+    override def getRhsHtml(fm: HtmlFormatter): String = {
       null
     }
   }
