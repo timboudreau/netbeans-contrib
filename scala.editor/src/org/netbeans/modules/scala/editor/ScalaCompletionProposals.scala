@@ -171,6 +171,9 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     override def getLhsHtml(fm: HtmlFormatter): String = {
       val strike = element.isDeprecated
       val emphasize = !element.isInherited
+      if (element.isImplicit) {
+        fm.appendHtml("<i>")
+      }
       if (strike) {
         fm.deprecated(true)
       }
@@ -181,9 +184,6 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       val kind = getKind
       fm.name(kind, true)
       fm.appendText(getName)
-      if (element.isImplicit) {
-        fm.appendText(" *")
-      }
       fm.name(kind, false)
 
       if (emphasize) {
@@ -192,7 +192,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       if (strike) {
         fm.deprecated(false)
       }
-
+      if (element.isImplicit) {
+        fm.appendHtml("</i>")
+      }
+      
       val typeParams = try {
         element.symbol.tpe.typeParams
       } catch {case _ => ScalaGlobal.reset(completer.global); Nil}

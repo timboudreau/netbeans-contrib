@@ -138,37 +138,35 @@ object ScalaCodeCompleter {
   )
 
 
-  private val JSDOC_WORDS = Array("@augments",
-                                  "@class",
-                                  "@config",
-                                  "@constructor",
-                                  "@deprecated",
-                                  "@description",
-                                  "@event",
-                                  "@example",
-                                  "@exception",
-                                  "@fileOverview",
-                                  "@function",
-                                  "@ignore",
-                                  "@inherits",
-                                  "@memberOf",
-                                  "@name",
-                                  "@namespace",
-                                  "@param",
-                                  "@param",
-                                  "@private",
-                                  "@property",
-                                  "@return",
-                                  "@scope",
-                                  "@scope",
-                                  "@static",
-                                  "@type"
+  private val scalaDocWords = Array("@augments",
+                                    "@class",
+                                    "@config",
+                                    "@constructor",
+                                    "@deprecated",
+                                    "@description",
+                                    "@event",
+                                    "@example",
+                                    "@exception",
+                                    "@fileOverview",
+                                    "@function",
+                                    "@ignore",
+                                    "@inherits",
+                                    "@memberOf",
+                                    "@name",
+                                    "@namespace",
+                                    "@param",
+                                    "@param",
+                                    "@private",
+                                    "@property",
+                                    "@return",
+                                    "@scope",
+                                    "@scope",
+                                    "@static",
+                                    "@type"
   )
 
   var callLineStart = -1
   var callMethod: ExecutableElement = _
-
-
 }
 
 abstract class ScalaCodeCompleter {
@@ -196,7 +194,6 @@ abstract class ScalaCodeCompleter {
   var result: ScalaParserResult = _
   var queryType: QueryType = _
   var fileObject: FileObject = _
-  // MaybeCall call;
   var fqn: String = _
   //var index: ScalaIndex = _
 
@@ -249,8 +246,8 @@ abstract class ScalaCodeCompleter {
     anchor = rowStart + i
 
     // Regular expression matching.  {
-    for (j <- 0 to JSDOC_WORDS.length) {
-      val word = JSDOC_WORDS(j)
+    for (j <- 0 to scalaDocWords.length) {
+      val word = scalaDocWords(j)
       if (startsWith(word, prefix)) {
         val item = KeywordProposal(word, null, this)
         proposals.add(item)
