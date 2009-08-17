@@ -121,15 +121,14 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
 
     // we'll find item by offset of item's idToken, so, use caretPosition directly
-    val itemOpt = rootScope.findItemAt(th, caretPosition) match {
-      case None => None
-      case x =>
-        // When we sanitize the line around the caret, occurrences
-        // highlighting can get really ugly
-        val blankRange = pResult.sanitizedRange
-        if (blankRange.containsInclusive(astOffset)) {
-          None
-        } else x
+    val blankRange = pResult.sanitizedRange
+    val items = if (blankRange.containsInclusive(astOffset)) {
+      Nil
+    } else {
+      rootScope.findItemsAt(th, caretPosition) match {
+        case Nil => Nil
+        case x => x
+      }
     }
 
 
@@ -141,9 +140,8 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     // rather than give a parse error on obj, it marks the whole region from
     // . to the end of Scanf as a CallNode, which is a weird highlight.
     // We don't want occurrences highlights that span lines.
-    for (item <- itemOpt;
-         idToken <- item.idToken)
-    {
+    for (item <- items;
+         idToken <- item.idToken) {
       val doc = pResult.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
       if (doc == null) {
         // Document was just closed
@@ -216,13 +214,13 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
       }
     }
 
-    for (item <- itemOpt) {
+    for (item <- items) {
       val _occurrences = rootScope.findOccurrences(item)
       for (x <- _occurrences; name = x.getName if !name.equals("this") || !name.equals("super");
            idToken <- x.idToken)
-      {
-        highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
-      }
+             {
+          highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
+        }
     }
 
     if (isCancelled) {
