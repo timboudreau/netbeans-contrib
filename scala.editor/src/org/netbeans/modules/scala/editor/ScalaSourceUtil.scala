@@ -402,10 +402,7 @@ object ScalaSourceUtil {
 
   def getBinaryClassName(pResult: ScalaParserResult, offset: Int): String = {
     val th = pResult.getSnapshot.getTokenHierarchy
-    val rootScope = pResult.getRootScopeForDebugger match {
-      case None => return null
-      case Some(x) => x
-    }
+    val rootScope = pResult.getRootScopeForDebugger.getOrElse(return null)
     
     var clzName = ""
 
@@ -630,9 +627,7 @@ object ScalaSourceUtil {
         //                    }
         //                }, false);
         cpInfo
-      } catch {
-        case ioe: Exception => Exceptions.printStackTrace(ioe); Nil
-      }
+      } catch {case ioe: Exception => Exceptions.printStackTrace(ioe); Nil}
     }
 
     result

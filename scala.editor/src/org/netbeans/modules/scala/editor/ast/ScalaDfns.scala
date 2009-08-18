@@ -99,11 +99,7 @@ trait ScalaDfns {self: ScalaGlobal =>
     }
 
     def getDocComment: String = {
-      val srcDoc = getDoc match {
-        case Some(x) => x
-        case None => return ""
-      }
-
+      val srcDoc = getDoc.getOrElse(return "")
       TokenHierarchy.get(srcDoc) match {
         case null => return ""
         case th => ScalaSourceUtil.getDocComment(srcDoc, idOffset(th))

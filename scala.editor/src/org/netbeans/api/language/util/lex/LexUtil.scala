@@ -237,10 +237,7 @@ trait LexUtil {
   }
 
   def getTokenId(doc: BaseDocument, offset: Int): Option[TokenId] = {
-    getToken(doc, offset) match {
-      case Some(x) => Some(x.id)
-      case None => None
-    }
+    getToken(doc, offset).map(_.id)
   }
 
   def getTokenChar(doc: BaseDocument, offset: Int): Char = {
@@ -608,18 +605,13 @@ trait LexUtil {
       val begin = Utilities.getRowStart(doc, offset);
       val end = if (upToOffset) offset else Utilities.getRowEnd(doc, offset)
 
-      val ts = getTokenSequence(doc, begin) match {
-        case Some(x) => x
-        case None => return 0
-      }
-
+      val ts = getTokenSequence(doc, begin).getOrElse(return 0)
       ts.move(begin)
       if (!ts.moveNext) {
         return 0
       }
 
       var balance = 0
-
       do {
         val token = ts.token
         val text = token.text.toString
@@ -644,11 +636,7 @@ trait LexUtil {
       val begin = Utilities.getRowStart(doc, offset)
       val end = Utilities.getRowEnd(doc, offset)
 
-      val ts = getTokenSequence(doc, begin) match {
-        case Some(x) => x
-        case None =>  return balanceStack
-      }
-
+      val ts = getTokenSequence(doc, begin).getOrElse(return balanceStack)
       ts.move(begin)
       if (!ts.moveNext) {
         return balanceStack
@@ -684,11 +672,7 @@ trait LexUtil {
    */
   @throws(classOf[BadLocationException])
   def getTokenBalance(doc: BaseDocument, open: TokenId, close: TokenId, offset: Int): Int = {
-    val ts = getTokenSequence(doc, 0) match {
-      case Some(x) => x
-      case None => return 0
-    }
-
+    val ts = getTokenSequence(doc, 0).getOrElse(return 0)
     // XXX Why 0? Why not offset?
     ts.moveIndex(0)
     if (!ts.moveNext) {
@@ -717,11 +701,7 @@ trait LexUtil {
    */
   @throws(classOf[BadLocationException])
   def getTokenBalance(doc: BaseDocument, open: String, close: String, offset: Int): int = {
-    val ts = getTokenSequence(doc, 0) match {
-      case Some(x) => x
-      case None => return 0
-    }
-
+    val ts = getTokenSequence(doc, 0).getOrElse(return 0)
     // XXX Why 0? Why not offset?
     ts.moveIndex(0)
     if (!ts.moveNext) {
@@ -1039,10 +1019,7 @@ trait LexUtil {
     // Check if the caret is within a comment, and if so insert a new
     // leaf "node" which contains the comment line and then comment block
     try {
-      val ts = getTokenSequence(doc, caretOffset) match {
-        case Some(x) => x
-        case None => return OffsetRange.NONE
-      }
+      val ts = getTokenSequence(doc, caretOffset).getOrElse(return OffsetRange.NONE)
 
       ts.move(caretOffset)
       if (isAfter) {
@@ -1149,10 +1126,7 @@ trait LexUtil {
    *   break on - no need to call Utilities.getRowStart.
    */
   def findSpaceBegin(doc: BaseDocument, lexOffset: Int): Int = {
-    val ts = getTokenSequence(doc, lexOffset) match {
-      case Some(x) => x
-      case None => return lexOffset
-    }
+    val ts = getTokenSequence(doc, lexOffset).getOrElse(return lexOffset)
     var allowPrevLine = false
     var lineStart: Int = 0
     try {
@@ -1184,7 +1158,7 @@ trait LexUtil {
     } catch {
       case ble:BadLocationException =>
         Exceptions.printStackTrace(ble)
-        return lexOffset;
+        return lexOffset
     }
     ts.move(lexOffset)
     if (ts.moveNext) {

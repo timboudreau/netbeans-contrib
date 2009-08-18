@@ -79,11 +79,11 @@ class ScalaParserResult(val parser: ScalaParser,
     // XXX: what exactly should we do here?
   }
 
-  override def getDiagnostics: _root_.java.util.List[_ <: Error] = {
+  override def getDiagnostics: java.util.List[_ <: Error] = {
     if (errors == null) {
-      _root_.java.util.Collections.emptyList[Error]
+      java.util.Collections.emptyList[Error]
     } else {
-      _root_.java.util.Arrays.asList(errors.toArray:_*)
+      java.util.Arrays.asList(errors.toArray:_*)
     }
   }
 
@@ -105,7 +105,7 @@ class ScalaParserResult(val parser: ScalaParser,
         case ex: AssertionError =>
           // avoid scala nsc's assert error
           ScalaGlobal.reset(global)
-        case ex: _root_.java.lang.Error =>
+        case ex: java.lang.Error =>
           // avoid scala nsc's exceptions
         case ex: IllegalArgumentException =>
           // An internal exception thrown by ParserScala, just catch it and notify

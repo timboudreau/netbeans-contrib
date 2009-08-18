@@ -76,9 +76,6 @@ abstract class ScalaSymbolResolver {
     val lastDot = fqn.lastIndexOf('.')
     val lastPart = if (lastDot == -1) fqn else fqn.substring(lastDot + 1, fqn.length)
 
-    rootScope.findFirstItemWithName(lastPart) match {
-      case None => None
-      case x => x
-    }
+    rootScope.findFirstItemWithName(lastPart)
   }
 }

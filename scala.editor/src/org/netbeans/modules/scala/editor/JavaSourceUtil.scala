@@ -242,10 +242,7 @@ object JavaSourceUtil {
   def getOffset(info: CompilationInfo, e: Element): Int = {
     val offset = Array(-1)
 
-    val originFo = getOriginFileObject(info, e) match {
-      case None => return -1
-      case Some(x) => x
-    }
+    val originFo = getOriginFileObject(info, e).getOrElse(return -1)
 
     /** @Note
      * We should create a element handle and a new CompilationInfo, then resolve

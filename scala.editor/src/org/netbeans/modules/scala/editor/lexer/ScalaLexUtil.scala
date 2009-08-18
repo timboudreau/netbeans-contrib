@@ -144,10 +144,7 @@ object ScalaLexUtil extends LexUtil {
   )
 
   override def getDocCommentRangeBefore(th: TokenHierarchy[_], lexOffset: Int): OffsetRange = {
-    val ts = getTokenSequence(th, lexOffset) match {
-      case Some(x) => x
-      case None => return OffsetRange.NONE
-    }
+    val ts = getTokenSequence(th, lexOffset).getOrElse(return OffsetRange.NONE)
 
     ts.move(lexOffset)
     var offset = -1
@@ -230,11 +227,7 @@ object ScalaLexUtil extends LexUtil {
   }
 
   def findImportPrefix(th: TokenHierarchy[_], lexOffset: Int): List[Token[TokenId]] = {
-    val ts = getTokenSequence(th, lexOffset) match {
-      case Some(x) => x
-      case None => return Nil
-    }
-    
+    val ts = getTokenSequence(th, lexOffset).getOrElse(return Nil)
     ts.move(lexOffset)
     var lbraceMet = false
     var lbraceExpected = false

@@ -124,14 +124,7 @@ class FixImportsHelper {
     //            }
     //        }
 
-    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fo) match {
-      case Some(x) => x
-      case _ =>
-        LOG.log(Level.FINEST, "Problem getting ClasspathInfo")
-        return result
-    }
-
-
+    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fo).getOrElse(return result)
     val typeNames = cpInfo.getClassIndex.getDeclaredTypes(missingClass, NameKind.SIMPLE_NAME,
                                                           EnumSet.allOf(classOf[ClassIndex.SearchScope]))
     val itr = typeNames.iterator
@@ -156,10 +149,7 @@ class FixImportsHelper {
   }
 
   def getImportPosition(doc: BaseDocument): Int = {
-    val ts = ScalaLexUtil.getTokenSequence(doc, 1) match {
-      case Some(x) => x
-      case _ => return -1
-    }
+    val ts = ScalaLexUtil.getTokenSequence(doc, 1).getOrElse(return -1)
 
     var importEnd = -1
     var packageOffset = -1
@@ -221,11 +211,7 @@ class FixImportsHelper {
 
   @throws(classOf[MissingResourceException])
   def doImport(fo: FileObject, fqnName: String) {
-    val baseDoc = ScalaLexUtil.getDocument(fo, true) match {
-      case Some(x) => x
-      case _ => return
-    }
-
+    val baseDoc = ScalaLexUtil.getDocument(fo, true).getOrElse(return)
     var firstFreePosition = getImportPosition(baseDoc)
 
     if (firstFreePosition != -1) {

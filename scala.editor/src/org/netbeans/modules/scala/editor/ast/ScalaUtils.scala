@@ -313,10 +313,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       /** @todo not work yet */
       val argNamesMap = self.methodArgumentNames
       if (argNamesMap != null) {
-        argNamesMap.get(sym) match {
-          case Some(x) => x
-          case None => Nil
-        }
+        argNamesMap.get(sym).getOrElse(Nil)
       } else Nil
     }
     

@@ -100,10 +100,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
       return
     }
 
-    val rootScope = pResult.rootScope match {
-      case Some(x) => x
-      case None => return
-    }
+    val rootScope = pResult.rootScope.getOrElse(return)
 
     var highlights = new java.util.HashMap[OffsetRange, ColoringAttributes](100)
 
@@ -113,7 +110,6 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     }
 
     val th = pResult.getSnapshot.getTokenHierarchy
-
     val astOffset = ScalaLexUtil.getAstOffset(pResult, caretPosition)
     if (astOffset == -1) {
       return

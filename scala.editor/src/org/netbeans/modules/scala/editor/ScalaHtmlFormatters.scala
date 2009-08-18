@@ -64,8 +64,9 @@ trait ScalaHtmlFormatters {
     }
 
     override def appendText(text: String, fromInclusive: Int, toExclusive: Int) {
+      var i = fromInclusive
       var break = false
-      for (i <- fromInclusive until toExclusive if !break) {
+      while (i < toExclusive && !break) {
         if (textLength >= maxLength) {
           if (textLength == maxLength) {
             sb.append("...")
@@ -91,6 +92,7 @@ trait ScalaHtmlFormatters {
           }
           textLength += 1
         }
+        i += 1
       }
     }
 

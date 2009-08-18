@@ -93,10 +93,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
       } else if (offset > middle.offset(th) + middle.length) {
         lo = mid + 1
       } else {
-        return _idTokenToItems.get(middle) match {
-          case Some(x) => x
-          case None => Nil
-        }
+        return _idTokenToItems.get(middle).getOrElse(Nil)
       }
     }
 
@@ -136,10 +133,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def findItemsAt(token: Token[TokenId]): List[AstItem] = {
-    _idTokenToItems.get(token) match {
-      case Some(x) => x
-      case None => Nil
-    }
+    _idTokenToItems.get(token).getOrElse(Nil)
   }
 
   def findAllDfnSyms[A <: AnyRef](clazz: Class[A]): List[A] = {

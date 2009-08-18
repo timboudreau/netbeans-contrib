@@ -104,11 +104,7 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
   /** Compute the initial balance of brackets at the given offset. */
   private def getFormatStableStart(doc: BaseDocument, offset: Int): Int = {
-    val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
-      case None => return 0
-      case Some(x) => x
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(doc, offset).getOrElse(return 0)
     ts.move(offset)
     if (!ts.movePrevious) {
       return 0

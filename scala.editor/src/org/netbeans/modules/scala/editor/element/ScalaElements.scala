@@ -99,9 +99,7 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getFileObject: FileObject = {
-      fo match {
-        case Some(x) => return x
-        case None =>
+      fo.getOrElse{
           fo = ScalaSourceUtil.getFileObject(pResult, symbol) // try to get
           fo match {
             case Some(x) => path = x.getPath; x

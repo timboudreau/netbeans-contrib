@@ -75,10 +75,7 @@ abstract class AstDfn(_idToken: Option[Token[TokenId]],
   override def getKind: ElementKind = super[AstItem].getKind
 
   override def getModifiers: _root_.java.util.Set[Modifier] = {
-    modifiers match {
-      case None => _root_.java.util.Collections.emptySet[Modifier]
-      case Some(x) => x
-    }
+    modifiers.getOrElse(java.util.Collections.emptySet[Modifier])
   }
 
   override def getOffsetRange(pResult: ParserResult): OffsetRange = {

@@ -91,11 +91,7 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 object ScalaCodeCompletionHandler {
 
   def isJsContext(doc: BaseDocument, offset: Int): Boolean = {
-    val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
-      case Some(x) => x
-      case None => return false
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(doc, offset).getOrElse(return false)
     ts.move(offset)
     if (!ts.movePrevious && !ts.moveNext) {
       return true
@@ -192,10 +188,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         case _ =>
       }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset - 1) match {
-        case Some(x) => x
-        case None => return completionResult
-      }
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset - 1).getOrElse(return completionResult)
       ts.move(lexOffset - 1)
       if (!ts.moveNext && !ts.movePrevious) {
         return completionResult
@@ -549,9 +542,6 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
   override def getPrefix(info: ParserResult, lexOffset: Int, upToOffset: Boolean): String = {
     try {
       val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-      if (doc == null) {
-        return null
-      }
 
       val th = info.getSnapshot.getTokenHierarchy
 
@@ -562,10 +552,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       //                return doc.getText(requireStart, lexOffset - requireStart);
       //            }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-        case Some(x) => x
-        case None => return null
-      }
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return null)
       ts.move(lexOffset)
       if (!ts.moveNext && !ts.movePrevious) {
         return null

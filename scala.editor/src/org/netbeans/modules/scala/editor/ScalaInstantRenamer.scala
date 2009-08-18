@@ -56,11 +56,9 @@ class ScalaInstantRenamer extends InstantRenamer {
 
   override def isRenameAllowed(info: ParserResult, caretOffset: int, explanationRetValue: Array[String]): Boolean = {
     val pResult = info.asInstanceOf[ScalaParserResult]
-    val rootScope = pResult.rootScope match {
-      case Some(x) => x
-      case None =>
-        explanationRetValue(0) = NbBundle.getMessage(classOf[ScalaInstantRenamer], "NoRenameWithErrors")
-        return false
+    val rootScope = pResult.rootScope.getOrElse{
+      explanationRetValue(0) = NbBundle.getMessage(classOf[ScalaInstantRenamer], "NoRenameWithErrors")
+      return false
     }
 
     val document = info.getSnapshot.getSource.getDocument(true)
@@ -75,15 +73,9 @@ class ScalaInstantRenamer extends InstantRenamer {
       return false
     }
 
-    val closest = rootScope.findItemAt(th, caretOffset) match {
-      case Some(x) => x
-      case None => return false
-    }
+    val closest = rootScope.findItemAt(th, caretOffset).getOrElse(return false)
 
-    val dfn = rootScope.findDfnOf(closest) match {
-      case Some(x) => x
-      case None => return false
-    }
+    val dfn = rootScope.findDfnOf(closest).getOrElse(return false)
 
     dfn.getName match {
       case "this" | "super" => return false
@@ -105,7 +97,7 @@ class ScalaInstantRenamer extends InstantRenamer {
 
     val document = pResult.getSnapshot.getSource.getDocument(true)
     if (document == null) {
-      return _root_.java.util.Collections.emptySet[OffsetRange]
+      return java.util.Collections.emptySet[OffsetRange]
     }
 
     val th = pResult.getSnapshot.getTokenHierarchy
@@ -115,25 +107,22 @@ class ScalaInstantRenamer extends InstantRenamer {
       return _root_.java.util.Collections.emptySet[OffsetRange]
     }
 
-    val rootScope = pResult.rootScope match {
-      case Some(x) => x
-      case None => return _root_.java.util.Collections.emptySet[OffsetRange]
-    }
+    val rootScope = pResult.rootScope.getOrElse(return java.util.Collections.emptySet[OffsetRange])
 
     val occurrences = rootScope.findItemAt(th, caretOffset) match {
       case Some(closest) => rootScope.findOccurrences(closest)
-      case None => return _root_.java.util.Collections.emptySet[OffsetRange]
+      case None => return java.util.Collections.emptySet[OffsetRange]
     }
 
-    val regions = new _root_.java.util.HashSet[OffsetRange]
+    val regions = new java.util.HashSet[OffsetRange]
     for (item <- occurrences;
          idToken <- item.idToken)
-    {
-      regions.add(ScalaLexUtil.getRangeOfToken(th, idToken))
-    }
+           {
+        regions.add(ScalaLexUtil.getRangeOfToken(th, idToken))
+      }
 
     if (!regions.isEmpty) {
-      val translated = new _root_.java.util.HashSet[OffsetRange](2 * regions.size)
+      val translated = new java.util.HashSet[OffsetRange](2 * regions.size)
       val itr = regions.iterator
       while (itr.hasNext) {
         val astRange = itr.next

@@ -143,9 +143,7 @@ class ScalaParser extends Parser {
   //    }
   
   private final class Factory extends ParserFactory {
-    override def createParser(snapshots: Collection[Snapshot]): Parser = {
-      new ScalaParser
-    }
+    override def createParser(snapshots: Collection[Snapshot]): Parser = new ScalaParser
   }
 
   /**
@@ -514,8 +512,7 @@ class ScalaParser extends Parser {
   protected def notifyError(context: Context, key: String, msg: String,
                             start: Int, end: Int, isLineError: Boolean,
                             sanitizing: Sanitize, severity: Severity,
-                            params: Object
-  ): Unit = {
+                            params: Object): Unit = {
 
     val error = DefaultError.createDefaultError(key, msg, msg, context.fileObject,
                                                 start, end, isLineError, severity).asInstanceOf[DefaultError]

@@ -59,11 +59,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
   override def getReferenceSpan(document: Document, lexOffset: Int): OffsetRange = {
     val th = TokenHierarchy.get(document)
 
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-      case None => return OffsetRange.NONE
-      case Some(x) => x
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return OffsetRange.NONE)
     ts.move(lexOffset)
     if (!ts.moveNext && !ts.movePrevious) {
       return OffsetRange.NONE
@@ -94,10 +90,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     val pResult = info.asInstanceOf[ScalaParserResult]
     val global = pResult.parser.global
 
-    val root = pResult.rootScope match {
-      case Some(x) => x
-      case None => return DeclarationLocation.NONE
-    }
+    val root = pResult.rootScope.getOrElse(return DeclarationLocation.NONE)
 
     val astOffset = ScalaLexUtil.getAstOffset(info, lexOffset)
     if (astOffset == -1) {
@@ -108,10 +101,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
 
     var isLocal = false
 
-    val closest = root.findItemAt(th, astOffset) match {
-      case Some(x) => x
-      case None => return DeclarationLocation.NONE
-    }
+    val closest = root.findItemAt(th, astOffset).getOrElse(return DeclarationLocation.NONE)
         
     root.findDfnOf(closest) match {
       case Some(dfn) =>

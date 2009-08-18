@@ -76,10 +76,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   private var refsSorted: Boolean = false
 
   def isRoot = {
-    parent match {
-      case Some(_) => false
-      case None => true
-    }
+    !parent.isDefined
   }
 
   def isScopesSorted: Boolean = scopesSorted

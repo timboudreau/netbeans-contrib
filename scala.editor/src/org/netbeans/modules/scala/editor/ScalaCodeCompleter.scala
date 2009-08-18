@@ -258,10 +258,7 @@ abstract class ScalaCodeCompleter {
   }
 
   def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
-    val root = result.rootScope match {
-      case Some(x) => x
-      case None => return
-    }
+    val root = result.rootScope.getOrElse(return)
 
     val pos = new OffsetPosition(result.srcFile, lexOffset)
     try {
@@ -277,10 +274,7 @@ abstract class ScalaCodeCompleter {
    * we show available constructors.
    */
   def completeNew(proposals: java.util.List[CompletionProposal]): Boolean = {
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-      case Some(x) => x
-      case None => return false
-    }
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return false)
     ts.move(lexOffset)
     if (!ts.moveNext && !ts.movePrevious) {
       return false
@@ -340,11 +334,7 @@ abstract class ScalaCodeCompleter {
            * 1. get Type name
            * 2. get constructors of this type when use pressed enter
            */
-          val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(result.getSnapshot.getSource.getFileObject) match {
-            case Some(x) => x
-            case _ => return true
-          }
-          
+          val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(result.getSnapshot.getSource.getFileObject).getOrElse(return true)
           val tpElements = cpInfo.getClassIndex.getDeclaredTypes(prefix, NameKind.CASE_INSENSITIVE_PREFIX,
                                                                  java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
 
@@ -377,10 +367,7 @@ abstract class ScalaCodeCompleter {
       case x => x
     }
 
-    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fileObject) match {
-      case None => return false
-      case Some(x) => x
-    }
+    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fileObject).getOrElse(return false)
 
     val lastDot = fqnPrefix.lastIndexOf('.')
     val (fulledPath, lastPart) =  if (lastDot == -1) {
@@ -433,10 +420,7 @@ abstract class ScalaCodeCompleter {
                                   alternativesHolder: Array[Set[Function]]): Boolean = {
     try {
       val pResult = info.asInstanceOf[ScalaParserResult]
-      val root = pResult.rootScope match {
-        case Some(x) => x
-        case None => return false
-      }
+      val root = pResult.rootScope.getOrElse(return false)
 
       var targetMethod: ExecutableElement = null
       var index = -1
@@ -448,9 +432,6 @@ abstract class ScalaCodeCompleter {
 
       // Adjust offset to the left
       val doc = info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-      if (doc == null) {
-        return false
-      }
 
       val th = info.getSnapshot.getTokenHierarchy
       val newLexOffset = ScalaLexUtil.findSpaceBegin(doc, lexOffset);
@@ -468,10 +449,7 @@ abstract class ScalaCodeCompleter {
         }
       }
 
-      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
-        case Some(x) => x
-        case None => return false
-      }
+      val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return false)
       ts.move(lexOffset)
       if (!ts.moveNext && !ts.movePrevious) {
         return false
