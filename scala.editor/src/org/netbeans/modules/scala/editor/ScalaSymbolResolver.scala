@@ -59,7 +59,7 @@ abstract class ScalaSymbolResolver {
   val global: ScalaGlobal
   import global._
 
-  def resolveQualifieredName(srcPkg: String, fqn: String): Option[AstItem] = {
+  def resolveQualifiedName(srcPkg: String, fqn: String): Option[AstItem] = {
     val sb = new StringBuilder
     if (srcPkg.length > 0) {
       sb.append("package ").append(srcPkg)

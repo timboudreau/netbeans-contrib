@@ -112,6 +112,7 @@ trait JavaElements {
         case javax.lang.model.element.ElementKind.PACKAGE => ElementKind.PACKAGE
         case javax.lang.model.element.ElementKind.CLASS => ElementKind.CLASS
         case javax.lang.model.element.ElementKind.INTERFACE => ElementKind.MODULE
+        case javax.lang.model.element.ElementKind.METHOD => ElementKind.METHOD
         case _ => ElementKind.OTHER
       }
     }

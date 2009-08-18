@@ -105,7 +105,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
       case None => return
     }
 
-    var highlights = new _root_.java.util.HashMap[OffsetRange, ColoringAttributes](100)
+    var highlights = new java.util.HashMap[OffsetRange, ColoringAttributes](100)
 
     val document = pResult.getSnapshot.getSource.getDocument(true)
     if (document == null) {

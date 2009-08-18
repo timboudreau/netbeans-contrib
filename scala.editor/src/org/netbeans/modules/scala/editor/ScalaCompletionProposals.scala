@@ -386,18 +386,18 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  class TypeProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
+  case class TypeProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
 
     override def getKind: ElementKind = {
       ElementKind.CLASS
     }
 
     override def getName: String = {
-      val name = element.getName
-      val lastDot = name.lastIndexOf('.')
-      if (lastDot > 0) {
-        name.substring(lastDot + 1, name.length)
-      } else name
+      val name = element.qualifiedName
+      name.lastIndexOf('.') match {
+        case -1 => name
+        case i => name.substring(i + 1, name.length)
+      }
     }
 
     override def getLhsHtml(fm: HtmlFormatter): String = {
@@ -417,7 +417,13 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     override def getRhsHtml(fm: HtmlFormatter): String = {
-      null
+      val qname = element.qualifiedName
+      val in = qname.lastIndexOf('.') match {
+        case -1 => ""
+        case i => qname.substring(0, i)
+      }
+      fm.appendText(in)
+      fm.getText
     }
   }
 

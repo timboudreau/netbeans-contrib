@@ -272,12 +272,11 @@ abstract class ScalaCodeCompleter {
     } catch {case _ => ScalaGlobal.reset(global)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
   }
 
-  /** Determine if we're trying to complete the name for a "new" (in which case
+  /**
+   * Determine if we're trying to complete the name for a "new" (in which case
    * we show available constructors.
    */
   def completeNew(proposals: java.util.List[CompletionProposal]): Boolean = {
-    //val index = request.index;
-
     val ts = ScalaLexUtil.getTokenSequence(th, lexOffset) match {
       case Some(x) => x
       case None => return false
@@ -331,9 +330,9 @@ abstract class ScalaCodeCompleter {
         }
 
         if (token.id == ScalaTokenId.New || token.id == ScalaTokenId.Colon) {
-          if (prefix.length < 2) {
+          if (prefix.length < 1) {
             /** @todo return imported types */
-            return false
+            return true
           }
 
           /**
@@ -341,76 +340,30 @@ abstract class ScalaCodeCompleter {
            * 1. get Type name
            * 2. get constructors of this type when use pressed enter
            */
-          //val cslElements = index.getDeclaredTypes(prefix, kind, request.result);
-          //val lhs = if (call == None) null else request.call.getLhs();
-          /**
-           if (lhs != null && lhs.length() > 0) {
-           Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
-           if (m.size() > 0) {
-           if (gsdElements.size() == 0) {
-           gsdElements = new HashSet<GsfElement>();
-           }
-           for (IndexedElement f : m) {
-           if (f.getKind() == ElementKind.CONSTRUCTOR) {
-           gsdElements.add(f);
-           }
-           }
-           }
-           } else if (prefix.length() > 0) {
-           Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
-           if (m.size() > 0) {
-           if (gsdElements.size() == 0) {
-           gsdElements = new HashSet<GsfElement>();
-           }
-           for (IndexedElement f : m) {
-           if (f.getKind() == ElementKind.CONSTRUCTOR) {
-           gsdElements.add(f);
-           }
-           }
-           }
-           } */
-          //for (GsfElement cslElement : cslElements) {
-          // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-          //if (!cslElement.getName().startsWith(prefix)) {
-          //continue;
-          //}
+          val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(result.getSnapshot.getSource.getFileObject) match {
+            case Some(x) => x
+            case _ => return true
+          }
+          
+          val tpElements = cpInfo.getClassIndex.getDeclaredTypes(prefix, NameKind.CASE_INSENSITIVE_PREFIX,
+                                                                 java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
 
-
-          //                        // For def completion, skip local methods, only include superclass and included
-          //                        if ((fqn != null) && fqn.equals(method.getClz())) {
-          //                            continue;
-          //                        }
-
-          // If a method is an "initialize" method I should do something special so that
-          // it shows up as a "constructor" (in a new() statement) but not as a directly
-          // callable initialize method (it should already be culled because it's private)
-          //                        ScalaCompletionItem item;
-          //                        if (gsfElement instanceof IndexedFunction) {
-          //                            item = new FunctionItem((IndexedFunction) gsfElement, request);
-          //                        } else {
-          //                            item = new PlainItem(request, gsfElement);
-          //                        }
-          //val item = new PlainItem(cslElement, request);
-          // Exact matches
-          //                        item.setSmart(method.isSmart());
-          //proposals.add(item);
-          //}
-
-          //return true;
-          //                } else if (token.id() == ScalaTokenId.IDENTIFIER && "include".equals(token.text().toString())) {
-          //                    // Module completion
-          //                    Set<IndexedClass> classes = index.getClasses(prefix, kind, false, true, false);
-          //                    for (IndexedClass clz : classes) {
-          //                        if (clz.isNoDoc()) {
-          //                            continue;
-          //                        }
-          //
-          //                        ClassItem item = new ClassItem(clz, anchor, request);
-          //                        item.setSmart(true);
-          //                        proposals.add(item);
-          //                    }
-          //
-          //                    return true;
+          val itr = tpElements.iterator
+          while (itr.hasNext) {
+            val tpElement = itr.next
+            val qname = tpElement.getQualifiedName
+            val sname = qname.lastIndexOf(".") match {
+              case -1 => qname
+              case i => qname.substring(i + 1, qname.length)
+            }
+            if (sname.startsWith(prefix)) {
+              val jElement = JavaElement(tpElement)
+              val proposal = TypeProposal(jElement, this)
+              proposals.add(proposal)
+            }
+          }
+          
+          return true
         }
       }
     }
@@ -438,7 +391,7 @@ abstract class ScalaCodeCompleter {
       (fqnPrefix.substring(0, lastDot), fqnPrefix.substring(lastDot + 1, fqnPrefix.length))
     }
 
-    resolver.resolveQualifieredName("", fulledPath) match {
+    resolver.resolveQualifiedName("", fulledPath) match {
       case None => false
       case Some(x) =>
         prefix = lastPart
