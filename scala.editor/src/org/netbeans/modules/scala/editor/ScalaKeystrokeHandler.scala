@@ -198,6 +198,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           sb.append(" */") // NOI18N
           doc.insertString(offset, sb.toString, null)
           caret.setDot(offset)
+
           return offset + offsetDelta
         }
       case _ =>
@@ -215,6 +216,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       val str = if (id != ScalaTokenId.StringLiteral || offset > ts.offset) "\\n\\" else "\\"
       doc.insertString(offset, str, null)
       caret.setDot(offset + str.length)
+
       return offset + 1 + str.length
     }
 
@@ -230,6 +232,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       val str = if (id != ScalaTokenId.REGEXP_LITERAL || offset > ts.offset) "\\n\\" else "\\"
       doc.insertString(offset, str, null)
       caret.setDot(offset + str.length)
+
       return offset + 1 + str.length
     }
 
@@ -288,7 +291,9 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     }
 
     id match {
-      case _ if (ScalaLexUtil.isBlockComment(id) || ScalaLexUtil.isDocComment(id)) && offset > ts.offset =>
+      case _ if (ScalaLexUtil.isBlockComment(id) || ScalaLexUtil.isDocComment(id)) && 
+        id != ScalaTokenId.BlockCommentEnd && id != ScalaTokenId.DocCommentEnd &&
+        offset > ts.offset =>
         // * continue stars
         val begin = Utilities.getRowFirstNonWhite(doc, offset)
         val end = Utilities.getRowEnd(doc, offset) + 1
@@ -321,22 +326,25 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             val sp = Utilities.getRowStart(doc, offset) + sb.length
             doc.insertString(insertOffset, sb.toString, null)
             caret.setDot(sp)
+
             return sp
+          } else {
+            doc.insertString(insertOffset, sb.toString, null)
+            caret.setDot(insertOffset)
+
+            return insertOffset + sb.length + 1
           }
-          doc.insertString(insertOffset, sb.toString, null)
-          caret.setDot(insertOffset)
-          return insertOffset + sb.length + 1
         }
       case _ =>
     }
 
-    val isComment = id match {
+    val isLineComment = id match {
       case ScalaTokenId.LineComment => true
       case ScalaTokenId.Nl if ts.movePrevious && ts.token.id == ScalaTokenId.LineComment => true
       case _ => false
     }
 
-    if (isComment) {
+    if (isLineComment) {
       // Only do this if the line only contains comments OR if there is content to the right on this line,
       // or if the next line is a comment!
 
@@ -345,33 +353,33 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
       // We should only continue comments if the previous line had a comment
       // (and a comment from the beginning, not a trailing comment)
-      var previousLineWasComment = false
+      var prevLineIsComment = false
       var nextLineIsComment = false
       val rowStart = Utilities.getRowStart(doc, offset)
       if (rowStart > 0) {
-        val prevBegin = Utilities.getRowFirstNonWhite(doc, rowStart - 1)
-        if (prevBegin != -1) {
-          ScalaLexUtil.getTokenId(doc, prevBegin) match {
-            case Some(ScalaTokenId.LineComment) => previousLineWasComment = true
-            case _ =>
-          }
+        Utilities.getRowFirstNonWhite(doc, rowStart - 1) match {
+          case -1 =>
+          case prevBegin => ScalaLexUtil.getTokenId(doc, prevBegin) match {
+              case Some(ScalaTokenId.LineComment) => prevLineIsComment = true
+              case _ =>
+            }
         }
       }
       val rowEnd = Utilities.getRowEnd(doc, offset)
       if (rowEnd < doc.getLength) {
-        val nextBegin = Utilities.getRowFirstNonWhite(doc, rowEnd + 1)
-        if (nextBegin != -1) {
-          ScalaLexUtil.getTokenId(doc, nextBegin) match {
-            case Some(ScalaTokenId.LineComment) => nextLineIsComment = true
-            case _ =>
-          }
+        Utilities.getRowFirstNonWhite(doc, rowEnd + 1) match {
+          case -1 =>
+          case nextBegin => ScalaLexUtil.getTokenId(doc, nextBegin) match {
+              case Some(ScalaTokenId.LineComment) => nextLineIsComment = true
+              case _ =>
+            }
         }
       }
 
       // See if we have more input on this comment line (to the right
       // of the inserted newline); if so it's a "split" operation on
       // the comment
-      if (previousLineWasComment || nextLineIsComment ||
+      if (prevLineIsComment || nextLineIsComment ||
           offset > ts.offset && offset < ts.offset + ts.token.length) {
         if (ts.offset + token.length > offset + 1) {
           // See if the remaining text is just whitespace
@@ -380,21 +388,21 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             continueComment = true
           }
         } else if (CONTINUE_COMMENTS) {
-          // See if the "continue comments" options is turned on, and this is a line that
-          // contains only a comment (after leading whitespace)
-          ScalaLexUtil.getToken(doc, begin) match {
+          // * See if the "continue comments" options is turned on, and this is a line that
+          // * contains only a comment (after leading whitespace)
+          ScalaLexUtil.getTokenId(doc, begin) match {
             case Some(ScalaTokenId.LineComment) => continueComment = true
             case _ =>
           }
         }
         if (!continueComment) {
-          // See if the next line is a comment; if so we want to continue
-          // comments editing the middle of the comment
+          // * See if the next line is a comment; if so we want to continue
+          // * comments editing the middle of the comment
           val nextLine = Utilities.getRowEnd(doc, offset) + 1
           if (nextLine < doc.getLength) {
             Utilities.getRowFirstNonWhite(doc, nextLine) match {
               case -1 =>
-              case nextLineFirst => ScalaLexUtil.getToken(doc, nextLineFirst) match {
+              case nextLineFirst => ScalaLexUtil.getTokenId(doc, nextLineFirst) match {
                   case Some(ScalaTokenId.LineComment) => continueComment = true
                   case _ =>
                 }
@@ -404,12 +412,12 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       }
 
       if (continueComment) {
-        // Line comments should continue
+        // * Line comments should continue
         val indent = GsfUtilities.getLineIndent(doc, offset)
         val sb = new StringBuilder
         sb.append(IndentUtils.createIndentString(doc, indent))
         sb.append("//") // NOI18N
-        // Copy existing indentation
+        // * Copy existing indentation
         val afterSlash = begin + 2
         val line = doc.getText(afterSlash, Utilities.getRowEnd(doc, afterSlash) - afterSlash)
         var i = 0
@@ -428,15 +436,18 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           val sp = Utilities.getRowStart(doc, offset) + sb.length
           doc.insertString(insertOffset, sb.toString, null)
           caret.setDot(sp)
+
           return sp
+        } else {
+          doc.insertString(insertOffset, sb.toString, null)
+          caret.setDot(insertOffset)
+          
+          return insertOffset + sb.length + 1
         }
-        doc.insertString(insertOffset, sb.toString, null)
-        caret.setDot(insertOffset)
-        return insertOffset + sb.length + 1
       }
     }
 
-    return -1
+    -1
   }
 
   /**

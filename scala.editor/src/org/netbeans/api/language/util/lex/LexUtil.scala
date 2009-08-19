@@ -212,8 +212,8 @@ trait LexUtil {
         try {
           ts.move(offset)
         } catch {
-          case ex:AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
-              case dobj:DataObject => Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+          case ex: AssertionError => doc.getProperty(Document.StreamDescriptionProperty) match {
+              case dobj: DataObject => Exceptions.attachMessage(ex, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
               case _ =>
             }
             throw ex
@@ -237,7 +237,7 @@ trait LexUtil {
   }
 
   def getTokenId(doc: BaseDocument, offset: Int): Option[TokenId] = {
-    getToken(doc, offset).map(_.id)
+    getToken(doc, offset).map{_.id}
   }
 
   def getTokenChar(doc: BaseDocument, offset: Int): Char = {
