@@ -629,7 +629,7 @@ trait LexUtil {
     }
   }
 
-  /** Compute the balance of begin/end tokens on the line */
+  /** Compute the balance of up/down tokens on the line */
   def getLineBalance(doc: BaseDocument, offset: Int, up: TokenId, down: TokenId): Stack[Token[TokenId]] = {
     val balanceStack = new Stack[Token[TokenId]]
     try {

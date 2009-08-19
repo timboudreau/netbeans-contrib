@@ -205,35 +205,37 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       case _ =>
     }
 
-    if (id == ScalaTokenId.StringLiteral ||
-        id == ScalaTokenId.STRING_END && offset < ts.offset + ts.token.length) {
-      // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
-      //int indent = GsfUtilities.getLineIndent(doc, offset);
-      //int delimiterOffset = id == ScalaTokenId.STRING_END ? ts.offset() : ts.offset()-1;
-      //char delimiter = doc.getText(delimiterOffset,1).charAt(0);
-      //doc.insertString(offset, delimiter + " + " + delimiter, null);
-      //caret.setDot(offset+3);
-      //return offset + 5 + indent;
-      val str = if (id != ScalaTokenId.StringLiteral || offset > ts.offset) "\\n\\" else "\\"
-      doc.insertString(offset, str, null)
-      caret.setDot(offset + str.length)
+    /*_
+     if (id == ScalaTokenId.StringLiteral ||
+     id == ScalaTokenId.STRING_END && offset < ts.offset + ts.token.length) {
+     // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
+     //int indent = GsfUtilities.getLineIndent(doc, offset);
+     //int delimiterOffset = id == ScalaTokenId.STRING_END ? ts.offset() : ts.offset()-1;
+     //char delimiter = doc.getText(delimiterOffset,1).charAt(0);
+     //doc.insertString(offset, delimiter + " + " + delimiter, null);
+     //caret.setDot(offset+3);
+     //return offset + 5 + indent;
+     val str = if (id != ScalaTokenId.StringLiteral || offset > ts.offset) "\\n\\" else "\\"
+     doc.insertString(offset, str, null)
+     caret.setDot(offset + str.length)
 
-      return offset + 1 + str.length
-    }
+     return offset + 1 + str.length
+     }
 
-    if (id == ScalaTokenId.REGEXP_LITERAL ||
-        id == ScalaTokenId.REGEXP_END && offset < ts.offset + ts.token.length) {
-      // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
-      //int indent = GsfUtilities.getLineIndent(doc, offset);
-      //doc.insertString(offset, "/ + /", null);
-      //caret.setDot(offset+3);
-      //return offset + 5 + indent;
-      val str = if (id != ScalaTokenId.REGEXP_LITERAL || offset > ts.offset) "\\n\\" else "\\"
-      doc.insertString(offset, str, null)
-      caret.setDot(offset + str.length)
+     if (id == ScalaTokenId.REGEXP_LITERAL ||
+     id == ScalaTokenId.REGEXP_END && offset < ts.offset + ts.token.length) {
+     // Instead of splitting a string "foobar" into "foo"+"bar", just insert a \ instead!
+     //int indent = GsfUtilities.getLineIndent(doc, offset);
+     //doc.insertString(offset, "/ + /", null);
+     //caret.setDot(offset+3);
+     //return offset + 5 + indent;
+     val str = if (id != ScalaTokenId.REGEXP_LITERAL || offset > ts.offset) "\\n\\" else "\\"
+     doc.insertString(offset, str, null)
+     caret.setDot(offset + str.length)
 
-      return offset + 1 + str.length
-    }
+     return offset + 1 + str.length
+     }
+     */
 
     // Special case: since I do hash completion, if you try to type
     //     y = Thread.start {
@@ -255,13 +257,13 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
           val sb = new StringBuilder
           sb.append("\n") // NOI18N
           sb.append(IndentUtils.createIndentString(doc, indent))
-          val insertOffset = offset // offset < length ? offset+1 : offset;
+          val insertOffset = offset
           doc.insertString(insertOffset, sb.toString, null)
           caret.setDot(insertOffset)
         }
         ScalaLexUtil.getTokenId(doc, offset - 1) match {
           case Some(prevId) => (id, prevId) match {
-              case (ScalaTokenId.RBrace, ScalaTokenId.LBrace) => insertIndent
+              case (ScalaTokenId.RBrace,   ScalaTokenId.LBrace)   => insertIndent
               case (ScalaTokenId.RBracket, ScalaTokenId.LBracket) => insertIndent
               case _ =>
             }
@@ -580,7 +582,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       } else { // Fall through to do normal insert matching work
         c match {
           case '"' | '\'' | '`' | '(' | '{' | '[' | '/' =>
-            // Bracket the selection
+            // * Bracket the selection
             val selection = target.getSelectedText
             if (selection != null && selection.length > 0) {
               val firstChar = selection.charAt(0)
@@ -670,34 +672,6 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     } else false
   }
 
-  /**
-   * For debugging purposes
-   * Probably obsolete - see the tokenspy utility in gsf debugging tools for better help
-   */
-  private def dumpTokens(doc: BaseDocument, dot: Int) {
-    val ts = ScalaLexUtil.getTokenSequence(doc, dot) match {
-      case Some(x) => x
-      case None => return false
-    }
-  
-    println("Dumping tokens for dot=" + dot)
-    var prevOffset = -1
-    ts.moveStart
-    var index = 0
-    do {
-      val token = ts.token
-      val offset = ts.offset
-      val id = token.id.toString
-      val text = token.text.toString.replaceAll("\n", "\\\\n")
-      if (prevOffset < dot && dot <= offset) {
-        print(" ===> ")
-      }
-      println("Token " + index + ": offset=" + offset + ": id=" + id + ": text=" + text)
-      index += 1
-      prevOffset = offset
-    } while (ts.moveNext)
-  }
-  
   /**
    * A hook method called after a character was inserted into the
    * document. The function checks for special characters for
@@ -1677,4 +1651,33 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     // Default handling in the IDE
     return -1
   }
+
+  /**
+   * For debugging purposes
+   * Probably obsolete - see the tokenspy utility in gsf debugging tools for better help
+   */
+  private def dumpTokens(doc: BaseDocument, dot: Int) {
+    val ts = ScalaLexUtil.getTokenSequence(doc, dot) match {
+      case Some(x) => x
+      case None => return false
+    }
+
+    println("Dumping tokens for dot=" + dot)
+    var prevOffset = -1
+    ts.moveStart
+    var index = 0
+    do {
+      val token = ts.token
+      val offset = ts.offset
+      val id = token.id.toString
+      val text = token.text.toString.replaceAll("\n", "\\\\n")
+      if (prevOffset < dot && dot <= offset) {
+        print(" ===> ")
+      }
+      println("Token " + index + ": offset=" + offset + ": id=" + id + ": text=" + text)
+      index += 1
+      prevOffset = offset
+    } while (ts.moveNext)
+  }
+  
 }
