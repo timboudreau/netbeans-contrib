@@ -29,6 +29,7 @@ Microsystems, Inc. All Rights Reserved.
         </csljar>
     </target>
 
+    <target name="clean" depends="init,projectized-common.clean,scala-clean"/>
     <target name="compile" depends="init,projectized-common.compile,scala-compile"/>
     <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build"/>
 
