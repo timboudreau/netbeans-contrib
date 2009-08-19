@@ -44,6 +44,7 @@ package org.netbeans.modules.scala.project;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.ProjectManager;
@@ -364,8 +365,8 @@ public class J2SEProjectGenerator {
             String fName = pName.replace( '.', '/' ); // NOI18N
             pkgFolder = FileUtil.createFolder( srcFolder, fName );        
         }
-        DataFolder pDf = DataFolder.findFolder( pkgFolder );        
-        mt.createFromTemplate( pDf, mName );
+        DataFolder pDf = DataFolder.findFolder( pkgFolder );
+        mt.createFromTemplate(pDf, mName, Collections.singletonMap("package", pName));
         
     }
     
