@@ -327,9 +327,9 @@ abstract class ScalaAstVisitor {
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
             scopes push scope
-            println("PackageDef("+name+", ")
+            //println("PackageDef("+name+", ")
             for (stat <- stats) traverse(stat, level + 1, false)
-            printcln(")")
+            //printcln(")")
             scopes pop
 
           case ClassDef(mods, name, tparams, impl) =>
@@ -343,18 +343,18 @@ abstract class ScalaAstVisitor {
 
             scopes push scope
 
-            println("ClassDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
-            if (tparams.isEmpty) println("  List(), // no type parameter")
+            //println("ClassDef(" + nodeinfo(tree))
+            //println("  " + symflags(tree))
+            //println("  \"" + name + "\",")
+            if (tparams.isEmpty) {} //println("  List(), // no type parameter")
             else {
               val n = tparams.length
-              println("  List( // " + n + " type parameter(s)")
+              //println("  List( // " + n + " type parameter(s)")
               for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
-              println("  ),")
+              //println("  ),")
             }
             traverse(impl, level + 1, false)
-            printcln(")")
+            //printcln(")")
             scopes pop
 
           case ModuleDef(mods, name, impl) =>
@@ -379,32 +379,32 @@ abstract class ScalaAstVisitor {
 
             scopes push scope
 
-            println("DefDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
-            if (tparams.isEmpty) println("  List(), // no type parameter")
+            //println("DefDef(" + nodeinfo(tree))
+            //println("  " + symflags(tree))
+            //println("  \"" + name + "\",")
+            if (tparams.isEmpty) {}//println("  List(), // no type parameter")
             else {
               val n = tparams.length
-              println("  List( // " + n + " type parameter(s)")
+              //println("  List( // " + n + " type parameter(s)")
               for (i <- 0 until n) traverse(tparams(i), level + 2, i < n-1)
-              println("  ),")
+              //println("  ),")
             }
             val n = vparamss.length
-            if (n == 1 && vparamss(0).isEmpty) println("  List(List()), // no parameter")
+            if (n == 1 && vparamss(0).isEmpty) {}//println("  List(List()), // no parameter")
             else {
-              println("  List(")
+              //println("  List(")
               for (i <- 0 until n) {
                 val m = vparamss(i).length
-                println("    List( // " + m + " parameter(s)")
+                //println("    List( // " + m + " parameter(s)")
                 for (j <- 0 until m) traverse(vparamss(i)(j), level + 3, j < m-1)
-                println("    )")
+                //println("    )")
               }
-              println("  ),")
+              //println("  ),")
             }
             traverse(tpt, level, false)
-            println("  " + tpt + ",")
+            //println("  " + tpt + ",")
             traverse(rhs, level + 1, false)
-            printcln(")")
+            //printcln(")")
 
             scopes pop
 
@@ -426,12 +426,12 @@ abstract class ScalaAstVisitor {
             }
 
             scopes push scope
-            println("ValDef(" + nodeinfo(tree))
-            println("  " + symflags(tree))
-            println("  \"" + name + "\",")
+            //println("ValDef(" + nodeinfo(tree))
+            //println("  " + symflags(tree))
+            //println("  \"" + name + "\",")
             traverse(tpt, level, false) // tpe is usually a TypeTree
             traverse(rhs, level + 1, false)
-            printcln(")")
+            //printcln(")")
             scopes pop
 
           case Bind(name, body) =>
@@ -473,7 +473,7 @@ abstract class ScalaAstVisitor {
                 }
             }
 
-            printcln("TypeTree()" + nodeinfo2(tree))
+            //printcln("TypeTree()" + nodeinfo2(tree))
 
           case Select(qualifier, selector) =>
             /**
@@ -511,25 +511,25 @@ abstract class ScalaAstVisitor {
             //* @Note: since `selectTypeErrors` are gathered upon `Select` tree, this detecting should happen here only
             qualiferMaybeType = global.selectTypeErrors.get(tree)
 
-            println("Select(" + nodeinfo(tree))
+            //println("Select(" + nodeinfo(tree))
             traverse(qualifier, level + 1, true)
-            printcln("  \"" + selector + "\")")
+            //printcln("  \"" + selector + "\")")
 
             // * reset qualiferMaybeType
             qualiferMaybeType = None
 
           case Apply(fun, args) =>
             // * this tree's `fun` part is extractly an `Ident` tree, so add ref at Ident(name) instead here
-            println("Apply(" + nodeinfo(tree))
+            //println("Apply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty) println("  List() // no argument")
+            if (args.isEmpty) {} //println("  List() // no argument")
             else {
               val n = args.length
-              println("  List( // " + n + " argument(s)")
+              //println("  List( // " + n + " argument(s)")
               for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
-              println("  )")
+              //println("  )")
             }
-            printcln(")")
+            //printcln(")")
 
           case Ident(name) =>
             val sym = tree.symbol
@@ -549,7 +549,7 @@ abstract class ScalaAstVisitor {
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
 
-            printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
+            //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
 
           case Import(expr, selectors) =>
             traverse(expr, level, false)
@@ -564,113 +564,112 @@ abstract class ScalaAstVisitor {
             traverse(body, level, false)
 
           case AppliedTypeTree(tpt, args) =>
-            println("AppliedTypeTree(" + nodeinfo(tree))
+            //println("AppliedTypeTree(" + nodeinfo(tree))
             traverse(tpt, level + 1, true)
-            if (args.isEmpty) println("  List() // no argument")
+            if (args.isEmpty) {} //println("  List() // no argument")
             else {
               val n = args.length
-              println("  List( // " + n + " arguments(s)")
+              //println("  List( // " + n + " arguments(s)")
               for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
-              println("  )")
+              //println("  )")
             }
-            printcln(")")
+            //printcln(")")
 
           case ApplyDynamic(fun, args) =>
-            println("ApplyDynamic(" + nodeinfo(tree))
+            //println("ApplyDynamic(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty) println("  List() // no argument")
+            if (args.isEmpty) {} //println("  List() // no argument")
             else {
               val n = args.length
-              println("  List( // " + n + " argument(s)")
+              //println("  List( // " + n + " argument(s)")
               for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
-              println("  )")
+              //println("  )")
             }
-            printcln(")")
+            //printcln(")")
 
           case Block(stats, expr) =>
-            println("Block(" + nodeinfo(tree))
-            if (stats.isEmpty) println("  List(), // no statement")
+            //println("Block(" + nodeinfo(tree))
+            if (stats.isEmpty) {} //println("  List(), // no statement")
             else {
               val n = stats.length
-              println("  List( // " + n + " statement(s)")
+              //println("  List( // " + n + " statement(s)")
               for (i <- 0 until n) traverse(stats(i), level + 2, i < n-1)
-              println("  ),")
+              //println("  ),")
             }
             traverse(expr, level + 1, false)
-            printcln(")")
+            //printcln(")")
             
           case EmptyTree =>
-            printcln("EmptyTree")
+            //printcln("EmptyTree")
 
           case Literal(value) =>
-            printcln("Literal(" + value + ")")
+            //printcln("Literal(" + value + ")")
 
           case New(tpt) =>
-            println("New(" + nodeinfo(tree))
+            //println("New(" + nodeinfo(tree))
             traverse(tpt, level + 1, false)
-            printcln(")")
+            //printcln(")")
 
           case Super(qual, mix) =>
-            printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
+            //printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
 
           case Template(parents, self, body) =>
             parents foreach {traverse(_, level, false)}
             
-            println("Template(" + nodeinfo(tree))
-            println("  " + parents.map(p =>
-                if (p.tpe ne null) p.tpe.typeSymbol else "null-" + p
-              ) + ", // parents")
+            //println("Template(" + nodeinfo(tree))
+            //println("  " + parents.map(p =>
+            //    if (p.tpe ne null) p.tpe.typeSymbol else "null-" + p
+            //  ) + ", // parents")
             traverse(self, level + 1, true)
-            if (body.isEmpty) println("  List() // no body")
+            if (body.isEmpty) {} //println("  List() // no body")
             else {
               val n = body.length
-              println("  List( // body")
+              //println("  List( // body")
               for (i <- 0 until n) traverse(body(i), level + 2, i < n-1)
-              println("  )")
+              //println("  )")
             }
-            printcln(")")
+            //printcln(")")
 
           case This(qual) =>
-            println("This(\"" + qual + "\")" + nodeinfo2(tree))
+            //println("This(\"" + qual + "\")" + nodeinfo2(tree))
 
           case TypeApply(fun, args) =>
-            println("TypeApply(" + nodeinfo(tree))
+            //println("TypeApply(" + nodeinfo(tree))
             traverse(fun, level + 1, true)
-            if (args.isEmpty) println("  List() // no argument")
+            if (args.isEmpty) {} //println("  List() // no argument")
             else {
               val n = args.length
-              println("  List(")
-              for (i <- 0 until n)
-                traverse(args(i), level + 1, i < n-1)
-              println("  )")
+              //println("  List(")
+              for (i <- 0 until n) traverse(args(i), level + 1, i < n-1)
+              //println("  )")
             }
-            printcln(")")
+            //printcln(")")
 
           case Typed(expr, tpt) =>
-            println("Typed(" + nodeinfo(tree))
+            //println("Typed(" + nodeinfo(tree))
             traverse(expr, level + 1, true)
             traverse(tpt, level + 1, false)
-            printcln(")")
+            //printcln(")")
 
           case _ => tree match {
               case p: Product =>
                 if (p.productArity != 0) {
-                  println(p.productPrefix+"(")
+                  //println(p.productPrefix+"(")
                   for (elem <- (0 until p.productArity) map p.productElement) {
                     def printElem(elem: Any, level: Int): Unit = elem match {
                       case t: Tree =>
                         traverse(t, level, false)
                       case xs: List[_] =>
-                        print("List(")
+                        //print("List(")
                         for (x <- xs) printElem(x, level+1)
-                        printcln(")")
+                        //printcln(")")
                       case _ =>
-                        println(elem.toString)
+                        //println(elem.toString)
                     }
                     printElem(elem, level+1)
                   }
-                  printcln(")")
-                } else printcln(p.productPrefix)
+                  //printcln(")")
+                } else {} //printcln(p.productPrefix)
             }
         }
 
