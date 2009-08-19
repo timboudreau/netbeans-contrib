@@ -38,10 +38,10 @@
  */
 package org.netbeans.modules.scala.editor
 
-import _root_.java.io.{File, IOException}
-import _root_.java.lang.ref.{Reference, WeakReference}
-import _root_.java.net.{MalformedURLException, URI, URISyntaxException, URL}
-import _root_.java.util.WeakHashMap
+import java.io.{File, IOException}
+import java.lang.ref.{Reference, WeakReference}
+import java.net.{MalformedURLException, URI, URISyntaxException, URL}
+import java.util.WeakHashMap
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
@@ -387,11 +387,9 @@ object ScalaGlobal {
 
   private def findOutDir(project: Project, srcRoot: FileObject): FileObject = {
     val srcRootUrl: URL = try {
-      // make sure the url is in same form of BinaryForSourceQueryImplementation
+      // * make sure the url is in same form of BinaryForSourceQueryImplementation
       FileUtil.toFile(srcRoot).toURI.toURL
-    } catch {
-      case ex: MalformedURLException => Exceptions.printStackTrace(ex); null
-    }
+    } catch {case ex: MalformedURLException => Exceptions.printStackTrace(ex); null}
 
     var out: FileObject = null
     val query = project.getLookup.lookup(classOf[BinaryForSourceQueryImplementation])
@@ -399,29 +397,31 @@ object ScalaGlobal {
       val result = query.findBinaryRoots(srcRootUrl)
       if (result != null) {
         var break = false
-        for (url <- result.getRoots if !break && !FileUtil.isArchiveFile(url)) {
-          val uri: URI = try {
-            url.toURI
-          } catch {
-            case ex: URISyntaxException => Exceptions.printStackTrace(ex); null
-          }
+        val itr = result.getRoots.iterator
+        while (itr.hasNext && !break) {
+          val url = itr.next
+          if (!FileUtil.isArchiveFile(url)) {
+            val uri: URI = try {
+              url.toURI
+            } catch {case ex: URISyntaxException => Exceptions.printStackTrace(ex); null}
 
-          if (url != null) {
-            val file = new File(uri)
-            break = if (file != null) {
-              if (file.isDirectory) {
-                out = FileUtil.toFileObject(file)
-                true
-              } else if (file.exists) {
-                false
-              } else {
-                // global requires an exist out path, so we should create
-                if (file.mkdirs) {
+            if (uri != null) {
+              val file = new File(uri)
+              break = if (file != null) {
+                if (file.isDirectory) {
                   out = FileUtil.toFileObject(file)
                   true
-                } else false
-              }
-            } else false
+                } else if (file.exists) {
+                  false
+                } else {
+                  // global requires an exist out path, so we should create
+                  if (file.mkdirs) {
+                    out = FileUtil.toFileObject(file)
+                    true
+                  } else false
+                }
+              } else false
+            }
           }
         }
       }
@@ -496,12 +496,12 @@ object ScalaGlobal {
 }
 
 class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(settings, reporter)
-                                         with ScalaDfns
-                                         with ScalaRefs
-                                         with ScalaElements
-                                         with JavaElements
-                                         with ScalaCompletionProposals
-                                         with ScalaUtils {
+                                                             with ScalaDfns
+                                                             with ScalaRefs
+                                                             with ScalaElements
+                                                             with JavaElements
+                                                             with ScalaCompletionProposals
+                                                             with ScalaUtils {
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
