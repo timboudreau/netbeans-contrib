@@ -1497,6 +1497,7 @@ Scala installation directory.
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <delete dir="${{build.dir}}"/>
                 <delete dir="${{dist.dir}}"/>
+                <fsc reset="yes" srcdir="${{src.dir}}"/>
                 <!-- XXX explicitly delete all build.* and dist.* dirs in case they are not subdirs -->
             </target>
             
