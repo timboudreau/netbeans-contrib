@@ -590,8 +590,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                 val start = target.getSelectionStart
                 val end = target.getSelectionEnd
                 ScalaLexUtil.getPositionedSequence(doc, start) foreach {
-                  case ts if ts.token.id != ScalaTokenId.StringLiteral =>
-                    // * Not inside strings!
+                  case ts if ts.token.id != ScalaTokenId.StringLiteral => // * Not inside strings!
                     val lastChar = selection.charAt(selection.length - 1)
                     // * Replace the surround-with chars?
                     firstChar match {
