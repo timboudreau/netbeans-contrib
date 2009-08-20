@@ -49,7 +49,7 @@ import org.netbeans.modules.scala.editor.element.{JavaElements}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import scala.tools.nsc.util.Position
-import scala.tools.nsc.symtab.Symbols
+import scala.tools.nsc.symtab.{Flags, Symbols}
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -317,13 +317,13 @@ object ScalaSourceUtil {
       val srcFile = pos.source
       if (srcFile != null) {
         var srcPath = srcFile.path
-        // Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
+        // * Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
         if (!srcPath.startsWith(File.separator)) {
           srcPath = File.separator + srcPath
         }
         val file = new File(srcPath)
         if (file != null && file.exists) {
-          // it's a real file and not archive file
+          // * it's a real file and not archive file
           return Some(FileUtil.toFileObject(file))
         }
       }
@@ -343,59 +343,58 @@ object ScalaSourceUtil {
       return None
     }
 
-    val lastSep = qName.lastIndexOf(File.separatorChar)
-    val pkgName: String = if (lastSep > 0) {
-      qName.substring(0, lastSep)
-    } else null
+    val pkgName = qName.lastIndexOf(File.separatorChar) match {
+      case -1 => null
+      case i => qName.substring(0, i)
+    }
 
     val clzName = qName + ".class"
 
     try {
-      val srcFo = pResult.getSnapshot.getSource.getFileObject
-      val cpInfo = ClasspathInfo.create(srcFo)
-      val cp = ClassPathSupport.createProxyClassPath(
-        Array(cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT),
-              cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)): _*)
+      val cp = getClassPath(pResult.getSnapshot.getSource.getFileObject)
 
       val clzFo = cp.findResource(clzName)
-      var srcPath: String = null
-      if (clzFo != null) {
+      val root = cp.findOwnerRoot(clzFo)
+      val ext = if (symbol hasFlag Flags.JAVA) ".java" else ".scala"
+
+      // * see if we can find this class's source file straightforward
+      findSourceFileObject(cp, root, qName + ext) match {
+        case None =>
+        case x => return x
+      }
+
+      var srcPath = if (clzFo != null) {
         val in = clzFo.getInputStream
         try {
-          val clzFile = new ClassFile(in, false)
-          if (clzFile != null) {
-            srcPath = clzFile.getSourceFileName
+          new ClassFile(in, false) match {
+            case null => null
+            case clzFile => clzFile.getSourceFileName
           }
-        } finally {
-          if (in != null) {
-            in.close
-          }
-        }
-      }
+        } finally {if (in != null) in.close}
+      } else null
 
       if (srcPath != null) {
         if (pkgName != null) {
           srcPath = pkgName + File.separatorChar + srcPath
         }
 
-        val root = cp.findOwnerRoot(clzFo)
-        assert(root != null)
-
-        val result = SourceForBinaryQuery.findSourceRoots(root.getURL)
-        val srcRoots = result.getRoots
-        val srcCp = ClassPathSupport.createClassPath(srcRoots: _*)
-
-        srcCp.findResource(srcPath) match {
-          case null => None
-          case x => return Some(x)
-        }
+        return findSourceFileObject(cp, clzFo, srcPath)
       }
-    } catch {
-      case ex: IOException => ex.printStackTrace
-    }
+    } catch {case ex: IOException => ex.printStackTrace}
 
     None
+  }
+
+  def findSourceFileObject(cp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+    if (root == null) return None
+    
+    val srcRoots = SourceForBinaryQuery.findSourceRoots(root.getURL).getRoots
+    val srcCp = ClassPathSupport.createClassPath(srcRoots: _*)
+
+    srcCp.findResource(srcPath) match {
+      case null => None
+      case x => return Some(x)
+    }
   }
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
@@ -648,5 +647,21 @@ object ScalaSourceUtil {
         case x => Some(x)
       }
     }
+  }
+
+  def getClassPath(fo: FileObject) = {
+    val bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
+    val compileCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
+    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+    ClassPathSupport.createProxyClassPath(Array(bootCp, compileCp, srcCp): _*)
+  }
+
+  /** What's difference from getClassPath(fo: FileObject) ? */
+  def getClassPath2(fo: FileObject) = {
+    val cpInfo = ClasspathInfo.create(fo)
+    val bootCp = cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT)
+    val compileCp = cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)
+    val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
+    ClassPathSupport.createProxyClassPath(Array(bootCp, compileCp, srcCp): _*)
   }
 }
