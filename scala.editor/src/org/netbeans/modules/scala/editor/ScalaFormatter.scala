@@ -39,17 +39,18 @@
 
 package org.netbeans.modules.scala.editor
 
-//import org.netbeans.modules.scala.editing.options.CodeStyle;
 import javax.swing.text.{BadLocationException, Document}
 import org.netbeans.api.lexer.{Token, TokenId, TokenSequence}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.Formatter
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.netbeans.modules.editor.indent.spi.Context
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.openide.filesystems.FileUtil
 import org.openide.loaders.DataObject
 import org.openide.util.Exceptions
+
+import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.editor.options.{CodeStyle}
 
 import scala.collection.mutable.{ArrayBuffer, Stack}
 
@@ -74,13 +75,14 @@ object ScalaFormatter {
 
 }
 
-class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) extends Formatter {
+class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
   import ScalaFormatter._
+  
   import org.netbeans.modules.csl.api.OffsetRange
 
-  def this() = this(-1)
+  def this() = this(null, -1)
   
-  //private var codeStyle = if (acodeStyle != null) acodeStyle else CodeStyle.getDefault(null)
+  private var codeStyle = if (acodeStyle != null) acodeStyle else CodeStyle.getDefault(null)
 
   def needsParserResult: Boolean = {
     false
@@ -95,11 +97,11 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
   }
 
   def indentSize: Int = {
-    2 //codeStyle.getIndentSize
+    codeStyle.getIndentSize
   }
 
   def hangingIndentSize: Int = {
-    0 // codeStyle.getContinuationIndentSize
+    codeStyle.getContinuationIndentSize
   }
 
   /** Compute the initial balance of brackets at the given offset. */
@@ -154,15 +156,15 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
     var startOffset = astartOffset
     var endOffset = aendOffset
     try {
-      val doc = document.asInstanceOf[BaseDocument] // document.getText(0, document.getLength())
-      //syncOptions(doc, codeStyle)
+      val doc = document.asInstanceOf[BaseDocument]
+      syncOptions(doc, codeStyle)
 
       if (endOffset > doc.getLength) {
         endOffset = doc.getLength
       }
 
       startOffset = Utilities.getRowStart(doc, startOffset)
-      val lineStart = startOffset //Utilities.getRowStart(doc, startOffset);
+      val lineStart = startOffset
 
       var initialOffset = 0
       var initialIndent = 0
@@ -742,13 +744,14 @@ class ScalaFormatter(/* acodeStyle: CodeStyle ,*/ rightMarginOverride: Int) exte
 
   /**
    * Ensure that the editor-settings for tabs match our code style, since the
-   * primitive "doc.getFormatter().changeRowIndent" calls will be using
+   * primitive "doc.getFormatter.changeRowIndent" calls will be using
    * those settings
    */
-  //  private def syncOptions(doc: BaseDocument, style: CodeStyle) {
-  //    val formatter = doc.getFormatter
-  //    if (formatter.getSpacesPerTab != style.getIndentSize) {
-  //      formatter.setSpacesPerTab(style.getIndentSize)
-  //    }
-  //  }
+  private def syncOptions(doc: BaseDocument, style: CodeStyle) {
+    val formatter = doc.getFormatter
+    if (formatter.getSpacesPerTab != style.getIndentSize) {
+      formatter.setSpacesPerTab(style.getIndentSize)
+    }
+  }
+  
 }
