@@ -109,6 +109,15 @@ trait ScalaDfns {self: ScalaGlobal =>
     def htmlFormat(fm: HtmlFormatter): Unit = {
       ScalaUtil.htmlFormat(symbol, fm)
     }
+
+    def sigFormat(fm: HtmlFormatter) : Unit = {
+      try {
+        fm.appendHtml("<i>")
+        fm.appendText(symbol.enclClass.fullNameString)
+        fm.appendHtml("</i><p>")
+        ScalaUtil.htmlDef(symbol, fm)
+      } catch {case _ => ScalaGlobal.reset(self)}
+    }
   }
 
 }

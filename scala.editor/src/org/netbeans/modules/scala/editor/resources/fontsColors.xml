@@ -70,10 +70,12 @@
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
     <fontcolor name="mod-abstract" />
     <fontcolor name="mod-field" default="field" foreColor="009B00"/>  
-    <fontcolor name="mod-static-field" default="field" foreColor="009B00" waveUnderlined="009B00"/>
     <fontcolor name="mod-local-variable" />
     <fontcolor name="mod-parameter" foreColor="A06001"/>
 
+    <fontcolor name="mod-static-field" foreColor="000000" waveUnderlined="000000"> <!-- function def and override -->
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="mod-method"> <!-- function def -->
         <font style="bold" />
     </fontcolor>

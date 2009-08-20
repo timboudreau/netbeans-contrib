@@ -44,7 +44,7 @@ import javax.lang.model.element.Element
 import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.editor.BaseDocument
-import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange}
+import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange, HtmlFormatter}
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.Exceptions
@@ -100,11 +100,11 @@ trait ScalaElements {self: ScalaGlobal =>
 
     override def getFileObject: FileObject = {
       fo.getOrElse{
-          fo = ScalaSourceUtil.getFileObject(pResult, symbol) // try to get
-          fo match {
-            case Some(x) => path = x.getPath; x
-            case None => null
-          }
+        fo = ScalaSourceUtil.getFileObject(pResult, symbol) // try to get
+        fo match {
+          case Some(x) => path = x.getPath; x
+          case None => null
+        }
       }
     }
 
@@ -272,6 +272,19 @@ trait ScalaElements {self: ScalaGlobal =>
 
     override def toString = {
       symbol.toString
+    }
+
+    def htmlFormat(fm: HtmlFormatter): Unit = {
+      ScalaUtil.htmlFormat(symbol, fm)
+    }
+
+    def sigFormat(fm: HtmlFormatter) : Unit = {
+      try {
+        fm.appendHtml("<i>")
+        fm.appendText(symbol.enclClass.fullNameString)
+        fm.appendHtml("</i><p>")
+        ScalaUtil.htmlDef(symbol, fm)
+      } catch {case _ => ScalaGlobal.reset(self)}
     }
 
   }

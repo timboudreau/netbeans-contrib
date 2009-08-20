@@ -39,6 +39,7 @@
 package org.netbeans.api.language.util.ast
 
 import org.netbeans.modules.csl.api.ElementHandle
+import org.netbeans.modules.csl.api.HtmlFormatter
 
 /**
  *
@@ -59,4 +60,8 @@ trait AstElementHandle extends ElementHandle {
   def isInherited: Boolean
     
   def isEmphasize: Boolean
+
+  def htmlFormat(fm: HtmlFormatter): Unit
+
+  def sigFormat(fm: HtmlFormatter) : Unit
 }

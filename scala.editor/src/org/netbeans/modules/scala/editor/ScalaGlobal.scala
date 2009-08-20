@@ -156,6 +156,7 @@ object ScalaGlobal {
       settings.debug.value = true
       settings.verbose.value = true
     } else {
+      settings.debug.value = false
       settings.verbose.value = false
     }
 

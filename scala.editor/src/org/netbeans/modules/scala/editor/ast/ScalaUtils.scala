@@ -316,7 +316,167 @@ trait ScalaUtils {self: ScalaGlobal =>
         argNamesMap.get(sym).getOrElse(Nil)
       } else Nil
     }
-    
+
+    /**
+     * String representation of symbol's definition
+     * from scala.tools.nsc.symtab.Symbols
+     */
+    def htmlDef(sym: Symbol, fm: HtmlFormatter): Unit = {
+      val flags = if (sym.owner.isRefinementClass) {
+        sym.flags & Flags.ExplicitFlags & ~Flags.OVERRIDE
+      } else sym.flags & Flags.ExplicitFlags
+
+      compose(List(Flags.flagsToString(flags),
+                   sym.keyString,
+                   sym.varianceString + sym.nameString), fm)
+      
+      sym match {
+        case _ if sym.isPackage | sym.isClass | sym.isTrait =>
+          if (sym.hasRawInfo) htmlTypeInfo(sym.rawInfo, fm)
+        case _ if sym.isModule => // object, the `rawInfo` is `TypeRef`, we should dive into `sym.moduleClass`
+          if (sym.hasRawInfo) htmlTypeInfo(sym.moduleClass.rawInfo, fm)
+        case _ if sym.isConstructor =>
+          if (sym.hasRawInfo) fm.appendText(sym.infoString(sym.rawInfo))
+        case _ if sym.isMethod =>
+          if (sym.hasRawInfo) fm.appendText(sym.infoString(sym.rawInfo))
+        case _ => 
+          if (sym.hasRawInfo) fm.appendText(sym.infoString(sym.rawInfo))
+      }      
+    }
+
+    /** Concatenate strings separated by spaces */
+    private def compose(ss: List[String], fm: HtmlFormatter): Unit = {
+      val itr = ss.filter("" !=).iterator
+      while (itr.hasNext) {
+        fm.appendText(itr.next)
+        if (itr.hasNext) fm.appendText(" ")
+      }
+    }
+
+    def htmlTypeInfo(tpe: Type, fm: HtmlFormatter): Unit = {
+      tpe match {
+        case ErrorType => fm.appendText("<error>")
+          // internal: error
+        case WildcardType => "_"
+          // internal: unknown
+        case NoType => fm.appendText("<notype>")
+        case NoPrefix => fm.appendText("<noprefix>")
+        case ThisType(sym) =>
+          fm.appendText(sym.nameString)
+          fm.appendText(".this.type")
+          // sym.this.type
+        case SingleType(pre, sym) =>
+          fm.appendText(sym.nameString)
+          fm.appendText(".type")
+          // pre.sym.type
+        case ConstantType(value) =>
+
+          // int(2)
+        case TypeRef(pre, sym, args) =>
+          fm.appendText(sym.fullNameString)
+          if (!args.isEmpty) {
+            fm.appendText("[")
+            val itr = args.iterator
+            while (itr.hasNext) {
+              htmlTypeName(itr.next, fm)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText("]")
+          }
+          // pre.sym[targs]
+        case RefinedType(parents, defs) =>
+          fm.appendText(" extends ")
+          val itr = parents.iterator
+          while (itr.hasNext) {
+            htmlTypeInfo(itr.next, fm)
+            if (itr.hasNext) {
+              fm.appendHtml("<br>")
+              fm.appendText(" with ")
+            }
+          }
+          fm.appendText("{...}")
+          // parent1 with ... with parentn { defs }
+        case AnnotatedType(annots, tp, selfsym) => htmlTypeInfo(tp, fm)
+          // tp @annots
+
+          // the following are non-value types; you cannot write them down in Scala source.
+
+        case TypeBounds(lo, hi) =>
+          fm.appendText(">: ")
+          htmlTypeInfo(lo, fm)
+          fm.appendText(" <: ")
+          htmlTypeInfo(hi, fm)
+          // >: lo <: hi
+        case ClassInfoType(parents, defs, clazz) =>
+          //htmlTypeInfo(clazz.tpe, fm)
+          fm.appendText(" extends ")
+          val itr = parents.iterator
+          while (itr.hasNext) {
+            htmlTypeInfo(itr.next, fm)
+            if (itr.hasNext) {
+              fm.appendHtml("<br>")
+              fm.appendText(" with ")
+            }
+          }
+          // same as RefinedType except as body of class
+        case MethodType(paramtypes, result) =>
+          if (!paramtypes.isEmpty) {
+            fm.appendText("(")
+            val itr = paramtypes.iterator
+            while (itr.hasNext) {
+              fm.`type`(true)
+              htmlTypeInfo(itr.next.tpe, fm)
+              fm.`type`(false)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText(")")
+          }
+          fm.appendText(": ")
+          htmlTypeInfo(result, fm)
+          // (paramtypes)result
+        case PolyType(tparams, result) =>
+          if (!tparams.isEmpty) {
+            fm.appendText("(")
+            val itr = tparams.iterator
+            while (itr.hasNext) {
+              fm.`type`(true)
+              htmlTypeInfo(itr.next.tpe, fm)
+              fm.`type`(false)
+              if (itr.hasNext) {
+                fm.appendText(", ")
+              }
+            }
+            fm.appendText(")")
+          }
+          fm.appendText(": ")
+          htmlTypeInfo(result, fm)
+          // [tparams]result where result is a MethodType or ClassInfoType
+          // or
+          // []T  for a eval-by-name type
+        case ExistentialType(tparams, result) =>
+          fm.appendText("ExistantialType")
+          // exists[tparams]result
+
+          // the last five types are not used after phase `typer'.
+
+          //case OverloadedType(pre, tparams, alts) => "Overlaod"
+          // all alternatives of an overloaded ident
+        case AntiPolyType(pre: Type, targs) =>
+          fm.appendText("AntiPolyType")
+        case TypeVar(_, _) => 
+          fm.appendText(tpe.safeToString)
+          // a type variable
+        case DeBruijnIndex(level, index) =>
+          fm.appendText("DeBruijnIndex")
+        case _ =>
+          fm.appendText(tpe.getClass.getSimpleName)
+      }
+    }
+
     def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {
       assert(rootScope != null)
 

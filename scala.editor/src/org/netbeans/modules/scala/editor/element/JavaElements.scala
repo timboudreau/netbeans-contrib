@@ -155,5 +155,8 @@ trait JavaElements {
     def htmlFormat(formatter: HtmlFormatter): Unit = {
       formatter.appendText(getName)
     }
+
+    def sigFormat(fm: HtmlFormatter) : Unit = {
+    }
   }
 }

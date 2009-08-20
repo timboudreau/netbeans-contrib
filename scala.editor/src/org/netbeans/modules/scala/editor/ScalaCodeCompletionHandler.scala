@@ -48,6 +48,7 @@ import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.util.{Exceptions, NbBundle}
 
+import org.netbeans.api.language.util.ast.AstElementHandle
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
 import org.netbeans.modules.scala.editor.element.{ScalaElements}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
@@ -716,9 +717,9 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         if (lineOffset > 0) {
           for (i <- lineOffset - 1 to 0;
                c = line.charAt(i) if ScalaSourceUtil.isIdentifierChar(c))
-                 {
-              start = i
-            }
+          {
+            start = i
+          }
         }
 
         // Find identifier end
@@ -732,10 +733,10 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
             var end = lineOffset
             for (j <- lineOffset until n; 
                  d = line.charAt(j) if ScalaSourceUtil.isStrictIdentifierChar(d))
-                   {
-                // Try to accept Foo::Bar as well
-                end = j + 1
-              }
+            {
+              // Try to accept Foo::Bar as well
+              end = j + 1
+            }
             line.substring(start, end)
           }
         }
@@ -769,14 +770,14 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
             var break = false
             for (i <- prefix.length - 2 to 0; // -2: the last position (-1) can legally be =, ! or ?
                  c = prefix.charAt(i) if !break)
-                   {
-                if (i == 0 && c == ':') {
-                  // : is okay at the begining of prefixes
-                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
-                  prefix = prefix.substring(i + 1)
-                  break = true
-                }
+            {
+              if (i == 0 && c == ':') {
+                // : is okay at the begining of prefixes
+              } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
+                prefix = prefix.substring(i + 1)
+                break = true
               }
+            }
           }
 
           prefix
@@ -1099,23 +1100,15 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
   override def document(info: ParserResult, element: ElementHandle): String = {
     val pResult = info.asInstanceOf[ScalaParserResult]
     
-    val sigFormatter = new SignatureHtmlFormatter
+    val sigFm = new SignatureHtmlFormatter
 
-    val (sym, comment) = element match {
-      case x: ScalaDfns#ScalaDfn         => (Some(x.symbol), x.getDocComment)
-      case x: ScalaElements#ScalaElement => (Some(x.symbol), x.getDocComment)
-      case _ => (None, "")
+    val comment = element match {
+      case x: AstElementHandle =>
+        x.sigFormat(sigFm)
+        x.getDocComment
+      case _ => ""
     }
     
-    sym foreach {x =>
-      try {
-        sigFormatter.appendHtml("<i>")
-        sigFormatter.appendText(x.enclClass.fullNameString)
-        sigFormatter.appendHtml("</i><p>")
-        sigFormatter.appendText(x.defString)
-      } catch {case ex: AssertionError => ScalaGlobal.reset(pResult.parser.global)}
-    }
-
     val html = new StringBuilder
     element.getFileObject match {
       case null =>
@@ -1123,15 +1116,15 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     }
 
     if (comment.length > 0) {
-      val formatter = new ScalaCommentFormatter(comment)
+      val commentFm = new ScalaCommentFormatter(comment)
       element.getName match {
         case null =>
-        case name => formatter.setSeqName(name)
+        case name => commentFm.setSeqName(name)
       }
 
-      html.append(sigFormatter).append("\n<hr>\n").append(formatter.toHtml)
+      html.append(sigFm).append("\n<hr>\n").append(commentFm.toHtml)
     } else {
-      html.append(sigFormatter).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ScalaCodeCompletionHandler], "NoCommentFound")).append("</i>")
+      html.append(sigFm).append("\n<hr>\n<i>").append(NbBundle.getMessage(classOf[ScalaCodeCompletionHandler], "NoCommentFound")).append("</i>")
     }
 
     html.toString
