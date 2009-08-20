@@ -378,7 +378,7 @@ object ScalaSourceUtil {
           srcPath = pkgName + File.separatorChar + srcPath
         }
 
-        return findSourceFileObject(cp, clzFo, srcPath)
+        return findSourceFileObject(cp, root, srcPath)
       }
     } catch {case ex: IOException => ex.printStackTrace}
 

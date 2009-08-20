@@ -455,7 +455,7 @@ object ScalaGlobal {
         val entryRoot = itr.next.getRoot
         if (entryRoot != null) {
           entryRoot.getFileSystem match {
-            case jfs:JarFileSystem => jfs.getJarFile
+            case jfs: JarFileSystem => jfs.getJarFile
             case _ => FileUtil.toFile(entryRoot)
           }
         } else null
