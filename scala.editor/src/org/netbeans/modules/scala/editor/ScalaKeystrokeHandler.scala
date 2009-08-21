@@ -581,7 +581,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         }
       } else { // Fall through to do normal insert matching work
         c match {
-          case '"' | '\'' | '`' | '(' | '{' | '[' | '/' =>
+          case '"' | '\'' | '`' | '(' | '{' | '[' | '/' | '~' =>
             // * Bracket the selection
             val selection = target.getSelectedText
             if (selection != null && selection.length > 0) {
@@ -593,19 +593,25 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                   case ts if ts.token.id != ScalaTokenId.StringLiteral => // * Not inside strings!
                     val lastChar = selection.charAt(selection.length - 1)
                     // * Replace the surround-with chars?
-                    firstChar match {
-                      case '"' | '\'' | '`' | '(' | '{' | '[' | '/' if selection.length > 1 && lastChar == matching(firstChar) =>
+                    (c, firstChar) match {
+                      case ('~', '"' | '\'' | '`' | '(' | '{' | '[' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
+                        // * remove surround pair
+                        doc.remove(end - 1, 1)
+                        doc.remove(start, 1)
+                        target.getCaret.setDot(end - 2)
+                      case ('~', _) =>
+                      case (_, '"' | '\'' | '`' | '(' | '{' | '[' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
                         doc.remove(end - 1, 1)
                         doc.insertString(end - 1, "" + matching(c), null)
                         doc.remove(start, 1)
                         doc.insertString(start, "" + c, null)
                         target.getCaret.setDot(end)
-                      case _ if c == '/' =>
-                        // * No, insert around with /* */
+                      case ('/', _) =>
+                        // * No. insert around with /* */
                         doc.remove(start, end - start)
                         doc.insertString(start, "/* " + selection + " */", null)
                         target.getCaret.setDot(start + selection.length + 6)
-                      case _ =>
+                      case (_, _) =>
                         // * No, insert around
                         doc.remove(start, end - start)
                         doc.insertString(start, c + selection + matching(c), null)
