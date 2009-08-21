@@ -58,7 +58,7 @@ import scala.tools.nsc.util.{BatchSourceFile, SourceFile}
 class ScalaParserResult(val parser: ScalaParser,
                         snapshot: Snapshot,
                         val rootScope: Option[ScalaRootScope] = None,
-                        var errors: List[Error],
+                        var errors: java.util.List[Error],
                         val srcFile: SourceFile
 ) extends ParserResult(snapshot) {
 
@@ -83,7 +83,7 @@ class ScalaParserResult(val parser: ScalaParser,
     if (errors == null) {
       java.util.Collections.emptyList[Error]
     } else {
-      java.util.Arrays.asList(errors.toArray:_*)
+      errors
     }
   }
 

@@ -590,23 +590,16 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     //println("selectTypeErrors:" + selectTypeErrors)
 
-    val units = run.units
-    while (units.hasNext) {
-      units.next match {
-        case unit if (unit.source == srcFile) =>
-          if (ScalaGlobal.debug) {
-            RequestProcessor.getDefault.post(new Runnable {
-                def run {
-                  treeBrowser.browse(unit.body)
-                }
-              })
-          }
-          
-          return scalaAstVisitor.visit(unit.body, unit.source, th)
-        case _ =>
+    run.units.find{_.source == srcFile} map {unit =>
+      if (ScalaGlobal.debug) {
+        RequestProcessor.getDefault.post(new Runnable {
+            def run {
+              treeBrowser.browse(unit.body)
+            }
+          })
       }
-    }
 
-    ScalaRootScope.EMPTY
+      scalaAstVisitor.visit(unit.body, unit.source, th)
+    } getOrElse ScalaRootScope.EMPTY
   }
 }

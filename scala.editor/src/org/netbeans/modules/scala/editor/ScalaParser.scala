@@ -40,9 +40,9 @@
  */
 package org.netbeans.modules.scala.editor
 
-import _root_.java.io.File
-import _root_.java.net.URL
-import _root_.java.util.{ArrayList, Collection, Collections, Set}
+import java.io.File
+import java.net.URL
+import java.util.{ArrayList, Collection, Collections, Set}
 import javax.swing.event.ChangeListener
 import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
@@ -83,7 +83,6 @@ class ScalaParser extends Parser {
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
     val context = new Context(snapshot, event)
     lastResult = parseBuffer(context, Sanitize.NONE)
-    lastResult.errors = context.errors
   }
 
   @throws(classOf[ParseException])
@@ -399,11 +398,10 @@ class ScalaParser extends Parser {
     //String filePath = file != null ? file.getAbsolutePath():  "<current>";
     context.srcFile = srcFile
     
-    var rootScope: Option[ScalaRootScope] = None
-
     global = ScalaGlobal.getGlobal(context.fileObject)
     global.reporter = new ErrorReporter(context, doc, sanitizing)
 
+    var rootScope: Option[ScalaRootScope] = None
     try {
       //rootScope = Some(global.askForPresentation(srcFile, th))
       rootScope = Some(global.compileSourceForPresentation(srcFile, th))
@@ -411,7 +409,7 @@ class ScalaParser extends Parser {
       case ex: AssertionError =>
         // avoid scala nsc's assert error
         ScalaGlobal.reset(global)
-      case ex: _root_.java.lang.Error =>
+      case ex: java.lang.Error =>
         // avoid scala nsc's exceptions
         ex.printStackTrace
       case ex: IllegalArgumentException =>
@@ -454,25 +452,23 @@ class ScalaParser extends Parser {
       }
     }
 
-    new ScalaParserResult(this, context.snapshot, context.rootScope, context.errors, context.srcFile)
+    new ScalaParserResult(this, context.snapshot, context.rootScope, 
+                          java.util.Arrays.asList(context.errors.toArray: _*),
+                          context.srcFile)
   }
 
   private def processObjectSymbolError(context: Context, root: ScalaRootScope): Sanitize = {
-    val errors = context.errors
     val th = context.snapshot.getTokenHierarchy
-    if (errors.isEmpty || th == null) {
+    if (th == null) {
       return Sanitize.NONE
     }
 
-    for (error <- errors) {
+    for (error <- context.errors) {
       val msg = error.getDescription
       if (msg.startsWith("identifier expected but")) {
         val start = error.getStartPosition
 
-        val ts = ScalaLexUtil.getTokenSequence(th, start - 1) match {
-          case Some(x) => x
-          case None => return Sanitize.NONE
-        }
+        val ts = ScalaLexUtil.getTokenSequence(th, start - 1).getOrElse(return Sanitize.NONE)
         ts.move(start - 1)
         if (!ts.moveNext && !ts.movePrevious) {
         } else {
@@ -523,7 +519,7 @@ class ScalaParser extends Parser {
       case _ => error.setParameters(Array(params))
     }
 
-    context.notifyError(error)
+    context.addError(error)
 
     if (sanitizing == Sanitize.NONE) {
       context.errorOffset = end
@@ -545,17 +541,15 @@ class ScalaParser extends Parser {
     var sanitizedRange: OffsetRange = OffsetRange.NONE
     var sanitizedContents: String = _
     var sanitized: Sanitize = Sanitize.NONE
-    var errors: List[Error] = Nil
+    val errors = new ArrayBuffer[Error]
     var rootScope: Option[ScalaRootScope] = None
     var srcFile: SourceFile = _
 
-    def notifyError(error: Error): Unit = {
-      errors = error :: errors
+    def addError(error: Error): Unit = {
+      errors += error
     }
 
-    def cleanErrors: Unit =  {
-      errors = Nil
-    }
+    def cleanErrors = errors.clear
 
     override def toString = {
       "ScalaParser.Context(" + fileObject.toString + ")" // NOI18N
