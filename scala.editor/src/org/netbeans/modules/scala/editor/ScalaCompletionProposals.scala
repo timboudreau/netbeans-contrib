@@ -125,7 +125,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           fm.`type`(true)
           val retType = try {
             sym.tpe.resultType
-          } catch {case ex: Throwable => ScalaGlobal.reset(self); null}
+          } catch {case _ => ScalaGlobal.reset(self); null}
 
           if (retType != null && !sym.isConstructor) {
             fm.appendText(ScalaUtil.typeToString(retType))
@@ -137,7 +137,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       fm.getText
     }
 
-    override def getModifiers: _root_.java.util.Set[Modifier] = {
+    override def getModifiers: java.util.Set[Modifier] = {
       element.getModifiers
     }
 
@@ -201,7 +201,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
       if (!typeParams.isEmpty) {
         fm.appendHtml("[")
-        fm.appendText(typeParams.elements.map{_.nameString}.mkString(", "))
+        fm.appendText(typeParams.map{_.nameString}.mkString(", "))
         fm.appendHtml("]")
       }
 
@@ -219,7 +219,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         while (typeItr.hasNext) {
           val param = typeItr.next
           fm.parameters(true)
-          fm.appendText("a" + Integer.toString(i))
+          fm.appendText("a" + i)
           //if (nameItr != null && nameItr.hasNext()) {
           //    formatter.appendText(nameItr.next().toString());
           //} else {

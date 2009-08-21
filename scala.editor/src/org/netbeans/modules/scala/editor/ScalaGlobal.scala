@@ -108,13 +108,13 @@ object ScalaGlobal {
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
-  def resetAll {
+  def resetAll = synchronized {
     projectToGlobal.clear
     globalForStdLib = None
   }
 
-  def reset(global: Global) {
-    projectToGlobal.remove(global)
+  def reset(global: Global) = synchronized {
+    projectToGlobal.values.remove(global)
     if (global == globalForStdLib) globalForStdLib = None
   }
 

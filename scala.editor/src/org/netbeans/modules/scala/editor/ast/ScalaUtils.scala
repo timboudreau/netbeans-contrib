@@ -311,7 +311,10 @@ trait ScalaUtils {self: ScalaGlobal =>
       assert(sym.isMethod)
 
       /** @todo not work yet */
-      val argNamesMap = self.methodArgumentNames
+      val argNamesMap = try {
+        self.methodArgumentNames
+      } catch {case _ => ScalaGlobal.reset(self); null}
+      
       if (argNamesMap != null) {
         argNamesMap.get(sym).getOrElse(Nil)
       } else Nil

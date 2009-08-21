@@ -126,11 +126,6 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     } else null
   }
 
-  val DEPRECATED = new java.util.HashSet[ColoringAttributes]
-  DEPRECATED.add(ColoringAttributes.DEPRECATED)
-  val IMPLICIT = new java.util.HashSet[ColoringAttributes]
-  IMPLICIT.add(ColoringAttributes.INTERFACE)
-
   private def visitItems(th: TokenHierarchy[_], rootScope: ScalaRootScope,
                          highlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]]): Unit = {
     for (items <- rootScope.idTokenToItems(th).valuesIterator;
