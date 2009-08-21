@@ -68,9 +68,9 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   
   var bindingDfn: Option[AstDfn] = None
   var parent: Option[AstScope] = None
-  private var _subScopes: List[AstScope] = Nil
-  private var _dfns: List[AstDfn] = Nil
-  private var _refs: List[AstRef] = Nil
+  private val _subScopes = new ArrayBuffer[AstScope]
+  private val _dfns = new ArrayBuffer[AstDfn]
+  private val _refs = new ArrayBuffer[AstRef]
   private var scopesSorted: Boolean = false
   private var dfnsSorted: Boolean = false
   private var refsSorted: Boolean = false
@@ -106,7 +106,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def refs: Seq[AstRef] = _refs
 
   def addScope(scope: AstScope): Unit = {
-    _subScopes = scope :: _subScopes
+    _subScopes += scope
     scopesSorted = false
     scope.parent = Some(this)
   }
@@ -120,7 +120,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
       case Some(x) =>
         // * a dfn will always be added
         root.put(x, dfn)
-        _dfns = dfn :: _dfns
+        _dfns += dfn
         dfnsSorted = false
         dfn.enclosingScope = this
         true
@@ -136,7 +136,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     ref.idToken match {
       case Some(x) =>
         root.put(x, ref)
-        _refs = ref :: _refs
+        _refs += ref
         refsSorted = false
         ref.enclosingScope = this
         true
@@ -147,7 +147,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
     // * Always seach Ref first, since Ref can be included in Dfn's range
     if (!refsSorted) {
-      _refs sort {compareRef(th, _, _)}
+      _refs sortWith {compareRef(th, _, _)}
       refsSorted = true
     }
     var lo = 0
@@ -165,7 +165,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
 
     if (!dfnsSorted) {
-      _dfns sort {compareDfn(th, _, _)}
+      _dfns sortWith {compareDfn(th, _, _)}
       dfnsSorted = true
     }
     lo = 0
@@ -183,7 +183,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
 
     if (!scopesSorted) {
-      _subScopes sort {compareScope(th, _, _)}
+      _subScopes sortWith {compareScope(th, _, _)}
       scopesSorted = true
     }
     lo = 0
@@ -207,7 +207,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     val offset = token.offset(th)
     // Always seach Ref first, since Ref can be included in Def's range
     if (!refsSorted) {
-      _refs sort {compareRef(th, _, _)}
+      _refs sortWith {compareRef(th, _, _)}
       refsSorted = true
     }
     var lo = 0
@@ -228,7 +228,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
 
     if (!dfnsSorted) {
-      _dfns sort {compareDfn(th, _, _)}
+      _dfns sortWith {compareDfn(th, _, _)}
       dfnsSorted = true
     }
     lo = 0
@@ -246,7 +246,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
 
     if (!scopesSorted) {
-      _subScopes sort {compareScope(th, _, _)}
+      _subScopes sortWith {compareScope(th, _, _)}
       scopesSorted = true
     }
     lo = 0
@@ -269,7 +269,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def findDfnAt[A <: AstDfn](clazz: Class[A], th: TokenHierarchy[_], offset: Int): Option[A] = {
 
     if (!dfnsSorted) {
-      _dfns sort {compareDfn(th, _, _)}
+      _dfns sortWith {compareDfn(th, _, _)}
       dfnsSorted = true
     }
     var lo = 0
@@ -287,7 +287,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
     
     if (!scopesSorted) {
-      _subScopes sort {compareScope(th, _, _)}
+      _subScopes sortWith {compareScope(th, _, _)}
       scopesSorted = true
     }
     lo = 0
@@ -310,7 +310,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def findRefAt[A <: AstRef](clazz: Class[A], th: TokenHierarchy[_], offset: Int): Option[A] = {
 
     if (!refsSorted) {
-      _refs sort {compareRef(th, _, _)}
+      _refs sortWith {compareRef(th, _, _)}
       refsSorted = true
     }
     var lo = 0
@@ -328,7 +328,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
         
     if (!scopesSorted) {
-      _subScopes sort {compareScope(th, _, _)}
+      _subScopes sortWith {compareScope(th, _, _)}
       scopesSorted = true
     }
     lo = 0
@@ -403,6 +403,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
       case Some(x) => x.findRefsOfDownward(dfn, result)
       case None =>
     }
+
     result
   }
 

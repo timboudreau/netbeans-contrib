@@ -48,7 +48,7 @@ import org.netbeans.modules.csl.api.{ElementKind}
 class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsTokens) {
 
   protected var _idTokenToItems: Map[Token[TokenId], List[AstItem]] = Map.empty
-  private var sortedTokens: List[Token[TokenId]] = Nil
+  private var sortedTokens = Array[Token[TokenId]]()
   private var tokensSorted = false
 
   def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
@@ -57,9 +57,9 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     _idTokenToItems
   }
 
-  private def sortedTokens(th: TokenHierarchy[_]): List[Token[TokenId]] = {
+  private def sortedTokens(th: TokenHierarchy[_]): Array[Token[TokenId]] = {
     if (!tokensSorted) {
-      sortedTokens = _idTokenToItems.keySet.toList sort {compareToken(th, _, _)}
+      sortedTokens = _idTokenToItems.keySet.toArray sortWith {compareToken(th, _, _)}
       tokensSorted = true
     }
     sortedTokens
@@ -81,13 +81,13 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def findItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
-    val tokens1 = sortedTokens(th)
+    val tokens = sortedTokens(th)
 
     var lo = 0
-    var hi = tokens1.size - 1
+    var hi = tokens.size - 1
     while (lo <= hi) {
       val mid = (lo + hi) >> 1
-      val middle = tokens1(mid)
+      val middle = tokens(mid)
       if (offset < middle.offset(th)) {
         hi = mid - 1
       } else if (offset > middle.offset(th) + middle.length) {
@@ -101,13 +101,13 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def findNeastItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
-    val tokens1 = sortedTokens(th)
+    val tokens = sortedTokens(th)
 
     var lo = 0
-    var hi = tokens1.size - 1
+    var hi = tokens.size - 1
     while (lo <= hi) {
       val mid = (lo + hi) >> 1
-      val middle = tokens1(mid)
+      val middle = tokens(mid)
       if (offset < middle.offset(th)) {
         hi = mid - 1
       } else if (offset > middle.offset(th) + middle.length) {
@@ -121,8 +121,8 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     }
 
     // * found null, return AstItem at lo, lo is always increasing during above procedure
-    if (lo < tokens1.size) {
-      val neastToken = tokens1(lo)
+    if (lo < tokens.size) {
+      val neastToken = tokens(lo)
       return _idTokenToItems.get(neastToken) match {
         case Some(x :: _) => Some(x)
         case _ => None
@@ -137,7 +137,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def findAllDfnSyms[A <: AnyRef](clazz: Class[A]): List[A] = {
-    findAllDfnsOf(clazz).map(_.symbol).asInstanceOf[List[A]]
+    findAllDfnsOf(clazz).map{_.symbol}.asInstanceOf[List[A]]
   }
 
   def findAllDfnsOf[A <: AnyRef](clazz: Class[A]): List[AstDfn] = {
