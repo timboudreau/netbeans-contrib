@@ -59,6 +59,7 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
 import org.netbeans.modules.scala.editor.rats.ParserScala
 
+import scala.concurrent.SyncVar
 import scala.tools.nsc.Global
 import scala.tools.nsc.symtab.Flags
 import scala.tools.nsc.util.OffsetPosition
@@ -334,7 +335,7 @@ abstract class ScalaCodeCompleter {
            * 1. get Type name
            * 2. get constructors of this type when use pressed enter
            */
-          val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(result.getSnapshot.getSource.getFileObject).getOrElse(return true)
+          val cpInfo = ScalaSourceUtil.getClasspathInfo(result.getSnapshot.getSource.getFileObject).getOrElse(return true)
           val tpElements = cpInfo.getClassIndex.getDeclaredTypes(prefix, NameKind.CASE_INSENSITIVE_PREFIX,
                                                                  java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
 
@@ -367,7 +368,7 @@ abstract class ScalaCodeCompleter {
       case x => x
     }
 
-    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fileObject).getOrElse(return false)
+    val cpInfo = ScalaSourceUtil.getClasspathInfo(fileObject).getOrElse(return false)
 
     val lastDot = fqnPrefix.lastIndexOf('.')
     val (fulledPath, lastPart) =  if (lastDot == -1) {
@@ -573,20 +574,40 @@ abstract class ScalaCodeCompleter {
     val sym = item.symbol.asInstanceOf[Symbol]
 
     // * use explict assigned `resultType` first
-    val resType = item.resultType match {
+    var resultType = item.resultType match {
       case null => getResultType(sym)
-      case x => x.asInstanceOf[Type]
+      case x => Some(x.asInstanceOf[Type])
     }
 
-    if (resType == null) {
-      return false
+    if (!resultType.isDefined) {
+      val offset = item.idOffset(th)
+      val pos = new OffsetPosition(result.srcFile, offset)
+      val typed = new SyncVar[Either[Tree, Throwable]]
+      global.askTypeAt(pos, typed)
+      typed.get match {
+        case Left(tree) =>
+          tree.tpe match {
+            case null =>
+            case ErrorType =>
+            case tpe => try {
+                tpe.resultType match {
+                  case null =>
+                  case ErrorType =>
+                  case x => resultType = Some(x)
+                }
+              } catch {case _ =>}
+          }
+        case Right(thr) =>
+      }
     }
 
     try {
-      for (member <- resType.members if startsWith(member.nameString, prefix) && !member.isConstructor) {
+      for (tpe <- resultType;
+           member <- tpe.members if startsWith(member.nameString, prefix) && !member.isConstructor
+      ) {
+        val tpeSym = tpe.typeSymbol
         createSymbolProposal(member) foreach {proposal =>
-          val resTypeSymbol = resType.typeSymbol
-          val inherited = ScalaUtil.isInherited(resTypeSymbol, member)
+          val inherited = ScalaUtil.isInherited(tpeSym, member)
           proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
           proposals.add(proposal)
         }
@@ -647,13 +668,17 @@ abstract class ScalaCodeCompleter {
     if (proposal != null) Some(proposal) else None
   }
 
-  private def getResultType(sym: Symbol): Type = {
+  private def getResultType(sym: Symbol): Option[Type] = {
     try {
-      sym.tpe.resultType match {
-        case x: MethodType => x
-        case x => x
+      sym.tpe match {
+        case null => None
+        case ErrorType => None
+        case tpe => tpe.resultType match {
+            case null => None
+            case x => Some(x)
+          }
       }
-    } catch {case _ => ScalaGlobal.reset(global); null}
+    } catch {case _ => ScalaGlobal.reset(global); None}
   }
 
 }

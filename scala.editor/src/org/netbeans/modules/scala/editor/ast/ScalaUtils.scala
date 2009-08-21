@@ -170,6 +170,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     }
 
     def typeToString(tpe: Type): String = {
+      if (tpe == null) return ""
       val str = try {
         tpe.toString
       } catch {
@@ -204,6 +205,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     }
 
     def htmlTypeName(tpe: Type, fm: HtmlFormatter): Unit = {
+      if (tpe == null) return
       tpe match {
         case ErrorType => fm.appendText("<error>")
           // internal: error
@@ -357,6 +359,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     }
 
     def htmlTypeInfo(tpe: Type, fm: HtmlFormatter): Unit = {
+      if (tpe == null) return
       tpe match {
         case ErrorType => fm.appendText("<error>")
           // internal: error

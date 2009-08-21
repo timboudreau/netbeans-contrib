@@ -45,6 +45,7 @@ import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 
+import org.netbeans.modules.scala.editor.ScalaGlobal
 
 /**
  * Wrap org.netbeans.api.java.source.ElementHandle to org.netbeans.modules.csl.api.ElementHandle
@@ -55,7 +56,7 @@ import org.netbeans.api.language.util.ast.{AstElementHandle}
  *
  * @author Caoyuan Deng
  */
-trait JavaElements {
+trait JavaElements {self: ScalaGlobal =>
   
   object JavaElement {
     def apply(element: org.netbeans.api.java.source.ElementHandle[_]) = {

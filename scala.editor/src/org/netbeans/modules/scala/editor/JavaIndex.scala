@@ -65,7 +65,6 @@ import org.netbeans.modules.csl.spi.ParserResult
 
 import scala.collection.JavaConversions._
 
-import org.netbeans.modules.scala.editor.element.JavaElements
 
 /**
  *
@@ -74,7 +73,7 @@ import org.netbeans.modules.scala.editor.element.JavaElements
 object JavaIndex {
 
   def get(fo: FileObject, pResult: ScalaParserResult): Option[JavaIndex] = {
-    ScalaSourceUtil.getClasspathInfoForFileObject(fo) match {
+    ScalaSourceUtil.getClasspathInfo(fo) match {
       case Some(cpInfo) => cpInfo.getClassIndex match {
           case null => None
           case index => Some(new JavaIndex(index, pResult))
@@ -84,7 +83,7 @@ object JavaIndex {
   }
 }
 
-class JavaIndex(index: ClassIndex, pResult: ScalaParserResult) extends JavaElements {
+class JavaIndex(index: ClassIndex, pResult: ScalaParserResult) {
   //public static final Map<String, List<? extends Element>> TypeQNameToMemebersCache = new HashMap<String, List<? extends Element>>();
   //public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
   //public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);

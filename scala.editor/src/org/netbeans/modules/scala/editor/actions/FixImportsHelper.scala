@@ -124,7 +124,7 @@ class FixImportsHelper {
     //            }
     //        }
 
-    val cpInfo = ScalaSourceUtil.getClasspathInfoForFileObject(fo).getOrElse(return result)
+    val cpInfo = ScalaSourceUtil.getClasspathInfo(fo).getOrElse(return result)
     val typeNames = cpInfo.getClassIndex.getDeclaredTypes(missingClass, NameKind.SIMPLE_NAME,
                                                           EnumSet.allOf(classOf[ClassIndex.SearchScope]))
     val itr = typeNames.iterator

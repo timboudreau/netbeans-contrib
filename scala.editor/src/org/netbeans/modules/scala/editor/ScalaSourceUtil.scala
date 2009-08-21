@@ -632,7 +632,7 @@ object ScalaSourceUtil {
     result
   }
 
-  def getClasspathInfoForFileObject(fo: FileObject): Option[ClasspathInfo] = {
+  def getClasspathInfo(fo: FileObject): Option[ClasspathInfo] = {
     val bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT)
     val compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE)
     val srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE)

@@ -197,7 +197,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       }
       
       val typeParams = try {
-        element.symbol.tpe.typeParams
+        element.symbol.tpe match {
+          case null => Nil
+          case tpe => tpe.typeParams
+        }
       } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
       if (!typeParams.isEmpty) {
         fm.appendHtml("[")
@@ -205,9 +208,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         fm.appendHtml("]")
       }
 
-      val paramTypes = try {
-        element.symbol.tpe.paramTypes
-      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
+      val paramTypes = getParamTypes
       val paramNames = ScalaUtil.paramNames(element.symbol)
 
       if (!paramTypes.isEmpty) {
@@ -245,11 +246,19 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     def getInsertParams: List[String] = {
-      val paramTypes = try {
-        element.symbol.tpe.paramTypes
-      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
+      val paramTypes = getParamTypes
+      (0 until paramTypes.size).map{"a" + _}.toList
+      // * typeSymbol is expensive and may throw exception, be careful to it.
+      //getParamTypes map {_.typeSymbol.nameString.toLowerCase} 
+    }
 
-      paramTypes map {_.typeSymbol.nameString.toLowerCase}
+    private def getParamTypes: List[Type] = {
+      try {
+        element.symbol.tpe match {
+          case null => Nil
+          case tpe => tpe.paramTypes
+        }
+      } catch {case _ => ScalaGlobal.reset(completer.global); Nil}
     }
 
     override def getCustomInsertTemplate: String = {
@@ -296,7 +305,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
       // Facilitate method parameter completion on this item
       try {
-        ScalaCodeCompleter.callLineStart = Utilities.getRowStart(completer.doc, completer.anchor)
+        //ScalaCodeCompleter.callLineStart = Utilities.getRowStart(completer.doc, completer.anchor)
         //ScalaCodeCompletion.callMethod = function;
       } catch {case ble: BadLocationException => Exceptions.printStackTrace(ble)}
 
