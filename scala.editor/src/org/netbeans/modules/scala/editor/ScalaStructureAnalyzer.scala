@@ -74,7 +74,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  private def scanTopForms(scope: AstScope, items: _root_.java.util.List[StructureItem], pResult: ScalaParserResult): Unit = {
+  private def scanTopForms(scope: AstScope, items: java.util.List[StructureItem], pResult: ScalaParserResult): Unit = {
     scope.dfns foreach {
       case dfn: ScalaDfns#ScalaDfn => dfn.getKind match {
           case ElementKind.CLASS | ElementKind.MODULE =>
@@ -89,84 +89,101 @@ class ScalaStructureAnalyzer extends StructureScanner {
     }
   }
 
-  override def folds(result: ParserResult): _root_.java.util.Map[String, _root_.java.util.List[OffsetRange]] = {
-    result match {
-      case pResult: ScalaParserResult =>
-        var folds = _root_.java.util.Collections.emptyMap[String, _root_.java.util.List[OffsetRange]]
-        for (rootScope <- pResult.rootScope;
-             doc <- ScalaLexUtil.getDocument(pResult.getSnapshot.getSource.getFileObject, true);
-             th = pResult.getSnapshot.getTokenHierarchy;
-             ts <- ScalaLexUtil.getTokenSequence(th, 1))
-        {
-          folds = new _root_.java.util.HashMap[String, _root_.java.util.List[OffsetRange]]
-          val codefolds = new _root_.java.util.ArrayList[OffsetRange]
-          folds.put("codeblocks", codefolds) // NOI18N
-
-          // * Read-lock due to Token hierarchy use
-          doc.readLock
-
-          addCodeFolds(pResult, doc, rootScope.dfns, codefolds)
-
-          var lineCommentStart = 0
-          var lineCommentEnd = 0
-          var startLineCommentSet = false
-
-          val comments = new Stack[Array[Integer]]
-          val blocks = new Stack[Integer]
-
-          while (ts.isValid && ts.moveNext) {
-            val token = ts.token
-            token.id match {
-              case ScalaTokenId.LineComment =>
-                val offset = ts.offset
-                if (!startLineCommentSet) {
-                  lineCommentStart = offset
-                  startLineCommentSet = true
-                }
-                lineCommentEnd = offset
-
-              case ScalaTokenId.Case | ScalaTokenId.If | ScalaTokenId.Try  =>
-                val blockStart = ts.offset
-                blocks.push(blockStart)
-
-                startLineCommentSet = false
-
-              case ScalaTokenId.RBrace if !blocks.isEmpty =>
-                val blockStart = blocks.pop.asInstanceOf[Int]
-                val blockRange = new OffsetRange(blockStart, ts.offset + token.length)
-                codefolds.add(blockRange)
-
-                startLineCommentSet = false
-              case _ =>
-                startLineCommentSet = false
-            }
-          }
-
-          doc.readUnlock
-
-          try {
-            /** @see GsfFoldManager#addTree() for suitable fold names. */
-            lineCommentEnd = Utilities.getRowEnd(doc, lineCommentEnd)
-
-            if (Utilities.getRowCount(doc, lineCommentStart, lineCommentEnd) > 1) {
-              val lineCommentsFolds = new _root_.java.util.ArrayList[OffsetRange];
-              val range = new OffsetRange(lineCommentStart, lineCommentEnd)
-              lineCommentsFolds.add(range)
-              folds.put("comments", lineCommentsFolds) // NOI18N
-            }
-          } catch {
-            case ex: BadLocationException => Exceptions.printStackTrace(ex)
-          }
-        }
-
-        folds
-      case _ => _root_.java.util.Collections.emptyMap[String, _root_.java.util.List[OffsetRange]]
+  val emptyFolds = java.util.Collections.emptyMap[String, java.util.List[OffsetRange]]
+  override def folds(result: ParserResult): java.util.Map[String, java.util.List[OffsetRange]] = {
+    if (result == null) {
+      return emptyFolds
     }
+
+    val doc = result.getSnapshot.getSource.getDocument(true) match {
+      case null => return emptyFolds
+      case x => x.asInstanceOf[BaseDocument]
+    }
+
+    val th = result.getSnapshot.getTokenHierarchy match {
+      case null => return emptyFolds
+      case x => x
+    }
+
+    val ts = ScalaLexUtil.getTokenSequence(th, 1).getOrElse(return emptyFolds)
+    
+    val folds = new java.util.HashMap[String, java.util.List[OffsetRange]]
+    val codefolds = new java.util.ArrayList[OffsetRange]
+    folds.put("codeblocks", codefolds) // NOI18N
+
+    val commentfolds = new java.util.ArrayList[OffsetRange]
+
+    var importStart = 0
+    var importEnd = 0
+    var startImportSet = false
+
+    val comments = new Stack[Array[Int]]
+    val blocks = new Stack[Int]
+
+    while (ts.isValid && ts.moveNext) {
+      val tk = ts.token
+      tk.id match {
+        case ScalaTokenId.Import =>
+          val offset = ts.offset
+          if (!startImportSet) {
+            importStart = offset
+            startImportSet = true
+          }
+          importEnd = offset
+        case ScalaTokenId.BlockCommentStart | ScalaTokenId.DocCommentStart =>
+          val commentStart = ts.offset
+          val commentLines = 0
+          comments push Array(commentStart, commentLines)
+        case ScalaTokenId.BlockCommentData | ScalaTokenId.DocCommentData =>
+          // * does this block comment (per BlockCommentData/DocCommentData per line as lexer) span multiple lines?
+          comments.top(1) = comments.top(1) + 1
+        case ScalaTokenId.BlockCommentEnd | ScalaTokenId.DocCommentEnd =>
+          if (!comments.isEmpty) {
+            val comment = comments.pop
+            if (comment(1) > 1) {
+              // * multiple lines
+              val commentRange = new OffsetRange(comment(0), ts.offset + tk.length)
+              commentfolds.add(commentRange)
+            }
+          }
+        case ScalaTokenId.LBrace =>
+          val blockStart = ts.offset
+          blocks push blockStart
+        case ScalaTokenId.RBrace =>
+          if (!blocks.isEmpty) {
+            val blockStart = blocks.pop
+            val lineEnd = Utilities.getRowEnd(doc, blockStart)
+            if (ts.offset + tk.length > lineEnd) { // not in same line
+              val blockRange = new OffsetRange(blockStart, ts.offset + tk.length)
+              codefolds.add(blockRange)
+            }
+          }
+        case _ =>
+      }
+    }
+
+    try {
+      /** @see GsfFoldManager#addTree() for suitable fold names. */
+      importEnd = Utilities.getRowEnd(doc, importEnd)
+
+      // * same strategy here for the import statements: We have to have
+      // * *more* than one line to fold them.
+      if (Utilities.getRowCount(doc, importStart, importEnd) > 1) {
+        val importfolds = new java.util.ArrayList[OffsetRange]
+        val range = new OffsetRange(importStart, importEnd)
+        importfolds.add(range)
+        folds.put("imports", importfolds) // NOI18N
+      }
+
+      folds.put("comments", commentfolds) // NOI18N
+    } catch {case ex: BadLocationException => Exceptions.printStackTrace(ex)}
+
+    folds
   }
-  
+    
   @throws(classOf[BadLocationException])
   private def addCodeFolds(pResult: ScalaParserResult, doc: BaseDocument, defs: Seq[AstDfn],
-                           codeblocks: _root_.java.util.List[OffsetRange]): Unit = {
+                           codeblocks: java.util.List[OffsetRange]): Unit = {
     import ElementKind._
        
     for (dfn <- defs) {
@@ -205,7 +222,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
 
     override def getKind: ElementKind = dfn.getKind
         
-    override def getModifiers: _root_.java.util.Set[Modifier] = dfn.getModifiers
+    override def getModifiers: java.util.Set[Modifier] = dfn.getModifiers
 
     override def isLeaf: Boolean = {
       dfn.getKind match {
@@ -215,10 +232,10 @@ class ScalaStructureAnalyzer extends StructureScanner {
       }
     }
 
-    override def getNestedItems: _root_.java.util.List[StructureItem] = {
+    override def getNestedItems: java.util.List[StructureItem] = {
       val nested = dfn.bindingScope.dfns
       if (!nested.isEmpty) {
-        val children = new _root_.java.util.ArrayList[StructureItem]
+        val children = new java.util.ArrayList[StructureItem]
 
         nested foreach {
           case child: ScalaDfns#ScalaDfn => child.getKind match {
@@ -228,7 +245,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
         }
 
         children
-      } else _root_.java.util.Collections.emptyList[StructureItem]
+      } else java.util.Collections.emptyList[StructureItem]
     }
 
     override def getPosition: Long = {

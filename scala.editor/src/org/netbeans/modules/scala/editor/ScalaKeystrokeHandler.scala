@@ -581,7 +581,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         }
       } else { // Fall through to do normal insert matching work
         c match {
-          case '"' | '\'' | '`' | '(' | '{' | '[' | '/' | '~' =>
+          case '"' | '\'' | '`' | '(' | '{' | '[' | '<' | '/' | '~' =>
             // * Bracket the selection
             val selection = target.getSelectedText
             if (selection != null && selection.length > 0) {
@@ -594,13 +594,13 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                     val lastChar = selection.charAt(selection.length - 1)
                     // * Replace the surround-with chars?
                     (c, firstChar) match {
-                      case ('~', '"' | '\'' | '`' | '(' | '{' | '[' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
+                      case ('~', '"' | '\'' | '`' | '(' | '{' | '[' | '<' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
                         // * remove surround pair
                         doc.remove(end - 1, 1)
                         doc.remove(start, 1)
                         target.getCaret.setDot(end - 2)
                       case ('~', _) =>
-                      case (_, '"' | '\'' | '`' | '(' | '{' | '[' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
+                      case (_, '"' | '\'' | '`' | '(' | '{' | '[' | '<' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
                         doc.remove(end - 1, 1)
                         doc.insertString(end - 1, "" + matching(c), null)
                         doc.remove(start, 1)
@@ -1371,6 +1371,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       case '{'  => '}'
       case '}'  => '{'
       case '`'  => '`'
+      case '<'  => '>'
       case _ => bracket
     }
   }
