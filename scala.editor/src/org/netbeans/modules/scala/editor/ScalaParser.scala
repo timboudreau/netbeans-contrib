@@ -405,6 +405,7 @@ class ScalaParser extends Parser {
     global.reporter = new ErrorReporter(context, doc, sanitizing)
 
     try {
+      //rootScope = Some(global.askForPresentation(srcFile, th))
       rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
       case ex: AssertionError =>

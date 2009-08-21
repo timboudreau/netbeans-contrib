@@ -135,9 +135,9 @@ abstract class ScalaAstVisitor {
     this.astPath = new Stack
   }
   
-  def visit(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
+  def visit(tree: Tree, srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     this.th = th
-    this.srcFile = unit.source
+    this.srcFile = srcFile
     this.docLength = srcFile.content.size
     this.fo = if (srcFile ne null) {
       val file = new File(srcFile.path)
@@ -149,15 +149,12 @@ abstract class ScalaAstVisitor {
       } else None
     } else None
     
-    if (unit.body ne null) {
-      reset
-      val rootTree = unit.body
-      this.rootScope = ScalaRootScope(getBoundsTokens(0, srcFile.length))
-      scopes push rootScope
+    reset
+    this.rootScope = ScalaRootScope(getBoundsTokens(0, srcFile.length))
+    scopes push rootScope
       
-      (new TreeVisitor) visit unit.body
-      rootScope
-    } else ScalaRootScope.EMPTY
+    (new TreeVisitor) visit tree
+    rootScope
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}

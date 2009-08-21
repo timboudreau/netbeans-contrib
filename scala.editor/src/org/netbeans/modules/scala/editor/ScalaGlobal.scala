@@ -514,6 +514,31 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   override def logError(msg: String, t: Throwable): Unit = {}
 
+  def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]) : ScalaRootScope = {
+    resetSelectTypeErrors
+
+    val typed = new Response[Tree]
+    try {
+      askType(srcFile, false, typed)
+    } catch {
+      case ex: AssertionError =>
+        /**
+         * @Note: avoid scala nsc's assert error. Since global's
+         * symbol table may have been broken, we have to reset ScalaGlobal
+         * to clean this global
+         */
+        ScalaGlobal.reset(this)
+      case ex: java.lang.Error => // avoid scala nsc's Error error
+      case ex: Throwable => // just ignore all ex
+    }
+
+    typed.get.left.toOption match {
+      case Some(tree) =>
+        scalaAstVisitor.visit(tree, srcFile, th)
+      case None => ScalaRootScope.EMPTY
+    }
+  }
+
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(superAccessors.phaseName))
@@ -559,7 +584,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * to clean this global
          */
         ScalaGlobal.reset(this)
-      case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
 
@@ -577,7 +602,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
               })
           }
           
-          return scalaAstVisitor.visit(unit, th)
+          return scalaAstVisitor.visit(unit.body, unit.source, th)
         case _ =>
       }
     }
