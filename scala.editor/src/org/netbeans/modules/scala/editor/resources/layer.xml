@@ -109,6 +109,10 @@
                 -->
 
                 <folder name="Popup">
+                    <file name="org-netbeans-modules-scala-editor-actions-ResetGlobalAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Scala/org-netbeans-modules-scala-editor-actions-ResetGlobalAction.instance"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
                     <file name="org-netbeans-modules-scala-editor-actions-FixImportsAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Scala/org-netbeans-modules-scala-editor-actions-FixImportsAction.instance"/>
                         <attr name="position" intvalue="801"/>
@@ -143,6 +147,9 @@
         <folder name="Scala">
             <file name="org-netbeans-modules-scala-editor-actions-FixImportsAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.actions.FixImportsAction"/>
+            </file>
+            <file name="org-netbeans-modules-scala-editor-actions-ResetGlobalAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.actions.ResetGlobalAction"/>
             </file>
         </folder>
     </folder>

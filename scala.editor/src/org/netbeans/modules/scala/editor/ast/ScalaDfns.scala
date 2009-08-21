@@ -79,7 +79,7 @@ trait ScalaDfns {self: ScalaGlobal =>
 
     override def getMimeType: String = ScalaMimeResolver.MIME_TYPE
 
-    override def getModifiers: _root_.java.util.Set[Modifier] = {
+    override def getModifiers: java.util.Set[Modifier] = {
       if (!modifiers.isDefined) {
         modifiers = Some(ScalaUtil.getModifiers(symbol))
       }
