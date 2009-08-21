@@ -54,6 +54,8 @@ class ScalaRuleContext() extends RuleContext {
 
     def getFileObject = parserResult.getSnapshot().getSource().getFileObject()
 
+    def getTokenHierarchy = parserResult.getSnapshot.getTokenHierarchy
+
     def getClasspathInfo  : Option[ClasspathInfo]  = 
         ScalaSourceUtil.getClasspathInfoForFileObject(getFileObject)
 
