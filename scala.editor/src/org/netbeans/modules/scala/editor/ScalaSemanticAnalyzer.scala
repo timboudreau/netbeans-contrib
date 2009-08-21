@@ -137,47 +137,47 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
          item <- items;
          idToken <- item.idToken;
          name = item.getName;
-         if name != "this" && name != "super")
-    {
+         if name != "this" && name != "super"
+    ) {
       // * token may be xml tokens, @see AstVisit#getTokenId
       idToken.id match {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>
           val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)
-          item match {
+          val coloringSet = item match {
+            
             case dfn: ScalaDfns#ScalaDfn =>
               dfn.symbol match {
                 case sym if sym.isModule =>
-                  highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+                  ColoringAttributes.CLASS_SET
                 case sym if sym.isClass =>
-                  highlights.put(hiRange, ColoringAttributes.CLASS_SET)
+                  ColoringAttributes.CLASS_SET
                 case sym if sym.isMethod =>
-                  highlights.put(hiRange, ColoringAttributes.METHOD_SET)
-                case _ =>
+                  ColoringAttributes.METHOD_SET
+                case _ => java.util.Collections.emptySet[ColoringAttributes]
               }
+              
             case ref: ScalaRefs#ScalaRef =>
               ref.symbol match {
                 case sym if sym.isClass =>
-                  highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                case sym if sym.isModule =>
-                  highlights.put(hiRange, ColoringAttributes.GLOBAL_SET)
+                  ColoringAttributes.STATIC_SET
+                case sym if sym.isModule && !sym.isPackage =>
+                  ColoringAttributes.GLOBAL_SET
                 case sym if sym.isConstructor =>
-                  highlights.put(hiRange, ColoringAttributes.STATIC_SET)
-                case sym if sym.isMethod  =>
-                  if (ref.getKind == ElementKind.RULE) {
-                    // * implicit call
-                    highlights.put(hiRange, IMPLICIT)
-                  } else {
-                    highlights.put(hiRange, ColoringAttributes.FIELD_SET)
-                  }
+                  ColoringAttributes.STATIC_SET
+                case sym if sym.isMethod && sym.isDeprecated =>
+                  java.util.EnumSet.of(ColoringAttributes.DEPRECATED)
+                case sym if sym.isMethod && ref.getKind == ElementKind.RULE =>
+                  // * implicit call
+                  java.util.EnumSet.of(ColoringAttributes.INTERFACE)
+                case sym if sym.isMethod =>
+                  ColoringAttributes.FIELD_SET
                 case sym if sym.hasFlag(Flags.IMPLICIT) =>
-                  highlights.put(hiRange, IMPLICIT)
-                case _ =>
+                  java.util.EnumSet.of(ColoringAttributes.INTERFACE)
+                case _ => java.util.Collections.emptySet[ColoringAttributes]
               }
           }
 
-          if (item.getModifiers.contains(Modifier.DEPRECATED)) {
-            highlights.put(hiRange, DEPRECATED)
-          }
+          if (!coloringSet.isEmpty) highlights.put(hiRange, coloringSet)
         case _ =>
       }
 
