@@ -40,14 +40,14 @@
  */
 package org.netbeans.modules.scala.editor
 
-import _root_.java.io.{File, IOException}
-import _root_.java.net.{MalformedURLException, URL}
-import _root_.java.util.{Enumeration, Properties}
+import java.io.{File, IOException}
+import java.net.{MalformedURLException, URL}
+import java.util.{Enumeration, Properties}
 
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, Utilities}
-import _root_.scala.tools.nsc.{Global, Settings}
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.tools.nsc.{Global, Settings}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * 

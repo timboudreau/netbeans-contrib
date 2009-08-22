@@ -63,6 +63,7 @@ import scala.tools.nsc.{Phase, Settings}
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.io.AbstractFile
+import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.{Reporter}
 import scala.tools.nsc.util.{Position, SourceFile}
 
@@ -106,16 +107,33 @@ object ScalaGlobal {
   private val projectToGlobalForTest = new WeakHashMap[Project, ScalaGlobal]
   private var globalForStdLib: Option[ScalaGlobal] = None
 
+  private var toResetGlobals = Set[ScalaGlobal]()
+
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   def resetAll = synchronized {
+    val itr1 = projectToGlobal.values.iterator
+    while (itr1.hasNext) {
+      itr1.next.askShutdown
+    }
     projectToGlobal.clear
+
+    val itr2 = projectToGlobalForTest.values.iterator
+    while (itr2.hasNext) {
+      itr2.next.askShutdown
+    }
+    projectToGlobalForTest.clear
+
+    globalForStdLib foreach {_.askShutdown}
     globalForStdLib = None
   }
 
-  def reset(global: Global) = synchronized {
-    projectToGlobal.values.remove(global)
-    if (global == globalForStdLib) globalForStdLib = None
+  def reset(global: ScalaGlobal) = synchronized {
+    //toResetGlobals += global
+    global.askShutdown
+    if (global == globalForStdLib) {
+      globalForStdLib = None
+    } else projectToGlobal.values.remove(global)
   }
 
   /**
@@ -128,6 +146,10 @@ object ScalaGlobal {
       return globalForStdLib match {
         case None =>
           val g = ScalaHome.getGlobalForStdLib
+          if (toResetGlobals.contains(g)) {
+            g.askReset
+            toResetGlobals -= g
+          }
           globalForStdLib = Some(g)
           g
         case Some(x) => x
@@ -148,6 +170,11 @@ object ScalaGlobal {
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
     val existGlobal = if (forTest) projectToGlobalForTest.get(project) else projectToGlobal.get(project)
     if (existGlobal != null) {
+      if (toResetGlobals.contains(existGlobal)) {
+        existGlobal.askReset
+        toResetGlobals -= existGlobal
+      }
+
       return existGlobal
     }
 
@@ -304,6 +331,7 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
+              //global.askForLoad(List(fo))
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -312,6 +340,7 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
+              //global.askForLoad(List(fo))
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -320,6 +349,7 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
+              //global.askForLoad(List(fo))
               global.compileSourcesForPresentation(List(fo))
             }
           }
@@ -330,18 +360,17 @@ object ScalaGlobal {
         })
       
 
+      // * should push java srcs before scala srcs
       val javaSrcs = new ArrayBuffer[FileObject]
       srcCp.getRoots foreach {x => findAllSourcesOf("text/x-java", x, javaSrcs)}
 
-      if (!javaSrcs.isEmpty) {
-        val scalaSrcs = new ArrayBuffer[FileObject]
-        // * it seems we only need to push javaSrcs to global?
-        //srcCp.getRoots foreach {x => findAllSources("text/x-scala", x, scalaSrcs)}
+      val scalaSrcs = new ArrayBuffer[FileObject]
+      //srcCp.getRoots foreach {x => findAllSourcesOf("text/x-scala", x, scalaSrcs)}
 
-        // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
-        global.reporter = dummyReporter
-        global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
-      }
+      // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
+      global.reporter = dummyReporter
+      //global.askForLoad((javaSrcs ++ scalaSrcs).toList)
+      global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
     }
 
     global
@@ -387,10 +416,11 @@ object ScalaGlobal {
   }
 
   private def findOutDir(project: Project, srcRoot: FileObject): FileObject = {
-    val srcRootUrl: URL = try {
-      // * make sure the url is in same form of BinaryForSourceQueryImplementation
-      FileUtil.toFile(srcRoot).toURI.toURL
-    } catch {case ex: MalformedURLException => Exceptions.printStackTrace(ex); null}
+    val srcRootUrl: URL =
+      try {
+        // * make sure the url is in same form of BinaryForSourceQueryImplementation
+        FileUtil.toFile(srcRoot).toURI.toURL
+      } catch {case ex: MalformedURLException => Exceptions.printStackTrace(ex); null}
 
     var out: FileObject = null
     val query = project.getLookup.lookup(classOf[BinaryForSourceQueryImplementation])
@@ -452,15 +482,16 @@ object ScalaGlobal {
 
     val itr = cp.entries.iterator
     while (itr.hasNext) {
-      val rootFile: File = try {
-        val entryRoot = itr.next.getRoot
-        if (entryRoot != null) {
-          entryRoot.getFileSystem match {
-            case jfs: JarFileSystem => jfs.getJarFile
-            case _ => FileUtil.toFile(entryRoot)
-          }
-        } else null
-      } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
+      val rootFile: File =
+        try {
+          val entryRoot = itr.next.getRoot
+          if (entryRoot != null) {
+            entryRoot.getFileSystem match {
+              case jfs: JarFileSystem => jfs.getJarFile
+              case _ => FileUtil.toFile(entryRoot)
+            }
+          } else null
+        } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
 
       if (rootFile != null) {
         FileUtil.toFileObject(rootFile).addFileChangeListener(new FileChangeAdapter {
@@ -514,12 +545,32 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   override def logError(msg: String, t: Throwable): Unit = {}
 
+  def askForLoad(srcFos: List[FileObject]) : Unit = {
+    val srcFiles = srcFos map {fo => getSourceFile(new PlainFile(FileUtil.toFile(fo)))}
+
+    try {
+      val resp = new Response[Unit]
+      askReload(srcFiles, resp)
+      resp.get
+    } catch {
+      case ex: AssertionError =>
+        /**
+         * @Note: avoid scala nsc's assert error. Since global's
+         * symbol table may have been broken, we have to reset ScalaGlobal
+         * to clean this global
+         */
+        ScalaGlobal.reset(this)
+      case ex: java.lang.Error => // avoid scala nsc's Error error
+      case ex: Throwable => // just ignore all ex
+    }
+  }
+
   def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]) : ScalaRootScope = {
     resetSelectTypeErrors
 
-    val typed = new Response[Tree]
+    val resp = new Response[Tree]
     try {
-      askType(srcFile, false, typed)
+      askType(srcFile, true, resp)
     } catch {
       case ex: AssertionError =>
         /**
@@ -532,11 +583,9 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       case ex: Throwable => // just ignore all ex
     }
 
-    typed.get.left.toOption match {
-      case Some(tree) =>
-        scalaAstVisitor.visit(tree, srcFile, th)
-      case None => ScalaRootScope.EMPTY
-    }
+    resp.get.left.toOption map {tree =>
+      scalaAstVisitor.visit(tree, srcFile, th)
+    } getOrElse ScalaRootScope.EMPTY
   }
 
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
@@ -571,8 +620,9 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(stopPhaseName))
     resetSelectTypeErrors
+
     val run = new this.Run
-    
+
     val srcFiles = List(srcFile)
     try {
       run.compileSources(srcFiles)

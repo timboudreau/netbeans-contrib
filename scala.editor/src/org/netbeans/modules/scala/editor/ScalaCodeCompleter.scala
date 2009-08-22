@@ -261,11 +261,18 @@ abstract class ScalaCodeCompleter {
   def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
     val root = result.rootScope.getOrElse(return)
 
-    val pos = new OffsetPosition(result.srcFile, lexOffset)
+    val pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+    val resp = new Response[List[Member]]
     try {
-      for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
-           if startsWith(sym.nameString, prefix) && !sym.isConstructor) {
-        createSymbolProposal(sym) foreach {proposals add _}
+      global.askScopeCompletion(pos, resp)
+      resp.get match {
+        case Left(members) =>
+          for (ScopeMember(sym, tpe, accessible, viaImport) <- members
+               if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
+          ) {
+            createSymbolProposal(sym) foreach {proposals add _}
+          }
+        case Right(thr) => ScalaGlobal.reset(global)
       }
     } catch {case _ => ScalaGlobal.reset(global)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
   }
@@ -275,10 +282,10 @@ abstract class ScalaCodeCompleter {
    * we show available constructors.
    */
   def completeNew(proposals: java.util.List[CompletionProposal]): Boolean = {
-    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return false)
+    val ts = ScalaLexUtil.getTokenSequence(th, lexOffset).getOrElse(return true)
     ts.move(lexOffset)
     if (!ts.moveNext && !ts.movePrevious) {
-      return false
+      return true
     }
 
     if (true /* && index != null */) {
@@ -571,6 +578,20 @@ abstract class ScalaCodeCompleter {
   }
 
   def completeSymbolMembers(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
+    /* val pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+     val resp = new Response[List[Member]]
+     askTypeCompletion(pos, resp)
+     for (members <- resp.get.left.toOption;
+     TypeMember(sym, tpe, accessible, inherited, viaView) <- members
+     if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
+     ) {
+     createSymbolProposal(sym) foreach {proposal =>
+     proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
+     proposals.add(proposal)
+     }
+     return true
+     } */
+
     val sym = item.symbol.asInstanceOf[Symbol]
 
     // * use explict assigned `resultType` first
@@ -579,27 +600,27 @@ abstract class ScalaCodeCompleter {
       case x => Some(x.asInstanceOf[Type])
     }
 
-    if (!resultType.isDefined) {
-      val offset = item.idOffset(th)
-      val pos = new OffsetPosition(result.srcFile, offset)
-      val typed = new SyncVar[Either[Tree, Throwable]]
-      global.askTypeAt(pos, typed)
-      typed.get match {
-        case Left(tree) =>
-          tree.tpe match {
-            case null =>
-            case ErrorType =>
-            case tpe => try {
-                tpe.resultType match {
-                  case null =>
-                  case ErrorType =>
-                  case x => resultType = Some(x)
-                }
-              } catch {case _ =>}
-          }
-        case Right(thr) =>
-      }
-    }
+    /* if (!resultType.isDefined) {
+     val offset = item.idOffset(th)
+     val pos = new OffsetPosition(result.srcFile, offset)
+     val resp = new SyncVar[Either[Tree, Throwable]]
+     global.askTypeAt(pos, resp)
+     resp.get match {
+     case Left(tree) =>
+     tree.tpe match {
+     case null =>
+     case ErrorType =>
+     case tpe => try {
+     tpe.resultType match {
+     case null =>
+     case ErrorType =>
+     case x => resultType = Some(x)
+     }
+     } catch {case _ =>}
+     }
+     case Right(thr) =>
+     }
+     } */
 
     try {
       for (tpe <- resultType;
@@ -612,13 +633,37 @@ abstract class ScalaCodeCompleter {
           proposals.add(proposal)
         }
       }
-    } catch {
-      case ex: AssertionError =>
-        // java.lang.AssertionError: assertion failed: Array.type.trait Array0 does no longer exist, phase = parser
-        ScalaGlobal.reset(global)
-    }
+    } catch {case _ => ScalaGlobal.reset(global)}
 
     true
+  }
+
+  def askType(item: AstItem) = {
+    val offset = item.idOffset(th)
+    var pos = rangePos(result.srcFile, offset, offset, offset)
+    var resp = new SyncVar[Either[Tree, Throwable]]
+    global.askTypeAt(pos, resp)
+    resp.get.left.toOption foreach {x => 
+      println("tpe at item: " + x.tpe)
+    }
+
+    pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+    resp = new SyncVar[Either[Tree, Throwable]]
+    global.askTypeAt(pos, resp)
+    resp.get.left.toOption foreach {
+      case me@Select(qulifier, name) =>
+        println("tpe at lexoffset: " + me.tpe)
+        println("tpe's quilifier at lexoffset: " + qulifier.tpe)
+      case x =>
+        println("tpe at lexoffset: " + x.tpe)
+    }
+
+    pos = rangePos(result.srcFile, lexOffset - 2, lexOffset -2 , lexOffset -2)
+    resp = new SyncVar[Either[Tree, Throwable]]
+    global.askTypeAt(pos, resp)
+    resp.get.left.toOption foreach {x => 
+      println("tpe at lexoffset - 2: " + x.tpe)
+    }
   }
 
   def completeScopeImplicits(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
@@ -638,7 +683,8 @@ abstract class ScalaCodeCompleter {
     try {
       for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
            if sym.hasFlag(Flags.IMPLICIT) && tpe.paramTypes.size == 1 && tpe.paramTypes.head == resType;
-           member <- tpe.resultType.members if startsWith(member.nameString, prefix) && !member.isConstructor) {
+           member <- tpe.resultType.members if startsWith(member.nameString, prefix) && !member.isConstructor
+      ) {
         createSymbolProposal(member) foreach {proposal =>
           proposal.getElement.asInstanceOf[ScalaElement].isImplicit = true
           proposals.add(proposal)

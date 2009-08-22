@@ -42,7 +42,6 @@ package org.netbeans.modules.scala.editor
 
 import java.io.File
 import java.net.URL
-import java.util.{ArrayList, Collection, Collections, Set}
 import javax.swing.event.ChangeListener
 import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
@@ -142,7 +141,7 @@ class ScalaParser extends Parser {
   //    }
   
   private final class Factory extends ParserFactory {
-    override def createParser(snapshots: Collection[Snapshot]): Parser = new ScalaParser
+    override def createParser(snapshots: java.util.Collection[Snapshot]): Parser = new ScalaParser
   }
 
   /**
@@ -440,7 +439,7 @@ class ScalaParser extends Parser {
       val fo = context.fileObject
       if (fo != null) {
         try {
-          val inError = Collections.singleton(fo.getURL)
+          val inError = java.util.Collections.singleton(fo.getURL)
           //                        ErrorAnnotator eAnnot = ErrorAnnotator.getAnnotator();
           //                        if (eAnnot != null) {
           //                            eAnnot.updateInError(inError);
@@ -562,31 +561,32 @@ class ScalaParser extends Parser {
     override def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {
       val ignoreError = context.sanitizedSource != null
       if (!ignoreError) {
-        // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
-        if (!context.fileObject.getPath.equals(pos.source.file.path)) {
-          //System.out.println("Error in source: " + sourceFile);
-          return
-        }
-        
-        val offset = pos.startOrPoint
-        val sev = severity.id match {
-          case 0 => return
-          case 1 => org.netbeans.modules.csl.api.Severity.WARNING
-          case 2 => org.netbeans.modules.csl.api.Severity.ERROR
-          case _ => return
-        }
+        if (pos.isDefined) {
+          // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
+          if (!context.fileObject.getPath.equals(pos.source.file.path)) {
+            return
+          }
+          
+          val offset = pos.startOrPoint
+          val sev = severity.id match {
+            case 0 => return
+            case 1 => org.netbeans.modules.csl.api.Severity.WARNING
+            case 2 => org.netbeans.modules.csl.api.Severity.ERROR
+            case _ => return
+          }
 
-        var end = try {
-          // * @Note row should plus 1 to equal NetBeans' doc offset
-          Utilities.getRowLastNonWhite(doc, offset) + 1
-        } catch {case ex: BadLocationException => -1}
+          var end = try {
+            // * @Note row should plus 1 to equal NetBeans' doc offset
+            Utilities.getRowLastNonWhite(doc, offset) + 1
+          } catch {case ex: BadLocationException => -1}
 
-        if (end != -1 && end <= offset) {
-          end += 1
+          if (end != -1 && end <= offset) {
+            end += 1
+          }
+
+          val isLineError = (end == -1)
+          notifyError(context, "SYNTAX_ERROR", msg, offset, end, isLineError, sanitizing, sev, Array(offset, msg))
         }
-
-        val isLineError = (end == -1)
-        notifyError(context, "SYNTAX_ERROR", msg, offset, end, isLineError, sanitizing, sev, Array(offset, msg))
       }
     }
   }
