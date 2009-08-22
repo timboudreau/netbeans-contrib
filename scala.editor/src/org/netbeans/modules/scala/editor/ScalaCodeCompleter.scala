@@ -272,9 +272,9 @@ abstract class ScalaCodeCompleter {
           ) {
             createSymbolProposal(sym) foreach {proposals add _}
           }
-        case Right(thr) => ScalaGlobal.reset(global)
+        case Right(thr) => ScalaGlobal.resetLate(global)
       }
-    } catch {case _ => ScalaGlobal.reset(global)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
+    } catch {case _ => ScalaGlobal.resetLate(global)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
   }
 
   /**
@@ -633,7 +633,7 @@ abstract class ScalaCodeCompleter {
           proposals.add(proposal)
         }
       }
-    } catch {case _ => ScalaGlobal.reset(global)}
+    } catch {case _ => ScalaGlobal.resetLate(global)}
 
     true
   }
@@ -691,7 +691,7 @@ abstract class ScalaCodeCompleter {
         }
       }
       true
-    } catch {case _ => ScalaGlobal.reset(global); false}
+    } catch {case _ => ScalaGlobal.resetLate(global); false}
   }
 
   private def createSymbolProposal(sym: Symbol): Option[CompletionProposal] = {
@@ -724,7 +724,7 @@ abstract class ScalaCodeCompleter {
             case x => Some(x)
           }
       }
-    } catch {case _ => ScalaGlobal.reset(global); None}
+    } catch {case _ => ScalaGlobal.resetLate(global); None}
   }
 
 }

@@ -59,7 +59,7 @@ import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
 import scala.collection.mutable.ArrayBuffer
 
-import scala.tools.nsc.{Phase, Settings}
+import scala.tools.nsc.{Phase, Settings,FatalError}
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.io.AbstractFile
@@ -128,12 +128,22 @@ object ScalaGlobal {
     globalForStdLib = None
   }
 
-  def reset(global: ScalaGlobal) = synchronized {
-    //toResetGlobals += global
-    global.askShutdown
-    if (global == globalForStdLib) {
-      globalForStdLib = None
-    } else projectToGlobal.values.remove(global)
+  def resetLate(global: ScalaGlobal) = synchronized {
+    toResetGlobals += global
+    //    global.askShutdown
+    //    if (global == globalForStdLib) {
+    //      globalForStdLib = None
+    //    } else projectToGlobal.values.remove(global)
+  }
+
+  def resetIfNecessary(global: ScalaGlobal) = synchronized {
+    if (toResetGlobals.contains(global)) {
+      // * it's always better to release all holder of units to avoid memory leak
+      global.unitOfFile.clear
+      // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
+      global.askReset
+      toResetGlobals -= global
+    }
   }
 
   /**
@@ -146,10 +156,7 @@ object ScalaGlobal {
       return globalForStdLib match {
         case None =>
           val g = ScalaHome.getGlobalForStdLib
-          if (toResetGlobals.contains(g)) {
-            g.askReset
-            toResetGlobals -= g
-          }
+          resetIfNecessary(g)
           globalForStdLib = Some(g)
           g
         case Some(x) => x
@@ -168,13 +175,9 @@ object ScalaGlobal {
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
-    val existGlobal = if (forTest) projectToGlobalForTest.get(project) else projectToGlobal.get(project)
+    val existGlobal = (if (forTest) projectToGlobalForTest else projectToGlobal).get(project)
     if (existGlobal != null) {
-      if (toResetGlobals.contains(existGlobal)) {
-        existGlobal.askReset
-        toResetGlobals -= existGlobal
-      }
-
+      resetIfNecessary(existGlobal)
       return existGlobal
     }
 
@@ -331,8 +334,8 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
-              //global.askForLoad(List(fo))
-              global.compileSourcesForPresentation(List(fo))
+              global.askForReLoad(List(fo))
+              //global.compileSourcesForPresentation(List(fo))
             }
           }
           
@@ -340,8 +343,8 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
-              //global.askForLoad(List(fo))
-              global.compileSourcesForPresentation(List(fo))
+              global.askForReLoad(List(fo))
+              //global.compileSourcesForPresentation(List(fo))
             }
           }
 
@@ -349,8 +352,8 @@ object ScalaGlobal {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
-              //global.askForLoad(List(fo))
-              global.compileSourcesForPresentation(List(fo))
+              global.askForReLoad(List(fo))
+              //global.compileSourcesForPresentation(List(fo))
             }
           }
 
@@ -365,12 +368,13 @@ object ScalaGlobal {
       srcCp.getRoots foreach {x => findAllSourcesOf("text/x-java", x, javaSrcs)}
 
       val scalaSrcs = new ArrayBuffer[FileObject]
+      // * it seems only java src files need to be pushed explicitly ?
       //srcCp.getRoots foreach {x => findAllSourcesOf("text/x-scala", x, scalaSrcs)}
 
       // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
       global.reporter = dummyReporter
-      //global.askForLoad((javaSrcs ++ scalaSrcs).toList)
-      global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
+      global.askForReLoad((javaSrcs ++ scalaSrcs).toList)
+      //global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
     }
 
     global
@@ -545,7 +549,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   override def logError(msg: String, t: Throwable): Unit = {}
 
-  def askForLoad(srcFos: List[FileObject]) : Unit = {
+  def askForReLoad(srcFos: List[FileObject]) : Unit = {
     val srcFiles = srcFos map {fo => getSourceFile(new PlainFile(FileUtil.toFile(fo)))}
 
     try {
@@ -559,7 +563,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.reset(this)
+        ScalaGlobal.resetLate(this)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -578,7 +582,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.reset(this)
+        ScalaGlobal.resetLate(this)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -600,7 +604,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.reset(this)
+        ScalaGlobal.resetLate(this)
       case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -633,7 +637,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.reset(this)
+        ScalaGlobal.resetLate(this)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -652,4 +656,5 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       scalaAstVisitor.visit(unit.body, unit.source, th)
     } getOrElse ScalaRootScope.EMPTY
   }
+
 }

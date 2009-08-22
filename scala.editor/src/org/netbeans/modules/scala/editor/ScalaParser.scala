@@ -402,12 +402,12 @@ class ScalaParser extends Parser {
 
     var rootScope: Option[ScalaRootScope] = None
     try {
-      //rootScope = Some(global.askForPresentation(srcFile, th))
-      rootScope = Some(global.compileSourceForPresentation(srcFile, th))
+      rootScope = Some(global.askForPresentation(srcFile, th))
+      //rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
       case ex: AssertionError =>
         // avoid scala nsc's assert error
-        ScalaGlobal.reset(global)
+        ScalaGlobal.resetLate(global)
       case ex: java.lang.Error =>
         // avoid scala nsc's exceptions
         ex.printStackTrace
