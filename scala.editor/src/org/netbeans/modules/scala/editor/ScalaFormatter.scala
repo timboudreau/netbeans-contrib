@@ -673,7 +673,7 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
       if (latestOpenBrace != null && latestOpenBrace.isLatestOnLine) {
         // * we have special case
         (latestOpenBrace.token.id, latestNoWSToken.id) match {
-          case (ScalaTokenId.LParen | ScalaTokenId.LBracket | ScalaTokenId.LBrace, ScalaTokenId.Comma) => true
+          //case (ScalaTokenId.LParen | ScalaTokenId.LBracket | ScalaTokenId.LBrace, ScalaTokenId.Comma) => true
           case _ => false
         }
       } else false
