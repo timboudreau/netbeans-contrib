@@ -443,7 +443,7 @@ abstract class ScalaAstVisitor {
 
             traverse(body, level, false)
 
-          case theTree@TypeTree() =>
+          case me@TypeTree() =>
             tree.symbol match {
               case null =>
                 // * in case of: <type ?>
@@ -451,7 +451,7 @@ abstract class ScalaAstVisitor {
               case NoSymbol =>
                 // * type tree in case def, for example: case Some(_),
                 // * since the symbol is NoSymbol, we should visit its original type
-                val original = theTree.original
+                val original = me.original
                 if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
@@ -464,7 +464,7 @@ abstract class ScalaAstVisitor {
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
                 
-                val original = theTree.original
+                val original = me.original
                 if (original != null && original != tree) {
                   traverse(original, level, false)
                 }

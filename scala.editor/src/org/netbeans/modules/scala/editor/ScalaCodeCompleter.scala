@@ -272,9 +272,9 @@ abstract class ScalaCodeCompleter {
           ) {
             createSymbolProposal(sym) foreach {proposals add _}
           }
-        case Right(thr) => ScalaGlobal.resetLate(global)
+        case Right(thr) => ScalaGlobal.resetLate(global, thr)
       }
-    } catch {case _ => ScalaGlobal.resetLate(global)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
+    } catch {case ex => ScalaGlobal.resetLate(global, ex)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
   }
 
   /**
@@ -578,20 +578,6 @@ abstract class ScalaCodeCompleter {
   }
 
   def completeSymbolMembers(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
-    /* val pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
-     val resp = new Response[List[Member]]
-     askTypeCompletion(pos, resp)
-     for (members <- resp.get.left.toOption;
-     TypeMember(sym, tpe, accessible, inherited, viaView) <- members
-     if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
-     ) {
-     createSymbolProposal(sym) foreach {proposal =>
-     proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
-     proposals.add(proposal)
-     }
-     return true
-     } */
-
     val sym = item.symbol.asInstanceOf[Symbol]
 
     // * use explict assigned `resultType` first
@@ -600,40 +586,19 @@ abstract class ScalaCodeCompleter {
       case x => Some(x.asInstanceOf[Type])
     }
 
-    /* if (!resultType.isDefined) {
-     val offset = item.idOffset(th)
-     val pos = new OffsetPosition(result.srcFile, offset)
-     val resp = new SyncVar[Either[Tree, Throwable]]
-     global.askTypeAt(pos, resp)
-     resp.get match {
-     case Left(tree) =>
-     tree.tpe match {
-     case null =>
-     case ErrorType =>
-     case tpe => try {
-     tpe.resultType match {
-     case null =>
-     case ErrorType =>
-     case x => resultType = Some(x)
-     }
-     } catch {case _ =>}
-     }
-     case Right(thr) =>
-     }
-     } */
-
+    val offset = item.idOffset(th)
+    var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
     try {
-      for (tpe <- resultType;
-           member <- tpe.members if startsWith(member.nameString, prefix) && !member.isConstructor
+      for (resType <- resultType;
+           TypeMember(sym, tpe, accessible, inherited, viaView) <- typeMembers(pos, resType)
+           if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
       ) {
-        val tpeSym = tpe.typeSymbol
-        createSymbolProposal(member) foreach {proposal =>
-          val inherited = ScalaUtil.isInherited(tpeSym, member)
+        createSymbolProposal(sym) foreach {proposal =>
           proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
           proposals.add(proposal)
         }
       }
-    } catch {case _ => ScalaGlobal.resetLate(global)}
+    } catch {case ex => ScalaGlobal.resetLate(global, ex)}
 
     true
   }
@@ -658,12 +623,12 @@ abstract class ScalaCodeCompleter {
         println("tpe at lexoffset: " + x.tpe)
     }
 
-    pos = rangePos(result.srcFile, lexOffset - 2, lexOffset -2 , lexOffset -2)
-    resp = new SyncVar[Either[Tree, Throwable]]
-    global.askTypeAt(pos, resp)
-    resp.get.left.toOption foreach {x => 
-      println("tpe at lexoffset - 2: " + x.tpe)
-    }
+    /* pos = rangePos(result.srcFile, lexOffset - 2, lexOffset -2 , lexOffset -2)
+     resp = new SyncVar[Either[Tree, Throwable]]
+     global.askTypeAt(pos, resp)
+     resp.get.left.toOption foreach {x =>
+     println("tpe at lexoffset - 2: " + x.tpe)
+     } */
   }
 
   def completeScopeImplicits(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
@@ -691,7 +656,7 @@ abstract class ScalaCodeCompleter {
         }
       }
       true
-    } catch {case _ => ScalaGlobal.resetLate(global); false}
+    } catch {case ex => ScalaGlobal.resetLate(global, ex); false}
   }
 
   private def createSymbolProposal(sym: Symbol): Option[CompletionProposal] = {
@@ -724,7 +689,7 @@ abstract class ScalaCodeCompleter {
             case x => Some(x)
           }
       }
-    } catch {case _ => ScalaGlobal.resetLate(global); None}
+    } catch {case ex => ScalaGlobal.resetLate(global, ex); None}
   }
 
 }

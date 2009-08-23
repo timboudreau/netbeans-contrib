@@ -73,7 +73,7 @@ class ScalaParserResult(val parser: ScalaParser,
   var sanitizedContents: String = _
   var commentsAdded: Boolean = _
   private var sanitized: ScalaParser.Sanitize = _
-  private var rootScopeForDebugger: Option[ScalaRootScope] = _
+  private var rootScopeForDebug: Option[ScalaRootScope] = _
 
   override protected def invalidate: Unit = {
     // XXX: what exactly should we do here?
@@ -87,24 +87,25 @@ class ScalaParserResult(val parser: ScalaParser,
     }
   }
 
-  def getRootScopeForDebugger: Option[ScalaRootScope] = {
-    if (rootScopeForDebugger == null) {
+  def getRootScopeForDebug: Option[ScalaRootScope] = {
+    if (rootScopeForDebug == null) {
       val fo = getSnapshot.getSource.getFileObject
       val file: File = if (fo != null) FileUtil.toFile(fo) else null
       // We should use absolutionPath here for real file, otherwise, symbol.sourcefile.path won't be abs path
       //val filePath = if (file != null) file.getAbsolutePath):  "<current>";
       val th = getSnapshot.getTokenHierarchy
 
-      val global = parser.global
+      //val global = parser.global
+      val global = ScalaGlobal.getGlobal(fo, true)
 
       val af = if (file != null) new PlainFile(file) else new VirtualFile("<current>", "")
       val srcFile = new BatchSourceFile(af, getSnapshot.getText.toString.toCharArray)
       try {
-        rootScopeForDebugger = Some(global.compileSourceForDebugger(srcFile, th))
+        rootScopeForDebug = Some(global.compileSourceForDebug(srcFile, th))
       } catch {
         case ex: AssertionError =>
           // avoid scala nsc's assert error
-          ScalaGlobal.resetLate(global)
+          ScalaGlobal.resetLate(global, ex)
         case ex: java.lang.Error =>
           // avoid scala nsc's exceptions
         case ex: IllegalArgumentException =>
@@ -115,7 +116,7 @@ class ScalaParserResult(val parser: ScalaParser,
       }
     }
 
-    rootScopeForDebugger
+    rootScopeForDebug
   }
 
   /**

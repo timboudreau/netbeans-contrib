@@ -174,8 +174,8 @@ trait ScalaUtils {self: ScalaGlobal =>
       val str = try {
         tpe.toString
       } catch {
-        case ex: java.lang.AssertionError => ScalaGlobal.resetLate(self); null // ignore assert ex from scala
-        case ex: Throwable => ScalaGlobal.resetLate(self); null
+        case ex: java.lang.AssertionError => ScalaGlobal.resetLate(self, ex); null // ignore assert ex from scala
+        case ex: Throwable => ScalaGlobal.resetLate(self, ex); null
       }
 
       if (str != null) str else tpe.termSymbol.nameString
@@ -201,7 +201,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     def htmlTypeName(sym: Symbol, fm: HtmlFormatter): Unit = {
       try {
         htmlTypeName(sym.tpe, fm)
-      } catch {case _ => ScalaGlobal.resetLate(self)}
+      } catch {case ex => ScalaGlobal.resetLate(self, ex)}
     }
 
     def htmlTypeName(tpe: Type, fm: HtmlFormatter): Unit = {
@@ -315,7 +315,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       /** @todo not work yet */
       val argNamesMap = try {
         self.methodArgumentNames
-      } catch {case _ => ScalaGlobal.resetLate(self); null}
+      } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
       
       if (argNamesMap != null) {
         argNamesMap.get(sym).getOrElse(Nil)

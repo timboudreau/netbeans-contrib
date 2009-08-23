@@ -400,8 +400,8 @@ object ScalaSourceUtil {
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
 
   def getBinaryClassName(pResult: ScalaParserResult, offset: Int): String = {
+    val rootScope = pResult.getRootScopeForDebug.getOrElse(return null)
     val th = pResult.getSnapshot.getTokenHierarchy
-    val rootScope = pResult.getRootScopeForDebugger.getOrElse(return null)
     
     var clzName = ""
 

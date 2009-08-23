@@ -284,7 +284,7 @@ trait ScalaElements {self: ScalaGlobal =>
         fm.appendText(symbol.enclClass.fullNameString)
         fm.appendHtml("</i><p>")
         ScalaUtil.htmlDef(symbol, fm)
-      } catch {case _ => ScalaGlobal.resetLate(self)}
+      } catch {case ex => ScalaGlobal.resetLate(self, ex)}
     }
 
   }

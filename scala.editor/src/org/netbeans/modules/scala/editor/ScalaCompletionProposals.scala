@@ -125,7 +125,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           fm.`type`(true)
           val retType = try {
             sym.tpe.resultType
-          } catch {case _ => ScalaGlobal.resetLate(self); null}
+          } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
 
           if (retType != null && !sym.isConstructor) {
             fm.appendText(ScalaUtil.typeToString(retType))
@@ -201,7 +201,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           case null => Nil
           case tpe => tpe.typeParams
         }
-      } catch {case _ => ScalaGlobal.resetLate(completer.global); Nil}
+      } catch {case ex => ScalaGlobal.resetLate(completer.global, ex); Nil}
       if (!typeParams.isEmpty) {
         fm.appendHtml("[")
         fm.appendText(typeParams.map{_.nameString}.mkString(", "))
@@ -258,7 +258,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           case null => Nil
           case tpe => tpe.paramTypes
         }
-      } catch {case _ => ScalaGlobal.resetLate(completer.global); Nil}
+      } catch {case ex => ScalaGlobal.resetLate(completer.global, ex); Nil}
     }
 
     override def getCustomInsertTemplate: String = {

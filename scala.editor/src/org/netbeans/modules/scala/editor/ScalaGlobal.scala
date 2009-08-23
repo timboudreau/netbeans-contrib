@@ -59,7 +59,8 @@ import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
 import scala.collection.mutable.ArrayBuffer
 
-import scala.tools.nsc.{Phase, Settings,FatalError}
+import scala.tools.nsc.{Phase, Settings}
+import scala.collection.mutable.LinkedHashMap
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable}
 import scala.tools.nsc.io.AbstractFile
@@ -107,8 +108,6 @@ object ScalaGlobal {
   private val projectToGlobalForTest = new WeakHashMap[Project, ScalaGlobal]
   private var globalForStdLib: Option[ScalaGlobal] = None
 
-  private var toResetGlobals = Set[ScalaGlobal]()
-
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   def resetAll = synchronized {
@@ -128,20 +127,30 @@ object ScalaGlobal {
     globalForStdLib = None
   }
 
-  def resetLate(global: ScalaGlobal) = synchronized {
-    toResetGlobals += global
-    //    global.askShutdown
-    //    if (global == globalForStdLib) {
-    //      globalForStdLib = None
-    //    } else projectToGlobal.values.remove(global)
+  def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
+    println("=== Will reset global late due to: \n" + reason.getMessage)
+    
+    global.askShutdown // To stop compiler deamon thread, but, does this method work ?
+    if (globalForStdLib.isDefined && global == globalForStdLib.get) {
+      globalForStdLib = None
+    } else projectToGlobal.values.remove(global)
   }
 
+  /**
+   * @Note
+   * Tried to use to reset global instead of create a new one, but for current scala Global,
+   * it seems following reset operation cannot got a clean global.
+   */
+  private var toResetGlobals = Set[ScalaGlobal]()
   def resetIfNecessary(global: ScalaGlobal) = synchronized {
     if (toResetGlobals.contains(global)) {
-      // * it's always better to release all holder of units to avoid memory leak
-      global.unitOfFile.clear
+      println("Reset global: " + global)
+      global.askCancel
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
       global.askReset
+      // * it's always better to release all holders of units to avoid memory leak
+      global.unitOfFile.clear
+
       toResetGlobals -= global
     }
   }
@@ -149,14 +158,13 @@ object ScalaGlobal {
   /**
    * Scala's global is not thread safed
    */
-  def getGlobal(fo: FileObject): ScalaGlobal = synchronized {
+  def getGlobal(fo: FileObject, forDebug: Boolean = false): ScalaGlobal = synchronized {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
-      // it may be a standalone file, or file in standard lib
+      // * it may be a standalone file, or file in standard lib
       return globalForStdLib match {
         case None =>
           val g = ScalaHome.getGlobalForStdLib
-          resetIfNecessary(g)
           globalForStdLib = Some(g)
           g
         case Some(x) => x
@@ -175,10 +183,11 @@ object ScalaGlobal {
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
-    val existGlobal = (if (forTest) projectToGlobalForTest else projectToGlobal).get(project)
-    if (existGlobal != null) {
-      resetIfNecessary(existGlobal)
-      return existGlobal
+    if (!forDebug) {
+      val g = (if (forTest) projectToGlobalForTest else projectToGlobal).get(project)
+      if (g != null) {
+        return g
+      }
     }
 
     val settings = new Settings
@@ -320,6 +329,14 @@ object ScalaGlobal {
       }
     }
 
+    if (!forDebug) {
+      initialLoadSources(global, project, srcCp)
+    }
+
+    global
+  }
+
+  private def initialLoadSources(global: ScalaGlobal, project: Project, srcCp: ClassPath) {
     if (srcCp != null) {
       // * we have to do following step to get mixed java sources visible to scala sources
 
@@ -338,7 +355,7 @@ object ScalaGlobal {
               //global.compileSourcesForPresentation(List(fo))
             }
           }
-          
+
           override def fileChanged(fe: FileEvent): Unit = {
             val fo = fe.getFile
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
@@ -361,7 +378,7 @@ object ScalaGlobal {
             // @todo recompile all?
           }
         })
-      
+
 
       // * should push java srcs before scala srcs
       val javaSrcs = new ArrayBuffer[FileObject]
@@ -376,8 +393,6 @@ object ScalaGlobal {
       global.askForReLoad((javaSrcs ++ scalaSrcs).toList)
       //global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
     }
-
-    global
   }
 
   private def findAllSourcesOf(mimeType: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
@@ -563,7 +578,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.resetLate(this)
+        ScalaGlobal.resetLate(this, ex)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -582,7 +597,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.resetLate(this)
+        ScalaGlobal.resetLate(this, ex)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -592,6 +607,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } getOrElse ScalaRootScope.EMPTY
   }
 
+  /** batch complie */
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(superAccessors.phaseName))
@@ -604,7 +620,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.resetLate(this)
+        ScalaGlobal.resetLate(this, ex)
       case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -615,7 +631,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   }
 
   // * @Note Should pass phase "lambdalift" to get anonfun's class symbol built
-  def compileSourceForDebugger(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def compileSourceForDebug(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     compileSource(srcFile, constructors.phaseName, th)
   }
 
@@ -637,7 +653,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * symbol table may have been broken, we have to reset ScalaGlobal
          * to clean this global
          */
-        ScalaGlobal.resetLate(this)
+        ScalaGlobal.resetLate(this, ex)
       case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
@@ -657,4 +673,77 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } getOrElse ScalaRootScope.EMPTY
   }
 
+
+  // --- helper methods
+
+  import analyzer.{SearchResult, ImplicitSearch}
+
+  /** 
+   * @todo: doLocateContext may return none, should fix it
+   * from interative.Global#typeMembers
+   */
+  def typeMembers(apos: Position, resultTpe: Type): List[TypeMember] = {
+    val (pos, tree) = typedTreeAt(apos) match {
+      case Select(qualifier, name) => (qualifier.pos, qualifier)
+      case x => (apos, x)
+    }
+
+    val resTpe = tree.tpe match {
+      case null | ErrorType =>
+        println("will replace resultTpe " + resultTpe)
+        resultTpe
+      case x => x.resultType
+    }
+    
+    println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resType=" + resTpe)
+    val context = try {
+      doLocateContext(pos)
+    } catch {case ex => println(ex.getMessage); null}
+    val superAccess = tree.isInstanceOf[Super]
+    val scope = newScope
+    val members = new LinkedHashMap[Symbol, TypeMember]
+
+    def addTypeMember1(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
+      val symtpe = pre.memberType(sym)
+      if (scope.lookupAll(sym.name) forall (sym => !(members(sym).tpe matches symtpe))) {
+        scope enter sym
+        members(sym) = new TypeMember(sym,
+                                      symtpe,
+                                      if (context == null) true else context.isAccessible(sym, pre, superAccess && (viaView == NoSymbol)),
+                                      inherited,
+                                      viaView)
+      }
+    }
+
+    def viewApply1(view: SearchResult): Tree = {
+      if (context == null) EmptyTree
+      assert(view.tree != EmptyTree)
+      try {
+        analyzer.newTyper(context.makeImplicit(false)).typed(Apply(view.tree, List(tree)) setPos tree.pos)
+      } catch {
+        case ex: TypeError => EmptyTree
+      }
+    }
+
+    val pre = stabilizedType(tree) match {
+      case null => resTpe
+      case x => x
+    }
+    for (sym <- resTpe.decls)
+      addTypeMember1(sym, pre, false, NoSymbol)
+    for (sym <- resTpe.members)
+      addTypeMember1(sym, pre, true, NoSymbol)
+    val applicableViews: List[SearchResult] = if (context != null) {
+      new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+    } else Nil
+    for (view <- applicableViews) {
+      val vtree = viewApply1(view)
+      val vpre = stabilizedType(vtree)
+      for (sym <- vtree.tpe.members) {
+        addTypeMember1(sym, vpre, false, view.tree.symbol)
+      }
+    }
+
+    members.valuesIterator.toList
+  }
 }
