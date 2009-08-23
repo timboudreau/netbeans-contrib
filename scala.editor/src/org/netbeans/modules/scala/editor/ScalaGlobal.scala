@@ -702,8 +702,11 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       case x => (apos, x)
     }
 
+    val treeSym = tree.symbol
+    val isPackage = treeSym != null & treeSym.isPackage
+
     val resTpe = tree.tpe match {
-      case null | ErrorType =>
+      case null | ErrorType | NoType =>
         println("will replace resultTpe " + resultTpe)
         resultTpe
       case x => x.resultType
@@ -713,6 +716,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     val context = try {
       doLocateContext(pos)
     } catch {case ex => println(ex.getMessage); null}
+    
     val superAccess = tree.isInstanceOf[Super]
     val scope = newScope
     val members = new LinkedHashMap[Symbol, TypeMember]
@@ -721,12 +725,23 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       val symtpe = pre.memberType(sym)
       if (scope.lookupAll(sym.name) forall (sym => !(members(sym).tpe matches symtpe))) {
         scope enter sym
-        members(sym) = new TypeMember(sym,
-                                      symtpe,
-                                      if (context == null) true else context.isAccessible(sym, pre, superAccess && (viaView == NoSymbol)),
-                                      inherited,
-                                      viaView)
+        members(sym) = new TypeMember(
+          sym,
+          symtpe,
+          if (context == null) true else context.isAccessible(sym, pre, superAccess && (viaView == NoSymbol)),
+          inherited,
+          viaView)
       }
+    }
+
+    def addPackageMember1(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
+      // * don't ask symtpe here via pre.memberType(sym) or sym.tpe, which may throw "no-symbol does not have owner"
+      members(sym) = new TypeMember(
+        sym,
+        null,
+        true,
+        inherited,
+        viaView)
     }
 
     def viewApply1(view: SearchResult): Tree = {
@@ -743,21 +758,40 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       case null => resTpe
       case x => x
     }
-    for (sym <- resTpe.decls)
-      addTypeMember1(sym, pre, false, NoSymbol)
-    for (sym <- resTpe.members)
-      addTypeMember1(sym, pre, true, NoSymbol)
-    val applicableViews: List[SearchResult] = if (context != null) {
-      new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
-    } else Nil
-    for (view <- applicableViews) {
-      val vtree = viewApply1(view)
-      val vpre = stabilizedType(vtree)
-      for (sym <- vtree.tpe.members) {
-        addTypeMember1(sym, vpre, false, view.tree.symbol)
-      }
+
+    if (!isPackage){
+      try {
+        for (sym <- resTpe.decls)
+          addTypeMember1(sym, pre, false, NoSymbol)
+      } catch {case ex => ex.printStackTrace}
     }
 
+    try {
+      for (sym <- resTpe.members)
+        if (isPackage) {
+          addPackageMember1(sym, pre, true, NoSymbol)
+        } else {
+          addTypeMember1(sym, pre, true, NoSymbol)
+        }
+    } catch {case ex => ex.printStackTrace}
+
+    if (!isPackage) {
+      try {
+        val applicableViews: List[SearchResult] =
+          if (context != null) {
+            new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+          } else Nil
+        
+        for (view <- applicableViews) {
+          val vtree = viewApply1(view)
+          val vpre = stabilizedType(vtree)
+          for (sym <- vtree.tpe.members) {
+            addTypeMember1(sym, vpre, false, view.tree.symbol)
+          }
+        }
+      } catch {case ex => ex.printStackTrace}
+    }
+    
     members.valuesIterator.toList
   }
 }
