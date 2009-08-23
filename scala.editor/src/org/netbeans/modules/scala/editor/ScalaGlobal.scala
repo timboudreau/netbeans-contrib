@@ -100,12 +100,18 @@ object ScalaGlobal {
 
   // @see org.netbeans.api.java.project.JavaProjectConstants
   private val SOURCES_TYPE_JAVA = "java" // NOI18N
-  // a source group type for separate scala source roots, as seen in maven projects for example.
+  // * a source group type for separate scala source roots, as seen in maven projects for example.
   private val SOURCES_TYPE_SCALA = "scala" //NOI18N
 
   private val projectToDirs = new WeakHashMap[Project, SrcOutDirs]
+
   private val projectToGlobal = new WeakHashMap[Project, ScalaGlobal]
   private val projectToGlobalForTest = new WeakHashMap[Project, ScalaGlobal]
+
+  // * for interative.Global, seems need another global for debug
+  private val projectToGlobalForDebug = new WeakHashMap[Project, ScalaGlobal]
+  private val projectToGlobalForTestDebug = new WeakHashMap[Project, ScalaGlobal]
+
   private var globalForStdLib: Option[ScalaGlobal] = None
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
@@ -128,12 +134,17 @@ object ScalaGlobal {
   }
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
-    println("=== Will reset global late due to: \n" + reason.getMessage)
+    println("=== will reset global late due to: \n" + reason.getMessage)
     
-    global.askShutdown // To stop compiler deamon thread, but, does this method work ?
+    global.askShutdown // try to stop compiler daemon thread, but, does this method work ?
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
-    } else projectToGlobal.values.remove(global)
+    } else {
+      projectToGlobal.values.remove(global)
+      projectToGlobalForTest.values.remove(global)
+      projectToGlobalForDebug.values.remove(global)
+      projectToGlobalForTestDebug.values.remove(global)
+    }
   }
 
   /**
@@ -183,11 +194,14 @@ object ScalaGlobal {
     val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
-    if (!forDebug) {
-      val g = (if (forTest) projectToGlobalForTest else projectToGlobal).get(project)
-      if (g != null) {
-        return g
-      }
+    val holder = if (forDebug) {
+      if (forTest) projectToGlobalForTestDebug else projectToGlobalForDebug
+    } else {
+      if (forTest) projectToGlobalForTest else projectToGlobal
+    }
+    holder.get(project) match {
+      case null =>
+      case g => return g
     }
 
     val settings = new Settings
@@ -253,7 +267,7 @@ object ScalaGlobal {
     val global = new ScalaGlobal(settings, dummyReporter)
 
     if (forTest) {
-      projectToGlobalForTest.put(project, global)
+      (if (forDebug) projectToGlobalForTestDebug else projectToGlobalForTest).put(project, global)
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
@@ -303,7 +317,7 @@ object ScalaGlobal {
         visited += out
       }
     } else {
-      projectToGlobal.put(project, global)
+      (if (forDebug) projectToGlobalForDebug else projectToGlobal).put(project, global)
       var visited = Set[FileObject]()
       for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
