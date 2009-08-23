@@ -231,7 +231,7 @@ trait ScalaElements {self: ScalaGlobal =>
              * position via the AST Tree, or use a tree visitor to update
              * all symbols Position
              */
-            val root = compileSourceForPresentation(srcFile, th)
+            val root = askForPresentation(srcFile, th)
             root.findDfnMatched(symbol) match {
               case Some(x) => offset = x.idOffset(th)
               case None =>
