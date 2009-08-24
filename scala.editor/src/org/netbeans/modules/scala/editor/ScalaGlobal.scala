@@ -158,9 +158,11 @@ object ScalaGlobal {
   def resetBadGlobals = synchronized {
     for (global <- toResetGlobals) {
       println("Reset global: " + global)
-      
+
+      global.unitOfFile.clear
+
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
-      //global.askReset
+      global.askReset
 
       // * try to stop compiler daemon thread, but, does this method work ?
       global.askShutdown
@@ -870,6 +872,11 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
    */
   override def askShutdown() = {
     scheduler.raise(new ShutdownReq)
+    scheduler postWorkItem {() => println("A action to awake scheduler to process raised except")}
+  }
+
+  override def askReset() = {
+    scheduler.raise(new FreshRunReq)
     scheduler postWorkItem {() => println("A action to awake scheduler to process raised except")}
   }
 
