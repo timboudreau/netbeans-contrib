@@ -548,6 +548,26 @@ abstract class ScalaAstVisitor {
 
             //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
 
+          case This(qual) =>
+            val sym = tree.symbol
+            if (sym != null) {
+              val idToken = getIdToken(tree, "this")
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
+
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
+            //println("This(\"" + qual + "\")" + nodeinfo2(tree))
+
+          case Super(qual, mix) =>
+            val sym = tree.symbol
+            if (sym != null) {
+              val idToken = getIdToken(tree, "super")
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
+
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
+            //printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
+
           case Import(expr, selectors) =>
             traverse(expr, level, false)
             selectors foreach {
@@ -607,9 +627,6 @@ abstract class ScalaAstVisitor {
             traverse(tpt, level + 1, false)
             //printcln(")")
 
-          case Super(qual, mix) =>
-            //printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
-
           case Template(parents, self, body) =>
             parents foreach {traverse(_, level, false)}
             
@@ -626,9 +643,6 @@ abstract class ScalaAstVisitor {
               //println("  )")
             }
             //printcln(")")
-
-          case This(qual) =>
-            //println("This(\"" + qual + "\")" + nodeinfo2(tree))
 
           case TypeApply(fun, args) =>
             //println("TypeApply(" + nodeinfo(tree))

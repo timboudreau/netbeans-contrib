@@ -863,49 +863,49 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
   @throws(classOf[BadLocationException])
   private def reindent(doc: BaseDocument, offset: Int, id: TokenId, caret: Caret): Unit = {
-    for (ts <- ScalaLexUtil.getTokenSequence(doc, offset)) {
-      ts.move(offset)
-      if (!ts.moveNext && !ts.movePrevious) {
+    val ts = ScalaLexUtil.getTokenSequence(doc, offset).getOrElse(return)
+    ts.move(offset)
+    if (!ts.moveNext && !ts.movePrevious) {
+      return
+    }
+
+    val token = ts.token
+      
+    if (token.id == id) {
+      val rowFirstNonWhite = Utilities.getRowFirstNonWhite(doc, offset)
+      // Ensure that this token is at the beginning of the line
+      if (ts.offset > rowFirstNonWhite) {
         return
       }
 
-      val token = ts.token
-      
-      if (token.id == id) {
-        val rowFirstNonWhite = Utilities.getRowFirstNonWhite(doc, offset)
-        // Ensure that this token is at the beginning of the line
-        if (ts.offset > rowFirstNonWhite) {
-          return
-        }
+      val begin = id match {
+        case ScalaTokenId.RBrace =>
+          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
+        case ScalaTokenId.RBracket =>
+          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+        case ScalaTokenId.Case =>
+          // * find the first unmatched LBrace, then next `case`
+          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
+            case OffsetRange.NONE => OffsetRange.NONE
+            case _ if ts.moveNext => // found LBrace, now find followed `case`
+              ScalaLexUtil.findNextNoWsNoComment(ts) match {
+                case Some(tk) if tk.id == ScalaTokenId.Case =>
+                  new OffsetRange(ts.offset, ts.offset + 1)
+                case _ => OffsetRange.NONE
+              }
+          }
+        case _ => OffsetRange.NONE
+      }
 
-        val begin = id match {
-          case ScalaTokenId.RBrace =>
-            ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
-          case ScalaTokenId.RBracket =>
-            ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-          case ScalaTokenId.Case =>
-            // * find the first unmatched LBrace, then next `case`
-            ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
-              case OffsetRange.NONE => OffsetRange.NONE
-              case _ if ts.moveNext => // found LBrace, now find followed `case`
-                ScalaLexUtil.findNextNoWsNoComment(ts) match {
-                  case Some(tk) if tk.id == ScalaTokenId.Case =>
-                    new OffsetRange(ts.offset, ts.offset + 1)
-                  case _ => OffsetRange.NONE
-                }
-            }
-          case _ => OffsetRange.NONE
-        }
-
-        if (begin != OffsetRange.NONE) {
-          val beginOffset = begin.getStart
-          val indent = GsfUtilities.getLineIndent(doc, beginOffset)
-          previousAdjustmentIndent = GsfUtilities.getLineIndent(doc, offset)
-          GsfUtilities.setLineIndentation(doc, offset, indent)
-          previousAdjustmentOffset = caret.getDot
-        }
+      if (begin != OffsetRange.NONE) {
+        val beginOffset = begin.getStart
+        val indent = GsfUtilities.getLineIndent(doc, beginOffset)
+        previousAdjustmentIndent = GsfUtilities.getLineIndent(doc, offset)
+        GsfUtilities.setLineIndentation(doc, offset, indent)
+        previousAdjustmentOffset = caret.getDot
       }
     }
+    
   }
 
   /**

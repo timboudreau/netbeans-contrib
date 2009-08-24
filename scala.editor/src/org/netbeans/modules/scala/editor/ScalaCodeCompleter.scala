@@ -749,7 +749,8 @@ abstract class ScalaCodeCompleter {
     try {
       for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
            if sym.hasFlag(Flags.IMPLICIT) && tpe.paramTypes.size == 1 && tpe.paramTypes.head == resType;
-           member <- tpe.resultType.members if startsWith(member.nameString, prefix) && !member.isConstructor
+           member <- tpe.resultType.members 
+           if accessible && startsWith(member.nameString, prefix) && !member.isConstructor
       ) {
         createSymbolProposal(member) foreach {proposal =>
           proposal.getElement.asInstanceOf[ScalaElement].isImplicit = true
@@ -761,20 +762,22 @@ abstract class ScalaCodeCompleter {
   }
 
   private def createSymbolProposal(sym: Symbol): Option[CompletionProposal] = {
+    if (sym.hasFlag(Flags.PRIVATE)) return None
+
     var element:  ScalaElement = null
     var proposal: CompletionProposal = null
-    if (!sym.hasFlag(Flags.PRIVATE)) {
-      if (sym.isMethod) {
-        element  = ScalaElement(sym, info)
-        proposal = FunctionProposal(element, this)
-      } else if (sym.isVariable) {
-      } else if (sym.isValue) {
-        element  = ScalaElement(sym, info)
-        proposal = PlainProposal(element, this)
-      } else if (sym.isClass || sym.isTrait || sym.isModule || sym.isPackage) {
-        element  = ScalaElement(sym, info)
-        proposal = PlainProposal(element, this)
-      }
+    if (sym.isMethod) {
+      element  = ScalaElement(sym, info)
+      proposal = FunctionProposal(element, this)
+    } else if (sym.isVariable) {
+      element  = ScalaElement(sym, info)
+      proposal = PlainProposal(element, this)
+    } else if (sym.isValue) {
+      element  = ScalaElement(sym, info)
+      proposal = PlainProposal(element, this)
+    } else if (sym.isClass || sym.isTrait || sym.isModule || sym.isPackage) {
+      element  = ScalaElement(sym, info)
+      proposal = PlainProposal(element, this)
     }
 
     if (proposal != null) Some(proposal) else None
@@ -783,8 +786,7 @@ abstract class ScalaCodeCompleter {
   private def getResultType(sym: Symbol): Option[Type] = {
     try {
       sym.tpe match {
-        case null => None
-        case ErrorType => None
+        case null | ErrorType | NoType => None
         case tpe => tpe.resultType match {
             case null => None
             case x => Some(x)
