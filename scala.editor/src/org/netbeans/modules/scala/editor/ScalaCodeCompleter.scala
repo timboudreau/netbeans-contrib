@@ -201,13 +201,13 @@ abstract class ScalaCodeCompleter {
             case _ => collectedTokens = token :: collectedTokens
           }
 
-        case id if ScalaLexUtil.isWsComment(id) && id != ScalaTokenId.Nl =>
+        case ScalaTokenId.Nl =>
+        case id if ScalaLexUtil.isWsComment(id) =>
           collectedTokens match {
             case x :: xs if ScalaLexUtil.isWsComment(x.id) | x.id == ScalaTokenId.Dot =>
               // * do not add more, combined all ws comment tokens
             case _ => collectedTokens = token :: collectedTokens
           }
-        case ScalaTokenId.Nl =>
 
         case id if isCallId(id) => collectedTokens = token :: collectedTokens
 

@@ -144,7 +144,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     val insertEndResult = Array(false)
     val insertRBraceResult = Array(false)
     val indentResult = Array(1)
-    val insert = insertMatching && isEndMissing(doc, offset, false, insertEndResult, insertRBraceResult, null, indentResult)
+    val insert = insertMatching && isPairMissing(doc, offset, false, insertEndResult, insertRBraceResult, null, indentResult)
 
     if (insert) {
       val insertEnd = insertEndResult(0)
@@ -477,9 +477,9 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    *   first elements.
    */
   @throws(classOf[BadLocationException])
-  def isEndMissing(doc: BaseDocument, offset: Int, skipJunk: Boolean,
-                   insertEndResult: Array[Boolean], insertRBraceResult: Array[Boolean],
-                   startOffsetResult: Array[Int], indentResult: Array[Int]): Boolean =  {
+  def isPairMissing(doc: BaseDocument, offset: Int, skipJunk: Boolean,
+                    insertEndResult: Array[Boolean], insertRBraceResult: Array[Boolean],
+                    startOffsetResult: Array[Int], indentResult: Array[Int]): Boolean =  {
 
     val th = TokenHierarchy.get(doc)
 
@@ -596,9 +596,15 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
                     (c, firstChar) match {
                       case ('~', '"' | '\'' | '`' | '(' | '{' | '[' | '<' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
                         // * remove surround pair
-                        doc.remove(end - 1, 1)
-                        doc.remove(start, 1)
-                        target.getCaret.setDot(end - 2)
+                        if (selection.startsWith("/* ") && selection.endsWith(" */")) {
+                          doc.remove(end - 3, 3)
+                          doc.remove(start, 3)
+                          target.getCaret.setDot(end - 6)
+                        } else {
+                          doc.remove(end - 1, 1)
+                          doc.remove(start, 1)
+                          target.getCaret.setDot(end - 2)
+                        }
                       case ('~', _) =>
                       case (_, '"' | '\'' | '`' | '(' | '{' | '[' | '<' | '/') if selection.length > 1 && lastChar == matching(firstChar) =>
                         doc.remove(end - 1, 1)
