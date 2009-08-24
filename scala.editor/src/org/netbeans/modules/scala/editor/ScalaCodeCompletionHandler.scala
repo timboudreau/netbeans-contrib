@@ -110,11 +110,6 @@ object ScalaCodeCompletionHandler {
 class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFormatters {
   import ScalaCodeCompletionHandler._
 
-  override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: int,
-                                       name: String , parameters: _root_.java.util.Map[_, _]): String = {
-    throw new UnsupportedOperationException("Not supported yet.")
-  }
-
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
     val info = context.getParserResult
     val lexOffset = context.getCaretOffset
@@ -221,9 +216,9 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         if (!ts.moveNext && !ts.movePrevious) {
           return completionResult
         }
-        
-        global.findCall(root, ts, th) match {
-          case global.Call(Some(base), select, caretAfterDot) =>
+
+        completer.findCall(root, ts, th) match {
+          case completer.Call(Some(base), select, caretAfterDot) =>
             val go = if (caretAfterDot) {
               true 
             } else !isAtNewLine
@@ -283,7 +278,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
   }
 
   private def completeRegexps(proposals: java.util.List[CompletionProposal], request: ScalaCodeCompleter): Boolean = {
-    val prefix = request.prefix;
+    val prefix = request.prefix
 
     // Regular expression matching.  {
     //    for (i <- 0 to n = REGEXP_WORDS.length; i < n; i += 2) {
@@ -795,6 +790,11 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     null
   }
 
+  override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: int,
+                                       name: String , parameters: java.util.Map[_, _]): String = {
+    throw new UnsupportedOperationException("Not supported yet.")
+  }
+
   override def resolveLink(link: String, elementHandle: ElementHandle): ElementHandle = {
     if (link.indexOf(':') != -1) {
       new ElementHandle.UrlHandle(link.replace(':', '.'))
@@ -1177,7 +1177,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
      }
      paramsInStr
      } else {
-     _root_.java.util.Collections.emptyList[String]
+     java.util.Collections.emptyList[String]
      }
 
      if (!paramsInStr.isEmpty) {
