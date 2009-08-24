@@ -61,6 +61,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import scala.tools.nsc.{Phase, Settings}
 import scala.collection.mutable.LinkedHashMap
+
 import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable, Flags}
 import scala.tools.nsc.io.AbstractFile
@@ -158,10 +159,8 @@ object ScalaGlobal {
     for (global <- toResetGlobals) {
       println("Reset global: " + global)
       
-      global.askCancel
-
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
-      global.askReset
+      //global.askReset
 
       // * try to stop compiler daemon thread, but, does this method work ?
       global.askShutdown
@@ -724,11 +723,11 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     val resTpe = resultTpe
     /* val resTpe = tree.tpe match {
-      case null | ErrorType | NoType =>
-        println("will replace resultTpe " + resultTpe)
-        resultTpe
-      case x => x.resultType
-    } */
+     case null | ErrorType | NoType =>
+     println("will replace resultTpe " + resultTpe)
+     resultTpe
+     case x => x.resultType
+     } */
     
     println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resType=" + resTpe)
     val context = try {
@@ -861,6 +860,16 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     val result = locals.valuesIterator.toList
     if (debugIDE) for (m <- result) println(m)
     result
+  }
+
+  /**
+   * In interactive.Global, the `newRunnerThread` always wait for a `scheduler.waitForMoreWork()`
+   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, when
+   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it
+   */
+  override def askShutdown() = {
+    scheduler.raise(new ShutdownReq)
+    scheduler postWorkItem {() => println("A action to awake scheduler to process raised except")}
   }
 
 }
