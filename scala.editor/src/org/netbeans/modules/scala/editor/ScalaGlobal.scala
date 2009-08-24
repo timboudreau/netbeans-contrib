@@ -113,6 +113,8 @@ object ScalaGlobal {
   private val projectToGlobalForTestDebug = new WeakHashMap[Project, ScalaGlobal]
 
   private var globalForStdLib: Option[ScalaGlobal] = None
+  
+  private var toResetGlobals = Set[ScalaGlobal]()
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
@@ -135,8 +137,8 @@ object ScalaGlobal {
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
     println("=== will reset global late due to: \n" + reason.getMessage)
-    
-    global.askShutdown // try to stop compiler daemon thread, but, does this method work ?
+
+    toResetGlobals += global
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
@@ -150,26 +152,30 @@ object ScalaGlobal {
   /**
    * @Note
    * Tried to use to reset global instead of create a new one, but for current scala Global,
-   * it seems following reset operation cannot got a clean global.
+   * it seems reset operation cannot got a clean global?
    */
-  private var toResetGlobals = Set[ScalaGlobal]()
-  def resetIfNecessary(global: ScalaGlobal) = synchronized {
-    if (toResetGlobals.contains(global)) {
+  def resetBadGlobals = synchronized {
+    for (global <- toResetGlobals) {
       println("Reset global: " + global)
+      
       global.askCancel
+
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
       global.askReset
-      // * it's always better to release all holders of units to avoid memory leak
-      global.unitOfFile.clear
 
-      toResetGlobals -= global
+      // * try to stop compiler daemon thread, but, does this method work ?
+      global.askShutdown
     }
+
+    toResetGlobals = Set[ScalaGlobal]()
   }
 
   /**
    * Scala's global is not thread safed
    */
   def getGlobal(fo: FileObject, forDebug: Boolean = false): ScalaGlobal = synchronized {
+    resetBadGlobals
+    
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // * it may be a standalone file, or file in standard lib
@@ -710,18 +716,19 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   def typeMembers(apos: Position, resultTpe: Type): List[TypeMember] = {
     val (pos, tree) = typedTreeAt(apos) match {
       case Select(qualifier, name) => (qualifier.pos, qualifier)
-      case x => (apos, x)
+      case treex => (apos, treex)
     }
 
     val treeSym = tree.symbol
     val isPackage = treeSym != null && treeSym.isPackage
 
-    val resTpe = tree.tpe match {
+    val resTpe = resultTpe
+    /* val resTpe = tree.tpe match {
       case null | ErrorType | NoType =>
         println("will replace resultTpe " + resultTpe)
         resultTpe
       case x => x.resultType
-    }
+    } */
     
     println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resType=" + resTpe)
     val context = try {

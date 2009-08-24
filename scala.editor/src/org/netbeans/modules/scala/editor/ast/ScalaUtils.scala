@@ -42,6 +42,8 @@ package org.netbeans.modules.scala.editor.ast
 import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
 
 import org.netbeans.api.lexer.TokenSequence
+import org.netbeans.api.lexer.Token
+
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.api.lexer.TokenId
 import org.netbeans.modules.csl.api.HtmlFormatter
@@ -50,15 +52,13 @@ import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.modules.scala.editor.ScalaGlobal
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
+import scala.collection.mutable.ArrayBuffer
+
 import scala.tools.nsc.symtab.Flags
 
 trait ScalaUtils {self: ScalaGlobal =>
   
-  class Call {
-    var base: Option[AstItem] = None
-    var select: Option[String] = None
-    var caretAfterDot: Boolean = _
-  }
+  case class Call(base: Option[AstItem] = None, select: String = "", caretAfterDot: Boolean)
 
   private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
                                            ScalaTokenId.This,
@@ -66,6 +66,87 @@ trait ScalaUtils {self: ScalaGlobal =>
                                            ScalaTokenId.Class,
                                            ScalaTokenId.Wild
   )
+
+  private def isCallId(id: TokenId) = CALL_IDs.contains(id)
+
+  def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
+    var collectedTokens: List[Token[TokenId]] = Nil
+    var break = false
+    while (ts.movePrevious && !break) {
+      val token = ts.token
+      token.id match {
+        case ScalaTokenId.Dot =>
+          collectedTokens match {
+            case x :: xs if ScalaLexUtil.isWsComment(x.id) =>
+              // * replace previous sep token with this Dot
+              collectedTokens = token :: xs
+            case _ => collectedTokens = token :: collectedTokens
+          }
+
+        case id if ScalaLexUtil.isWsComment(id) && id != ScalaTokenId.Nl =>
+          collectedTokens match {
+            case x :: xs if ScalaLexUtil.isWsComment(x.id) | x.id == ScalaTokenId.Dot =>
+              // * do not add more, combined all ws comment tokens
+            case _ => collectedTokens = token :: collectedTokens
+          }
+        case ScalaTokenId.Nl =>
+
+        case id if isCallId(id) => collectedTokens = token :: collectedTokens
+
+        case ScalaTokenId.RParen =>
+          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen, ScalaTokenId.RParen)
+          // * skipPair moves ts in front of `LParen`, so move next to locate to this `LParen`
+          ts.moveNext
+        case ScalaTokenId.RBrace =>
+          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
+          ts.moveNext
+        case ScalaTokenId.RBracket =>
+          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+          ts.moveNext
+
+        case _ => break = true
+      }
+
+      collectedTokens map {_.id} match {
+        case List(a, b) if ScalaLexUtil.isWsComment(b) | b == ScalaTokenId.Dot => break = true
+        case List(a, b, c) => break = true // collect no more than 3 tokens
+        case _ =>
+      }
+    }
+
+    val (base, afterDot, select) =
+      collectedTokens match {
+        case List(basex, sep, selectx) =>
+          if (isCallId(basex.id) && isCallId(selectx.id)) {
+            (basex, sep.id == ScalaTokenId.Dot, selectx)
+          } else {
+            (null, false, null)
+          }
+
+        case List(basex, sep) =>
+          if (isCallId(basex.id)) {
+            (basex, sep.id == ScalaTokenId.Dot, null)
+          } else {
+            (null, false, null)
+          }
+
+        case _ => (null, false, null)
+      }
+
+
+    val baseItem = if (base != null) {
+      val items = rootScope.findItemsAt(th, base.offset(th))
+      items.find{_.resultType != null} match {
+        case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
+            case None => if (items.isEmpty) None else Some(items.head)
+            case x => x
+          }
+        case x => x
+      }
+    } else None
+
+    Call(baseItem, if (select != null) select.text.toString else "", afterDot)
+  }
 
   object ScalaUtil {
     def getModifiers(symbol: Symbol): java.util.Set[Modifier] = {
@@ -483,69 +564,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
-    def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_], call: Call , times: Int): Unit = {
-      assert(rootScope != null)
-
-      val closest = ScalaLexUtil.findPreviousNoWsNoComment(ts)
-      var idToken = if (closest.get.id == ScalaTokenId.Dot) {
-        call.caretAfterDot = true
-        // skip RParen if it's the previous
-        if (ts.movePrevious) {
-          ScalaLexUtil.findPreviousNoWs(ts) match {
-            case None =>
-            case Some(prev) => prev.id match {
-                case ScalaTokenId.RParen =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen,   ScalaTokenId.RParen)
-                case ScalaTokenId.RBrace =>   ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace,   ScalaTokenId.RBrace)
-                case ScalaTokenId.RBracket => ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-                case _ =>
-              }
-          }
-        }
-
-        ScalaLexUtil.findPreviousIn(ts, CALL_IDs)
-      } else if (CALL_IDs.contains(closest.get.id)) {
-        closest
-      } else None
-
-      if (idToken.isDefined) {
-        val items = rootScope.findItemsAt(th, idToken.get.offset(th))
-        val item = items.find{_.resultType != null} match {
-          case Some(x) => Some(x)
-          case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
-              case Some(x) => Some(x)
-              case None => if (items.isEmpty) None else Some(items.head)
-            }
-        }
-
-        if (times == 0) {
-          if (call.caretAfterDot) {
-            call.base = item
-            return
-          }
-
-          val prev = if (ts.movePrevious) {
-            ScalaLexUtil.findPreviousNoWsNoComment(ts)
-          } else None
-
-          prev match {
-            case Some(prevx) if prevx.id == ScalaTokenId.Dot =>
-              call.caretAfterDot = true
-              call.select = Some(idToken.get.text.toString)
-              findCall(rootScope, ts, th, call, times + 1)
-            case _ =>
-              call.base = item
-              return
-          }
-        } else {
-          call.base = item
-          return
-        }
-      }
-
-      return
-    }
 
   }
-
 
 }

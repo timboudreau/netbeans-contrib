@@ -184,7 +184,6 @@ abstract class ScalaCodeCompleter {
   var completionResult: DefaultCompletionResult = _
   var th: TokenHierarchy[_] = _
   var info: ParserResult = _
-  var node: Option[AstItem] = None
   var root: ScalaRootScope = _
   var anchor: Int = _
   var lexOffset: Int = _
@@ -616,7 +615,7 @@ abstract class ScalaCodeCompleter {
   /** test method only */
   private def askType(item: AstItem) = {
     val offset = item.idOffset(th)
-    var pos = rangePos(result.srcFile, offset, offset, offset)
+    var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
     var resp = new SyncVar[Either[Tree, Throwable]]
     global.askTypeAt(pos, resp)
     resp.get.left.toOption foreach {x => 

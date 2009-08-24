@@ -151,6 +151,8 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       val th = pResult.getSnapshot.getTokenHierarchy
       val fileObject = pResult.getSnapshot.getSource.getFileObject
 
+      val global = pResult.parser.global
+
       val completer = new ScalaCodeCompleter{val global = pResult.parser.global}
       completer.caseSensitive = context.isCaseSensitive
       completer.completionResult = completionResult
@@ -192,7 +194,11 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         return completionResult
       }
 
+      val caretToken = ts.token
       val closestToken = ScalaLexUtil.findPreviousNoWsNoComment(ts).get
+      val lineEnd = Utilities.getRowEnd(doc, ts.offset)
+      val isAtNewLine = lexOffset > lineEnd
+
       if (closestToken.id == ScalaTokenId.Import) {
         completer.prefix = ""
         completer.completeImport(proposals)
@@ -209,44 +215,37 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
           offset = sanitizedRange.getStart
         }
 
-        var closestOpt = root.findItemAt(th, offset - 1)
-        var closestOffset = offset - 1
-        while (closestOpt == None && closestOffset > 0) {
-          closestOffset -= 1
-          closestOpt = root.findItemAt(th, closestOffset)
-        }
-
         completer.root = root
-        completer.node = closestOpt
 
-        val call = new completer.global.Call
-        completer.global.ScalaUtil.findCall(root, ts, th, call, 0)
-        for (base <- call.base) {
-          val willDo = if (call.caretAfterDot) {
-            true
-          } else {
-            val offset = base.idOffset(th)
-            val lineEnd = Utilities.getRowEnd(doc, offset)
-            lexOffset > offset && lexOffset <= lineEnd // is at the same line
-          }
+        ts.move(lexOffset)
+        if (!ts.moveNext && !ts.movePrevious) {
+          return completionResult
+        }
+        
+        global.findCall(root, ts, th) match {
+          case global.Call(Some(base), select, caretAfterDot) =>
+            val go = if (caretAfterDot) {
+              true 
+            } else !isAtNewLine
           
-          if (willDo) {
-            call.select foreach {x => completer.prefix = x}
-            if (base.symbol != null) {
-              if (completer.completeSymbolMembers(base, proposals)) {
-                if (call.caretAfterDot) {
-                  // * it should be expecting call proposals, so just return right
-                  // * now to avoid keyword local vars proposals
-                  return completionResult
+            if (go) {
+              if (select.length > 0) completer.prefix = select
+              if (base.symbol != null) {
+                if (completer.completeSymbolMembers(base, proposals)) {
+                  if (caretAfterDot) {
+                    // * it should be expecting call proposals, so just return right
+                    // * now to avoid keyword local vars proposals
+                    return completionResult
+                  }
                 }
               }
-            }
 
-            if (call.caretAfterDot) {
-              // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
-              return completionResult
+              if (caretAfterDot) {
+                // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
+                return completionResult
+              }
             }
-          }
+          case _ =>
         }
       }
 
