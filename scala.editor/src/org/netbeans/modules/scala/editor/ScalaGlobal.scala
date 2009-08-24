@@ -863,9 +863,10 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   }
 
   /**
-   * In interactive.Global, the `newRunnerThread` always wait for a `scheduler.waitForMoreWork()`
-   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, when
-   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it
+   * In interactive.Global, the `newRunnerThread` always waits for `scheduler.waitForMoreWork()`
+   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, if
+   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it.
+   * @Ticket #2289
    */
   override def askShutdown() = {
     scheduler.raise(new ShutdownReq)
