@@ -159,13 +159,14 @@ object ScalaGlobal {
     for (global <- toResetGlobals) {
       println("Reset global: " + global)
 
-      global.unitOfFile.clear
-
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
       global.askReset
 
       // * try to stop compiler daemon thread, but, does this method work ?
       global.askShutdown
+
+      // * whatever, force global to clear whole unitOfFile
+      global.unitOfFile.clear
     }
 
     toResetGlobals = Set[ScalaGlobal]()
