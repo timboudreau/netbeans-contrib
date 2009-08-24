@@ -227,11 +227,9 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
               if (select.length > 0) completer.prefix = select
               if (base.symbol != null) {
                 if (completer.completeSymbolMembers(base, proposals)) {
-                  if (caretAfterDot) {
-                    // * it should be expecting call proposals, so just return right
-                    // * now to avoid keyword local vars proposals
-                    return completionResult
-                  }
+                  // * it should be expecting call proposals, so just return right
+                  // * now to avoid keyword local vars proposals
+                  return completionResult
                 }
               }
 
