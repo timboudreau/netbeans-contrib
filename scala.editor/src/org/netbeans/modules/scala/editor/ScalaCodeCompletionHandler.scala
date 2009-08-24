@@ -151,9 +151,6 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       val th = pResult.getSnapshot.getTokenHierarchy
       val fileObject = pResult.getSnapshot.getSource.getFileObject
 
-      // Carry completion context around since this logic is split across lots of methods
-      // and I don't want to pass dozens of parameters from method to method; just pass
-      // a request context with supporting info needed by the various completion helpers i
       val completer = new ScalaCodeCompleter{val global = pResult.parser.global}
       completer.caseSensitive = context.isCaseSensitive
       completer.completionResult = completionResult
@@ -225,23 +222,31 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         val call = new completer.global.Call
         completer.global.ScalaUtil.findCall(root, ts, th, call, 0)
         for (base <- call.base) {
-          call.select foreach {x => completer.prefix = x}
-          if (base.symbol != null) {
-            if (completer.completeSymbolMembers(base, proposals)) {
-              //completer.completeScopeImplicits(base, proposals)
-              if (call.caretAfterDot) {
-                // * it should be expecting call proposals, so just return right
-                // * now to avoid keyword local vars proposals
-                return completionResult
+          val willDo = if (call.caretAfterDot) {
+            true
+          } else {
+            val offset = base.idOffset(th)
+            val lineEnd = Utilities.getRowEnd(doc, offset)
+            lexOffset > offset && lexOffset <= lineEnd // is at the same line
+          }
+          
+          if (willDo) {
+            call.select foreach {x => completer.prefix = x}
+            if (base.symbol != null) {
+              if (completer.completeSymbolMembers(base, proposals)) {
+                if (call.caretAfterDot) {
+                  // * it should be expecting call proposals, so just return right
+                  // * now to avoid keyword local vars proposals
+                  return completionResult
+                }
               }
             }
-          }
 
-          if (call.caretAfterDot) {
-            // it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
-            return completionResult
+            if (call.caretAfterDot) {
+              // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
+              return completionResult
+            }
           }
-
         }
       }
 
