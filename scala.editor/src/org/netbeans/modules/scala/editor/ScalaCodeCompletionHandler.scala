@@ -203,7 +203,8 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       }
 
       val rootOpt = pResult.rootScope
-      for (root <- rootOpt) {
+      if (rootOpt.isDefined) {
+        val root = rootOpt.get
         var offset = astOffset
 
         val sanitizedRange = pResult.sanitizedRange

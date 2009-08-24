@@ -581,29 +581,40 @@ abstract class ScalaCodeCompleter {
     val sym = item.symbol.asInstanceOf[Symbol]
 
     // * use explict assigned `resultType` first
-    var resultType = item.resultType match {
+    var resultTpe = item.resultType match {
       case null => getResultType(sym)
       case x => Some(x.asInstanceOf[Type])
     }
 
-    val offset = item.idOffset(th)
-    var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
-    try {
-      for (resType <- resultType;
-           TypeMember(sym, tpe, accessible, inherited, viaView) <- typeMembers(pos, resType)
-           if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
-      ) {
-        createSymbolProposal(sym) foreach {proposal =>
-          proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
-          proposals.add(proposal)
-        }
-      }
-    } catch {case ex => ScalaGlobal.resetLate(global, ex)}
+    resultTpe match {
+      case Some(x) =>
+        try {
+          val offset = item.idOffset(th)
+          var pos = rangePos(result.srcFile, offset, offset, offset)
+          val resp = new Response[List[Member]]
+          askTypeCompletion(pos, resultTpe.get, resp)
+          resp.get match {
+            case Left(members) =>
+              for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members
+                   if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
+              ) {
+                createSymbolProposal(sym) foreach {proposal =>
+                  proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
+                  proposals.add(proposal)
+                }
+              }
+            case Right(ex) => ScalaGlobal.resetLate(global, ex)
+          }
+        } catch {case ex => ScalaGlobal.resetLate(global, ex)}
+      case None =>
+    }
 
+    // always return true ?
     true
   }
 
-  def askType(item: AstItem) = {
+  /** test method only */
+  private def askType(item: AstItem) = {
     val offset = item.idOffset(th)
     var pos = rangePos(result.srcFile, offset, offset, offset)
     var resp = new SyncVar[Either[Tree, Throwable]]

@@ -62,7 +62,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.tools.nsc.{Phase, Settings}
 import scala.collection.mutable.LinkedHashMap
 import scala.tools.nsc.interactive.Global
-import scala.tools.nsc.symtab.{SymbolTable}
+import scala.tools.nsc.symtab.{SymbolTable, Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.{Reporter}
@@ -688,9 +688,20 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   }
 
 
-  // --- helper methods
+  // --- helper methods, patched version from interactive.Global and CompilerControl
 
   import analyzer.{SearchResult, ImplicitSearch}
+
+  def askTypeCompletion(pos: Position, resultTpe: Type, result: Response[List[Member]]) =
+    scheduler postWorkItem new WorkItem {
+      def apply() = getTypeCompletion(pos, resultTpe, result)
+      override def toString = "type completion "+pos.source+" "+pos.show
+    }
+
+  def getTypeCompletion(pos: Position, resultTpe: Type, result: Response[List[Member]]) {
+    respond(result) { typeMembers(pos, resultTpe) }
+    if (debugIDE) scopeMembers(pos)
+  }
 
   /** 
    * @todo: doLocateContext may return none, should fix it
@@ -703,7 +714,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
 
     val treeSym = tree.symbol
-    val isPackage = treeSym != null & treeSym.isPackage
+    val isPackage = treeSym != null && treeSym.isPackage
 
     val resTpe = tree.tpe match {
       case null | ErrorType | NoType =>
@@ -794,4 +805,55 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     
     members.valuesIterator.toList
   }
+
+  /** Return all members visible without prefix in context enclosing `pos`. */
+  override def scopeMembers(pos: Position): List[ScopeMember] = {
+    typedTreeAt(pos) // to make sure context is entered
+    val context = try {
+      doLocateContext(pos)
+    } catch {case ex => ex.printStackTrace; null}
+    
+    if (context == null) {
+      return Nil
+    }
+
+    val locals = new LinkedHashMap[Name, ScopeMember]
+
+    def addScopeMember1(sym: Symbol, pre: Type, viaImport: Tree) =
+      if (!sym.name.decode.containsName(Dollar) &&
+          !sym.hasFlag(Flags.SYNTHETIC) &&
+          !locals.contains(sym.name)) {
+        //println("adding scope member: "+pre+" "+sym)
+        val tpe = try {
+          pre.memberType(sym)
+        } catch {case ex => ex.printStackTrace; null}
+        
+        locals(sym.name) = new ScopeMember(
+          sym,
+          tpe,
+          if (context == null) true else context.isAccessible(sym, pre, false),
+          viaImport)
+      }
+
+    var cx = context
+    while (cx != NoContext) {
+      for (sym <- cx.scope)
+        addScopeMember1(sym, NoPrefix, EmptyTree)
+      cx = cx.enclClass
+      val pre = cx.prefix
+      for (sym <- pre.members)
+        addScopeMember1(sym, pre, EmptyTree)
+      cx = cx.outer
+    }
+    for (imp <- context.imports) {
+      val pre = imp.qual.tpe
+      for (sym <- imp.allImportedSymbols) {
+        addScopeMember1(sym, pre, imp.qual)
+      }
+    }
+    val result = locals.valuesIterator.toList
+    if (debugIDE) for (m <- result) println(m)
+    result
+  }
+
 }
