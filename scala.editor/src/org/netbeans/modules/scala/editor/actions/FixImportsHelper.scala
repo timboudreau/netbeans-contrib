@@ -39,35 +39,46 @@
 
 package org.netbeans.modules.scala.editor.actions
 
+import java.util.EnumSet;
 import java.util.MissingResourceException;
-import javax.swing.text.BadLocationException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import org.openide.filesystems.FileObject;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.ClassIndex;
-import org.netbeans.api.java.source.ClassIndex.NameKind;
-import java.util.Set;
-import java.util.EnumSet;
 import java.util.regex.Pattern
+import org.netbeans.api.java.source.{ClasspathInfo, ClassIndex};
+import org.netbeans.api.java.source.ClassIndex.NameKind;
 import javax.lang.model.element.TypeElement;
 import javax.swing.Icon;
+import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.Utilities;
 import org.netbeans.api.java.source.ui.ElementIcons
-import org.netbeans.modules.csl.api.EditList;
+import org.netbeans.modules.csl.api.{EditList, OffsetRange}
 import org.netbeans.modules.scala.editor.{ScalaSourceUtil}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.openide.filesystems.FileObject
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
- * @author schmidtm
+ * @author Milos Kleint
  */
 object FixImportsHelper{
 
   private val LOG = Logger.getLogger(classOf[FixImportsHelper].getName)
+
+  val NotFoundValue = Pattern.compile("not found: value (.*)") // NOI18N
+  val NotFoundType  = Pattern.compile("not found: type (.*)")  // NOI18N
+
+  def checkMissingImport(desc: String): Option[String] = {
+    NotFoundValue.matcher(desc) match {
+      case x if x.matches => Some(x.group(1))
+      case _ => NotFoundType.matcher(desc) match {
+          case x if x.matches => Some(x.group(1))
+          case _ => None
+        }
+    }
+  }
 
   def getImportanceLevel(fqn: String): Int = {
     var weight = 50
@@ -84,25 +95,142 @@ object FixImportsHelper{
     }
     weight
   }
-  
-  val NotFoundValue = Pattern.compile("not found: value (.*)") // NOI18N
-  val NotFoundType = Pattern.compile("not found: type (.*)")  // NOI18N
 
-  def checkMissingImport(desc: String): Option[String] = {
-    NotFoundValue.matcher(desc) match {
-      case x if x.matches => Some(x.group(1))
-      case _ => NotFoundType.matcher(desc) match {
-          case x if x.matches => Some(x.group(1))
-          case _ => None
+  def calcOffsetRange(doc: BaseDocument, start: Int, end: Int) : Option[OffsetRange] = {
+    try {
+      Some(new OffsetRange(Utilities.getRowStart(doc, start), Utilities.getRowEnd(doc, end)))
+    } catch {case x : Exception => None}
+  }
+
+  /**
+   * @return a list of Tuples(start, end, import string)
+   */
+  def allGlobalImports(doc: BaseDocument): List[(Int, Int, String)] = {
+    val ts = ScalaLexUtil.getTokenSequence(doc, 0).getOrElse(return Nil)
+    ts.move(0)
+    var importStatement = findNextImport(ts, ts.token)
+    // +1 means the dot
+    val toRet = new ArrayBuffer[Tuple3[Int, Int, String]]()
+    while (importStatement != null && importStatement._1 != -1 && importStatement._3.trim.length > 0) {
+      toRet + importStatement
+      importStatement = findNextImport(ts, ts.token)
+    }
+    toRet.toList
+  }
+
+  def findNextImport(ts: TokenSequence[TokenId], current: Token[_]): (Int, Int, String) = {
+    val sb = new StringBuilder
+    var collecting = false
+    var starter = -1
+    var finisher = -1
+    while (ts.isValid && ts.moveNext) {
+      val token = ts.token
+      token.id match {
+        case ScalaTokenId.Import =>
+          if (collecting) {
+            ts.movePrevious
+            return (starter, finisher, sb.toString)
+          } else {
+            collecting = true
+            starter = ts.offset
+          }
+        case ScalaTokenId.Package =>
+        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Trait | ScalaTokenId.Object =>
+          if (collecting) {
+            //too far
+            ts.movePrevious
+            return (starter, finisher, sb.toString)
+          } else {
+            return null
+          }
+        case id if ScalaLexUtil.isWsComment(id) =>
+        case _ =>
+          if (collecting) {
+            sb.append(token.text.toString)
+            finisher = ts.offset + token.length
+          }
+      }
+    }
+
+    if (collecting) {
+      //reasonable case?
+      (starter, finisher, sb.toString)
+    } else null
+  }
+
+  def doImport(doc: BaseDocument, missing: String, fqn: String, offsetRange: OffsetRange) = {
+    val th = TokenHierarchy.get(doc)
+    val ts = ScalaLexUtil.getTokenSequence(th, 0).get
+    ts.move(0)
+
+    val imports = allGlobalImports(doc)
+    // first find if the package itself is imported eg.
+    //   import org.apache.maven.model  or
+    //   import org.apache.maven.{model=>mavenmodel}
+    //If so, add prefix to declaration, rather than adding new import
+    val packageName = fqn.substring(0, fqn.length - (missing.length + 1))
+    val splitted = packageName.split('.')
+    val lastPack = splitted.last
+    val headPack = splitted.dropRight(1).mkString("""\.""")
+    val impPattern = Pattern.compile(headPack + """\.\{""" + lastPack + """=>([\w]*)\}""")
+    imports.foreach{p => println("-" + p._3 + "-")}
+    val packMatch = imports.find{curr => curr._3.equals(packageName) || impPattern.matcher(curr._3).matches}
+    if (packMatch != None) {
+      val matcher = impPattern.matcher(packMatch.get._3)
+      val toWrite = if (matcher.matches) {
+        matcher.group(1)
+      } else {
+        packageName.split('.').last
+      }
+      val start = calcErrorStartPosition(offsetRange, missing, ts)
+      if (start != -1) {
+        simpleEdit(start, toWrite + ".", doc)
+      }
+    } else {
+      // *then figure if a list of classes in a package is being imported eg.
+      // import org.netbeans.api.lexer.{Language, Token}
+      val listPattern = Pattern.compile(packageName + """\.\{([\w\,\s]*)\}""")
+      val listMatch = imports.find((curr) => listPattern.matcher(curr._3).matches)
+      if (listMatch != None) {
+        val pos = listMatch.get._2 - 1 //-1 for the bracket?
+        simpleEdit(pos, ", " + missing, doc)
+      } else {
+        // * if none of the above applies, add as single import
+        val pos = imports.sortWith{(one, two) => one._3 < two._3}.find((curr) => curr._3 > fqn) match {
+          case None =>
+            if (imports.isEmpty) {
+              findFirstPositionForImport(doc)
+            } else {
+              imports.last._2 + 1 // + 1 for newline
+            }
+          case Some(t) => t._1
         }
+        if (pos != -1) {
+          simpleEdit(pos, "import " + fqn + "\n\n", doc)
+        }
+      }
     }
   }
-}
 
-class FixImportsHelper {
-  import FixImportsHelper._
-    
-  def getImportCandidate(fo: FileObject, missingClass: String): List[ImportCandidate] = {
+  private def calcErrorStartPosition(range: OffsetRange, name: String, ts: TokenSequence[TokenId]): Int = {
+    ts.move(range.getStart)
+    val includes: Set[TokenId] = Set(ScalaTokenId.Type, ScalaTokenId.Identifier)
+    val end = range.getEnd
+    var token = ScalaLexUtil.findNextIncluding(ts, includes)
+    while (token.isDefined && ts.offset <= end) {
+      if (name == token.get.text.toString) return ts.offset
+      token = ScalaLexUtil.findNextIncluding(ts, includes)
+    }
+    -1
+  }
+
+  private def simpleEdit(position: Int, addition: String, doc : BaseDocument): Unit = {
+    val edits = new EditList(doc)
+    edits.replace(position, 0, addition, false, 0)
+    edits.apply
+  }
+
+  def getImportCandidate(fo: FileObject, missingClass: String, range: OffsetRange): List[ImportCandidate] = {
     LOG.log(Level.FINEST, "Looking for class: " + missingClass)
 
     var result: List[ImportCandidate] = Nil
@@ -132,13 +260,11 @@ class FixImportsHelper {
       val typeName = itr.next
       typeName.getKind match {
         case ek@(javax.lang.model.element.ElementKind.CLASS | javax.lang.model.element.ElementKind.INTERFACE) =>
-          val fqnName = typeName.getQualifiedName
-          LOG.log(Level.FINEST, "Found     : " + fqnName)
-
+          val fqn = typeName.getQualifiedName
           val icon = ElementIcons.getElementIcon(ek, null)
-          val level = getImportanceLevel(fqnName)
+          val level = getImportanceLevel(fqn)
 
-          val candidate = new ImportCandidate(missingClass, fqnName, icon, level)
+          val candidate = new ImportCandidate(missingClass, fqn, range, icon, level)
           result = candidate :: result
         case _ =>
       }
@@ -148,82 +274,23 @@ class FixImportsHelper {
     result
   }
 
-  def getImportPosition(doc: BaseDocument): Int = {
+  def findFirstPositionForImport(doc: BaseDocument): Int = {
     val ts = ScalaLexUtil.getTokenSequence(doc, 1).getOrElse(return -1)
-
-    var importEnd = -1
-    var packageOffset = -1
-
-    while (ts.moveNext) {
-      val t = ts.token
-      val offset = ts.offset
-      t.id match {
-        case ScalaTokenId.Import =>
-          LOG.log(Level.FINEST, "ScalaTokenId.Import found");
-          importEnd = offset
-        case ScalaTokenId.Package =>
-          LOG.log(Level.FINEST, "ScalaTokenId.Package found");
-          packageOffset = offset
+    var candidateOffset = -1
+    var break = false
+    while (ts.moveNext && !break) {
+      ts.token.id match {
+        case ScalaTokenId.Import | ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Object | ScalaTokenId.Trait =>
+          val lineBegin = Utilities.getRowStart(doc, ts.offset)
+          candidateOffset = lineBegin
+          break = true
         case _ =>
       }
     }
-
-    var useOffset = 0
-    // sanity check: package *before* import
-    if (importEnd != -1 && packageOffset > importEnd) {
-      LOG.log(Level.FINEST, "packageOffset > importEnd")
-      return -1;
-    }
-
-    // nothing set:
-    if (importEnd == -1 && packageOffset == -1) {
-      // place imports in the first line
-      LOG.log(Level.FINEST, "importEnd == -1 && packageOffset == -1")
-      return 0
-    } else if (importEnd == -1 && packageOffset != -1) { // only package set:
-      // place imports behind package statement
-      LOG.log(Level.FINEST, "importEnd == -1 && packageOffset != -1")
-      useOffset = packageOffset
-    } else if (importEnd != -1 && packageOffset == -1) { // only imports set:
-      // place imports after the last import statement
-      LOG.log(Level.FINEST, "importEnd != -1 && packageOffset == -1")
-      useOffset = importEnd
-    } // both package & import set:
-    else if (importEnd != -1 && packageOffset != -1) {
-      // place imports right after the last import statement
-      LOG.log(Level.FINEST, "importEnd != -1 && packageOffset != -1")
-      useOffset = importEnd
-
-    }
-
-    var lineOffset = 0
-    try {
-      lineOffset = Utilities.getLineOffset(doc, useOffset)
-    } catch {case ex: BadLocationException =>
-        LOG.log(Level.FINEST, "BadLocationException for offset : {0}", useOffset)
-        LOG.log(Level.FINEST, "BadLocationException : {0}", ex.getMessage)
-        return -1
-    }
-
-    Utilities.getRowStartFromLineOffset(doc, lineOffset + 1)
-
+    candidateOffset
   }
 
-  @throws(classOf[MissingResourceException])
-  def doImport(fo: FileObject, fqnName: String) {
-    val baseDoc = ScalaLexUtil.getDocument(fo, true).getOrElse(return)
-    var firstFreePosition = getImportPosition(baseDoc)
-
-    if (firstFreePosition != -1) {
-      if (baseDoc == null) {
-        return
-      }
-
-      val edits = new EditList(baseDoc)
-      LOG.log(Level.FINEST, "Importing here: " + firstFreePosition)
-
-      edits.replace(firstFreePosition, 0, "import " + fqnName + "\n", false, 0)
-      edits.apply
-    }
-  }
 }
+
+/** for classOf[FixImportsHelper] */
+class FixImportsHelper {}

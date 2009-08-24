@@ -40,5 +40,6 @@
 package org.netbeans.modules.scala.editor.actions
 
 import javax.swing.Icon
+import org.netbeans.modules.csl.api.OffsetRange
 
-case class ImportCandidate(name: String, fqnName: String, icon: Icon, importantsLevel: Int) {}
+case class ImportCandidate(missingName: String, fqn: String, range: OffsetRange, icon: Icon, importantsLevel: Int)

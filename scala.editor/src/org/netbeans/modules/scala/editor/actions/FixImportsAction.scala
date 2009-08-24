@@ -44,6 +44,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.text.JTextComponent;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.editor.NbEditorUtilities;
 import javax.swing.text.Document;
 import org.openide.filesystems.FileObject;
@@ -52,6 +53,7 @@ import org.netbeans.editor.BaseAction;
 import org.openide.{DialogDescriptor, DialogDisplayer, NotifyDescriptor}
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
@@ -60,18 +62,18 @@ import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.scala.editor.ScalaParserResult;
 import org.openide.util.Exceptions;
+import scala.collection.mutable.ArrayBuffer
 
 /**
  *
  * @author schmidtm
  */
 class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImportsAction],
-                                                              "fix-scala-imports"), 0) with Runnable {
-
+                                                              "fix-scala-imports"), 0)
+                          with Runnable {
   private val LOG = Logger.getLogger(classOf[FixImportsAction].getName)
 
-  var doc: Option[Document] = None
-  private var helper = new FixImportsHelper
+  var doc: BaseDocument = _
 
   override def isEnabled: Boolean = {
     // here should go all the logic whether there are in fact missing
@@ -83,25 +85,22 @@ class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImports
     LOG.log(Level.FINEST, "actionPerformed(final JTextComponent comp)")
 
     assert(comp != null)
-    doc = comp.getDocument match {
-      case null => None
-      case x => Some(x)
-    }
-
-    if (doc.isDefined) {
-      RequestProcessor.getDefault.post(this)
+    comp.getDocument match {
+      case null =>
+      case x => 
+        doc = x.asInstanceOf[BaseDocument]
+        RequestProcessor.getDefault.post(this)
     }
   }
 
   def run {
-    val dob = NbEditorUtilities.getDataObject(doc.get)
+    val dob = NbEditorUtilities.getDataObject(doc)
     if (dob == null) {
       LOG.log(Level.FINEST, "Could not get DataObject for document")
       return
     }
 
-    var missingNames: List[String] = Nil
-
+    var missingNames = Map[String, OffsetRange]()
     val fo = dob.getPrimaryFile
     try {
       val source = Source.create(fo)
@@ -124,7 +123,10 @@ class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImports
                 val error = itr.next
                 FixImportsHelper.checkMissingImport(error.getDescription) match {
                   case Some(missingName) if !missingNames.contains(missingName) =>
-                    missingNames = missingName :: missingNames
+                    FixImportsHelper.calcOffsetRange(doc, error.getStartPosition, error.getEndPosition) match {
+                      case Some(range) => missingNames += (missingName -> range)
+                      case None =>
+                    }
                   case _ =>
                 }
               }
@@ -137,22 +139,24 @@ class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImports
     // candidate or populate choosers input list.
 
     var multipleCandidates: Map[String, List[ImportCandidate]] = Map()
-    for (name <- missingNames) {
-      helper.getImportCandidate(fo, name) match {
+    for ((missing, range) <- missingNames) {
+      FixImportsHelper.getImportCandidate(fo, missing, range) match {
         case Nil =>
-        case x :: Nil => helper.doImport(fo, x.fqnName)
-        case importCandidates => multipleCandidates += (name -> importCandidates)
+        case x :: Nil => FixImportsHelper.doImport(doc, missing, x.fqn, range)
+        case importCandidates => multipleCandidates += (missing -> importCandidates)
       }
     }
 
     // * do we have multiple candidate? In this case we need to present a chooser
     if (!multipleCandidates.isEmpty) {
       LOG.log(Level.FINEST, "multipleCandidates.size(): " + multipleCandidates.size)
-      presentChooser(multipleCandidates) foreach {helper.doImport(fo, _)}
+      for (ImportCandidate(missing, fqn, range, icon, importantsLevel) <- presentChooser(multipleCandidates)) {
+        FixImportsHelper.doImport(doc, missing, fqn, range)
+      }
     } 
   }
 
-  private def presentChooser(multipleCandidates: Map[String, List[ImportCandidate]]): Array[String] = {
+  private def presentChooser(multipleCandidates: Map[String, List[ImportCandidate]]): Array[ImportCandidate] = {
     LOG.log(Level.FINEST, "presentChooser()")
 
     val panel = new ImportChooserInnerPanel
@@ -166,7 +170,15 @@ class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImports
     d.dispose
 
     dd.getValue match {
-      case NotifyDescriptor.OK_OPTION => panel.getSelections
+      case NotifyDescriptor.OK_OPTION =>
+        val result = new ArrayBuffer[ImportCandidate]
+        val selections = panel.getSelections
+        for ((missing, candidates) <- multipleCandidates) {
+          for (seletedFqn <- selections) {
+            candidates.find{_.fqn == seletedFqn} foreach {result += _}
+          }
+        }
+        result.toArray
       case _ => Array()
     }
   }

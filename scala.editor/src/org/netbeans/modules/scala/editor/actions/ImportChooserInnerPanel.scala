@@ -126,8 +126,8 @@ class ImportChooserInnerPanel extends javax.swing.JPanel {
         var defaultSelection: String = null;
         var maxImportantsLevel = 0;
                 
-        for (ImportCandidate(name, fqnName, icon, importantsLevel) <- importCandidates) {
-          choices(iNum) = fqnName
+        for (ImportCandidate(missing, fqn, range, icon, importantsLevel) <- importCandidates) {
+          choices(iNum) = fqn
           icons(iNum) = icon
                     
           val level = importantsLevel
