@@ -38,6 +38,10 @@
  */
 package org.netbeans.modules.scala.editor
 
+import java.beans.PropertyChangeEvent
+
+import java.beans.PropertyChangeListener
+
 import java.io.{File, IOException}
 import java.lang.ref.{Reference, WeakReference}
 import java.net.{MalformedURLException, URI, URISyntaxException, URL}
@@ -119,6 +123,8 @@ object ScalaGlobal {
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
+  val compCpChanged = new Exception("Reset due to change of compile classpath")
+
   def resetAll = synchronized {
     val itr1 = projectToGlobal.values.iterator
     while (itr1.hasNext) {
@@ -199,7 +205,9 @@ object ScalaGlobal {
     }
 
     // * is this `fo` under test source?
-    val forTest = dirs.testSrcOutDirs.find{case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}.isDefined
+    val forTest = dirs.testSrcOutDirs find {case (src, _) =>
+        src.equals(fo) || FileUtil.isParentOf(src, fo)
+    } isDefined
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
     val holder = if (forDebug) {
@@ -207,11 +215,15 @@ object ScalaGlobal {
     } else {
       if (forTest) projectToGlobalForTest else projectToGlobal
     }
+    
     holder.get(project) match {
       case null =>
       case g => return g
     }
 
+
+    // ----- need to create a new global:
+    
     val settings = new Settings
     if (debug) {
       settings.debug.value = true
@@ -221,6 +233,18 @@ object ScalaGlobal {
       settings.verbose.value = false
     }
 
+    var bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
+    var compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
+    val srcCp  = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+
+    var inStdLib = false
+    if (bootCp == null || compCp == null) {
+      // * in case of `fo` in standard libaray
+      inStdLib = true
+    }
+
+    // ----- set sourcepath, outpath
+    
     var outPath = ""
     var srcPaths: List[String] = Nil
     for ((src, out) <- if (forTest) dirs.testSrcOutDirsPath else dirs.srcOutDirsPath) {
@@ -229,33 +253,37 @@ object ScalaGlobal {
         outPath = out
       }
     }
+
+    // *Note: do not add src path to global for test, since the corresponding build/classes has been added to compCp
+
+    if (outPath.length > 0) {
+      // * Has out path dir been deleted? (a clean task), if so, create it, since scalac
+      // * can't parse anything correctly without an exist out dir (sounds a bit strange)
+      try {
+        val file = new File(outPath)
+        if (file.exists) file.mkdirs
+      } catch {case _ =>}
+    }
+
     settings.sourcepath.tryToSet(srcPaths.reverse)
     settings.outputDirs.setSingleOutput(outPath)
 
-    /** @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why? */
+    println("project's source paths set for global: " + srcPaths)
+    if (srcCp != null){ 
+      println(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
+    } else {
+      println("project's srcCp is empty !")
+    }
+    
+    // * @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why?
     /*_
      for ((src, out) <- if (forTest) dirs.scalaTestSrcOutDirs else dirs.scalaSrcOutDirs) {
      settings.outputDirs.add(src, out)
      }
      */
 
-    // * add boot, compile classpath
-    val cpp = project.getLookup.lookup(classOf[ClassPathProvider])
-    var (bootCp, compCp, srcCp): (ClassPath, ClassPath, ClassPath) = if (cpp != null) {
-      (cpp.findClassPath(fo, ClassPath.BOOT), 
-       cpp.findClassPath(fo, ClassPath.COMPILE),
-       cpp.findClassPath(fo, ClassPath.SOURCE))
-    } else (null, null, null)
 
-    if (srcCp != null) println("project's srcDir: [" + srcCp.getRoots.mkString(", ") + "]") else println("project's srcDir is empty !")
-
-    var inStdLib = false
-    if (bootCp == null || compCp == null) {
-      // * in case of `fo` in standard libaray
-      inStdLib = true
-      bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
-      compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
-    }
+    // ----- set bootclasspath, classpath
 
     val sb = new StringBuilder
     computeClassPath(project, sb, bootCp)
@@ -263,94 +291,74 @@ object ScalaGlobal {
 
     sb.delete(0, sb.length)
     computeClassPath(project, sb, compCp)
-    if (forTest && !inStdLib) {
-      var visited = Set[FileObject]()
-      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
-        sb.append(File.pathSeparator).append(out)
-        visited += out
-      }
-    }
     settings.classpath.tryToSet(List(sb.toString))
+
+    // ----- now, the new global
 
     val global = new ScalaGlobal(settings, dummyReporter)
 
     if (forTest) {
       (if (forDebug) projectToGlobalForTestDebug else projectToGlobalForTest).put(project, global)
-      /* var visited = Set[FileObject]()
-      for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
-        out.addFileChangeListener(new FileChangeAdapter {
-
-            override def fileChanged(fe: FileEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileRenamed(fe: FileRenameEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileDeleted(fe: FileEvent): Unit = {
-              // * maybe a clean task invoked
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-          })
-
-        visited += out
-      }
-
-      visited = Set[FileObject]()
-      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
-        // * monitor outDir's changes,
-        /** @Todo should reset global for any changes under out dir, including subdirs */
-        out.addFileChangeListener(new FileChangeAdapter {
-
-            override def fileChanged(fe: FileEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileRenamed(fe: FileRenameEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileDeleted(fe: FileEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToDirs.remove(project)
-            }
-          })
-
-        visited += out
-      } */
     } else {
       (if (forDebug) projectToGlobalForDebug else projectToGlobal).put(project, global)
-      /* var visited = Set[FileObject]()
-      for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
-        out.addFileChangeListener(new FileChangeAdapter {
-
-            override def fileChanged(fe: FileEvent): Unit = {
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileRenamed(fe: FileRenameEvent): Unit = {
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileDeleted(fe: FileEvent): Unit = {
-              // maybe a clean task invoked
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-          })
-
-        visited += out
-      } */
     }
 
+    // * listen to compCp's change
+    compCp.getRoots foreach {x =>
+      x.addFileChangeListener(new FileChangeAdapter {
+          private var g = global
+
+          override def fileDataCreated(fe: FileEvent): Unit = {
+            if (g != null) {
+              resetLate(g, compCpChanged)
+              g = null
+            }
+          }
+
+          override def fileChanged(fe: FileEvent): Unit = {
+            if (g != null) {
+              resetLate(g, compCpChanged)
+              g = null
+            }
+          }
+
+          override def fileRenamed(fe: FileRenameEvent): Unit = {
+            if (g != null) {
+              resetLate(g, compCpChanged)
+              g = null
+            }
+          }
+
+          override def fileDeleted(fe: FileEvent): Unit = {
+            if (g != null) {
+              resetLate(g, compCpChanged)
+              g = null
+            }
+          }
+        })
+    }
+
+    // ----- flowing code seems doesn't work:
+    /* if (compCp != null) {
+     println("== forTest " + forTest + " ==\n" + compCp)
+
+     compCp.addPropertyChangeListener(new PropertyChangeListener() {
+     val reason = new Exception("Reset due to change of compile classpath")
+     private var g = global
+
+     override def propertyChange(evt: PropertyChangeEvent) {
+     println("!!! == forTest " + forTest + " ==\n" + evt.getPropertyName)
+     evt.getPropertyName match {
+     case ClassPath.PROP_ROOTS | ClassPath.PROP_ENTRIES if g != null =>
+     println("!!! == forTest " + forTest + " ==\n" + compCp)
+     resetLate(g, reason)
+     g = null
+     case _ =>
+     }
+     }
+     })
+     } */
+   
     if (!forDebug) {
       initialLoadSources(global, project, srcCp)
     }
@@ -364,37 +372,41 @@ object ScalaGlobal {
 
       project.getProjectDirectory.getFileSystem.addFileChangeListener(new FileChangeAdapter {
           val srcRoots = srcCp.getRoots
+          private var g = global
 
           private def isUnderSrcDir(fo: FileObject) = {
-            srcRoots.find{x => FileUtil.isParentOf(x, fo)}.isDefined
+            srcRoots find {x => FileUtil.isParentOf(x, fo)} isDefined
           }
 
           override def fileDataCreated(fe: FileEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReporter
-              global.askForReLoad(List(fo))
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+              g.reporter = dummyReporter
+              g.askForReLoad(List(fo))
+              g = null
             }
           }
 
           override def fileChanged(fe: FileEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReporter
-              global.askForReLoad(List(fo))
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+              g.reporter = dummyReporter
+              g.askForReLoad(List(fo))
+              g = null
             }
           }
 
           override def fileRenamed(fe: FileRenameEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
-              global.reporter = dummyReporter
-              global.askForReLoad(List(fo))
+            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+              g.reporter = dummyReporter
+              g.askForReLoad(List(fo))
+              g = null
             }
           }
 
           override def fileDeleted(fe: FileEvent): Unit = {
-            // @todo recompile all?
+            // @todo get the dependency ot just recompile all?
           }
         })
 
@@ -428,10 +440,10 @@ object ScalaGlobal {
 
     val sources = ProjectUtils.getSources(project)
     val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
-    val javaSgs = sources.getSourceGroups(SOURCES_TYPE_JAVA)
+    val javaSgs  = sources.getSourceGroups(SOURCES_TYPE_JAVA)
 
-    println("project's src group[Scala] dir: [" + scalaSgs.map{_.getRootFolder}.mkString(", ") + "]")
-    println("project's src group[Java] dir: [" + javaSgs.map{_.getRootFolder}.mkString(", ") + "]")
+    println((scalaSgs map {_.getRootFolder}).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
+    println((javaSgs  map {_.getRootFolder}).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
 
     List(scalaSgs, javaSgs) foreach {sgs =>
       if (sgs.size > 0) {
