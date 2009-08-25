@@ -734,7 +734,13 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
             case _ => completionTypeAt(alternatePos, NoPosition)
           }
       }
-    } catch {case ex => EmptyTree}
+    } catch {
+      case ex =>
+        alternatePos match {
+          case NoPosition => EmptyTree
+          case _ => completionTypeAt(alternatePos, NoPosition)
+        }
+    }
   }
 
   /**
