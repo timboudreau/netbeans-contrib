@@ -276,7 +276,7 @@ object ScalaGlobal {
 
     if (forTest) {
       (if (forDebug) projectToGlobalForTestDebug else projectToGlobalForTest).put(project, global)
-      var visited = Set[FileObject]()
+      /* var visited = Set[FileObject]()
       for ((src, out) <- dirs.testSrcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
 
@@ -323,10 +323,10 @@ object ScalaGlobal {
           })
 
         visited += out
-      }
+      } */
     } else {
       (if (forDebug) projectToGlobalForDebug else projectToGlobal).put(project, global)
-      var visited = Set[FileObject]()
+      /* var visited = Set[FileObject]()
       for ((src, out) <- dirs.srcOutDirs if !visited.contains(out)) {
         out.addFileChangeListener(new FileChangeAdapter {
 
@@ -346,9 +346,9 @@ object ScalaGlobal {
               projectToDirs.remove(project)
             }
           })
-        
+
         visited += out
-      }
+      } */
     }
 
     if (!forDebug) {
@@ -374,7 +374,6 @@ object ScalaGlobal {
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
               global.askForReLoad(List(fo))
-              //global.compileSourcesForPresentation(List(fo))
             }
           }
 
@@ -383,7 +382,6 @@ object ScalaGlobal {
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
               global.askForReLoad(List(fo))
-              //global.compileSourcesForPresentation(List(fo))
             }
           }
 
@@ -392,7 +390,6 @@ object ScalaGlobal {
             if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo)) {
               global.reporter = dummyReporter
               global.askForReLoad(List(fo))
-              //global.compileSourcesForPresentation(List(fo))
             }
           }
 
@@ -413,7 +410,6 @@ object ScalaGlobal {
       // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
       global.reporter = dummyReporter
       global.askForReLoad((javaSrcs ++ scalaSrcs).toList)
-      //global.compileSourcesForPresentation((javaSrcs ++ scalaSrcs).toList)
     }
   }
 
@@ -721,11 +717,9 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         case me@Ident(name) => me
         case Select(qualifier, name) => qualifier
         case x =>
-          if (alternatePos != NoPosition) {
-            completionTypeAt(alternatePos, NoPosition)
-          } else {
-            println("Warning: got a suspicious completion tree: " + x.getClass.getSimpleName)
-            x
+          alternatePos match {
+            case NoPosition => println("Warning: got a suspicious completion tree: " + x.getClass.getSimpleName); x
+            case _ => completionTypeAt(alternatePos, NoPosition)
           }
       }
     } catch {case ex => EmptyTree}
