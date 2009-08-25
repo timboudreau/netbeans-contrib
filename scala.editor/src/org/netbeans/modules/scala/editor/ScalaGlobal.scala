@@ -531,7 +531,7 @@ object ScalaGlobal {
 
     val itr = cp.entries.iterator
     while (itr.hasNext) {
-      val rootFile: File =
+      val rootFile =
         try {
           val entryRoot = itr.next.getRoot
           if (entryRoot != null) {
@@ -543,28 +543,6 @@ object ScalaGlobal {
         } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
 
       if (rootFile != null) {
-        FileUtil.toFileObject(rootFile).addFileChangeListener(new FileChangeAdapter {
-
-            override def fileChanged(fe: FileEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileRenamed(fe: FileRenameEvent): Unit = {
-              projectToGlobalForTest.remove(project)
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-
-            override def fileDeleted(fe: FileEvent): Unit = {
-              // maybe a clean task invoked
-              projectToGlobalForTest.remove(project)
-              projectToGlobal.remove(project)
-              projectToDirs.remove(project)
-            }
-          })
-
         val path = rootFile.getAbsolutePath
         sb.append(path)
         if (itr.hasNext) {
