@@ -3,6 +3,7 @@
   <import file="../../nbbuild/templates/projectized.xml"/>
     
   <target name="scala-taskdef" depends="init">
+    <echo message="scala.home is set to: ${scala.home}"/>
     <echo message="Scala libs is set to: ${scala.library}, ${scala.compiler}"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -11,6 +12,13 @@
       </classpath>
     </taskdef>
   </target>
+
+  <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
+  <path id="scalac.cp">
+    <pathelement path="${scala.libs}"/>
+    <pathelement path="${module.run.classpath}"/>
+    <pathelement path="${cp.extra}"/>
+  </path>
 
   <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
 
@@ -64,24 +72,24 @@
 
   <target name="-do-fast-scalac" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc">
     <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}" addparams="-verbose">
+            encoding="UTF-8" target="jvm-${javac.target}" fork="false" addparams="-verbose">
     </fsc>
   </target>
 
   <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
     <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}">
+            encoding="UTF-8" target="jvm-${javac.target}" fork="false">
     </scalac>
   </target>
 
   <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
-        <!-- javac's classpath should include scala.library and all these paths of "cp" -->
+    <!-- javac's classpath should include scala.library and all these paths of "cp" -->
     <path id="javac.cp">
       <pathelement path="${scala.libs}"/>
       <pathelement path="${module.classpath}"/>
       <pathelement path="${cp.extra}"/>
     </path>
-        <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
+    <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
     <path id="scalac.cp">
       <pathelement path="${scala.libs}"/>
       <pathelement path="${module.run.classpath}"/>

@@ -643,7 +643,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * to clean this global
          */
         ScalaGlobal.resetLate(this, ex)
-      case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
   }
@@ -725,12 +725,12 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     val isPackage = treeSym != null && treeSym.isPackage
 
     val resTpe = resultTpe
-    /* val resTpe = tree.tpe match {
-     case null | ErrorType | NoType =>
-     println("will replace resultTpe " + resultTpe)
-     resultTpe
-     case x => x.resultType
-     } */
+    tree.tpe match {
+      case null | ErrorType | NoType =>
+        println("==== Tree type is null or error, will replace resultTpe with " + resultTpe)
+        resultTpe
+      case x => x
+    }
     
     println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resType=" + resTpe)
     val context = try {

@@ -1,37 +1,25 @@
 Index: src/compiler/scala/tools/nsc/Global.scala
 ===================================================================
---- src/compiler/scala/tools/nsc/Global.scala   (revision 16925)
-+++ src/compiler/scala/tools/nsc/Global.scala   (working copy)
-@@ -46,6 +46,8 @@
+--- src/compiler/scala/tools/nsc/Global.scala	(revision 18542)
++++ src/compiler/scala/tools/nsc/Global.scala	(working copy)
+@@ -49,6 +49,8 @@
    //def this() = this(new Settings, new ConsoleReporter)
  
    // sub-components --------------------------------------------------
-+  var selectTypeErrors:Map[Tree, Type] = Map()
++  var selectTypeErrors :Map[Tree, Type] = Map()
 +  def resetSelectTypeErrors = selectTypeErrors = Map()
  
+   /** Print tree in detailed form */
    object nodePrinters extends {
-     val global: Global.this.type = Global.this
 Index: src/compiler/scala/tools/nsc/typechecker/Typers.scala
 ===================================================================
---- src/compiler/scala/tools/nsc/typechecker/Typers.scala       (revision 16925)
-+++ src/compiler/scala/tools/nsc/typechecker/Typers.scala       (working copy)
-@@ -2822,7 +2822,10 @@
-         }
+--- src/compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 18542)
++++ src/compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
+@@ -3203,6 +3203,7 @@
          if (!sym.exists) {
            if (settings.debug.value) Console.err.println("qual = "+qual+":"+qual.tpe+"\nSymbol="+qual.tpe.termSymbol+"\nsymbol-info = "+qual.tpe.termSymbol.info+"\nscope-id = "+qual.tpe.termSymbol.info.decls.hashCode()+"\nmembers = "+qual.tpe.members+"\nname = "+name+"\nfound = "+sym+"\nowner = "+context.enclClass.owner)
-+          val tree1 = setError(tree)
            if (!qual.tpe.widen.isErroneous) {
-+            global.selectTypeErrors += (tree -> qual.tpe)
-+            global.selectTypeErrors += (tree1 -> qual.tpe)
++            global.selectTypeErrors += (tree -> qual.tpe.widen)
              error(tree.pos,
                if (name == nme.CONSTRUCTOR) 
                  qual.tpe.widen+" does not have a constructor"
-@@ -2833,7 +2836,7 @@
-                   "\npossible cause: maybe a semicolon is missing before `"+decode(name)+"'?"
-                  else ""))
-           }
--          setError(tree)
-+          tree1
-         } else {
-           val tree1 = tree match {
-             case Select(_, _) => copy.Select(tree, qual, name)
