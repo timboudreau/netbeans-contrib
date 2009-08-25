@@ -96,7 +96,7 @@ class ResetGlobalAction  extends BaseAction(NbBundle.getMessage(classOf[ResetGlo
     val fo = dob.getPrimaryFile
     val global = ScalaGlobal.getGlobal(fo)
     if (global != null) {
-      ScalaGlobal.resetLate(global, new Exception("Reset by user action"))
+      ScalaGlobal.resetLate(global, ScalaGlobal.userRequest)
     }
   }
 }

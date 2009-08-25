@@ -119,11 +119,13 @@ object ScalaGlobal {
 
   private var globalForStdLib: Option[ScalaGlobal] = None
   
-  private var toResetGlobals = Set[ScalaGlobal]()
-
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
-  val compCpChanged = new Exception("Reset due to change of compile classpath")
+  private var toResetGlobals = Set[ScalaGlobal]()
+
+  case class NormalReason(msg: String) extends Throwable(msg)
+  case object userRequest extends NormalReason("User's action")
+  case object compCpChanged extends NormalReason("Change of compile classpath")
 
   def resetAll = synchronized {
     val itr1 = projectToGlobal.values.iterator
@@ -143,7 +145,11 @@ object ScalaGlobal {
   }
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
-    println("=== will reset global late due to: \n" + reason.printStackTrace)
+    println("\n=== will reset global late due to:")
+    reason match {
+      case NormalReason(msg) => println(msg)
+      case _ => reason.printStackTrace
+    }
 
     toResetGlobals += global
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
@@ -249,21 +255,21 @@ object ScalaGlobal {
     var srcPaths: List[String] = Nil
     for ((src, out) <- if (forTest) dirs.testSrcOutDirsPath else dirs.srcOutDirsPath) {
       srcPaths = src :: srcPaths
+
+      // * we only need one out path
       if (outPath == "") {
         outPath = out
+
+        // * Had out path dir been deleted? (a clean task etc), if so, create it, since scalac
+        // * can't parse anything correctly without an exist out dir (sounds a bit strange)
+        try {
+          val file = new File(outPath)
+          if (!file.exists) file.mkdirs
+        } catch {case _ =>}
       }
     }
 
     // *Note: do not add src path to global for test, since the corresponding build/classes has been added to compCp
-
-    if (outPath.length > 0) {
-      // * Has out path dir been deleted? (a clean task), if so, create it, since scalac
-      // * can't parse anything correctly without an exist out dir (sounds a bit strange)
-      try {
-        val file = new File(outPath)
-        if (file.exists) file.mkdirs
-      } catch {case _ =>}
-    }
 
     settings.sourcepath.tryToSet(srcPaths.reverse)
     settings.outputDirs.setSingleOutput(outPath)
@@ -304,26 +310,42 @@ object ScalaGlobal {
     }
 
     // * listen to compCp's change
-    compCp.getRoots foreach {x =>
-      x.addFileChangeListener(new FileChangeAdapter {
+    if (compCp != null) {
+      project.getProjectDirectory.getFileSystem.addFileChangeListener(new FileChangeAdapter {
           private var g = global
 
+          private def isUnderCompileCp(fo: FileObject) = {
+            // * when there are series of folder/file created, only top created folder can be listener
+            compCp.getRoots find {x => FileUtil.isParentOf(fo, x) || x == fo} isDefined
+          }
+
+          override def fileFolderCreated(fe: FileEvent) {
+            val fo = fe.getFile
+            if (isUnderCompileCp(fo) && g != null) {
+              resetLate(g, compCpChanged)
+              g = null
+            }
+          }
+
           override def fileDataCreated(fe: FileEvent): Unit = {
-            if (g != null) {
+            val fo = fe.getFile
+            if (isUnderCompileCp(fo) && g != null) {
               resetLate(g, compCpChanged)
               g = null
             }
           }
 
           override def fileChanged(fe: FileEvent): Unit = {
-            if (g != null) {
+            val fo = fe.getFile
+            if (isUnderCompileCp(fo) && g != null) {
               resetLate(g, compCpChanged)
               g = null
             }
           }
 
           override def fileRenamed(fe: FileRenameEvent): Unit = {
-            if (g != null) {
+            val fo = fe.getFile
+            if (isUnderCompileCp(fo) && g != null) {
               resetLate(g, compCpChanged)
               g = null
             }
@@ -336,6 +358,7 @@ object ScalaGlobal {
             }
           }
         })
+
     }
 
     // ----- flowing code seems doesn't work:
