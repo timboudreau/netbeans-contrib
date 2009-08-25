@@ -643,7 +643,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
          * to clean this global
          */
         ScalaGlobal.resetLate(this, ex)
-      case ex: _root_.java.lang.Error => // avoid scala nsc's Error error
+      case ex: java.lang.Error => // avoid scala nsc's Error error
       case ex: Throwable => // just ignore all ex
     }
   }
