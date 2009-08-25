@@ -137,7 +137,7 @@ object ScalaGlobal {
   }
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
-    println("=== will reset global late due to: \n" + reason.getMessage)
+    println("=== will reset global late due to: \n" + reason.printStackTrace)
 
     toResetGlobals += global
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
@@ -735,10 +735,10 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
    * @todo: doLocateContext may return none, should fix it
    * from interative.Global#typeMembers
    */
-  def typeMembers(pos: Position, alternatePos: Position, resultTpe: Type): List[TypeMember] = {
-    val tree = completionTypeAt(pos, alternatePos)
-    if (tree == EmptyTree) {
-      return Nil
+  def typeMembers(apos: Position, alternatePos: Position, resultTpe: Type): List[TypeMember] = {
+    val (pos, tree) = completionTypeAt(apos, alternatePos) match {
+      case EmptyTree => return Nil
+      case x => (x.pos, x)
     }
 
     val treeSym = tree.symbol

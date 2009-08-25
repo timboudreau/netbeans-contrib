@@ -146,6 +146,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   ColoringAttributes.CLASS_SET
                 case sym if sym.isClass =>
                   ColoringAttributes.CLASS_SET
+                case sym if sym.isGetter | sym.isSetter =>
+                  ColoringAttributes.FIELD_SET
                 case sym if sym.isMethod =>
                   ColoringAttributes.METHOD_SET
                 case _ => java.util.Collections.emptySet[ColoringAttributes]

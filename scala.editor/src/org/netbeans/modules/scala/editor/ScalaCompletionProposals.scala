@@ -77,10 +77,11 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
     override def getSortText: String = {
       val name = getName
-      name.charAt(0) match {
-        case c if c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' => name
-        case _ => '~' + name
+      val order = name.charAt(0) match {
+        case c if c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' => "0"
+        case _ => "1"
       }
+      order + name
     }
 
     def getSortPrioOverride: Int = {
@@ -92,7 +93,11 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
 
     def getKind: ElementKind = {
-      getElement.getKind
+      getElement match {
+        case x: ScalaDfn     if x.symbol.isGetter => ElementKind.FIELD
+        case x: ScalaElement if x.symbol.isGetter => ElementKind.FIELD
+        case x => x.getKind
+      }
     }
 
     def getIcon: ImageIcon = {
@@ -150,7 +155,6 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
     def isSmart: Boolean = {
       false
-      //return indexedElement != null ? indexedElement.isSmart() : true;
     }
 
     override def getCustomInsertTemplate: String = {

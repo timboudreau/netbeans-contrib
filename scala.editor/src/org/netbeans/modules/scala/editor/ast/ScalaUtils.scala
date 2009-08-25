@@ -76,27 +76,31 @@ trait ScalaUtils {self: ScalaGlobal =>
       modifiers
     }
 
-    def getKind(symbol: Symbol): ElementKind = {
+    def getKind(sym: Symbol): ElementKind = {
       try {
-        if (symbol.isClass) {
-          ElementKind.CLASS
-        } else if (symbol.isConstructor) {
-          ElementKind.CONSTRUCTOR
-        } else if (symbol.isConstant) {
-          ElementKind.CONSTANT
-        } else if (symbol.isValue) {
-          ElementKind.FIELD
-        } else if (symbol.isModule) {
-          ElementKind.MODULE
-        } else if (symbol.isLocal && symbol.isVariable) {
-          ElementKind.VARIABLE
-        } else if (symbol.isMethod) {
-          ElementKind.METHOD
-        } else if (symbol.isPackage) {
+        if (sym.isPackage) {
           ElementKind.PACKAGE
-        } else if (symbol.isValueParameter) {
+        } else if (sym.isClass) {
+          ElementKind.CLASS
+        } else if (sym.isType) {
+          ElementKind.CLASS
+        } else if (sym.isTrait) {
+          ElementKind.CLASS
+        } else if (sym.isModule) {
+          ElementKind.MODULE
+        } else if (sym.isConstructor) {
+          ElementKind.CONSTRUCTOR
+        } else if (sym.isConstant) {
+          ElementKind.CONSTANT
+        } else if (sym.isValue) {
+          ElementKind.FIELD
+        } else if (sym.isVariable) {
+          ElementKind.VARIABLE
+        } else if (sym.isMethod) {
+          ElementKind.METHOD
+        } else if (sym.isValueParameter) {
           ElementKind.PARAMETER
-        } else if (symbol.isTypeParameter) {
+        } else if (sym.isTypeParameter) {
           ElementKind.CLASS
         } else {
           ElementKind.OTHER
