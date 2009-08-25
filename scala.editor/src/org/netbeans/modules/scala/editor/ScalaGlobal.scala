@@ -67,7 +67,7 @@ import scala.tools.nsc.symtab.{SymbolTable, Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.{Reporter}
-import scala.tools.nsc.util.{Position, SourceFile}
+import scala.tools.nsc.util.{Position, SourceFile, NoPosition}
 
 /**
  *
@@ -160,7 +160,7 @@ object ScalaGlobal {
       println("Reset global: " + global)
 
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
-      global.askReset
+      //global.askReset
 
       // * try to stop compiler daemon thread, but, does this method work ?
       global.askShutdown
@@ -700,25 +700,45 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   import analyzer.{SearchResult, ImplicitSearch}
 
-  def askTypeCompletion(pos: Position, resultTpe: Type, result: Response[List[Member]]) =
+  def askTypeCompletion(pos: Position, alternatePos: Position, resultTpe: Type, result: Response[List[Member]]) =
     scheduler postWorkItem new WorkItem {
-      def apply() = getTypeCompletion(pos, resultTpe, result)
+      def apply() = getTypeCompletion(pos, alternatePos, resultTpe, result)
       override def toString = "type completion "+pos.source+" "+pos.show
     }
 
-  def getTypeCompletion(pos: Position, resultTpe: Type, result: Response[List[Member]]) {
-    respond(result) { typeMembers(pos, resultTpe) }
+  def getTypeCompletion(pos: Position, alternatePos: Position, resultTpe: Type, result: Response[List[Member]]) {
+    respond(result) { typeMembers(pos, alternatePos, resultTpe) }
     if (debugIDE) scopeMembers(pos)
   }
 
-  /** 
+  /**
+   * When we are doing completion, what we need is an `Ident` or `qualifier` of `Select` tree
+   * we'll collect the members of result type of this `Ident` or `qualifier`
+   */
+  def completionTypeAt(pos: Position, alternatePos: Position): Tree = {
+    try {
+      typedTreeAt(pos) match {
+        case me@Ident(name) => me
+        case Select(qualifier, name) => qualifier
+        case x =>
+          if (alternatePos != NoPosition) {
+            completionTypeAt(alternatePos, NoPosition)
+          } else {
+            println("Warning: got a suspicious completion tree: " + x.getClass.getSimpleName)
+            x
+          }
+      }
+    } catch {case ex => EmptyTree}
+  }
+
+  /**
    * @todo: doLocateContext may return none, should fix it
    * from interative.Global#typeMembers
    */
-  def typeMembers(apos: Position, resultTpe: Type): List[TypeMember] = {
-    val (pos, tree) = typedTreeAt(apos) match {
-      case Select(qualifier, name) => (qualifier.pos, qualifier)
-      case treex => (apos, treex)
+  def typeMembers(pos: Position, alternatePos: Position, resultTpe: Type): List[TypeMember] = {
+    val tree = completionTypeAt(pos, alternatePos)
+    if (tree == EmptyTree) {
+      return Nil
     }
 
     val treeSym = tree.symbol
@@ -728,11 +748,10 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     tree.tpe match {
       case null | ErrorType | NoType =>
         println("==== Tree type is null or error, will replace resultTpe with " + resultTpe)
-        resultTpe
-      case x => x
+      case x =>
     }
     
-    println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resType=" + resTpe)
+    println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resultTpe=" + resTpe)
     val context = try {
       doLocateContext(pos)
     } catch {case ex => println(ex.getMessage); null}
@@ -774,16 +793,18 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       }
     }
 
-    val pre = stabilizedType(tree) match {
-      case null => resTpe
-      case x => x
-    }
+    val pre = try {
+      stabilizedType(tree) match {
+        case null => resTpe
+        case x => x
+      }
+    } catch {case ex => println(ex.getMessage); resTpe}
 
     if (!isPackage){
       try {
         for (sym <- resTpe.decls)
           addTypeMember1(sym, pre, false, NoSymbol)
-      } catch {case ex => ex.printStackTrace}
+      } catch {case ex => println(ex.getMessage)}
     }
 
     try {
@@ -793,7 +814,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         } else {
           addTypeMember1(sym, pre, true, NoSymbol)
         }
-    } catch {case ex => ex.printStackTrace}
+    } catch {case ex => println(ex.getMessage)}
 
     if (!isPackage) {
       try {
@@ -809,7 +830,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
             addTypeMember1(sym, vpre, false, view.tree.symbol)
           }
         }
-      } catch {case ex => ex.printStackTrace}
+      } catch {case ex => println(ex.getMessage)}
     }
     
     members.valuesIterator.toList

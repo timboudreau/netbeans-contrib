@@ -680,9 +680,10 @@ abstract class ScalaCodeCompleter {
       case Some(x) =>
         try {
           val offset = item.idOffset(th)
-          var pos = rangePos(result.srcFile, offset, offset, offset)
+          val alternatePos = rangePos(result.srcFile, offset, offset, offset)
+          var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
           val resp = new Response[List[Member]]
-          askTypeCompletion(pos, resultTpe.get, resp)
+          askTypeCompletion(pos, alternatePos, resultTpe.get, resp)
           resp.get match {
             case Left(members) =>
               for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members
@@ -693,7 +694,7 @@ abstract class ScalaCodeCompleter {
                   proposals.add(proposal)
                 }
               }
-            case Right(ex) => ScalaGlobal.resetLate(global, ex)
+            case Right(ex) => {ScalaGlobal.resetLate(global, ex)}
           }
         } catch {case ex => ScalaGlobal.resetLate(global, ex)}
       case None =>

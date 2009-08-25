@@ -151,17 +151,17 @@ object ScalaLexUtil extends LexUtil {
     var endOffset = -1
     var done = false
     while (ts.movePrevious && !done) {
-      val id = ts.token.id
-
-      if (id == ScalaTokenId.DocCommentEnd) {
-        val token = ts.offsetToken
-        endOffset = token.offset(th) + token.length
-      } else if (id == ScalaTokenId.DocCommentStart) {
-        val token = ts.offsetToken
-        offset = token.offset(th)
-        done = true
-      } else if (!isWsComment(id) && !isKeyword(id)) {
-        done = true
+      ts.token.id match {
+        case ScalaTokenId.DocCommentEnd =>
+          val token = ts.offsetToken
+          endOffset = token.offset(th) + token.length
+        case ScalaTokenId.DocCommentStart =>
+          val token = ts.offsetToken
+          offset = token.offset(th)
+          done = true
+        case id if !isWsComment(id) && !isKeyword(id) =>
+          done = true
+        case _ =>
       }
     }
 
