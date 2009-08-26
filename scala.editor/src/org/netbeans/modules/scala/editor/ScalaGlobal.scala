@@ -576,7 +576,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   import ScalaGlobal._
 
   ScalaGlobal.unreleasedGlobals.put(this, (new Date).toString)
-  Log.log(Level.INFO, "Unreleased globals\n" + unreleasedGlobals)
+  Log.log(Level.INFO, "Unreleased globals\n" + unreleasedGlobals + "\n")
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
