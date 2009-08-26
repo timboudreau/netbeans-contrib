@@ -65,8 +65,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.tools.nsc.{Phase, Settings}
 import scala.collection.mutable.LinkedHashMap
 
-//import org.netbeans.modules.scala.editor.interactive.Global
-import scala.tools.nsc.interactive.Global
+import org.netbeans.modules.scala.editor.interactive.Global
+//import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{SymbolTable, Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
@@ -183,7 +183,10 @@ object ScalaGlobal {
       global.askShutdown
 
       // * whatever, force global to clear whole unitOfFile
+      global.firsts = Nil
       global.unitOfFile.clear
+      global.currentTyperRun.cancel
+      global.currentTyperRun = null
     }
 
     toResetGlobals = Set[ScalaGlobal]()
@@ -576,9 +579,11 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   import ScalaGlobal._
   unreleasedGlobals.put(this, (new Date).toString)
   Log.info("Unreleased globals: ")
+  var i = 0
   val itr = unreleasedGlobals.entrySet.iterator
   while (itr.hasNext) {
-    Log.info(itr.next.toString)
+    i += 1
+    Log.info(i + "." + itr.next.toString)
   }
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,

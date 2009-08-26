@@ -854,7 +854,9 @@ abstract class ScalaAstVisitor {
   }
 
   private def getContent(offset: Int, endOffset: Int): CharSequence = {
-    srcFile.content.subSequence(offset, endOffset)
+    if (endOffset > offset && offset > -1) {
+      srcFile.content.subSequence(offset, endOffset)
+    } else ""
   }
 
   protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {
@@ -871,15 +873,11 @@ abstract class ScalaAstVisitor {
   }
   
   protected def getBoundsToken(offset: Int): Option[Token[TokenId]]  = {
-    if (offset == -1) {
+    if (offset < 0) {
       return None
     }
 
-    val ts = ScalaLexUtil.getTokenSequence(th, offset) match {
-      case Some(x) => x
-      case None => return None
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(th, offset).getOrElse(return None)
     ts.move(offset)
     if (!ts.moveNext && !ts.movePrevious) {
       assert(false, "Should not happen!")

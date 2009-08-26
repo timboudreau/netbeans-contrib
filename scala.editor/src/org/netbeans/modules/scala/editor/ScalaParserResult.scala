@@ -41,6 +41,7 @@
 package org.netbeans.modules.scala.editor
 
 import java.io.File
+import java.util.WeakHashMap
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
@@ -61,6 +62,15 @@ class ScalaParserResult(val parser: ScalaParser,
                         var errors: java.util.List[Error],
                         val srcFile: SourceFile
 ) extends ParserResult(snapshot) {
+
+  if (ScalaParserResult.debug) {
+    ScalaParserResult.unreleasedResults.put(this, srcFile.file.path)
+    println("==== unreleased parser results: ")
+    val itr = ScalaParserResult.unreleasedResults.entrySet.toArray
+    for ((result, path) <- ScalaParserResult.unreleasedResults.entrySet.toArray) {
+      println(path)
+    }
+  }
 
   var source: String = _
   var sanitizedRange = OffsetRange.NONE
@@ -136,3 +146,10 @@ class ScalaParserResult(val parser: ScalaParser,
     "ParserResult(file=" + getSnapshot.getSource.getFileObject + ",rootScope=" + rootScope
   }
 }
+
+object ScalaParserResult {
+  // * for debug
+  private val debug = false
+  private val unreleasedResults = new WeakHashMap[ScalaParserResult, String]
+}
+
