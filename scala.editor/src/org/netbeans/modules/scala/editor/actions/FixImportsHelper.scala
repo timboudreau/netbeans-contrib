@@ -99,7 +99,7 @@ object FixImportsHelper{
   def calcOffsetRange(doc: BaseDocument, start: Int, end: Int) : Option[OffsetRange] = {
     try {
       Some(new OffsetRange(Utilities.getRowStart(doc, start), Utilities.getRowEnd(doc, end)))
-    } catch {case x : Exception => None}
+    } catch {case x: Exception => None}
   }
 
   /**

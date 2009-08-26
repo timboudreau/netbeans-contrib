@@ -38,10 +38,7 @@
  */
 package org.netbeans.modules.scala.editor
 
-import java.beans.PropertyChangeEvent
-
-import java.beans.PropertyChangeListener
-
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.io.{File, IOException}
 import java.lang.ref.{Reference, WeakReference}
 import java.net.{MalformedURLException, URI, URISyntaxException, URL}
@@ -150,6 +147,7 @@ object ScalaGlobal {
       case NormalReason(msg) => println(msg)
       case _ => reason.printStackTrace
     }
+    println
 
     toResetGlobals += global
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
@@ -243,11 +241,11 @@ object ScalaGlobal {
     var compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
     val srcCp  = ClassPath.getClassPath(fo, ClassPath.SOURCE)
 
-    var inStdLib = false
-    if (bootCp == null || compCp == null) {
-      // * in case of `fo` in standard libaray
-      inStdLib = true
-    }
+    val inStdLib =
+      if (bootCp == null || compCp == null) {
+        // * in case of `fo` in standard libaray
+        true
+      } else false
 
     // ----- set sourcepath, outpath
     
@@ -360,27 +358,6 @@ object ScalaGlobal {
         })
 
     }
-
-    // ----- flowing code seems doesn't work:
-    /* if (compCp != null) {
-     println("== forTest " + forTest + " ==\n" + compCp)
-
-     compCp.addPropertyChangeListener(new PropertyChangeListener() {
-     val reason = new Exception("Reset due to change of compile classpath")
-     private var g = global
-
-     override def propertyChange(evt: PropertyChangeEvent) {
-     println("!!! == forTest " + forTest + " ==\n" + evt.getPropertyName)
-     evt.getPropertyName match {
-     case ClassPath.PROP_ROOTS | ClassPath.PROP_ENTRIES if g != null =>
-     println("!!! == forTest " + forTest + " ==\n" + compCp)
-     resetLate(g, reason)
-     g = null
-     case _ =>
-     }
-     }
-     })
-     } */
    
     if (!forDebug) {
       initialLoadSources(global, project, srcCp)
@@ -394,6 +371,7 @@ object ScalaGlobal {
       // * we have to do following step to get mixed java sources visible to scala sources
 
       project.getProjectDirectory.getFileSystem.addFileChangeListener(new FileChangeAdapter {
+          val javaMimeType = "text/x-java"
           val srcRoots = srcCp.getRoots
           private var g = global
 
@@ -403,28 +381,25 @@ object ScalaGlobal {
 
           override def fileDataCreated(fe: FileEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+            if (fo.getMIMEType == javaMimeType && isUnderSrcDir(fo) && g != null) {
               g.reporter = dummyReporter
-              g.askForReLoad(List(fo))
-              g = null
+              g askForReLoad List(fo)
             }
           }
 
           override def fileChanged(fe: FileEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+            if (fo.getMIMEType == javaMimeType && isUnderSrcDir(fo) && g != null) {
               g.reporter = dummyReporter
-              g.askForReLoad(List(fo))
-              g = null
+              g askForReLoad List(fo)
             }
           }
 
           override def fileRenamed(fe: FileRenameEvent): Unit = {
             val fo = fe.getFile
-            if (fo.getMIMEType == "text/x-java" && isUnderSrcDir(fo) && g != null) {
+            if (fo.getMIMEType == javaMimeType && isUnderSrcDir(fo) && g != null) {
               g.reporter = dummyReporter
-              g.askForReLoad(List(fo))
-              g = null
+              g askForReLoad List(fo)
             }
           }
 
@@ -444,17 +419,15 @@ object ScalaGlobal {
 
       // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
       global.reporter = dummyReporter
-      global.askForReLoad((javaSrcs ++ scalaSrcs).toList)
+      global askForReLoad (javaSrcs ++= scalaSrcs).toList
     }
   }
 
   private def findAllSourcesOf(mimeType: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
-    dirFo.getChildren foreach {x =>
-      if (x.isFolder) {
-        findAllSourcesOf(mimeType, x, result)
-      } else if (x.getMIMEType == mimeType) {
-        result += x
-      }
+    dirFo.getChildren foreach {
+      case x if x.isFolder => findAllSourcesOf(mimeType, x, result)
+      case x if x.getMIMEType == mimeType => result += x
+      case _ =>
     }
   }
 
@@ -465,8 +438,8 @@ object ScalaGlobal {
     val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
     val javaSgs  = sources.getSourceGroups(SOURCES_TYPE_JAVA)
 
-    println((scalaSgs map {_.getRootFolder}).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
-    println((javaSgs  map {_.getRootFolder}).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
+    println((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
+    println((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
 
     List(scalaSgs, javaSgs) foreach {sgs =>
       if (sgs.size > 0) {

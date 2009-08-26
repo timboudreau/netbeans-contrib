@@ -61,16 +61,17 @@ import scala.collection.mutable.{ArrayBuffer, Stack}
  * @author Caoyuan Deng
  */
 object ScalaFormatter {
-  val BRACE_MATCH_MAP: Map[TokenId, Set[TokenId]] = Map(ScalaTokenId.LParen            -> Set(ScalaTokenId.RParen),
-                                                        ScalaTokenId.LBrace            -> Set(ScalaTokenId.RBrace),
-                                                        ScalaTokenId.LBracket          -> Set(ScalaTokenId.RBracket),
-                                                        ScalaTokenId.Case              -> Set(ScalaTokenId.Case,
-                                                                                              ScalaTokenId.RBrace),
-                                                        ScalaTokenId.DocCommentStart   -> Set(ScalaTokenId.DocCommentEnd),
-                                                        ScalaTokenId.BlockCommentStart -> Set(ScalaTokenId.BlockCommentEnd),
-                                                        ScalaTokenId.XmlLt             -> Set(ScalaTokenId.XmlSlashGt,
-                                                                                              ScalaTokenId.XmlLtSlash)
-  )
+  val BRACE_MATCH_MAP: Map[TokenId, Set[TokenId]] =
+    Map(ScalaTokenId.LParen            -> Set(ScalaTokenId.RParen),
+        ScalaTokenId.LBrace            -> Set(ScalaTokenId.RBrace),
+        ScalaTokenId.LBracket          -> Set(ScalaTokenId.RBracket),
+        ScalaTokenId.Case              -> Set(ScalaTokenId.Case,
+                                              ScalaTokenId.RBrace),
+        ScalaTokenId.DocCommentStart   -> Set(ScalaTokenId.DocCommentEnd),
+        ScalaTokenId.BlockCommentStart -> Set(ScalaTokenId.BlockCommentEnd),
+        ScalaTokenId.XmlLt             -> Set(ScalaTokenId.XmlSlashGt,
+                                              ScalaTokenId.XmlLtSlash)
+    )
 
 
 }
