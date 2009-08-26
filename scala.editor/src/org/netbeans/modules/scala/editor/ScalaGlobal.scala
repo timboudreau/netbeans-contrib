@@ -42,7 +42,9 @@ import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.io.{File, IOException}
 import java.lang.ref.{Reference, WeakReference}
 import java.net.{MalformedURLException, URI, URISyntaxException, URL}
+import java.util.Date
 import java.util.WeakHashMap
+import java.util.logging.{Logger, Level}
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
@@ -75,6 +77,11 @@ import scala.tools.nsc.util.{Position, SourceFile, NoPosition}
  * @author Caoyuan Deng
  */
 object ScalaGlobal {
+
+  // * for debug
+  private val unreleasedGlobals = new WeakHashMap[ScalaGlobal, String]
+
+  private val Log = Logger.getLogger(classOf[ScalaGlobal].getName)
   
   private class SrcOutDirs {
     var srcOutDirs: Map[FileObject, FileObject] = Map()
@@ -167,7 +174,7 @@ object ScalaGlobal {
    */
   def resetBadGlobals = synchronized {
     for (global <- toResetGlobals) {
-      println("Reset global: " + global)
+      Log.log(Level.INFO, "Reset global: " + global)
 
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
       //global.askReset
@@ -272,11 +279,11 @@ object ScalaGlobal {
     settings.sourcepath.tryToSet(srcPaths.reverse)
     settings.outputDirs.setSingleOutput(outPath)
 
-    println("project's source paths set for global: " + srcPaths)
+    Log.log(Level.INFO, "project's source paths set for global: " + srcPaths)
     if (srcCp != null){ 
-      println(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
+      Log.log(Level.INFO, srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
     } else {
-      println("project's srcCp is empty !")
+      Log.log(Level.INFO, "project's srcCp is empty !")
     }
     
     // * @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why?
@@ -314,12 +321,15 @@ object ScalaGlobal {
 
           private def isUnderCompileCp(fo: FileObject) = {
             // * when there are series of folder/file created, only top created folder can be listener
-            compCp.getRoots find {x => FileUtil.isParentOf(fo, x) || x == fo} isDefined
+            val found = compCp.getRoots find {x => FileUtil.isParentOf(fo, x) || x == fo}
+            if (found.isDefined) Log.log(Level.FINEST, "under compCp: fo=" + fo + ", found=" + found)
+            found isDefined
           }
 
           override def fileFolderCreated(fe: FileEvent) {
             val fo = fe.getFile
             if (isUnderCompileCp(fo) && g != null) {
+              Log.log(Level.FINEST, "folder created: " + fo)
               resetLate(g, compCpChanged)
               g = null
             }
@@ -328,6 +338,7 @@ object ScalaGlobal {
           override def fileDataCreated(fe: FileEvent): Unit = {
             val fo = fe.getFile
             if (isUnderCompileCp(fo) && g != null) {
+              Log.log(Level.FINEST, "data created: " + fo)
               resetLate(g, compCpChanged)
               g = null
             }
@@ -336,6 +347,7 @@ object ScalaGlobal {
           override def fileChanged(fe: FileEvent): Unit = {
             val fo = fe.getFile
             if (isUnderCompileCp(fo) && g != null) {
+              Log.log(Level.FINEST, "file changed: " + fo)
               resetLate(g, compCpChanged)
               g = null
             }
@@ -344,13 +356,16 @@ object ScalaGlobal {
           override def fileRenamed(fe: FileRenameEvent): Unit = {
             val fo = fe.getFile
             if (isUnderCompileCp(fo) && g != null) {
+              Log.log(Level.FINEST, "file renamed: " + fo)
               resetLate(g, compCpChanged)
               g = null
             }
           }
 
           override def fileDeleted(fe: FileEvent): Unit = {
-            if (g != null) {
+            val fo = fe.getFile
+            if (isUnderCompileCp(fo) && g != null) {
+              Log.log(Level.FINEST, "file deleted: " + fo)
               resetLate(g, compCpChanged)
               g = null
             }
@@ -438,8 +453,8 @@ object ScalaGlobal {
     val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
     val javaSgs  = sources.getSourceGroups(SOURCES_TYPE_JAVA)
 
-    println((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
-    println((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
+    Log.log(Level.INFO, (scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
+    Log.log(Level.INFO, (javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
 
     List(scalaSgs, javaSgs) foreach {sgs =>
       if (sgs.size > 0) {
@@ -557,6 +572,11 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
                                                              with JavaElements
                                                              with ScalaCompletionProposals
                                                              with ScalaUtils {
+
+  import ScalaGlobal._
+
+  ScalaGlobal.unreleasedGlobals.put(this, (new Date).toString)
+  Log.log(Level.INFO, "Unreleased globals\n" + unreleasedGlobals)
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
@@ -704,7 +724,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         case Select(qualifier, name) => qualifier
         case x =>
           alternatePos match {
-            case NoPosition => println("Warning: got a suspicious completion tree: " + x.getClass.getSimpleName); x
+            case NoPosition => Log.log(Level.WARNING, "Got a suspicious completion tree: " + x.getClass.getSimpleName); x
             case _ => completionTypeAt(alternatePos, NoPosition)
           }
       }

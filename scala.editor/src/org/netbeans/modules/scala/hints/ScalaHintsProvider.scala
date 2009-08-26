@@ -72,7 +72,7 @@ class ScalaHintsProvider() extends HintsProvider {
      * the given suggestion list.
      */
     def computeSelectionHints(manager : HintsManager, context : RuleContext, suggestions : ju.List[Hint], start : Int, end : Int) : Unit = {
-      println("compute selections")
+      //println("compute selections")
       cancelled = false
       val parserResult = context.parserResult;
       if (parserResult != null) {
@@ -94,7 +94,7 @@ class ScalaHintsProvider() extends HintsProvider {
      * that were not added as error descriptions (e.g. had no applicable error rule)
      */
     def computeErrors(manager : HintsManager, context : RuleContext, hints : ju.List[Hint], unhandled : ju.List[Error]) : Unit = {
-        println("compute errors")
+        //println("compute errors")
         cancelled = false
         val parserResult = context.parserResult;
         if (parserResult != null) {
@@ -119,7 +119,7 @@ class ScalaHintsProvider() extends HintsProvider {
 
    def applyRules(error : Error, manager : HintsManager, context : ScalaRuleContext,  errHints : ju.Map[String, ju.List[ScalaErrorRule]], result : ju.List[Hint]) : Boolean = {
         val code = error.getKey
-        println("code=" + code)
+        //println("code=" + code)
         val rules = errHints.get(code)
         if (rules != null) {
            var added = List[Hint]()
