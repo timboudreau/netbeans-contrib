@@ -61,6 +61,7 @@ import javax.lang.model.element.ElementKind
 import org.openide.filesystems.FileObject
 import javax.lang.model.element.TypeElement
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.api.language.util.ast.{AstRef, AstDfn, AstItem, AstRootScope}
 import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
 
 import org.netbeans.modules.csl.api.EditList
@@ -68,10 +69,11 @@ import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.editor.BaseDocument
 
 import org.netbeans.modules.scala.editor.actions.FixImportsHelper
+import org.netbeans.modules.scala.editor.ScalaParserResult
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 
-    val DEFAULT_PRIORITY = 292;
+    val DEFAULT_PRIORITY = 292
 
     override def appliesTo(context : RuleContext) : Boolean = true
 
@@ -106,18 +108,20 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     }
 
   private def createImportHints(missing : String, context : ScalaRuleContext, error : Error, range : OffsetRange) : mutable.ListBuffer[HintFix] = {
-
+    println("creating import hints")
     val pathInfo = context.getClasspathInfo match {
       case Some(x) => x
       case None => return mutable.ListBuffer[HintFix]()
     }
     val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex.getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
-                                                                                                      java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
+                                                                  java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
+    println(" have typenames")
     val toRet = mutable.ListBuffer[HintFix]()
     for (typeName <- typeNames;
          ek = typeName.getKind;
          if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE
     ) {
+      println("add rulefix")
       toRet += new AddImportFix(missing, typeName.getQualifiedName, context, range)
     }
     toRet
@@ -158,6 +162,39 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
         override val isSafe = true
         override val isInteractive = false
 
+        private def findParams(ts : TokenSequence[TokenId], root : AstRootScope) : List[Tuple2[AstRef, AstDfn]] = {
+          val buffer = mutable.ListBuffer[Tuple2[AstRef, AstDfn]]()
+          var done = false
+          var collecting = false;
+
+          while (ts.isValid && ts.moveNext && !done) {
+            val token : Token[_] = ts.token
+            done = token.id match {
+              case ScalaTokenId.LParen => {
+                  collecting = true
+                  false
+              }
+              case ScalaTokenId.RParen => true
+              case ScalaTokenId.ANY_KEYWORD => true
+              case ScalaTokenId.Identifier => {
+                  //TODO
+                  false
+              }
+              case wsComment if ScalaLexUtil.WS_COMMENTS.contains(wsComment) => false
+              case _ => false
+            }
+          }
+
+//          val defn = root.findDfnOf(closest) match {
+//            case Some(dfn) => println("found dfn=" + dfn)
+//              // is local
+//            case None => println("no dfn")
+//          }
+//          defn
+          buffer.toList
+        }
+
+
         @throws(classOf[Exception])
         override def implement : Unit = {
             val doc = context.doc
@@ -166,7 +203,32 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             val ts = ScalaLexUtil.getTokenSequence(th, 0).get
             val start = calcErrorStartPosition(offsetRange, name, ts)
             var collecting = false
+            val result = context.parserResult.asInstanceOf[ScalaParserResult]
+            println("result=" + result)
+            val root = result.rootScope match {
+              case Some(x) => x
+              case None => return
+            }
+            println("have root scope")
+
             if (start != -1) {
+              ts.move(start)
+              //just double check we are at the correct place..
+              if (ts.isValid && ts.moveNext && ts.token.text.toString == name) {
+                val astOffset = ScalaLexUtil.getAstOffset(result, start)
+                val current = root.findItemAt(th, astOffset) match {
+                  case Some(x) if x.name == name => x
+                  case None => return
+                }
+                val paramTuples = findParams(ts, root)
+                current
+              }
+
+//              println("astOffset=" + astOffset)
+//
+//              println("closest=" + closest)
+
+              
 /**              ts.move(start)
               while (ts.isValid && ts.moveNext) {
                 val token : Token[_] = ts.token
@@ -183,7 +245,10 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
               }
             }
 **/
+
+            println("end")
           }
-      }
+
+        }
    }
 }
