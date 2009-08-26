@@ -206,7 +206,7 @@ object FixImportsHelper{
           case Some(t) => t._1
         }
         if (pos != -1) {
-          simpleEdit(pos, "import " + fqn + "\n\n", doc)
+          simpleEdit(pos, "import " + fqn + (if (imports.isEmpty) "\n\n" else "\n"), doc)
         }
       }
     }
