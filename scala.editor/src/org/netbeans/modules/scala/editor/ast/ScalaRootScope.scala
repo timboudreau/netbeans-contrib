@@ -48,7 +48,7 @@ object ScalaRootScope {
 }
 
 class ScalaRootScope(boundsTokens: Array[Token[TokenId]]) extends AstRootScope(boundsTokens) {
-  //  def findDfnOfSym(symbol:AstSymbol[_]): Option[AstDfn] = {
+    //  def findDfnOfSym(symbol:AstSymbol[_]): Option[AstDfn] = {
   //    _idTokenToItem.values.find{item =>
   //      // ElementKind.Rule is "-spec", we won't let it as
   //      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE

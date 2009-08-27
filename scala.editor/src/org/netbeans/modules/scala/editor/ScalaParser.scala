@@ -71,7 +71,6 @@ class ScalaParser extends Parser {
   import ScalaParser._
   
   private var lastResult: ScalaParserResult = _
-  var global: ScalaGlobal = _
 
   private def asString(sequence: CharSequence): String = sequence match {
     case x: String => x
@@ -397,8 +396,10 @@ class ScalaParser extends Parser {
     //String filePath = file != null ? file.getAbsolutePath():  "<current>";
     context.srcFile = srcFile
     
-    global = ScalaGlobal.getGlobal(context.fileObject)
+    val global = ScalaGlobal.getGlobal(context.fileObject)
     global.reporter = new ErrorReporter(context, doc, sanitizing)
+
+    context.global = global
 
     var rootScope: Option[ScalaRootScope] = None
     try {
@@ -451,7 +452,7 @@ class ScalaParser extends Parser {
       }
     }
 
-    new ScalaParserResult(this, context.snapshot, context.rootScope, 
+    new ScalaParserResult(context.snapshot, context.global, context.rootScope,
                           java.util.Arrays.asList(context.errors.toArray: _*),
                           context.srcFile)
   }
@@ -487,24 +488,6 @@ class ScalaParser extends Parser {
     Sanitize.NONE
   }
 
-  private def computeLinesOffset(source: String): Seq[Int] = {
-    val length = source.length
-
-    val linesOffset = new ArrayBuffer[Int](length / 25)
-    linesOffset += 0
-
-    var line = 0
-    for (i <- 0 until length) {
-      if (source.charAt(i) == '\n') {
-        // \r comes first so are not a problem...
-        linesOffset += i
-        line += 1
-      }
-    }
-
-    linesOffset
-  }
-
   protected def notifyError(context: Context, key: String, msg: String,
                             start: Int, end: Int, isLineError: Boolean,
                             sanitizing: Sanitize, severity: Severity,
@@ -525,10 +508,6 @@ class ScalaParser extends Parser {
     }
   }
 
-  def getGlobal: Global = {
-    global
-  }
-
   /** Parsing context */
   class Context(val snapshot: Snapshot, event: SourceModificationEvent) {
 
@@ -542,6 +521,7 @@ class ScalaParser extends Parser {
     var sanitized: Sanitize = Sanitize.NONE
     val errors = new ArrayBuffer[Error]
     var rootScope: Option[ScalaRootScope] = None
+    var global: ScalaGlobal = _
     var srcFile: SourceFile = _
 
     def addError(error: Error): Unit = {

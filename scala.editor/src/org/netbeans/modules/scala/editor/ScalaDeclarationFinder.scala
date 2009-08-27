@@ -88,7 +88,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
 
   override def findDeclaration(info: ParserResult, lexOffset: int): DeclarationLocation = {
     val pResult = info.asInstanceOf[ScalaParserResult]
-    val global = pResult.parser.global
+    val global = pResult.global
 
     val root = pResult.rootScope.getOrElse(return DeclarationLocation.NONE)
 

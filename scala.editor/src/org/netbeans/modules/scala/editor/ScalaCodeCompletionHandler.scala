@@ -111,58 +111,45 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
   import ScalaCodeCompletionHandler._
 
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
-    val info = context.getParserResult
+    val pResult = context.getParserResult.asInstanceOf[ScalaParserResult]
     val lexOffset = context.getCaretOffset
-    var prefix = context.getPrefix match {
+    val prefix = context.getPrefix match {
       case null => ""
       case x => x
     }
 
-    val queryType = context.getQueryType
-    
-    var kind = QuerySupport.Kind.PREFIX
-    if (kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX) {
-      kind = QuerySupport.Kind.PREFIX
-    }
-
-    val doc = info.getSnapshot.getSource.getDocument(true) match {
+    val doc = pResult.getSnapshot.getSource.getDocument(true) match {
       case null => return CodeCompletionResult.NONE
       case x => x.asInstanceOf[BaseDocument]
+    }
+
+    val astOffset = ScalaLexUtil.getAstOffset(pResult, lexOffset) match {
+      case -1 => return CodeCompletionResult.NONE
+      case x => x
     }
 
     val proposals = new java.util.ArrayList[CompletionProposal]
     val completionResult = new DefaultCompletionResult(proposals, false)
 
-    val pResult = info.asInstanceOf[ScalaParserResult]
-
-    // Read-lock due to Token hierarchy use
+    // * Read-lock due to Token hierarchy use
     doc.readLock
     try {
-      val astOffset = ScalaLexUtil.getAstOffset(info, lexOffset)
-      if (astOffset == -1) {
-        return CodeCompletionResult.NONE
-      }
-
       val th = pResult.getSnapshot.getTokenHierarchy
-      val fileObject = pResult.getSnapshot.getSource.getFileObject
 
-      val global = pResult.parser.global
-
-      val completer = new ScalaCodeCompleter{val global = pResult.parser.global}
-      completer.caseSensitive = context.isCaseSensitive
+      val completer = new ScalaCodeCompleter(pResult.global)
       completer.completionResult = completionResult
-      completer.result = pResult
+      completer.caseSensitive = context.isCaseSensitive
+      completer.queryType = context.getQueryType
+      completer.pResult = pResult
       completer.lexOffset = lexOffset
       completer.astOffset = astOffset
-      //completer.index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
       completer.doc = doc
-      completer.info = info
       completer.prefix = prefix
+      completer.kind = QuerySupport.Kind.PREFIX
       completer.th = th
-      completer.kind = kind
-      completer.queryType = queryType
-      completer.fileObject = fileObject
+      completer.fileObject = pResult.getSnapshot.getSource.getFileObject
       completer.anchor = lexOffset - prefix.length
+      //completer.index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
 
       ScalaLexUtil.getTokenId(doc, lexOffset - 1)  match {
         case None => return completionResult

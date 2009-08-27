@@ -56,12 +56,13 @@ import scala.tools.nsc.util.{BatchSourceFile, SourceFile}
  *
  * @author Caoyuan Deng
  */
-class ScalaParserResult(val parser: ScalaParser,
-                        snapshot: Snapshot,
-                        val rootScope: Option[ScalaRootScope] = None,
+class ScalaParserResult(snapshot: Snapshot,
+                        val global: ScalaGlobal,
+                        val rootScope: Option[ScalaRootScope],
                         var errors: java.util.List[Error],
                         val srcFile: SourceFile
 ) extends ParserResult(snapshot) {
+  assume(global != null)
 
   if (ScalaParserResult.debug) {
     ScalaParserResult.unreleasedResults.put(this, srcFile.file.path)
@@ -148,8 +149,8 @@ class ScalaParserResult(val parser: ScalaParser,
 }
 
 object ScalaParserResult {
-  // * for debug
-  private val debug = true
+  // ----- for debug
+  private val debug = false
   private val unreleasedResults = new WeakHashMap[ScalaParserResult, String]
 }
 

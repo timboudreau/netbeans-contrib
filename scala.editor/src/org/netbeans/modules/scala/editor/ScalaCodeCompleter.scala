@@ -170,11 +170,31 @@ object ScalaCodeCompleter {
   var callMethod: ExecutableElement = _
 }
 
-abstract class ScalaCodeCompleter {
+class ScalaCodeCompleter(val global: ScalaGlobal) {
   import ScalaCodeCompleter._
 
-  val global: ScalaGlobal
   import global._
+
+  private object resolver extends {
+    val global = ScalaCodeCompleter.this.global
+  } with ScalaSymbolResolver
+
+  var caseSensitive: Boolean = _
+  var completionResult: DefaultCompletionResult = _
+  var th: TokenHierarchy[_] = _
+  var root: ScalaRootScope = _
+  var anchor: Int = _
+  var lexOffset: Int = _
+  var astOffset: Int = _
+  var doc: BaseDocument = _
+  var prefix: String = _
+  var kind: QuerySupport.Kind = _
+  var pResult: ScalaParserResult = _
+  var queryType: QueryType = _
+  var fileObject: FileObject = _
+  var fqn: String = _
+  //var index: ScalaIndex = _
+
 
   case class Call(base: Option[AstItem], select: String, caretAfterDot: Boolean)
 
@@ -266,28 +286,6 @@ abstract class ScalaCodeCompleter {
     Call(baseItem, if (select != null) select.text.toString else "", afterDot)
   }
 
-
-  private object resolver extends {
-    val global = ScalaCodeCompleter.this.global
-  } with ScalaSymbolResolver
-
-  var caseSensitive: Boolean = _
-  var completionResult: DefaultCompletionResult = _
-  var th: TokenHierarchy[_] = _
-  var info: ParserResult = _
-  var root: ScalaRootScope = _
-  var anchor: Int = _
-  var lexOffset: Int = _
-  var astOffset: Int = _
-  var doc: BaseDocument = _
-  var prefix: String = _
-  var kind: QuerySupport.Kind = _
-  var result: ScalaParserResult = _
-  var queryType: QueryType = _
-  var fileObject: FileObject = _
-  var fqn: String = _
-  //var index: ScalaIndex = _
-
   private def startsWith(theString: String, prefix: String): Boolean = {
     if (prefix.length == 0) {
       return true
@@ -349,9 +347,9 @@ abstract class ScalaCodeCompleter {
   }
 
   def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
-    val root = result.rootScope.getOrElse(return)
+    val root = pResult.rootScope.getOrElse(return)
 
-    val pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+    val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
     val resp = new Response[List[Member]]
     try {
       global.askScopeCompletion(pos, resp)
@@ -432,7 +430,7 @@ abstract class ScalaCodeCompleter {
            * 1. get Type name
            * 2. get constructors of this type when use pressed enter
            */
-          val cpInfo = ScalaSourceUtil.getClasspathInfo(result.getSnapshot.getSource.getFileObject).getOrElse(return true)
+          val cpInfo = ScalaSourceUtil.getClasspathInfo(pResult.getSnapshot.getSource.getFileObject).getOrElse(return true)
           val tpElements = cpInfo.getClassIndex.getDeclaredTypes(prefix, NameKind.CASE_INSENSITIVE_PREFIX,
                                                                  java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
 
@@ -680,8 +678,8 @@ abstract class ScalaCodeCompleter {
       case Some(x) =>
         try {
           val offset = item.idOffset(th)
-          val alternatePos = rangePos(result.srcFile, offset, offset, offset)
-          var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+          val alternatePos = rangePos(pResult.srcFile, offset, offset, offset)
+          var pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
           val resp = new Response[List[Member]]
           askTypeCompletion(pos, alternatePos, resultTpe.get, resp)
           resp.get match {
@@ -707,14 +705,14 @@ abstract class ScalaCodeCompleter {
   /** test method only */
   private def askType(item: AstItem) = {
     val offset = item.idOffset(th)
-    var pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+    var pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
     var resp = new SyncVar[Either[Tree, Throwable]]
     global.askTypeAt(pos, resp)
     resp.get.left.toOption foreach {x => 
       println("tpe at item: " + x.tpe)
     }
 
-    pos = rangePos(result.srcFile, lexOffset, lexOffset, lexOffset)
+    pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
     resp = new SyncVar[Either[Tree, Throwable]]
     global.askTypeAt(pos, resp)
     resp.get.left.toOption foreach {
@@ -746,7 +744,7 @@ abstract class ScalaCodeCompleter {
       return false
     }
 
-    val pos = new OffsetPosition(result.srcFile, item.idOffset(th))
+    val pos = new OffsetPosition(pResult.srcFile, item.idOffset(th))
     try {
       for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
            if sym.hasFlag(Flags.IMPLICIT) && tpe.paramTypes.size == 1 && tpe.paramTypes.head == resType;
@@ -768,16 +766,16 @@ abstract class ScalaCodeCompleter {
     var element:  ScalaElement = null
     var proposal: CompletionProposal = null
     if (sym.isMethod) {
-      element  = ScalaElement(sym, info)
+      element  = ScalaElement(sym, pResult)
       proposal = FunctionProposal(element, this)
     } else if (sym.isVariable) {
-      element  = ScalaElement(sym, info)
+      element  = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     } else if (sym.isValue) {
-      element  = ScalaElement(sym, info)
+      element  = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     } else if (sym.isClass || sym.isTrait || sym.isModule || sym.isPackage) {
-      element  = ScalaElement(sym, info)
+      element  = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     }
 

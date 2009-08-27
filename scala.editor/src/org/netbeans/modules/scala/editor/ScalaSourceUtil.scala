@@ -250,6 +250,24 @@ object ScalaSourceUtil {
     }
   }
 
+  def computeLinesOffset(source: String): Seq[Int] = {
+    val length = source.length
+
+    val linesOffset = new ArrayBuffer[Int](length / 25)
+    linesOffset += 0
+
+    var line = 0
+    for (i <- 0 until length) {
+      if (source.charAt(i) == '\n') {
+        // \r comes first so are not a problem...
+        linesOffset += i
+        line += 1
+      }
+    }
+
+    linesOffset
+  }
+
   /** @todo */
   def getDocComment(pResult: Parser.Result, element: JavaElements#JavaElement): String = {
     if (pResult == null) {

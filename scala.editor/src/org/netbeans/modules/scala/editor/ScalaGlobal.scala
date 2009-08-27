@@ -189,8 +189,6 @@ object ScalaGlobal {
       // * whatever, force global to clear whole unitOfFile
       global.firsts = Nil
       global.unitOfFile.clear
-      global.currentTyperRun.cancel
-      global.currentTyperRun = null
     }
 
     toResetGlobals = Set[ScalaGlobal]()
