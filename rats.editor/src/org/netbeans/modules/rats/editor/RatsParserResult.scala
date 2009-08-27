@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.rats.editor
 
+import java.util.WeakHashMap
 import javax.swing.text.Document
 import _root_.java.util.{Collections,ArrayList,List}
 import org.netbeans.modules.csl.api.Error
@@ -56,6 +57,15 @@ class RatsParserResult(val snapshot:Snapshot,
                        val rootNode:Option[Node],
                        val rootScope:Option[AnyRef] //val rootScope:Option[AstRootScope]
 ) extends ParserResult(snapshot) {
+
+  if (RatsParserResult.debug) {
+    RatsParserResult.unreleasedResults.put(this, snapshot.getSource.getFileObject.getPath)
+    println("==== unreleased parser results: ")
+    val itr = RatsParserResult.unreleasedResults.entrySet.iterator
+    while (itr.hasNext) {
+      println(itr.next.getValue)
+    }
+  }
 
   override protected def invalidate :Unit = {
     // XXX: what exactly should we do here?
@@ -98,3 +108,10 @@ class RatsParserResult(val snapshot:Snapshot,
     "RatsParseResult(file=" + snapshot.getSource.getFileObject + ",rootnode=" + rootNode + ")"
   }
 }
+
+object RatsParserResult {
+  // * for debug
+  private val debug = true
+  private val unreleasedResults = new WeakHashMap[RatsParserResult, String]
+}
+

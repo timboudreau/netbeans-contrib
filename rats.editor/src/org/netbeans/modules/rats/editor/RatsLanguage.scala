@@ -86,8 +86,8 @@ class RatsLanguage extends DefaultLanguageConfig {
   //   override def hasStructureScanner = true
   //
   //   override def getStructureScanner = new RatsStructureAnalyzer
-  //
-  //   override def getSemanticAnalyzer = new RatsSemanticAnalyzer
+  
+  override def getSemanticAnalyzer = new RatsSemanticAnalyzer
   //
   //   override def hasOccurrencesFinder = true
   //

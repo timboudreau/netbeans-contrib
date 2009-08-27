@@ -66,9 +66,9 @@ class ScalaParserResult(val parser: ScalaParser,
   if (ScalaParserResult.debug) {
     ScalaParserResult.unreleasedResults.put(this, srcFile.file.path)
     println("==== unreleased parser results: ")
-    val itr = ScalaParserResult.unreleasedResults.entrySet.toArray
-    for ((result, path) <- ScalaParserResult.unreleasedResults.entrySet.toArray) {
-      println(path)
+    val itr = ScalaParserResult.unreleasedResults.entrySet.iterator
+    while (itr.hasNext) {
+      println(itr.next.getValue)
     }
   }
 
@@ -149,7 +149,7 @@ class ScalaParserResult(val parser: ScalaParser,
 
 object ScalaParserResult {
   // * for debug
-  private val debug = false
+  private val debug = true
   private val unreleasedResults = new WeakHashMap[ScalaParserResult, String]
 }
 
