@@ -150,12 +150,9 @@ object ScalaGlobal {
   }
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
-    Log.info("Will reset global late due to: ")
     reason match {
-      case NormalReason(msg) => Log.info("\t" + msg)
-      case _ =>
-        Log.info("\t" + reason.getMessage)
-        reason.getStackTrace foreach {x => Log.info("\t\tat " + x.getClassName + "(" + x.getFileName + ":" + x.getLineNumber + ")")}
+      case NormalReason(msg) => Log.info("Will reset global late due to: " + msg)
+      case _ => Log.log(Level.WARNING, "Will reset global late due to:", reason)
     }
 
     toResetGlobals += global
@@ -582,12 +579,12 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   import ScalaGlobal._
   unreleasedGlobals.put(this, (new Date).toString)
-  Log.info("Unreleased globals: ")
+  Log.info("Unreleased globals(" + unreleasedGlobals.size + "):")
   var i = 0
   val itr = unreleasedGlobals.entrySet.iterator
   while (itr.hasNext) {
     i += 1
-    Log.info(i + "." + itr.next.toString)
+    Log.info("\t" + i + ") " + itr.next.toString + "\n")
   }
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
