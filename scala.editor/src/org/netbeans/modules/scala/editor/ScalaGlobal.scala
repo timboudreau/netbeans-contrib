@@ -176,7 +176,11 @@ object ScalaGlobal {
     for (global <- toResetGlobals) {
       Log.info("Reset global: " + global)
 
-      // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf
+      // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf.
+      // * But, it seems askReset will only reset current unit, when exception is throw inside
+      // * for example, typeCheck, the dependent units may have been damaged, and the symbols in
+      // * global may need to be reset too. So the best way is to drop this gloal, use a new
+      // * created one instead.
       //global.askReset
 
       // * try to stop compiler daemon thread, but, does this method work ?
