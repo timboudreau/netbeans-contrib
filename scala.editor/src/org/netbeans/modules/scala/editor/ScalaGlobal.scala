@@ -150,11 +150,11 @@ object ScalaGlobal {
   }
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
-    Log.info("Will reset global late due to: " + (reason match {
-          case NormalReason(msg) => msg
-          case _ => reason.getStackTraceString
-        })
-    )
+    Log.info("Will reset global late due to: ")
+    reason match {
+      case NormalReason(msg) => Log.info(msg)
+      case _ => reason.getStackTrace foreach {x => Log.info(x.toString)}
+    }
 
     toResetGlobals += global
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
@@ -752,10 +752,14 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
    * from interative.Global#typeMembers
    */
   def typeMembers(apos: Position, alternatePos: Position, resultTpe: Type): List[TypeMember] = {
-    val (pos, tree) = completionTypeAt(apos, alternatePos) match {
+    // @Note typedTreeAt throws exceptions sometimes, which damages global, we actually has
+    // typed unit when askForPresentation, this step is useless, so, just locateTree(alternatePos)
+    /* val (pos, tree) = completionTypeAt(apos, alternatePos) match {
       case EmptyTree => return Nil
       case x => (x.pos, x)
-    }
+    } */
+
+    val (pos, tree) = (alternatePos, locateTree(alternatePos))
 
     val treeSym = tree.symbol
     val isPackage = treeSym != null && treeSym.isPackage
