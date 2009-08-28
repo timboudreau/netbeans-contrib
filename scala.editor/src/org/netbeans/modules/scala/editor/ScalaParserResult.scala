@@ -41,13 +41,13 @@
 package org.netbeans.modules.scala.editor
 
 import java.io.File
-import java.util.WeakHashMap
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.scala.editor.ast.ScalaRootScope
 import org.openide.filesystems.{FileObject, FileUtil}
+import scala.collection.mutable.WeakHashMap
 import scala.tools.nsc.Global
 import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
 import scala.tools.nsc.util.{BatchSourceFile, SourceFile}
@@ -67,10 +67,7 @@ class ScalaParserResult(snapshot: Snapshot,
   if (ScalaParserResult.debug) {
     ScalaParserResult.unreleasedResults.put(this, srcFile.file.path)
     println("==== unreleased parser results: ")
-    val itr = ScalaParserResult.unreleasedResults.entrySet.iterator
-    while (itr.hasNext) {
-      println(itr.next.getValue)
-    }
+    for ((k, v) <- ScalaParserResult.unreleasedResults) println(v)
   }
 
   var source: String = _
