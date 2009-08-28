@@ -84,6 +84,7 @@ object ScalaGlobal {
   private val GlobalForTest = 1
   private val GlobalForDebug = 2
   private val GlobalForTestDebug = 3
+
   private class Resources {
     val globals = new Array[ScalaGlobal](4)
 
@@ -175,16 +176,13 @@ object ScalaGlobal {
       // * global may need to be reset too. So the best way is to drop this gloal, use a new
       // * created one instead.
       //global.askReset
+      
+      //global.analyzer.resetTyper
+      //global.firsts = Nil
+      //global.unitOfFile.clear
 
-      // * try to stop compiler daemon thread, but, does this method work ?
+      // * stop compiler daemon thread
       global.askShutdown
-
-      // * @Todo temporary solution:
-      // * It seems global is always holded by someone and cannot be GCed?
-      // * whatever, force global to clear whole unitOfFile and others
-      global.analyzer.resetTyper
-      global.firsts = Nil
-      global.unitOfFile.clear
     }
 
     toResetGlobals = Set[ScalaGlobal]()
@@ -496,10 +494,11 @@ object ScalaGlobal {
   }
 
   private class CompCpListener(global: ScalaGlobal, compCp: ClassPath) extends FileChangeAdapter {
+    val compRoots = compCp.getRoots
 
     private def isUnderCompileCp(fo: FileObject) = {
       // * when there are series of folder/file created, only top created folder can be listener
-      val found = compCp.getRoots find {x => FileUtil.isParentOf(fo, x) || x == fo}
+      val found = compRoots find {x => FileUtil.isParentOf(fo, x) || x == fo}
       if (found.isDefined) Log.finest("under compCp: fo=" + fo + ", found=" + found)
       found isDefined
     }
