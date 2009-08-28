@@ -108,22 +108,20 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
     }
 
   private def createImportHints(missing : String, context : ScalaRuleContext, error : Error, range : OffsetRange) : mutable.ListBuffer[HintFix] = {
-    println("creating import hints")
     val pathInfo = context.getClasspathInfo match {
       case Some(x) => x
       case None => return mutable.ListBuffer[HintFix]()
     }
     val typeNames : mutable.Set[ElementHandle[TypeElement]] = pathInfo.getClassIndex.getDeclaredTypes(missing, ClassIndex.NameKind.SIMPLE_NAME,
                                                                   java.util.EnumSet.allOf(classOf[ClassIndex.SearchScope]))
-    println(" have typenames")
     val toRet = mutable.ListBuffer[HintFix]()
     for (typeName <- typeNames;
          ek = typeName.getKind;
          if ek == ElementKind.CLASS || ek == ElementKind.INTERFACE
     ) {
-      println("add rulefix")
       toRet += new AddImportFix(missing, typeName.getQualifiedName, context, range)
     }
+    //TODO we need to also check the scala sources in the current project, how?
     toRet
   }
 
