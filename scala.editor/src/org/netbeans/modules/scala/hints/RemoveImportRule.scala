@@ -129,6 +129,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         println("creating rmeove import hint")
         val defs = findDefinitions(scope)
         defs.foreach(a => println(a))
+        println("we have " + defs.size + " defs")
 
         val imports = FixImportsHelper.allGlobalImports(context.doc)
 
@@ -153,17 +154,41 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         val buf = mutable.HashSet[String]()
 //        val defs = scope.dfns.filter(a => a.getKind == ElementKind.CLASS || a.getKind == ElementKind.INTERFACE || a.getKind == ElementKind.TYPE_PARAMETER)
 //        println("defs size=" + defs.size)
+//        println("scope= " + scope.bindingDfn.getOrElse("xxx"));
         for (d <- scope.refs) {
             val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
-            if (sym.isClass || sym.isTrait) {
-                println("symbol type=" + sym.tpe)
-                println("    type? " + sym.isType)
-                println("    module? " + sym.isModule)
-                println("    class? " + sym.isClass)
-                println("    trait? " + sym.isTrait)
-                buf.add(sym.tpe.toString)
+//            println("symbol=" + sym)
+            if (sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule) {
+                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+
+            }
+            if (sym.isType || sym.isTypeParameter) {
+                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
             }
         }
+        for (d <- scope.dfns) {
+            val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
+//            println("symbol2=" + sym)
+            if (sym.isValueParameter) {
+                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+            }
+            if (sym.isMethod) {
+              //println("method=" + sym)
+              for (meth <- sym.tpe.paramTypes) {
+//                  println("meth param=" + meth)
+                  buf.add(meth.trimPrefix(meth.toString))
+                  //add type params
+              }
+              val res = sym.tpe.resultType
+//              println("result type=" + res.trimPrefix(res.toString))
+              buf.add(res.trimPrefix(res.toString))
+              for (resSym <-res.typeArgs) {
+//                  println( "result param=" + resSym)
+                  buf.add(resSym.trimPrefix(resSym.toString))
+              }
+            }
+        }
+//        println("scope end=================================")
         for (sc <- scope.subScopes) {
            buf.addAll(findDefinitions(sc))
         }
