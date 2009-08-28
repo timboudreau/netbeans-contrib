@@ -132,23 +132,6 @@ object ScalaGlobal {
   case object userRequest extends NormalReason("User's action")
   case object compCpChanged extends NormalReason("Change of compile classpath")
 
-  def resetAll = synchronized {
-    val itr1 = projectToGlobal.values.iterator
-    while (itr1.hasNext) {
-      itr1.next.askShutdown
-    }
-    projectToGlobal.clear
-
-    val itr2 = projectToGlobalForTest.values.iterator
-    while (itr2.hasNext) {
-      itr2.next.askShutdown
-    }
-    projectToGlobalForTest.clear
-
-    globalForStdLib foreach {_.askShutdown}
-    globalForStdLib = None
-  }
-
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
     reason match {
       case NormalReason(msg) => Log.info("Will reset global late due to: " + msg)
@@ -693,7 +676,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     //println("selectTypeErrors:" + selectTypeErrors)
 
-    run.units.find{_.source == srcFile} map {unit =>
+    run.units find {_.source == srcFile} map {unit =>
       if (ScalaGlobal.debug) {
         RequestProcessor.getDefault.post(new Runnable {
             def run {
