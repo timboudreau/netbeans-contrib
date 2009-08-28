@@ -60,10 +60,9 @@ import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, LinkedHashMap}
 
 import scala.tools.nsc.{Phase, Settings}
-import scala.collection.mutable.LinkedHashMap
 
 import org.netbeans.modules.scala.editor.interactive.Global
 //import scala.tools.nsc.interactive.Global
@@ -139,6 +138,7 @@ object ScalaGlobal {
     }
 
     toResetGlobals += global
+    
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
@@ -168,7 +168,10 @@ object ScalaGlobal {
       // * try to stop compiler daemon thread, but, does this method work ?
       global.askShutdown
 
-      // * whatever, force global to clear whole unitOfFile
+      // * @Todo temporary solution:
+      // * It seems global is always holded by someone and cannot be GCed?
+      // * whatever, force global to clear whole unitOfFile and others
+      global.analyzer.resetTyper
       global.firsts = Nil
       global.unitOfFile.clear
     }
