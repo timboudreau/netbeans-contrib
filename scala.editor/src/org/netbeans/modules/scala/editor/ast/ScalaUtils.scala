@@ -268,7 +268,7 @@ trait ScalaUtils {self: ScalaGlobal =>
           // (paramtypes)result
         case PolyType(tparams, result) =>
           if (!tparams.isEmpty) {
-            fm.appendText("(")
+            fm.appendText("[")
             val itr = tparams.iterator
             while (itr.hasNext) {
               fm.`type`(true)
@@ -278,7 +278,7 @@ trait ScalaUtils {self: ScalaGlobal =>
                 fm.appendText(", ")
               }
             }
-            fm.appendText(")")
+            fm.appendText("]")
           }
           fm.appendText(": ")
           htmlTypeName(result, fm)
@@ -441,7 +441,7 @@ trait ScalaUtils {self: ScalaGlobal =>
           // (paramtypes)result
         case PolyType(tparams, result) =>
           if (!tparams.isEmpty) {
-            fm.appendText("(")
+            fm.appendText("[")
             val itr = tparams.iterator
             while (itr.hasNext) {
               fm.`type`(true)
@@ -451,7 +451,7 @@ trait ScalaUtils {self: ScalaGlobal =>
                 fm.appendText(", ")
               }
             }
-            fm.appendText(")")
+            fm.appendText("]")
           }
           fm.appendText(": ")
           htmlTypeInfo(result, fm)
