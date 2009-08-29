@@ -28,22 +28,37 @@ trait ContextTrees { self: Global =>
   /** Optionally returns the smallest context that contains given `pos`, or None if none exists.
    */
   def locateContext(contexts: Contexts, pos: Position): Option[Context] = {
+    def locateNearestContextTree(contexts: Contexts, pos: Position, recent: Array[ContextTree]): Option[ContextTree] = {
+      locateContextTree(contexts, pos) match {
+        case Some(x) =>
+          recent(0) = x
+          locateNearestContextTree(x.children, pos, recent)
+        case None => recent(0) match {
+            case null => None
+            case x => Some(x)
+          }
+      }
+    }
+    locateNearestContextTree(contexts, pos, new Array[ContextTree](1)) map (_.context)
+  }
+
+  def locateContextTree(contexts: Contexts, pos: Position): Option[ContextTree] = {
     if (contexts.isEmpty) None
     else {
       val hi = contexts.length - 1
       if ((contexts(hi).pos precedes pos) || (pos precedes contexts(0).pos)) None
       else {
-        def loop(lo: Int, hi: Int): Option[Context] = {
+        def loop(lo: Int, hi: Int): Option[ContextTree] = {
           val mid = (lo + hi) / 2
           val midpos = contexts(mid).pos
           if ((pos precedes midpos) && (mid < hi))
             loop(lo, mid)
           else if ((midpos precedes pos) && (lo < mid))
             loop(mid, hi)
-          else if (midpos includes pos) 
-            Some(contexts(mid).context)
+          else if (midpos includes pos)
+            Some(contexts(mid))
           else if (contexts(mid+1).pos includes pos)
-            Some(contexts(mid+1).context)
+            Some(contexts(mid+1))
           else None
         }
         loop(0, hi)
