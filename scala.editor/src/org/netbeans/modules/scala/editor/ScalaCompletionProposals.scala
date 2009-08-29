@@ -129,7 +129,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
           fm.`type`(true)
           val retType = try {
-            sym.tpe.resultType
+            sym.tpe match {
+              case null => null
+              case x => x.resultType
+            }
           } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
 
           if (retType != null && !sym.isConstructor) {

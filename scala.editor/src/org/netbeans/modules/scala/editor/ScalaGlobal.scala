@@ -740,7 +740,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     println("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe + ", resultTpe=" + resTpe)
     val context = try {
       doLocateContext(pos)
-    } catch {case ex => println(ex.getMessage); null}
+    } catch {case ex => println(ex.getMessage); NoContext}
     
     val superAccess = tree.isInstanceOf[Super]
     val scope = newScope
@@ -753,7 +753,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         members(sym) = new TypeMember(
           sym,
           symtpe,
-          if (context == null) true else context.isAccessible(sym, pre, superAccess && (viaView == NoSymbol)),
+          context.isAccessible(sym, pre, superAccess && (viaView == NoSymbol)),
           inherited,
           viaView)
       }
@@ -763,7 +763,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       // * don't ask symtpe here via pre.memberType(sym) or sym.tpe, which may throw "no-symbol does not have owner"
       members(sym) = new TypeMember(
         sym,
-        null,
+        NoPrefix,
         true,
         inherited,
         viaView)
@@ -781,10 +781,10 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     val pre = try {
       stabilizedType(tree) match {
-        case null => resTpe
+        case null => NoPrefix
         case x => x
       }
-    } catch {case ex => println(ex.getMessage); resTpe}
+    } catch {case ex => println(ex.getMessage); NoPrefix}
 
     if (!isPackage){
       try {
@@ -805,9 +805,9 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     if (!isPackage) {
       try {
         val applicableViews: List[SearchResult] =
-          if (context != null) {
+          //if (context != NoContext) {
             new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
-          } else Nil
+          //} else Nil
         
         for (view <- applicableViews) {
           val vtree = viewApply1(view)
@@ -827,12 +827,8 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     typedTreeAt(pos) // to make sure context is entered
     val context = try {
       doLocateContext(pos)
-    } catch {case ex => ex.printStackTrace; null}
+    } catch {case ex => ex.printStackTrace; NoContext}
     
-    if (context == null) {
-      return Nil
-    }
-
     val locals = new LinkedHashMap[Name, ScopeMember]
 
     def addScopeMember1(sym: Symbol, pre: Type, viaImport: Tree) =
@@ -842,12 +838,12 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         //println("adding scope member: "+pre+" "+sym)
         val tpe = try {
           pre.memberType(sym)
-        } catch {case ex => ex.printStackTrace; null}
+        } catch {case ex => ex.printStackTrace; NoPrefix}
         
         locals(sym.name) = new ScopeMember(
           sym,
           tpe,
-          if (context == null) true else context.isAccessible(sym, pre, false),
+          context.isAccessible(sym, pre, false),
           viaImport)
       }
 
