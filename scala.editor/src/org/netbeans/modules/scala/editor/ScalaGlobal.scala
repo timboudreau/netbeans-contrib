@@ -855,6 +855,13 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     while (cx != NoContext) {
       for (sym <- cx.scope)
         addScopeMember1(sym, NoPrefix, EmptyTree)
+
+      cx = cx.enclMethod
+      if (cx != NoContext) {
+        for (sym <- cx.scope)
+          addScopeMember1(sym, NoPrefix, EmptyTree)
+      }
+
       cx = cx.enclClass
       val pre = cx.prefix
       for (sym <- pre.members)
