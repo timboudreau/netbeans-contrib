@@ -164,37 +164,37 @@ class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
 
         id match {
           case ScalaTokenId.STRING_BEGIN =>
-            val range = ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END)
+            val range = ScalaLexUtil.findFwd(ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END)
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.STRING_END =>
-            val range = ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END);
+            val range = ScalaLexUtil.findBwd(ts, ScalaTokenId.STRING_BEGIN, ScalaTokenId.STRING_END);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.REGEXP_BEGIN =>
-            val range = ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
+            val range = ScalaLexUtil.findFwd(ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.REGEXP_END =>
-            val range = ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
+            val range = ScalaLexUtil.findBwd(ts, ScalaTokenId.REGEXP_BEGIN, ScalaTokenId.REGEXP_END);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.LParen =>
-            val range = ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
+            val range = ScalaLexUtil.findFwd(ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.RParen =>
-            val range = ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
+            val range = ScalaLexUtil.findBwd(ts, ScalaTokenId.LParen, ScalaTokenId.RParen);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.LBrace =>
-            val range = ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
+            val range = ScalaLexUtil.findFwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.RBrace =>
-            val range = ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
+            val range = ScalaLexUtil.findBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
             return Array(range.getStart, range.getEnd)
           case ScalaTokenId.LBracket =>
-            val range = ScalaLexUtil.findFwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
+            val range = ScalaLexUtil.findFwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
             return Array(range.getStart, range.getEnd)
             //            } else if (id == ScalaTokenId.DO && !ScalaLexUtil.isEndmatchingDo(doc, ts.offset())) {
             //                // No matching dot for "do" used in conditionals etc.
             //                return OffsetRange.NONE;
           case ScalaTokenId.RBracket =>
-            val range = ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
+            val range = ScalaLexUtil.findBwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket);
             return Array(range.getStart, range.getEnd)
             //            } else if (id.primaryCategory().equals("keyword")) {
             //                if (ScalaLexUtil.isBeginToken(id, doc, ts)) {

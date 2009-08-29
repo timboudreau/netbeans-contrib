@@ -167,7 +167,11 @@ object ScalaLexUtil extends LexUtil {
           offset = token.offset(th)
           done = true
         case id if !isWsComment(id) && !isKeyword(id) =>
-          done = true
+          ts.moveNext // recheck from this id
+          findAnnotationBwd(ts) match {
+            case None => done = true
+            case Some(x) => // ts is moved to '@' now
+          }
         case _ =>
       }
     }
@@ -291,9 +295,39 @@ object ScalaLexUtil extends LexUtil {
     }
   }
 
-  /** @Require: move ts to `else` token first */
-  def findAndSkipAnnotation(ts: TokenSequence[TokenId]): Boolean = {
-    findNextNoWsNoComment(ts)
+  /**
+   * @return annotation id token or None
+   *         if found, ts will be located to '@'
+   */
+  def findAnnotationBwd(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
+    var collector: List[Token[TokenId]] = Nil
+    var atExpected = false
+    var break = false
+    while (ts.movePrevious && !break) {
+      val token = ts.token
+      token.id match {
+        case id if ScalaLexUtil.isWsComment(id) =>
+        case ScalaTokenId.At =>
+          collector = token :: collector
+        case ScalaTokenId.Identifier =>
+          collector = token :: collector
+        case ScalaTokenId.RParen =>
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LParen, ScalaTokenId.RParen)
+        case ScalaTokenId.RBrace =>
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
+        case ScalaTokenId.RBracket =>
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+        case _ => break = true
+      }
+
+      collector map {_.id} match {
+        case List(ScalaTokenId.At, ScalaTokenId.Identifier) => return Some(collector.last)
+        case List(_, _, _) => break = true // collect no more than 3 tokens
+        case _ =>
+      }
+    }
+
+    None
   }
 }
 

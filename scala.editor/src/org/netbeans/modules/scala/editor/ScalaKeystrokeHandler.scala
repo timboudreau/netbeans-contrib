@@ -880,12 +880,12 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
       val begin = id match {
         case ScalaTokenId.RBrace =>
-          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
+          ScalaLexUtil.findBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
         case ScalaTokenId.RBracket =>
-          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
+          ScalaLexUtil.findBwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
         case ScalaTokenId.Case =>
           // * find the first unmatched LBrace, then next `case`
-          ScalaLexUtil.findBwd(doc, ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
+          ScalaLexUtil.findBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
             case OffsetRange.NONE => OffsetRange.NONE
             case _ if ts.moveNext => // found LBrace, now find followed `case`
               ScalaLexUtil.findNextNoWsNoComment(ts) match {

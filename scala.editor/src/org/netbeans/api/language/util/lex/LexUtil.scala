@@ -251,6 +251,12 @@ trait LexUtil {
     }
   }
 
+  def moveTo(ts: TokenSequence[TokenId], th: TokenHierarchy[_], token: Token[TokenId]) {
+    val offset = token.offset(th)
+    ts.move(offset)
+    ts.moveNext
+  }
+
   def findNextNoWsNoComment(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
     findNextNotIn(ts, WS_COMMENTS)
   }
@@ -428,7 +434,50 @@ trait LexUtil {
   }
 
   /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-  def findFwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
+  def findPairFwd(ts: TokenSequence[TokenId], up: TokenId, down: TokenId): Option[Token[_]] = {
+    var balance = 0
+    while (ts.moveNext) {
+      val token = ts.token
+      val id = token.id
+
+      if (id == up) {
+        balance += 1
+      } else if (id == down) {
+        if (balance == 0) {
+          return Some(token)
+        }
+
+        balance -= 1
+      }
+    }
+
+    None
+  }
+
+  /** Search backwards in the token sequence until a token of type <code>up</code> is found */
+  def findPairBwd(ts: TokenSequence[TokenId], up: TokenId, down: TokenId): Option[Token[_]] = {
+    var balance = 0
+    while (ts.movePrevious) {
+      val token = ts.token
+      val id = token.id
+
+      if (id == up) {
+        if (balance == 0) {
+          return Some(token)
+        }
+
+        balance += 1
+      } else if (id == down) {
+        balance -= 1
+      }
+    }
+
+    None
+  }
+
+
+  /** Search forwards in the token sequence until a token of type <code>down</code> is found */
+  def findFwd(ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
@@ -449,7 +498,7 @@ trait LexUtil {
   }
 
   /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-  def findBwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
+  def findBwd(ts: TokenSequence[TokenId], up: TokenId, down: TokenId): OffsetRange = {
     var balance = 0
     while (ts.movePrevious) {
       val token = ts.token
@@ -470,7 +519,7 @@ trait LexUtil {
   }
 
   /** Search forwards in the token sequence until a token of type <code>down</code> is found */
-  def findFwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
+  def findFwd(ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
@@ -492,7 +541,7 @@ trait LexUtil {
   }
 
   /** Search backwards in the token sequence until a token of type <code>up</code> is found */
-  def findBwd(doc: BaseDocument, ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
+  def findBwd(ts: TokenSequence[TokenId], up: String, down: String): OffsetRange = {
     var balance = 0
     while (ts.movePrevious) {
       val token = ts.token
@@ -518,7 +567,7 @@ trait LexUtil {
    * It does not use indentation for clues since this could be wrong and be
    * precisely the reason why the user is using pair matching to see what's wrong.
    */
-  def findBegin(doc: BaseDocument, ts: TokenSequence[TokenId]): OffsetRange = {
+  def findBegin(ts: TokenSequence[TokenId]): OffsetRange = {
     var balance = 0
     while (ts.movePrevious) {
       val token = ts.token
@@ -539,7 +588,7 @@ trait LexUtil {
     OffsetRange.NONE
   }
 
-  def findEnd(doc: BaseDocument, ts: TokenSequence[TokenId]): OffsetRange = {
+  def findEnd(ts: TokenSequence[TokenId]): OffsetRange = {
     var balance = 0
     while (ts.moveNext) {
       val token = ts.token
