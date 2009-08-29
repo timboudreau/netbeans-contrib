@@ -85,7 +85,7 @@ object ScalaGlobal {
   private val GlobalForDebug = 2
   private val GlobalForTestDebug = 3
 
-  private class Resources {
+  private class Cache {
     val globals = new Array[ScalaGlobal](4)
 
     var srcOutDirs: Map[FileObject, FileObject] = Map()
@@ -118,7 +118,7 @@ object ScalaGlobal {
 
   private var globalForStdLib: Option[ScalaGlobal] = None
   
-  private val projectToResources = new WeakHashMap[Project, Resources]
+  private val projectToCaches = new WeakHashMap[Project, Cache]
   private var globalToListeners = Map[ScalaGlobal, List[FileChangeListener]]()
   private var toResetGlobals = Set[ScalaGlobal]()
 
@@ -139,7 +139,7 @@ object ScalaGlobal {
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
-      projectToResources find {case (p, r) =>
+      projectToCaches find {case (p, r) =>
           var found = false
           var i = 0
           val size = r.globals.size
@@ -204,14 +204,14 @@ object ScalaGlobal {
       }
     }
 
-    val resources = projectToResources.get(project) getOrElse {
+    val caches = projectToCaches.get(project) getOrElse {
       val r = findDirResources(project)
-      projectToResources.put(project, r)
+      projectToCaches.put(project, r)
       r
     }
 
     // * is this `fo` under test source?
-    val forTest = resources.testSrcOutDirs find {case (src, _) =>
+    val forTest = caches.testSrcOutDirs find {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
     } isDefined
 
@@ -222,7 +222,7 @@ object ScalaGlobal {
       if (forTest) GlobalForTest else Global
     }
 
-    val g = resources.globals(idx)
+    val g = caches.globals(idx)
     if (g != null) {
       return g
     }
@@ -251,7 +251,7 @@ object ScalaGlobal {
     
     var outPath = ""
     var srcPaths: List[String] = Nil
-    for ((src, out) <- if (forTest) resources.testSrcOutDirsPath else resources.srcOutDirsPath) {
+    for ((src, out) <- if (forTest) caches.testSrcOutDirsPath else caches.srcOutDirsPath) {
       srcPaths = src :: srcPaths
 
       // * we only need one out path
@@ -299,7 +299,7 @@ object ScalaGlobal {
     // ----- now, the new global
 
     val global = new ScalaGlobal(settings, dummyReporter)
-    resources.globals(idx) = global
+    caches.globals(idx) = global
 
     // * listen to compCp's change
     if (compCp != null) {
@@ -340,8 +340,8 @@ object ScalaGlobal {
     }
   }
 
-  private def findDirResources(project: Project): Resources = {
-    val resources = new Resources
+  private def findDirResources(project: Project): Cache = {
+    val cache = new Cache
 
     val sources = ProjectUtils.getSources(project)
     val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
@@ -354,19 +354,19 @@ object ScalaGlobal {
       if (sgs.size > 0) {
         val src = sgs(0).getRootFolder
         val out = findOutDir(project, src)
-        resources.srcOutDirs += (src -> out)
+        cache.srcOutDirs += (src -> out)
       }
 
       if (sgs.size > 1) { // the 2nd one is test src
         val src = sgs(1).getRootFolder
         val out = findOutDir(project, src)
-        resources.testSrcOutDirs += (src -> out)
+        cache.testSrcOutDirs += (src -> out)
       }
 
       // @todo add other srcs
     }
     
-    resources
+    cache
   }
 
   private def findOutDir(project: Project, srcRoot: FileObject): FileObject = {
