@@ -322,6 +322,12 @@ trait ScalaUtils {self: ScalaGlobal =>
      * from scala.tools.nsc.symtab.Symbols
      */
     def htmlDef(sym: Symbol, fm: HtmlFormatter): Unit = {
+      // * no-symbol does not have owner
+      if (sym == NoSymbol) {
+        fm.appendText("<no-symbol>")
+        return
+      }
+      
       val flags = if (sym.owner.isRefinementClass) {
         sym.flags & Flags.ExplicitFlags & ~Flags.OVERRIDE
       } else sym.flags & Flags.ExplicitFlags
