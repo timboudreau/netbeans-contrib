@@ -208,44 +208,40 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   private def isCallId(id: TokenId) = CALL_IDs.contains(id)
 
   def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
-    var collectedTokens: List[Token[TokenId]] = Nil
+    var collector: List[Token[TokenId]] = Nil
     var break = false
     while (ts.movePrevious && !break) {
       val token = ts.token
       token.id match {
         case ScalaTokenId.Dot =>
-          collectedTokens match {
+          collector match {
             case x :: xs if ScalaLexUtil.isWsComment(x.id) =>
               // * replace previous sep token with this Dot
-              collectedTokens = token :: xs
-            case _ => collectedTokens = token :: collectedTokens
+              collector = token :: xs
+            case _ => collector = token :: collector
           }
 
         case ScalaTokenId.Nl =>
         case id if ScalaLexUtil.isWsComment(id) =>
-          collectedTokens match {
+          collector match {
             case x :: xs if ScalaLexUtil.isWsComment(x.id) | x.id == ScalaTokenId.Dot =>
               // * do not add more, combined all ws comment tokens
-            case _ => collectedTokens = token :: collectedTokens
+            case _ => collector = token :: collector
           }
 
-        case id if isCallId(id) => collectedTokens = token :: collectedTokens
+        case id if isCallId(id) => collector = token :: collector
 
         case ScalaTokenId.RParen =>
-          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LParen, ScalaTokenId.RParen)
-          // * skipPair moves ts in front of `LParen`, so move next to locate to this `LParen`
-          ts.moveNext
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LParen, ScalaTokenId.RParen)
         case ScalaTokenId.RBrace =>
-          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
-          ts.moveNext
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace)
         case ScalaTokenId.RBracket =>
-          ScalaLexUtil.skipPair(ts, true, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
-          ts.moveNext
+          ScalaLexUtil.findPairBwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
 
         case _ => break = true
       }
 
-      collectedTokens map {_.id} match {
+      collector map {_.id} match {
         case List(a, b) if ScalaLexUtil.isWsComment(b) | b == ScalaTokenId.Dot => break = true
         case List(a, b, c) => break = true // collect no more than 3 tokens
         case _ =>
@@ -253,7 +249,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     }
 
     val (base, afterDot, select) =
-      collectedTokens match {
+      collector match {
         case List(basex, sep, selectx) =>
           if (isCallId(basex.id) && isCallId(selectx.id)) {
             (basex, sep.id == ScalaTokenId.Dot, selectx)

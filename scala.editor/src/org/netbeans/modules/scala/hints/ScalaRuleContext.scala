@@ -58,6 +58,7 @@ class ScalaRuleContext extends RuleContext {
     ScalaSourceUtil.getClasspathInfo(getFileObject)
 
   def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
+    if (start > end) return None
     try {
       Some(new OffsetRange(Utilities.getRowStart(doc, start), Utilities.getRowEnd(doc, end)))
     } catch {
