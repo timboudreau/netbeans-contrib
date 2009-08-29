@@ -50,21 +50,20 @@ import org.netbeans.modules.scala.editor.ScalaSourceUtil
 
 
 
-class ScalaRuleContext() extends RuleContext {
+class ScalaRuleContext extends RuleContext {
 
-    def getFileObject = parserResult.getSnapshot().getSource().getFileObject()
+  def getFileObject = parserResult.getSnapshot.getSource.getFileObject
 
-    def getClasspathInfo  : Option[ClasspathInfo]  = 
-        ScalaSourceUtil.getClasspathInfo(getFileObject)
+  def getClasspathInfo : Option[ClasspathInfo]  =
+    ScalaSourceUtil.getClasspathInfo(getFileObject)
 
-    def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
-        try {
-            Some(new OffsetRange(Utilities.getRowStart(doc, start), Utilities.getRowEnd(doc, end)))
-        } catch {
-            case x : Exception => None
-        }
+  def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
+    try {
+      Some(new OffsetRange(Utilities.getRowStart(doc, start), Utilities.getRowEnd(doc, end)))
+    } catch {
+      case ex => None
     }
-
+  }
 
 }
 

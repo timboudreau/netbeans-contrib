@@ -280,7 +280,7 @@ object ScalaLexUtil extends LexUtil {
   }
 
   /** @Require: move ts to `else` token first */
-  def findMatchedIfOfElse(ts: TokenSequence[_]) = {
+  def findMatchedIfOfElse(ts: TokenSequence[TokenId]) = {
     assert(ts.token.id == ScalaTokenId.Else, "Should move TokenSequence to `else` token first!")
 
     while (ts.movePrevious) {
@@ -289,6 +289,11 @@ object ScalaLexUtil extends LexUtil {
         
       }
     }
+  }
+
+  /** @Require: move ts to `else` token first */
+  def findAndSkipAnnotation(ts: TokenSequence[TokenId]): Boolean = {
+    findNextNoWsNoComment(ts)
   }
 }
 
