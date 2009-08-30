@@ -248,8 +248,8 @@ public class ScalaExecution {
     }
 
     public static String getScalaHome() {
-        String scalaHome = System.getProperty("scala.home"); // NOI18N
-
+        //String scalaHome = System.getProperty("scala.home"); // NOI18N
+        String scalaHome = null;
         if (scalaHome == null) {
             scalaHome = System.getenv("SCALA_HOME"); // NOI18N
             if (scalaHome != null) {

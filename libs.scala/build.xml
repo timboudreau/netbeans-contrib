@@ -44,7 +44,7 @@ made subject to such option by the copyright holder.
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="unziplibs" depends="init">
-	<!-- do not use name: *.tgz, use *.tar.gz instead. since hg's [encode] may recognize *.gz only --> 
+	<!-- do not use name: *.tgz, use *.tar.gz instead. since hg's [encode] recognize *.gz only --> 
         <delete dir="${cluster}/scala"/>
         <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.3.tar.gz"/>
 
