@@ -70,7 +70,9 @@ made subject to such option by the copyright holder.
         <folder name="Platforms">
             <folder name="org-netbeans-api-scala-Platform">
                  <!-- Placeholder, installed platforms will be created in this folder -->
+                 <!-- was deleted in 0e453426bfd9
                  <file name="default_platform.xml" url="templates/defaultPlatform.xml"/>
+                 -->
             </folder>
         </folder>
         <folder name="MIMEResolver">
