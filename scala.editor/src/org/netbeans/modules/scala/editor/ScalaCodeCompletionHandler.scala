@@ -111,6 +111,12 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
   import ScalaCodeCompletionHandler._
 
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
+    // * skip processing other queryType: DOCUMENTATION_QUERY_TYPE, TOOLTIP_QUERY_TYPE etc
+    context.getQueryType match {
+      case QueryType.ALL_COMPLETION | QueryType.COMPLETION => // go on
+      case _ => return CodeCompletionResult.NONE
+    }
+    
     val pResult = context.getParserResult.asInstanceOf[ScalaParserResult]
     val lexOffset = context.getCaretOffset
     val prefix = context.getPrefix match {
