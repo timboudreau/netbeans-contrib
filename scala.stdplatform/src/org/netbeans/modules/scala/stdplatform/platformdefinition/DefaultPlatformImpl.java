@@ -108,30 +108,30 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
             File scalaHomeFile = FileUtil.normalizeFile(new File(scalaHome));       //NOI18N
             return scalaHomeFile;
         } else {
-            File clusterFile = InstalledFileLocator.getDefault().locate(
-                    "modules/org-netbeans-modules-scala-stdplatform.jar", null, false);
-
-            if (clusterFile != null) {
-                File bundlingScalaFile =
-                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(), "scala"); // NOI18N
-                assert bundlingScalaFile.exists() && bundlingScalaFile.isDirectory() : "No bundling Scala platform found";
-
-                for (File scalaFile : bundlingScalaFile.listFiles()) {
-                    String fileName = scalaFile.getName();
-                    if (scalaFile.isDirectory() && fileName.startsWith("scala")) {
-                        scalaHome = scalaFile.getAbsolutePath();
-                        if (isBroken(FileUtil.toFileObject(scalaFile))) {
-                            continue;
-                        }
-                        System.setProperty("scala.home", scalaHome);
-                        int dash = fileName.indexOf('-');
-                        String scalaVersion = fileName.substring(dash + 1, fileName.length());
-                        System.setProperty("scala.specification.version", scalaVersion);
-
-                        return scalaFile;
-                    }
-                }
-            }
+//            File clusterFile = InstalledFileLocator.getDefault().locate(
+//                    "modules/org-netbeans-modules-scala-stdplatform.jar", null, false);
+//
+//            if (clusterFile != null) {
+//                File bundlingScalaFile =
+//                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(), "scala"); // NOI18N
+//                assert bundlingScalaFile.exists() && bundlingScalaFile.isDirectory() : "No bundling Scala platform found";
+//
+//                for (File scalaFile : bundlingScalaFile.listFiles()) {
+//                    String fileName = scalaFile.getName();
+//                    if (scalaFile.isDirectory() && fileName.startsWith("scala")) {
+//                        scalaHome = scalaFile.getAbsolutePath();
+//                        if (isBroken(FileUtil.toFileObject(scalaFile))) {
+//                            continue;
+//                        }
+//                        System.setProperty("scala.home", scalaHome);
+//                        int dash = fileName.indexOf('-');
+//                        String scalaVersion = fileName.substring(dash + 1, fileName.length());
+//                        System.setProperty("scala.specification.version", scalaVersion);
+//
+//                        return scalaFile;
+//                    }
+//                }
+//            }
 
             return null;
         }
