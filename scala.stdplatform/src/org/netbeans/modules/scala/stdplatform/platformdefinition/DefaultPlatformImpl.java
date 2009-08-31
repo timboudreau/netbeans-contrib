@@ -75,18 +75,23 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
         // XXX java.home??
         File scalaHome = getScalaHome();       //NOI18N
         List<URL> installFolders = new ArrayList<URL>();
-        try {
-            installFolders.add(scalaHome.toURI().toURL());
-        } catch (MalformedURLException mue) {
-            Exceptions.printStackTrace(mue);
+        if (scalaHome != null) {
+            try {
+                installFolders.add(scalaHome.toURI().toURL());
+            } catch (MalformedURLException mue) {
+                Exceptions.printStackTrace(mue);
+            }
+            if (sources == null) {
+                sources = getSources(scalaHome);
+            }
+            if (javadoc == null) {
+                javadoc = getJavadoc(scalaHome);
+            }
+            properties.put(J2SEPlatformImpl.SYSPROP_SCALA_CLASS_PATH, getScalaClassPath());
+        } else {
+            sources = Collections.emptyList();
+            javadoc = Collections.emptyList();
         }
-        if (sources == null) {
-            sources = getSources(scalaHome);
-        }
-        if (javadoc == null) {
-            javadoc = getJavadoc(scalaHome);
-        }
-        properties.put(J2SEPlatformImpl.SYSPROP_SCALA_CLASS_PATH, getScalaClassPath());
         return new DefaultPlatformImpl(installFolders, properties, new HashMap(System.getProperties()), sources, javadoc);
     }
 
