@@ -127,7 +127,7 @@ trait JavaElements {self: ScalaGlobal =>
 
     def getOffsetRange(result: ParserResult): OffsetRange = OffsetRange.NONE
 
-    // --- AstElementHandel methods:
+    // ----- AstElementHandel methods:
 
     def symbol: Any = element
 
@@ -138,10 +138,16 @@ trait JavaElements {self: ScalaGlobal =>
     def qualifiedName: String = element.getQualifiedName
 
     def isDeprecated: Boolean = false
+    def isDeprecated_=(b: Boolean) {}
 
     def isInherited: Boolean = false
+    def isInherited_=(b: Boolean) {}
 
     def isEmphasize: Boolean = false
+    def isEmphasize_=(b: Boolean) {}
+
+    def isImplicit: Boolean = false
+    def isImplicit_=(b: Boolean) {}
 
     // ---
 

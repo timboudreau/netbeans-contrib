@@ -49,7 +49,6 @@ import org.openide.util.{Exceptions, ImageUtilities}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 
-import scala.tools.nsc.symtab.Flags
 /**
  *
  * @author Caoyuan Deng
@@ -61,19 +60,14 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     val keywordIcon = ImageUtilities.loadImageIcon(KEYWORD, false)
   }
 
-  abstract class ScalaCompletionProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends CompletionProposal {
+  abstract class ScalaCompletionProposal(element: AstElementHandle, completer: ScalaCodeCompleter
+  ) extends CompletionProposal {
 
-    def getAnchorOffset: Int = {
-      completer.anchor
-    }
+    def getAnchorOffset: Int = completer.anchor
 
-    override def getName: String = {
-      element.getName
-    }
+    override def getName: String = element.getName
 
-    override def getInsertPrefix: String = {
-      getName
-    }
+    override def getInsertPrefix: String = getName
 
     override def getSortText: String = {
       val name = getName
@@ -88,9 +82,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       0
     }
 
-    def getElement: ElementHandle = {
-      element
-    }
+    def getElement: ElementHandle = element
 
     def getKind: ElementKind = {
       getElement match {
@@ -100,23 +92,21 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       }
     }
 
-    def getIcon: ImageIcon = {
-      null
-    }
+    def getIcon: ImageIcon = null
 
     def getLhsHtml(fm: HtmlFormatter): String = {
       val emphasize = !element.isInherited
       val strike = element.isDeprecated
 
       if (emphasize) fm.emphasis(true)
-      if (strike) fm.deprecated(true)
+      if (strike)    fm.deprecated(true)
       
       val kind = getKind
       fm.name(kind, true)
       fm.appendText(getName)
       fm.name(kind, false)
 
-      if (strike) fm.deprecated(false)
+      if (strike)    fm.deprecated(false)
       if (emphasize) fm.emphasis(false)
 
       fm.getText
@@ -145,63 +135,44 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       fm.getText
     }
 
-    override def getModifiers: java.util.Set[Modifier] = {
-      element.getModifiers
-    }
+    override def getModifiers: java.util.Set[Modifier] = element.getModifiers
 
     override def toString: String = {
-      var cls = this.getClass().getName();
+      var cls = this.getClass.getName
       cls = cls.substring(cls.lastIndexOf('.') + 1)
 
       cls + "(" + getKind + "): " + getName
     }
 
-    def isSmart: Boolean = {
-      false
-    }
+    def isSmart: Boolean = false
 
-    override def getCustomInsertTemplate: String = {
-      null
-    }
+    override def getCustomInsertTemplate: String = null
   }
 
-  case class FunctionProposal(element: ScalaElement, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
+  case class FunctionProposal(element: ScalaElement, completer: ScalaCodeCompleter
+  ) extends ScalaCompletionProposal(element, completer) {
 
-    override def getInsertPrefix: String = {
-      getName
-    }
+    override def getInsertPrefix: String = getName
 
-    override def getKind: ElementKind = {
-      ElementKind.METHOD
-    }
+    override def getKind: ElementKind = ElementKind.METHOD
 
     override def getLhsHtml(fm: HtmlFormatter): String = {
       val strike = element.isDeprecated
       val emphasize = !element.isInherited
-      if (element.isImplicit) {
-        fm.appendHtml("<i>")
-      }
-      if (strike) {
-        fm.deprecated(true)
-      }
-      if (emphasize) {
-        fm.emphasis(true)
-      }
+      val preStar = element.isImplicit
+      
+      if (preStar)   fm.appendHtml("<u>")
+      if (strike)    fm.deprecated(true)
+      if (emphasize) fm.emphasis(true)
 
       val kind = getKind
       fm.name(kind, true)
       fm.appendText(getName)
       fm.name(kind, false)
 
-      if (emphasize) {
-        fm.emphasis(false)
-      }
-      if (strike) {
-        fm.deprecated(false)
-      }
-      if (element.isImplicit) {
-        fm.appendHtml("</i>")
-      }
+      if (emphasize) fm.emphasis(false)
+      if (strike)    fm.deprecated(false)
+      if (preStar)   fm.appendHtml("</u>")
       
       val typeParams = try {
         element.symbol.tpe match {
@@ -211,7 +182,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       } catch {case ex => ScalaGlobal.resetLate(completer.global, ex); Nil}
       if (!typeParams.isEmpty) {
         fm.appendHtml("[")
-        fm.appendText(typeParams.map{_.nameString}.mkString(", "))
+        fm.appendText(typeParams map (_.nameString) mkString(", "))
         fm.appendHtml("]")
       }
 
@@ -225,7 +196,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         val nameItr = if (paramNames == null) Nil else paramNames
         val typeItr = paramTypes.iterator
         while (typeItr.hasNext) {
-          val param = typeItr.next
+          val paramType = typeItr.next
           fm.parameters(true)
           fm.appendText("a" + i)
           //if (nameItr != null && nameItr.hasNext()) {
@@ -236,7 +207,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
           fm.parameters(false)
           fm.appendText(": ")
           fm.`type`(true)
-          fm.appendText(param.toString)
+          fm.appendText(paramType.toString)
           fm.`type`(false)
 
           if (typeItr.hasNext) {
@@ -254,7 +225,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
     def getInsertParams: List[String] = {
       val paramTypes = getParamTypes
-      (0 until paramTypes.size).map{"a" + _}.toList
+      (0 until paramTypes.size) map ("a" + _) toList
       // * typeSymbol is expensive and may throw exception, be careful to it.
       //getParamTypes map {_.typeSymbol.nameString.toLowerCase} 
     }
@@ -281,22 +252,20 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
       sb.append("(")
 
-      var id = 1
+      var i = 1
       val itr = params.iterator
       while (itr.hasNext) {
         val paramDesc = itr.next
         sb.append("${") //NOI18N
 
         sb.append("scala-cc-") // NOI18N
-        id += 1
-        sb.append(id)
+        i += 1
+        sb.append(i)
         
         sb.append(" default=\"") // NOI18N
-        val typeIndex = paramDesc.indexOf(':')
-        if (typeIndex != -1) {
-          sb.append(paramDesc.toArray, 0, typeIndex)
-        } else {
-          sb.append(paramDesc)
+        paramDesc.indexOf(':') match {
+          case -1 => sb.append(paramDesc)
+          case typeIdx => sb.append(paramDesc.toArray, 0, typeIdx)
         }
         sb.append("\"") // NOI18N
 
@@ -320,24 +289,20 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     }
   }
 
-  case class KeywordProposal(keyword: String, description: String, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(null, completer) {
-    import KeywordProposal._
+  case class KeywordProposal(keyword: String, description: String, completer: ScalaCodeCompleter
+  ) extends ScalaCompletionProposal(null, completer) {
 
-    override def getName: String = {
-      keyword
-    }
+    override def getName: String = keyword
 
-    override def getKind: ElementKind = {
-      ElementKind.KEYWORD
-    }
+    override def getKind: ElementKind = ElementKind.KEYWORD
 
-    override def getLhsHtml(formatter: HtmlFormatter): String = {
+    override def getLhsHtml(fm: HtmlFormatter): String = {
       val kind = getKind
-      formatter.name(kind, true)
-      formatter.appendHtml(getName)
-      formatter.name(kind, false)
+      fm.name(kind, true)
+      fm.appendHtml(getName)
+      fm.name(kind, false)
 
-      formatter.getText
+      fm.getText
     }
 
     override def getRhsHtml(fm: HtmlFormatter): String = {
@@ -345,43 +310,34 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         fm.appendText(description)
 
         fm.getText
-      } else {
-        null
-      }
+      } else null
     }
 
-    override def getIcon: ImageIcon = {
-      ScalaCompletionProposal.keywordIcon
-    }
+    override def getIcon: ImageIcon = ScalaCompletionProposal.keywordIcon
 
-    override def getModifiers: java.util.Set[Modifier] = {
-      return java.util.Collections.emptySet[Modifier]
-    }
+    override def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
 
     override def getElement: ElementHandle = {
       PseudoElement(keyword, ElementKind.KEYWORD) // For completion documentation
     }
 
-    override def isSmart: Boolean = {
-      false
-    }
+    override def isSmart: Boolean = false
   }
 
- 
-  case class PlainProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {}
+  case class PlainProposal(element: AstElementHandle, completer: ScalaCodeCompleter
+  ) extends ScalaCompletionProposal(element, completer) {}
 
-  case class PackageItem(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
+  case class PackageItem(element: AstElementHandle, completer: ScalaCodeCompleter
+  ) extends ScalaCompletionProposal(element, completer) {
 
-    override def getKind: ElementKind = {
-      ElementKind.PACKAGE
-    }
+    override def getKind: ElementKind = ElementKind.PACKAGE
 
     override def getName: String = {
       val name = element.getName
-      val lastDot = name.lastIndexOf('.')
-      if (lastDot > 0) {
-        name.substring(lastDot + 1, name.length)
-      } else name
+      name.lastIndexOf('.') match {
+        case -1 => name
+        case lastDot => name.substring(lastDot + 1, name.length)
+      }
     }
 
     override def getLhsHtml(formatter: HtmlFormatter): String = {
@@ -393,20 +349,15 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       formatter.getText
     }
 
-    override def getRhsHtml(formatter: HtmlFormatter): String = {
-      null
-    }
+    override def getRhsHtml(fm: HtmlFormatter): String = null
 
-    override def isSmart: Boolean = {
-      true
-    }
+    override def isSmart: Boolean = true
   }
 
-  case class TypeProposal(element: AstElementHandle, completer: ScalaCodeCompleter) extends ScalaCompletionProposal(element, completer) {
+  case class TypeProposal(element: AstElementHandle, completer: ScalaCodeCompleter
+  ) extends ScalaCompletionProposal(element, completer) {
 
-    override def getKind: ElementKind = {
-      ElementKind.CLASS
-    }
+    override def getKind: ElementKind = ElementKind.CLASS
 
     override def getName: String = {
       val name = element.qualifiedName
@@ -419,15 +370,13 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     override def getLhsHtml(fm: HtmlFormatter): String = {
       val kind = getKind
       val strike = element.isDeprecated
-      if (strike) {
-        fm.deprecated(true)
-      }
+      if (strike) fm.deprecated(true)
+      
       fm.name(kind, true)
       fm.appendText(getName)
       fm.name(kind, false)
-      if (strike) {
-        fm.deprecated(false)
-      }
+      
+      if (strike) fm.deprecated(false)
 
       fm.getText
     }

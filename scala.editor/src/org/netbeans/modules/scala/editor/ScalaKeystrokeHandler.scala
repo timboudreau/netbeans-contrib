@@ -633,11 +633,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
       }
     }
 
-    val ts = ScalaLexUtil.getTokenSequence(doc, caretOffset) match {
-      case Some(x) => x
-      case None => return false
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(doc, caretOffset).getOrElse(return false)
     ts.move(caretOffset)
     if (!ts.moveNext && !ts.movePrevious) {
       return false
@@ -884,10 +880,10 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
         case ScalaTokenId.RBracket =>
           ScalaLexUtil.findBwd(ts, ScalaTokenId.LBracket, ScalaTokenId.RBracket)
         case ScalaTokenId.Case =>
-          // * find the first unmatched LBrace, then next `case`
+          // * find the first unbalanced LBrace, then next `case`
           ScalaLexUtil.findBwd(ts, ScalaTokenId.LBrace, ScalaTokenId.RBrace) match {
             case OffsetRange.NONE => OffsetRange.NONE
-            case _ if ts.moveNext => // found LBrace, now find followed `case`
+            case _ if ts.moveNext => // LBrace found, now find followed `case`
               ScalaLexUtil.findNextNoWsNoComment(ts) match {
                 case Some(tk) if tk.id == ScalaTokenId.Case =>
                   new OffsetRange(ts.offset, ts.offset + 1)

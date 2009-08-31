@@ -56,10 +56,16 @@ trait AstElementHandle extends ElementHandle {
   def qualifiedName: String
 
   def isDeprecated: Boolean
+  def isDeprecated_=(b: Boolean): Unit
 
   def isInherited: Boolean
-    
+  def isInherited_=(b: Boolean): Unit
+
   def isEmphasize: Boolean
+  def isEmphasize_=(b: Boolean): Unit
+
+  def isImplicit: Boolean
+  def isImplicit_=(b: Boolean): Unit
 
   def htmlFormat(fm: HtmlFormatter): Unit
 

@@ -144,17 +144,10 @@ abstract class AstDfn(_idToken: Option[Token[TokenId]],
     null
   }
 
-  def isInherited: Boolean = {
-    false
-  }
-
-  def isDeprecated: Boolean = {
-    false
-  }
-
-  def isEmphasize: Boolean = {
-    false
-  }
+  var isInherited  = false
+  var isDeprecated = false
+  var isEmphasize  = false
+  var isImplicit   = false
 
   def isReferredBy(ref: AstRef): Boolean
 
