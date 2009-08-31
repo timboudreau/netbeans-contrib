@@ -684,7 +684,8 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
                    if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
               ) {
                 createSymbolProposal(sym) foreach {proposal =>
-                  proposal.getElement.asInstanceOf[ScalaElement].setInherited(inherited)
+                  proposal.getElement.asInstanceOf[ScalaElement].isInherited = inherited
+                  proposal.getElement.asInstanceOf[ScalaElement].isImplicit = (viaView != NoSymbol)
                   proposals.add(proposal)
                 }
               }

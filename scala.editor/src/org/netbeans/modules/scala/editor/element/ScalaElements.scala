@@ -79,7 +79,7 @@ trait ScalaElements {self: ScalaGlobal =>
     private var kind: ElementKind = _
     private var modifiers: Option[_root_.java.util.Set[Modifier]] = None
     private var inherited: Boolean = _
-    private var smart: Boolean = _
+    var smart: Boolean = _
     private var fo: Option[FileObject] = None
     private var path: String = _
     private var doc: Option[BaseDocument] = None
@@ -253,21 +253,19 @@ trait ScalaElements {self: ScalaGlobal =>
         symbol.isDeprecated
       } catch {case _ => false}
     }
+    def isDeprecated_=(b: Boolean) {}
 
-    def setInherited(inherited: Boolean): Unit = {
-      this.inherited = inherited
+    def isInherited: Boolean = inherited
+    def isInherited_=(b: Boolean) {
+      this.inherited = b
     }
 
-    def isInherited: Boolean = {
-      inherited
-    }
+    def isEmphasize: Boolean = !isInherited
+    def isEmphasize_=(b: Boolean) {}
 
-    def isEmphasize: Boolean = {
-      !isInherited
-    }
-
-    def setSmart(smart: Boolean): Unit = {
-      this.smart = smart
+    def isSmart = smart
+    def isSmart_=(b: Boolean) {
+      this.smart = b
     }
 
     override def toString = {
