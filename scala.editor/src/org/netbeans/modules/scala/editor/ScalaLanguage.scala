@@ -77,8 +77,7 @@ class ScalaLanguage extends DefaultLanguageConfig {
    * @see org.netbeans.modules.scala.platform.ScalaPlatformClassPathProvider and ModuleInstall
    */
   override def getLibraryPathIds = java.util.Collections.singleton(BOOT)
-
-  override def getSourcePathIds = java.util.Collections.singleton(SOURCE)
+  override def getSourcePathIds  = java.util.Collections.singleton(SOURCE)
     
   override def getParser = new ScalaParser
   
