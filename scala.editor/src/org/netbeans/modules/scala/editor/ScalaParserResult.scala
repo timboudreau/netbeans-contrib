@@ -103,12 +103,12 @@ class ScalaParserResult(snapshot: Snapshot,
       //val filePath = if (file != null) file.getAbsolutePath):  "<current>";
       val th = getSnapshot.getTokenHierarchy
 
-      //val global = parser.global
       val global = ScalaGlobal.getGlobal(fo, true)
 
       val af = if (file != null) new PlainFile(file) else new VirtualFile("<current>", "")
       val srcFile = new BatchSourceFile(af, getSnapshot.getText.toString.toCharArray)
       try {
+        //rootScopeForDebug = Some(global.askForDebug(srcFile, th))
         rootScopeForDebug = Some(global.compileSourceForDebug(srcFile, th))
       } catch {
         case ex: AssertionError =>

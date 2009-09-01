@@ -607,6 +607,29 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } getOrElse ScalaRootScope.EMPTY
   }
 
+  def askForDebug(srcFile: SourceFile, th: TokenHierarchy[_]) : ScalaRootScope = {
+    resetSelectTypeErrors
+
+    val resp = new Response[Tree]
+    try {
+      askLambdaLift(srcFile, true, resp)
+    } catch {
+      case ex: AssertionError =>
+        /**
+         * @Note: avoid scala nsc's assert error. Since global's
+         * symbol table may have been broken, we have to reset ScalaGlobal
+         * to clean this global
+         */
+        ScalaGlobal.resetLate(this, ex)
+      case ex: java.lang.Error => // avoid scala nsc's Error error
+      case ex: Throwable => // just ignore all ex
+    }
+
+    resp.get.left.toOption map {tree =>
+      scalaAstVisitor.visit(unitOf(srcFile), th)
+    } getOrElse ScalaRootScope.EMPTY
+  }
+
   /** batch complie */
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
     settings.stop.value = Nil
@@ -673,6 +696,32 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } getOrElse ScalaRootScope.EMPTY
   }
 
+  // <editor-fold defaultstate="collapsed" desc="lambdaLift">
+  // ----- @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
+
+  /** A fully lambdaLifted tree corresponding to the entire compilation unit  */
+  def lambdaLiftedTree(source: SourceFile, forceReload: Boolean): Tree = {
+    val unit = unitOf(source)
+    val sources = List(source)
+    if (unit.status == NotLoaded || forceReload) reloadSources(sources)
+    moveToFront(sources)
+    currentTyperRun.typedTree(unitOf(source))
+    currentTyperRun.lambdaLiftedTree(unitOf(source))
+  }
+
+  /** Set sync var `result` to a fully attributed tree corresponding to the entire compilation unit  */
+  def getLambdaLiftedTree(source : SourceFile, forceReload: Boolean, result: Response[Tree]) {
+    respond(result)(lambdaLiftedTree(source, forceReload))
+  }
+
+  def askLambdaLift(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
+    scheduler postWorkItem new WorkItem {
+      def apply() = getLambdaLiftedTree(source, forceReload, result)
+      override def toString = "lambdaLift"
+    }
+
+  // ----- end @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
+  // </editor-fold>
 
   // ----- helper methods, patched version from interactive.Global and CompilerControl
 
@@ -806,8 +855,8 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       try {
         val applicableViews: List[SearchResult] =
           //if (context != NoContext) {
-            new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
-          //} else Nil
+        new ImplicitSearch(tree, definitions.functionType(List(resTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+        //} else Nil
         
         for (view <- applicableViews) {
           val vtree = viewApply1(view)

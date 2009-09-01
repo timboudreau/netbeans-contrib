@@ -459,6 +459,17 @@ self =>
     // symSource, symData are ignored
     override def compiles(sym: Symbol) = false
 
+    // * added by Caoyuan
+    val lambdaLiftPhase = phaseNamed("lambdalift")
+    def lambdaLift(unit: CompilationUnit): Unit = applyPhase(lambdaLiftPhase, unit)
+    def lambdaLiftedTree(unit: RichCompilationUnit): Tree = {
+      assert(unit.status >= JustParsed)
+      unit.targetPos = NoPosition
+      lambdaLift(unit)
+      unit.body
+    }
+    // * end added by Caoyuan
+
     def typeCheck(unit: CompilationUnit): Unit = applyPhase(typerPhase, unit)
 
     def enterNames(unit: CompilationUnit): Unit = applyPhase(namerPhase, unit)
