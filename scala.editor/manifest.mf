@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.scala.editor
 OpenIDE-Module-Layer: org/netbeans/modules/scala/editor/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/editor/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.1.14
+OpenIDE-Module-Specification-Version: 0.1.15
 OpenIDE-Module-Public-Packages: org.netbeans.api.language.util.lex.*, org.netbeans.api.language.util.ast.*, org.netbeans.modules.scala.editor.*, org.netbeans.modules.scala.editor.ast.*
