@@ -186,55 +186,39 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         fm.appendHtml("]")
       }
 
-      val paramTypes = getParamTypes
-      val paramNames = ScalaUtil.paramNames(element.symbol)
+      try {
+        element.symbol.tpe match {
+          case MethodType(params, resultType) =>
+            if (!params.isEmpty) {
+              fm.appendHtml("(") // NOI18N
+              val itr = params.iterator
+              while (itr.hasNext) {
+                val param = itr.next
+              
+                fm.parameters(true)
+                fm.appendText(param.nameString)
+                fm.parameters(false)
+                fm.appendText(": ")
+                fm.`type`(true)
+                fm.appendText(param.tpe.toString)
+                fm.`type`(false)
 
-      if (!paramTypes.isEmpty) {
-        fm.appendHtml("(") // NOI18N
-
-        var i = 0
-        val nameItr = if (paramNames == null) Nil else paramNames
-        val typeItr = paramTypes.iterator
-        while (typeItr.hasNext) {
-          val paramType = typeItr.next
-          fm.parameters(true)
-          fm.appendText("a" + i)
-          //if (nameItr != null && nameItr.hasNext()) {
-          //    formatter.appendText(nameItr.next().toString());
-          //} else {
-          //    formatter.appendText("a" + Integer.toString(i));
-          //}
-          fm.parameters(false)
-          fm.appendText(": ")
-          fm.`type`(true)
-          fm.appendText(paramType.toString)
-          fm.`type`(false)
-
-          if (typeItr.hasNext) {
-            fm.appendText(", ") // NOI18N
-          }
-
-          i += 1
+                if (itr.hasNext) fm.appendText(", ") // NOI18N
+              }
+              fm.appendHtml(")") // NOI18N
+            }
+          case _ =>
         }
-
-        fm.appendHtml(")") // NOI18N
-      }
+      } catch {case ex => ScalaGlobal.resetLate(completer.global, ex)}
 
       fm.getText
     }
 
     def getInsertParams: List[String] = {
-      val paramTypes = getParamTypes
-      (0 until paramTypes.size) map ("a" + _) toList
-      // * typeSymbol is expensive and may throw exception, be careful to it.
-      //getParamTypes map {_.typeSymbol.nameString.toLowerCase} 
-    }
-
-    private def getParamTypes: List[Type] = {
       try {
         element.symbol.tpe match {
-          case null => Nil
-          case tpe => tpe.paramTypes
+          case MethodType(params, resultType) => params map (_.nameString)
+          case _ => Nil
         }
       } catch {case ex => ScalaGlobal.resetLate(completer.global, ex); Nil}
     }

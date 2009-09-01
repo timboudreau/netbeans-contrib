@@ -304,19 +304,6 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
-    def paramNames(sym: Symbol): List[List[Symbol]] = {
-      assert(sym.isMethod)
-
-      /** @todo not work yet */
-      val argNamesMap = try {
-        self.methodArgumentNames
-      } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
-      
-      if (argNamesMap != null) {
-        argNamesMap.get(sym).getOrElse(Nil)
-      } else Nil
-    }
-
     /**
      * String representation of symbol's definition
      * from scala.tools.nsc.symtab.Symbols
