@@ -135,9 +135,9 @@ abstract class ScalaAstVisitor {
     this.astPath = new Stack
   }
   
-  def visit(tree: Tree, srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def visit(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
     this.th = th
-    this.srcFile = srcFile
+    this.srcFile = unit.source
     this.docLength = srcFile.content.size
     this.fo = if (srcFile ne null) {
       val file = new File(srcFile.path)
@@ -150,10 +150,10 @@ abstract class ScalaAstVisitor {
     } else None
     
     reset
-    this.rootScope = ScalaRootScope(getBoundsTokens(0, srcFile.length))
+    rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, srcFile.length))
     scopes push rootScope
       
-    (new TreeVisitor) visit tree
+    (new TreeVisitor) visit unit.body
     rootScope
   }
 

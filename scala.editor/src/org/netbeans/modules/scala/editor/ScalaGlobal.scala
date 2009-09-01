@@ -603,7 +603,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
 
     resp.get.left.toOption map {tree =>
-      scalaAstVisitor.visit(tree, srcFile, th)
+      scalaAstVisitor.visit(unitOf(srcFile), th)
     } getOrElse ScalaRootScope.EMPTY
   }
 
@@ -612,7 +612,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(superAccessors.phaseName))
     try {
-      new this.Run compile (srcFiles map {FileUtil.toFile(_).getAbsolutePath})
+      new this.Run compile (srcFiles map (FileUtil.toFile(_).getAbsolutePath))
     } catch {
       case ex: AssertionError =>
         /**
@@ -669,7 +669,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
           })
       }
 
-      scalaAstVisitor.visit(unit.body, unit.source, th)
+      scalaAstVisitor.visit(unit, th)
     } getOrElse ScalaRootScope.EMPTY
   }
 
