@@ -117,6 +117,17 @@
                         <attr name="originalFile" stringvalue="Actions/Scala/org-netbeans-modules-scala-editor-actions-FixImportsAction.instance"/>
                         <attr name="position" intvalue="801"/>
                     </file>
+                    
+                    <!-- refactoring -->
+                    <file name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.editorSubmenuAction"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    
                     <!--
                     <file name="org-netbeans-modules-scala-editor-RunScriptAction.instance">
                         <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.RunScriptAction"/>
@@ -285,6 +296,21 @@
                         <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-ToolsAction.instance"/>
                         <attr name="position" intvalue="1500"/>
                     </file>
+
+                    <file name="RefactoringAll.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/RefactoringAll.instance"/>
+                        <attr name="position" intvalue="1220"/>
+                    </file>
+                    <file name="RefactoringSeparator-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1230"/>
+                    </file>
+                    <file name="RefactoringWhereUsed.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/RefactoringWhereUsed.instance"/>
+                        <attr name="position" intvalue="1210"/>
+                    </file>
+
+
                 </folder>
             </folder>
         </folder>

@@ -460,7 +460,7 @@ abstract class ScalaAstVisitor {
                 // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
                 // * need binding trees of a and b
                 if (!isTupleClass(sym)) {
-                  val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS)
+                  val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS, fo)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
                 
@@ -492,7 +492,7 @@ abstract class ScalaAstVisitor {
             if (!isTupleClass(qualifier.symbol)) {
               val name = selector.decode.trim
               val idToken = getIdToken(tree, name)
-              val ref = ScalaRef(sym, idToken, kind)
+              val ref = ScalaRef(sym, idToken, kind, fo)
               /**
                * @Note: this symbol may has wrong tpe, for example, an error tree,
                * to get the proper resultType, we'll check if the qualierMaybeType isDefined
@@ -532,7 +532,7 @@ abstract class ScalaAstVisitor {
             val sym = tree.symbol
             if (sym != null) {
               val idToken = getIdToken(tree, name.decode.trim)
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
 
               /**
                * @Note: this symbol may has wrong tpe, for example, an error tree,
@@ -552,7 +552,7 @@ abstract class ScalaAstVisitor {
             val sym = tree.symbol
             if (sym != null) {
               val idToken = getIdToken(tree, "this")
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
 
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
@@ -562,7 +562,7 @@ abstract class ScalaAstVisitor {
             val sym = tree.symbol
             if (sym != null) {
               val idToken = getIdToken(tree, "super")
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER)
+              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
 
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }

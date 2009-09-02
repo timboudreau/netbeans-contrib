@@ -45,6 +45,7 @@ import org.netbeans.api.language.util.ast.AstRef
 import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver}
 
 import _root_.scala.tools.nsc.symtab.{Symbols, Types}
+import org.openide.filesystems.FileObject
 
 /**
  * Mirror with AstDfn information
@@ -56,15 +57,15 @@ import _root_.scala.tools.nsc.symtab.{Symbols, Types}
 trait ScalaRefs {self: ScalaGlobal =>
 
   object ScalaRef{
-    def apply(symbol: Symbol, idToken: Option[Token[TokenId]], kind: ElementKind) = {
-      new ScalaRef(symbol, idToken, kind)
+    def apply(symbol: Symbol, idToken: Option[Token[TokenId]], kind: ElementKind, fo: Option[FileObject]) = {
+      new ScalaRef(symbol, idToken, kind, fo)
     }
   }
 
-  class ScalaRef(asymbol: Symbol, aidToken: Option[Token[TokenId]], akind: ElementKind) extends AstRef(aidToken, akind) {
+  class ScalaRef(asymbol: Symbol, aidToken: Option[Token[TokenId]], akind: ElementKind, afo: Option[FileObject]
+  ) extends ScalaItem with AstRef {
 
-    type S = Symbol
-    type T = Type
+    make(aidToken, akind, afo)
 
     symbol = asymbol
     

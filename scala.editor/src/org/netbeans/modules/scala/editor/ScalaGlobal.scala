@@ -56,7 +56,7 @@ import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRe
 import org.openide.util.{Exceptions, RequestProcessor}
 
 import org.netbeans.api.language.util.ast.{AstScope}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
+import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
 import scala.collection.mutable.{ArrayBuffer, LinkedHashMap, WeakHashMap}
@@ -546,6 +546,7 @@ object ScalaGlobal {
 }
 
 class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(settings, reporter)
+                                                             with ScalaItems
                                                              with ScalaDfns
                                                              with ScalaRefs
                                                              with ScalaElements

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,6 +21,12 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,31 +37,15 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editor.ast
+package org.netbeans.modules.scala.editor.refactoring
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
-
-import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope}
-import scala.tools.nsc.CompilationUnits
-
-object ScalaRootScope {
-  def apply(unit: Option[CompilationUnits#CompilationUnit], boundsTokens: Array[Token[TokenId]]) =
-    new ScalaRootScope(unit, boundsTokens)
-
-  val EMPTY = new ScalaRootScope(None, Array())
-}
-
-class ScalaRootScope(val unit: Option[CompilationUnits#CompilationUnit], boundsTokens: Array[Token[TokenId]]
-) extends AstRootScope(boundsTokens) {  
-  //  def findDfnOfSym(symbol:AstSymbol[_]): Option[AstDfn] = {
-  //    _idTokenToItem.values.find{item =>
-  //      // ElementKind.Rule is "-spec", we won't let it as
-  //      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
-  //    }.asInstanceOf[Option[AstDfn]]
-  //  }
+/**
+ * @author Jan Becicka
+ */
+object WhereUsedQueryConstants {
+  val FIND_OVERRIDING_METHODS = "FIND_OVERRIDING_METHODS"
+  val FIND_SUBCLASSES = "FIND_SUBCLASSES"
+  val FIND_DIRECT_SUBCLASSES = "FIND_DIRECT_SUBCLASSES"
+  val SEARCH_FROM_BASECLASS = "SEARCH_FROM_BASECLASS"
 }

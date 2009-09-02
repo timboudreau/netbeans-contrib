@@ -52,9 +52,10 @@ trait AstItem extends ForElementHandle {
   type S  // type of symbol
   type T  // type of symbol's type
 
-  def make(idToken: Option[Token[TokenId]], kind: ElementKind): Unit = {
+  def make(idToken: Option[Token[TokenId]], kind: ElementKind, fo: Option[FileObject]): Unit = {
     this.idToken = idToken
     this.kind = kind
+    this.fo = fo
   }
 
   var resultType: T = _
@@ -72,6 +73,7 @@ trait AstItem extends ForElementHandle {
   private var _enclosingScope: Option[AstScope] = None
   private var _properties: Map[String, Any] = Map()
   var kind: ElementKind = ElementKind.OTHER
+  var fo: Option[FileObject] = None
 
   def symbol = _symbol
   def symbol_=(symbol: S) = {

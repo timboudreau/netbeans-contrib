@@ -36,26 +36,15 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editor.ast
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.api.language.util.ast.AstItem
+import org.netbeans.modules.scala.editor.ScalaGlobal
 
-import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope}
-import scala.tools.nsc.CompilationUnits
-
-object ScalaRootScope {
-  def apply(unit: Option[CompilationUnits#CompilationUnit], boundsTokens: Array[Token[TokenId]]) =
-    new ScalaRootScope(unit, boundsTokens)
-
-  val EMPTY = new ScalaRootScope(None, Array())
-}
-
-class ScalaRootScope(val unit: Option[CompilationUnits#CompilationUnit], boundsTokens: Array[Token[TokenId]]
-) extends AstRootScope(boundsTokens) {  
-  //  def findDfnOfSym(symbol:AstSymbol[_]): Option[AstDfn] = {
-  //    _idTokenToItem.values.find{item =>
-  //      // ElementKind.Rule is "-spec", we won't let it as
-  //      item.isInstanceOf[AstDfn] && ErlSymbol.symbolEquals(item.symbol, symbol) && item.getKind != ElementKind.RULE
-  //    }.asInstanceOf[Option[AstDfn]]
-  //  }
+trait ScalaItems {self: ScalaGlobal =>
+  trait ScalaItem extends AstItem {
+    type S = Symbol
+    type T = Type
+  }
 }
