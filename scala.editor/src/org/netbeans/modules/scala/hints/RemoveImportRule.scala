@@ -44,7 +44,6 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.immutable
 
-import org.netbeans.modules.csl.api.Error
 import org.netbeans.modules.csl.api.Hint
 import org.netbeans.modules.csl.api.HintFix
 import org.netbeans.modules.csl.api.HintSeverity
@@ -57,10 +56,7 @@ import javax.swing.JComponent;
 import java.util.regex.{Pattern, Matcher}
 import org.netbeans.api.java.source.ElementHandle
 import javax.swing.JPanel
-import org.netbeans.api.java.source.ClassIndex
-import javax.lang.model.element.ElementKind
 import org.openide.filesystems.FileObject
-import javax.lang.model.element.TypeElement
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.netbeans.api.language.util.ast.{AstRef, AstDfn, AstItem, AstRootScope}
 import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
