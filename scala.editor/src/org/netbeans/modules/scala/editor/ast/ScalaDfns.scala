@@ -70,10 +70,9 @@ trait ScalaDfns {self: ScalaGlobal =>
                  akind: ElementKind,
                  abindingScope: AstScope,
                  afo: Option[FileObject]
-  ) extends AstDfn(aidToken, akind, abindingScope, afo) {
-    
-    type S = Symbol
-    type T = Type
+  ) extends ScalaItem with AstDfn {
+
+    make(aidToken, akind, abindingScope, afo)
 
     symbol = asymbol
 

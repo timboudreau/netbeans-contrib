@@ -40,6 +40,7 @@ package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.csl.api.ElementKind
+import org.openide.filesystems.FileObject
 
 /**
  * Mirror with AstDfn information
@@ -48,11 +49,8 @@ import org.netbeans.modules.csl.api.ElementKind
  * 
  * @author Caoyuan Deng
  */
-abstract class AstRef(_idToken: Option[Token[TokenId]], _kind: ElementKind) extends AstItem {
-  make(_idToken, _kind)
+trait AstRef extends AstItem {
 
-  def this(idToken: Option[Token[TokenId]]) = this(idToken, ElementKind.OTHER)
-    
   override def getKind: ElementKind = {
     super.getKind match {
       // if it's a OTHER, we could try to get its kind from its dfn
@@ -68,7 +66,7 @@ abstract class AstRef(_idToken: Option[Token[TokenId]], _kind: ElementKind) exte
   }
 
   override def toString = {
-    "Ref: " + "name=" + name + ", idToken=" + super.idToken + ", kind=" + _kind + ", symbol=" + symbol
+    "Ref: " + "name=" + name + ", idToken=" + super.idToken + ", kind=" + kind + ", symbol=" + symbol
   }
 
   def isOccurrence(ref: AstRef): Boolean

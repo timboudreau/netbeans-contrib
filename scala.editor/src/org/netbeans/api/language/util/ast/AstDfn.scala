@@ -55,19 +55,22 @@ import org.netbeans.api.language.util.lex.LexUtil
  * 
  * @author Caoyuan Deng
  */
-abstract class AstDfn(_idToken: Option[Token[TokenId]],
-                      _kind: ElementKind,
-                      private var _bindingScope: AstScope,
-                      var fo: Option[FileObject]
-) extends AstItem with AstElementHandle {
+trait AstDfn extends AstItem with AstElementHandle {
+  private var _bindingScope: AstScope = _
+  
+  def make(_idToken: Option[Token[TokenId]],
+           _kind: ElementKind,
+           abindingScope: AstScope,
+           _fo: Option[FileObject]) = {
 
-  // we allow _bindingScope to be set later
-  if (_bindingScope != null) {
-    _bindingScope.bindingDfn = Some(this)
+    super.make(_idToken, _kind, _fo)
+    // we allow _bindingScope to be set later
+    if (abindingScope != null) {
+      _bindingScope = abindingScope
+      _bindingScope.bindingDfn = Some(this)
+    }
   }
-
-  make(_idToken, _kind)
-
+  
   protected var modifiers: Option[_root_.java.util.Set[Modifier]] = None
 
   override def getFileObject: FileObject = fo.getOrElse(null)
