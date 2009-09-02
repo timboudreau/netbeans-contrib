@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,46 +37,22 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.api.language.util.ast
+package org.netbeans.modules.scala.editor.refactoring;
 
-import org.netbeans.api.lexer.{Token, TokenId}
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.spi.ParserResult
-import org.openide.filesystems.FileObject
+import org.netbeans.modules.scala.editor.ScalaParserResult;
 
 /**
- * Mirror with AstDfn information
- * 
- * Represent usage/reference of an AstDfn
- * 
- * @author Caoyuan Deng
+ *
+ * @author Jan Becicka
  */
-trait AstRef extends AstItem {
-
-  override def getKind: ElementKind = {
-    super.getKind match {
-      // if it's a OTHER, we could try to get its kind from its dfn
-      case x@ElementKind.OTHER => enclosingScope match {
-          case Some(scope) => scope.findDfnOf(this) match {
-              case Some(dfn) => dfn.getKind
-              case None => x
-            }
-          case None => x
-        }
-      case x => x
-    }
-  }
+abstract class SearchVisitor {
+  private var _workingCopy: ScalaParserResult = _
   
-  override def toString = {
-    "Ref: " + "name=" + name + ", idToken=" + super.idToken + ", kind=" + kind + ", symbol=" + symbol
+  protected def workingCopy: ScalaParserResult = _workingCopy
+  def workingCopy_=(workingCopy: ScalaParserResult) {
+    _workingCopy = workingCopy
   }
 
-  def isOccurrence(ref: AstRef): Boolean
+  def scan: Unit
 }
-
