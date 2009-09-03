@@ -92,18 +92,17 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     }
   }
 
-  private def getRelevantFiles(tph: ScalaItems#ScalaItem): Set[FileObject] = {
+  private def getRelevantFiles(item: ScalaItems#ScalaItem): Set[FileObject] = {
     val set = new HashSet[FileObject]
 
-    tph.fo match {
+    item.fo match {
       case Some(fo) =>
         set.add(fo)
 
         // @todo
         var isLocal = false
-        if (tph.kind == ElementKind.PARAMETER) {
-          isLocal = true;
-        } else if (tph.kind == ElementKind.VARIABLE) {
+        if (item.symbol.hasFlag(Flags.PARAM)) {
+          isLocal = true
         }
 
         if (!isLocal) {

@@ -161,11 +161,11 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
       return false
     }
 
-    if (RetoucheUtils.isRefactorable(fo)) { //NOI18N
+    if (RetoucheUtils.isRefactorable(fo)) {
       return true
     }
 
-    false;
+    false
   }
 
   private def isOutsideScala(lookup: Lookup, fo: FileObject): Boolean = {

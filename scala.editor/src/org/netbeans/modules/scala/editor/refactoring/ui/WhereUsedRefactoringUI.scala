@@ -40,19 +40,18 @@
  */
 package org.netbeans.modules.scala.editor.refactoring.ui
 
-import java.text.FieldPosition
-import java.text.MessageFormat;
-import java.util.ResourceBundle;
-import javax.swing.event.ChangeListener;
-import org.netbeans.modules.csl.api.ElementKind;
-import org.netbeans.modules.refactoring.api.AbstractRefactoring;
+import java.text.MessageFormat
+import java.util.ResourceBundle
+import javax.swing.event.ChangeListener
+import org.netbeans.modules.csl.api.ElementKind
+import org.netbeans.modules.refactoring.api.AbstractRefactoring
 import org.netbeans.modules.refactoring.api.Problem
-import org.netbeans.modules.refactoring.api.WhereUsedQuery;
-import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
-import org.netbeans.modules.refactoring.spi.ui.RefactoringUI;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.modules.refactoring.api.WhereUsedQuery
+import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
+import org.netbeans.modules.refactoring.spi.ui.RefactoringUI
+import org.openide.util.HelpCtx
+import org.openide.util.NbBundle
+import org.openide.util.lookup.Lookups
 
 import org.netbeans.modules.scala.editor.ast.ScalaItems
 import org.netbeans.modules.scala.editor.refactoring.WhereUsedQueryConstants
@@ -174,12 +173,11 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
   }
     
   private def getString(key: String, value: String): String = {
-    new MessageFormat(getString(key)).format(Array[Object](value), new StringBuffer, new FieldPosition(0)).toString
+    new MessageFormat(getString(key)).format(Array(value).asInstanceOf[Array[Object]])
   }
 
-
   def getName: String = {
-    new MessageFormat(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_WhereUsed")).format(Array[Object](name), new StringBuffer, new FieldPosition(0)).toString
+    new MessageFormat(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_WhereUsed")).format(Array(name).asInstanceOf[Array[Object]])
   }
     
   def hasParameters: Boolean = {

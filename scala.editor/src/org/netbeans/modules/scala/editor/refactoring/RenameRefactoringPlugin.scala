@@ -66,7 +66,7 @@ import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.support.ModificationResult;
 import org.netbeans.modules.csl.spi.support.ModificationResult.Difference;
 import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
-import org.netbeans.modules.scala.editor.ast.ScalaItems
+import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.refactoring.api._
@@ -168,7 +168,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
     // TODO - call JsUtils.isValidLocalVariableName if we're renaming a local symbol!
     /*if (kind == ElementKind.CLASS && !JsUtils.isValidJsClassName(newName)) {
      String s = getString("ERR_InvalidClassName"); //NOI18N
-     String msg = new MessageFormat(s).format(Array(newName), new StringBuffer, new FieldPosition(0)).toString
+     String msg = new MessageFormat(s).format(Array(newName).asInstanceOf[Array[Object]])
      fastCheckProblem = createProblem(fastCheckProblem, true, msg);
      return fastCheckProblem;
      } else*/
@@ -176,20 +176,20 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
     // by Caoyuan
     /* if (kind == ElementKind.METHOD && !JsUtils.isValidJsMethodName(newName)) {
-      val s = getString("ERR_InvalidMethodName"); //NOI18N
-      val msg = new MessageFormat(s).format(Array(newName), new StringBuffer, new FieldPosition(0)).toString
-      return ScalaRefactoringPlugin.createProblem(fastCheckProblem, true, msg)
-    } else if (!JsUtils.isValidJsIdentifier(newName)) {
-      val s = getString("ERR_InvalidIdentifier"); //NOI18N
-      val msg = new MessageFormat(s).format(Array(newName), new StringBuffer, new FieldPosition(0)).toString
-      return ScalaRefactoringPlugin.createProblem(fastCheckProblem, true, msg)
-    }
+     val s = getString("ERR_InvalidMethodName"); //NOI18N
+     val msg = new MessageFormat(s).format(Array(newName).asInstanceOf[Array[Object]])
+     return ScalaRefactoringPlugin.createProblem(fastCheckProblem, true, msg)
+     } else if (!JsUtils.isValidJsIdentifier(newName)) {
+     val s = getString("ERR_InvalidIdentifier"); //NOI18N
+     val msg = new MessageFormat(s).format(Array(newName).asInstanceOf[Array[Object]])
+     return ScalaRefactoringPlugin.createProblem(fastCheckProblem, true, msg)
+     }
 
 
-    val msg = JsUtils.getIdentifierWarning(newName, 0);
-    if (msg != null) {
-      fastCheckProblem = ScalaRefactoringPlugin.createProblem(fastCheckProblem, false, msg);
-    } */
+     val msg = JsUtils.getIdentifierWarning(newName, 0);
+     if (msg != null) {
+     fastCheckProblem = ScalaRefactoringPlugin.createProblem(fastCheckProblem, false, msg);
+     } */
     // ----- by Caoyuan
     
     // TODO
@@ -213,8 +213,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 //                ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
 //                if (RetoucheUtils.typeExist(treePathHandle, newFqn)) {
 //                    String msg = new MessageFormat(getString("ERR_ClassClash")).format(
-//                            Array(newName, pkgname)
-//                    , new StringBuffer, new FieldPosition(0)).toString
+//                            Array(newName, pkgname).asInstanceOf[Array[Object]])
 //                    fastCheckProblem = createProblem(fastCheckProblem, true, msg);
 //                    return fastCheckProblem;
 //                }
@@ -225,7 +224,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 //            for (int x = 0; x < children.length; x++) {
 //                if (children[x] != primFile && !children[x].isVirtual() && children[x].getName().equals(newName) && "java".equals(children[x].getExt())) { //NOI18N
 //                    String msg = new MessageFormat(getString("ERR_ClassClash")).format(
-//                            Array(newName, folder.getPath(), new StringBuffer, new FieldPosition(0)).toString
+//                            Array(newName, folder.getPath)).asInstanceOf[Array[Object]])
 //                    );
 //                    fastCheckProblem = createProblem(fastCheckProblem, true, msg);
 //                    break;
@@ -343,7 +342,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           val rt = new RenameTransformer(refactoring.getNewName, allMethods)
           rt.workingCopy_=(pr)
           rt.scan
-          if(rt.diffs.isEmpty) {
+          if (rt.diffs.isEmpty) {
             return Nil
           } else {
             val mr = new ModificationResult
@@ -353,7 +352,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         }
       }
 
-      val results = processFiles(files, transform);
+      val results = processFiles(files, transform)
       elements.registerTransaction(new ScalaTransaction(results))
       for (result <- results) {
         val fItr = result.getModifiedFileObjects.iterator
@@ -402,53 +401,29 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       diffs = new ArrayBuffer[Difference]
       val searchCtx = searchHandle
       var error: Error = null
-      val root = workingCopy.rootScope
+      val th = workingCopy.getSnapshot.getTokenHierarchy
+      val root = workingCopy.rootScope.get
       val workingCopyFo = workingCopy.getSnapshot.getSource.getFileObject
-      if (root != None) {
+
+      if (root != ScalaRootScope.EMPTY) {
         val doc = GsfUtilities.getDocument(workingCopyFo, true)
         try {
           if (doc != null) {
             doc.readLock
           }
 
-          /* ===== @Caoyuan temp commented
-          Element element = AstElement.getElement(workingCopy, root);
-          Node node = searchCtx.getNode();
-
-          val fileCtx = new ScalaItems#ScalaItem(root, node, element, workingCopyFileObject, workingCopy);
-
-          Node scopeNode = null;
-          if (workingCopyFo == searchCtx.fo) {
-            if (node.getType() == org.mozilla.nb.javascript.Token.NAME ||
-                node.getType() == org.mozilla.nb.javascript.Token.BINDNAME ||
-                node.getType() == org.mozilla.nb.javascript.Token.PARAMETER) {
-
-
-              // TODO - map this node to our new tree.
-              // In the mean time, just search in the old seach tree.
-              Node searchRoot = node;
-              while (searchRoot.getParentNode() != null) {
-                searchRoot = searchRoot.getParentNode();
-              }
-
-              VariableVisitor v = new VariableVisitor();
-              new ParseTreeWalker(v).walk(searchRoot);
-              scopeNode = v.getDefiningScope(node);
+          val matched =
+            for ((token, items) <- root.idTokenToItems(th);
+                 item <- items;
+                 sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
+                 if sym == searchHandle.symbol && token.text.toString == sym.nameString
+            ) {
+              rename(item.asInstanceOf[ScalaItems#ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
             }
-          }
 
-          if (scopeNode != null) {
-            findLocal(searchCtx, fileCtx, scopeNode, oldName);
-          } else {
-            // Full AST search
-            AstPath path = new AstPath();
-            path.descend(root);
-            find(path, searchCtx, fileCtx, root, oldName);
-            path.ascend();
-          } */
         } finally {
           if (doc != null) {
-            doc.readUnlock();
+            doc.readUnlock
           }
         }
       } else {
@@ -493,25 +468,26 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           }
           val startPos = ces.createPositionRef(start, Bias.Forward);
           val endPos = ces.createPositionRef(end, Bias.Forward);
-          val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, "", "", desc); // NOI18N
+          val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, "", "", desc) // NOI18N
           diffs += diff
         }
       }
 
-      if (error == null && refactoring.isSearchInComments) {
-        val doc = RetoucheUtils.getDocument(workingCopy);
-        if (doc != null) {
-          //force open
-          val th = TokenHierarchy.get(doc)
-          val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
+      /* @todo by Caoyuan
+       if (error == null && refactoring.isSearchInComments) {
+       val doc = RetoucheUtils.getDocument(workingCopy);
+       if (doc != null) {
+       //force open
+       val th = TokenHierarchy.get(doc)
+       val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
 
-          ts.move(0)
+       ts.move(0)
 
-          searchTokenSequence(ts)
-        }
-      }
+       searchTokenSequence(ts)
+       }
+       } */
 
-      ces = null;
+      ces = null
     }
 
     private def searchTokenSequence(ts: TokenSequence[TokenId]) {
@@ -558,83 +534,41 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       }
     }
 
-/* @Caoyuan temp commented
-
-    private def rename(node: Trees#Tree, oldCode: String, anewCode: String, desc: String) {
+    private def rename(item: ScalaItems#ScalaItem, oldCode: String, anewCode: String, adesc: String, th: TokenHierarchy[_]) {
       var newCode = anewCode
-      val range = AstUtilities.getNameRange(node);
+      var desc = adesc
+      item.idOffset(th)
+      val range = new OffsetRange(item.idOffset(th), item.idEndOffset(th))
+
       assert(range != OffsetRange.NONE)
-      val pos = range.getStart();
+      var pos = range.getStart
+
+      // Convert from AST to lexer offsets if necessary
+      pos = ScalaLexUtil.getLexerOffset(workingCopy, pos)
+      if (pos == -1) {
+        // Translation failed
+        return
+      }
 
       if (desc == null) {
-        // TODO - insert "method call", "method definition", "class definition", "symbol", "attribute" etc. and from and too?
-        switch (node.getType()) {
-          case Token.OBJLITNAME: {
-              if (!AstUtilities.isLabelledFunction(node)) {
-                desc = NbBundle.getMessage(RenameRefactoringPlugin.class, "UpdateRef", oldCode);
-                break;
-              } else {
-                // Fall through
-              }
-            }
-          case Token.FUNCNAME:
-          case Token.FUNCTION:
-            desc = getString("UpdateMethodDef");
-            break;
-          case Token.NEW:
-          case Token.CALL:
-            desc = getString("UpdateCall");
-            break;
-          case Token.NAME:
-            if (node.getParentNode() != null &&
-                (node.getParentNode().getType() == Token.CALL ||
-                 node.getParentNode().getType() == Token.NEW)) {
-              // Ignore
-              desc = getString("UpdateCall");
-              break;
-            }
-            // Fallthrough
-          case Token.BINDNAME:
-            if (oldCode != null && oldCode.length() > 0 && Character.isUpperCase(oldCode.charAt(0))) {
-              desc = getString("UpdateClass");
-              break;
-            }
-            desc = getString("UpdateLocalvar");
-            break;
-          case Token.PARAMETER:
-            desc = getString("UpdateParameter");
-            break;
-//                case Token.GLOBAL:
-//                    desc = getString("UpdateGlobal");
-//                case Token.PROPERTY:
-//                    desc = getString("UpdateProperty");
-            default:
-            desc = NbBundle.getMessage(RenameRefactoringPlugin.class, "UpdateRef", oldCode);
-            break;
-        }
+        desc = NbBundle.getMessage(classOf[RenameRefactoringPlugin], "UpdateRef", oldCode)
       }
 
       if (ces == null) {
-        ces = RetoucheUtils.findCloneableEditorSupport(workingCopy);
-      }
-
-      // Convert from AST to lexer offsets if necessary
-      pos = LexUtilities.getLexerOffset(workingCopy, pos);
-      if (pos == -1) {
-        // Translation failed
-        return;
+        ces = RetoucheUtils.findCloneableEditorSupport(workingCopy)
       }
 
       var start = pos
       var end = pos + oldCode.length
       // TODO if a SymbolNode, +=1 since the symbolnode includes the ":"
-      var doc: BaseDocument = null;
+      var doc: BaseDocument = null
       try {
         doc = ces.openDocument.asInstanceOf[BaseDocument]
-        doc.readLock();
+        doc.readLock
 
         if (start > doc.getLength) {
-          start = end = doc.getLength
+          end = doc.getLength
+          start = end
         }
 
         if (end > doc.getLength) {
@@ -644,55 +578,57 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         // Look in the document and search around a bit to detect the exact method reference
         // (and adjust position accordingly). Thus, if I have off by one errors in the AST (which
         // occasionally happens) the user's source won't get munged
-        if (!oldCode.equals(doc.getText(start, end-start))) {
+        if (!oldCode.equals(doc.getText(start, end - start))) {
           // Look back and forwards by 1 at first
-          val lineStart = Utilities.getRowFirstNonWhite(doc, start);
-          val lineEnd = Utilities.getRowLastNonWhite(doc, start)+1; // +1: after last char
+          val lineStart = Utilities.getRowFirstNonWhite(doc, start)
+          val lineEnd = Utilities.getRowLastNonWhite(doc, start) + 1 // +1: after last char
           if (lineStart == -1 || lineEnd == -1) { // We're really on the wrong line!
-            val f = workingCopy.getSnapshot().getSource().getFileObject();
-            println("Empty line entry in " + FileUtil.getFileDisplayName(f) +
+            println("Empty line entry in " + FileUtil.getFileDisplayName(workingCopy.getSnapshot.getSource.getFileObject) +
                     "; no match for " + oldCode + " in line " + start + " referenced by node " +
-                    node + " of type " + node.getClass().getName());
+                    item + " of type " + item.symbol)
             return;
           }
 
-          if (lineStart < 0 || lineEnd-lineStart < 0) {
+          if (lineStart < 0 || lineEnd - lineStart < 0) {
             return; // Can't process this one
           }
 
-          val line = doc.getText(lineStart, lineEnd-lineStart);
+          val line = doc.getText(lineStart, lineEnd - lineStart);
           if (line.indexOf(oldCode) == -1) {
-            val f = workingCopy.getSnapshot().getSource().getFileObject();
-            println("Skipping entry in " + FileUtil.getFileDisplayName(f) +
+            println("Skipping entry in " + FileUtil.getFileDisplayName(workingCopy.getSnapshot.getSource.getFileObject) +
                     "; no match for " + oldCode + " in line " + line + " referenced by node " +
-                    node + " of type " + node.getClass().getName());
+                    item + " of type " + item.symbol)
           } else {
-            val lineOffset = start-lineStart;
-            var newOffset = -1;
+            val lineOffset = start - lineStart
+            var newOffset = -1
             // Search up and down by one
-            for (distance <- 1 until line.length) {
+            var distance = -1
+            var break = false
+            while (distance < line.length && !break) {
               // Ahead first
-              if (lineOffset+distance+oldCode.length() <= line.length() &&
-                  oldCode.equals(line.substring(lineOffset+distance, lineOffset+distance+oldCode.length()))) {
-                newOffset = lineOffset+distance;
-                break;
+              if (lineOffset + distance + oldCode.length <= line.length &&
+                  oldCode.equals(line.substring(lineOffset + distance, lineOffset + distance + oldCode.length))) {
+                newOffset = lineOffset + distance
+                break = true
               }
-              if (lineOffset-distance >= 0 && lineOffset-distance+oldCode.length() <= line.length() &&
-                  oldCode.equals(line.substring(lineOffset-distance, lineOffset-distance+oldCode.length()))) {
-                newOffset = lineOffset-distance;
-                break;
+              if (lineOffset - distance >= 0 && lineOffset - distance + oldCode.length() <= line.length() &&
+                  oldCode.equals(line.substring(lineOffset - distance, lineOffset - distance + oldCode.length))) {
+                newOffset = lineOffset - distance
+                break = true
               }
+              distance += 1
             }
 
             if (newOffset != -1) {
-              start = newOffset+lineStart;
-              end = start+oldCode.length();
+              start = newOffset + lineStart
+              end = start + oldCode.length
             }
+
           }
         }
       } catch {
-        case ie: IOException => Exceptions.printStackTrace(ie)
-        case ble: BadLocationException => Exceptions.printStackTrace(ble)
+        case ex: IOException => Exceptions.printStackTrace(ex)
+        case ex: BadLocationException => Exceptions.printStackTrace(ex)
       } finally {
         if (doc != null) {
           doc.readUnlock
@@ -704,152 +640,11 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         newCode = refactoring.getNewName // XXX isn't this == our field "newName"?
       }
 
-      val startPos = ces.createPositionRef(start, Bias.Forward);
-      val endPos = ces.createPositionRef(end, Bias.Forward);
-      val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, oldCode, newCode, desc);
-      diffs += diff;
+      val startPos = ces.createPositionRef(start, Bias.Forward)
+      val endPos = ces.createPositionRef(end, Bias.Forward)
+      val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, oldCode, newCode, desc)
+      diffs += diff
     }
 
-    /** Search for local variables in local scope */
-    private def findLocal(searchCtx: ScalaItems#ScalaItem, fileCtx: ScalaItems#ScalaItem, node: Trees#Tree, name: String) {
-      switch (node.getType()) {
-        case Token.PARAMETER:
-          if (node.getString().equals(name)) {
-            rename(node, name, null, getString("RenameParam"));
-          }
-          break;
-        case Token.NAME:
-          if ((node.getParentNode() != null && node.getParentNode().getType() == Token.CALL ||
-               node.getParentNode() != null && node.getParentNode().getType() == Token.NEW) &&
-              node.getParentNode().getFirstChild() == node) {
-            // Ignore calls
-            break;
-          }
-          // Fallthrough
-        case Token.BINDNAME:
-          if (node.getString().equals(name)) {
-            rename(node, name, null, Character.isUpperCase(name.charAt(0)) ? getString("UpdateClass") : getString("UpdateLocalvar"));
-          }
-      }
-
-      if (node.hasChildren()) {
-        var child = node.getFirstChild();
-
-        while (child != null) {
-          findLocal(searchCtx, fileCtx, child, name);
-          child = child.getNext()
-        }
-      }
-    }
-
-    /**
-     * @todo P1: This is matching method names on classes that have nothing to do with the class we're searching for
-     *   - I've gotta filter fields, methods etc. that are not in the current class
-     *  (but I also have to search for methods that are OVERRIDING the class... so I've gotta work a little harder!)
-     * @todo Arity matching on the methods to preclude methods that aren't overriding or aliasing!
-     */
-    private def find(path: AstPath, searchCtx: ScalaItems#ScalaItem, fileCtx: ScalaItems#ScalaItem, node: Trees#Tree, name: String) {
-      switch (node.getType()) {
-        case org.mozilla.nb.javascript.Token.OBJLITNAME: {
-            if (node.getString().equals(name) && AstUtilities.isLabelledFunction(node)) {
-              // TODO - implement skip semantics here, as is done for functions!
-              // AstUtilities.getLabelledFunction(node);
-              rename(node, name, null, getString("UpdateMethodDef"));
-            }
-
-            // No children to consider
-            return;
-          }
-
-        case org.mozilla.nb.javascript.Token.FUNCNAME: {
-            if (node.getString().equals(name)) {
-              boolean skip = false;
-//
-//                        // Check that we're in a class or module we're interested in
-//                        String fqn = AstUtilities.getFqnName(path);
-//                        if (fqn == null || fqn.length() == 0) {
-//                            fqn = JsIndex.OBJECT;
-//                        }
-//
-//                        if (!fqn.equals(searchCtx.getDefClass())) {
-//                            // XXX THE ABOVE IS NOT RIGHT - I shouldn't
-//                            // use equals on the class names, I should use the
-//                            // index and see if one derives fromor includes the other
-//                            skip = true;
-//                        }
-//
-//                        // Check arity
-//                        if (!skip && AstUtilities.isCall(searchCtx.getNode())) {
-//                            // The reference is a call and this is a definition; see if
-//                            // this looks like a match
-//                            // TODO - enforce that this method is also in the desired
-//                            // target class!!!
-//                            if (!AstUtilities.isCallFor(searchCtx.getNode(), searchCtx.getArity(), node)) {
-//                                skip = true;
-//                            }
-//                        } else {
-//                            // The search handle is a method def, as is this, with the same name.
-//                            // Now I need to go and see if this is an override (e.g. compatible
-//                            // arglist...)
-//                            // XXX TODO
-//                        }
-
-              if (!skip) {
-                // Found a method match
-                // TODO - check arity - see OccurrencesFinder
-                //node = AstUtilities.getDefNameNode((MethodDefNode)node);
-                rename(node, name, null, getString("UpdateMethodDef"));
-                return;
-              }
-            }
-            break;
-          }
-        case org.mozilla.nb.javascript.Token.NEW:
-        case org.mozilla.nb.javascript.Token.CALL: {
-            String s = AstUtilities.getCallName(node, false);
-            if (s.equals(name)) {
-              // TODO - if it's a call without a lhs (e.g. Call.LOCAL),
-              // make sure that we're referring to the same method call
-              // Found a method call match
-              // TODO - make a node on the same line
-              // TODO - check arity - see OccurrencesFinder
-              rename(node, name, null, null);
-              return;
-            }
-            break;
-          }
-        case org.mozilla.nb.javascript.Token.NAME:
-          if (node.getParentNode().getType() == org.mozilla.nb.javascript.Token.CALL ||
-              node.getParentNode().getType() == org.mozilla.nb.javascript.Token.NEW) {
-            // Skip - call name is already handled as part of parent
-            break;
-          }
-          // Fallthrough
-        case org.mozilla.nb.javascript.Token.STRING: {
-            int parentType = node.getParentNode().getType();
-            if (!(parentType == org.mozilla.nb.javascript.Token.GETPROP ||
-                  parentType == org.mozilla.nb.javascript.Token.SETPROP)) {
-              break;
-            }
-            // Fallthrough
-          }
-        case org.mozilla.nb.javascript.Token.BINDNAME: {
-            // Global vars
-            if (node.getString().equals(name)) {
-              rename(node, name, null, null);
-              return;
-            }
-            break;
-          }
-      }
-
-      if (node.hasChildren()) {
-        Node child = node.getFirstChild();
-
-        for (; child != null; child = child.getNext()) {
-          find(path, searchCtx, fileCtx, child, name);
-        }
-      }
-    } */
-  } 
+  }
 }

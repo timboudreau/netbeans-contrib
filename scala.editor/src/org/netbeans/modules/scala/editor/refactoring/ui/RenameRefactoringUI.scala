@@ -40,25 +40,24 @@
  */
 package org.netbeans.modules.scala.editor.refactoring.ui
 
-import java.io.IOException;
-import java.text.FieldPosition
-import java.text.MessageFormat;
-import javax.swing.event.ChangeListener;
-import org.netbeans.api.fileinfo.NonRecursiveFolder;
+import java.io.IOException
+import java.text.MessageFormat
+import javax.swing.event.ChangeListener
+import org.netbeans.api.fileinfo.NonRecursiveFolder
 import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.refactoring.api.AbstractRefactoring;
-import org.netbeans.modules.refactoring.api.RenameRefactoring;
+import org.netbeans.modules.refactoring.api.AbstractRefactoring
+import org.netbeans.modules.refactoring.api.RenameRefactoring
 import org.netbeans.modules.refactoring.api.Problem
-import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
-import org.netbeans.modules.refactoring.spi.ui.RefactoringUI;
-import org.netbeans.modules.refactoring.spi.ui.RefactoringUIBypass;
-import org.netbeans.modules.refactoring.spi.ui.UI;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.lookup.Lookups;
+import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
+import org.netbeans.modules.refactoring.spi.ui.RefactoringUI
+import org.netbeans.modules.refactoring.spi.ui.RefactoringUIBypass
+import org.netbeans.modules.refactoring.spi.ui.UI
+import org.openide.filesystems.FileObject
+import org.openide.loaders.DataFolder
+import org.openide.loaders.DataObject
+import org.openide.util.HelpCtx
+import org.openide.util.NbBundle
+import org.openide.util.lookup.Lookups
 
 import org.netbeans.modules.scala.editor.ast.ScalaItems
 import org.netbeans.modules.scala.editor.refactoring.RetoucheUtils
@@ -249,7 +248,7 @@ class RenameRefactoringUI(refactoring: AbstractRefactoring,
   }
 
   def getDescription: String = {
-    new MessageFormat(NbBundle.getMessage(classOf[RenamePanel], "DSC_Rename")).format(Array(dispOldName, newName), new StringBuffer, new FieldPosition(0)).toString
+    new MessageFormat(NbBundle.getMessage(classOf[RenamePanel], "DSC_Rename")).format(Array(dispOldName, newName).asInstanceOf[Array[Object]])
   }
 
   def getName: String = {
