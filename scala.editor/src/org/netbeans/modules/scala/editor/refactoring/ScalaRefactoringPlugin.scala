@@ -96,10 +96,10 @@ object ScalaRefactoringPlugin {
 abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with RefactoringPlugin {
   import ScalaRefactoringPlugin._
 
-  protected var cancelled = false
-
-  def cancelRequest: Unit = synchronized {cancelled = true}
+  protected var cancelled = false  
   protected def isCancelled: Boolean = synchronized {cancelled}
+
+  override def cancelRequest: Unit = synchronized {cancelled = true}
  
   protected def processFiles(fos: Set[FileObject], task: TransformTask): Seq[ModificationResult] = {
     val sources = new HashSet[Source]() // 2*files.size()

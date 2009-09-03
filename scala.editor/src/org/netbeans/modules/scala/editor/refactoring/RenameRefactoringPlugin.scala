@@ -110,9 +110,9 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   
   /** Creates a new instance of RenameRefactoring */
   private def init = {
-    val tph = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
-    if (tph != null) {
-      searchHandle = tph
+    val item = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
+    if (item != null) {
+      searchHandle = item
     } else {
       val source = Source.create(rename.getRefactoringSource.lookup(classOf[FileObject]))
       try {
@@ -138,7 +138,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
 
 
-  def fastCheckParameters: Problem = {
+  override def fastCheckParameters: Problem = {
     var fastCheckProblem: Problem = null
     if (searchHandle == null) {
       return null; //no refactoring, not params check
@@ -243,15 +243,15 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 //                return fastCheckProblem;
 //            }
 //        }
-    return fastCheckProblem;
+    fastCheckProblem
   }
 
-  def checkParameters: Problem = {
+  override def checkParameters: Problem = {
 
     var checkProblem: Problem = null
     var steps = 0
     if (overriddenByMethods != null) {
-      steps += overriddenByMethods.size;
+      steps += overriddenByMethods.size
     }
     if (overridesMethods != null) {
       steps += overridesMethods.size
@@ -329,7 +329,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
   private var allMethods: Set[ScalaItems#ScalaItem] = _
 
-  def prepare(elements: RefactoringElementsBag): Problem = {
+  override def prepare(elements: RefactoringElementsBag): Problem = {
     if (searchHandle == null) {
       return null
     }
@@ -372,12 +372,13 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       }
     }
     fireProgressListenerStop
-    return null;
+
+    null
   }
 
 
   private def getString(key: String): String = {
-    return NbBundle.getMessage(classOf[RenameRefactoringPlugin], key);
+    NbBundle.getMessage(classOf[RenameRefactoringPlugin], key);
   }
 
   /**

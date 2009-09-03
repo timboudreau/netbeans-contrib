@@ -85,7 +85,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName =  searchHandle.symbol.fullNameString
 
-  def preCheck: Problem = {
+  override def preCheck: Problem = {
     searchHandle.fo match {
       case Some(x) if x.isValid => null
       case _ => return new Problem(true, NbBundle.getMessage(classOf[WhereUsedQueryPlugin], "DSC_ElNotAvail")); // NOI18N
@@ -254,8 +254,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 //        return set;
 //    }
 
-  //@Override
-  def prepare(elements: RefactoringElementsBag): Problem = {
+  override def prepare(elements: RefactoringElementsBag): Problem = {
     val a = getRelevantFiles(searchHandle)
     fireProgressListenerStart(ProgressEvent.START, a.size);
     processFiles(a, new FindTask(elements))
@@ -263,7 +262,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     null
   }
 
-  def fastCheckParameters: Problem = {
+  override def fastCheckParameters: Problem = {
     if (targetName == null) {
       return new Problem(true, "Cannot determine target name. Please file a bug with detailed information on how to reproduce (preferably including the current source file and the cursor position)");
     }
@@ -273,7 +272,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     null
   }
 
-  def checkParameters: Problem = {
+  override def checkParameters: Problem = {
     null
   }
 

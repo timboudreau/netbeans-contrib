@@ -50,7 +50,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author Jan Becicka
  */
 class ScalaTransaction(results: Seq[ModificationResult]) extends Transaction {
-  val ids = new ArrayBuffer[BackupFacility.Handle];
+  val ids = new ArrayBuffer[BackupFacility.Handle]
   private var commited = false
 
   def commit {
