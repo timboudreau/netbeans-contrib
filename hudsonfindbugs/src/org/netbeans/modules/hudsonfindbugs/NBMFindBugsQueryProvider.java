@@ -55,7 +55,7 @@ import org.openide.util.Exceptions;
 public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementation {
 
     private final static String NB_HUDSON_FBUGS_URLROOT = 
-            "http://qa-findbugs.netbeans.org/job/All-FindBugs/lastSuccessfulBuild/artifact/nbbuild/build/findbugs/";
+            "http://qa-findbugs.netbeans.org/job/FindBugsResults/lastSuccessfulBuild/artifact/";
     
     public NBMFindBugsQueryProvider() {}
     
