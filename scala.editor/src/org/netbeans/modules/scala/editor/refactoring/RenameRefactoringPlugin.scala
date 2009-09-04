@@ -414,7 +414,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           }
 
           val matched =
-            for ((token, items) <- root.idTokenToItems(th);
+            for ((token, items) <- root.idTokenToItems;
                  item <- items;
                  sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
                  if sym == searchHandle.symbol && token.text.toString == sym.nameString

@@ -139,7 +139,7 @@ class FolderTreeElement(fo: FileObject) extends TreeElement {
         if ("".equals(name)) {
           return NbBundle.getMessage(classOf[UiUtils], "LBL_DefaultPackage_PDU");
         }
-        name;
+        name
       } else {
         fo.getPath
       }
@@ -147,6 +147,6 @@ class FolderTreeElement(fo: FileObject) extends TreeElement {
   }
 
   override def getUserObject: Object = {
-    fo;
+    fo
   }
 }

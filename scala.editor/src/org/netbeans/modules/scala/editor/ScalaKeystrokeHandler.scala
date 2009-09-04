@@ -1589,7 +1589,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             return -1
           }
           if (offsetInImage < length && Character.isUpperCase(s.charAt(offsetInImage))) {
-            for (i <- offsetInImage - 1 to 0) {
+            for (i <- offsetInImage - 1 to 0 if i >= 0) {
               val charAtI = s.charAt(i)
               if (charAtI == '_') {
                 // return offset of previous uppercase char in the identifier
@@ -1601,14 +1601,14 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             }
             return ts.offset
           } else {
-            for (i <- offsetInImage - 1 to 0) {
+            for (i <- offsetInImage - 1 to 0 if i >= 0) {
               val charAtI = s.charAt(i)
               if (charAtI == '_') {
                 return ts.offset + i + 1
               }
               if (Character.isUpperCase(charAtI)) {
                 // now skip over previous uppercase chars in the identifier
-                for (j <- i to 0) {
+                for (j <- i to 0 if j >= 0) {
                   val charAtJ = s.charAt(j)
                   if (charAtJ == '_') {
                     return ts.offset + j + 1
@@ -1654,6 +1654,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
             }
           }
         }
+      case _ => return -1
     }
 
     // Default handling in the IDE

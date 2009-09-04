@@ -48,7 +48,6 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.csl.api.Modifier
 import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.GsfUtilities
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation
 import org.openide.filesystems.FileObject
@@ -75,13 +74,7 @@ object WhereUsedElement {
     val range = new OffsetRange(ctx.idOffset(th), ctx.idEndOffset(th))
     assert(range != OffsetRange.NONE)
 
-    val modifiers = if (ctx.symbol != null) {
-      if (ctx.symbol.nameString != null) {
-        ctx.getModifiers
-      } else Collections.emptySet[Modifier]
-    } else Collections.emptySet[Modifier]
-
-    val icon = UiUtils.getElementIcon(ctx.kind, modifiers)
+    val icon = ctx.getIcon
 
     apply(info, ctx.symbol.nameString, range, icon)
   }

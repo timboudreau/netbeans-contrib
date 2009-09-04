@@ -53,7 +53,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
 
   def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
 
-  def idTokenToItems(th: TokenHierarchy[_]): Map[Token[TokenId], List[AstItem]] = {
+  def idTokenToItems: Map[Token[TokenId], List[AstItem]] = {
     _idTokenToItems
   }
 

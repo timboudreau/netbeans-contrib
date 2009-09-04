@@ -38,8 +38,10 @@
  */
 package org.netbeans.api.language.util.ast
 
+import javax.swing.Icon
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, OffsetRange}
+import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.openide.filesystems.{FileObject}
 
@@ -105,7 +107,7 @@ trait AstItem extends ForElementHandle {
           i += 1
         }
         _name = sb.toString
-        println("NPE in AstItem#getName:" + idToken.id)
+        println("NPE in AstItem#name:" + idToken.id)
     }
   }
 
@@ -155,12 +157,12 @@ trait AstItem extends ForElementHandle {
 
   def rootScope: AstRootScope = enclosingScope.get.root
 
-  def property(k: String, v: Any): Unit = {
-    _properties += (k -> v)
-  }
-
   def property(k: String): Option[Any] = {
     _properties.get(k)
+  }
+
+  def property(k: String, v: Any): Unit = {
+    _properties += (k -> v)
   }
 
   override def toString = {
@@ -179,11 +181,13 @@ trait ForElementHandle {self: AstItem =>
 
   def getIn: String = ""
 
+  def getOffsetRange(result: ParserResult): OffsetRange = OffsetRange.NONE
+
   def getKind: ElementKind = self.kind
 
   def signatureEquals(handle: ElementHandle) = false
 
-  def getModifiers: _root_.java.util.Set[Modifier] = _root_.java.util.Collections.emptySet[Modifier]
+  def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
 
-  def getOffsetRange(result: ParserResult): OffsetRange = OffsetRange.NONE
+  def getIcon: Icon = UiUtils.getElementIcon(getKind, getModifiers)
 }

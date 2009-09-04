@@ -40,9 +40,11 @@ package org.netbeans.modules.scala.editor.element
 
 import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, HtmlFormatter, OffsetRange}
+import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.filesystems.FileObject
 
+import javax.swing.Icon
 import org.netbeans.api.language.util.ast.{AstElementHandle}
 
 import org.netbeans.modules.scala.editor.ScalaGlobal
@@ -149,7 +151,9 @@ trait JavaElements {self: ScalaGlobal =>
     def isImplicit: Boolean = false
     def isImplicit_=(b: Boolean) {}
 
-    // ---
+    def getIcon: Icon = UiUtils.getElementIcon(getKind, getModifiers)
+
+    // -----
 
     override def toString = {
       getName + "(kind=" + getKind + ", element=" + element + ")"

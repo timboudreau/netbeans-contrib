@@ -41,10 +41,12 @@ package org.netbeans.modules.scala.editor.element
 
 import java.io.{File, IOException}
 import javax.lang.model.element.Element
+import javax.swing.Icon
 import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange, HtmlFormatter}
+import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.Exceptions
@@ -267,6 +269,8 @@ trait ScalaElements {self: ScalaGlobal =>
     def isSmart_=(b: Boolean) {
       this.smart = b
     }
+
+    def getIcon: Icon = UiUtils.getElementIcon(getKind, getModifiers)
 
     override def toString = {
       symbol.toString

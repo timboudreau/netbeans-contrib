@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,6 +21,12 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,46 +37,22 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.api.language.util.ast
+package org.netbeans.modules.scala.editor.overridden
 
-import javax.swing.Icon
-import org.netbeans.modules.csl.api.ElementHandle
-import org.netbeans.modules.csl.api.HtmlFormatter
+import org.netbeans.modules.csl.core.AbstractTaskFactory
+import org.netbeans.modules.csl.core.Language
+import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.parsing.spi.SchedulerTask
 
 /**
- *
+ * 
  * @author Caoyuan Deng
  */
-trait AstElementHandle extends ElementHandle {
+class IsOverriddenAnnotationHandlerFactory extends AbstractTaskFactory(true) { // XXX: Phase.RESOLVED, Priority.BELOW_NORMAL
 
-  def symbol: Any
+  override def createTasks(l: Language, snapshot: Snapshot): java.util.Collection[_ <: SchedulerTask] = {
+    return java.util.Collections.singleton(new IsOverriddenAnnotationHandler(snapshot.getSource.getFileObject))
+  }
 
-  def tpe: String
-    
-  def getDocComment: String
-
-  def getIcon: Icon
-
-  def qualifiedName: String
-
-  def isDeprecated: Boolean
-  def isDeprecated_=(b: Boolean): Unit
-
-  def isInherited: Boolean
-  def isInherited_=(b: Boolean): Unit
-
-  def isEmphasize: Boolean
-  def isEmphasize_=(b: Boolean): Unit
-
-  def isImplicit: Boolean
-  def isImplicit_=(b: Boolean): Unit
-
-  def htmlFormat(fm: HtmlFormatter): Unit
-
-  def sigFormat(fm: HtmlFormatter) : Unit
 }

@@ -54,7 +54,7 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.lexer.TokenUtilities;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.csl.core.UiUtils;
+import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.csl.spi.support.ModificationResult;
 import org.netbeans.modules.refactoring.api.Problem;
@@ -357,8 +357,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
             end = start
           }
 
-          val modifiers = java.util.Collections.emptySet[Modifier]
-          val icon = UiUtils.getElementIcon(ElementKind.ERROR, modifiers)
+          val icon = UiUtils.getElementIcon(ElementKind.ERROR, java.util.Collections.emptySet[Modifier])
           val range = new OffsetRange(start, end)
           val element = WhereUsedElement(pr, targetName, desc, range, icon)
           elements.add(refactoring, element)
@@ -401,7 +400,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
       if (isFindUsages) {
         val matched =
-          for ((token, items) <- root.idTokenToItems(th);
+          for ((token, items) <- root.idTokenToItems;
                item <- items;
                sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
                if sym == searchHandle.symbol && token.text.toString == sym.nameString
@@ -445,10 +444,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
                   // TODO - get a comment-reference icon? For now, just use the icon type
                   // of the search target
-                  val modifiers = if (searchHandle.symbol != null) {
-                    searchHandle.getModifiers
-                  } else java.util.Collections.emptySet[Modifier]
-                  val icon = UiUtils.getElementIcon(searchHandle.kind, modifiers)
+                  val icon = searchHandle.getIcon
                   val range = new OffsetRange(start, end)
                   val element = WhereUsedElement(info, targetName, range, icon)
                   elements.add(refactoring, element)
