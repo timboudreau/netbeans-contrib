@@ -168,7 +168,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
             }
             File scalaHome = getScalaHome();
             String pathSpec = "";  //NOI18N
-            if (scalaHome.exists() && scalaHome.canRead()) {
+            if (scalaHome != null && scalaHome.exists() && scalaHome.canRead()) {
                 File scalaLib = new File(scalaHome, "lib");  //NOI18N
                 if (scalaLib.exists() && scalaLib.canRead()) {
                     pathSpec = scalaLib.getAbsolutePath() + File.separator + "scala-library.jar";
