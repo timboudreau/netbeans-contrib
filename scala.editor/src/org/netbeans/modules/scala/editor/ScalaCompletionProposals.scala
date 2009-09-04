@@ -198,11 +198,20 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
                 fm.parameters(true)
                 fm.appendText(param.nameString)
                 fm.parameters(false)
-                fm.appendText(": ")
-                fm.`type`(true)
-                fm.appendText(param.tpe.toString)
-                fm.`type`(false)
 
+                fm.appendText(": ")
+
+                val paramTpe = try {
+                  val t = param.tpe
+                  if (t != null) {
+                    t.toString
+                  } else "<unknown>"
+                } catch {case ex => ScalaGlobal.resetLate(completer.global, ex); "<unknown>"}
+
+                fm.`type`(true)
+                fm.appendText(paramTpe)
+                fm.`type`(false)
+                
                 if (itr.hasNext) fm.appendText(", ") // NOI18N
               }
               fm.appendHtml(")") // NOI18N
