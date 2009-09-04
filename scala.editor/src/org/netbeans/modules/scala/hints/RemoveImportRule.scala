@@ -161,6 +161,26 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
             if (sym.isType || sym.isTypeParameter) {
                 buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
             }
+            if (sym.isValueParameter) {
+//                printSymbolDetails("valparam ref", sym)
+                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+            }
+            if (sym.isMethod || sym.isConstructor) {
+//              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " ref", sym)
+              for (meth <- sym.tpe.paramTypes) {
+//                  println("meth param=" + meth)
+                  buf.add(meth.trimPrefix(meth.toString))
+                  //add type params
+              }
+              val res = sym.tpe.resultType
+//              println("result type=" + res.trimPrefix(res.toString))
+              buf.add(res.trimPrefix(res.toString))
+              for (resSym <-res.typeArgs) {
+//                  println( "result param=" + resSym)
+                  buf.add(resSym.trimPrefix(resSym.toString))
+              }
+            }
+
         }
         for (d <- scope.dfns) {
             val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
@@ -168,8 +188,11 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
             if (sym.isValueParameter) {
                 buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
             }
-            if (sym.isMethod) {
-              //println("method=" + sym)
+            if (sym.isType || sym.isTypeParameter) {
+                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+            }
+            if (sym.isMethod || sym.isConstructor) {
+//              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " def", sym)
               for (meth <- sym.tpe.paramTypes) {
 //                  println("meth param=" + meth)
                   buf.add(meth.trimPrefix(meth.toString))
@@ -189,6 +212,11 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
            buf.addAll(findDefinitions(sc))
         }
         buf.toList
+    }
+
+    private def printSymbolDetails(prefix : String, s : scala.tools.nsc.symtab.Symbols#Symbol) : Unit = {
+        println(prefix + "=" + s)
+        println("    fullname=" + s.fullNameString)
     }
 
 }
