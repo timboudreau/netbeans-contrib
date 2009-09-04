@@ -67,7 +67,7 @@ import org.netbeans.modules.csl.api.EditList
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.editor.BaseDocument
 
-import org.netbeans.modules.scala.editor.actions.FixImportsHelper
+import org.netbeans.modules.scala.editor.imports.FixImportsHelper
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 

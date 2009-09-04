@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editor.refactoring;
 
+import java.util.logging.Logger
 import javax.swing.Icon;
 import javax.swing.text.Document;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -82,6 +83,8 @@ import scala.tools.nsc.symtab.Flags
  * @author Tor Norbye
  */
 class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoringPlugin {
+  private val Log = Logger.getLogger(classOf[WhereUsedQueryPlugin].getName)
+
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName =  searchHandle.symbol.fullNameString
 
@@ -110,6 +113,8 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         }
       case _ =>
     }
+
+    Log.info("relative files:" + set)
 
     set.toSet
 

@@ -585,7 +585,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
   }
 
-  def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]) : ScalaRootScope = {
+  def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     resetSelectTypeErrors
 
     val resp = new Response[Tree]
@@ -608,7 +608,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } getOrElse ScalaRootScope.EMPTY
   }
 
-  def askForDebug(srcFile: SourceFile, th: TokenHierarchy[_]) : ScalaRootScope = {
+  def askForDebug(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     resetSelectTypeErrors
 
     val resp = new Response[Tree]

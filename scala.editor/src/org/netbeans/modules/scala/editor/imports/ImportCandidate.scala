@@ -37,7 +37,7 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editor.actions
+package org.netbeans.modules.scala.editor.imports
 
 import javax.swing.Icon
 import org.netbeans.modules.csl.api.OffsetRange

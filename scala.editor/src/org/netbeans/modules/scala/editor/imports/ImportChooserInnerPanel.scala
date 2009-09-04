@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.scala.editor.actions;
+package org.netbeans.modules.scala.editor.imports
 
 import java.awt.Component;
 import java.awt.Dimension;

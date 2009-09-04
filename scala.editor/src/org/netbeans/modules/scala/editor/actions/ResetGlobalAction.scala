@@ -69,7 +69,6 @@ class ResetGlobalAction  extends BaseAction(NbBundle.getMessage(classOf[ResetGlo
                                                                 "reset-scala-global"), 0) with Runnable {
 
   var doc: Option[Document] = None
-  private var helper = new FixImportsHelper
 
   override def isEnabled: Boolean = {
     true
