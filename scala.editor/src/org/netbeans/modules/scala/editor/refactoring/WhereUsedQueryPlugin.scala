@@ -320,8 +320,8 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         //System.out.println("Skipping file " + workingCopy.getFileObject());
         // See if the document contains references to this symbol and if so, put a warning in
         if (sourceText != null && sourceText.indexOf(targetName) != -1) {
-          var start = 0;
-          var end = 0;
+          var start = 0
+          var end = 0
           var desc = "Parse error in file which contains " + targetName + " reference - skipping it";
           val errors = pr.getDiagnostics
           if (errors.size > 0) {
