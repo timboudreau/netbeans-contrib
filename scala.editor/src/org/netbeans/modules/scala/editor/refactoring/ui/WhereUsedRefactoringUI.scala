@@ -88,7 +88,7 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
   }
 
   def setParameters: Problem = {
-    query.putValue(WhereUsedQuery.SEARCH_IN_COMMENTS, panel.isSearchInComments);
+    query.putValue(WhereUsedQuery.SEARCH_IN_COMMENTS, panel.isSearchInComments)
     if (kind == ElementKind.METHOD) {
       setForMethod
       return query.checkParameters

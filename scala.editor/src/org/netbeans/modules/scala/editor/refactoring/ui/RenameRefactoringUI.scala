@@ -107,12 +107,12 @@ object RenameRefactoringUI {
   def apply(file: FileObject, handle: ScalaItems#ScalaItem) = {
     val jmiObject = handle
     val refactoring = if (handle != null) {
-      new RenameRefactoring(Lookups.fixed(file, handle));
+      new RenameRefactoring(Lookups.fixed(file, handle))
     } else {
-      new RenameRefactoring(Lookups.fixed(file));
+      new RenameRefactoring(Lookups.fixed(file))
     }
     val oldName = if (handle != null) handle.symbol.nameString else file.getName
-    val dispOldName = oldName;
+    val dispOldName = oldName
     val stripPrefix = null
     val pkgRename = true
     val fromListener = false
@@ -244,7 +244,7 @@ class RenameRefactoringUI(refactoring: AbstractRefactoring,
   }
 
   def getRefactoring: AbstractRefactoring = {
-    refactoring;
+    refactoring
   }
 
   def getDescription: String = {

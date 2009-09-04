@@ -139,6 +139,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
           }
         }
       }
+    
     task.run
   }
 
