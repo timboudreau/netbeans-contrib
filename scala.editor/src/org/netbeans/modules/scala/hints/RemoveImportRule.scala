@@ -122,10 +122,13 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
     def getKinds() : java.util.Set[_] = java.util.Collections.singleton(ScalaAstRule.ROOT)
 
     def createHints(context : ScalaRuleContext, scope : AstScope) : List[Hint] = {
-        println("creating rmeove import hint")
         val defs = findDefinitions(scope)
+
+        //debug start
+        println("creating rmeove import hint")
         defs.foreach(a => println(a))
         println("we have " + defs.size + " defs")
+        //debug end
 
         val imports = FixImportsHelper.allGlobalImports(context.doc)
 
@@ -214,6 +217,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         buf.toList
     }
 
+    //debug method
     private def printSymbolDetails(prefix : String, s : scala.tools.nsc.symtab.Symbols#Symbol) : Unit = {
         println(prefix + "=" + s)
         println("    fullname=" + s.fullNameString)
