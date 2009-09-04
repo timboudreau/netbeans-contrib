@@ -76,10 +76,7 @@ object AnnotationsHolder {
       fileToAnnotations.put(od, a)
 
       a
-    } catch {case ex: IOException =>
-        IsOverriddenAnnotationHandler.Log.log(Level.INFO, null, ex)
-        null
-    }
+    } catch {case ex: IOException => IsOverriddenAnnotationHandler.Log.log(Level.INFO, null, ex); null}
   }
 }
 

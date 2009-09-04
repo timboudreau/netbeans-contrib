@@ -90,7 +90,7 @@ object PopupUtil  {
 
   def showPopup(content: JComponent, title: String, x: Int, y: Int, undecorated: Boolean, altHeight: Int) {
     if (popupWindow != null ) {
-      return; // Content already showing
+      return // Content already showing
     }
                            
     Toolkit.getDefaultToolkit.addAWTEventListener(hideListener, AWTEvent.MOUSE_EVENT_MASK)
@@ -108,10 +108,10 @@ object PopupUtil  {
 	
     //set a11y
     val a11yName = content.getAccessibleContext.getAccessibleName
-    if(a11yName != null && !a11yName.equals(""))
+    if (a11yName != null && !a11yName.equals(""))
       popupWindow.getAccessibleContext().setAccessibleName(a11yName)
     val a11yDesc = content.getAccessibleContext.getAccessibleDescription
-    if(a11yDesc != null && !a11yDesc.equals(""))
+    if (a11yDesc != null && !a11yDesc.equals(""))
       popupWindow.getAccessibleContext.setAccessibleDescription(a11yDesc)
 	    
     if ( title != null ) {

@@ -469,15 +469,11 @@ class IsOverriddenAnnotationHandler(file: FileObject) extends ParserResultTask[S
   }
 
   private def findSourceRoot: FileObject = {
-    val cp = ClassPath.getClassPath(file, ClassPath.SOURCE)
-    if (cp != null) {
-      for (root <- cp.getRoots) {
-        if (FileUtil.isParentOf(root, file))
-          return root
-      }
+    // null is a valid value for files which have no source path (default filesystem).
+    ClassPath.getClassPath(file, ClassPath.SOURCE) match {
+      case null => null
+      case cp => cp.getRoots find (root => FileUtil.isParentOf(root, file)) getOrElse null
     }
-    //Null is a valid value for files which have no source path (default filesystem).
-    null
   }
 
   //temporary hack:

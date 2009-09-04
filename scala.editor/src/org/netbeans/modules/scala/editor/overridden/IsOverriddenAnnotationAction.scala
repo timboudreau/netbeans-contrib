@@ -92,13 +92,10 @@ class IsOverriddenAnnotationAction extends AbstractAction {
     
   private def getFile(component: JTextComponent): FileObject = {
     val doc = component.getDocument
-    val od = doc.getProperty(Document.StreamDescriptionProperty).asInstanceOf[DataObject]
-        
-    if (od == null) {
-      return null
+    doc.getProperty(Document.StreamDescriptionProperty) match {
+      case null => null
+      case od: DataObject => od.getPrimaryFile
     }
-        
-    od.getPrimaryFile
   }
     
   private def findAnnotation(component: JTextComponent, desc: AnnotationDesc, offset: Int): IsOverriddenAnnotation = {
@@ -148,11 +145,9 @@ class IsOverriddenAnnotationAction extends AbstractAction {
             
         annotation(0).mouseClicked(comp, p(0))
             
-        return true
-      case _ =>
+        true
+      case _ => false
     }
-        
-    false
   }
     
 }
