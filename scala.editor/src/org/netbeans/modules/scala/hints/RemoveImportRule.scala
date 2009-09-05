@@ -135,13 +135,13 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         //TODO very simplistic, need radical refinement!!
         val candidates = for (i <- mapImports(imports)
                               if !defs.exists(a => a == i._1))
-                                  yield i._2
+                                  yield i
 
 //        candidates.foreach( a => println("candidate" + a._3))
         val toRet = mutable.ListBuffer[Hint]()
-        for ((start, end, text) <- candidates) {
+        for ((imp, (start, end, text)) <- candidates) {
               val rangeOpt = context.calcOffsetRange(start, end)
-              toRet +=  new Hint(this, "Remove Unused Import " + text, context.getFileObject, rangeOpt.get,
+              toRet +=  new Hint(this, "Remove Unused Import " + imp, context.getFileObject, rangeOpt.get,
                              new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
         }
 
@@ -155,9 +155,9 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
                 val leftBrack = imp._3.indexOf("{")
                 val rightBrack = imp._3.indexOf("}")
                 if (leftBrack >= 0 && rightBrack > leftBrack) {
-                    val pack = imp._3.substring(0, leftBrack - 1)
-                    for (single <- imp._3.substring(leftBrack + 1, rightBrack - 1).split(",")) {
-                        toRet = toRet + ((pack + "." + single) -> imp)
+                    val pack = imp._3.substring(0, leftBrack)
+                    for (single <- imp._3.substring(leftBrack + 1, rightBrack).split(",")) {
+                        toRet = toRet + ((pack + single) -> imp)
                     }
                 } else {
                     toRet = toRet + (imp._3 -> imp)
