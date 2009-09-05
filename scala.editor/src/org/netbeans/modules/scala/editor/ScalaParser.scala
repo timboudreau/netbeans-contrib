@@ -295,9 +295,7 @@ class ScalaParser extends Parser {
           }
         }
       }
-    } catch {
-      case ble: BadLocationException => Exceptions.printStackTrace(ble)
-    }
+    } catch {case ble: BadLocationException => Exceptions.printStackTrace(ble)}
 
     false
   }
@@ -366,17 +364,18 @@ class ScalaParser extends Parser {
     var sanitizedSource = false
     var source = context.source
 
-    if (!(sanitizing == Sanitize.NONE || sanitizing == Sanitize.NEVER)) {
-      val ok = sanitizeSource(context, sanitizing)
-
-      if (ok) {
-        assert(context.sanitizedSource != null)
-        sanitizedSource = true
-        source = context.sanitizedSource
-      } else {
-        // Try next trick
-        return sanitize(context, sanitizing)
-      }
+    sanitizing match {
+      case Sanitize.NONE | Sanitize.NEVER =>
+      case _ =>
+        val ok = sanitizeSource(context, sanitizing)
+        if (ok) {
+          assert(context.sanitizedSource != null)
+          sanitizedSource = true
+          source = context.sanitizedSource
+        } else {
+          // Try next trick
+          return sanitize(context, sanitizing)
+        }
     }
 
     if (sanitizing == Sanitize.NONE) {
@@ -420,7 +419,7 @@ class ScalaParser extends Parser {
         ex.printStackTrace
     }
 
-    if (rootScope != None) {
+    if (rootScope.isDefined) {
       context.rootScope = rootScope
       context.sanitized = sanitizing
       val pResult = createParserResult(context)
@@ -446,9 +445,7 @@ class ScalaParser extends Parser {
           //                            eAnnot.updateInError(inError);
           //                        }
           inError
-        } catch {
-          case ex:FileStateInvalidException => Exceptions.printStackTrace(ex)
-        }
+        } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex)}
       }
     }
 

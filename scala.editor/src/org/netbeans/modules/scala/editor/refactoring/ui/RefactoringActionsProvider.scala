@@ -106,7 +106,7 @@ object RefactoringActionsProvider {
 class RefactoringActionsProvider extends ActionsImplementationProvider {
   import RefactoringActionsProvider._
   
-  Log.info("RefactoringActionsProvider is created")
+  Log.info("Instance of " + this.getClass.getSimpleName + " is created")
 
   override def doRename(lookup: Lookup) {
     val ec = lookup.lookup(classOf[EditorCookie])

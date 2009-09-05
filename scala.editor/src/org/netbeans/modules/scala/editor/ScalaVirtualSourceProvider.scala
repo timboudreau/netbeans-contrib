@@ -78,7 +78,10 @@ import scala.tools.nsc.symtab.Types
 
 /**
  * This requires also a Java Indexer to be enabled for scala mimetype
- * @see layer.xml JavaIndexer.shadow
+ * @see layer.xml:
+ *      <file name="JavaIndexer.shadow">
+ *          <attr name="originalFile" stringvalue="Editors/text/x-java/JavaIndexer.instance"/>
+ *      </file>
  *
  * @Note: don't use full class name `classOf[org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider]`, here
  * instead, should use `classOf[VirtualSourceProvider]`, otherwise, lookup cannot find it. Why? don't know ...
@@ -87,25 +90,27 @@ import scala.tools.nsc.symtab.Types
 class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   import ScalaVirtualSourceProvider._
 
+  Log.info("Instance of " + this.getClass.getSimpleName + " is created")
+
   /** @Todo
    * The only reason to implement JavaSourceProvider is to get a none-null JavaSource#forFileObject,
    * the JavaSource instance is a must currently when eval expression under debugging. see issue #150903
    */
   /* def forFileObject(fo: FileObject): JavaSourceProvider.PositionTranslatingJavaFileFilterImplementation = {
-    if (!"text/x-scala".equals(FileUtil.getMIMEType(fo)) && !"scala".equals(fo.getExt)) {  //NOI18N
-      return null
-    } else {
-      new JavaSourceProvider.PositionTranslatingJavaFileFilterImplementation {
-        def getOriginalPosition(javaSourcePosition: Int): Int = -1
-        def getJavaSourcePosition(originalPosition: Int): Int = -1
-        def filterReader(r: Reader): Reader = r
-        def filterCharSequence(charSequence: CharSequence): CharSequence = ""
-        def filterWriter(w: Writer): Writer = w
-        def addChangeListener(listener: ChangeListener) {}
-        def removeChangeListener(listener: ChangeListener) {}
-      }
-    }
-  } */
+   if (!"text/x-scala".equals(FileUtil.getMIMEType(fo)) && !"scala".equals(fo.getExt)) {  //NOI18N
+   return null
+   } else {
+   new JavaSourceProvider.PositionTranslatingJavaFileFilterImplementation {
+   def getOriginalPosition(javaSourcePosition: Int): Int = -1
+   def getJavaSourcePosition(originalPosition: Int): Int = -1
+   def filterReader(r: Reader): Reader = r
+   def filterCharSequence(charSequence: CharSequence): CharSequence = ""
+   def filterWriter(w: Writer): Writer = w
+   def addChangeListener(listener: ChangeListener) {}
+   def removeChangeListener(listener: ChangeListener) {}
+   }
+   }
+   } */
 
   override def getSupportedExtensions: java.util.Set[String] = {
     java.util.Collections.singleton("scala") // NOI18N
@@ -114,7 +119,8 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   override def index: Boolean = true
 
   override def translate(files: java.lang.Iterable[File], sourceRoot: File, result: VirtualSourceProvider.Result): Unit = {
-    Log.info("translate " + files)
+    Log.info("Translating " + files)
+    
     val rootFo = FileUtil.toFileObject(sourceRoot)
     val it = files.iterator
     while (it.hasNext) {
