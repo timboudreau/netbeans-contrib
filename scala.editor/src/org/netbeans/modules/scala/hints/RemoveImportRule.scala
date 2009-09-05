@@ -133,10 +133,9 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         val imports = FixImportsHelper.allGlobalImports(context.doc)
 
         //TODO very simplistic, need radical refinement!!
-        val candidates = for (i <- imports 
-                              if !(i._3.contains("_") || i._3.contains("{")) &&
-                                   !defs.exists(a => a == i._3))
-                                  yield i
+        val candidates = for (i <- mapImports(imports)
+                              if !defs.exists(a => a == i._1))
+                                  yield i._2
 
 //        candidates.foreach( a => println("candidate" + a._3))
         val toRet = mutable.ListBuffer[Hint]()
@@ -147,6 +146,25 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         }
 
         toRet.toList
+    }
+
+    private def mapImports(imports : List[Tuple3[Int, Int, String]]) = {
+        var toRet = Map[String, Tuple3[Int, Int, String]]()
+        for (imp <- imports) {
+            if (!imp._3.contains("_") && !imp._3.contains("=>")) {
+                val leftBrack = imp._3.indexOf("{")
+                val rightBrack = imp._3.indexOf("}")
+                if (leftBrack >= 0 && rightBrack > leftBrack) {
+                    val pack = imp._3.substring(0, leftBrack - 1)
+                    for (single <- imp._3.substring(leftBrack + 1, rightBrack - 1).split(",")) {
+                        toRet = toRet + ((pack + "." + single) -> imp)
+                    }
+                } else {
+                    toRet = toRet + (imp._3 -> imp)
+                }
+            }
+        }
+        toRet
     }
 
     private def findDefinitions(scope : AstScope) : List[String] = {
