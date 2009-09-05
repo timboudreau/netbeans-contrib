@@ -126,7 +126,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     while (it.hasNext) {
       val file = it.next
       getTemplates(file) match {
-        case Nil =>
+        case (global, Nil) =>
           // * source is probably broken and there is no AST
           // * let's generate empty Java stub with simple name equal to file name
           val fo = FileUtil.toFileObject(file)
@@ -142,27 +142,29 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             //@Todo diable result add till we get everything ok
             //result.add(file, pkg, file.getName(), sb.toString());
           }
-        case tmpls =>
+        case (globalx, tmpls) =>
           val fo = FileUtil.toFileObject(file)
-          val generator = new JavaStubGenerator
+          val generator = new JavaStubGenerator {override val global = globalx}
           for (tmpl <- tmpls;
-               sym = tmpl.symbol if !tmpl.symbol.isErroneous // avoid strange file name, for example: <error: class ActorProxy>.java
+               sym = tmpl.symbol if sym != globalx.NoSymbol; // avoid strange file name, for example: <error: class ActorProxy>.java
+               name = sym.nameString if name.length > 0 && name.charAt(0) != '<' // @todo <any>
           ) {
             try {
-              val javaStub = generator.generateClass(tmpl)
+              val javaStub = generator.generateClass(tmpl.asInstanceOf[generator.global.ScalaDfn])
               val packaging = sym.enclosingPackage
               val pkgName = (if (packaging == null) "" else packaging.fullNameString) match {
                 case "<empty>" => ""
                 case x => x
               }
-              result.add(file, pkgName, sym.nameString, javaStub)
+              result.add(file, pkgName, name, javaStub)
             } catch {case ex: FileNotFoundException => Exceptions.printStackTrace(ex)}
           }
       }
     }
   }
 
-  private def getTemplates(file: File): List[ScalaDfns#ScalaDfn] = {
+  private def getTemplates(file: File): (ScalaGlobal, List[ScalaDfns#ScalaDfn]) = {
+    val global = Array[ScalaGlobal](null)
     val tmpls = new ArrayBuffer[ScalaDfns#ScalaDfn]
     val fo = FileUtil.toFileObject(file)
     if (fo != null) {
@@ -171,17 +173,19 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         /** @Note: do not use UserTask to parse it? which may cause "refershing workspace" */
         // FIXME can we move this out of task (?)
         ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
-            @throws(classOf[Exception])
-            override def run(resultIterator: ResultIterator) {
-              val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]
-              val rootScope = pResult.rootScope getOrElse {assert(false, "Parse result is null : " + fo.getName); return Nil}
+            
+            @throws(classOf[ParseException])
+            override def run(ri: ResultIterator) {
+              val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
+              global(0) = pr.global
+              val rootScope = pr.rootScope getOrElse {assert(false, "Parse result is null : " + fo.getName); return}
               scan(rootScope, tmpls)
             }
           })
       } catch {case ex: ParseException => Exceptions.printStackTrace(ex)}
     }
 
-    tmpls.toList
+    (global(0), tmpls.toList)
   }
 
   private def scan(scope: AstScope, tmpls: ArrayBuffer[ScalaDfns#ScalaDfn]): Unit = {
@@ -194,14 +198,14 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     }
   }
 
-  private class JavaStubGenerator(requireSuperResolved: Boolean, java5: Boolean) {
+  private abstract class JavaStubGenerator {
+    val global: ScalaGlobal
+    import global._
 
     private val toCompile = new ArrayBuffer[String]
 
-    def this() = this(false, false)
-
     @throws(classOf[FileNotFoundException])
-    def generateClass(tmpl: ScalaDfns#ScalaDfn): CharSequence = {
+    def generateClass(tmpl: ScalaDfn): CharSequence = {
       val sym = tmpl.symbol
       val fileName = toJavaName(sym.fullNameString).replace('.', '/')
       toCompile += fileName
@@ -213,7 +217,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         val packaging = sym.enclosingPackage
         if (packaging != null) {
           val pkgName = packaging.fullNameString
-          if (!pkgName.equals("") && !pkgName.equals("<empty>")) {
+          if (pkgName.length > 0 && pkgName.charAt(0) != '<') {
             pw.print("package ")
             pw.print(packaging.fullNameString)
             pw.println(";")
@@ -222,7 +226,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
 
         //out.println("@NetBeansVirtualSource(11, 12)");
 
-        printModifiers(pw, sym.asInstanceOf[Symbols#Symbol])
+        printModifiers(pw, sym)
         if (sym.isClass) {
           pw.print(" class ")
         } else if (sym.isModule) {
@@ -349,7 +353,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       sw.toString
     }
 
-    private def printModifiers(pw: PrintWriter, symbol: Symbols#Symbol) {
+    private def printModifiers(pw: PrintWriter, symbol: Symbol) {
       if (symbol hasFlag Flags.PRIVATE) {
         pw.print("private")
       } else if (symbol hasFlag Flags.PROTECTED) {
@@ -359,11 +363,11 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       }
     }
 
-    private def printType(pw: PrintWriter, tpe: Types#Type) {
+    private def printType(pw: PrintWriter, tpe: Type) {
       //out.print(JavaScalaMapping.toJavaType(ScalaElement.typeQualifiedName(type, false)));
     }
 
-    private def printParams(pw: PrintWriter, params: List[Types#Type]) {
+    private def printParams(pw: PrintWriter, params: List[Type]) {
       pw.print("(")
 
       var i = 0
