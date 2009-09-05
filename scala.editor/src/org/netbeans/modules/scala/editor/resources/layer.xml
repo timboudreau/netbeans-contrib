@@ -111,9 +111,9 @@
                 </folder>
                 
                 <!-- tell the parsing API that scala files should be handled by the java indexer -->
-                <!--file name="JavaIndexer.shadow">
+                <file name="JavaIndexer.shadow">
                     <attr name="originalFile" stringvalue="Editors/text/x-java/JavaIndexer.instance"/>
-                </file-->
+                </file>
 
                 <folder name="Popup">
                     <file name="org-netbeans-modules-scala-editor-actions-ResetGlobalAction.shadow">
