@@ -132,7 +132,6 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
 
         val imports = FixImportsHelper.allGlobalImports(context.doc)
 
-        //TODO very simplistic, need radical refinement!!
         val candidates = for (i <- mapImports(imports)
                               if !defs.exists(a => a == i._1))
                                   yield i
