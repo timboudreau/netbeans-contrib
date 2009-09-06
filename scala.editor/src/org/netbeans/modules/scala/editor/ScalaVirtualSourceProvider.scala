@@ -271,6 +271,12 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             pw.print(modifiers(c))
             pw.print(" class ")
             c
+          case Array(_, o, t) =>
+            isTrait = true
+            isCompanion = true
+            pw.print(modifiers(t))
+            pw.print(" class ")
+            t
         }
 
         pw.print(clzName)
@@ -371,31 +377,36 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             pw.print(modifiers(member))
             pw.print(" ")
 
-            if (isStatic) {
+            if (isStatic && !isInterface) {
               pw.print("static final ")
             }
 
-            if (member.isConstructor && !isInterface) {
-              pw.print(encodeName(sym.nameString))
-              // * parameters
-              pw.print(params(mTpe.params))
-              pw.println(" {}")
+            if (member.isConstructor) {
+              if (!isInterface) {
+                pw.print(encodeName(sym.nameString))
+                // * parameters
+                pw.print(params(mTpe.params))
+                pw.println(" {}")
+              }
             } else {
               val mResTpe = try {
                 mTpe.resultType
               } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
 
               if (mResTpe != null) {
+                // method return type
                 val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
                 pw.print(mResQName)
                 pw.print(" ")
+
                 // method name
                 pw.print(encodeName(mSName))
+                
                 // method parameters
                 pw.print(params(mTpe.params))
                 pw.print(" ")
 
-                // method body
+                // method body or ";"
                 if (!isInterface && !member.hasFlag(Flags.DEFERRED)) {
                   pw.print("{")
                   pw.print(returnStrOfType(mResQName))
@@ -408,14 +419,16 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           } else if (member.isVariable) {
             // do nothing
           } else if (member.isValue) {
-            pw.print(modifiers(member))
-            pw.print(" ")
-            val mResTpe = mTpe.resultType
-            val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
-            pw.print(mResQName)
-            pw.print(" ")
-            pw.print(mSName)
-            pw.println(";")
+            if (!isInterface) {
+              pw.print(modifiers(member))
+              pw.print(" ")
+              val mResTpe = mTpe.resultType
+              val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
+              pw.print(mResQName)
+              pw.print(" ")
+              pw.print(mSName)
+              pw.println(";")
+            }
           }
         }
       }
