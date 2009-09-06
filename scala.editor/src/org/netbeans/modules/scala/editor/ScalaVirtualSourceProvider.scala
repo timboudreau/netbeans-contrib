@@ -255,27 +255,31 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           case Array(NoSymbol, NoSymbol, t) => // trait
             isTrait = true
             pw.print(modifiers(t))
-            pw.print(" interface ")
+            pw.print("interface ")
+
             t
           case Array(NoSymbol, o, NoSymbol) => // single object
             isObject = true
             pw.print(modifiers(o))
-            pw.print(" final class ")
+            pw.print("final class ")
+
             o
           case Array(c, NoSymbol, NoSymbol) => // single class
             pw.print(modifiers(c))
-            pw.print(" class ")
+            pw.print("class ")
+
             c
-          case Array(c, o, NoSymbol) =>
+          case Array(c, o, NoSymbol) => // companion object + class
             isCompanion = true
             pw.print(modifiers(c))
-            pw.print(" class ")
+            pw.print("class ")
+
             c
-          case Array(_, o, t) =>
+          case Array(_, o, t) => // companion object + trait ?
             isTrait = true
-            isCompanion = true
             pw.print(modifiers(t))
-            pw.print(" class ")
+            pw.print("interface ")
+
             t
         }
 
@@ -287,18 +291,18 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           case x => x.fullNameString
         }
 
-        if (superQName.length > 0 && superQName != "java.lang.Object") {
+        var extended = false
+        if (!isTrait && superQName.length > 0) {
           pw.print(" extends ")
           pw.print(encodeQName(superQName))
+          extended = true
         }
 
-        val tpe = try {
-          sym.tpe
-        } catch {case _ => null}
+        val tpe = tryTpe(sym)
 
         if (tpe != null) {
-          val itr = tpe.baseClasses.tail.iterator // head is always `java.lang.Object`
-          var i = 0
+          val itr = tpe.baseClasses.tail.iterator // head is always `java.lang.Object`?
+          var implemented = false
           while (itr.hasNext) {
             val base = itr.next
             base.fullNameString  match {
@@ -306,13 +310,39 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
               case `qName` =>
               case "java.lang.Object" =>
               case x =>
-                if (i == 0) {
-                  pw.print(" implements ")
-                } else {
-                  pw.print(", ")
+                if (base.isTrait) {
+                  if (isTrait) {
+                    if (!extended) {
+                      pw.print(" extends ")
+                      extended = true
+                    } else {
+                      pw.print(", ")
+                    }
+                  } else {
+                    if (!implemented) {
+                      pw.print(" implements ")
+                      implemented = true
+                    } else {
+                      pw.print(", ")
+                    }
+                  }
+                  
+                  pw.print(encodeQName(x))
+                } else { // base is class
+                  if (isTrait) {
+                    // * shound not happen or error of "interface extends a class", ignore it
+                  } else {
+                    if (!extended) {
+                      pw.print(" extends ")
+                      extended = true
+                    } else {
+                      pw.print(", ")
+                    }
+
+                    pw.print(encodeQName(x))
+                  }
                 }
-                pw.print(encodeQName(x))
-                i += 1
+
             }
           }
 
@@ -322,9 +352,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             genMemebers(pw, sym, tpe, false, false)
 
             val oSym = syms(1)
-            val oTpe = try {
-              oSym.tpe
-            } catch {case _ => null}
+            val oTpe = tryTpe(oSym)
             
             if (oTpe != null) {
               genMemebers(pw, oSym, oTpe, true, false)
@@ -363,6 +391,16 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       sw.toString
     }
 
+    private def tryTpe(sym: Symbol): Type = {
+      try {
+        sym.tpe
+      } catch {case _ => null}
+    }
+
+    private def isAbstractClass(tpe: Type): Boolean = {
+      tpe != null && (tpe.members find (_ hasFlag Flags.DEFERRED) isDefined)
+    }
+
     private def genMemebers(pw: PrintWriter, sym: Symbol, tpe: Type, isStatic: Boolean, isInterface: Boolean) {
       for (member <- tpe.members if !member.hasFlag(Flags.PRIVATE)) {
         val mTpe = try {
@@ -375,7 +413,6 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             // @todo
           } else if (member.isMethod && mSName != "$init$" && mSName != "synchronized") {
             pw.print(modifiers(member))
-            pw.print(" ")
 
             if (isStatic && !isInterface) {
               pw.print("static final ")
@@ -438,13 +475,19 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     private val dollarTagMethod = "public int $tag() throws java.rmi.RemoteException {return 0;}"
 
     private def modifiers(sym: Symbol): String = {
+      val sb = new StringBuilder
       if (sym hasFlag Flags.PRIVATE) {
-        "private"
+        sb.append("private ")
       } else if (sym hasFlag Flags.PROTECTED) {
-        "protected"
+        sb.append("protected ")
       } else {
-        "public"
+        sb.append("public ")
       }
+
+      if (sym.isClass  && !sym.isTrait        && sym.hasFlag(Flags.ABSTRACT)) sb.append("abstract ")
+      if (sym.isMethod && !sym.isConstructor  && sym.hasFlag(Flags.DEFERRED)) sb.append("abstract ")
+
+      sb.toString
     }
 
     def classSName(sym: Symbol): String = {
@@ -488,6 +531,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       }
 
       sb.append(")")
+      
       sb.toString
     }
 
@@ -524,16 +568,16 @@ object ScalaVirtualSourceProvider {
   val Log = Logger.getLogger(classOf[ScalaVirtualSourceProvider].getName)
 
   private def returnStrOfType(tpe: String) = tpe match {
+    case "double"     => "return 0.0;"
+    case "float"      => "return 0.0f;"
+    case "long"       => "return 0L;"
+    case "int"        => "return 0;"
+    case "short"      => "return 0;"
+    case "byte"       => "return 0;"
+    case "boolean"    => "return false;"
+    case "char"       => "return 0;"
+    case "void"       => "return;"
     case "scala.Unit" => "return;"
-    case "void"    => "return;"
-    case "double"  => "return 0.0;"
-    case "float"   => "return 0.0f;"
-    case "long"    => "return 0L;"
-    case "int"     => "return 0;"
-    case "short"   => "return 0;"
-    case "byte"    => "return 0;"
-    case "boolean" => "return false;"
-    case "char"    => "return 0;"
     case _ => "return null;"
   }
 }
