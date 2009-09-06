@@ -45,6 +45,7 @@ import java.io.PrintWriter
 import java.io.Reader
 import java.io.StringWriter
 import java.io.Writer
+import java.util.logging.Level
 import java.util.logging.Logger
 import javax.swing.event.ChangeListener
 import org.netbeans.modules.csl.api.ElementKind
@@ -63,6 +64,7 @@ import org.netbeans.modules.scala.editor.ast.ScalaDfns
 import scala.collection.mutable.ArrayBuffer
 
 import scala.util.NameTransformer
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.tools.nsc.symtab.Flags
 import scala.tools.nsc.symtab.Symbols
@@ -182,21 +184,44 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 }
               case _ =>
                 val generator = new JavaStubGenerator(global)
+                import generator.global._
+
+                val emptySyms: Array[Symbol] = Array(NoSymbol, NoSymbol, NoSymbol)
+                val clzNameToSyms = new HashMap[String, Array[Symbol]] // clzName -> (class, object, trait)
+
                 for (tmpl <- tmpls;
-                     sym = tmpl.symbol if sym != global.NoSymbol; // avoid strange file name, for example: <error: class ActorProxy>.java
+                     sym = tmpl.symbol.asInstanceOf[Symbol] if sym != NoSymbol; // avoid strange file name, for example: <error: class ActorProxy>.java
                      symSName = sym.nameString if symSName.length > 0 && symSName.charAt(0) != '<' // @todo <any>
                 ) {
+                  val clzName = generator.classSName(sym)
+                  val syms = clzNameToSyms.getOrElse(clzName, emptySyms) match {
+                    case Array(c, o, t) =>
+                      if (sym.isTrait) { // isTrait also isClass, so determine trait before class
+                        Array(c, o, sym)
+                      } else if (sym.isModule) { // object
+                        Array(c, sym, t)
+                      } else { // class
+                        Array(sym, o, t)
+                      }
+                  }
+                  clzNameToSyms += (clzName -> syms)
+                }
+                
+                for ((clzName, syms) <- clzNameToSyms) {
                   try {
-                    val javaStub = generator.generateClass(sym.asInstanceOf[generator.global.Symbol])
-                    val pkgQName = sym.enclosingPackage match {
-                      case null => ""
-                      case packaging => packaging.fullNameString match {
-                          case "<empty>" => ""
-                          case x => x
+                    val pkgQName = syms find (_ != NoSymbol) match {
+                      case Some(sym) => sym.enclosingPackage match {
+                          case null => ""
+                          case packaging => packaging.fullNameString match {
+                              case "<empty>" => ""
+                              case x => x
+                            }
                         }
+                      case _ => ""
                     }
-                    
-                    result.add(file, pkgQName, symSName, javaStub)
+                    val javaStub = generator.generateClass(pkgQName, clzName, syms)
+                   
+                    result.add(file, pkgQName, clzName, javaStub)
                   } catch {case ex: FileNotFoundException => Exceptions.printStackTrace(ex)}
                 }
             }
@@ -208,64 +233,62 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   private class JavaStubGenerator(val global: ScalaGlobal) {
     import global._
 
-    private val toCompile = new ArrayBuffer[String]
+    private var isTrait = false
+    private var isObject = false
+    private var isCompanion = false
 
     @throws(classOf[FileNotFoundException])
-    def generateClass(sym: Symbol): CharSequence = {
-      val qName = sym.fullNameString
-      val fileName = encodeName(qName).replace('.', '/')
-      toCompile += fileName
-
+    def generateClass(pkgName: String, clzName: String, syms: Array[Symbol]): CharSequence = {
       val sw = new StringWriter
       val pw = new PrintWriter(sw)
 
       try {
-        val packaging = sym.enclosingPackage
-        if (packaging != null) {
-          val pkgName = sym.enclosingPackage match {
-            case null => ""
-            case packaging => packaging.fullNameString match {
-                case x if x.length > 0 && x.charAt(0) != '<' => x
-                case _ => ""
-              }
-          }
-
-          if (pkgName.length > 0) {
-            pw.print("package ")
-            pw.print(pkgName)
-            pw.println(";")
-          }
+        if (pkgName.length > 0) {
+          pw.print("package ")
+          pw.print(pkgName)
+          pw.println(";")
         }
 
         //pw.println("@NetBeansVirtualSource(11, 12)");
 
-        pw.print(modifiers(sym))
-        if (sym.isTrait) { // isTrait also isClass, so determine trait before class
-          // @Todo has two classes;
-          pw.print(" interface ")
-        } else if (sym.isModule) { // object
-          // @Todo has two classes;
-          pw.print(" final class ")
-        } else if (sym.isClass) {
-          pw.print(" class ")
-        } 
+        val sym = syms match {
+          case Array(NoSymbol, NoSymbol, t) => // trait
+            isTrait = true
+            pw.print(modifiers(t))
+            pw.print(" interface ")
+            t
+          case Array(NoSymbol, o, NoSymbol) => // single object
+            isObject = true
+            pw.print(modifiers(o))
+            pw.print(" final class ")
+            o
+          case Array(c, NoSymbol, NoSymbol) => // single class
+            pw.print(modifiers(c))
+            pw.print(" class ")
+            c
+          case Array(c, o, NoSymbol) =>
+            isCompanion = true
+            pw.print(modifiers(c))
+            pw.print(" class ")
+            c
+        }
 
-        val clzName = sym.nameString
-        pw.print(encodeName(clzName))
+        pw.print(clzName)
 
+        val qName = sym.fullNameString
         val superQName = sym.superClass match {
           case null => ""
           case x => x.fullNameString
         }
 
-        if (superQName.length > 0) {
+        if (superQName.length > 0 && superQName != "java.lang.Object") {
           pw.print(" extends ")
           pw.print(encodeQName(superQName))
         }
 
         val tpe = try {
           sym.tpe
-        } catch {case _=> null}
+        } catch {case _ => null}
 
         if (tpe != null) {
           val itr = tpe.baseClasses.tail.iterator // head is always `java.lang.Object`
@@ -280,7 +303,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 if (i == 0) {
                   pw.print(" implements ")
                 } else {
-                  pw.print(",")
+                  pw.print(", ")
                 }
                 pw.print(encodeQName(x))
                 i += 1
@@ -289,64 +312,34 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
 
           pw.println(" {")
 
-          for (member <- tpe.members if !member.hasFlag(Flags.PRIVATE)) {
-            val mTpe = try {
-              member.tpe
-            } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+          if (isCompanion) {
+            genMemebers(pw, sym, tpe, false, false)
 
-            if (mTpe != null && !ScalaUtil.isInherited(sym, member)) {
-              val mSName = member.nameString
-              if (member.isMethod && mSName != "$init$" && mSName != "synchronized") {
-                pw.print(modifiers(member))
-                pw.print(" ")
-                if (member.isConstructor) {
-                  pw.print(encodeName(sym.nameString))
-                  // * parameters
-                  pw.print(params(mTpe.params))
-                  pw.println(" {}")
-                } else {
-                  val mResTpe = try {
-                    mTpe.resultType
-                  } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
-
-                  if (mResTpe != null) {
-                    val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
-                    pw.print(mResQName)
-                    pw.print(" ")
-                    // method name
-                    pw.print(encodeName(mSName))
-                    // method parameters
-                    pw.print(params(mTpe.params))
-                    pw.print(" ")
-
-                    // method body
-                    pw.print("{")
-                    pw.print(returnStrOfType(mResQName))
-                    pw.println("}")
-                  }
-                }
-              } else if (member.isVariable) {
-                // do nothing
-              } else if (member.isValue) {
-                pw.print(modifiers(member))
-                pw.print(" ")
-                val mResTpe = mTpe.resultType
-                val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
-                pw.print(mResQName)
-                pw.print(" ")
-                pw.print(mSName)
-                pw.println(";")
-              }
+            val oSym = syms(1)
+            val oTpe = try {
+              oSym.tpe
+            } catch {case _ => null}
+            
+            if (oTpe != null) {
+              genMemebers(pw, oSym, oTpe, true, false)
             }
+
+          } else {
+            genMemebers(pw, sym, tpe, isObject, isTrait)
           }
 
-          pw.println(dollarTagMethod) // * should implement scala.ScalaObject
+          if (!isTrait) {
+            pw.println(dollarTagMethod) // should implement scala.ScalaObject
+          }
 
           pw.println("}")
         } else {
           pw.println(" {")
-          
-          pw.println(dollarTagMethod) // * should implement scala.ScalaObject
+
+          if (!isTrait) {
+            pw.println(dollarTagMethod) // should implement scala.ScalaObject
+          }
+
           pw.println("}")
         }
       } finally {
@@ -359,9 +352,74 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         } catch {case ex: IOException =>}
       }
 
-      //println(sw.toString)
+      Log.log(Level.INFO, "Java stub: {0}", sw)
 
       sw.toString
+    }
+
+    private def genMemebers(pw: PrintWriter, sym: Symbol, tpe: Type, isStatic: Boolean, isInterface: Boolean) {
+      for (member <- tpe.members if !member.hasFlag(Flags.PRIVATE)) {
+        val mTpe = try {
+          member.tpe
+        } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+
+        if (mTpe != null && !ScalaUtil.isInherited(sym, member)) {
+          val mSName = member.nameString
+          if (member.isTrait || member.isClass || member.isModule ) {
+            // @todo
+          } else if (member.isMethod && mSName != "$init$" && mSName != "synchronized") {
+            pw.print(modifiers(member))
+            pw.print(" ")
+
+            if (isStatic) {
+              pw.print("static final ")
+            }
+
+            if (member.isConstructor && !isInterface) {
+              pw.print(encodeName(sym.nameString))
+              // * parameters
+              pw.print(params(mTpe.params))
+              pw.println(" {}")
+            } else {
+              val mResTpe = try {
+                mTpe.resultType
+              } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+
+              if (mResTpe != null) {
+                val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
+                pw.print(mResQName)
+                pw.print(" ")
+                // method name
+                pw.print(encodeName(mSName))
+                // method parameters
+                pw.print(params(mTpe.params))
+                pw.print(" ")
+
+                // method body
+                if (!isInterface && !member.hasFlag(Flags.DEFERRED)) {
+                  pw.print("{")
+                  pw.print(returnStrOfType(mResQName))
+                  pw.println("}")
+                } else {
+                  pw.println(";")
+                }
+              }
+            }
+          } else if (member.isVariable) {
+            // do nothing
+          } else if (member.isValue) {
+            pw.print(modifiers(member))
+            pw.print(" ")
+            val mResTpe = mTpe.resultType
+            val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
+            pw.print(mResQName)
+            pw.print(" ")
+            pw.print(mSName)
+            pw.println(";")
+          }
+        }
+      }
+
     }
 
     private val dollarTagMethod = "public int $tag() throws java.rmi.RemoteException {return 0;}"
@@ -374,6 +432,12 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       } else {
         "public"
       }
+    }
+
+    def classSName(sym: Symbol): String = {
+      if (sym.isNestedClass) {
+        classSName(sym.owner) + "$" + encodeName(sym.nameString)
+      } else encodeName(sym.nameString)
     }
 
     private def params(params: List[Symbol]): String = {
@@ -405,9 +469,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           sb.append(i)
         }
         
-        if (itr.hasNext) {
-          sb.append(",")
-        }
+        if (itr.hasNext) sb.append(", ")
         
         i += 1
       }
@@ -459,6 +521,6 @@ object ScalaVirtualSourceProvider {
     case "byte"    => "return 0;"
     case "boolean" => "return false;"
     case "char"    => "return 0;"
-    case _ => "return null"
+    case _ => "return null;"
   }
 }

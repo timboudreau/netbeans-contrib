@@ -70,7 +70,7 @@ trait AstDfn extends AstItem with AstElementHandle {
       _bindingScope.bindingDfn = Some(this)
     }
   }
-  
+   
   protected var modifiers: Option[_root_.java.util.Set[Modifier]] = None
 
   override def getFileObject: FileObject = fo.getOrElse(null)
