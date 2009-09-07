@@ -1378,7 +1378,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     }
   }
 
-  override def findLogicalRanges(info: ParserResult, caretOffset: Int): _root_.java.util.List[OffsetRange] = {
+  override def findLogicalRanges(info: ParserResult, caretOffset: Int): java.util.List[OffsetRange] = {
     val pResult = info.asInstanceOf[ScalaParserResult]
     val root = pResult.rootScope.getOrElse(return java.util.Collections.emptyList[OffsetRange])
 

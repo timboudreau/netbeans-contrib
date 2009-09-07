@@ -79,7 +79,7 @@ trait ScalaElements {self: ScalaGlobal =>
     import ScalaElement._
   
     private var kind: ElementKind = _
-    private var modifiers: Option[_root_.java.util.Set[Modifier]] = None
+    private var modifiers: Option[java.util.Set[Modifier]] = None
     private var inherited: Boolean = _
     var smart: Boolean = _
     private var fo: Option[FileObject] = None
@@ -124,7 +124,7 @@ trait ScalaElements {self: ScalaGlobal =>
       ScalaMimeResolver.MIME_TYPE
     }
 
-    override def getModifiers: _root_.java.util.Set[Modifier] = {
+    override def getModifiers: java.util.Set[Modifier] = {
       if (!modifiers.isDefined) {
         modifiers = Some(ScalaUtil.getModifiers(symbol))
       }

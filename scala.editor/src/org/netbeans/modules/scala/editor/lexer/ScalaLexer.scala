@@ -40,15 +40,15 @@
  */
 package org.netbeans.modules.scala.editor.lexer
 
-import _root_.java.io.IOException
-import _root_.java.io.Reader
+import java.io.IOException
+import java.io.Reader
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.spi.lexer.{Lexer, LexerInput, LexerRestartInfo, TokenFactory}
 import xtc.parser.Result
 import xtc.tree.GNode
 import xtc.util.Pair
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId._
 import org.netbeans.modules.scala.editor.rats.LexerScala

@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.scala.editor.ast
 
-import _root_.java.io.File
+import java.io.File
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 import org.netbeans.modules.csl.api.{ElementKind, Modifier}
 import org.netbeans.modules.parsing.api.Snapshot

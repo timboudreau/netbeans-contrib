@@ -88,9 +88,9 @@ class ScalaInstantRenamer extends InstantRenamer {
     }
   }
 
-  override def getRenameRegions(info: ParserResult, caretOffset: int): _root_.java.util.Set[OffsetRange] = {
+  override def getRenameRegions(info: ParserResult, caretOffset: int): java.util.Set[OffsetRange] = {
     if (info == null) {
-      return _root_.java.util.Collections.emptySet[OffsetRange]
+      return java.util.Collections.emptySet[OffsetRange]
     }
     
     val pResult = info.asInstanceOf[ScalaParserResult]
@@ -104,7 +104,7 @@ class ScalaInstantRenamer extends InstantRenamer {
 
     val astOffset = ScalaLexUtil.getAstOffset(pResult, caretOffset)
     if (astOffset == -1) {
-      return _root_.java.util.Collections.emptySet[OffsetRange]
+      return java.util.Collections.emptySet[OffsetRange]
     }
 
     val rootScope = pResult.rootScope.getOrElse(return java.util.Collections.emptySet[OffsetRange])

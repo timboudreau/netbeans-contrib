@@ -105,7 +105,7 @@ class FixImportsAction extends BaseAction(NbBundle.getMessage(classOf[FixImports
     try {
       val source = Source.create(fo)
       // FIXME can we move this out of task (?)
-      ParserManager.parse(_root_.java.util.Collections.singleton(source), new UserTask {
+      ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
           override def run(resultIterator: ResultIterator)  {
             val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]

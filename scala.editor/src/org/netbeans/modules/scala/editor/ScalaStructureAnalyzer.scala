@@ -51,7 +51,7 @@ import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.openide.util.Exceptions
 
-import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
+import scala.collection.mutable.{ArrayBuffer, Stack}
 
 /**
  *

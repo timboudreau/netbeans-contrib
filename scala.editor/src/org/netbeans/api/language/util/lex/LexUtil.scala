@@ -38,7 +38,7 @@
  */
 package org.netbeans.api.language.util.lex
 
-import _root_.java.io.IOException
+import java.io.IOException
 import javax.swing.text.{BadLocationException, Document}
 
 import org.netbeans.modules.csl.api.OffsetRange
@@ -52,7 +52,7 @@ import org.openide.util.Exceptions
 
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId.ScalaTokenId
 
-import _root_.scala.collection.mutable.{ArrayBuffer, Stack}
+import scala.collection.mutable.{ArrayBuffer, Stack}
 
 
 /**

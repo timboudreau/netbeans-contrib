@@ -57,10 +57,10 @@ import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
 
-import _root_.java.io.IOException
-import _root_.java.lang.ref.Reference
-import _root_.java.util._;
-import _root_.java.util.regex.Pattern
+import java.io.IOException
+import java.lang.ref.Reference
+import java.util._;
+import java.util.regex.Pattern
 
 import javax.lang.model.element._
 import javax.lang.model.`type`._
@@ -77,8 +77,8 @@ import org.netbeans.api.java.source.Task
 import org.netbeans.modules.java.source.JavaSourceAccessor
 import org.openide.filesystems.FileObject
 import org.openide.util.Exceptions
-import _root_.scala.tools.nsc.symtab.Symbols
-import _root_.scala.tools.nsc.symtab.Types
+import scala.tools.nsc.symtab.Symbols
+import scala.tools.nsc.symtab.Types
 
 /**
  *

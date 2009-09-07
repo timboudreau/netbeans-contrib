@@ -44,7 +44,7 @@ import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.api.language.util.ast.AstRef
 import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver}
 
-import _root_.scala.tools.nsc.symtab.{Symbols, Types}
+import scala.tools.nsc.symtab.{Symbols, Types}
 import org.openide.filesystems.FileObject
 
 /**

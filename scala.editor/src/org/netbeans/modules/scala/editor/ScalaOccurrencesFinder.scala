@@ -57,14 +57,14 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
   private var cancelled: Boolean = _
   private var caretPosition: Int = _
-  private var occurrences: _root_.java.util.Map[OffsetRange, ColoringAttributes] = _
+  private var occurrences: java.util.Map[OffsetRange, ColoringAttributes] = _
   private var fo: FileObject = _
 
   override def getPriority: Int = 0
 
   override def getSchedulerClass: Class[_ <: Scheduler] = Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER
 
-  override def getOccurrences: _root_.java.util.Map[OffsetRange, ColoringAttributes] = occurrences
+  override def getOccurrences: java.util.Map[OffsetRange, ColoringAttributes] = occurrences
 
   override def setCaretPosition(position: Int): Unit = {
     this.caretPosition = position
@@ -224,7 +224,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     }
 
     if (!highlights.isEmpty) {
-      val translated = new _root_.java.util.HashMap[OffsetRange, ColoringAttributes](2 * highlights.size)
+      val translated = new java.util.HashMap[OffsetRange, ColoringAttributes](2 * highlights.size)
       val itr = highlights.entrySet.iterator
       while (itr.hasNext) {
         val entry = itr.next

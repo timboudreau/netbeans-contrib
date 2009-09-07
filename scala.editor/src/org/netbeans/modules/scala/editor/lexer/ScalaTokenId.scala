@@ -40,12 +40,12 @@
  */
 package org.netbeans.modules.scala.editor.lexer
 
-import _root_.java.util.{Collection,
-                         Collections,
-                         HashMap,
-                         HashSet,
-                         Map,
-                         Arrays}
+import java.util.{Collection,
+                  Collections,
+                  HashMap,
+                  HashSet,
+                  Map,
+                  Arrays}
 import org.netbeans.api.lexer.{InputAttributes,
                                Language,
                                LanguagePath,
