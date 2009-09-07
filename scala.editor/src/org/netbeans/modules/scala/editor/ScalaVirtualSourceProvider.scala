@@ -404,71 +404,71 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       tpe != null && (tpe.members find (_ hasFlag Flags.DEFERRED) isDefined)
     }
 
-    private def genMemebers(pw: PrintWriter, sym: Symbol, tpe: Type, isStatic: Boolean, isInterface: Boolean) {
-      for (member <- tpe.members if !member.hasFlag(Flags.PRIVATE)) {
+    private def genMemebers(pw: PrintWriter, sym: Symbol, tpe: Type, isObject: Boolean, isTrait: Boolean) {
+      for (m <- tpe.members if !m.hasFlag(Flags.PRIVATE)) {
         val mTpe = try {
-          member.tpe
+          m.tpe
         } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
 
-        if (mTpe != null && !ScalaUtil.isInherited(sym, member)) {
-          val mSName = member.nameString
-          if (member.isTrait || member.isClass || member.isModule ) {
-            // @todo
-          } else if (member.isMethod && mSName != "$init$" && mSName != "synchronized") {
-            pw.print(modifiers(member))
-
-            if (isStatic && !isInterface) {
-              pw.print("static final ")
-            }
-
-            if (member.isConstructor) {
-              if (!isInterface) {
+        if (mTpe != null && !ScalaUtil.isInherited(sym, m)) {
+          val mSName = m.nameString
+          m match {
+            case _ if m.isTrait || m.isClass || m.isModule =>
+              // @todo
+            case _ if m.isConstructor =>
+              if (!isTrait && !isObject) {
+                pw.print(modifiers(m))
                 pw.print(encodeName(sym.nameString))
                 // * parameters
                 pw.print(params(mTpe.params))
                 pw.println(" {}")
               }
-            } else {
-              val mResTpe = try {
-                mTpe.resultType
-              } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+            case _ if m.isMethod =>
+              if (mSName != "$init$" && mSName != "synchronized") {
+                pw.print(modifiers(m))
+                if (isObject && !isTrait) pw.print("static final ")
 
-              if (mResTpe != null) {
-                // method return type
+                val mResTpe = try {
+                  mTpe.resultType
+                } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+
+                if (mResTpe != null) {
+                  // method return type
+                  val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
+                  pw.print(mResQName)
+                  pw.print(" ")
+
+                  // method name
+                  pw.print(encodeName(mSName))
+                
+                  // method parameters
+                  pw.print(params(mTpe.params))
+                  pw.print(" ")
+
+                  // method body or ";"
+                  if (!isTrait && !m.hasFlag(Flags.DEFERRED)) {
+                    pw.print("{")
+                    pw.print(returnStrOfType(mResQName))
+                    pw.println("}")
+                  } else {
+                    pw.println(";")
+                  }
+                }
+              }
+            case _ if m.isVariable =>
+              // do nothing
+            case _ if m.isValue =>
+              if (!isTrait) {
+                pw.print(modifiers(m))
+                pw.print(" ")
+                val mResTpe = mTpe.resultType
                 val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
                 pw.print(mResQName)
                 pw.print(" ")
-
-                // method name
-                pw.print(encodeName(mSName))
-                
-                // method parameters
-                pw.print(params(mTpe.params))
-                pw.print(" ")
-
-                // method body or ";"
-                if (!isInterface && !member.hasFlag(Flags.DEFERRED)) {
-                  pw.print("{")
-                  pw.print(returnStrOfType(mResQName))
-                  pw.println("}")
-                } else {
-                  pw.println(";")
-                }
+                pw.print(mSName)
+                pw.println(";")
               }
-            }
-          } else if (member.isVariable) {
-            // do nothing
-          } else if (member.isValue) {
-            if (!isInterface) {
-              pw.print(modifiers(member))
-              pw.print(" ")
-              val mResTpe = mTpe.resultType
-              val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
-              pw.print(mResQName)
-              pw.print(" ")
-              pw.print(mSName)
-              pw.println(";")
-            }
+            case _ =>
           }
         }
       }
