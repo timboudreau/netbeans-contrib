@@ -494,11 +494,15 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     }
 
     def classSName(sym: Symbol): String = {
-      if (sym.isNestedClass) {
+      if (isNestedTemplate(sym)) {
         classSName(sym.owner) + "$" + encodeName(sym.nameString)
       } else encodeName(sym.nameString)
     }
 
+    def isNestedTemplate(sym: Symbol): Boolean = {
+      (sym.isTrait || sym.isModule || sym.isClass) && !sym.isRoot && !sym.owner.isPackageClass
+    }
+    
     private def params(params: List[Symbol]): String = {
       val sb = new StringBuffer
       sb.append("(")
