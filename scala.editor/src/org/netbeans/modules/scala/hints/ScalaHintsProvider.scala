@@ -46,6 +46,8 @@ import java.{ lang => jl, util => ju }
 import org.netbeans.modules.csl.api.HintsProvider.HintsManager;
 import org.netbeans.modules.csl.api._;
 import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.scala.editor.ScalaParserResult
+import org.netbeans.api.language.util.ast.AstScope
 import scala.collection.mutable.ListBuffer
 
 class ScalaHintsProvider() extends HintsProvider {
@@ -56,7 +58,22 @@ class ScalaHintsProvider() extends HintsProvider {
      * Compute hints applicable to the given compilation info and add to the given result list.
      */
     def computeHints(manager : HintsManager, context : RuleContext, hints : java.util.List[Hint]) : Unit = {
+      println("compute hints")
+      val parserResult = context.parserResult;
+      if (parserResult != null) {
+          val scalaParserResult = parserResult.asInstanceOf[ScalaParserResult]
+          val rootScope = scalaParserResult.rootScope.get
+          val hintRules  = manager.getHints.asInstanceOf[ju.Map[_, ju.List[ScalaAstRule]]]
+          if (!hintRules.isEmpty && !cancelled) {
+            try {
+              context.doc.readLock();
+              hints.addAll(applyHintRules(manager, context.asInstanceOf[ScalaRuleContext], hintRules.get(ScalaAstRule.ROOT), rootScope))
+            } finally {
+              context.doc.readUnlock();
+            }
 
+        }
+      }
     }
 
     /**
@@ -117,10 +134,10 @@ class ScalaHintsProvider() extends HintsProvider {
         }
     }
 
-   def applyRules(error : Error, manager : HintsManager, context : ScalaRuleContext,  errHints : ju.Map[String, ju.List[ScalaErrorRule]], result : ju.List[Hint]) : Boolean = {
+   def applyRules(error : Error, manager : HintsManager, context : ScalaRuleContext,  errRules : ju.Map[String, ju.List[ScalaErrorRule]], result : ju.List[Hint]) : Boolean = {
         val code = error.getKey
         //println("code=" + code)
-        val rules = errHints.get(code)
+        val rules = errRules.get(code)
         if (rules != null) {
            var added = List[Hint]()
            val applicableRules = for {
@@ -137,10 +154,10 @@ class ScalaHintsProvider() extends HintsProvider {
         }
     }
 
-   def applySelectionRules(manager : HintsManager, context : ScalaRuleContext,  selHints : ju.List[ScalaSelectionRule], start : Int, end : Int) : List[Hint] = {
+   def applySelectionRules(manager : HintsManager, context : ScalaRuleContext,  selRules : ju.List[ScalaSelectionRule], start : Int, end : Int) : List[Hint] = {
        val added = ListBuffer[Hint]()
        val applicableRules = for {
-           rule <- selHints
+           rule <- selRules
            if rule.appliesTo(context)
        } yield rule
        for (rule <- applicableRules) {
@@ -149,6 +166,17 @@ class ScalaHintsProvider() extends HintsProvider {
        added.toList
     }
 
+   def applyHintRules(manager : HintsManager, context : ScalaRuleContext,  selRules : ju.List[ScalaAstRule], scope : AstScope) : List[Hint] = {
+       val added = ListBuffer[Hint]()
+       val applicableRules = for {
+           rule <- selRules
+           if rule.appliesTo(context)
+       } yield rule
+       for (rule <- applicableRules) {
+           added ++= rule.createHints(context, scope)
+       }
+       added.toList
+    }
 
 
     /**

@@ -53,9 +53,9 @@ import org.netbeans.modules.scala.editor.ScalaSourceUtil
 class ScalaRuleContext extends RuleContext {
 
   def getFileObject = parserResult.getSnapshot.getSource.getFileObject
-
-  def getClasspathInfo : Option[ClasspathInfo]  =
-    ScalaSourceUtil.getClasspathInfo(getFileObject)
+  def getTokenHierarchy = parserResult.getSnapshot.getTokenHierarchy
+  def getClasspathInfo  : Option[ClasspathInfo]  = 
+     ScalaSourceUtil.getClasspathInfo(getFileObject)
 
   def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
     if (start > end) return None
