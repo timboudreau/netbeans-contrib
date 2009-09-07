@@ -156,16 +156,16 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           }
 
           private def visit(scope: AstScope, tmpls: ArrayBuffer[ScalaDfns#ScalaDfn]): Unit = {
-            for (dfn <- scope.dfns if (dfn.getKind == ElementKind.CLASS || dfn.getKind == ElementKind.MODULE)) {
+            for (dfn <- scope.dfns;
+                 kind = dfn.getKind if kind == ElementKind.CLASS || kind== ElementKind.MODULE
+            ) {
               tmpls += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
             }
 
-            for (_scope <- scope.subScopes) {
-              visit(_scope, tmpls)
-            }
+            scope.subScopes foreach {visit(_, tmpls)}
           }
 
-          private def process(global: ScalaGlobal, tmpls: List[ScalaDfns#ScalaDfn]) = {
+          private def process(globalx: ScalaGlobal, tmpls: List[ScalaDfns#ScalaDfn]) = {
             tmpls match {
               case Nil =>
                 // * source is probably broken and there is no AST
@@ -183,10 +183,10 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                   //result.add(file, pkg, file.getName(), sb.toString());
                 }
               case _ =>
-                val generator = new JavaStubGenerator(global)
-                import generator.global._
+                val generator = new JavaStubGenerator {val global: globalx.type = globalx}
+                import globalx._
 
-                val emptySyms: Array[Symbol] = Array(NoSymbol, NoSymbol, NoSymbol)
+                val emptySyms: Array[Symbol] = Array(null, null, null)
                 val clzNameToSyms = new HashMap[String, Array[Symbol]] // clzName -> (class, object, trait)
 
                 for (tmpl <- tmpls;
@@ -204,12 +204,13 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                         Array(sym, o, t)
                       }
                   }
+                  
                   clzNameToSyms += (clzName -> syms)
                 }
                 
                 for ((clzName, syms) <- clzNameToSyms) {
                   try {
-                    val pkgQName = syms find (_ != NoSymbol) match {
+                    val pkgQName = syms find (_ != null) match {
                       case Some(sym) => sym.enclosingPackage match {
                           case null => ""
                           case packaging => packaging.fullNameString match {
@@ -219,7 +220,8 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                         }
                       case _ => ""
                     }
-                    val javaStub = generator.generateClass(pkgQName, clzName, syms)
+                    
+                    val javaStub = generator.genClass(pkgQName, clzName, syms)
                    
                     result.add(file, pkgQName, clzName, javaStub)
                   } catch {case ex: FileNotFoundException => Exceptions.printStackTrace(ex)}
@@ -230,7 +232,8 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     } catch {case ex: ParseException => Exceptions.printStackTrace(ex)}
   }
 
-  private class JavaStubGenerator(val global: ScalaGlobal) {
+  private abstract class JavaStubGenerator {
+    val global: ScalaGlobal
     import global._
 
     private var isTrait = false
@@ -238,7 +241,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     private var isCompanion = false
 
     @throws(classOf[FileNotFoundException])
-    def generateClass(pkgName: String, clzName: String, syms: Array[Symbol]): CharSequence = {
+    def genClass(pkgName: String, clzName: String, syms: Array[Symbol]): CharSequence = {
       val sw = new StringWriter
       val pw = new PrintWriter(sw)
 
@@ -252,24 +255,24 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         //pw.println("@NetBeansVirtualSource(11, 12)");
 
         val sym = syms match {
-          case Array(NoSymbol, NoSymbol, t) => // trait
+          case Array(null, null, t) => // trait
             isTrait = true
             pw.print(modifiers(t))
             pw.print("interface ")
 
             t
-          case Array(NoSymbol, o, NoSymbol) => // single object
+          case Array(null, o, null) => // single object
             isObject = true
             pw.print(modifiers(o))
             pw.print("final class ")
 
             o
-          case Array(c, NoSymbol, NoSymbol) => // single class
+          case Array(c, null, null) => // single class
             pw.print(modifiers(c))
             pw.print("class ")
 
             c
-          case Array(c, o, NoSymbol) => // companion object + class
+          case Array(c, o, null) => // companion object + class
             isCompanion = true
             pw.print(modifiers(c))
             pw.print("class ")
