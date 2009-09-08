@@ -612,6 +612,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                   case None => jsig(tp)
                 }
               }
+            def argsSig(args: List[Type]) = (if (args.isEmpty) "" else (args map argSig).mkString("<", ", ", ">"))
             def classSig: String = "L" + sym.fullNameString + global.genJVM.moduleSuffix(sym)
             //"L" + (sym.fullNameString + global.genJVM.moduleSuffix(sym)).replace('.', '/')
             def classSigSuffix: String = "." + sym.name
@@ -634,13 +635,19 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
               case _ if isValueClass(sym) =>
                 tagOfClass(sym)
               case _ if sym.isClass =>
-                val postPre = if (needsJavaSig(pre)) {
-                  val s = jsig(pre)
-                  if (s.charAt(0) == 'L') s.substring(0, s.length - 1) + classSigSuffix else classSig
-                } else classSig
+                sym.fullNameString match {
+                  case "scala.<byname>" =>
+                    "scala.Function0" + argsSig(args)
+                  case "scala.<repeated>" =>
+                    "scala.collection.Sequence" + argsSig(args)
+                  case _ =>
+                    val postPre = if (needsJavaSig(pre)) {
+                      val s = jsig(pre)
+                      if (s.charAt(0) == 'L') s.substring(0, s.length - 1) + classSigSuffix else classSig
+                    } else classSig
 
-                (if (postPre.charAt(0) == 'L') postPre.substring(1, postPre.length) else postPre) +
-                (if (args.isEmpty) "" else (args map argSig).mkString("<", ", ", ">"))
+                    (if (postPre.charAt(0) == 'L') postPre.substring(1, postPre.length) else postPre) + argsSig(args)
+                }
               case _ => jsig(erasure.erasure(tp))
             }
 
