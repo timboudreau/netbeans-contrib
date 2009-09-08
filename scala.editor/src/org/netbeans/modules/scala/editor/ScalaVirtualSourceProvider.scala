@@ -235,6 +235,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   private abstract class JavaStubGenerator {
     val global: ScalaGlobal
     import global._
+    import definitions._
 
     private var isTrait = false
     private var isObject = false
@@ -286,10 +287,20 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
             t
         }
 
+        // * we get clzName, do not try javaSig, which contains package string
+        // * and may be binary name, for example, an object's name will be "object$"
         pw.print(clzName)
 
+        val tpe = tryTpe(sym)
+        javaSig(sym, tpe) match {
+          case Some(sig) => pw.print(getGenericPart(sig))
+          case None =>
+        }
+
         val qName = sym.fullNameString
-        val superQName = sym.superClass match {
+
+        val superClass = sym.superClass
+        val superQName = superClass match {
           case null => ""
           case x => x.fullNameString
         }
@@ -297,11 +308,14 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         var extended = false
         if (!isTrait && superQName.length > 0) {
           pw.print(" extends ")
-          pw.print(encodeQName(superQName))
           extended = true
+
+          javaSig(superClass, superClass.tpe) match {
+            case Some(sig) => pw.print(sig)
+            case None => pw.print(encodeQName(superQName))
+          }
         }
 
-        val tpe = tryTpe(sym)
 
         if (tpe != null) {
           val itr = tpe.baseClasses.tail.iterator // head is always `java.lang.Object`?
@@ -312,7 +326,8 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
               case `superQName` =>
               case `qName` =>
               case "java.lang.Object" =>
-              case x =>
+              case "scala.Any" =>  // javaSig of "scala.Any" will be "java.lang.Object"
+              case baseQName =>
                 if (base.isTrait) {
                   if (isTrait) {
                     if (!extended) {
@@ -330,7 +345,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                     }
                   }
                   
-                  pw.print(encodeQName(x))
+                  pw.print(encodeQName(baseQName))
                 } else { // base is class
                   if (isTrait) {
                     // * shound not happen or error of "interface extends a class", ignore it
@@ -342,10 +357,12 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                       pw.print(", ")
                     }
 
-                    pw.print(encodeQName(x))
+                    javaSig(base, base.tpe) match {
+                      case Some(sig) => pw.print(sig)
+                      case None => pw.print(encodeQName(baseQName))
+                    }
                   }
                 }
-
             }
           }
 
@@ -424,35 +441,44 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 pw.println(" {}")
               }
             case _ if m.isMethod =>
-              if (mSName != "$init$" && mSName != "synchronized") {
+              val mResTpe = try {
+                mTpe.resultType
+              } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+
+              if (mResTpe != null && mSName != "$init$" && mSName != "synchronized") {
+                val mResSym = mResTpe.typeSymbol
+                
                 pw.print(modifiers(m))
                 if (isObject && !isTrait) pw.print("static final ")
 
-                val mResTpe = try {
-                  mTpe.resultType
-                } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
+                val mResQName = javaSig(mResSym, mResTpe) match {
+                  case Some(sig) => sig
+                  case None => encodeType(mResSym.fullNameString)
+                }
 
-                if (mResTpe != null) {
-                  // method return type
-                  val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
-                  pw.print(mResQName)
-                  pw.print(" ")
+                javaSig(m, mTpe) match {
+                  case Some(sig) =>
+                    pw.print(sig)
+                  case None =>
+                    // method return type
+                    pw.print(mResQName)
+                    pw.print(" ")
 
-                  // method name
-                  pw.print(encodeName(mSName))
-                
-                  // method parameters
-                  pw.print(params(mTpe.params))
-                  pw.print(" ")
+                    // method name
+                    pw.print(encodeName(mSName))
 
-                  // method body or ";"
-                  if (!isTrait && !m.hasFlag(Flags.DEFERRED)) {
-                    pw.print("{")
-                    pw.print(returnStrOfType(mResQName))
-                    pw.println("}")
-                  } else {
-                    pw.println(";")
-                  }
+                    // method parameters
+                    pw.print(params(mTpe.params))
+                    pw.print(" ")
+                }
+
+                // method body or ";"
+                if (!isTrait && !m.hasFlag(Flags.DEFERRED)) {
+                  pw.print("{")
+                  pw.print(returnStrOfType(mResQName))
+                  pw.println("}")
+                } else {
+                  pw.println(";")
                 }
               }
             case _ if m.isVariable =>
@@ -462,7 +488,11 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 pw.print(modifiers(m))
                 pw.print(" ")
                 val mResTpe = mTpe.resultType
-                val mResQName = encodeType(mResTpe.typeSymbol.fullNameString)
+                val mResSym = mResTpe.typeSymbol
+                val mResQName = javaSig(mResSym, mResTpe) match {
+                  case Some(sig) => sig
+                  case None => encodeType(mResSym.fullNameString)
+                }
                 pw.print(mResQName)
                 pw.print(" ")
                 pw.print(mSName)
@@ -542,6 +572,178 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       sb.toString
     }
 
+    def getGenericPart(classJavaSig: String): String = {
+      classJavaSig.indexOf('<') match {
+        case -1 => ""
+        case i  => classJavaSig.substring(i, classJavaSig.length)
+      }
+    }
+
+    // ----- @see scala.tools.nsc.transform.Erasure
+
+    def javaSig(sym: Symbol, info: Type): Option[String] = {
+
+      def jsig(tp: Type): String = jsig2(false, Nil, tp)
+
+      def jsig2(toplevel: Boolean, tparams: List[Symbol], atp: Type): String = {
+        if (atp == null) return "Object"
+
+        val tp = atp.dealias
+        tp match {
+          case st: SubType =>
+            jsig2(toplevel, tparams, st.supertype)
+
+          case ExistentialType(tparams, tpe) =>
+            jsig2(toplevel, tparams, tpe)
+
+          case TypeRef(pre, sym, args) =>
+            def argSig(tp: Type) =
+              if (tparams contains tp.typeSymbol) {
+                val bounds = tp.typeSymbol.info.bounds
+
+                if (!(AnyRefClass.tpe <:< bounds.hi))  "? extends " + jsig(bounds.hi)
+                else if (!(bounds.lo <:< NullClass.tpe)) "? super " + jsig(bounds.lo)
+                else "?"
+              } else if (tp.typeSymbol == UnitClass) {
+                jsig(ObjectClass.tpe)
+              } else {
+                boxedClass get tp.typeSymbol match {
+                  case Some(boxed) => jsig(boxed.tpe)
+                  case None => jsig(tp)
+                }
+              }
+            def classSig: String = "L" + sym.fullNameString + global.genJVM.moduleSuffix(sym)
+            //"L" + (sym.fullNameString + global.genJVM.moduleSuffix(sym)).replace('.', '/')
+            def classSigSuffix: String = "." + sym.name
+
+            sym match {
+              case ArrayClass =>
+                (args map jsig).mkString + "[]"
+                //ARRAY_TAG.toString + (args map jsig).mkString
+              case _ if sym.isTypeParameterOrSkolem && !sym.owner.isTypeParameterOrSkolem =>
+                // * not a higher-order type parameter, as these are suppressed
+                sym.nameString
+              case AnyClass | AnyValClass | SingletonClass =>
+                jsig(ObjectClass.tpe)
+              case UnitClass =>
+                jsig(BoxedUnitClass.tpe)
+              case NothingClass =>
+                jsig(RuntimeNothingClass.tpe)
+              case NullClass =>
+                jsig(RuntimeNullClass.tpe)
+              case _ if isValueClass(sym) =>
+                tagOfClass(sym)
+              case _ if sym.isClass =>
+                val postPre = if (needsJavaSig(pre)) {
+                  val s = jsig(pre)
+                  if (s.charAt(0) == 'L') s.substring(0, s.length - 1) + classSigSuffix else classSig
+                } else classSig
+
+                (if (postPre.charAt(0) == 'L') postPre.substring(1, postPre.length) else postPre) +
+                (if (args.isEmpty) "" else (args map argSig).mkString("<", ", ", ">"))
+              case _ => jsig(erasure.erasure(tp))
+            }
+
+          case PolyType(tparams, restpe) =>
+            def hiBounds(bounds: TypeBounds): List[Type] = bounds.hi.normalize match {
+              case RefinedType(parents, _) => parents map analyzer.normalize
+              case tp => List(tp)
+            }
+            def boundSig(bounds: List[Type]) = {
+              def isClassBound(t: Type) = !t.typeSymbol.isTrait
+              val classBound = bounds find isClassBound match {
+                case Some(t) => jsig(t)
+                case None => ""
+              }
+              " extends " + classBound + (for (t <- bounds if !isClassBound(t)) yield ":" + jsig(t)).mkString
+            }
+            def paramSig(tsym: Symbol) = tsym.name + boundSig(hiBounds(tsym.info.bounds))
+            
+            //assert(!tparams.isEmpty)
+            if (tparams.isEmpty) {
+              (if (restpe.typeSymbol == UnitClass) "void" else jsig(restpe)) + " " + sym.name + "()"
+            } else {
+              (if (toplevel) (tparams map paramSig).mkString("<", ", ", ">") else "") + " " + jsig(restpe)
+            }
+
+          case MethodType(params, restpe) =>
+            def paramsSig(params: List[Symbol]) = {
+              var i = 0
+              params map {x =>
+                var name = x.nameString
+                name = if (name.length > 0) name else "a" + i
+                i += 1
+                jsig(x.tpe) + " " + name
+              } mkString("(", ", ", ")")
+            }
+
+            (if (sym.isConstructor) "" else if (restpe.typeSymbol == UnitClass) "void" else jsig(restpe)) + " " +
+            sym.name + paramsSig(params)
+
+          case RefinedType(parents, decls) if (!parents.isEmpty) =>
+            jsig(parents.head)
+
+          case ClassInfoType(parents, _, _) =>
+            (parents map jsig).mkString
+
+          case AnnotatedType(_, atp, _) =>
+            jsig(atp)
+
+          case _ =>
+            val etp = erasure.erasure(tp)
+            if (etp eq tp) throw new UnknownSig
+            else jsig(etp)
+        }
+      }
+
+      if (info == null) return None
+      try {
+        Some(jsig2(true, Nil, info))
+      } catch {case ex: UnknownSig => Log.warning(sym + " has UnknownSig"); None}
+    }
+
+    class UnknownSig extends Exception
+
+    private lazy val tagOfClass = Map[Symbol, String](
+      ByteClass    -> "byte",
+      CharClass    -> "char",
+      DoubleClass  -> "double",
+      FloatClass   -> "float",
+      IntClass     -> "int",
+      LongClass    -> "long",
+      ShortClass   -> "int",
+      BooleanClass -> "boolean",
+      UnitClass    -> "void"
+    )
+
+    private object NeedsSigCollector extends TypeCollector(false) {
+      def traverse(tp: Type) {
+        if (!result) {
+          tp match {
+            case st: SubType =>
+              traverse(st.supertype)
+            case TypeRef(pre, sym, args) =>
+              if (sym == ArrayClass) args foreach traverse
+              else if (sym.isTypeParameterOrSkolem || sym.isExistential || !args.isEmpty) result = true
+              else if (!sym.owner.isPackageClass) traverse(pre)
+            case PolyType(_, _) | ExistentialType(_, _) =>
+              result = true
+            case RefinedType(parents, decls) =>
+              if (!parents.isEmpty) traverse(parents.head)
+            case ClassInfoType(parents, _, _) =>
+              parents foreach traverse
+            case AnnotatedType(_, atp, _) =>
+              traverse(atp)
+            case _ => mapOver(tp)
+          }
+        }
+      }
+    }
+
+    private def needsJavaSig(tp: Type) = NeedsSigCollector.collect(tp)
+
+    // ----- end of scala.tools.nsc.transform.Erasure.scala
+
     /*
      * to java name
      */
@@ -554,6 +756,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
      */
     private def encodeType(scalaTypeQName: String): String = {
       scalaTypeQName match {
+        case "scala.runtime.BoxedUnit" => "void"
         case "scala.Unit" => "void"
         case _ => encodeQName(scalaTypeQName)
       }
@@ -575,16 +778,17 @@ object ScalaVirtualSourceProvider {
   val Log = Logger.getLogger(classOf[ScalaVirtualSourceProvider].getName)
 
   private def returnStrOfType(tpe: String) = tpe match {
-    case "double"     => "return 0.0;"
-    case "float"      => "return 0.0f;"
-    case "long"       => "return 0L;"
-    case "int"        => "return 0;"
-    case "short"      => "return 0;"
-    case "byte"       => "return 0;"
-    case "boolean"    => "return false;"
-    case "char"       => "return 0;"
-    case "void"       => "return;"
+    case "scala.runtime.BoxedUnit" => "return;"
     case "scala.Unit" => "return;"
+    case "void"    => "return;"
+    case "double"  => "return 0.0;"
+    case "float"   => "return 0.0f;"
+    case "long"    => "return 0L;"
+    case "int"     => "return 0;"
+    case "short"   => "return 0;"
+    case "byte"    => "return 0;"
+    case "boolean" => "return false;"
+    case "char"    => "return 0;"
     case _ => "return null;"
   }
 }
