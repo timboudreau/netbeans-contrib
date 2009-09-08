@@ -143,8 +143,8 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
         // Document was just closed
         return
       }
+      //doc.readLock
       try {
-        doc.readLock
         val length = doc.getLength
         val astRange = ScalaLexUtil.getRangeOfToken(th, idToken)
         val lexRange = ScalaLexUtil.getLexerOffsets(pResult, astRange)
@@ -206,7 +206,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
         //                    }
         token
       } finally {
-        doc.readUnlock
+        //doc.readUnlock
       }
     }
 

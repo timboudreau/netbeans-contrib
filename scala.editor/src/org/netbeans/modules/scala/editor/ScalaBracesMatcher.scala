@@ -58,7 +58,7 @@ class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
     var offset = context.getSearchOffset
     val doc = context.getDocument.asInstanceOf[BaseDocument]
 
-    doc.readLock
+    //doc.readLock
     try {
       ScalaLexUtil.getTokenSequence(doc, offset) foreach {ts =>
         ts.move(offset)
@@ -123,7 +123,7 @@ class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
 
       null
     } finally {
-      doc.readUnlock
+      //doc.readUnlock
     }
   }
 
@@ -134,7 +134,7 @@ class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
     var offset = context.getSearchOffset
     val doc = context.getDocument.asInstanceOf[BaseDocument]
     
-    doc.readLock
+    //doc.readLock
     try {
       ScalaLexUtil.getTokenSequence(doc, offset) foreach {ts =>
         ts.move(offset)
@@ -209,7 +209,7 @@ class ScalaBracesMatcher(context: MatcherContext) extends BracesMatcher {
 
       null
     } finally {
-      doc.readUnlock
+      //doc.readUnlock
     }
   }
 

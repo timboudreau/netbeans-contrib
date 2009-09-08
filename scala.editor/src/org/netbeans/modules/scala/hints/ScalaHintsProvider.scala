@@ -79,10 +79,10 @@ class ScalaHintsProvider() extends HintsProvider {
         val selHints  = manager.getSelectionHints.asInstanceOf[ju.List[ScalaSelectionRule]]
         if (!selHints.isEmpty && !cancelled) {
           try {
-            context.doc.readLock();
+            //context.doc.readLock();
             suggestions.addAll(applySelectionRules(manager, context.asInstanceOf[ScalaRuleContext], selHints, start, end))
           } finally {
-            context.doc.readUnlock();
+            //context.doc.readUnlock();
           }
         }
       }

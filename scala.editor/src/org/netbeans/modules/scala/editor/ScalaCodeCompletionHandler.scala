@@ -138,7 +138,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     val completionResult = new DefaultCompletionResult(proposals, false)
 
     // * Read-lock due to Token hierarchy use
-    doc.readLock
+    //doc.readLock
     try {
       val th = pResult.getSnapshot.getTokenHierarchy
 
@@ -262,7 +262,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       completer.completeKeywords(proposals)
 
     } finally {
-      doc.readUnlock
+      //doc.readUnlock
     }
 
     completionResult

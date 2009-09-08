@@ -281,10 +281,10 @@ object ScalaSourceUtil {
 
     val th = pResult.getSnapshot.getTokenHierarchy
 
-    doc.readLock // Read-lock due to token hierarchy use
+    //doc.readLock // Read-lock due to token hierarchy use
     val offset = 0//element.getBoundsOffset(th)
     val range = ScalaLexUtil.getDocumentationRange(th, offset)
-    doc.readUnlock
+    //doc.readUnlock
 
     if (range.getEnd < doc.getLength) {
       try {
@@ -303,9 +303,9 @@ object ScalaSourceUtil {
       case x => x
     }
 
-    doc.readLock // Read-lock due to token hierarchy use
+    //doc.readLock // Read-lock due to token hierarchy use
     val range = ScalaLexUtil.getDocCommentRangeBefore(th, symbolOffset)
-    doc.readUnlock
+    //doc.readUnlock
 
     if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
       try {
