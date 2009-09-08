@@ -41,12 +41,12 @@ package org.netbeans.modules.scala.hints
 
 import org.netbeans.modules.csl.api.RuleContext
 import org.openide.filesystems.FileObject
-import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.editor.Utilities
 
 import org.netbeans.modules.scala.editor.ScalaSourceUtil
+import org.netbeans.modules.scala.editor.ScalaParserResult
 
 
 
@@ -56,6 +56,8 @@ class ScalaRuleContext extends RuleContext {
   def getTokenHierarchy = parserResult.getSnapshot.getTokenHierarchy
   def getClasspathInfo  : Option[ClasspathInfo]  = 
      ScalaSourceUtil.getClasspathInfo(getFileObject)
+
+  def global = parserResult.asInstanceOf[ScalaParserResult].global
 
   def calcOffsetRange(start : Int, end : Int) : Option[OffsetRange] = {
     if (start > end) return None
