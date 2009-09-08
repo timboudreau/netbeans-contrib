@@ -187,18 +187,17 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
             }
             if (sym.isMethod || sym.isConstructor) {
 //              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " ref", sym)
+              for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
               for (meth <- sym.tpe.paramTypes) {
 //                  println("meth param=" + meth)
                   buf.add(meth.trimPrefix(meth.toString))
+                  for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
                   //add type params
               }
               val res = sym.tpe.resultType
 //              println("result type=" + res.trimPrefix(res.toString))
               buf.add(res.trimPrefix(res.toString))
-              for (resSym <-res.typeArgs) {
-//                  println( "result param=" + resSym)
-                  buf.add(resSym.trimPrefix(resSym.toString))
-              }
+              for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
             }
 
         }
@@ -213,18 +212,17 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
             }
             if (sym.isMethod || sym.isConstructor) {
 //              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " def", sym)
+              for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
               for (meth <- sym.tpe.paramTypes) {
 //                  println("meth param=" + meth)
                   buf.add(meth.trimPrefix(meth.toString))
+                  for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
                   //add type params
               }
               val res = sym.tpe.resultType
 //              println("result type=" + res.trimPrefix(res.toString))
               buf.add(res.trimPrefix(res.toString))
-              for (resSym <-res.typeArgs) {
-//                  println( "result param=" + resSym)
-                  buf.add(resSym.trimPrefix(resSym.toString))
-              }
+              for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
             }
         }
 //        println("scope end=================================")
