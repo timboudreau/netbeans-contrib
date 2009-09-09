@@ -103,7 +103,8 @@ object RefactoringActionsProvider {
   }
 
 }
-@org.openide.util.lookup.ServiceProvider(service = classOf[ActionsImplementationProvider], position=400)
+
+@org.openide.util.lookup.ServiceProvider(service = classOf[ActionsImplementationProvider], position = 400)
 class RefactoringActionsProvider extends ActionsImplementationProvider {
   import RefactoringActionsProvider._
   
