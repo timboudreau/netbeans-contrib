@@ -61,20 +61,21 @@ import org.netbeans.modules.scala.editor.refactoring.WhereUsedQueryConstants
  * @author Martin Matula, Jan Becicka
  */
 object WhereUsedRefactoringUI {
-  def apply(jmiObject: ScalaItems#ScalaItem) = {
-    val query = new WhereUsedQuery(Lookups.singleton(jmiObject))
-    val element = jmiObject;
-    val name = jmiObject.symbol.nameString
-    val kind = jmiObject.kind
+  def apply(searchHandle: ScalaItems#ScalaItem) = {
+    val query = new WhereUsedQuery(Lookups.singleton(searchHandle))
+    val element = searchHandle
+    val name = searchHandle.symbol.nameString
+    val kind = searchHandle.kind
     new WhereUsedRefactoringUI(query, name, kind, element, null)
   }
 
-  def apply(jmiObject: ScalaItems#ScalaItem, name: String, delegate: AbstractRefactoring) = {
+  def apply(searchHandle: ScalaItems#ScalaItem, name: String, delegate: AbstractRefactoring) = {
     //this.query.getContext().add(info.getClasspathInfo());
-    val element = jmiObject;
+    val element = searchHandle
     new WhereUsedRefactoringUI(null, name, null, element, delegate)
   }
 }
+
 class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementKind, element: ScalaItems#ScalaItem, delegate: AbstractRefactoring) extends RefactoringUI {
   private var panel: WhereUsedPanel = _
 
@@ -116,14 +117,15 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
   }
     
   def checkParameters: Problem = {
-    if (kind == ElementKind.METHOD) {
-      setForMethod
-      return query.fastCheckParameters
-    } else if (kind == ElementKind.CLASS || kind == ElementKind.MODULE) {
-      setForClass
-      return query.fastCheckParameters
-    } else
-      return null
+    kind match {
+      case ElementKind.METHOD =>
+        setForMethod
+        query.fastCheckParameters
+      case ElementKind.CLASS | ElementKind.MODULE =>
+        setForClass
+        query.fastCheckParameters
+      case _ => null
+    } 
   }
 
   def getRefactoring: AbstractRefactoring = {

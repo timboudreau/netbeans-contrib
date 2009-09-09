@@ -71,6 +71,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashSet
 
 /**
  *
@@ -106,7 +107,7 @@ object RefactoringActionsProvider {
 class RefactoringActionsProvider extends ActionsImplementationProvider {
   import RefactoringActionsProvider._
   
-  Log.info("Instance of " + this.getClass.getSimpleName + " is created")
+  Log.info(this.getClass.getSimpleName + " is created")
 
   override def doRename(lookup: Lookup) {
     val ec = lookup.lookup(classOf[EditorCookie])
@@ -283,10 +284,27 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
         val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
         val th = ri.getSnapshot.getTokenHierarchy
         val root = pr.rootScope.get
-        root.findItemAt(th, caret) match {
-          case Some(item: ScalaItems#ScalaItem) => ui = createRefactoringUI(item, start, end, pr)
-          case _ => println("FAILURE - can't refactor a reference identifier")
+        val global = pr.global
+        import global._
+
+        val sorted = root.findItemsAt(th, caret) sortWith {case (x1: ScalaItem, x2: ScalaItem) =>
+            def weight(sym: Symbol) =
+              if (sym.isTrait || sym.isModule || sym.isClass) {
+                0
+              } else if (sym.isValue) {
+                10
+              } else if (sym.isMethod) {
+                20
+              } else 30
+            weight(x1.symbol) < weight(x2.symbol)
         }
+
+        val handle = sorted.head.asInstanceOf[ScalaItem]
+        handle.samePlaceSymbols = (sorted map (_.symbol.asInstanceOf[Symbol])).toSet
+        Log.info("Refactoring handle's token symbols: " + handle.samePlaceSymbols.toString)
+        
+        // @todo ("FAILURE - can't refactor a reference identifier") ?
+        ui = createRefactoringUI(handle, start, end, pr)
       } else {
         val itr = ri.getEmbeddings.iterator
         while (itr.hasNext) {
@@ -322,7 +340,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
       }
     }
 
-    protected def createRefactoringUI(selectedElement: ScalaItems#ScalaItem, startOffset: Int, endOffset: Int, info: ScalaParserResult): RefactoringUI
+    protected def createRefactoringUI(selectedElement: ScalaItems#ScalaItem, startOffset: Int, endOffset: Int, pr: ScalaParserResult): RefactoringUI
   }
 
   abstract class NodeToElementTask(nodes: java.util.Collection[_ <: Node]) extends UserTask with Runnable  {

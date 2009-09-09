@@ -96,7 +96,7 @@ import scala.tools.nsc.symtab.Types
 class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   import ScalaVirtualSourceProvider._
 
-  Log.info("Instance of " + this.getClass.getSimpleName + " is created")
+  Log.info(this.getClass.getSimpleName + " is created")
 
   /** @Todo
    * The only reason to implement JavaSourceProvider is to get a none-null JavaSource#forFileObject,

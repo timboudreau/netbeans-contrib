@@ -46,5 +46,7 @@ trait ScalaItems {self: ScalaGlobal =>
   trait ScalaItem extends AstItem {
     type S = Symbol
     type T = Type
+
+    var samePlaceSymbols = Set[Symbol]()
   }
 }

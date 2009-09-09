@@ -71,7 +71,6 @@ import org.netbeans.modules.scala.editor.refactoring.RetoucheUtils
  */
 object RenameRefactoringUI {
   def apply(file: FileObject, newName: String, handle: ScalaItems#ScalaItem) = {
-    val jmiObject = handle
     val refactoring = if (handle != null) {
       new RenameRefactoring(Lookups.fixed(file, handle))
     } else {
@@ -87,7 +86,7 @@ object RenameRefactoringUI {
     // Force refresh!
     refactoring.getContext.add(true)
 
-    new RenameRefactoringUI(refactoring, jmiObject, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
+    new RenameRefactoringUI(refactoring, handle, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
   }
 
   def apply(handle: ScalaItems#ScalaItem) = {
@@ -105,7 +104,6 @@ object RenameRefactoringUI {
   }
 
   def apply(file: FileObject, handle: ScalaItems#ScalaItem) = {
-    val jmiObject = handle
     val refactoring = if (handle != null) {
       new RenameRefactoring(Lookups.fixed(file, handle))
     } else {
@@ -120,11 +118,11 @@ object RenameRefactoringUI {
     // Force refresh!
     refactoring.getContext.add(UI.Constants.REQUEST_PREVIEW)
 
-    new RenameRefactoringUI(refactoring, jmiObject, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
+    new RenameRefactoringUI(refactoring, handle, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
   }
 
   def apply(file: NonRecursiveFolder) = {
-    val jmiObject = null
+    val handle = null
     val refactoring = new RenameRefactoring(Lookups.singleton(file))
     val oldName = RetoucheUtils.getPackageName(file.getFolder)
     val dispOldName = oldName
@@ -135,11 +133,11 @@ object RenameRefactoringUI {
     // Force refresh!
     refactoring.getContext.add(UI.Constants.REQUEST_PREVIEW)
 
-    new RenameRefactoringUI(refactoring, jmiObject, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
+    new RenameRefactoringUI(refactoring, handle, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
   }
 
   def apply(file: NonRecursiveFolder, newName: String) = {
-    val jmiObject = null
+    val handle = null
     val refactoring = new RenameRefactoring(Lookups.singleton(file))
     val oldName = newName
     //[FIXME] this should be oldName of refactored object
@@ -150,7 +148,7 @@ object RenameRefactoringUI {
 
     // Force refresh!
     refactoring.getContext.add(UI.Constants.REQUEST_PREVIEW)
-    new RenameRefactoringUI(refactoring, jmiObject, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
+    new RenameRefactoringUI(refactoring, handle, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
   }
 
   private def getString(key: String): String = {
@@ -161,7 +159,7 @@ object RenameRefactoringUI {
 }
 
 class RenameRefactoringUI(refactoring: AbstractRefactoring,
-                          jmiObject: ScalaItems#ScalaItem,
+                          handle: ScalaItems#ScalaItem,
                           oldName: String,
                           dispOldName: String,
                           stripPrefix: String,
@@ -184,8 +182,8 @@ class RenameRefactoringUI(refactoring: AbstractRefactoring,
         name = name.substring(stripPrefix.length)
       }
             
-      var suffix = if (jmiObject != null) {
-        jmiObject.kind match {
+      var suffix = if (handle != null) {
+        handle.kind match {
           //if (kind.isClass() || kind.isInterface()) {
           case ElementKind.CLASS /* || kind == ElementKind.MODULE*/ =>
             /*kind.isInterface() ? getString("LBL_Interface") : */getString("LBL_Class")

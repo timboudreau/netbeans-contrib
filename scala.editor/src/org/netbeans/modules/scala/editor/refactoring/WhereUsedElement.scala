@@ -69,14 +69,14 @@ import org.netbeans.modules.scala.editor.refactoring.ui.tree.ElementGripFactory
  * @author Tor Norbye
  */
 object WhereUsedElement {
-  def apply(info: ScalaParserResult, ctx: ScalaItems#ScalaItem): WhereUsedElement = {
+  def apply(info: ScalaParserResult, handle: ScalaItems#ScalaItem): WhereUsedElement = {
     val th = info.getSnapshot.getTokenHierarchy
-    val range = new OffsetRange(ctx.idOffset(th), ctx.idEndOffset(th))
+    val range = new OffsetRange(handle.idOffset(th), handle.idEndOffset(th))
     assert(range != OffsetRange.NONE)
 
-    val icon = ctx.getIcon
+    val icon = handle.getIcon
 
-    apply(info, ctx.symbol.nameString, range, icon)
+    apply(info, handle.symbol.nameString, range, icon)
   }
 
   def apply(info: ScalaParserResult, name: String, range: OffsetRange, icon: Icon): WhereUsedElement = {
@@ -156,17 +156,17 @@ object WhereUsedElement {
   }
 
 
-  def apply(info: ScalaParserResult, name: String, html: String, range: OffsetRange, icon: Icon): WhereUsedElement = {
+  def apply(pr: ScalaParserResult, name: String, html: String, range: OffsetRange, icon: Icon): WhereUsedElement = {
     val start = range.getStart
     val end = range.getEnd
 
-    val ces = RetoucheUtils.findCloneableEditorSupport(info)
+    val ces = RetoucheUtils.findCloneableEditorSupport(pr)
     val ref1 = ces.createPositionRef(start, Bias.Forward)
     val ref2 = ces.createPositionRef(end, Bias.Forward)
     val bounds = new PositionBounds(ref1, ref2)
 
     return new WhereUsedElement(bounds, html,
-                                info.getSnapshot.getSource.getFileObject, name,
+                                pr.getSnapshot.getSource.getFileObject, name,
                                 new OffsetRange(start, end), icon)
   }
 }

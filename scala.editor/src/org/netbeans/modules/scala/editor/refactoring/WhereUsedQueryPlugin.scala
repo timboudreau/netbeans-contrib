@@ -315,10 +315,10 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
       var error: Error = null
 
-      val searchCtx = searchHandle
-
       val th = pr.getSnapshot.getTokenHierarchy
       val root = pr.rootScope.get
+      val global = pr.global
+      import global._
 
       if (root == ScalaRootScope.EMPTY) {
         val sourceText = pr.getSnapshot.getText.toString
@@ -399,14 +399,17 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
        } else*/
 
       if (isFindUsages) {
-        val matched =
-          for ((token, items) <- root.idTokenToItems;
-               item <- items;
-               sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
-               if sym == searchHandle.symbol && token.text.toString == sym.nameString
-          ) {
-            elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItems#ScalaItem]))
-          }
+        val tokens = new HashSet[Token[_]]
+        for ((token, items) <- root.idTokenToItems;
+             item <- items;
+             sym = item.asInstanceOf[ScalaItem].symbol;
+             samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Set[Symbol]];
+             // * tokens.add(token) should be last condition
+             if samePlaceSyms.contains(sym) && token.text.toString == sym.nameString && tokens.add(token)
+        ) {
+          Log.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + item)
+          elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
+        }
       } else if (isFindOverridingMethods) {
         // TODO
 

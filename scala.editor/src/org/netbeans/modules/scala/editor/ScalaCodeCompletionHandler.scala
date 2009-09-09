@@ -1051,10 +1051,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       case "." => // NOI18N
         // See if we're in Js context
 
-        val ts = ScalaLexUtil.getTokenSequence(doc, offset) match {
-          case Some(x) => x
-          case None => return QueryType.NONE
-        }
+        val ts = ScalaLexUtil.getTokenSequence(doc, offset).getOrElse(return QueryType.NONE)
         ts.move(offset)
         if (!ts.moveNext && !ts.movePrevious) {
           return QueryType.NONE

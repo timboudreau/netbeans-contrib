@@ -56,6 +56,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position.Bias;
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
+import org.netbeans.api.lexer.Token
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
@@ -78,6 +79,7 @@ import org.netbeans.modules.parsing.spi.ParseException;
 import org.openide.text.PositionRef;
 import org.openide.util.NbBundle;
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashSet
 import scala.tools.nsc.ast.Trees
 
 import org.openide.text.CloneableEditorSupport
@@ -405,6 +407,9 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       val th = workingCopy.getSnapshot.getTokenHierarchy
       val root = workingCopy.rootScope.get
       val workingCopyFo = workingCopy.getSnapshot.getSource.getFileObject
+      val global = workingCopy.global
+      import global._
+
 
       if (root != ScalaRootScope.EMPTY) {
         val doc = GsfUtilities.getDocument(workingCopyFo, true)
@@ -412,15 +417,16 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           if (doc != null) {
             doc.readLock
           }
-
-          val matched =
-            for ((token, items) <- root.idTokenToItems;
-                 item <- items;
-                 sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
-                 if sym == searchHandle.symbol && token.text.toString == sym.nameString
-            ) {
-              rename(item.asInstanceOf[ScalaItems#ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
-            }
+          val tokens = new HashSet[Token[_]]
+          for ((token, items) <- root.idTokenToItems;
+               item <- items;
+               sym = item.asInstanceOf[ScalaItem].symbol;
+               samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Set[Symbol]];
+               // * tokens.add(token) should be last condition
+               if samePlaceSyms.contains(sym) && token.text.toString == sym.nameString && tokens.add(token)
+          ) {
+            rename(item.asInstanceOf[ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
+          }
 
         } finally {
           if (doc != null) {
