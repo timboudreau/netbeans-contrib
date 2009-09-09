@@ -75,20 +75,22 @@ trait ScalaElements {self: ScalaGlobal =>
     }
   }
 
-  class ScalaElement(val symbol: Symbol, val pResult: ParserResult) extends AstElementHandle {
+  class ScalaElement(val asymbol: Symbol, val parserResult: ParserResult
+  ) extends ScalaItem with AstElementHandle {
     import ScalaElement._
-  
-    private var kind: ElementKind = _
+
+    symbol = asymbol
+
     private var modifiers: Option[java.util.Set[Modifier]] = None
     private var inherited: Boolean = _
-    var smart: Boolean = _
-    private var fo: Option[FileObject] = None
+    private var smart: Boolean = _
+    private var implicite: Boolean = _
+
     private var path: String = _
     private var doc: Option[BaseDocument] = None
     private var offset: Int = _
     private var javaElement: Option[Element] = None
     private var loaded: Boolean = _
-    var isImplicit: Boolean = _
 
 
     def this(kind: ElementKind) = {
@@ -102,7 +104,7 @@ trait ScalaElements {self: ScalaGlobal =>
 
     override def getFileObject: FileObject = {
       fo.getOrElse{
-        fo = ScalaSourceUtil.getFileObject(pResult, symbol) // try to get
+        fo = ScalaSourceUtil.getFileObject(parserResult, symbol) // try to get
         fo match {
           case Some(x) => path = x.getPath; x
           case None => null
@@ -146,7 +148,7 @@ trait ScalaElements {self: ScalaGlobal =>
         if (isJava) {
           javaElement foreach {x =>
             try {
-              val docComment: String = JavaSourceUtil.getDocComment(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), x)
+              val docComment: String = JavaSourceUtil.getDocComment(JavaSourceUtil.getCompilationInfoForScalaFile(parserResult.getSnapshot.getSource.getFileObject), x)
               if (docComment.length > 0) {
                 return new StringBuilder(docComment.length + 5).append("/**").append(docComment).append("*/").toString
               }
@@ -166,7 +168,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isJava) {
         javaElement foreach {x =>
           try {
-            return JavaSourceUtil.getOffset(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), x)
+            return JavaSourceUtil.getOffset(JavaSourceUtil.getCompilationInfoForScalaFile(parserResult.getSnapshot.getSource.getFileObject), x)
           } catch {case ex: IOException => Exceptions.printStackTrace(ex)}
         }
       } else {
@@ -211,7 +213,7 @@ trait ScalaElements {self: ScalaGlobal =>
       if (isLoaded) return
 
       if (isJava) {
-        javaElement = JavaSourceUtil.getJavaElement(JavaSourceUtil.getCompilationInfoForScalaFile(pResult.getSnapshot.getSource.getFileObject), symbol)
+        javaElement = JavaSourceUtil.getJavaElement(JavaSourceUtil.getCompilationInfoForScalaFile(parserResult.getSnapshot.getSource.getFileObject), symbol)
       } else {
         getDoc foreach {srcDoc =>
           assert(path != null)
@@ -270,7 +272,12 @@ trait ScalaElements {self: ScalaGlobal =>
       this.smart = b
     }
 
-    def getIcon: Icon = UiUtils.getElementIcon(getKind, getModifiers)
+    def isImplicit = implicite
+    def isImplicit_=(b: Boolean) {
+      this.implicite = b
+    }
+
+    override def getIcon: Icon = UiUtils.getElementIcon(getKind, getModifiers)
 
     override def toString = {
       symbol.toString

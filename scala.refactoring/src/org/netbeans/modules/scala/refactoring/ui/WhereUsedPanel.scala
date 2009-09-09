@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -44,29 +44,47 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
+import java.io.IOException;
 import java.text.MessageFormat;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JList;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.plaf.UIResource;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.parsing.api.ResultIterator;
-import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
-import org.openide.awt.Mnemonics;
-import org.openide.util.NbBundle;
-import javax.swing.JPanel;
-import org.netbeans.modules.csl.api.ElementKind;
-import org.netbeans.modules.csl.api.Modifier;
-import org.netbeans.modules.parsing.api.ParserManager;
-import org.netbeans.modules.parsing.api.Source;
-import org.netbeans.modules.parsing.api.UserTask;
-import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.project.FileOwnerQuery
+import org.netbeans.api.project.Project
+import org.netbeans.api.project.ProjectInformation
+import org.netbeans.api.project.ProjectUtils
+import org.netbeans.modules.csl.api.{ElementKind, Modifier}
+import org.netbeans.modules.parsing.spi.ParseException
+import org.netbeans.modules.parsing.api.ParserManager
+import org.netbeans.modules.parsing.api.ResultIterator
+import org.netbeans.modules.parsing.api.Source
+import org.netbeans.modules.parsing.api.UserTask
+import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
+import org.openide.awt.Mnemonics
+import org.openide.util.NbBundle
 
+import org.netbeans.modules.scala.editor.ScalaParserResult
 import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.refactoring.RefactoringModule;
+import org.netbeans.modules.scala.editor.element.ScalaElements
+import org.netbeans.modules.scala.refactoring.RefactoringModule
+import org.netbeans.modules.scala.refactoring.RetoucheUtils
+import scala.tools.nsc.symtab.Flags
+
+
 /**
- * Based on the WhereUsedPanel in Java refactoring by Jan Becicka.
- * @author Jan Becicka
- * @author  Tor Norbye
+ * @author  Jan Becicka
  */
-class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: ChangeListener) extends JPanel with CustomRefactoringPanel {
+class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @transient parent: ChangeListener) extends JPanel with CustomRefactoringPanel {
+
+  private val MAX_NAME = 50
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private var buttonGroup: javax.swing.ButtonGroup = _
@@ -74,88 +92,95 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
   private var c_subclasses: javax.swing.JRadioButton = _
   private var c_usages: javax.swing.JRadioButton = _
   private var classesPanel: javax.swing.JPanel = _
+  private var commentsPanel: javax.swing.JPanel = _
   private var jPanel1: javax.swing.JPanel = _
   private var jPanel2: javax.swing.JPanel = _
-  private var jPanel3: javax.swing.JPanel = _
   private var label: javax.swing.JLabel = _
   private var m_isBaseClass: javax.swing.JCheckBox = _
   private var m_overriders: javax.swing.JCheckBox = _
   private var m_usages: javax.swing.JCheckBox = _
   private var methodsPanel: javax.swing.JPanel = _
+  private var scope: javax.swing.JComboBox = _
+  private var scopeLabel: javax.swing.JLabel = _
+  private var scopePanel: javax.swing.JPanel = _
   private var searchInComments: javax.swing.JCheckBox = _
   // End of variables declaration//GEN-END:variables
 
-  
   private var newElement: ScalaItems#ScalaItem = _
 
-  setName(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_WhereUsed")) // NOI18N
+  setName(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_WhereUsed"));
   initComponents
 
-  private var initialized = false;
+  abstract class Scope
+  object Scope {
+    case object ALL extends Scope
+    case object CURRENT extends Scope
+  }
+
+  def getScope: Scope = {
+    if (scope.getSelectedIndex == 1) Scope.CURRENT else Scope.ALL
+  }
+
+  private var initialized = false
   private var methodDeclaringSuperClass: String = null
   private var methodDeclaringClass: String = null
     
   def getMethodDeclaringClass: String = {
-    if (isMethodFromBaseClass)  methodDeclaringSuperClass else methodDeclaringClass
+    if (isMethodFromBaseClass) methodDeclaringSuperClass else methodDeclaringClass
   }
-    
+
   def initialize {
     if (initialized) return
-    val source = Source.create(element.fo.get)
+    val fo = element.fo.get
+    val source = Source.create(fo)
+    val p = FileOwnerQuery.getOwner(fo)
+    val (currentProject, allProjects) =
+      if (p != null) {
+        val pi = ProjectUtils.getInformation(FileOwnerQuery.getOwner(fo))
+        (new JLabel(pi.getDisplayName(), pi.getIcon(), SwingConstants.LEFT),
+         new JLabel(NbBundle.getMessage(classOf[WhereUsedPanel],"LBL_AllProjects"), pi.getIcon(), SwingConstants.LEFT))
+      } else (null, null)
     try {
       ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
-          override def run(resultIterator: ResultIterator) {
-            //            // TODO - handle methods in modules!!!!
-            //            private String getClassName(JsElementCtx element) {
-            //                return element.getDefClass();
-            //            }
+          override def run(ri: ResultIterator) {
+            val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
+            val global = pr.global
+            import global._
 
-            /**
-             * @todo For method calls, try to figure out the call type with the type analyzer
-             */
             var m_isBaseClassText: String = null
             var labelText: String = null
             var modif = java.util.Collections.emptySet[Modifier]
-            // TODO - resolve elements against the current info?
+
+
+            val sName = element.symbol.nameString
+            val clzName = element.symbol.enclClass.nameString
+
             element.kind match {
-              case ElementKind.METHOD =>
-                if (element.symbol != null) {
-                  modif = element.getModifiers
-                }
-                val methodName = element.symbol.nameString
-                //           String className = getClassName(element);
-                //String className = "noclass";
-                //String displayClassName = RubyIndex.UNKNOWN_CLASS.equals(className) ? "&lt;Unknown&gt;" : className;
-                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_FuncUsages", methodName);
+              case ElementKind.METHOD | ElementKind.CALL =>
+                modif = element.getModifiers
+                methodDeclaringClass = clzName
+                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_MethodUsages", element.symbol.nameString, methodDeclaringClass) // NOI18N
 
-                methodDeclaringClass = "";//className;
-
-                //                    IndexedMethod method = RetoucheUtils.getOverridingMethod(element, info);
-                val method = null;
-                if (method != null) {
+                val overridens = element.symbol.allOverriddenSymbols
+                if (!overridens.isEmpty) {
+                  val overriden = overridens.head
                   m_isBaseClassText = new MessageFormat(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_UsagesOfBaseClass")).format(
-                     //methodDeclaringSuperClass = method.getIn()
+                    Array(methodDeclaringSuperClass).asInstanceOf[Array[Object]]
                   )
-                  //                        newElement = new JsElementCtx(method, info);
+                  newElement = ScalaElement(overriden.asInstanceOf[Symbol], pr)
                 }
               case ElementKind.CLASS | ElementKind.MODULE =>
-                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_ClassUsages", element.symbol.nameString); // NOI18N
+                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_ClassUsages", sName) // NOI18N
               case ElementKind.CONSTRUCTOR =>
-                val methodName = element.symbol.nameString
-                //                  String className = getClassName(element);
-                val className = "clz";
-                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_ConstructorUsages", methodName, className); // NOI18N
+                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_ConstructorUsages", sName, clzName) // NOI18N
               case ElementKind.FIELD =>
-                val fieldName = element.symbol.nameString
-                //                    String className = getClassName(element);
-                val className = "clz";
-                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_FieldUsages", fieldName, className); // NOI18N
+                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_FieldUsages", sName, clzName) // NOI18N
               case _ =>
-                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_VariableUsages", element.symbol.nameString); // NOI18N
+                labelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_VariableUsages", sName) // NOI18N
             }
 
-            val modifiers = modif;
+            val modifiers = modif
             val isBaseClassText = m_isBaseClassText
 
             SwingUtilities.invokeLater(new Runnable {
@@ -164,19 +189,22 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
                   remove(methodsPanel)
                   // WARNING for now since this feature is not ready yet
                   //label.setText(labelText);
-                  val combinedLabelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_WhereUsedWarningInDevelopment", labelText);
+                  val combinedLabelText = NbBundle.getMessage(classOf[WhereUsedPanel], "DSC_WhereUsedWarningInDevelopment", labelText)
                   label.setText(combinedLabelText)
                   element.kind match {
                     case ElementKind.METHOD =>
                       add(methodsPanel, BorderLayout.CENTER)
-                      methodsPanel.setVisible(true);
+                      methodsPanel.setVisible(true)
                       m_usages.setVisible(!modifiers.contains(Modifier.STATIC))
-                      // TODO - worry about frozen?
-                      m_overriders.setVisible(/*!modifiers.contains(Modifier.FINAL) ||*/ modifiers.contains(Modifier.STATIC) || modifiers.contains(Modifier.PRIVATE));
+                      val enclClass = element.symbol.enclClass
+                      m_overriders.setVisible(!(enclClass.hasFlag(Flags.STATIC) ||
+                                                enclClass.hasFlag(Flags.FINAL) ||
+                                                modifiers.contains(Modifier.STATIC) ||
+                                                modifiers.contains(Modifier.PRIVATE)))
                       if (methodDeclaringSuperClass != null ) {
                         m_isBaseClass.setVisible(true)
                         m_isBaseClass.setSelected(true)
-                        Mnemonics.setLocalizedText(m_isBaseClass, isBaseClassText);
+                        Mnemonics.setLocalizedText(m_isBaseClass, isBaseClassText)
                       } else {
                         m_isBaseClass.setVisible(false)
                         m_isBaseClass.setSelected(false)
@@ -192,18 +220,63 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
                       c_usages.setVisible(false)
                       c_directOnly.setVisible(false)
                   }
+                  
+                  if (currentProject != null) {
+                    scope.setModel(new DefaultComboBoxModel(Array(allProjects, currentProject).asInstanceOf[Array[Object]]))
+                    val defaultItem = RefactoringModule.getOption("whereUsed.scope", 0).toInt // NOI18N
+                    scope.setSelectedIndex(defaultItem)
+                    scope.setRenderer(new JLabelRenderer)
+                  } else {
+                    scopePanel.setVisible(false)
+                  }
                   validate
                 }
               })
           }
         })
-    } catch {case ex: ParseException => throw new RuntimeException().initCause(ex)}
-        
+    } catch {case ex: ParseException => throw (new RuntimeException).initCause(ex)}
+
     initialized = true
   }
+
+  private class JLabelRenderer extends JLabel with ListCellRenderer with UIResource {
+    setOpaque(true)
+    def getListCellRendererComponent(list: JList,
+                                     value: Object,
+                                     index: Int,
+                                     isSelected: Boolean,
+                                     cellHasFocus: Boolean): Component = {
+            
+      // #89393: GTK needs name to render cell renderer "natively"
+      setName("ComboBox.listRenderer") // NOI18N
+            
+      if ( value != null ) {
+        setText(value.asInstanceOf[JLabel].getText)
+        setIcon(value.asInstanceOf[JLabel].getIcon)
+      }
+            
+      if ( isSelected ) {
+        setBackground(list.getSelectionBackground)
+        setForeground(list.getSelectionForeground)
+      } else {
+        setBackground(list.getBackground)
+        setForeground(list.getForeground)
+      }
+            
+      this
+    }
         
-  def getBaseMethod = {
-    newElement
+    // #89393: GTK needs name to render cell renderer "natively"
+    override def getName: String = {
+      val name = super.getName
+      if (name == null) "ComboBox.renderer" else name  // NOI18N
+    }
+  }
+    
+  def getBaseMethod: ScalaItems#ScalaItem = newElement
+    
+  override def requestFocus {
+    super.requestFocus
   }
     
   /** This method is called from within the constructor to
@@ -211,7 +284,7 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
    * WARNING: Do NOT modify this code. The content of this method is
    * always regenerated by the Form Editor.
    */
-  // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+  // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private def initComponents {
     var gridBagConstraints: java.awt.GridBagConstraints = null
 
@@ -226,9 +299,12 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
     c_subclasses = new javax.swing.JRadioButton();
     c_usages = new javax.swing.JRadioButton();
     c_directOnly = new javax.swing.JRadioButton();
-    jPanel3 = new javax.swing.JPanel();
+    commentsPanel = new javax.swing.JPanel();
     label = new javax.swing.JLabel();
     searchInComments = new javax.swing.JCheckBox();
+    scopePanel = new javax.swing.JPanel();
+    scopeLabel = new javax.swing.JLabel();
+    scope = new javax.swing.JComboBox();
 
     setLayout(new java.awt.BorderLayout());
 
@@ -333,8 +409,8 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
 
     add(classesPanel, java.awt.BorderLayout.CENTER);
 
-    jPanel3.setLayout(new java.awt.BorderLayout());
-    jPanel3.add(label, java.awt.BorderLayout.NORTH);
+    commentsPanel.setLayout(new java.awt.BorderLayout());
+    commentsPanel.add(label, java.awt.BorderLayout.NORTH);
 
     searchInComments.setSelected((RefactoringModule.getOption("searchInComments.whereUsed", false)).booleanValue());
     org.openide.awt.Mnemonics.setLocalizedText(searchInComments, org.openide.util.NbBundle.getBundle(classOf[WhereUsedPanel]).getString("LBL_SearchInComents")); // NOI18N
@@ -344,66 +420,98 @@ class WhereUsedPanel(name: String, element: ScalaItems#ScalaItem, parent: Change
           searchInCommentsItemStateChanged(evt);
         }
       });
-    jPanel3.add(searchInComments, java.awt.BorderLayout.CENTER);
+    commentsPanel.add(searchInComments, java.awt.BorderLayout.SOUTH);
     searchInComments.getAccessibleContext().setAccessibleDescription(searchInComments.getText());
 
-    add(jPanel3, java.awt.BorderLayout.NORTH);
+    add(commentsPanel, java.awt.BorderLayout.NORTH);
+
+    scopeLabel.setLabelFor(scope);
+    org.openide.awt.Mnemonics.setLocalizedText(scopeLabel, org.openide.util.NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_Scope")); // NOI18N
+
+    scope.addActionListener(new java.awt.event.ActionListener() {
+        def actionPerformed(evt: java.awt.event.ActionEvent) {
+          scopeActionPerformed(evt);
+        }
+      });
+
+    val scopePanelLayout = new org.jdesktop.layout.GroupLayout(scopePanel);
+    scopePanel.setLayout(scopePanelLayout);
+    scopePanelLayout.setHorizontalGroup(
+      scopePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+      .add(scopePanelLayout.createSequentialGroup()
+           .addContainerGap()
+           .add(scopeLabel)
+           .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+           .add(scope, 0, 266, Math.MAX_SHORT)
+           .addContainerGap())
+    );
+    scopePanelLayout.setVerticalGroup(
+      scopePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+      .add(scopeLabel)
+      .add(scope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, Math.MAX_SHORT)
+    );
+
+    scope.getAccessibleContext().setAccessibleDescription("N/A");
+
+    add(scopePanel, java.awt.BorderLayout.PAGE_END);
   }// </editor-fold>//GEN-END:initComponents
+
+  private def scopeActionPerformed(evt: java.awt.event.ActionEvent) {//GEN-FIRST:event_scopeActionPerformed
+    RefactoringModule.setOption("whereUsed.scope", scope.getSelectedIndex()); // NOI18N
+  }//GEN-LAST:event_scopeActionPerformed
 
   private def searchInCommentsItemStateChanged(evt: java.awt.event.ItemEvent) {//GEN-FIRST:event_searchInCommentsItemStateChanged
     // used for change default value for searchInComments check-box.
     // The value is persisted and then used as default in next IDE run.
-    val b = if (evt.getStateChange() == ItemEvent.SELECTED) true else false;
-    RefactoringModule.setOption("searchInComments.whereUsed", b);
+    val b = if (evt.getStateChange == ItemEvent.SELECTED) true else false
+    RefactoringModule.setOption("searchInComments.whereUsed", b) // NOI18N
   }//GEN-LAST:event_searchInCommentsItemStateChanged
 
   private def m_isBaseClassActionPerformed(evt: java.awt.event.ActionEvent) {//GEN-FIRST:event_m_isBaseClassActionPerformed
-    parent.stateChanged(null);
+    parent.stateChanged(null)
   }//GEN-LAST:event_m_isBaseClassActionPerformed
 
   private def m_overridersActionPerformed(evt: java.awt.event.ActionEvent) {//GEN-FIRST:event_m_overridersActionPerformed
-    parent.stateChanged(null);
+    parent.stateChanged(null)
   }//GEN-LAST:event_m_overridersActionPerformed
 
   private def m_usagesActionPerformed(evt: java.awt.event.ActionEvent) {//GEN-FIRST:event_m_usagesActionPerformed
-    parent.stateChanged(null);
+    parent.stateChanged(null)
   }//GEN-LAST:event_m_usagesActionPerformed
 
-  def isMethodFromBaseClass = {
-    m_isBaseClass.isSelected();
+  def isMethodFromBaseClass: Boolean = {
+    m_isBaseClass.isSelected
   }
     
-  def isMethodOverriders = {
-    m_overriders.isSelected();
+  def isMethodOverriders: Boolean = {
+    m_overriders.isSelected
   }
     
-  def isClassSubTypes = {
-    c_subclasses.isSelected();
+  def isClassSubTypes: Boolean = {
+    c_subclasses.isSelected
   }
     
-  def isClassSubTypesDirectOnly = {
-    c_directOnly.isSelected();
+  def isClassSubTypesDirectOnly: Boolean = {
+    c_directOnly.isSelected
   }
     
-  def isMethodFindUsages = {
-    m_usages.isSelected();
+  def isMethodFindUsages: Boolean = {
+    m_usages.isSelected
   }
     
-  def isClassFindUsages = {
-    c_usages.isSelected();
+  def isClassFindUsages: Boolean = {
+    c_usages.isSelected
   }
     
-  override def getPreferredSize: Dimension = {
-    val orig = super.getPreferredSize();
-    new Dimension(orig.width + 30 , orig.height + 80);
-  }
+//    public Dimension getPreferredSize() {
+//        Dimension orig = super.getPreferredSize();
+//        return new Dimension(orig.width + 30 , orig.height + 30);
+//    }
     
-  def isSearchInComments = {
-    searchInComments.isSelected();
+  def isSearchInComments: Boolean = {
+    searchInComments.isSelected
   }
 
-  def getComponent: Component = {
-    this;
-  }
+  def getComponent: Component = this
 }
 
