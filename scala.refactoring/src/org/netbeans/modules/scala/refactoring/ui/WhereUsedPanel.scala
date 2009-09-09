@@ -82,7 +82,17 @@ import scala.tools.nsc.symtab.Flags
 /**
  * @author  Jan Becicka
  */
-class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @transient parent: ChangeListener) extends JPanel with CustomRefactoringPanel {
+object WhereUsedPanel {
+  abstract class Scope
+  object Scope {
+    case object ALL extends Scope
+    case object CURRENT extends Scope
+  }
+}
+
+class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @transient parent: ChangeListener
+) extends JPanel with CustomRefactoringPanel {
+  import WhereUsedPanel._
 
   private val MAX_NAME = 50
 
@@ -110,12 +120,6 @@ class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @tr
 
   setName(NbBundle.getMessage(classOf[WhereUsedPanel], "LBL_WhereUsed"));
   initComponents
-
-  abstract class Scope
-  object Scope {
-    case object ALL extends Scope
-    case object CURRENT extends Scope
-  }
 
   def getScope: Scope = {
     if (scope.getSelectedIndex == 1) Scope.CURRENT else Scope.ALL

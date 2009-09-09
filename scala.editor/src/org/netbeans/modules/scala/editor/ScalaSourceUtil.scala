@@ -28,16 +28,22 @@
 package org.netbeans.modules.scala.editor
 
 import java.io.{File, IOException, InputStream}
+import java.net.URL
 import javax.swing.text.BadLocationException
 import org.netbeans.api.java.classpath.ClassPath
+import org.netbeans.api.java.classpath.GlobalPathRegistry
 import org.netbeans.api.java.queries.SourceForBinaryQuery
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.TokenHierarchy
+import org.netbeans.api.project.Project
+import org.netbeans.api.project.ProjectUtils
+import org.netbeans.api.project.SourceGroup
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
 import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
+import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
@@ -49,6 +55,9 @@ import org.netbeans.modules.scala.editor.element.{JavaElements}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
 import scala.tools.nsc.util.Position
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.HashSet
+import scala.collection.mutable.LinkedList
 import scala.tools.nsc.symtab.{Flags, Symbols}
 import scala.collection.mutable.ArrayBuffer
 
@@ -57,6 +66,11 @@ import scala.collection.mutable.ArrayBuffer
  * @author Caoyuan Deng
  */
 object ScalaSourceUtil {
+  
+  /** @see org.netbeans.api.java.project.JavaProjectConstants */
+  val SOURCES_TYPE_JAVA = "java" // NOI18N
+  /** a source group type for separate scala source roots, as seen in maven projects for example */
+  val SOURCES_TYPE_SCALA = "scala" //NOI18N
 
   def isScalaFile(f: FileObject): Boolean = {
     ScalaMimeResolver.MIME_TYPE.equals(f.getMIMEType)
@@ -319,17 +333,17 @@ object ScalaSourceUtil {
   }
 
   /** @todo */
-  def getOffset(info: Parser.Result, element: JavaElements#JavaElement): Int = {
-    if (info == null) {
+  def getOffset(pr: Parser.Result, element: JavaElements#JavaElement): Int = {
+    if (pr == null) {
       return -1
     }
 
-    val th = info.getSnapshot.getTokenHierarchy
+    val th = pr.getSnapshot.getTokenHierarchy
     //element.getPickOffset(th)
     return -1
   }
 
-  def getFileObject(pResult: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
+  def getFileObject(pr: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
     val pos = symbol.pos
     if (pos.isDefined) {
       val srcFile = pos.source
@@ -341,7 +355,7 @@ object ScalaSourceUtil {
         }
         val file = new File(srcPath)
         if (file != null && file.exists) {
-          // * it's a real file and not archive file
+          // * it's a real file instead of an archive file
           return Some(FileUtil.toFileObject(file))
         }
       }
@@ -369,7 +383,7 @@ object ScalaSourceUtil {
     val clzName = qName + ".class"
 
     try {
-      val cp = getClassPath(pResult.getSnapshot.getSource.getFileObject)
+      val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
 
       val clzFo = cp.findResource(clzName)
       val root = cp.findOwnerRoot(clzFo)
@@ -414,6 +428,70 @@ object ScalaSourceUtil {
       case x => return Some(x)
     }
   }
+
+  def getScalaJavaSourceGroups(p: Project): Array[SourceGroup] = {
+    val sources = ProjectUtils.getSources(p)
+    val scalaSgs = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_SCALA)
+    val javaSgs  = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_JAVA)
+    scalaSgs ++ javaSgs
+  }
+
+  /** @see org.netbeans.api.java.source.SourceUtils#getDependentRoots */
+  def getDependentRoots(root: URL): Set[URL] = {
+    val deps = IndexingController.getDefault.getRootDependencies
+    getDependentRootsImpl(root, deps)
+  }
+
+  private def getDependentRootsImpl(root: URL, deps: java.util.Map[URL, java.util.List[URL]]): Set[URL] = {
+    // * create inverse dependencies
+    val inverseDeps = new HashMap[URL, ArrayBuffer[URL]]
+    val entries = deps.entrySet.iterator
+    while (entries.hasNext) {
+      val entry = entries.next
+      val u1 = entry.getKey
+      val l1 = entry.getValue.iterator
+      while (l1.hasNext) {
+        val u2 = l1.next
+        val l2 = inverseDeps.get(u2) getOrElse {
+          val x = new ArrayBuffer[URL]
+          inverseDeps += (u2 -> x)
+          x
+        }
+        
+        l2 += u1
+      }
+    }
+
+    // * collect dependencies
+    val result = new HashSet[URL]
+    var todo = List(root)
+    while (!todo.isEmpty) {
+      todo match {
+        case Nil =>
+        case url :: xs =>
+          todo = xs
+          if (result.add(url)) {
+            inverseDeps.get(url) foreach {x => todo = x.toList ::: todo}
+          }
+      }
+    }
+
+    // * filter non opened projects
+    val cps = GlobalPathRegistry.getDefault.getPaths(ClassPath.SOURCE).iterator
+    val toRetain = new HashSet[URL]
+    while (cps.hasNext) {
+      val cp = cps.next
+      val entries = cp.entries.iterator
+      while (entries.hasNext) {
+        val e = entries.next
+        toRetain += e.getURL
+      }
+    }
+
+    result retain toRetain
+    result.toSet
+  }
+
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
 

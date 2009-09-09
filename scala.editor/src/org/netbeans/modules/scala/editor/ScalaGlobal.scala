@@ -111,11 +111,6 @@ object ScalaGlobal {
   
   private val debug = false
 
-  // * @see org.netbeans.api.java.project.JavaProjectConstants
-  private val SOURCES_TYPE_JAVA = "java" // NOI18N
-  // * a source group type for separate scala source roots, as seen in maven projects for example.
-  private val SOURCES_TYPE_SCALA = "scala" //NOI18N
-
   private var globalForStdLib: Option[ScalaGlobal] = None
   
   private val projectToCaches = new WeakHashMap[Project, Cache]
@@ -344,8 +339,8 @@ object ScalaGlobal {
     val cache = new Cache
 
     val sources = ProjectUtils.getSources(project)
-    val scalaSgs = sources.getSourceGroups(SOURCES_TYPE_SCALA)
-    val javaSgs  = sources.getSourceGroups(SOURCES_TYPE_JAVA)
+    val scalaSgs = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_SCALA)
+    val javaSgs  = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_JAVA)
 
     Log.info((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
     Log.info((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))

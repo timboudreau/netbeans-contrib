@@ -43,18 +43,26 @@ package org.netbeans.modules.scala.refactoring.ui
 import java.text.MessageFormat
 import java.util.ResourceBundle
 import javax.swing.event.ChangeListener
+import org.netbeans.api.java.source.ClasspathInfo
+import org.netbeans.api.project.FileOwnerQuery
+import org.netbeans.api.project.ProjectUtils
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.refactoring.api.AbstractRefactoring
 import org.netbeans.modules.refactoring.api.Problem
 import org.netbeans.modules.refactoring.api.WhereUsedQuery
 import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
 import org.netbeans.modules.refactoring.spi.ui.RefactoringUI
+import org.netbeans.spi.java.classpath.support.ClassPathSupport
+import org.openide.filesystems.FileObject
 import org.openide.util.HelpCtx
 import org.openide.util.NbBundle
 import org.openide.util.lookup.Lookups
 
+import org.netbeans.modules.scala.editor.ScalaSourceUtil
 import org.netbeans.modules.scala.editor.ast.ScalaItems
+import org.netbeans.modules.scala.refactoring.RetoucheUtils
 import org.netbeans.modules.scala.refactoring.WhereUsedQueryConstants
+import scala.collection.mutable.HashSet
 /**
  * WhereUsedQueryUI from the Java refactoring module, only moderately modified for Ruby
  * 
@@ -76,35 +84,59 @@ object WhereUsedRefactoringUI {
   }
 }
 
-class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementKind, element: ScalaItems#ScalaItem, delegate: AbstractRefactoring) extends RefactoringUI {
+class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementKind, handle: ScalaItems#ScalaItem, delegate: AbstractRefactoring) extends RefactoringUI {
   private var panel: WhereUsedPanel = _
 
   def isQuery = true
 
   def getPanel(parent: ChangeListener): CustomRefactoringPanel = {
     if (panel == null) {
-      panel = new WhereUsedPanel(name, element, parent)
+      panel = new WhereUsedPanel(name, handle, parent)
     }
     panel
   }
 
   def setParameters: Problem = {
     query.putValue(WhereUsedQuery.SEARCH_IN_COMMENTS, panel.isSearchInComments)
-    if (kind == ElementKind.METHOD) {
-      setForMethod
-      return query.checkParameters
-    } else if (kind == ElementKind.MODULE || kind == ElementKind.CLASS) {
-      setForClass
-      return query.checkParameters
-    } else
-      return null;
+
+    if (panel.getScope == WhereUsedPanel.Scope.ALL) {
+      if (kind== ElementKind.METHOD && panel.isMethodFromBaseClass) {
+        val basem = panel.getBaseMethod
+        if (basem != null && (basem.fo == None || basem.fo.get.getNameExt.endsWith("class"))) { //NOI18N
+          query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(handle, basem)))
+        } else {
+          query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(basem)))
+        }
+      } else {
+        query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(handle)))
+      }
+    } else {
+      var info = query.getContext.lookup(classOf[ClasspathInfo])
+      val p = FileOwnerQuery.getOwner(handle.fo.get)
+      val roots = new HashSet[FileObject]
+      roots ++= ScalaSourceUtil.getScalaJavaSourceGroups(p).map(_.getRootFolder)
+
+      val rcp = ClassPathSupport.createClassPath(roots.toArray: _*)
+      info = ClasspathInfo.create(info.getClassPath(ClasspathInfo.PathKind.BOOT), info.getClassPath(ClasspathInfo.PathKind.COMPILE), rcp);
+      query.getContext.add(info)
+    }
+
+    kind match {
+      case ElementKind.METHOD =>
+        setForMethod
+        query.checkParameters
+      case ElementKind.MODULE | ElementKind.CLASS =>
+        setForClass
+        query.checkParameters
+      case _ => null
+    }
   }
     
   private def setForMethod {
     if (panel.isMethodFromBaseClass) {
       query.setRefactoringSource(Lookups.singleton(panel.getBaseMethod))
     } else {
-      query.setRefactoringSource(Lookups.singleton(element))
+      query.setRefactoringSource(Lookups.singleton(handle))
     }
     query.putValue(WhereUsedQueryConstants.FIND_OVERRIDING_METHODS, panel.isMethodOverriders)
     query.putValue(WhereUsedQuery.FIND_REFERENCES, panel.isMethodFindUsages)
@@ -138,9 +170,9 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
         case ElementKind.MODULE | ElementKind.CLASS =>
           if (!panel.isClassFindUsages)
             if (!panel.isClassSubTypesDirectOnly) {
-              return getString("DSC_WhereUsedFindAllSubTypes", name);
+              return getString("DSC_WhereUsedFindAllSubTypes", name)
             } else {
-              return getString("DSC_WhereUsedFindDirectSubTypes", name);
+              return getString("DSC_WhereUsedFindDirectSubTypes", name)
             }
         case ElementKind.METHOD =>
           var description: String = null

@@ -48,6 +48,7 @@ import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
+import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -57,6 +58,7 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.csl.spi.support.ModificationResult;
+import org.netbeans.modules.parsing.api.Source
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.api.ProgressEvent;
 import org.netbeans.modules.refactoring.api.WhereUsedQuery;
@@ -95,16 +97,29 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     }
   }
 
-  private def getRelevantFiles(item: ScalaItems#ScalaItem): Set[FileObject] = {
+  private def getRelevantFiles(handle: ScalaItems#ScalaItem): Set[FileObject] = {
+    getRelevantFiles(handle,
+                     getClasspathInfo(refactoring),
+                     isFindSubclasses,
+                     isFindDirectSubclassesOnly,
+                     isFindOverridingMethods,
+                     isFindUsages)
+  }
+
+  def getRelevantFiles(handle: ScalaItems#ScalaItem, cpInfo: ClasspathInfo,
+                       isFindSubclasses: Boolean, isFindDirectSubclassesOnly: Boolean,
+                       isFindOverridingMethods: Boolean, isFindUsages: Boolean
+  ): Set[FileObject] = {
+    val idx = cpInfo.getClassIndex
     val set = new HashSet[FileObject]
 
-    item.fo match {
+    handle.fo match {
       case Some(fo) =>
         set.add(fo)
 
         // @todo
         var isLocal = false
-        if (item.symbol.hasFlag(Flags.PARAM)) {
+        if (handle.symbol.hasFlag(Flags.PARAM)) {
           isLocal = true
         }
 
@@ -114,150 +129,78 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
       case _ =>
     }
 
-    Log.info("relative files:" + set)
+    /*
+     val file = handle.fo.getOrElse(return Set[FileObject]())
+     val source = if (file != null) {
+     set.add(file)
+     Source.create(file)
+     } else {
+     Source.create(cpInfo)
+     }
 
+     //XXX: This is slow!
+     CancellableTask<CompilationController> task = new CancellableTask<CompilationController>() {
+     public void cancel() {
+     }
+
+     public void run(CompilationController info) throws Exception {
+     info.toPhase(JavaSource.Phase.RESOLVED);
+     final Element el = tph.resolveElement(info);
+     if (el == null) {
+     throw new NullPointerException(String.format("#145291: Cannot resolve handle: %s\n%s", tph, info.getClasspathInfo())); // NOI18N
+     }
+     if (el.getKind().isField()) {
+     //get field references from index
+     set.addAll(idx.getResources(ElementHandle.create((TypeElement)el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.FIELD_REFERENCES), EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     } else if (el.getKind().isClass() || el.getKind().isInterface()) {
+     if (isFindSubclasses || isFindDirectSubclassesOnly) {
+     if (isFindDirectSubclassesOnly) {
+     //get direct implementors from index
+     EnumSet searchKind = EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS);
+     set.addAll(idx.getResources(ElementHandle.create((TypeElement)el), searchKind,EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     } else {
+     //itererate implementors recursively
+     set.addAll(getImplementorsRecursive(idx, cpInfo, (TypeElement)el));
+     }
+     } else {
+     //get type references from index
+     set.addAll(idx.getResources(ElementHandle.create((TypeElement) el), EnumSet.of(ClassIndex.SearchKind.TYPE_REFERENCES, ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     }
+     } else if (el.getKind() == ElementKind.METHOD && isFindOverridingMethods) {
+     //Find overriding methods
+     TypeElement type = (TypeElement) el.getEnclosingElement();
+     set.addAll(getImplementorsRecursive(idx, cpInfo, type));
+     }
+     if (el.getKind() == ElementKind.METHOD && isFindUsages) {
+     //get method references for method and for all it's overriders
+     Set<ElementHandle<TypeElement>> s = RetoucheUtils.getImplementorsAsHandles(idx, cpInfo, (TypeElement)el.getEnclosingElement());
+     for (ElementHandle<TypeElement> eh:s) {
+     TypeElement te = eh.resolve(info);
+     if (te==null) {
+     continue;
+     }
+     for (Element e:te.getEnclosedElements()) {
+     if (e instanceof ExecutableElement) {
+     if (info.getElements().overrides((ExecutableElement)e, (ExecutableElement)el, te)) {
+     set.addAll(idx.getResources(ElementHandle.create(te), EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     }
+     }
+     }
+     }
+     set.addAll(idx.getResources(ElementHandle.create((TypeElement) el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE))); //?????
+     } else if (el.getKind() == ElementKind.CONSTRUCTOR) {
+     set.addAll(idx.getResources(ElementHandle.create((TypeElement) el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.TYPE_REFERENCES, ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     }
+
+     }
+     };
+     try {
+     source.runUserActionTask(task, true);
+     } catch (IOException ioe) {
+     throw (RuntimeException) new RuntimeException().initCause(ioe);
+     } */
     set.toSet
-
-
-//        final ClasspathInfo cpInfo = getClasspathInfo(refactoring);
-//        //final ClassIndex idx = cpInfo.getClassIndex();
-//        final Set<FileObject> set = new HashSet<FileObject>();
-//
-//        final FileObject file = tph.getFileObject();
-//        Source source;
-//        if (file!=null) {
-//           set.add(file);
-//            source = RetoucheUtils.createSource(cpInfo, tph.getFileObject());
-//        } else {
-//            source = Source.create(cpInfo);
-//        }
-//        //XXX: This is slow!
-//        UserTask task = new UserTask() {
-//            public void run(ResultIterator resultIterator) {
-//                //System.out.println("TODO - compute a full set of files to be checked... for now just lamely using the project files");
-//                //set.add(info.getFileObject());
-//                // (This currently doesn't need to run in a compilation controller since I'm not using parse results at all...)
-//
-//
-////                if (isFindSubclasses() || isFindDirectSubclassesOnly()) {
-////                    // No need to do any parsing, we'll be using the index to find these files!
-////                    set.add(info.getFileObject());
-////
-////                    String name = tph.getName();
-////
-////                    // Find overrides of the class
-////                    RubyIndex index = RubyIndex.get(info.getIndex());
-////                    String fqn = AstUtilities.getFqnName(tph.getPath());
-////                    Set<IndexedClass> classes = index.getSubClasses(null, fqn, name, isFindDirectSubclassesOnly());
-////
-////                    if (classes.size() > 0) {
-////                        subclasses = classes;
-//////                        for (IndexedClass clz : classes) {
-//////                            FileObject fo = clz.getFileObject();
-//////                            if (fo != null) {
-//////                                set.add(fo);
-//////                            }
-//////                        }
-////                        // For now just parse this particular file!
-////                        set.add(info.getFileObject());
-////                        return;
-////                    }
-////                }
-//
-//                boolean isLocal = false;
-//                if (tph.getKind() == ElementKind.PARAMETER) {
-//                    isLocal = true;
-//                } else if (tph.getKind() == ElementKind.VARIABLE) {
-//                    Node n = tph.getNode();
-//                    while (n != null) {
-//                        if (n.getType() == org.mozilla.nb.javascript.Token.FUNCTION) {
-//                            isLocal = true;
-//                            break;
-//                        }
-//                        n = n.getParentNode();
-//                    }
-//                }
-//                if (isLocal) {
-//                    // For local variables, only look in the current file!
-//                    set.add(info.getFileObject());
-//                }  else {
-//                    set.addAll(RetoucheUtils.getJsFilesInProject(info.getFileObject()));
-//                }
-//
-////                final Element el = tph.resolveElement(info);
-////                if (el.getKind().isField()) {
-////                    //get field references from index
-////                    set.addAll(idx.getResources(ElementHandle.create((TypeElement)el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.FIELD_REFERENCES), EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-////                } else if (el.getKind().isClass() || el.getKind().isInterface()) {
-////                    if (isFindSubclasses()||isFindDirectSubclassesOnly()) {
-////                        if (isFindDirectSubclassesOnly()) {
-////                            //get direct implementors from index
-////                            EnumSet searchKind = EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS);
-////                            set.addAll(idx.getResources(ElementHandle.create((TypeElement)el), searchKind,EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-////                        } else {
-////                            //itererate implementors recursively
-////                            set.addAll(getImplementorsRecursive(idx, cpInfo, (TypeElement)el));
-////                        }
-////                    } else {
-////                        //get type references from index
-////                        set.addAll(idx.getResources(ElementHandle.create((TypeElement) el), EnumSet.of(ClassIndex.SearchKind.TYPE_REFERENCES, ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-////                    }
-////                } else if (el.getKind() == ElementKind.METHOD && isFindOverridingMethods()) {
-////                    //Find overriding methods
-////                    TypeElement type = (TypeElement) el.getEnclosingElement();
-////                    set.addAll(getImplementorsRecursive(idx, cpInfo, type));
-////                }
-////                if (el.getKind() == ElementKind.METHOD && isFindUsages()) {
-////                    //get method references for method and for all it's overriders
-////                    Set<ElementHandle<TypeElement>> s = idx.getElements(ElementHandle.create((TypeElement) el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE));
-////                    for (ElementHandle<TypeElement> eh:s) {
-////                        TypeElement te = eh.resolve(info);
-////                        if (te==null) {
-////                            continue;
-////                        }
-////                        for (Element e:te.getEnclosedElements()) {
-////                            if (e instanceof ExecutableElement) {
-////                                if (info.getElements().overrides((ExecutableElement)e, (ExecutableElement)el, te)) {
-////                                    set.addAll(idx.getResources(ElementHandle.create(te), EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-////                                }
-////                            }
-////                        }
-////                    }
-////                    set.addAll(idx.getResources(ElementHandle.create((TypeElement) el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE))); //?????
-////                } else if (el.getKind() == ElementKind.CONSTRUCTOR) {
-////                        set.addAll(idx.getResources(ElementHandle.create((TypeElement) el.getEnclosingElement()), EnumSet.of(ClassIndex.SearchKind.TYPE_REFERENCES, ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-////                }
-////
-//            }
-//        };
-//        try {
-//            source.runUserActionTask(task, true);
-//        } catch (IOException ioe) {
-//            throw (RuntimeException) new RuntimeException().initCause(ioe);
-//        }
-//        return set;
   }
-
-//    private Set<FileObject> getImplementorsRecursive(ClassIndex idx, ClasspathInfo cpInfo, TypeElement el) {
-//        Set<FileObject> set = new HashSet<FileObject>();
-//        LinkedList<ElementHandle<TypeElement>> elements = new LinkedList(idx.getElements(ElementHandle.create(el),
-//                EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS),
-//                EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-//        HashSet<ElementHandle> result = new HashSet();
-//        while(!elements.isEmpty()) {
-//            ElementHandle<TypeElement> next = elements.removeFirst();
-//            result.add(next);
-//            elements.addAll(idx.getElements(next,
-//                    EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS),
-//                    EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-//        }
-//        for (ElementHandle<TypeElement> e : result) {
-//            FileObject fo = SourceUtils.getFile(e, cpInfo);
-//            assert fo != null: "issue 90196, Cannot find file for " + e + ". cpInfo=" + cpInfo ;
-//            set.add(fo);
-//        }
-//        return set;
-//    }
 
   override def prepare(elements: RefactoringElementsBag): Problem = {
     val a = getRelevantFiles(searchHandle)
@@ -306,7 +249,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     false
   }
 
-  private class FindTask(elements: RefactoringElementsBag) extends TransformTask() {
+  private class FindTask(elements: RefactoringElementsBag) extends TransformTask {
 
     protected def process(pr: ScalaParserResult): Seq[ModificationResult] = {
       if (isCancelled) {

@@ -42,6 +42,8 @@ package org.netbeans.modules.scala.refactoring
 
 import java.awt.Color;
 import java.io.CharConversionException;
+import java.net.URL
+import java.util.logging.Logger
 import javax.swing.text.AttributeSet;
 import javax.swing.text.StyleConstants;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
@@ -49,6 +51,9 @@ import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.FontColorSettings;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.api.java.classpath.ClassPath
+import org.netbeans.api.java.classpath.GlobalPathRegistry
+import org.netbeans.api.java.queries.SourceForBinaryQuery
+import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -61,13 +66,16 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
+import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult, ScalaSourceUtil}
+import org.netbeans.modules.scala.editor.ast.ScalaItems
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
@@ -87,6 +95,8 @@ import org.openide.text.CloneableEditorSupport
  */
 object RetoucheUtils {
 
+  val Log = Logger.getLogger(this.getClass.getName)
+
   def isScalaFile(fo: FileObject): Boolean = {
     fo.getMIMEType == "text/x-scala"
   }
@@ -100,7 +110,7 @@ object RetoucheUtils {
 
   /** Compute the names (full and simple, e.g. Foo::Bar and Bar) for the given node, if any, and return as
    * a String[2] = {name,simpleName} */
-  /* public static String[] getNodeNames(Node node) {
+  /* def String[] getNodeNames(Node node) {
    String name = null;
    String simpleName = null;
    int type = node.getType();
@@ -150,7 +160,7 @@ object RetoucheUtils {
   }
 
 //    /** Return the most distant method in the hierarchy that is overriding the given method, or null */
-//    public static IndexedMethod getOverridingMethod(JsElementCtx element, CompilationInfo info) {
+//    def IndexedMethod getOverridingMethod(JsElementCtx element, CompilationInfo info) {
 //        JsIndex index = JsIndex.get(info.getIndex());
 //        String fqn = AstUtilities.getFqnName(element.getPath());
 //
@@ -255,7 +265,7 @@ object RetoucheUtils {
   }
 
 // XXX: parsingapi
-//    public static boolean isClasspathRoot(FileObject fo) {
+//    def boolean isClasspathRoot(FileObject fo) {
 //        ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
 //        if (cp != null) {
 //            FileObject f = cp.findOwnerRoot(fo);
@@ -283,67 +293,85 @@ object RetoucheUtils {
     "" //NOI18N
   }
 
-// XXX: parsingapi
-//    public static FileObject getClassPathRoot(URL url) throws IOException {
-//        FileObject result = URLMapper.findFileObject(url);
-//        File f = FileUtil.normalizeFile(new File(url.getPath()));
-//        while (result==null) {
-//            result = FileUtil.toFileObject(f);
-//            f = f.getParentFile();
-//        }
-//        return ClassPath.getClassPath(result, ClassPath.SOURCE).findOwnerRoot(result);
-//    }
-//
-//    public static ClasspathInfo getClasspathInfoFor(FileObject ... files) {
-//        assert files.length >0;
-//        Set<URL> dependentRoots = new HashSet<URL>();
-//        for (FileObject fo: files) {
-//            Project p = null;
-//            if (fo!=null) {
-//                p = FileOwnerQuery.getOwner(fo);
-//            }
-//            if (p!=null) {
-//                ClassPath classPath = ClassPath.getClassPath(fo, ClassPath.SOURCE);
-//                if (classPath == null) {
-//                    return null;
-//                }
-//                FileObject ownerRoot = classPath.findOwnerRoot(fo);
-//                if (ownerRoot != null) {
-//                    URL sourceRoot = URLMapper.findURL(ownerRoot, URLMapper.INTERNAL);
-//                    dependentRoots.addAll(SourceUtils.getDependentRoots(sourceRoot));
-//                    //for (SourceGroup root:ProjectUtils.getSources(p).getSourceGroups(JsProject.SOURCES_TYPE_Js)) {
-//                    for (SourceGroup root:ProjectUtils.getSources(p).getSourceGroups(Sources.TYPE_GENERIC)) {
-//                        dependentRoots.add(URLMapper.findURL(root.getRootFolder(), URLMapper.INTERNAL));
-//                    }
-//                } else {
-//                    dependentRoots.add(URLMapper.findURL(fo.getParent(), URLMapper.INTERNAL));
-//                }
-//            } else {
-//                for(ClassPath cp: GlobalPathRegistry.getDefault().getPaths(ClassPath.SOURCE)) {
-//                    for (FileObject root:cp.getRoots()) {
-//                        dependentRoots.add(URLMapper.findURL(root, URLMapper.INTERNAL));
-//                    }
-//                }
-//            }
-//        }
-//
-//        ClassPath rcp = ClassPathSupport.createClassPath(dependentRoots.toArray(new URL[dependentRoots.size()]));
-//        ClassPath nullPath = ClassPathSupport.createClassPath(new FileObject[0]);
-//        ClassPath boot = files[0]!=null?ClassPath.getClassPath(files[0], ClassPath.BOOT):nullPath;
-//        ClassPath compile = files[0]!=null?ClassPath.getClassPath(files[0], ClassPath.COMPILE):nullPath;
-//
-//        if (boot == null || compile == null) { // 146499
-//            return null;
-//        }
-//
-//        ClasspathInfo cpInfo = ClasspathInfo.create(boot, compile, rcp);
-//        return cpInfo;
-//    }
-//
-//    public static ClasspathInfo getClasspathInfoFor(JsElementCtx ctx) {
-//        return getClasspathInfoFor(ctx.getFileObject());
-//    }
-//
+  def getClasspathInfoFor(handles: Array[ScalaItems#ScalaItem]): ClasspathInfo = {
+    var result = new Array[FileObject](handles.length)
+    var i = 0
+    for (handle <- handles) {
+      val fo = handle.fo
+      if (i == 0 && fo == None) {
+        result = new Array[FileObject](handles.length + 1)
+        i += 1
+        result(i) = null
+      }
+      i += 1
+      result(i) = fo.get
+    }
+
+    getClasspathInfoFor(result)
+  }
+
+  def getClasspathInfoFor(files: Array[FileObject], dependencies: Boolean = true, backSource: Boolean = false): ClasspathInfo = {
+    assert(files.length > 0)
+    val dependentRoots = new HashSet[URL]
+    for (fo <- files) {
+      var p: Project = null
+      var ownerRoot: FileObject = null
+      if (fo != null) {
+        p = FileOwnerQuery.getOwner(fo)
+        val cp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+        if (cp != null) {
+          ownerRoot = cp.findOwnerRoot(fo)
+        }
+      }
+      if (p != null && ownerRoot != null) {
+        val sourceRoot = URLMapper.findURL(ownerRoot, URLMapper.INTERNAL)
+        if (dependencies) {
+          dependentRoots ++= (ScalaSourceUtil.getDependentRoots(sourceRoot))
+        } else {
+          dependentRoots.add(sourceRoot)
+        }
+
+        val sgs = ScalaSourceUtil.getScalaJavaSourceGroups(p)
+        dependentRoots ++= sgs.map(root => URLMapper.findURL(root.getRootFolder, URLMapper.INTERNAL))
+      } else {
+        val srcCps = GlobalPathRegistry.getDefault.getPaths(ClassPath.SOURCE).iterator
+        while (srcCps.hasNext) {
+          val cp = srcCps.next
+          dependentRoots ++= cp.getRoots.map(URLMapper.findURL(_, URLMapper.INTERNAL))
+        }
+      }
+    }
+
+    if (backSource) {
+      for (file <- files if file != null) {
+        val compCp = ClassPath.getClassPath(file, ClassPath.COMPILE)
+        val entries = compCp.entries.iterator
+        while (entries.hasNext) {
+          val root = entries.next
+          val r = SourceForBinaryQuery.findSourceRoots(root.getURL)
+          dependentRoots ++= r.getRoots.map(URLMapper.findURL(_, URLMapper.INTERNAL))
+        }
+      }
+    }
+
+    val rcp = ClassPathSupport.createClassPath(dependentRoots.toArray: _*)
+    val nullPath = ClassPathSupport.createClassPath(Array[FileObject](null): _*)
+    val bootCp = if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.BOOT) else nullPath
+    var compCp = (if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.COMPILE) else nullPath) match {
+      // * when file(0) is a class file, there is no compile cp but execute cp, try to get it
+      case null => ClassPath.getClassPath(files(0), ClassPath.EXECUTE)
+      case x => x
+    }
+    // * if no cp found at all log the file and use nullPath since the ClasspathInfo.create
+    // * doesn't accept null compile or boot cp.
+    if (compCp == null) {
+      Log.warning ("No classpath for: " + FileUtil.getFileDisplayName(files(0)) + " " + FileOwnerQuery.getOwner(files(0)))
+      compCp = nullPath
+    }
+
+    ClasspathInfo.create(bootCp, compCp, rcp)
+  }
+
   def getScalaFilesInProject(fileInProject: FileObject): Set[FileObject] = {
     getScalaFilesInProject(fileInProject, false)
   }

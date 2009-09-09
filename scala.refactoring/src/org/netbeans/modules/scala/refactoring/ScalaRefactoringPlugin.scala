@@ -43,6 +43,7 @@ package org.netbeans.modules.scala.refactoring
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.java.source.WorkingCopy
 import org.netbeans.modules.parsing.api.UserTask
 import org.netbeans.modules.parsing.spi.ParseException
@@ -53,8 +54,10 @@ import org.netbeans.modules.parsing.api.ResultIterator
 import org.netbeans.modules.parsing.api.Source
 
 
+import org.netbeans.modules.scala.editor.ast.ScalaItems
 import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
 
+import org.netbeans.modules.refactoring.api.AbstractRefactoring
 import org.netbeans.modules.refactoring.api.Problem
 import org.netbeans.modules.refactoring.spi.{RefactoringPlugin, ProgressProviderAdapter}
 import org.openide.filesystems.FileObject;
@@ -100,7 +103,24 @@ abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with Refac
   protected def isCancelled: Boolean = synchronized {cancelled}
 
   override def cancelRequest: Unit = synchronized {cancelled = true}
- 
+
+  protected def getClasspathInfo(refactoring: AbstractRefactoring): ClasspathInfo = {
+    refactoring.getContext.lookup(classOf[ClasspathInfo]) match {
+      case null =>
+        val handles = refactoring.getRefactoringSource.lookupAll(classOf[ScalaItems#ScalaItem])
+        val cpInfo = if (!handles.isEmpty) {
+          RetoucheUtils.getClasspathInfoFor(handles.toArray(new Array[ScalaItems#ScalaItem](handles.size)))
+        } else {
+          val a = Array(null.asInstanceOf[FileObject])
+          RetoucheUtils.getClasspathInfoFor(Array(null.asInstanceOf[FileObject]))
+        }
+        refactoring.getContext.add(cpInfo)
+        
+        cpInfo
+      case x => x
+    }
+  }
+
   protected def processFiles(fos: Set[FileObject], task: TransformTask): Seq[ModificationResult] = {
     val sources = new HashSet[Source]() // 2*files.size()
     
