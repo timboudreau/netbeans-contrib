@@ -324,11 +324,15 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <!-- currently, for scala modules, registering following as public-packages in project.xml doesn't work yet
+                 should register them in manifest.mf instead.
+            -->
             <public-packages>
                 <package>org.netbeans.api.language.util.lex</package>
                 <package>org.netbeans.api.language.util.ast</package>
                 <package>org.netbeans.modules.scala.editor</package>
                 <package>org.netbeans.modules.scala.editor.ast</package>
+                <package>org.netbeans.modules.scala.editor.lexer</package>
             </public-packages>
         </data>
     </configuration>

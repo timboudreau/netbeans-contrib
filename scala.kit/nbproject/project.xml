@@ -57,6 +57,10 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.scala.refactoring</code-name-base>
+                    <run-dependency/>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.scala.stdplatform</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
