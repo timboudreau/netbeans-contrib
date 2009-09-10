@@ -73,27 +73,35 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashSet
 import scala.tools.nsc.ast.Trees
 import scala.tools.nsc.symtab.Flags
+import scala.tools.nsc.symtab.Symbols
 
 /**
- * Actual implementation of Find Usages query search for Ruby
+ * Actual implementation of Find Usages query search
  *
  * @todo Perform index lookups to determine the set of files to be checked!
- * @todo Scan comments!
  * @todo Do more prechecks of the elements we're trying to find usages for
  *
- * @author  Jan Becicka
+ * @author Jan Becicka
  * @author Tor Norbye
  */
 class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoringPlugin {
-  private val Log = Logger.getLogger(classOf[WhereUsedQueryPlugin].getName)
+  private val Log = Logger.getLogger(this.getClass.getName)
 
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
-  private val targetName =  searchHandle.symbol.fullNameString
+  private val targetName = searchHandle.symbol.fullNameString
+  private val samePlaceSyms = searchHandle.samePlaceSymbols
+  private val tagetDefStrings = samePlaceSyms map {_.defString}
+
+  private def tryTpe(sym: Symbols#Symbol) = {
+    try {
+      sym.tpe
+    } catch {case _ => null}
+  }
 
   override def preCheck: Problem = {
     searchHandle.fo match {
       case Some(x) if x.isValid => null
-      case _ => return new Problem(true, NbBundle.getMessage(classOf[WhereUsedQueryPlugin], "DSC_ElNotAvail")); // NOI18N
+      case _ => return new Problem(true, NbBundle.getMessage(classOf[WhereUsedQueryPlugin], "DSC_ElNotAvail")) // NOI18N
     }
   }
 
@@ -117,14 +125,11 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
       case Some(fo) =>
         set.add(fo)
 
-        // @todo
-        var isLocal = false
-        if (handle.symbol.hasFlag(Flags.PARAM)) {
-          isLocal = true
-        }
+        // * is there any symbol in this place not private?
+        val notLocal = handle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
 
-        if (!isLocal) {
-          set ++= (RetoucheUtils.getScalaFilesInProject(fo))
+        if (notLocal) {
+          set ++= RetoucheUtils.getScalaFilesInProject(fo)
         }
       case _ =>
     }
@@ -204,7 +209,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
   override def prepare(elements: RefactoringElementsBag): Problem = {
     val a = getRelevantFiles(searchHandle)
-    fireProgressListenerStart(ProgressEvent.START, a.size);
+    fireProgressListenerStart(ProgressEvent.START, a.size)
     processFiles(a, new FindTask(elements))
     fireProgressListenerStop
     null
@@ -226,7 +231,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
   private def checkParametersForMethod(overriders: Boolean, usages: Boolean): Problem = {
     if (!(usages || overriders)) {
-      new Problem(true, NbBundle.getMessage(classOf[WhereUsedQueryPlugin], "MSG_NothingToFind"));
+      new Problem(true, NbBundle.getMessage(classOf[WhereUsedQueryPlugin], "MSG_NothingToFind"))
     } else null
   }
 
@@ -270,7 +275,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         if (sourceText != null && sourceText.indexOf(targetName) != -1) {
           var start = 0
           var end = 0
-          var desc = "Parse error in file which contains " + targetName + " reference - skipping it";
+          var desc = "Parse error in file which contains " + targetName + " reference - skipping it"
           val errors = pr.getDiagnostics
           if (errors.size > 0) {
             var break = false
@@ -307,19 +312,16 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         }
       }
 
-      // @todo Caoyuan
-      /* if (error == null && isSearchInComments) {
-       val doc = RetoucheUtils.getDocument(pResult)
-       if (doc != null) {
-       //force open
-       val th = TokenHierarchy.get(doc)
-       val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
+      if (error == null && isSearchInComments) {
+        val doc = RetoucheUtils.getDocument(pr)
+        if (doc != null) {
+          val th = pr.getSnapshot.getTokenHierarchy
+          val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
 
-       ts.move(0)
-
-       searchTokenSequence(pResult, ts)
-       }
-       } */
+          ts.move(0)
+          searchTokenSequence(pr, ts)
+        }
+      }
 
       if (root == null) {
         // TODO - warn that this file isn't compileable and is skipped?
@@ -342,14 +344,28 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
        } else*/
 
       if (isFindUsages) {
+        def isUsed(sym: Symbol) = {
+          val defString = try {
+            sym.tpe match {
+              case null => ""
+              case tpe => sym.defString
+            }
+          } catch {case _ => ""}
+
+          if (defString.length > 0) {
+            tagetDefStrings.contains(defString)
+          } else {
+            samePlaceSyms.asInstanceOf[List[Symbol]].contains(sym)
+          }
+        }
+  
         val tokens = new HashSet[Token[_]]
-        for ((token, items) <- root.idTokenToItems;
-             item <- items;
-             sym = item.asInstanceOf[ScalaItem].symbol;
-             samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Set[Symbol]];
-             // * tokens.add(token) should be last condition
-             if samePlaceSyms.contains(sym) && token.text.toString == sym.nameString && tokens.add(token)
-        ) {
+        for {(token, items) <- root.idTokenToItems
+             item <- items
+             sym = item.asInstanceOf[ScalaItem].symbol
+             // * tokens.add(token) should be the last condition
+             if isUsed(sym) && token.text.toString == sym.nameString && tokens.add(token)
+        } {
           Log.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + item)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
         }
@@ -363,45 +379,46 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
       Nil
     }
 
-    private def searchTokenSequence(info: ScalaParserResult, ts: TokenSequence[TokenId]) {
+    private def searchTokenSequence(pr: ScalaParserResult, ts: TokenSequence[TokenId]) {
       if (ts.moveNext) {
         do {
           val token = ts.token
           val id = token.id
 
-          val primaryCategory = id.primaryCategory
-          if ("comment".equals(primaryCategory) || "block-comment".equals(primaryCategory)) { // NOI18N
-            // search this comment
-            assert(targetName != null)
-            val tokenText = token.text
-            if (tokenText != null && targetName != null) {
-              val index = TokenUtilities.indexOf(tokenText, targetName)
-              if (index != -1) {
-                val text = tokenText.toString
-                // TODO make sure it's its own word. Technically I could
-                // look at identifier chars like "_" here but since they are
-                // used for other purposes in comments, consider letters
-                // and numbers as enough
-                if ((index == 0 || !Character.isLetterOrDigit(text.charAt(index-1))) &&
-                    (index+targetName.length >= text.length ||
-                     !Character.isLetterOrDigit(text.charAt(index+targetName.length)))) {
-                  val start = ts.offset + index
-                  val end = start + targetName.length
+          id.primaryCategory match {  
+            case "comment" | "block-comment" => // NOI18N
+              // search this comment
+              assert(targetName != null)
+              val tokenText = token.text
+              if (tokenText != null && targetName != null) {
+                TokenUtilities.indexOf(tokenText, targetName) match {
+                  case -1 =>
+                  case idx =>
+                    val text = tokenText.toString
+                    // TODO make sure it's its own word. Technically I could
+                    // look at identifier chars like "_" here but since they are
+                    // used for other purposes in comments, consider letters
+                    // and numbers as enough
+                    if ((idx == 0 || !Character.isLetterOrDigit(text.charAt(idx - 1))) &&
+                        (idx + targetName.length >= text.length ||
+                         !Character.isLetterOrDigit(text.charAt(idx + targetName.length)))) {
+                      val start = ts.offset + idx
+                      val end = start + targetName.length
 
-                  // TODO - get a comment-reference icon? For now, just use the icon type
-                  // of the search target
-                  val icon = searchHandle.getIcon
-                  val range = new OffsetRange(start, end)
-                  val element = WhereUsedElement(info, targetName, range, icon)
-                  elements.add(refactoring, element)
+                      // TODO - get a comment-reference icon? For now, just use the icon type
+                      // of the search target
+                      val icon = searchHandle.getIcon
+                      val range = new OffsetRange(start, end)
+                      val element = WhereUsedElement(pr, targetName, range, icon)
+                      elements.add(refactoring, element)
+                    }
                 }
               }
-            }
-          } else {
-            val embedded = ts.embedded.asInstanceOf[TokenSequence[TokenId]]
-            if (embedded != null) {
-              searchTokenSequence(info, embedded)
-            }
+            case _ =>
+              ts.embedded.asInstanceOf[TokenSequence[TokenId]] match {
+                case null =>
+                case embedded => searchTokenSequence(pr, embedded)
+              }
           }
         } while (ts.moveNext)
       }

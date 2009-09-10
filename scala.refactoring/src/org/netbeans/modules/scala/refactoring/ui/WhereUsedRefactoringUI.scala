@@ -71,16 +71,14 @@ import scala.collection.mutable.HashSet
 object WhereUsedRefactoringUI {
   def apply(searchHandle: ScalaItems#ScalaItem) = {
     val query = new WhereUsedQuery(Lookups.singleton(searchHandle))
-    val element = searchHandle
+    query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(searchHandle)))
     val name = searchHandle.symbol.nameString
     val kind = searchHandle.kind
-    new WhereUsedRefactoringUI(query, name, kind, element, null)
+    new WhereUsedRefactoringUI(query, name, kind, searchHandle, null)
   }
 
   def apply(searchHandle: ScalaItems#ScalaItem, name: String, delegate: AbstractRefactoring) = {
-    //this.query.getContext().add(info.getClasspathInfo());
-    val element = searchHandle
-    new WhereUsedRefactoringUI(null, name, null, element, delegate)
+    new WhereUsedRefactoringUI(null, name, null, searchHandle, delegate)
   }
 }
 
@@ -100,7 +98,7 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
     query.putValue(WhereUsedQuery.SEARCH_IN_COMMENTS, panel.isSearchInComments)
 
     if (panel.getScope == WhereUsedPanel.Scope.ALL) {
-      if (kind== ElementKind.METHOD && panel.isMethodFromBaseClass) {
+      if (kind == ElementKind.METHOD && panel.isMethodFromBaseClass) {
         val basem = panel.getBaseMethod
         if (basem != null && (basem.fo == None || basem.fo.get.getNameExt.endsWith("class"))) { //NOI18N
           query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(handle, basem)))
@@ -111,14 +109,14 @@ class WhereUsedRefactoringUI(query: WhereUsedQuery, name: String, kind: ElementK
         query.getContext.add(RetoucheUtils.getClasspathInfoFor(Array(handle)))
       }
     } else {
-      var info = query.getContext.lookup(classOf[ClasspathInfo])
+      val cpInfo = query.getContext.lookup(classOf[ClasspathInfo])
       val p = FileOwnerQuery.getOwner(handle.fo.get)
-      val roots = new HashSet[FileObject]
-      roots ++= ScalaSourceUtil.getScalaJavaSourceGroups(p).map(_.getRootFolder)
+      val roots = new HashSet[FileObject] ++= ScalaSourceUtil.getScalaJavaSourceGroups(p).map(_.getRootFolder)
 
-      val rcp = ClassPathSupport.createClassPath(roots.toArray: _*)
-      info = ClasspathInfo.create(info.getClassPath(ClasspathInfo.PathKind.BOOT), info.getClassPath(ClasspathInfo.PathKind.COMPILE), rcp);
-      query.getContext.add(info)
+      val srcCp = ClassPathSupport.createClassPath(roots.toArray: _*)
+      val bootCp = cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT)
+      val compCp = cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)
+      query.getContext.add(ClasspathInfo.create(bootCp, compCp, srcCp))
     }
 
     kind match {

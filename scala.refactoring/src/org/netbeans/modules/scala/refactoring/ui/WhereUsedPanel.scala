@@ -272,8 +272,10 @@ class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @tr
         
     // #89393: GTK needs name to render cell renderer "natively"
     override def getName: String = {
-      val name = super.getName
-      if (name == null) "ComboBox.renderer" else name  // NOI18N
+      super.getName match {
+        case null => "ComboBox.renderer" // NOI18N
+        case x => x
+      }
     }
   }
     

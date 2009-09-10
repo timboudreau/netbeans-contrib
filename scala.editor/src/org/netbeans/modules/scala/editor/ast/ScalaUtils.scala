@@ -192,11 +192,14 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
-
-    def htmlTypeName(sym: Symbol, fm: HtmlFormatter): Unit = {
+    def tryTpe(sym: Symbol): Type = {
       try {
-        htmlTypeName(sym.tpe, fm)
-      } catch {case ex => ScalaGlobal.resetLate(self, ex)}
+        sym.tpe
+      } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
+    }
+
+    def htmlTypeName(sym: Symbol, fm: HtmlFormatter): Unit = {      
+      htmlTypeName(tryTpe(sym), fm)
     }
 
     def htmlTypeName(tpe: Type, fm: HtmlFormatter): Unit = {

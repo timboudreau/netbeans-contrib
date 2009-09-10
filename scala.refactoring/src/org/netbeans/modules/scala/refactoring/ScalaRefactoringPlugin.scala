@@ -111,8 +111,7 @@ abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with Refac
         val cpInfo = if (!handles.isEmpty) {
           RetoucheUtils.getClasspathInfoFor(handles.toArray(new Array[ScalaItems#ScalaItem](handles.size)))
         } else {
-          val a = Array(null.asInstanceOf[FileObject])
-          RetoucheUtils.getClasspathInfoFor(Array(null.asInstanceOf[FileObject]))
+          RetoucheUtils.getClasspathInfoFor(Array[FileObject](null))
         }
         refactoring.getContext.add(cpInfo)
         

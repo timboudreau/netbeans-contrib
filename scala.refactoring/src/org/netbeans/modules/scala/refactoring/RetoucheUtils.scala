@@ -96,14 +96,15 @@ import org.openide.text.CloneableEditorSupport
 object RetoucheUtils {
 
   val Log = Logger.getLogger(this.getClass.getName)
+  lazy val nullPath = ClassPathSupport.createClassPath(Array[FileObject](null): _*)
 
   def isScalaFile(fo: FileObject): Boolean = {
     fo.getMIMEType == "text/x-scala"
   }
 
-  def getDocument(info: Parser.Result): BaseDocument = {
-    if (info != null) {
-      info.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
+  def getDocument(pr: Parser.Result): BaseDocument = {
+    if (pr != null) {
+      pr.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
     } else null
   }
 
@@ -282,15 +283,15 @@ object RetoucheUtils {
     val p = FileOwnerQuery.getOwner(folder)
     if (p != null) {
       val s = ProjectUtils.getSources(p)
-      for (g <- s.getSourceGroups(Sources.TYPE_GENERIC)) {
-        val relativePath = FileUtil.getRelativePath(g.getRootFolder(), folder)
-        if (relativePath != null) {
-          return relativePath.replace('/', '.') //NOI18N
-        }
+      for {g <- s.getSourceGroups(Sources.TYPE_GENERIC)
+           relativePath = FileUtil.getRelativePath(g.getRootFolder, folder)
+           if relativePath != null
+      } {
+        return relativePath.replace('/', '.') //NOI18N
       }
     }
     
-    "" //NOI18N
+    ""
   }
 
   def getClasspathInfoFor(handles: Array[ScalaItems#ScalaItem]): ClasspathInfo = {
@@ -300,11 +301,11 @@ object RetoucheUtils {
       val fo = handle.fo
       if (i == 0 && fo == None) {
         result = new Array[FileObject](handles.length + 1)
-        i += 1
         result(i) = null
+        i += 1
       }
-      i += 1
       result(i) = fo.get
+      i += 1
     }
 
     getClasspathInfoFor(result)
@@ -326,9 +327,9 @@ object RetoucheUtils {
       if (p != null && ownerRoot != null) {
         val sourceRoot = URLMapper.findURL(ownerRoot, URLMapper.INTERNAL)
         if (dependencies) {
-          dependentRoots ++= (ScalaSourceUtil.getDependentRoots(sourceRoot))
+          dependentRoots ++= ScalaSourceUtil.getDependentRoots(sourceRoot)
         } else {
-          dependentRoots.add(sourceRoot)
+          dependentRoots += sourceRoot
         }
 
         val sgs = ScalaSourceUtil.getScalaJavaSourceGroups(p)
@@ -336,8 +337,7 @@ object RetoucheUtils {
       } else {
         val srcCps = GlobalPathRegistry.getDefault.getPaths(ClassPath.SOURCE).iterator
         while (srcCps.hasNext) {
-          val cp = srcCps.next
-          dependentRoots ++= cp.getRoots.map(URLMapper.findURL(_, URLMapper.INTERNAL))
+          dependentRoots ++= srcCps.next.getRoots.map(URLMapper.findURL(_, URLMapper.INTERNAL))
         }
       }
     }
@@ -355,12 +355,11 @@ object RetoucheUtils {
     }
 
     val rcp = ClassPathSupport.createClassPath(dependentRoots.toArray: _*)
-    val nullPath = ClassPathSupport.createClassPath(Array[FileObject](null): _*)
     val bootCp = if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.BOOT) else nullPath
-    var compCp = (if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.COMPILE) else nullPath) match {
+    var compCp = if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.COMPILE) else nullPath
+    if (compCp == null) {
       // * when file(0) is a class file, there is no compile cp but execute cp, try to get it
-      case null => ClassPath.getClassPath(files(0), ClassPath.EXECUTE)
-      case x => x
+      compCp = ClassPath.getClassPath(files(0), ClassPath.EXECUTE)
     }
     // * if no cp found at all log the file and use nullPath since the ClasspathInfo.create
     // * doesn't accept null compile or boot cp.
@@ -388,11 +387,10 @@ object RetoucheUtils {
       if (excludeReadOnlySourceRoots && !root.canWrite) {
         // skip read only source roots
       } else {
-        val name = root.getName
-        if (name.equals("vendor") || name.equals("script")) { // NOI18N
-          // skip non-refactorable parts in renaming
-        } else {
-          addScalaFiles(files, root)
+        val name = root.getName match {
+          case "vendor"| "script" => // NOI18N
+            // skip non-refactorable parts in renaming
+          case _ => addScalaFiles(files, root)
         }
       }
     }
@@ -402,9 +400,7 @@ object RetoucheUtils {
 
   private def addScalaFiles(files: HashSet[FileObject], f: FileObject) {
     if (f.isFolder) {
-      for (child <- f.getChildren) {
-        addScalaFiles(files, child)
-      }
+      f.getChildren foreach {addScalaFiles(files, _)}
     } else if (isScalaFile(f)) {
       files.add(f)
     }
@@ -412,15 +408,14 @@ object RetoucheUtils {
 
   def getTopTemplates(scopes: Seq[AstScope], result: ArrayBuffer[AstDfn]) {
     for (scope <- scopes) {
-      result ++= scope.dfns filter {dfn => dfn.kind match {
-          case ElementKind.CLASS | ElementKind.MODULE => true
-          case _ => false
-        }
-      }
+      result ++= (scope.dfns filter {_.kind match {
+            case ElementKind.CLASS | ElementKind.MODULE => true
+            case _ => false
+          }
+        })
 
-      scope.bindingDfn match {
-        case Some(x) if x.kind == ElementKind.PACKAGE => getTopTemplates(scope.subScopes, result)
-        case _ =>
+      for (x <- scope.bindingDfn if x.kind == ElementKind.PACKAGE) {
+        getTopTemplates(scope.subScopes, result)
       }
     }
   }
