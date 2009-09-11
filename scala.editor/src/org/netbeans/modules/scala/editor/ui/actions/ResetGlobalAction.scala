@@ -37,7 +37,7 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editor.actions
+package org.netbeans.modules.scala.editor.ui.actions
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -65,8 +65,8 @@ import org.openide.util.Exceptions;
  *
  * @author Caoyuan Deng
  */
-class ResetGlobalAction  extends BaseAction(NbBundle.getMessage(classOf[ResetGlobalAction],
-                                                                "reset-scala-global"), 0) with Runnable {
+class ResetGlobalAction extends BaseAction(NbBundle.getMessage(classOf[ResetGlobalAction], "reset-scala-global"), 0
+) with Runnable {
 
   var doc: Option[Document] = None
 

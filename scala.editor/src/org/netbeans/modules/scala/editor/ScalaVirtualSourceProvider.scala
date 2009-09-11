@@ -253,8 +253,6 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           pw.println(";")
         }
 
-        //pw.println("@NetBeansVirtualSource(11, 12)");
-
         val sym = syms match {
           case Array(null, null, t) => // trait
             isTrait = true
