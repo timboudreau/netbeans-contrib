@@ -495,7 +495,7 @@ object ScalaGlobal {
   private class CompCpListener(global: ScalaGlobal, compCp: ClassPath) extends FileChangeAdapter {
     val compRoots = compCp.getRoots
 
-    private def isUnderCompileCp(fo: FileObject) = {
+    private def isUnderCompCp(fo: FileObject) = {
       // * when there are series of folder/file created, only top created folder can be listener
       val found = compRoots find {x => FileUtil.isParentOf(fo, x) || x == fo}
       if (found.isDefined) Log.finest("under compCp: fo=" + fo + ", found=" + found)
@@ -504,7 +504,7 @@ object ScalaGlobal {
 
     override def fileFolderCreated(fe: FileEvent) {
       val fo = fe.getFile
-      if (isUnderCompileCp(fo) && global != null) {
+      if (isUnderCompCp(fo) && global != null) {
         Log.finest("folder created: " + fo)
         resetLate(global, compCpChanged)
       }
@@ -512,7 +512,7 @@ object ScalaGlobal {
 
     override def fileDataCreated(fe: FileEvent): Unit = {
       val fo = fe.getFile
-      if (isUnderCompileCp(fo) && global != null) {
+      if (isUnderCompCp(fo) && global != null) {
         Log.finest("data created: " + fo)
         resetLate(global, compCpChanged)
       }
@@ -520,7 +520,7 @@ object ScalaGlobal {
 
     override def fileChanged(fe: FileEvent): Unit = {
       val fo = fe.getFile
-      if (isUnderCompileCp(fo) && global != null) {
+      if (isUnderCompCp(fo) && global != null) {
         Log.finest("file changed: " + fo)
         resetLate(global, compCpChanged)
       }
@@ -528,7 +528,7 @@ object ScalaGlobal {
 
     override def fileRenamed(fe: FileRenameEvent): Unit = {
       val fo = fe.getFile
-      if (isUnderCompileCp(fo) && global != null) {
+      if (isUnderCompCp(fo) && global != null) {
         Log.finest("file renamed: " + fo)
         resetLate(global, compCpChanged)
       }
@@ -536,7 +536,7 @@ object ScalaGlobal {
 
     override def fileDeleted(fe: FileEvent): Unit = {
       val fo = fe.getFile
-      if (isUnderCompileCp(fo) && global != null) {
+      if (isUnderCompCp(fo) && global != null) {
         Log.finest("file deleted: " + fo)
         resetLate(global, compCpChanged)
       }

@@ -400,9 +400,9 @@ class ScalaParser extends Parser {
 
     context.global = global
 
-    var rootScope: Option[ScalaRootScope] = None
+    var root: Option[ScalaRootScope] = None
     try {
-      rootScope = Some(global.askForPresentation(srcFile, th))
+      root = Some(global.askForPresentation(srcFile, th))
       //rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
       case ex: AssertionError =>
@@ -419,8 +419,8 @@ class ScalaParser extends Parser {
         ex.printStackTrace
     }
 
-    if (rootScope.isDefined) {
-      context.rootScope = rootScope
+    if (root.isDefined) {
+      context.rootScope = root
       context.sanitized = sanitizing
       val pResult = createParserResult(context)
       pResult.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents)

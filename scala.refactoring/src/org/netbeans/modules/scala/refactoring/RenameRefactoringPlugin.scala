@@ -83,6 +83,7 @@ import scala.collection.mutable.HashSet
 import scala.tools.nsc.ast.Trees
 
 import org.openide.text.CloneableEditorSupport
+import scala.tools.nsc.symtab.Flags
 
 /**
  * The actual Renaming refactoring work for Python.
@@ -314,12 +315,27 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   }
 
   private def getRelevantFiles: Set[FileObject] = {
-    if (searchHandle.kind == ElementKind.VARIABLE || searchHandle.kind == ElementKind.PARAMETER) {
-      // For local variables, only look in the current file!
-      Set(searchHandle.fo.get)
-    }  else {
-      RetoucheUtils.getScalaFilesInProject(searchHandle.fo.get, true)
+    val targetName = searchHandle.symbol.nameString
+    val set = new HashSet[FileObject]
+
+    searchHandle.fo match {
+      case Some(fo) =>
+        set.add(fo)
+
+        // * is there any symbol in this place not private?
+        val notLocal = searchHandle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+
+        if (notLocal) {
+          set ++= RetoucheUtils.getScalaFilesInProject(fo, true)
+        }
+      case _ =>
     }
+
+    (set filter {x =>
+        try {
+          x.asText.indexOf(targetName) != -1
+        } catch {case _: IOException => true}
+      }).toSet
   }
 
 //    private void addMethods(ExecutableElement e, Set set, CompilationInfo info, ClassIndex idx) {

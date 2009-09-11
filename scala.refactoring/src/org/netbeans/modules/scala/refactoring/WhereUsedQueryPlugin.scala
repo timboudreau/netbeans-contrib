@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.refactoring;
 
+import java.io.IOException
 import java.util.logging.Logger
 import javax.swing.Icon;
 import javax.swing.text.Document;
@@ -70,6 +71,7 @@ import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.openide.filesystems.FileObject
 import org.openide.util.NbBundle;
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.tools.nsc.ast.Trees
 import scala.tools.nsc.symtab.Flags
@@ -90,13 +92,8 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName = searchHandle.symbol.fullNameString
   private val samePlaceSyms = searchHandle.samePlaceSymbols
-  private val tagetDefStrings = samePlaceSyms map {_.defString}
-
-  private def tryTpe(sym: Symbols#Symbol) = {
-    try {
-      sym.tpe
-    } catch {case _ => null}
-  }
+  private val targetDefStrings = new HashMap[String, String]()
+  samePlaceSyms foreach {x => targetDefStrings += (x.defString -> x.fullNameString)}
 
   override def preCheck: Problem = {
     searchHandle.fo match {
@@ -118,6 +115,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
                        isFindSubclasses: Boolean, isFindDirectSubclassesOnly: Boolean,
                        isFindOverridingMethods: Boolean, isFindUsages: Boolean
   ): Set[FileObject] = {
+    val targetName = handle.symbol.nameString
     val idx = cpInfo.getClassIndex
     val set = new HashSet[FileObject]
 
@@ -204,7 +202,14 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
      } catch (IOException ioe) {
      throw (RuntimeException) new RuntimeException().initCause(ioe);
      } */
-    set.toSet
+    
+    if (isFindUsages || isFindDirectSubclassesOnly || isFindOverridingMethods) {
+      (set filter {x => 
+          try {
+            x.asText.indexOf(targetName) != -1
+          } catch {case _: IOException => true}
+        }).toSet
+    } else set.toSet
   }
 
   override def prepare(elements: RefactoringElementsBag): Problem = {
@@ -345,6 +350,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
       if (isFindUsages) {
         def isUsed(sym: Symbol) = {
+          val qName = sym.fullNameString
           val defString = try {
             sym.tpe match {
               case null => ""
@@ -352,8 +358,12 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
             }
           } catch {case _ => ""}
 
+
           if (defString.length > 0) {
-            tagetDefStrings.contains(defString)
+            targetDefStrings.get(defString) match {
+              case Some(x) => x == qName
+              case None => false
+            }
           } else {
             samePlaceSyms.asInstanceOf[List[Symbol]].contains(sym)
           }

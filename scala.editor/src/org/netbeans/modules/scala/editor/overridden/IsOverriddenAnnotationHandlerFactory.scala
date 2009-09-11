@@ -52,7 +52,7 @@ import org.netbeans.modules.parsing.spi.SchedulerTask
 class IsOverriddenAnnotationHandlerFactory extends AbstractTaskFactory(true) { // XXX: Phase.RESOLVED, Priority.BELOW_NORMAL
 
   override def createTasks(l: Language, snapshot: Snapshot): java.util.Collection[_ <: SchedulerTask] = {
-    return java.util.Collections.singleton(new IsOverriddenAnnotationHandler(snapshot.getSource.getFileObject))
+    java.util.Collections.singleton(new IsOverriddenAnnotationHandler(snapshot.getSource.getFileObject))
   }
 
 }
