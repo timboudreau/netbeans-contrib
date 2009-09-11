@@ -343,8 +343,8 @@ object RetoucheUtils {
     }
 
     if (backSource) {
-      for (file <- files if file != null) {
-        val compCp = ClassPath.getClassPath(file, ClassPath.COMPILE)
+      for (fo <- files if fo != null) {
+        val compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
         val entries = compCp.entries.iterator
         while (entries.hasNext) {
           val root = entries.next
@@ -354,7 +354,7 @@ object RetoucheUtils {
       }
     }
 
-    val rcp = ClassPathSupport.createClassPath(dependentRoots.toArray: _*)
+    val srcCp = ClassPathSupport.createClassPath(dependentRoots.toArray: _*)
     val bootCp = if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.BOOT) else nullPath
     var compCp = if (files(0) != null) ClassPath.getClassPath(files(0), ClassPath.COMPILE) else nullPath
     if (compCp == null) {
@@ -368,7 +368,7 @@ object RetoucheUtils {
       compCp = nullPath
     }
 
-    ClasspathInfo.create(bootCp, compCp, rcp)
+    ClasspathInfo.create(bootCp, compCp, srcCp)
   }
 
   def getScalaFilesInProject(fileInProject: FileObject): Set[FileObject] = {

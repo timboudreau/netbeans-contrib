@@ -283,17 +283,17 @@ object ScalaSourceUtil {
   }
 
   /** @todo */
-  def getDocComment(pResult: Parser.Result, element: JavaElements#JavaElement): String = {
-    if (pResult == null) {
+  def getDocComment(pr: Parser.Result, element: JavaElements#JavaElement): String = {
+    if (pr == null) {
       return null
     }
 
-    val doc = pResult.getSnapshot.getSource.getDocument(true) match {
+    val doc = pr.getSnapshot.getSource.getDocument(true) match {
       case null => return null
       case x: BaseDocument => x
     }
 
-    val th = pResult.getSnapshot.getTokenHierarchy
+    val th = pr.getSnapshot.getTokenHierarchy
 
     //doc.readLock // Read-lock due to token hierarchy use
     val offset = 0//element.getBoundsOffset(th)
@@ -343,8 +343,8 @@ object ScalaSourceUtil {
     return -1
   }
 
-  def getFileObject(pr: ParserResult, symbol: Symbols#Symbol): Option[FileObject] = {
-    val pos = symbol.pos
+  def getFileObject(pr: ParserResult, sym: Symbols#Symbol): Option[FileObject] = {
+    val pos = sym.pos
     if (pos.isDefined) {
       val srcFile = pos.source
       if (srcFile != null) {
@@ -362,7 +362,7 @@ object ScalaSourceUtil {
     }
 
     val qName: String = try {
-      symbol.enclClass.fullNameString.replace('.', File.separatorChar)
+      sym.enclClass.fullNameString.replace('.', File.separatorChar)
     } catch {
       case ex: java.lang.Error => null
         // java.lang.Error: no-symbol does not have owner
@@ -387,7 +387,7 @@ object ScalaSourceUtil {
 
       val clzFo = cp.findResource(clzName)
       val root = cp.findOwnerRoot(clzFo)
-      val ext = if (symbol hasFlag Flags.JAVA) ".java" else ".scala"
+      val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
 
       // * see if we can find this class's source file straightforward
       findSourceFileObject(cp, root, qName + ext) match {
@@ -495,13 +495,13 @@ object ScalaSourceUtil {
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
 
-  def getBinaryClassName(pResult: ScalaParserResult, offset: Int): String = {
-    val rootScope = pResult.getRootScopeForDebug.getOrElse(return null)
-    val th = pResult.getSnapshot.getTokenHierarchy
+  def getBinaryClassName(pr: ScalaParserResult, offset: Int): String = {
+    val root = pr.getRootScopeForDebug.getOrElse(return null)
+    val th = pr.getSnapshot.getTokenHierarchy
     
     var clzName = ""
 
-    rootScope.enclosingDfn(TMPL_KINDS, th, offset) foreach {enclDfn =>
+    root.enclosingDfn(TMPL_KINDS, th, offset) foreach {enclDfn =>
       val sym = enclDfn.asInstanceOf[ScalaDfns#ScalaDfn].symbol
       if (sym != null) {
         // "scalarun.Dog.$talk$1"
@@ -569,40 +569,40 @@ object ScalaSourceUtil {
       val result = new ArrayBuffer[ScalaDfns#ScalaDfn]
       ParserManager.parse(java.util.Collections.singleton(source), new UserTask {
           @throws(classOf[Exception])
-          override def run(resultIterator: ResultIterator): Unit = {
-            val pResult = resultIterator.getParserResult.asInstanceOf[ScalaParserResult]
-            val rootScope = pResult.rootScope match {
+          override def run(ri: ResultIterator): Unit = {
+            val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
+            val root = pr.rootScope match {
               case None => return
               case Some(x) => x
             }
-            // Get all defs will return all visible packages from the root and down
-            getAllDfns(rootScope, ElementKind.PACKAGE) foreach {
-              // Only go through the defs for each package scope.
-              // Sub-packages are handled by the fact that
-              // getAllDefs will find them.
+            val global = pr.global
+            import global._
+            
+            def getAllDfns(scope: AstScope, kind: ElementKind, result: ArrayBuffer[ScalaDfn]): Seq[ScalaDfn] = {
+              scope.dfns foreach {dfn =>
+                if (dfn.getKind == kind)  result += dfn.asInstanceOf[ScalaDfn]
+              }
+              scope.subScopes foreach {
+                childScope => getAllDfns(childScope, kind, result)
+              }
+              result
+            }
+
+            // * get all dfns will return all visible packages from the root and down
+            getAllDfns(root, ElementKind.PACKAGE, new ArrayBuffer[ScalaDfn]) foreach {
+              // * only go through the defs for each package scope.
+              // * Sub-packages are handled by the fact that
+              // * getAllDefs will find them.
               packaging => packaging.bindingScope.dfns foreach {dfn =>
-                if (isMainMethodExists(dfn.asInstanceOf[ScalaDfns#ScalaDfn])) result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
+                if (isMainMethodExists(dfn.asInstanceOf[ScalaDfn])) result += dfn.asInstanceOf[ScalaDfn]
               }
             }
             
-            rootScope.visibleDfns(ElementKind.MODULE) foreach {dfn =>
-              if (isMainMethodExists(dfn.asInstanceOf[ScalaDfns#ScalaDfn])) result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
+            root.visibleDfns(ElementKind.MODULE) foreach {dfn =>
+              if (isMainMethodExists(dfn.asInstanceOf[ScalaDfn])) result += dfn.asInstanceOf[ScalaDfn]
             }
           }
 
-          def getAllDfns(rootScope: AstScope, kind: ElementKind): Seq[ScalaDfns#ScalaDfn] = {
-            getAllDfns(rootScope, kind, new ArrayBuffer[ScalaDfns#ScalaDfn])
-          }
-
-          def getAllDfns(astScope: AstScope, kind: ElementKind, result: ArrayBuffer[ScalaDfns#ScalaDfn]): Seq[ScalaDfns#ScalaDfn] = {
-            astScope.dfns foreach {dfn =>
-              if (dfn.getKind == kind)  result += dfn.asInstanceOf[ScalaDfns#ScalaDfn]
-            }
-            astScope.subScopes foreach {
-              childScope => getAllDfns(childScope, kind, result)
-            }
-            result
-          }
         })
 
       result
@@ -629,9 +629,9 @@ object ScalaSourceUtil {
       result.addAll(getMainClassesAsJavaCollection(root))
       try {
         val bootCp = ClassPath.getClassPath(root, ClassPath.BOOT)
-        val compileCp = ClassPath.getClassPath(root, ClassPath.COMPILE)
+        val compCp = ClassPath.getClassPath(root, ClassPath.COMPILE)
         val srcCp = ClassPathSupport.createClassPath(Array(root): _*)
-        val cpInfo = ClasspathInfo.create(bootCp, compileCp, srcCp)
+        val cpInfo = ClasspathInfo.create(bootCp, compCp, srcCp)
         //                final Set<AstElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
         //                Source js = Source.create(cpInfo);
         //                js.runUserActionTask(new CancellableTask<CompilationController>() {
@@ -693,10 +693,10 @@ object ScalaSourceUtil {
     for (root <- sourceRoots) {
       result ++= getMainClasses(root)
       try {
-        val bootPath = ClassPath.getClassPath(root, ClassPath.BOOT)
-        val compilePath = ClassPath.getClassPath(root, ClassPath.COMPILE)
-        val srcPath = ClassPathSupport.createClassPath(Array(root): _*)
-        val cpInfo = ClasspathInfo.create(bootPath, compilePath, srcPath)
+        val bootCp = ClassPath.getClassPath(root, ClassPath.BOOT)
+        val compCp = ClassPath.getClassPath(root, ClassPath.COMPILE)
+        val srcCp = ClassPathSupport.createClassPath(Array(root): _*)
+        val cpInfo = ClasspathInfo.create(bootCp, compCp, srcCp)
         //                final Set<JavaElement> classes = cpInfo.getClassIndex().getDeclaredTypes("", ClassIndex.NameKind.PREFIX, EnumSet.of(ClassIndex.SearchScope.SOURCE));
         //                Source js = Source.create(cpInfo);
         //                js.runUserActionTask(new CancellableTask<CompilationController>() {
@@ -729,16 +729,16 @@ object ScalaSourceUtil {
   }
 
   def getClasspathInfo(fo: FileObject): Option[ClasspathInfo] = {
-    val bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT)
-    val compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE)
-    val srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+    val bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
+    val compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
+    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
 
-    if (bootPath == null || compilePath == null || srcPath == null) {
+    if (bootCp == null || compCp == null || srcCp == null) {
       /** @todo why? at least I saw this happens on "Scala project created from existing sources" */
       println("No classpath for " + fo)
       None
     } else {
-      ClasspathInfo.create(bootPath, compilePath, srcPath) match {
+      ClasspathInfo.create(bootCp, compCp, srcCp) match {
         case null => None
         case x => Some(x)
       }
@@ -747,17 +747,17 @@ object ScalaSourceUtil {
 
   def getClassPath(fo: FileObject) = {
     val bootCp = ClassPath.getClassPath(fo, ClassPath.BOOT)
-    val compileCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
+    val compCp = ClassPath.getClassPath(fo, ClassPath.COMPILE)
     val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
-    ClassPathSupport.createProxyClassPath(Array(bootCp, compileCp, srcCp): _*)
+    ClassPathSupport.createProxyClassPath(Array(bootCp, compCp, srcCp): _*)
   }
 
   /** What's difference from getClassPath(fo: FileObject) ? */
   def getClassPath2(fo: FileObject) = {
     val cpInfo = ClasspathInfo.create(fo)
     val bootCp = cpInfo.getClassPath(ClasspathInfo.PathKind.BOOT)
-    val compileCp = cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)
+    val compCp = cpInfo.getClassPath(ClasspathInfo.PathKind.COMPILE)
     val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
-    ClassPathSupport.createProxyClassPath(Array(bootCp, compileCp, srcCp): _*)
+    ClassPathSupport.createProxyClassPath(Array(bootCp, compCp, srcCp): _*)
   }
 }
