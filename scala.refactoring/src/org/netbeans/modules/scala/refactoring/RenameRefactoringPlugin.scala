@@ -334,7 +334,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
         if (srcCp != null) {
-          set ++= RetoucheUtils.getScalaFilesInSrcCp(srcCp, false)
+          set ++= RetoucheUtils.getScalaFilesInSrcCp(srcCp, true)
         }
       }
     }
