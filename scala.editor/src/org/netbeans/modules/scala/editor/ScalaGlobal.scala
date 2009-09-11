@@ -88,14 +88,14 @@ object ScalaGlobal {
   private class Cache {
     val globals = new Array[ScalaGlobal](4)
 
-    var srcOutDirs: Map[FileObject, FileObject] = Map()
-    var testSrcOutDirs: Map[FileObject, FileObject] = Map()
+    var srcToOut:  Map[FileObject, FileObject] = Map()
+    var testToOut: Map[FileObject, FileObject] = Map()
 
-    def srcOutDirsPath = toDirPaths(srcOutDirs)
-    def testSrcOutDirsPath = toDirPaths(testSrcOutDirs)
+    def srcOutDirsPath = toDirPaths(srcToOut)
+    def testSrcOutDirsPath = toDirPaths(testToOut)
 
-    def scalaSrcOutDirs: Map[AbstractFile, AbstractFile] = toScalaDirs(srcOutDirs)
-    def scalaTestSrcOutDirs: Map[AbstractFile, AbstractFile] = toScalaDirs(testSrcOutDirs)
+    def scalaSrcToOut:  Map[AbstractFile, AbstractFile] = toScalaDirs(srcToOut)
+    def scalaTestToOut: Map[AbstractFile, AbstractFile] = toScalaDirs(testToOut)
 
     private def toDirPaths(dirs: Map[FileObject, FileObject]): Map[String, String] = {
       for ((src, out) <- dirs) yield (toDirPath(src), toDirPath(out))
@@ -199,14 +199,14 @@ object ScalaGlobal {
       }
     }
 
-    val caches = projectToCaches.get(project) getOrElse {
-      val r = findDirResources(project)
-      projectToCaches.put(project, r)
-      r
+    val cache = projectToCaches.get(project) getOrElse {
+      val cachex = findDirResources(project)
+      projectToCaches.put(project, cachex)
+      cachex
     }
 
     // * is this `fo` under test source?
-    val forTest = caches.testSrcOutDirs find {case (src, _) =>
+    val forTest = cache.testToOut find {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
     } isDefined
 
@@ -217,7 +217,7 @@ object ScalaGlobal {
       if (forTest) GlobalForTest else Global
     }
 
-    val g = caches.globals(idx)
+    val g = cache.globals(idx)
     if (g != null) {
       return g
     }
@@ -246,7 +246,7 @@ object ScalaGlobal {
     
     var outPath = ""
     var srcPaths: List[String] = Nil
-    for ((src, out) <- if (forTest) caches.testSrcOutDirsPath else caches.srcOutDirsPath) {
+    for ((src, out) <- if (forTest) cache.testSrcOutDirsPath else cache.srcOutDirsPath) {
       srcPaths = src :: srcPaths
 
       // * we only need one out path
@@ -294,7 +294,7 @@ object ScalaGlobal {
     // ----- now, the new global
 
     val global = new ScalaGlobal(settings, dummyReporter)
-    caches.globals(idx) = global
+    cache.globals(idx) = global
 
     // * listen to compCp's change
     if (compCp != null) {
@@ -345,20 +345,23 @@ object ScalaGlobal {
     Log.info((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
     Log.info((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
 
-    List(scalaSgs, javaSgs) foreach {sgs =>
-      if (sgs.size > 0) {
-        val src = sgs(0).getRootFolder
+    List(scalaSgs, javaSgs) foreach {
+      case Array(srcSg) =>
+        val src = srcSg.getRootFolder
         val out = findOutDir(project, src)
-        cache.srcOutDirs += (src -> out)
-      }
+        cache.srcToOut += (src -> out)
 
-      if (sgs.size > 1) { // the 2nd one is test src
-        val src = sgs(1).getRootFolder
+      case Array(srcSg, testSg, _*) =>
+        val src = srcSg.getRootFolder
         val out = findOutDir(project, src)
-        cache.testSrcOutDirs += (src -> out)
-      }
+        cache.srcToOut += (src -> out)
 
-      // @todo add other srcs
+        val test = testSg.getRootFolder
+        val testOut = findOutDir(project, test)
+        cache.testToOut += (test -> testOut)
+
+      case x =>
+        // @todo add other srcs
     }
     
     cache
@@ -381,26 +384,27 @@ object ScalaGlobal {
         while (itr.hasNext && !break) {
           val url = itr.next
           if (!FileUtil.isArchiveFile(url)) {
-            val uri: URI = try {
+            val uri = try {
               url.toURI
             } catch {case ex: URISyntaxException => Exceptions.printStackTrace(ex); null}
 
             if (uri != null) {
               val file = new File(uri)
-              break = if (file != null) {
-                if (file.isDirectory) {
-                  out = FileUtil.toFileObject(file)
-                  true
-                } else if (file.exists) {
-                  false
-                } else {
-                  // * global requires an exist out path, so we should create
-                  if (file.mkdirs) {
+              break =
+                if (file != null) {
+                  if (file.isDirectory) {
                     out = FileUtil.toFileObject(file)
                     true
-                  } else false
-                }
-              } else false
+                  } else if (file.exists) {
+                    false
+                  } else {
+                    // * global requires an exist out path, so we should create
+                    if (file.mkdirs) {
+                      out = FileUtil.toFileObject(file)
+                      true
+                    } else false
+                  }
+                } else false
             }
           }
         }

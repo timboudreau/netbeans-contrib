@@ -137,9 +137,9 @@ object RetoucheUtils {
    return new String[] { name, simpleName };
    } */
 
-  def findCloneableEditorSupport(info: Parser.Result): CloneableEditorSupport = {
+  def findCloneableEditorSupport(pr: Parser.Result): CloneableEditorSupport = {
     try {
-      val dob = DataObject.find(info.getSnapshot.getSource.getFileObject)
+      val dob = DataObject.find(pr.getSnapshot.getSource.getFileObject)
       findCloneableEditorSupport(dob)
     } catch {case ex: DataObjectNotFoundException => Exceptions.printStackTrace(ex); null}
   }
@@ -246,12 +246,12 @@ object RetoucheUtils {
     val opened = OpenProjects.getDefault.getOpenProjects
     for (i <- 0 until opened.length) {
       if (p.equals(opened(i)) || opened(i).equals(p)) {
-        val gr = ProjectUtils.getSources(p).getSourceGroups(Sources.TYPE_GENERIC)
-        for (j <- 0 until gr.length) {
-          if (fo == gr(j).getRootFolder) {
+        val sgs = ProjectUtils.getSources(p).getSourceGroups(Sources.TYPE_GENERIC)
+        for (j <- 0 until sgs.length) {
+          if (fo == sgs(j).getRootFolder) {
             return true
           }
-          if (FileUtil.isParentOf(gr(j).getRootFolder, fo)) {
+          if (FileUtil.isParentOf(sgs(j).getRootFolder, fo)) {
             return true
           }
         }
