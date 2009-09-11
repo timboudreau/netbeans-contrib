@@ -116,7 +116,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
                        isFindOverridingMethods: Boolean, isFindUsages: Boolean
   ): Set[FileObject] = {
     val targetName = handle.symbol.nameString
-    val idx = cpInfo.getClassIndex
+    val index = cpInfo.getClassIndex
     val set = new HashSet[FileObject]
 
     handle.fo match {
