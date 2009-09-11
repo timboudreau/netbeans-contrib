@@ -49,6 +49,7 @@ import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.Modifier;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
+import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -116,23 +117,24 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
                        isFindOverridingMethods: Boolean, isFindUsages: Boolean
   ): Set[FileObject] = {
     val targetName = handle.symbol.nameString
-    val index = cpInfo.getClassIndex
     val set = new HashSet[FileObject]
 
-    handle.fo match {
-      case Some(fo) =>
-        set.add(fo)
+    handle.fo map {fo =>
+      set.add(fo)
 
-        // * is there any symbol in this place not private?
-        val notLocal = handle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      // * is there any symbol in this place not private?
+      val notLocal = handle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
 
-        if (notLocal) {
-          set ++= RetoucheUtils.getScalaFilesInProject(fo)
+      if (notLocal) {
+        val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
+        if (srcCp != null) {
+          set ++= RetoucheUtils.getScalaFilesInSrcCp(srcCp, false)
         }
-      case _ =>
+      }
     }
 
     /*
+     val index = cpInfo.getClassIndex
      val file = handle.fo.getOrElse(return Set[FileObject]())
      val source = if (file != null) {
      set.add(file)
@@ -365,7 +367,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
               case None => false
             }
           } else {
-            samePlaceSyms.asInstanceOf[List[Symbol]].contains(sym)
+            samePlaceSyms.asInstanceOf[Set[Symbol]].contains(sym)
           }
         }
   

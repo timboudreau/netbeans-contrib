@@ -371,11 +371,28 @@ object RetoucheUtils {
     ClasspathInfo.create(bootCp, compCp, srcCp)
   }
 
-  def getScalaFilesInProject(fileInProject: FileObject): Set[FileObject] = {
-    getScalaFilesInProject(fileInProject, false)
+  def getScalaFilesInSrcCp(srcCp: ClassPath, excludeReadOnlySourceRoots: Boolean = false): Set[FileObject] = {
+    val files = new HashSet[FileObject] // 100
+    val sourceRoots = srcCp.getRoots
+    val itr = sourceRoots.iterator
+    while (itr.hasNext) {
+      val root = itr.next
+      if (excludeReadOnlySourceRoots && !root.canWrite) {
+        // skip read only source roots
+      } else {
+        val name = root.getName match {
+          case "vendor"| "script" => // NOI18N
+            // skip non-refactorable parts in renaming
+          case _ => addScalaFiles(files, root)
+        }
+      }
+    }
+
+    files.toSet
   }
 
-  def getScalaFilesInProject(fileInProject: FileObject, excludeReadOnlySourceRoots: Boolean): Set[FileObject] = {
+
+  def getScalaFilesInProject(fileInProject: FileObject, excludeReadOnlySourceRoots: Boolean = false): Set[FileObject] = {
     val files = new HashSet[FileObject] // 100
     val sourceRoots = QuerySupport.findRoots(fileInProject,
                                              null,
