@@ -376,7 +376,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
              item <- items
              sym = item.asInstanceOf[ScalaItem].symbol
              // * tokens.add(token) should be the last condition
-             if isUsed(sym) && token.text.toString == sym.nameString && tokens.add(token)
+             if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
         } {
           Log.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + item)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))

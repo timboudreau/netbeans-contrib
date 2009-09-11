@@ -69,17 +69,17 @@ import org.netbeans.modules.scala.refactoring.ui.tree.ElementGripFactory
  * @author Tor Norbye
  */
 object WhereUsedElement {
-  def apply(info: ScalaParserResult, handle: ScalaItems#ScalaItem): WhereUsedElement = {
-    val th = info.getSnapshot.getTokenHierarchy
+  def apply(pr: ScalaParserResult, handle: ScalaItems#ScalaItem): WhereUsedElement = {
+    val th = pr.getSnapshot.getTokenHierarchy
     val range = new OffsetRange(handle.idOffset(th), handle.idEndOffset(th))
     assert(range != OffsetRange.NONE)
 
     val icon = handle.getIcon
 
-    apply(info, handle.symbol.nameString, range, icon)
+    apply(pr, handle.symbol.nameString, range, icon)
   }
 
-  def apply(info: ScalaParserResult, name: String, range: OffsetRange, icon: Icon): WhereUsedElement = {
+  def apply(pr: ScalaParserResult, name: String, range: OffsetRange, icon: Icon): WhereUsedElement = {
     var start = range.getStart
     var end = range.getEnd
 
@@ -87,7 +87,7 @@ object WhereUsedElement {
     var en = start // ! Same line as start
     var content: String = null
 
-    val bdoc = GsfUtilities.getDocument(info.getSnapshot.getSource.getFileObject, true)
+    val bdoc = GsfUtilities.getDocument(pr.getSnapshot.getSource.getFileObject, true)
     try {
       bdoc.readLock
 
@@ -145,13 +145,13 @@ object WhereUsedElement {
     sb.append("</b>") // NOI18N
     sb.append(RetoucheUtils.getHtml(content.subSequence(end, en).toString))
 
-    val ces = RetoucheUtils.findCloneableEditorSupport(info)
+    val ces = RetoucheUtils.findCloneableEditorSupport(pr)
     val ref1 = ces.createPositionRef(start, Bias.Forward)
     val ref2 = ces.createPositionRef(end, Bias.Forward)
     val bounds = new PositionBounds(ref1, ref2)
 
     return new WhereUsedElement(bounds, sb.toString.trim,
-                                info.getSnapshot.getSource.getFileObject, name,
+                                pr.getSnapshot.getSource.getFileObject, name,
                                 new OffsetRange(start, end), icon)
   }
 

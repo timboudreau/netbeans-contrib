@@ -90,7 +90,6 @@ object RenameRefactoringUI {
   }
 
   def apply(handle: ScalaItems#ScalaItem) = {
-    val jmiObject = handle;
     val refactoring = new RenameRefactoring(Lookups.singleton(handle))
     val oldName = handle.symbol.nameString
     val dispOldName = oldName
@@ -100,7 +99,7 @@ object RenameRefactoringUI {
 
     refactoring.getContext.add(UI.Constants.REQUEST_PREVIEW)
 
-    new RenameRefactoringUI(refactoring, jmiObject, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
+    new RenameRefactoringUI(refactoring, handle, oldName, dispOldName, stripPrefix, pkgRename, fromListener)
   }
 
   def apply(file: FileObject, handle: ScalaItems#ScalaItem) = {

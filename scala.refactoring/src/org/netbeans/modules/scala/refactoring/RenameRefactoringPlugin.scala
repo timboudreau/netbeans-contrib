@@ -55,6 +55,7 @@ import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position.Bias;
+import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
 import org.netbeans.api.lexer.Token
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -79,6 +80,7 @@ import org.netbeans.modules.parsing.spi.ParseException;
 import org.openide.text.PositionRef;
 import org.openide.util.NbBundle;
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.tools.nsc.ast.Trees
 
@@ -107,10 +109,16 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   private var searchHandle: ScalaItems#ScalaItem = _
   private var overriddenByMethods: Collection[_] = null // methods that override the method to be renamed
   private var overridesMethods: Collection[_] = null // methods that are overridden by the method to be renamed
-  private var doCheckName: Boolean = true;
+  private var doCheckName: Boolean = true
 
   init
-  
+
+  // should after init, since we need searchHandle is inited
+  private val targetName = searchHandle.symbol.fullNameString
+  private val samePlaceSyms = searchHandle.samePlaceSymbols
+  private val targetDefStrings = new HashMap[String, String]()
+  samePlaceSyms foreach {x => targetDefStrings += (x.defString -> x.fullNameString)}
+
   /** Creates a new instance of RenameRefactoring */
   private def init = {
     val item = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
@@ -130,7 +138,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
                 if (!tmpls.isEmpty) {
                   // @todo multiple tmpls
                   searchHandle = tmpls(0).asInstanceOf[ScalaItems#ScalaItem]
-                  refactoring.getContext().add(ri)
+                  refactoring.getContext.add(ri)
                 }
               }
             }
@@ -138,8 +146,6 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       } catch {case ex: ParseException => Logger.getLogger(classOf[RenameRefactoringPlugin].getName).log(Level.WARNING, null, ex)}
     }
   }
-
-
 
   override def fastCheckParameters: Problem = {
     var fastCheckProblem: Problem = null
@@ -315,20 +321,22 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   }
 
   private def getRelevantFiles: Set[FileObject] = {
+    val cpInfo = getClasspathInfo(refactoring)
     val targetName = searchHandle.symbol.nameString
     val set = new HashSet[FileObject]
 
-    searchHandle.fo match {
-      case Some(fo) =>
-        set.add(fo)
+    searchHandle.fo map {fo =>
+      set.add(fo)
 
-        // * is there any symbol in this place not private?
-        val notLocal = searchHandle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      // * is there any symbol in this place not private?
+      val notLocal = searchHandle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
 
-        if (notLocal) {
-          set ++= RetoucheUtils.getScalaFilesInProject(fo, true)
+      if (notLocal) {
+        val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
+        if (srcCp != null) {
+          set ++= RetoucheUtils.getScalaFilesInSrcCp(srcCp, false)
         }
-      case _ =>
+      }
     }
 
     (set filter {x =>
@@ -336,14 +344,71 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           x.asText.indexOf(targetName) != -1
         } catch {case _: IOException => true}
       }).toSet
+
+    /*
+     try {
+     source.runUserActionTask(new CancellableTask<CompilationController>() {
+
+     public void cancel() {
+     throw new UnsupportedOperationException("Not supported yet."); // NOI18N
+     }
+
+     public void run(CompilationController info) throws Exception {
+     final ClassIndex idx = info.getClasspathInfo().getClassIndex();
+     info.toPhase(JavaSource.Phase.RESOLVED);
+     Element el = treePathHandle.resolveElement(info);
+     ElementKind kind = el.getKind();
+     ElementHandle<TypeElement> enclosingType;
+     if (el instanceof TypeElement) {
+     enclosingType = ElementHandle.create((TypeElement)el);
+     } else {
+     enclosingType = ElementHandle.create(info.getElementUtilities().enclosingTypeElement(el));
+     }
+     set.add(SourceUtils.getFile(el, info.getClasspathInfo()));
+     if (el.getModifiers().contains(Modifier.PRIVATE)) {
+     if (kind == ElementKind.METHOD) {
+     //add all references of overriding methods
+     allMethods = new HashSet<ElementHandle<ExecutableElement>>();
+     allMethods.add(ElementHandle.create((ExecutableElement)el));
+     }
+     } else {
+     if (kind.isField()) {
+     set.addAll(idx.getResources(enclosingType, EnumSet.of(ClassIndex.SearchKind.FIELD_REFERENCES), EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     } else if (el instanceof TypeElement) {
+     set.addAll(idx.getResources(enclosingType, EnumSet.of(ClassIndex.SearchKind.TYPE_REFERENCES, ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+     } else if (kind == ElementKind.METHOD) {
+     //add all references of overriding methods
+     allMethods = new HashSet<ElementHandle<ExecutableElement>>();
+     allMethods.add(ElementHandle.create((ExecutableElement)el));
+     for (ExecutableElement e:RetoucheUtils.getOverridingMethods((ExecutableElement)el, info)) {
+     addMethods(e, set, info, idx);
+     }
+     //add all references of overriden methods
+     for (ExecutableElement ov: RetoucheUtils.getOverridenMethods((ExecutableElement)el, info)) {
+     addMethods(ov, set, info, idx);
+     for (ExecutableElement e:RetoucheUtils.getOverridingMethods( ov,info)) {
+     addMethods(e, set, info, idx);
+     }
+     }
+     set.addAll(idx.getResources(enclosingType, EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE))); //?????
+     }
+     }
+     }
+     }, true);
+     } catch (IOException ioe) {
+     throw (RuntimeException) new RuntimeException().initCause(ioe);
+     }
+     */
   }
 
-//    private void addMethods(ExecutableElement e, Set set, CompilationInfo info, ClassIndex idx) {
-//        set.add(SourceUtils.getFile(e, info.getClasspathInfo()));
-//        searchHandle<TypeElement> encl = searchHandle.create(SourceUtils.getEnclosingTypeElement(e));
-//        set.addAll(idx.getResources(encl, EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
-//        allMethods.add(searchHandle.create(e));
-//    }
+  /*
+   private void addMethods(ExecutableElement e, Set set, CompilationInfo info, ClassIndex idx) {
+   set.add(SourceUtils.getFile(e, info.getClasspathInfo()));
+   searchHandle<TypeElement> encl = searchHandle.create(SourceUtils.getEnclosingTypeElement(e));
+   set.addAll(idx.getResources(encl, EnumSet.of(ClassIndex.SearchKind.METHOD_REFERENCES),EnumSet.of(ClassIndex.SearchScope.SOURCE)));
+   allMethods.add(searchHandle.create(e));
+   }
+   */
 
   private var allMethods: Set[ScalaItems#ScalaItem] = _
 
@@ -430,24 +495,40 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       if (root != ScalaRootScope.EMPTY) {
         val doc = GsfUtilities.getDocument(workingCopyFo, true)
         try {
-          if (doc != null) {
-            doc.readLock
+          if (doc != null) doc.readLock
+
+          def isUsed(sym: Symbol) = {
+            val qName = sym.fullNameString
+            val defString = try {
+              sym.tpe match {
+                case null => ""
+                case tpe => sym.defString
+              }
+            } catch {case _ => ""}
+
+
+            if (defString.length > 0) {
+              targetDefStrings.get(defString) match {
+                case Some(x) => x == qName
+                case None => false
+              }
+            } else {
+              samePlaceSyms.asInstanceOf[Set[Symbol]].contains(sym)
+            }
           }
+
           val tokens = new HashSet[Token[_]]
-          for ((token, items) <- root.idTokenToItems;
-               item <- items;
-               sym = item.asInstanceOf[ScalaItem].symbol;
-               samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Set[Symbol]];
+          for {(token, items) <- root.idTokenToItems
+               item <- items
+               sym = item.asInstanceOf[ScalaItem].symbol
                // * tokens.add(token) should be last condition
-               if samePlaceSyms.contains(sym) && token.text.toString == sym.nameString && tokens.add(token)
-          ) {
+               if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
+          } {
             rename(item.asInstanceOf[ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
           }
 
         } finally {
-          if (doc != null) {
-            doc.readUnlock
-          }
+          if (doc != null) doc.readUnlock
         }
       } else {
         //System.out.println("Skipping file " + workingCopy.getFileObject());
@@ -456,11 +537,11 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         if (workingCopyText.indexOf(oldName) != -1) {
           // TODO - icon??
           if (ces == null) {
-            ces = RetoucheUtils.findCloneableEditorSupport(workingCopy);
+            ces = RetoucheUtils.findCloneableEditorSupport(workingCopy)
           }
           var start = 0
           var end = 0
-          var desc = NbBundle.getMessage(classOf[RenameRefactoringPlugin], "ParseErrorFile", oldName);
+          var desc = NbBundle.getMessage(classOf[RenameRefactoringPlugin], "ParseErrorFile", oldName)
           val errors = workingCopy.getDiagnostics
           if (errors.size > 0) {
             var break = false
@@ -478,7 +559,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
             var errorMsg = error.getDisplayName
             if (errorMsg.length > 80) {
-              errorMsg = errorMsg.substring(0, 77) + "..."; // NOI18N
+              errorMsg = errorMsg.substring(0, 77) + "..." // NOI18N
             }
 
             desc = desc + "; " + errorMsg
@@ -496,19 +577,17 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         }
       }
 
-      /* @todo by Caoyuan
-       if (error == null && refactoring.isSearchInComments) {
-       val doc = RetoucheUtils.getDocument(workingCopy);
-       if (doc != null) {
-       //force open
-       val th = TokenHierarchy.get(doc)
-       val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
+      if (error == null && refactoring.isSearchInComments) {
+        val doc = RetoucheUtils.getDocument(workingCopy)
+        if (doc != null) {
+          //force open
+          val th = TokenHierarchy.get(doc)
+          val ts = th.tokenSequence.asInstanceOf[TokenSequence[TokenId]]
 
-       ts.move(0)
-
-       searchTokenSequence(ts)
-       }
-       } */
+          ts.move(0)
+          searchTokenSequence(ts)
+        }
+      }
 
       ces = null
     }
@@ -519,39 +598,40 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           val token = ts.token
           val id = token.id
 
-          val primaryCategory = id.primaryCategory
-          if ("comment".equals(primaryCategory) || "block-comment".equals(primaryCategory)) { // NOI18N
-            // search this comment
-            val tokenText = token.text
-            if (tokenText != null && oldName != null) {
-              val index = TokenUtilities.indexOf(tokenText, oldName)
-              if (index != -1) {
-                val text = tokenText.toString
-                // TODO make sure it's its own word. Technically I could
-                // look at identifier chars like "_" here but since they are
-                // used for other purposes in comments, consider letters
-                // and numbers as enough
-                if ((index == 0 || !Character.isLetterOrDigit(text.charAt(index-1))) &&
-                    (index+oldName.length >= text.length ||
-                     !Character.isLetterOrDigit(text.charAt(index+oldName.length)))) {
-                  val start = ts.offset() + index
-                  val end = start + oldName.length
-                  if (ces == null) {
-                    ces = RetoucheUtils.findCloneableEditorSupport(workingCopy);
-                  }
-                  val startPos = ces.createPositionRef(start, Bias.Forward);
-                  val endPos = ces.createPositionRef(end, Bias.Forward);
-                  val desc = getString("ChangeComment");
-                  val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, oldName, newName, desc);
-                  diffs += diff
+          id.primaryCategory match {
+            case "comment" | "block-comment" => // NOI18N
+              // search this comment
+              val tokenText = token.text
+              if (tokenText != null && oldName != null) {
+                val index = TokenUtilities.indexOf(tokenText, oldName) match {
+                  case -1 =>
+                  case idx =>
+                    val text = tokenText.toString
+                    // TODO make sure it's its own word. Technically I could
+                    // look at identifier chars like "_" here but since they are
+                    // used for other purposes in comments, consider letters
+                    // and numbers as enough
+                    if ((idx == 0 || !Character.isLetterOrDigit(text.charAt(idx-1))) &&
+                        (idx+oldName.length >= text.length ||
+                         !Character.isLetterOrDigit(text.charAt(idx+oldName.length)))) {
+                      val start = ts.offset + idx
+                      val end = start + oldName.length
+                      if (ces == null) {
+                        ces = RetoucheUtils.findCloneableEditorSupport(workingCopy)
+                      }
+                      val startPos = ces.createPositionRef(start, Bias.Forward)
+                      val endPos = ces.createPositionRef(end, Bias.Forward)
+                      val desc = getString("ChangeComment")
+                      val diff = new Difference(Difference.Kind.CHANGE, startPos, endPos, oldName, newName, desc)
+                      diffs += diff
+                    }
                 }
               }
-            }
-          } else {
-            val embedded = ts.embedded.asInstanceOf[TokenSequence[TokenId]]
-            if (embedded != null) {
-              searchTokenSequence(embedded)
-            }
+            case _ =>
+              ts.embedded.asInstanceOf[TokenSequence[TokenId]] match {
+                case null =>
+                case embedded => searchTokenSequence(embedded)
+              }
           }
         } while (ts.moveNext)
       }

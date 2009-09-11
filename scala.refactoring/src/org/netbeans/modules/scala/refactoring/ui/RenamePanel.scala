@@ -40,13 +40,13 @@
  */
 package org.netbeans.modules.scala.refactoring.ui
 
-import java.awt.Component;
-import java.awt.event.ItemEvent;
-import javax.swing.JPanel;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
+import java.awt.Component
+import java.awt.event.ItemEvent
+import javax.swing.JPanel
+import javax.swing.event.ChangeListener
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
+import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
 import org.netbeans.modules.scala.refactoring.RefactoringModule
 
 
@@ -57,7 +57,7 @@ import org.netbeans.modules.scala.refactoring.RefactoringModule
  */
 class RenamePanel(@transient oldName: String, @transient parent: ChangeListener, name: String, editable: Boolean, showUpdateReferences: Boolean
 ) extends JPanel with CustomRefactoringPanel {
-
+    
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private var jPanel1: javax.swing.JPanel = _
   private var label: javax.swing.JLabel = _
@@ -71,20 +71,20 @@ class RenamePanel(@transient oldName: String, @transient parent: ChangeListener,
   initComponents
   updateReferencesCheckBox.setVisible(showUpdateReferences)
   nameField.setEnabled(editable)
-  //parent.setPreviewEnabled(false);
+    //parent.setPreviewEnabled(false);
   nameField.requestFocus()
   nameField.getDocument.addDocumentListener(new DocumentListener {
       def changedUpdate(event: DocumentEvent) {
-        RenamePanel.this.parent.stateChanged(null);
-      }
+          RenamePanel.this.parent.stateChanged(null);
+        }
       def insertUpdate(event: DocumentEvent) {
-        RenamePanel.this.parent.stateChanged(null);
-      }
+          RenamePanel.this.parent.stateChanged(null);
+        }
       def removeUpdate(event: DocumentEvent) {
-        RenamePanel.this.parent.stateChanged(null);
-      }
+          RenamePanel.this.parent.stateChanged(null);
+        }
     })
-    
+
   private var initialized = false
   def initialize {
     if (initialized) return
