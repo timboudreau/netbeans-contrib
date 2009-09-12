@@ -118,14 +118,9 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
     // we'll find item by offset of item's idToken, so, use caretPosition directly
     val blankRange = pResult.sanitizedRange
-    val items = if (blankRange.containsInclusive(astOffset)) {
-      Nil
-    } else {
-      rootScope.findItemsAt(th, caretPosition) match {
-        case Nil => Nil
-        case x => x
-      }
-    }
+    val items = if (!blankRange.containsInclusive(astOffset)) {
+      rootScope.findItemsAt(th, caretPosition)
+    } else Nil
 
 
     // JRuby sometimes gives me some "weird" sections. For example,
@@ -137,7 +132,8 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     // . to the end of Scanf as a CallNode, which is a weird highlight.
     // We don't want occurrences highlights that span lines.
     for (item <- items;
-         idToken <- item.idToken) {
+         idToken <- item.idToken
+    ) {
       val doc = pResult.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
       if (doc == null) {
         // Document was just closed
@@ -212,11 +208,12 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
     for (item <- items) {
       val _occurrences = rootScope.findOccurrences(item)
-      for (x <- _occurrences; name = x.getName if !name.equals("this") || !name.equals("super");
-           idToken <- x.idToken)
-             {
-          highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
-        }
+      for (x <- _occurrences;
+           name = x.getName if !name.equals("this") || !name.equals("super");
+           idToken <- x.idToken
+      ) {
+        highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
+      }
     }
 
     if (isCancelled) {

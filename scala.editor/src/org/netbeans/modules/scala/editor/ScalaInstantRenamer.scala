@@ -73,7 +73,10 @@ class ScalaInstantRenamer extends InstantRenamer {
       return false
     }
 
-    val closest = rootScope.findItemAt(th, caretOffset).getOrElse(return false)
+    val closest = rootScope.findItemsAt(th, caretOffset) match {
+      case Nil => return false
+      case xs => xs.reverse.head
+    }
 
     val dfn = rootScope.findDfnOf(closest).getOrElse(return false)
 
@@ -109,17 +112,17 @@ class ScalaInstantRenamer extends InstantRenamer {
 
     val rootScope = pResult.rootScope.getOrElse(return java.util.Collections.emptySet[OffsetRange])
 
-    val occurrences = rootScope.findItemAt(th, caretOffset) match {
-      case Some(closest) => rootScope.findOccurrences(closest)
-      case None => return java.util.Collections.emptySet[OffsetRange]
+    val occurrences = rootScope.findItemsAt(th, caretOffset) match {
+      case Nil => return java.util.Collections.emptySet[OffsetRange]
+      case xs => rootScope.findOccurrences(xs.reverse.head)
     }
 
     val regions = new java.util.HashSet[OffsetRange]
     for (item <- occurrences;
-         idToken <- item.idToken)
-           {
-        regions.add(ScalaLexUtil.getRangeOfToken(th, idToken))
-      }
+         idToken <- item.idToken
+    ) {
+      regions.add(ScalaLexUtil.getRangeOfToken(th, idToken))
+    }
 
     if (!regions.isEmpty) {
       val translated = new java.util.HashSet[OffsetRange](2 * regions.size)

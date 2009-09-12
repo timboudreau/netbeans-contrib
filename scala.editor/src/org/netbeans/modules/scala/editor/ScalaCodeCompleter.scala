@@ -547,14 +547,19 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
         return false
       }
 
-      var closestOpt = root.findItemAt(th, astOffset1)
+      var closestOpt = root.findItemsAt(th, astOffset1) match {
+        case Nil => None
+        case xs => Some(xs.reverse.head)
+      }
       var closestOffset = astOffset1 - 1
       while (closestOpt == None && closestOffset > 0) {
         closestOffset -= 1
-        closestOpt = root.findItemAt(th, closestOffset)
+        closestOpt = root.findItemsAt(th, closestOffset) match {
+          case Nil => None
+          case xs => Some(xs.reverse.head)
+        }
       }
 
-      //Symbol call = findCallSymbol(visitor, ts, th, request, true);
       val call = closestOpt.getOrElse(null)
 
       val currentLineStart = Utilities.getRowStart(doc, lexOffset)

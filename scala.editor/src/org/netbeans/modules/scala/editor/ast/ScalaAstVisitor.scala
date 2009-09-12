@@ -148,13 +148,60 @@ abstract class ScalaAstVisitor {
         }
       } else None
     } else None
-    
+
     reset
     rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, srcFile.length))
     scopes push rootScope
       
+    unit match {
+      case u: RichCompilationUnit => visitImports(u)
+      case _ =>
+    }
+
     (new TreeVisitor) visit unit.body
     rootScope
+  }
+
+  def visitImports(unit: RichCompilationUnit) = {
+    def visitContextTree(ct: ContextTree): Unit = {
+      val c = ct.context
+      for (importInfo <- c.imports) {
+        importInfo.tree match {
+          case me@Import(qual, selectors) =>
+            //println("import: qual=" + qual + ", selectors=" + selectors.mkString("{", ",", "}" ))
+            selectors foreach {
+              case (null, null) =>
+              case (x, null) =>
+                val symx = importInfo.importedSymbol(x)
+                if (symx != null) {
+                  val idToken = getIdToken(me, x.decode)
+                  val ref = ScalaRef(symx, idToken, ElementKind.OTHER, fo)
+
+                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                }
+              case (x, y) =>
+                val symx = importInfo.importedSymbol(x)
+                if (symx != null) {
+                  val idToken = getIdToken(me, x.decode)
+                  val ref = ScalaRef(symx, idToken, ElementKind.OTHER, fo)
+
+                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                }
+
+                val symy = importInfo.importedSymbol(y)
+                if (symy != null) {
+                  val idToken = getIdToken(me, y.decode)
+                  val ref = ScalaRef(symy, idToken, ElementKind.OTHER, fo)
+
+                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                }
+            }
+        }
+      }
+      ct.children foreach {visitContextTree _}
+    }
+
+    unit.contexts foreach {visitContextTree _}
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
@@ -569,6 +616,7 @@ abstract class ScalaAstVisitor {
             //printcln("Super(\"" + qual + "\", \"" + mix + "\")" + nodeinfo2(tree))
 
           case Import(expr, selectors) =>
+            // Import tree has been added into context and replaced by EmptyTree in typer phase
             traverse(expr, level, false)
             selectors foreach {
               case (x:Name, y:Name) =>
@@ -755,10 +803,7 @@ abstract class ScalaAstVisitor {
       return None
     }
     
-    val ts = ScalaLexUtil.getTokenSequence(th, offset) match {
-      case Some(x) => x
-      case None => return None
-    }
+    val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None}
     
     ts.move(offset)
     if (!ts.moveNext && !ts.movePrevious) {
@@ -777,7 +822,7 @@ abstract class ScalaAstVisitor {
         
       case Select(qual, selector) if sym hasFlag IMPLICIT =>
         // * for Select tree that is implicit call, will look forward for the nearest item and change its kind to ElementKind.RULE
-        rootScope.findNeastItemAt(th, offset) foreach {_.kind = ElementKind.RULE}
+        rootScope.findNeastItemsAt(th, offset) foreach {_.kind = ElementKind.RULE}
         None
         
       case Select(qual, selector) if name == "apply" =>

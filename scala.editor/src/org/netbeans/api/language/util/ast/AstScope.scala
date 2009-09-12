@@ -118,12 +118,12 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def addDfn(dfn: AstDfn): Boolean = {
     dfn.idToken match {
       case Some(x) =>
-        // * a dfn will always be added
-        root.put(x, dfn)
-        _dfns += dfn
-        dfnsSorted = false
-        dfn.enclosingScope = this
-        true
+        if (root.put(x, dfn)) {
+          _dfns += dfn
+          dfnsSorted = false
+          dfn.enclosingScope = this
+          true
+        } else false
       case None => false
     }
   }
@@ -135,135 +135,14 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def addRef(ref: AstRef): Boolean = {
     ref.idToken match {
       case Some(x) =>
-        root.put(x, ref)
-        _refs += ref
-        refsSorted = false
-        ref.enclosingScope = this
-        true
+        if (root.put(x, ref)) {
+          _refs += ref
+          refsSorted = false
+          ref.enclosingScope = this
+          true
+        } else false
       case None => false
     }
-  }
-
-  def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
-    // * Always seach Ref first, since Ref can be included in Dfn's range
-    if (!refsSorted) {
-      _refs sortWith {compareRef(th, _, _)}
-      refsSorted = true
-    }
-    var lo = 0
-    var hi = _refs.size - 1
-    while (lo <= hi) {
-      var mid = (lo + hi) >> 1
-      val middle = _refs(mid)
-      if (offset < middle.idOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.idEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        return Some(middle)
-      }
-    }
-
-    if (!dfnsSorted) {
-      _dfns sortWith {compareDfn(th, _, _)}
-      dfnsSorted = true
-    }
-    lo = 0
-    hi = _dfns.size - 1
-    while (lo <= hi) {
-      var mid = (lo + hi) >> 1
-      val middle = _dfns(mid)
-      if (offset < middle.idOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.idEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        return Some(middle)
-      }
-    }
-
-    if (!scopesSorted) {
-      _subScopes sortWith {compareScope(th, _, _)}
-      scopesSorted = true
-    }
-    lo = 0
-    hi = _subScopes.size - 1
-    while (lo <= hi) {
-      var mid = (lo + hi) >> 1
-      val middle = _subScopes(mid)
-      if (offset < middle.boundsOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.boundsEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        return middle.findItemAt(th, offset)
-      }
-    }
-
-    None
-  }
-
-  def findItemAt(th: TokenHierarchy[_], token: Token[TokenId]): Option[AstItem] = {
-    val offset = token.offset(th)
-    // Always seach Ref first, since Ref can be included in Def's range
-    if (!refsSorted) {
-      _refs sortWith {compareRef(th, _, _)}
-      refsSorted = true
-    }
-    var lo = 0
-    var hi = _refs.size - 1
-    while (lo <= hi) {
-      val mid = (lo + hi) >> 1
-      val middle = _refs(mid)
-      if (offset < middle.idOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.idEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        val idToken = middle.idToken
-        if (idToken != null && idToken == token) {
-          return Some(middle)
-        }
-      }
-    }
-
-    if (!dfnsSorted) {
-      _dfns sortWith {compareDfn(th, _, _)}
-      dfnsSorted = true
-    }
-    lo = 0
-    hi = _dfns.size - 1
-    while (lo <= hi) {
-      val mid = (lo + hi) >> 1
-      val middle = _dfns(mid)
-      if (offset < middle.idOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.idEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        return Some(middle)
-      }
-    }
-
-    if (!scopesSorted) {
-      _subScopes sortWith {compareScope(th, _, _)}
-      scopesSorted = true
-    }
-    lo = 0
-    hi = _subScopes.size - 1
-    while (lo <= hi) {
-      val mid = (lo + hi) >> 1
-      val middle = _subScopes(mid)
-      if (offset < middle.boundsOffset(th)) {
-        hi = mid - 1
-      } else if (offset >= middle.boundsEndOffset(th)) {
-        lo = mid + 1
-      } else {
-        return middle.findItemAt(th, offset)
-      }
-    }
-
-    None
   }
 
   def findDfnAt[A <: AstDfn](clazz: Class[A], th: TokenHierarchy[_], offset: Int): Option[A] = {
@@ -447,7 +326,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
 
   def closestScope(th: TokenHierarchy[_], offset: Int): Option[AstScope] = {
     // * try to find neastItem's scope, which is more precise than by scope range
-    root.findNeastItemAt(th, offset) foreach {item =>
+    root.findNeastItemsAt(th, offset) foreach {item =>
       val scope = item.enclosingScope
       // @todo when this is a scope passed to phase lambdalift, the boundsEndToken isn't correct:
       //            if (scope.contains(th, offset)) {

@@ -40,6 +40,8 @@ package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind}
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 
 /**
  *
@@ -47,13 +49,13 @@ import org.netbeans.modules.csl.api.{ElementKind}
  */
 class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsTokens) {
 
-  protected var _idTokenToItems: Map[Token[TokenId], List[AstItem]] = Map.empty
+  protected var _idTokenToItems = new HashMap[Token[TokenId], List[AstItem]]
   private var sortedTokens = Array[Token[TokenId]]()
   private var tokensSorted = false
 
   def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
 
-  def idTokenToItems: Map[Token[TokenId], List[AstItem]] = {
+  def idTokenToItems: HashMap[Token[TokenId], List[AstItem]] = {
     _idTokenToItems
   }
 
@@ -68,15 +70,15 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   /**
    * each idToken may correspond to more then one AstItems
    */
-  protected def put(idToken: Token[TokenId], item: AstItem) = {
-    _idTokenToItems += idToken -> (item :: _idTokenToItems.getOrElse(idToken, Nil))
-    tokensSorted = false
-  }
-
-  override def findItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
-    findItemsAt(th, offset) match {
-      case Nil => None
-      case xs => Some(xs.reverse.head)
+  protected def put(idToken: Token[TokenId], item: AstItem): Boolean = {
+    val items = _idTokenToItems.getOrElse(idToken, Nil)
+    if (items find {_.symbol == item.symbol} isDefined) {
+      // * don't add item with same symbol
+      false
+    } else {
+      _idTokenToItems += (idToken -> (item :: items))
+      tokensSorted = false
+      true
     }
   }
 
@@ -100,7 +102,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     Nil
   }
 
-  def findNeastItemAt(th: TokenHierarchy[_], offset: Int): Option[AstItem] = {
+  def findNeastItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
     val tokens = sortedTokens(th)
 
     var lo = 0
@@ -114,7 +116,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
         lo = mid + 1
       } else {
         _idTokenToItems.get(middle) match {
-          case Some(x :: _) => return Some(x)
+          case Some(x) if !x.isEmpty => return x
           case _ =>
         }
       }
@@ -123,13 +125,8 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     // * found null, return AstItem at lo, lo is always increasing during above procedure
     if (lo < tokens.size) {
       val neastToken = tokens(lo)
-      return _idTokenToItems.get(neastToken) match {
-        case Some(x :: _) => Some(x)
-        case _ => None
-      }
-    } else {
-      None
-    }
+      _idTokenToItems.get(neastToken).getOrElse(Nil)
+    } else Nil
   }
 
   def findItemsAt(token: Token[TokenId]): List[AstItem] = {
@@ -151,7 +148,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
 
   def findFirstItemWithName(name: String): Option[AstItem] = {
     _idTokenToItems.find{case (token, items) => token.text.toString == name} match {
-      case Some((token, x :: xs)) => Some(x)
+      case Some((token, x)) if !x.isEmpty => Some(x.head)
       case _ => None
     }
   }
@@ -163,7 +160,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   def debugPrintTokens(th: TokenHierarchy[_]): Unit = {
     sortedTokens(th) foreach {token =>
       println("<" + token + "> ->")
-      _idTokenToItems.getOrElse(token, Nil) foreach {println(_)}
+      _idTokenToItems.get(token) foreach {items => items foreach {println _}}
       println
     }
     println
