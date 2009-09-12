@@ -57,6 +57,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Position.Bias;
 import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
+import org.netbeans.api.language.util.text.BoyerMoore
 import org.netbeans.api.lexer.Token
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -341,7 +342,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
     (set filter {x =>
         try {
-          x.asText.indexOf(targetName) != -1
+          BoyerMoore.indexOf(x.asText, targetName) != -1
         } catch {case _: IOException => true}
       }).toSet
 

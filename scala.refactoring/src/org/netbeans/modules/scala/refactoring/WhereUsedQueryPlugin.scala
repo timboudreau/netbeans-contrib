@@ -51,6 +51,7 @@ import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.source.ClasspathInfo
+import org.netbeans.api.language.util.text.BoyerMoore
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -104,18 +105,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   }
 
   private def getRelevantFiles(handle: ScalaItems#ScalaItem): Set[FileObject] = {
-    getRelevantFiles(handle,
-                     getClasspathInfo(refactoring),
-                     isFindSubclasses,
-                     isFindDirectSubclassesOnly,
-                     isFindOverridingMethods,
-                     isFindUsages)
-  }
-
-  def getRelevantFiles(handle: ScalaItems#ScalaItem, cpInfo: ClasspathInfo,
-                       isFindSubclasses: Boolean, isFindDirectSubclassesOnly: Boolean,
-                       isFindOverridingMethods: Boolean, isFindUsages: Boolean
-  ): Set[FileObject] = {
+    val cpInfo = getClasspathInfo(refactoring)
     val targetName = handle.symbol.nameString
     val set = new HashSet[FileObject]
 
@@ -208,7 +198,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     if (isFindUsages || isFindDirectSubclassesOnly || isFindOverridingMethods) {
       (set filter {x => 
           try {
-            x.asText.indexOf(targetName) != -1
+            BoyerMoore.indexOf(x.asText, targetName) != -1
           } catch {case _: IOException => true}
         }).toSet
     } else set.toSet
