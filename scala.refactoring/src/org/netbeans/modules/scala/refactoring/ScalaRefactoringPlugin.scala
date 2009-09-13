@@ -71,16 +71,20 @@ import scala.collection.mutable.HashSet
  * @author Jan Becicka
  * @author Tor Norbye
  */
-object ScalaRefactoringPlugin {
-  
+abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with RefactoringPlugin {
+  protected var cancelled = false  
+  protected def isCancelled: Boolean = synchronized {cancelled}
+
+  override def cancelRequest: Unit = synchronized {cancelled = true}
+
   def createProblem(result: Problem, isFatal: Boolean, message: String): Problem = {
     val problem = new Problem(isFatal, message)
-    
+
     if (result == null) {
       problem
     } else if (isFatal) {
       problem.setNext(result)
-      problem;
+      problem
     } else {
       //problem.setNext(result.getNext());
       //result.setNext(problem);
@@ -94,15 +98,6 @@ object ScalaRefactoringPlugin {
       result
     }
   }
-}
-
-abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with RefactoringPlugin {
-  import ScalaRefactoringPlugin._
-
-  protected var cancelled = false  
-  protected def isCancelled: Boolean = synchronized {cancelled}
-
-  override def cancelRequest: Unit = synchronized {cancelled = true}
 
   protected def getClasspathInfo(refactoring: AbstractRefactoring): ClasspathInfo = {
     refactoring.getContext.lookup(classOf[ClasspathInfo]) match {

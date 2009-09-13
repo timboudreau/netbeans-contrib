@@ -169,7 +169,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       //    }
       //}
       if (nameNotChanged) {
-        return ScalaRefactoringPlugin.createProblem(fastCheckProblem, true, getString("ERR_NameNotChanged"))
+        return createProblem(fastCheckProblem, true, getString("ERR_NameNotChanged"))
       }
 
     }

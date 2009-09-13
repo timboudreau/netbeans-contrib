@@ -42,7 +42,12 @@ package org.netbeans.modules.scala.refactoring
 
 import java.awt.Color;
 import java.io.CharConversionException;
+import java.io.File
+import java.io.IOException
+import java.io.UnsupportedEncodingException
 import java.net.URL
+import java.net.URLDecoder
+import java.util.StringTokenizer
 import java.util.logging.Logger
 import javax.swing.text.AttributeSet;
 import javax.swing.text.StyleConstants;
@@ -232,11 +237,35 @@ object RetoucheUtils {
     "#" + colorR + colorG + colorB //NOI18N
   }
 
+  def isElementInOpenProject(f: FileObject): Boolean = {
+    if (f == null) return false
+    
+    val p = FileOwnerQuery.getOwner(f)
+    OpenProjects.getDefault.isProjectOpen(p)
+  }
+
+
   def isFileInOpenProject(file: FileObject): Boolean = {
     assert(file != null)
     val p = FileOwnerQuery.getOwner(file)
     OpenProjects.getDefault.isProjectOpen(p)
   }
+
+  def isValidPackageName(name: String): Boolean = {
+    if (name.endsWith(".")) //NOI18N
+      return false
+    if (name.startsWith("."))  //NOI18N
+      return false
+    val tokenizer = new StringTokenizer(name, ".") // NOI18N
+    while (tokenizer.hasMoreTokens) {
+      /* @todo if (!ScalaSourceUtil.isScalaIdentifier(tokenizer.nextToken)) {
+        return false
+      } */
+    }
+    true
+  }
+
+
 
   def isOnSourceClasspath(fo: FileObject): boolean = {
     val p = FileOwnerQuery.getOwner(fo)
@@ -265,6 +294,54 @@ object RetoucheUtils {
     isScalaFile(file) && isFileInOpenProject(file) && isOnSourceClasspath(file)
   }
 
+  /* def getPackageName(folder: FileObject): String = {
+    assert(folder.isFolder, "argument must be folder")
+    val cp = ClassPath.getClassPath(folder, ClassPath.SOURCE)
+    if (cp == null) {
+      // see http://www.netbeans.org/issues/show_bug.cgi?id=159228
+      throw new IllegalStateException(String.format("No classpath for %s.", folder)) // NOI18N
+    }
+    cp.getResourceName(folder, '.', false)
+  } */
+
+  /* def getPackageName(CompilationUnitTree unit): String = {
+    assert unit!=null;
+    ExpressionTree name = unit.getPackageName();
+    if (name==null) {
+      //default package
+      return "";
+    }
+    return name.toString();
+  } */
+
+  def getPackageName(url: URL): String = {
+    var f =  try {
+      val path = URLDecoder.decode(url.getPath, "utf-8") // NOI18N
+      FileUtil.normalizeFile(new File(path))
+    } catch {case ex: UnsupportedEncodingException => throw new IllegalArgumentException("Cannot create package name for url " + url)} // NOI18N
+
+    var suffix = ""
+    do {
+      val fo = FileUtil.toFileObject(f)
+      if (fo != null) {
+        if (suffix == "") return getPackageName(fo)
+
+        val prefix = getPackageName(fo)
+        return prefix + (if (prefix == "") "" else ".") + suffix // NOI18N
+      }
+      if (suffix != "") {
+        suffix = "." + suffix // NOI18N
+      }
+      try {
+        suffix = URLDecoder.decode(f.getPath().substring(f.getPath().lastIndexOf(File.separatorChar) + 1), "utf-8") + suffix; // NOI18N
+      } catch {case ex: UnsupportedEncodingException => throw new IllegalArgumentException("Cannot create package name for url " + url)} // NOI18N
+
+      f = f.getParentFile
+    } while (f !=null )
+    throw new IllegalArgumentException("Cannot create package name for url " + url) // NOI18N
+  }
+
+
 // XXX: parsingapi
 //    def boolean isClasspathRoot(FileObject fo) {
 //        ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
@@ -292,6 +369,17 @@ object RetoucheUtils {
     }
     
     ""
+  }
+
+  @throws(classOf[IOException])
+  def getClassPathRoot(url: URL): FileObject = {
+    var result = URLMapper.findFileObject(url);
+    var f = if (result != null) null else FileUtil.normalizeFile(new File(URLDecoder.decode(url.getPath, "UTF-8"))) //NOI18N
+    while (result == null) {
+      result = FileUtil.toFileObject(f)
+      f = f.getParentFile
+    }
+    ClassPath.getClassPath(result, ClassPath.SOURCE).findOwnerRoot(result)
   }
 
   def getClasspathInfoFor(handles: Array[ScalaItems#ScalaItem]): ClasspathInfo = {
