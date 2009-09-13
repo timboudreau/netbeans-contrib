@@ -143,6 +143,7 @@ object FixImportsHelper{
           } else {
             return null
           }
+        case ScalaTokenId.Semicolon => //ignore semicolons
         case id if ScalaLexUtil.isWsComment(id) =>
         case _ =>
           if (collecting) {
