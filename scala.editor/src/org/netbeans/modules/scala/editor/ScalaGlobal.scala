@@ -813,7 +813,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       members(sym) = new TypeMember(
         sym,
         NoPrefix,
-        true,
+        context.isAccessible(sym, pre, false),
         inherited,
         viaView)
     }

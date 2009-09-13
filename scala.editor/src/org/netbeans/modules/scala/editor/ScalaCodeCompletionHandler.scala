@@ -187,11 +187,11 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       val lineEnd = Utilities.getRowEnd(doc, ts.offset)
       val isAtNewLine = lexOffset > lineEnd
 
-      if (closestToken.id == ScalaTokenId.Import) {
-        completer.prefix = ""
-        completer.completeImport(proposals)
-        return completionResult
-      }
+      /* if (closestToken.id == ScalaTokenId.Import) {
+       completer.prefix = ""
+       completer.completeImport(proposals)
+       return completionResult
+       } */
 
       val rootOpt = pResult.rootScope
       if (rootOpt.isDefined) {
@@ -233,19 +233,23 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
             }
           case _ =>
         }
-      }
 
-      ScalaLexUtil.findImportPrefix(th, lexOffset) match {
-        case Nil =>
-        case importPrefixs =>
-          val sb = new StringBuilder
-          for (prefix <- importPrefixs) {
-            sb.append(prefix.text.toString.trim)
-          }
+        // ----- try to complete import
 
-          completer.prefix = sb.toString
-          completer.completeImport(proposals)
-          return completionResult
+        (ScalaLexUtil.findImportPrefix(th, lexOffset) match {
+            case Nil => None
+            case List(selector, dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some((qual, selector.text.toString))
+            case List(dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some(qual, "")
+            case _ => None
+          }) match {
+          case None =>
+          case Some((qualToken, selector)) => root.findItemsAt(qualToken) match {
+              case Nil =>
+              case head :: xs =>
+                completer.completeImport(head, selector, proposals)
+                return completionResult
+            }
+        }
       }
 
       if (rootOpt == None) {

@@ -249,8 +249,8 @@ object ScalaLexUtil extends LexUtil {
       token.id match {
         case ScalaTokenId.Import =>
           if (!lbraceExpected || lbraceExpected && lbraceMet) {
-            // * since we are looking backward, should reverse the final result
-            return paths.reverse.toList
+            // * since we are looking backward, the result is reversed
+            return paths.toList
           }
         case ScalaTokenId.Dot =>
           paths += token

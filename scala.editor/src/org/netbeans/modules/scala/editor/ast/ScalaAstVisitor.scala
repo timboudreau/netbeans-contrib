@@ -43,51 +43,6 @@ import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
 import org.netbeans.modules.csl.api.{ElementKind, Modifier}
 import org.netbeans.modules.parsing.api.Snapshot
 import org.openide.filesystems.{FileObject, FileUtil}
-//import scala.tools.nsc.ast.Trees.Annotated;
-////import scala.tools.nsc.ast.Trees.Annotation;
-//import scala.tools.nsc.ast.Trees.AppliedTypeTree;
-//import scala.tools.nsc.ast.Trees.Apply;
-//import scala.tools.nsc.ast.Trees.ApplyDynamic;
-//import scala.tools.nsc.ast.Trees.ArrayValue;
-//import scala.tools.nsc.ast.Trees.Assign;
-//import scala.tools.nsc.ast.Trees.Bind;
-//import scala.tools.nsc.ast.Trees.Block;
-//import scala.tools.nsc.ast.Trees.CaseDef;
-//import scala.tools.nsc.ast.Trees.ClassDef;
-//import scala.tools.nsc.ast.Trees.CompoundTypeTree;
-//import scala.tools.nsc.ast.Trees.DefDef;
-//import scala.tools.nsc.ast.Trees.DocDef;
-//import scala.tools.nsc.ast.Trees.ExistentialTypeTree;
-//import scala.tools.nsc.ast.Trees.Function;
-//import scala.tools.nsc.ast.Trees.Ident;
-//import scala.tools.nsc.ast.Trees.If;
-//import scala.tools.nsc.ast.Trees.Import;
-//import scala.tools.nsc.ast.Trees.LabelDef;
-//import scala.tools.nsc.ast.Trees.Literal;
-//import scala.tools.nsc.ast.Trees.Match;
-//import scala.tools.nsc.ast.Trees.ModuleDef;
-//import scala.tools.nsc.ast.Trees.New;
-//import scala.tools.nsc.ast.Trees.PackageDef;
-//import scala.tools.nsc.ast.Trees.Return;
-//import scala.tools.nsc.ast.Trees.Select;
-//import scala.tools.nsc.ast.Trees.SelectFromTypeTree;
-//import scala.tools.nsc.ast.Trees.Sequence;
-//import scala.tools.nsc.ast.Trees.SingletonTypeTree;
-//import scala.tools.nsc.ast.Trees.Star;
-//import scala.tools.nsc.ast.Trees.StubTree;
-//import scala.tools.nsc.ast.Trees.Super;
-//import scala.tools.nsc.ast.Trees.Template;
-//import scala.tools.nsc.ast.Trees.This;
-//import scala.tools.nsc.ast.Trees.Throw;
-//import scala.tools.nsc.ast.Trees.Tree;
-//import scala.tools.nsc.ast.Trees.Try;
-//import scala.tools.nsc.ast.Trees.TypeApply;
-//import scala.tools.nsc.ast.Trees.TypeBoundsTree;
-//import scala.tools.nsc.ast.Trees.TypeDef;
-//import scala.tools.nsc.ast.Trees.TypeTree;
-//import scala.tools.nsc.ast.Trees.Typed;
-//import scala.tools.nsc.ast.Trees.UnApply;
-//import scala.tools.nsc.ast.Trees.ValDef;
 
 import org.netbeans.api.language.util.ast.{AstItem, AstScope}
 import org.netbeans.modules.scala.editor.ScalaGlobal
@@ -95,7 +50,7 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.{CompilationUnits, Global}
 import scala.tools.nsc.ast.Trees
-import scala.tools.nsc.symtab.{Symbols, SymbolTable}
+import scala.tools.nsc.symtab.{Symbols, SymbolTable, Flags}
 import scala.tools.nsc.symtab.Flags._
 import scala.tools.nsc.util.{BatchSourceFile, Position, SourceFile}
 import scala.collection.mutable.{Stack, HashSet}
@@ -168,10 +123,18 @@ abstract class ScalaAstVisitor {
       for (importInfo <- c.imports) {
         importInfo.tree match {
           case me@Import(qual, selectors) =>
-            //println("import: qual=" + qual + ", selectors=" + selectors.mkString("{", ",", "}" ))
+            val sym = qual.symbol
+            if (sym != null) {
+              val idToken = getIdToken(qual)
+              val ref = ScalaRef(sym, idToken, if (sym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
+            
+            //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
             selectors foreach {
               case (null, null) =>
-              case (x, null) =>
+              case (x, null) if x.decode != "_" =>
                 val symx = importInfo.importedSymbol(x)
                 if (symx != null) {
                   val idToken = getIdToken(me, x.decode)
@@ -179,7 +142,7 @@ abstract class ScalaAstVisitor {
 
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
-              case (x, y) =>
+              case (x, y) if x.decode != "_" =>
                 val symx = importInfo.importedSymbol(x)
                 if (symx != null) {
                   val idToken = getIdToken(me, x.decode)
@@ -195,6 +158,7 @@ abstract class ScalaAstVisitor {
 
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
+              case _ =>
             }
         }
       }
@@ -791,7 +755,7 @@ abstract class ScalaAstVisitor {
     }
 
     /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
-    val name = if (sym != NoSymbol) sym.rawname.decode.trim else knownName
+    val name = if (knownName.length > 0) knownName else (if (sym != NoSymbol) sym.rawname.decode.trim else "")
     if (name == "") {
       return None
     }
@@ -827,7 +791,7 @@ abstract class ScalaAstVisitor {
         
       case Select(qual, selector) if name == "apply" =>
         // * for Select tree that is `apple` call, will look forward for the nearest id token
-        //val content = getContent(offet, endOffset
+        //val content = getContent(offset, endOffset)
         ScalaLexUtil.findNextIn(ts, ScalaLexUtil.PotentialIdTokens)
 
       case Select(qual, selector) if endOffset > 0 =>
@@ -843,6 +807,11 @@ abstract class ScalaAstVisitor {
             } else None
           case x => x
         }
+
+      case Import(qual, selectors) =>
+        //println("import tree content=" + getContent(offset, endOffset) + ", name=" + name)
+        ts.move(endOffset)
+        findIdTokenBackward(ts, name, offset, endOffset)
         
       case _ => findIdTokenForward(ts, name, offset, endOffset)
     }
@@ -945,11 +914,7 @@ abstract class ScalaAstVisitor {
       return None
     }
 
-    val ts = ScalaLexUtil.getTokenSequence(th, endOffset) match {
-      case Some(x) => x
-      case None => return None
-    }
-
+    val ts = ScalaLexUtil.getTokenSequence(th, endOffset).getOrElse{return None}
     ts.move(endOffset)
     if (!ts.movePrevious && !ts.moveNext) {
       assert(false, "Should not happen!")

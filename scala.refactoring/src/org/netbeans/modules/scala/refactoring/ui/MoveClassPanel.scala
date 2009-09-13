@@ -351,7 +351,7 @@ class MoveClassPanel(parent: ChangeListener, startPackage: String, headLine: Str
                 
     // Setup comboboxes
     rootComboBox.setModel(new DefaultComboBoxModel(groups.asInstanceOf[Array[Object]]))
-    rootComboBox.setSelectedIndex(preselectedItem);
+    rootComboBox.setSelectedIndex(preselectedItem)
   }
     
   abstract class BaseCellRenderer extends JLabel with ListCellRenderer with UIResource {
@@ -387,15 +387,15 @@ class MoveClassPanel(parent: ChangeListener, startPackage: String, headLine: Str
       }
             
       if ( isSelected ) {
-        setBackground(list.getSelectionBackground());
-        setForeground(list.getSelectionForeground());
+        setBackground(list.getSelectionBackground)
+        setForeground(list.getSelectionForeground)
       }
       else {
-        setBackground(list.getBackground());
-        setForeground(list.getForeground());
+        setBackground(list.getBackground)
+        setForeground(list.getForeground)
       }
             
-      this;
+      this
     }
   }
     
