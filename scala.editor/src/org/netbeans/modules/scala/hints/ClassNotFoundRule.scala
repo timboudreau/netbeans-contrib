@@ -214,9 +214,12 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
               //just double check we are at the correct place..
               if (ts.isValid && ts.moveNext && ts.token.text.toString == name) {
                 val astOffset = ScalaLexUtil.getAstOffset(result, start)
-                val current = root.findItemAt(th, astOffset) match {
-                  case Some(x) if x.name == name => x
-                  case None => return
+                val current = root.findItemsAt(th, astOffset) match {
+                  case Nil => return
+                  case xs =>  {
+                          val x = xs.reverse.head
+                          if (x.name == name) x else return
+                  }
                 }
                 val paramTuples = findParams(ts, root)
                 current
