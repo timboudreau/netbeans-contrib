@@ -135,7 +135,7 @@ object FixImportsHelper{
             starter = ts.offset
           }
         case ScalaTokenId.Package =>
-        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Trait | ScalaTokenId.Object =>
+        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Trait | ScalaTokenId.Object | ScalaTokenId.At =>
           if (collecting) {
             //too far
             ts.movePrevious
