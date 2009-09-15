@@ -116,6 +116,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
     var importStart = 0
     var importEnd = 0
     var startImportSet = false
+    var endImportSet = false
 
     val comments = new Stack[Array[Int]]
     val blocks = new Stack[Int]
@@ -129,7 +130,9 @@ class ScalaStructureAnalyzer extends StructureScanner {
             importStart = offset
             startImportSet = true
           }
-          importEnd = offset
+          if (!endImportSet) {
+            importEnd = offset
+          }
         case ScalaTokenId.BlockCommentStart | ScalaTokenId.DocCommentStart =>
           val commentStart = ts.offset
           val commentLines = 0
@@ -158,6 +161,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
               codefolds.add(blockRange)
             }
           }
+        case ScalaTokenId.Object | ScalaTokenId.Class | ScalaTokenId.Trait => endImportSet = true
         case _ =>
       }
     }
