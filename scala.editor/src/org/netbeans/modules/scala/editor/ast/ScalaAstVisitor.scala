@@ -790,11 +790,10 @@ abstract class ScalaAstVisitor {
    */
   protected def getIdToken(tree: Tree, knownName: String = ""): Option[Token[TokenId]] = {
     val sym = tree.symbol
+    if (sym == null) return None
+
     if (sym.hasFlag(Flags.SYNTHETIC)) {
       // @todo
-    }
-    if (sym == null) {
-      return None
     }
 
     /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
