@@ -506,7 +506,11 @@ abstract class ScalaAstVisitor {
                 val dfn = ScalaDfn(sym, getIdToken(tree, name.decode.trim), ElementKind.CLASS, scope, fo)
                 if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
               }
+            }
 
+            scopes push scope
+            
+            if (sym !=null && sym != NoSymbol) {
               (rhs, sym.info) match {
                 case (TypeBoundsTree(lo, hi), TypeBounds(loTpe, hiTpe)) =>
                   // * specical case: type of lo, hi are hidden in sym.info (not in sym.tpe)
@@ -519,7 +523,7 @@ abstract class ScalaAstVisitor {
                   val hiRef = ScalaRef(hiSym, getIdToken(hi, hiSym.nameString), ElementKind.CLASS, fo)
                   if (scopes.top.addRef(hiRef)) info("\tAdded: ", hiRef)
                 case _ => traverse(rhs, level + 1, true)
-              }
+              }           
             } else traverse(rhs, level + 1, true)
 
             tparams foreach {traverse(_, level + 1, true)}
