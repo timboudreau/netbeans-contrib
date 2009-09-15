@@ -127,12 +127,11 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
   }
 
   private def visitItems(th: TokenHierarchy[_], rootScope: ScalaRootScope,
-                         highlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]]): Unit = {
-    for (items <- rootScope.idTokenToItems.valuesIterator;
+                         highlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]]
+  ): Unit = {
+    for ((idToken, items) <- rootScope.idTokenToItems;
          item <- items;
-         idToken <- item.idToken;
-         name = item.getName;
-         if name != "this" && name != "super"
+         name = item.getName if name != "this" && name != "super"
     ) {
       // * token may be xml tokens, @see AstVisit#getTokenId
       idToken.id match {

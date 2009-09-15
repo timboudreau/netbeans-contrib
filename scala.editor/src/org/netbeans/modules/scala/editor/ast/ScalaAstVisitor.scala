@@ -136,20 +136,26 @@ abstract class ScalaAstVisitor {
               case (null, null) =>
 
               case (x, y) if x.decode != "_" =>
-                val xsym = importInfo.importedSymbol(x)
+                val xsym = importInfo.importedSymbol(x) match {
+                  case sym: ModuleSymbol => sym.moduleClass
+                  case sym => sym
+                }
+                
                 if (xsym != null) {
                   val idToken = getIdToken(me, x.decode)
                   val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
-
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                 }
 
                 if (y != null) {
-                  val ysym = importInfo.importedSymbol(y)
+                  val ysym = importInfo.importedSymbol(y) match {
+                    case sym: ModuleSymbol => sym.moduleClass
+                    case sym => sym
+                  }
+
                   if (ysym != null) {
                     val idToken = getIdToken(me, y.decode)
                     val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
-
                     if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                   }
                 }
