@@ -135,12 +135,8 @@ abstract class ScalaAstVisitor {
             selectors foreach {
               case (null, null) =>
 
-              case (x, y) if x.decode != "_" =>
-                val xsym = importInfo.importedSymbol(x) match {
-                  case sym: ModuleSymbol => sym.moduleClass
-                  case sym => sym
-                }
-                
+              case (x, y) if x != nme.WILDCARD =>
+                val xsym = importedSymbol(me, x)
                 if (xsym != null) {
                   val idToken = getIdToken(me, x.decode)
                   val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
@@ -148,11 +144,7 @@ abstract class ScalaAstVisitor {
                 }
 
                 if (y != null) {
-                  val ysym = importInfo.importedSymbol(y) match {
-                    case sym: ModuleSymbol => sym.moduleClass
-                    case sym => sym
-                  }
-
+                  val ysym = importedSymbol(me, y)
                   if (ysym != null) {
                     val idToken = getIdToken(me, y.decode)
                     val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
@@ -168,6 +160,32 @@ abstract class ScalaAstVisitor {
     }
 
     unit.contexts foreach {visitContextTree _}
+  }
+
+  /**
+   * The symbol with name <code>name</code> imported from import clause <code>tree</code>.
+   * We'll find class/trait instead of object first.
+   * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
+   */
+  def importedSymbol(tree: Import, name: Name): Symbol = {
+    var result: List[Symbol] = Nil
+    var renamed = false
+    val qual = tree.expr
+
+    var selectors = tree.selectors
+    while (selectors != Nil && result == Nil) {
+      val (x, y) = selectors.head
+      if (y == name.toTermName)
+        result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
+      else if (x == name.toTermName)
+        renamed = true
+      else if (x == nme.WILDCARD && !renamed)
+        result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
+    
+      selectors = selectors.tail
+    }
+
+    result find {x => !x.isModule} getOrElse {if (result.isEmpty) null else result.head}
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
