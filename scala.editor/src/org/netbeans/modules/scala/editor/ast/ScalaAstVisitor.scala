@@ -170,6 +170,8 @@ abstract class ScalaAstVisitor {
     var renamed = false
     val qual = tree.expr
 
+    if (qual == null || qual.tpe == null) return null
+
     var selectors = tree.selectors
     while (selectors != Nil && result == Nil) {
       val (x, y) = selectors.head
