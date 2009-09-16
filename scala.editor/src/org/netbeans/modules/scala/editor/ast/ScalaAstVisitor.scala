@@ -107,7 +107,7 @@ abstract class ScalaAstVisitor {
     reset
     rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, srcFile.length))
     scopes push rootScope
-      
+
     unit match {
       case u: RichCompilationUnit => visitImports(u)
       case _ =>
@@ -185,8 +185,8 @@ abstract class ScalaAstVisitor {
       selectors = selectors.tail
     }
 
-    def isProperType(x: Symbol) = x.isType && x.tpe != null && x.tpe != NoType
-    result find isProperType getOrElse {if (result.isEmpty) null else result.head}
+    // * prefer type over object
+    result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}

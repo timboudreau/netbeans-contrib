@@ -317,6 +317,8 @@ trait ScalaUtils {self: ScalaGlobal =>
         fm.appendText("<no-symbol>")
         return
       }
+
+      completeIfWithLazyType(sym)
       
       val flags = if (sym.owner.isRefinementClass) {
         sym.flags & Flags.ExplicitFlags & ~Flags.OVERRIDE
@@ -474,6 +476,34 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
+    def completeIfWithLazyType(sym: Symbol) {
+      val topClazz = sym.toplevelClass
+
+      if (topClazz.nameString.indexOf('$') != -1) return // avoid assertion error @see
+      
+      val (clazz, staticModule) = if (topClazz.isModule) {
+        (topClazz.linkedClassOfModule, topClazz)
+      } else {
+        (topClazz, topClazz.linkedModuleOfClass)
+      }
+
+      if (clazz != NoSymbol && staticModule != NoSymbol) { // avoid Error: NoSymbol does not have owner
+        topClazz.rawInfo match {
+          case x if !x.isComplete => x.complete(topClazz)
+          case _ =>
+        }
+      }
+    }
+
+    def isProperType(sym: Symbol): Boolean = {
+      if (sym.isType && sym.hasRawInfo) {
+        completeIfWithLazyType(sym)
+        sym.rawInfo match {
+          case NoType | ErrorType => false
+          case _ => true
+        }
+      } else false
+    }
 
   }
 

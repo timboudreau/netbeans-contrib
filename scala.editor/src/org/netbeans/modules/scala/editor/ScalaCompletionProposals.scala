@@ -117,6 +117,8 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         case x: ScalaElement =>
           val sym = x.symbol
 
+          ScalaUtil.completeIfWithLazyType(sym)
+
           fm.`type`(true)
           val retType = try {
             sym.tpe match {

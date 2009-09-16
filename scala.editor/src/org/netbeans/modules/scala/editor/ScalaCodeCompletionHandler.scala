@@ -1094,9 +1094,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     QueryType.NONE
   }
 
-  override def document(info: ParserResult, element: ElementHandle): String = {
-    val pResult = info.asInstanceOf[ScalaParserResult]
-    
+  override def document(pr: ParserResult, element: ElementHandle): String = {
     val sigFm = new SignatureHtmlFormatter
 
     val comment = element match {
