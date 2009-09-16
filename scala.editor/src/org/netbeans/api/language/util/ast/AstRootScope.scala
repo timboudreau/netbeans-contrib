@@ -42,6 +42,7 @@ import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
+import scala.collection.mutable.HashSet
 
 /**
  *
@@ -49,14 +50,19 @@ import scala.collection.mutable.HashMap
  */
 class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsTokens) {
 
-  protected var _idTokenToItems = new HashMap[Token[TokenId], List[AstItem]]
+  protected val _idTokenToItems = new HashMap[Token[TokenId], List[AstItem]]
   private var sortedTokens = Array[Token[TokenId]]()
   private var tokensSorted = false
+  private val _importedItems = new HashSet[AstItem]
 
   def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
 
   def idTokenToItems: HashMap[Token[TokenId], List[AstItem]] = {
     _idTokenToItems
+  }
+
+  def importedItems: Set[AstItem] = {
+    _importedItems.toSet
   }
 
   private def sortedTokens(th: TokenHierarchy[_]): Array[Token[TokenId]] = {
@@ -67,6 +73,10 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     sortedTokens
   }
 
+  def putImportedItem(item: AstItem): Boolean = {
+    _importedItems add item
+  }
+  
   /**
    * each idToken may correspond to more then one AstItems
    */

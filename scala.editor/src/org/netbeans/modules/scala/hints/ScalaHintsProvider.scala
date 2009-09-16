@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.scala.hints
 
+import org.netbeans.modules.scala.editor.ast.ScalaRootScope
 import scala.collection.JavaConversions
 import scala.collection.JavaConversions._
 
@@ -166,7 +167,7 @@ class ScalaHintsProvider() extends HintsProvider {
        added.toList
     }
 
-   def applyHintRules(manager : HintsManager, context : ScalaRuleContext,  selRules : ju.List[ScalaAstRule], scope : AstScope) : List[Hint] = {
+   def applyHintRules(manager : HintsManager, context : ScalaRuleContext,  selRules : ju.List[ScalaAstRule], scope : ScalaRootScope) : List[Hint] = {
        val added = ListBuffer[Hint]()
        val applicableRules = for {
            rule <- selRules

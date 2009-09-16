@@ -140,6 +140,7 @@ abstract class ScalaAstVisitor {
                   val idToken = getIdToken(me, x.decode)
                   val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                  rootScope putImportedItem ref
                 }
 
                 if (y != null) {
@@ -148,6 +149,7 @@ abstract class ScalaAstVisitor {
                     val idToken = getIdToken(me, y.decode)
                     val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
                     if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                    rootScope putImportedItem ref
                   }
                 }
               case _ =>

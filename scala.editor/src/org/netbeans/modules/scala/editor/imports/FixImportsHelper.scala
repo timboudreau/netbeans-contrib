@@ -110,7 +110,7 @@ object FixImportsHelper{
     ts.move(0)
     var importStatement = findNextImport(ts, ts.token)
     // +1 means the dot
-    val toRet = new ArrayBuffer[Tuple3[Int, Int, String]]()
+    val toRet = new ArrayBuffer[(Int, Int, String)]
     while (importStatement != null && importStatement._1 != -1 && importStatement._3.trim.length > 0) {
       toRet + importStatement
       importStatement = findNextImport(ts, ts.token)

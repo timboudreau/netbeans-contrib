@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.hints
 
 import org.netbeans.modules.csl.api.Hint
 import org.netbeans.modules.csl.api.Rule
-import org.netbeans.api.language.util.ast._
+import org.netbeans.modules.scala.editor.ast.ScalaRootScope
 
 
 abstract class ScalaAstRule extends Rule.AstRule {
@@ -51,7 +51,7 @@ abstract class ScalaAstRule extends Rule.AstRule {
      */
     def getKinds() : java.util.Set[_]
 
-    def createHints(context : ScalaRuleContext, scope : AstScope) : List[Hint]
+    def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint]
 
 }
 

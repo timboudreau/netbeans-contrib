@@ -65,6 +65,8 @@ import org.netbeans.modules.csl.api.EditList
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.editor.BaseDocument
 
+import org.netbeans.modules.scala.editor.ast.ScalaItems
+import org.netbeans.modules.scala.editor.ast.ScalaRootScope
 import org.netbeans.modules.scala.editor.imports.FixImportsHelper
 import org.netbeans.modules.scala.editor.ScalaParserResult
 import org.netbeans.api.language.util.ast._
@@ -121,13 +123,13 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
 
     def getKinds() : java.util.Set[_] = java.util.Collections.singleton(ScalaAstRule.ROOT)
 
-    def createHints(context : ScalaRuleContext, scope : AstScope) : List[Hint] = {
-        val defs = findDefinitions(scope)
+    def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint] = {
+        val defs = findTypeUsages(scope) //findDefinitions(scope)
 
         //debug start
-        println("creating rmeove import hint")
-        defs.foreach(a => println(a))
-        println("we have " + defs.size + " defs")
+        //println("creating rmeove import hint")
+        //defs.foreach(a => println(a))
+        //println("we have " + defs.size + " defs")
         //debug end
 
         val imports = FixImportsHelper.allGlobalImports(context.doc)
@@ -147,23 +149,31 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         toRet.toList
     }
 
-    private def mapImports(imports : List[Tuple3[Int, Int, String]]) = {
-        var toRet = Map[String, Tuple3[Int, Int, String]]()
-        for (imp <- imports) {
-            if (!imp._3.contains("_") && !imp._3.contains("=>")) {
-                val leftBrack = imp._3.indexOf("{")
-                val rightBrack = imp._3.indexOf("}")
+    private def mapImports(imports : List[(Int, Int, String)]) = {
+        var toRet = Map[String, (Int, Int, String)]()
+        for (imp@(starter, finisher, text) <- imports) {
+            if (!text.contains("_") && !text.contains("=>")) {
+                val leftBrack = text.indexOf("{")
+                val rightBrack = text.indexOf("}")
                 if (leftBrack >= 0 && rightBrack > leftBrack) {
-                    val pack = imp._3.substring(0, leftBrack)
-                    for (single <- imp._3.substring(leftBrack + 1, rightBrack).split(",")) {
+                    val pack = text.substring(0, leftBrack)
+                    for (single <- text.substring(leftBrack + 1, rightBrack).split(",")) {
                         toRet = toRet + ((pack + single) -> imp)
                     }
                 } else {
-                    toRet = toRet + (imp._3 -> imp)
+                    toRet = toRet + (text -> imp)
                 }
             }
         }
         toRet
+    }
+
+    private def findTypeUsages(scope: AstRootScope): Set[String] = {
+      val imported = scope.importedItems
+      (for ((idToken, items) <- scope.idTokenToItems;
+            item <- items if !imported.contains(item);
+            sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
+      ) yield sym.fullNameString) toSet
     }
 
     private def findDefinitions(scope : AstScope) : List[String] = {
