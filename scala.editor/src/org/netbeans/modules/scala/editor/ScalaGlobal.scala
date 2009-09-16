@@ -810,6 +810,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     def addPackageMember1(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
       // * don't ask symtpe here via pre.memberType(sym) or sym.tpe, which may throw "no-symbol does not have owner"
+      scope enter sym
       members(sym) = new TypeMember(
         sym,
         NoPrefix,

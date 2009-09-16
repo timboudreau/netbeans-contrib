@@ -183,7 +183,8 @@ abstract class ScalaAstVisitor {
       selectors = selectors.tail
     }
 
-    result find {x => !x.isModule} getOrElse {if (result.isEmpty) null else result.head}
+    def isProperType(x: Symbol) = x.isType && x.tpe != null && x.tpe != NoType
+    result find isProperType getOrElse {if (result.isEmpty) null else result.head}
   }
 
   object InfoLevel extends Enumeration {val Quiet, Normal, Verbose = Value}
