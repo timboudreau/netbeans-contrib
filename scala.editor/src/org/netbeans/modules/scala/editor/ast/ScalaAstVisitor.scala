@@ -198,6 +198,20 @@ abstract class ScalaAstVisitor {
     private var qualiferMaybeType: Option[Type] = None
     private val treeToKnownType = new HashMap[Tree, Type]
 
+    object annotTraverser extends Traverser {
+      override def traverse(tree: Tree) = {
+        if (tree.hasSymbol) {
+          val sym = tree.symbol
+          for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
+            args foreach visit
+            args foreach traverse
+          }
+        }
+
+        super.traverse(tree)
+      }
+    }
+
     def visit(tree: Tree): String = {
       def traverse(tree: Tree, level: Int, comma: Boolean) {
         def println(s: String) {
@@ -351,8 +365,9 @@ abstract class ScalaAstVisitor {
           val ref = ScalaRef(sym, idToken, ElementKind.CLASS, fo)
           if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
 
+          // if tpe is TypeRef, we need to add args type
           tpe match {
-            case TypeRef(_, _, argTpesx) => argTpesx foreach {addRefForTypeDirectly(onTree, _)}
+            case TypeRef(_, _, argTpes) => argTpes foreach {addRefForTypeDirectly(onTree, _)}
             case _ =>
           }
         }
@@ -817,6 +832,9 @@ abstract class ScalaAstVisitor {
       traverse(tree, 0, false)
       if (debug) rootScope.debugPrintTokens(th)
       treeToKnownType.clear
+
+      annotTraverser traverse tree
+
       buf.toString
     }
   }
