@@ -131,7 +131,7 @@ object FixImportsHelper{
             starter = ts.offset
           }
         case ScalaTokenId.Package =>
-        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Trait | ScalaTokenId.Object |
+        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Trait | ScalaTokenId.Object | ScalaTokenId.Sealed |
           ScalaTokenId.At | ScalaTokenId.Abstract | ScalaTokenId.Final | ScalaTokenId.Private | ScalaTokenId.Protected =>
           if (collecting) {
             //too far
@@ -278,7 +278,7 @@ object FixImportsHelper{
     var break = false
     while (ts.moveNext && !break) {
       ts.token.id match {
-        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Object | ScalaTokenId.Trait | ScalaTokenId.Import |
+        case ScalaTokenId.Case | ScalaTokenId.Class | ScalaTokenId.Object | ScalaTokenId.Trait | ScalaTokenId.Import | ScalaTokenId.Sealed |
           ScalaTokenId.At | ScalaTokenId.Abstract | ScalaTokenId.Final | ScalaTokenId.Private | ScalaTokenId.Protected =>
           val lineBegin = Utilities.getRowStart(doc, ts.offset)
           candidateOffset = lineBegin
