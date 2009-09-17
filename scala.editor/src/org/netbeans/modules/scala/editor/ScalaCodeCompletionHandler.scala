@@ -39,18 +39,16 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.{BadLocationException, Document, JTextComponent}
+import javax.swing.text.{BadLocationException, JTextComponent}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType
 import org.netbeans.modules.csl.api.{CodeCompletionContext, CodeCompletionHandler, CodeCompletionResult, CompletionProposal,
-                                     ElementHandle, HtmlFormatter, OffsetRange, ParameterInfo}
+                                     ElementHandle, OffsetRange, ParameterInfo}
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.util.{Exceptions, NbBundle}
 
 import org.netbeans.api.language.util.ast.AstElementHandle
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
-import org.netbeans.modules.scala.editor.element.{ScalaElements}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**

@@ -39,18 +39,16 @@
 
 package org.netbeans.modules.scala.editor
 
-import org.netbeans.api.lexer.TokenSequence
 import org.netbeans.api.lexer.TokenHierarchy
 
 import org.netbeans.api.language.util.ast.AstItem
 
-import lexer.{ScalaTokenId, ScalaLexUtil}
-import ast.ScalaDfns
+import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId}
 
 import scala.tools.nsc.reporters.{Reporter}
 import scala.tools.nsc.io.VirtualFile
 import scala.tools.nsc.util.BatchSourceFile
-import scala.tools.nsc.util.{Position, SourceFile}
+import scala.tools.nsc.util.{Position}
 
 abstract class ScalaSymbolResolver {
   

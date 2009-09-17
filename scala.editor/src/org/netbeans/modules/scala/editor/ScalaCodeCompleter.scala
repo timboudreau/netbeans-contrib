@@ -38,29 +38,26 @@
  */
 package org.netbeans.modules.scala.editor
 
-import javax.lang.model.element.{ElementKind, ExecutableElement}
-import javax.swing.text.{BadLocationException, Document, JTextComponent}
+import javax.lang.model.element.{ExecutableElement}
+import javax.swing.text.{BadLocationException}
 import org.netbeans.api.java.source.ClassIndex
 import org.netbeans.api.java.source.ClassIndex.NameKind
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.CodeCompletionHandler.QueryType
-import org.netbeans.modules.csl.api.{CodeCompletionContext, CodeCompletionHandler, CodeCompletionResult, CompletionProposal,
-                                     ElementHandle, HtmlFormatter, OffsetRange, ParameterInfo}
+import org.netbeans.modules.csl.api.{CodeCompletionHandler, CompletionProposal, OffsetRange}
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.filesystems.FileObject
-import org.openide.util.{Exceptions, NbBundle}
+import org.openide.util.{Exceptions}
 
-import org.netbeans.api.language.util.ast.{AstItem, AstElementHandle}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
-import org.netbeans.modules.scala.editor.element.{ScalaElements}
+import org.netbeans.api.language.util.ast.{AstItem}
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
 import org.netbeans.modules.scala.editor.rats.ParserScala
 
 import scala.concurrent.SyncVar
-import scala.tools.nsc.Global
 import scala.tools.nsc.symtab.Flags
 import scala.tools.nsc.util.OffsetPosition
 

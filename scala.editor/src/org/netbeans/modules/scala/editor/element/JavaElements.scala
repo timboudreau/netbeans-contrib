@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editor.element
 
-import org.netbeans.api.lexer.{Token, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, HtmlFormatter, OffsetRange}
 import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.ParserResult

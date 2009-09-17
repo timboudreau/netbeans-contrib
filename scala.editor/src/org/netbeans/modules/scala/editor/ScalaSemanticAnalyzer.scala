@@ -39,11 +39,9 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.Document
-import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId}
-import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstItem}
-import org.netbeans.modules.csl.api.{ElementKind, Modifier, ColoringAttributes, OffsetRange, SemanticAnalyzer}
-import org.netbeans.modules.parsing.spi.{Parser, Scheduler, SchedulerEvent}
+import org.netbeans.api.lexer.{TokenHierarchy}
+import org.netbeans.modules.csl.api.{ElementKind, ColoringAttributes, OffsetRange, SemanticAnalyzer}
+import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
 import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 

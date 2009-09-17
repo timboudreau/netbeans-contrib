@@ -39,27 +39,14 @@
 
 package org.netbeans.modules.scala.editor.ui.actions
 
-import java.awt.Dialog;
-import java.awt.event.ActionEvent;
-import javax.swing.text.JTextComponent;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import org.netbeans.modules.editor.NbEditorUtilities;
-import javax.swing.text.Document;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.netbeans.editor.BaseAction;
-import org.openide.{DialogDescriptor, DialogDisplayer, NotifyDescriptor}
-import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.netbeans.modules.csl.api.Error;
-import org.netbeans.modules.parsing.api.ParserManager;
-import org.netbeans.modules.parsing.api.ResultIterator;
-import org.netbeans.modules.parsing.api.Source;
-import org.netbeans.modules.parsing.api.UserTask;
-import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaParserResult}
-import org.openide.util.Exceptions;
+import java.awt.event.ActionEvent
+import javax.swing.text.JTextComponent
+import org.netbeans.modules.editor.NbEditorUtilities
+import javax.swing.text.Document
+import org.netbeans.editor.BaseAction
+import org.openide.util.NbBundle
+import org.openide.util.RequestProcessor
+import org.netbeans.modules.scala.editor.{ScalaGlobal}
 
 /**
  *

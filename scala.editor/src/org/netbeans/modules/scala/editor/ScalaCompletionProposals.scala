@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editor
 
 import javax.swing.ImageIcon
 import javax.swing.text.BadLocationException
-import org.netbeans.editor.Utilities
 import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier,OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.filesystems.FileObject

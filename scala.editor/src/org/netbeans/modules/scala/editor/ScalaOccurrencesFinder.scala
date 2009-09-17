@@ -39,15 +39,12 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.Document
-import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.csl.api.{ColoringAttributes, OccurrencesFinder, OffsetRange}
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
 import org.openide.filesystems.FileObject
 
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil}
 
 /**
  *

@@ -41,15 +41,13 @@
 package org.netbeans.modules.scala.editor
 
 import java.io.File
-import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{Error, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.scala.editor.ast.ScalaRootScope
-import org.openide.filesystems.{FileObject, FileUtil}
+import org.openide.filesystems.{FileUtil}
 import scala.collection.mutable.WeakHashMap
-import scala.tools.nsc.Global
-import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.io.{PlainFile, VirtualFile}
 import scala.tools.nsc.util.{BatchSourceFile, SourceFile}
 
 /**

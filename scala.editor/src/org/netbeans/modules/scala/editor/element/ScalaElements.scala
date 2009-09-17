@@ -48,15 +48,15 @@ import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange, HtmlFormatter}
 import org.netbeans.modules.csl.core.UiUtils
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
-import org.openide.filesystems.{FileObject, FileUtil}
+import org.openide.filesystems.{FileObject}
 import org.openide.util.Exceptions
 
-import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.io.{PlainFile, VirtualFile}
 import scala.tools.nsc.util.BatchSourceFile
 import scala.tools.nsc.symtab.{Flags}
 
 import org.netbeans.api.language.util.ast.{AstElementHandle}
-import org.netbeans.modules.scala.editor.{JavaSourceUtil, ScalaGlobal, ScalaParserResult, ScalaSourceUtil, ScalaMimeResolver}
+import org.netbeans.modules.scala.editor.{JavaSourceUtil, ScalaGlobal, ScalaSourceUtil, ScalaMimeResolver}
 
 
 /**

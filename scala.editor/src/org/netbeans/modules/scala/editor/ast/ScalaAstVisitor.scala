@@ -40,19 +40,16 @@ package org.netbeans.modules.scala.editor.ast
 
 import java.io.File
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
-import org.netbeans.modules.csl.api.{ElementKind, Modifier}
-import org.netbeans.modules.parsing.api.Snapshot
+import org.netbeans.modules.csl.api.{ElementKind}
 import org.openide.filesystems.{FileObject, FileUtil}
 
 import org.netbeans.api.language.util.ast.{AstItem, AstScope}
 import org.netbeans.modules.scala.editor.ScalaGlobal
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
-import scala.tools.nsc.{CompilationUnits, Global}
-import scala.tools.nsc.ast.Trees
-import scala.tools.nsc.symtab.{Symbols, SymbolTable, Flags}
+import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.symtab.Flags._
-import scala.tools.nsc.util.{BatchSourceFile, Position, SourceFile}
+import scala.tools.nsc.util.{SourceFile}
 import scala.collection.mutable.{Stack, HashSet, HashMap}
 
 /**

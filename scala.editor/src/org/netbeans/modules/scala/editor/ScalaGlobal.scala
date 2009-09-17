@@ -38,34 +38,28 @@
  */
 package org.netbeans.modules.scala.editor
 
-import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.io.{File, IOException}
-import java.lang.ref.{Reference, WeakReference}
-import java.net.{MalformedURLException, URI, URISyntaxException, URL}
-import java.util.Date
+import java.net.{MalformedURLException, URISyntaxException, URL}
 import java.util.logging.{Logger, Level}
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.queries.BinaryForSourceQuery
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
-import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils, Sources, SourceGroup}
-import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.spi.java.classpath.ClassPathProvider
+import org.netbeans.api.lexer.{TokenHierarchy}
+import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils}
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
 import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRenameEvent,
-                                FileStateInvalidException, FileSystem, FileUtil, JarFileSystem, FileChangeListener}
+                                FileStateInvalidException, FileUtil, JarFileSystem, FileChangeListener}
 import org.openide.util.{Exceptions, RequestProcessor}
 
-import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.editor.element.{ScalaElements, JavaElements}
 
 import scala.collection.mutable.{ArrayBuffer, LinkedHashMap, WeakHashMap}
 
-import scala.tools.nsc.{Phase, Settings}
+import scala.tools.nsc.{Settings}
 
 import org.netbeans.modules.scala.editor.interactive.Global
 //import scala.tools.nsc.interactive.Global
-import scala.tools.nsc.symtab.{SymbolTable, Flags}
+import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.{Reporter}

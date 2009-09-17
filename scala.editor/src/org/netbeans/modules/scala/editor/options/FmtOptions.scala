@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.scala.editor.options
 
-import java.awt.{Component, Container, Font, FontMetrics, Rectangle}
+import java.awt.{Container, Rectangle}
 import java.awt.event.{ActionEvent, ActionListener}
 import java.beans.PropertyChangeSupport
 import java.util.prefs.{AbstractPreferences, BackingStoreException, Preferences}
@@ -52,7 +52,6 @@ import org.netbeans.api.editor.settings.SimpleValueNames
 import org.netbeans.modules.options.editor.spi.{PreferencesCustomizer, PreviewProvider}
 import org.netbeans.modules.scala.editor.{ScalaFormatter, ScalaMimeResolver}
 import org.netbeans.spi.options.OptionsPanelController
-import org.openide.text.CloneableEditorSupport
 import org.openide.util.{Exceptions, HelpCtx, NbBundle}
 
 import scala.collection.mutable.ArrayBuffer

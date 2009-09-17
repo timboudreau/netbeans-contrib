@@ -39,19 +39,18 @@
 package org.netbeans.modules.scala.editor
 
 import javax.swing.ImageIcon
-import javax.swing.text.{BadLocationException, Document}
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy, TokenSequence}
+import javax.swing.text.{BadLocationException}
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange,
                                      HtmlFormatter, StructureItem, StructureScanner}
 import org.netbeans.modules.csl.api.StructureScanner._
 import org.netbeans.modules.csl.spi.ParserResult
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns}
 import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.openide.util.Exceptions
 
-import scala.collection.mutable.{ArrayBuffer, Stack}
+import scala.collection.mutable.{Stack}
 
 /**
  *

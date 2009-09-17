@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.editor.lexer
 
-import java.io.IOException
 import java.io.Reader
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.spi.lexer.{Lexer, LexerInput, LexerRestartInfo, TokenFactory}

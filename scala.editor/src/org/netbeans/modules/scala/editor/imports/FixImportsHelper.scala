@@ -40,15 +40,11 @@
 package org.netbeans.modules.scala.editor.imports
 
 import java.util.EnumSet;
-import java.util.MissingResourceException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.regex.Pattern
-import org.netbeans.api.java.source.{ClasspathInfo, ClassIndex};
+import org.netbeans.api.java.source.{ClassIndex};
 import org.netbeans.api.java.source.ClassIndex.NameKind;
-import javax.lang.model.element.TypeElement;
-import javax.swing.Icon;
-import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.Utilities;

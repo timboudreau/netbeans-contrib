@@ -27,7 +27,7 @@
  */
 package org.netbeans.modules.scala.editor
 
-import java.io.{File, IOException, InputStream}
+import java.io.{File, IOException}
 import java.net.URL
 import javax.swing.text.BadLocationException
 import org.netbeans.api.java.classpath.ClassPath
@@ -40,24 +40,22 @@ import org.netbeans.api.project.ProjectUtils
 import org.netbeans.api.project.SourceGroup
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.classfile.ClassFile
-import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
+import org.netbeans.modules.csl.api.{ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.netbeans.modules.parsing.api.{ParserManager, ResultIterator, Source, UserTask}
 import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
-import org.openide.util.{Exceptions, NbBundle}
+import org.openide.util.{Exceptions}
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns}
 import org.netbeans.modules.scala.editor.element.{JavaElements}
 import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 
-import scala.tools.nsc.util.Position
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
-import scala.collection.mutable.LinkedList
 import scala.tools.nsc.symtab.{Flags, Symbols}
 import scala.collection.mutable.ArrayBuffer
 

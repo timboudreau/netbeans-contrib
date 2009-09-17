@@ -39,8 +39,6 @@
 
 package org.netbeans.modules.scala.editor
 
-import javax.swing.text.Document
-import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.modules.csl.api.{InstantRenamer, ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.util.NbBundle

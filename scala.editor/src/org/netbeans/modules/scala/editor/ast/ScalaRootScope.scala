@@ -38,9 +38,9 @@
  */
 package org.netbeans.modules.scala.editor.ast
 
-import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import org.netbeans.api.lexer.{Token, TokenId}
 
-import org.netbeans.api.language.util.ast.{AstDfn, AstRootScope}
+import org.netbeans.api.language.util.ast.{AstRootScope}
 import scala.tools.nsc.CompilationUnits
 
 object ScalaRootScope {

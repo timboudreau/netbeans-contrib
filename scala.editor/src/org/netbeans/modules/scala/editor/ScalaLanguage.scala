@@ -40,20 +40,7 @@
  */
 package org.netbeans.modules.scala.editor
 
-import org.netbeans.api.lexer.Language
-import org.netbeans.modules.csl.api.{CodeCompletionHandler,
-                                     DeclarationFinder,
-                                     Formatter,
-                                     IndexSearcher,
-                                     InstantRenamer,
-                                     KeystrokeHandler,
-                                     OccurrencesFinder,
-                                     SemanticAnalyzer,
-                                     StructureScanner}
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig
-import org.netbeans.modules.parsing.spi.Parser
-import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory
-import org.openide.filesystems.{FileObject, FileUtil}
 import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
 import org.netbeans.modules.scala.hints.ScalaHintsProvider
 

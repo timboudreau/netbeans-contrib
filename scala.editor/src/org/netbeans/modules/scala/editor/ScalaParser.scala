@@ -40,25 +40,20 @@
  */
 package org.netbeans.modules.scala.editor
 
-import java.io.File
-import java.net.URL
 import javax.swing.event.ChangeListener
 import javax.swing.text.BadLocationException
-import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.{Error, OffsetRange, Severity}
 import org.netbeans.modules.csl.spi.{DefaultError, GsfUtilities}
 import org.netbeans.modules.parsing.api.{Snapshot, Task}
 import org.netbeans.modules.parsing.spi.{ParseException, Parser, ParserFactory, SourceModificationEvent}
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope, ScalaAstVisitor}
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
-import org.netbeans.modules.scala.editor.rats.LexerScala
 import org.openide.filesystems.{FileObject, FileStateInvalidException, FileUtil}
 import org.openide.util.Exceptions
 
 import scala.collection.mutable.ArrayBuffer
-import scala.tools.nsc.{Global, Settings}
-import scala.tools.nsc.io.{AbstractFile, PlainFile, VirtualFile}
+import scala.tools.nsc.io.{PlainFile, VirtualFile}
 import scala.tools.nsc.reporters.Reporter
 import scala.tools.nsc.util.{Position, SourceFile, BatchSourceFile}
 

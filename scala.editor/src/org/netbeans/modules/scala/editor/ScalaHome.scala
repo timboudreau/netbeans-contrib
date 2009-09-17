@@ -42,11 +42,11 @@ package org.netbeans.modules.scala.editor
 
 import java.io.{File, IOException}
 import java.net.{MalformedURLException, URL}
-import java.util.{Enumeration, Properties}
+import java.util.{Properties}
 
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, Utilities}
-import scala.tools.nsc.{Global, Settings}
+import scala.tools.nsc.{Settings}
 import scala.collection.mutable.ArrayBuffer
 
 /**

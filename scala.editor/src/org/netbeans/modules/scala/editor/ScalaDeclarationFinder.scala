@@ -40,14 +40,12 @@
 package org.netbeans.modules.scala.editor
 
 import javax.swing.text.Document
-import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
-import org.netbeans.modules.csl.api.{DeclarationFinder, ElementHandle, ElementKind, OffsetRange}
+import org.netbeans.api.lexer.{TokenHierarchy, TokenSequence}
+import org.netbeans.modules.csl.api.{DeclarationFinder, OffsetRange}
 import org.netbeans.modules.csl.api.DeclarationFinder.DeclarationLocation
 import org.netbeans.modules.csl.spi.ParserResult
-import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
-import org.openide.filesystems.FileObject
+//import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
-import org.netbeans.modules.scala.editor.ast.{ScalaScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**

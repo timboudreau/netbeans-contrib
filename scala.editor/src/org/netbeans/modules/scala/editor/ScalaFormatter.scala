@@ -40,7 +40,7 @@
 package org.netbeans.modules.scala.editor
 
 import javax.swing.text.{BadLocationException, Document}
-import org.netbeans.api.lexer.{Token, TokenId, TokenSequence}
+import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.Formatter
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}

@@ -39,20 +39,10 @@
 
 package org.netbeans.modules.scala.editor.ast
 
-import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
-
-import org.netbeans.api.lexer.TokenSequence
-import org.netbeans.api.lexer.Token
-
-import org.netbeans.api.lexer.TokenHierarchy
-import org.netbeans.api.lexer.TokenId
+import org.netbeans.modules.csl.api.{ElementKind, Modifier}
 import org.netbeans.modules.csl.api.HtmlFormatter
 
-import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.modules.scala.editor.ScalaGlobal
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
-
-import scala.collection.mutable.ArrayBuffer
 
 import scala.tools.nsc.symtab.Flags
 
