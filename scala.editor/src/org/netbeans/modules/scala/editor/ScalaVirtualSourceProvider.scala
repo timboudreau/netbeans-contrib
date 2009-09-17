@@ -42,24 +42,20 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintWriter
-import java.io.Reader
 import java.io.StringWriter
-import java.io.Writer
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.swing.event.ChangeListener
 import org.netbeans.modules.csl.api.ElementKind
-//import org.netbeans.modules.java.preprocessorbridge.spi.JavaSourceProvider
 import org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider
 import org.netbeans.modules.parsing.api.ParserManager
 import org.netbeans.modules.parsing.api.ResultIterator
 import org.netbeans.modules.parsing.api.Source
 import org.netbeans.modules.parsing.api.UserTask
 import org.netbeans.modules.parsing.spi.ParseException
-import org.openide.filesystems.{FileObject, FileUtil}
+import org.openide.filesystems.{FileUtil}
 import org.openide.util.Exceptions
 
-import org.netbeans.api.language.util.ast.{AstRootScope, AstScope}
+import org.netbeans.api.language.util.ast.{AstScope}
 import org.netbeans.modules.scala.editor.ast.ScalaDfns
 import scala.collection.mutable.ArrayBuffer
 
@@ -67,8 +63,6 @@ import scala.util.NameTransformer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.tools.nsc.symtab.Flags
-import scala.tools.nsc.symtab.Symbols
-import scala.tools.nsc.symtab.Types
 
 
 /**

@@ -39,8 +39,6 @@
 package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
-import org.netbeans.modules.csl.api.{ElementKind}
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 

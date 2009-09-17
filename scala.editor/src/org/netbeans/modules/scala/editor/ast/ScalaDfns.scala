@@ -39,16 +39,11 @@
 package org.netbeans.modules.scala.editor.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
-import org.netbeans.editor.{BaseDocument}
-import org.netbeans.modules.csl.api.{ElementKind, HtmlFormatter, Modifier, OffsetRange}
-import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
+import org.netbeans.modules.csl.api.{ElementKind, HtmlFormatter, Modifier}
 import org.openide.filesystems.FileObject
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstRef, AstScope}
 import org.netbeans.modules.scala.editor.{ScalaGlobal, ScalaMimeResolver, ScalaSourceUtil}
-
-import scala.tools.nsc.Global
-import scala.tools.nsc.symtab.{Symbols, Types, Flags}
 
 /**
  * Scala AstDfn special functions, which will be enabled in ScalaGlobal

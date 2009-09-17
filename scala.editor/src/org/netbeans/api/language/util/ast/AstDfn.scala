@@ -40,11 +40,9 @@ package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.editor.{BaseDocument}
-import org.netbeans.modules.csl.api.{ElementKind, HtmlFormatter, Modifier, OffsetRange}
+import org.netbeans.modules.csl.api.{ElementKind, Modifier, OffsetRange}
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.FileObject
-
-import org.netbeans.api.language.util.lex.LexUtil
 
 /**
  * AST Definition

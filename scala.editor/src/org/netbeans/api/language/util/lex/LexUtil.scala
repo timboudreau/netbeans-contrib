@@ -50,9 +50,7 @@ import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.loaders.{DataObject, DataObjectNotFoundException}
 import org.openide.util.Exceptions
 
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId.ScalaTokenId
-
-import scala.collection.mutable.{ArrayBuffer, Stack}
+import scala.collection.mutable.{Stack}
 
 
 /**

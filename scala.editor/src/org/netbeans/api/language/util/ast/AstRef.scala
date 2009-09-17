@@ -38,11 +38,7 @@
  */
 package org.netbeans.api.language.util.ast
 
-import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.csl.api.OffsetRange
-import org.netbeans.modules.csl.spi.ParserResult
-import org.openide.filesystems.FileObject
 
 /**
  * Mirror with AstDfn information

@@ -67,10 +67,10 @@ class ScalaHintsProvider() extends HintsProvider {
           val hintRules  = manager.getHints.asInstanceOf[ju.Map[_, ju.List[ScalaAstRule]]]
           if (!hintRules.isEmpty && !cancelled) {
             try {
-              context.doc.readLock();
+              //context.doc.readLock();
               hints.addAll(applyHintRules(manager, context.asInstanceOf[ScalaRuleContext], hintRules.get(ScalaAstRule.ROOT), rootScope))
             } finally {
-              context.doc.readUnlock();
+              //context.doc.readUnlock();
             }
 
         }
