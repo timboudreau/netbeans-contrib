@@ -53,7 +53,7 @@ import scala.tools.nsc.ast.Trees
 import scala.tools.nsc.symtab.{Symbols, SymbolTable, Flags}
 import scala.tools.nsc.symtab.Flags._
 import scala.tools.nsc.util.{BatchSourceFile, Position, SourceFile}
-import scala.collection.mutable.{Stack, HashSet}
+import scala.collection.mutable.{Stack, HashSet, HashMap}
 
 /**
  *
@@ -199,6 +199,7 @@ abstract class ScalaAstVisitor {
     private val buf = new StringBuilder
 
     private var qualiferMaybeType: Option[Type] = None
+    private val treeToKnownType = new HashMap[Tree, Type]
 
     def visit(tree: Tree): String = {
       def traverse(tree: Tree, level: Int, comma: Boolean) {
@@ -498,30 +499,81 @@ abstract class ScalaAstVisitor {
                 
                 val orig = me.original
                 if (orig != null && orig != tree) {
-                  
                   (orig, tree.tpe) match {
-                    case (AppliedTypeTree(tpt, args), TypeRef(prex, symx, argTpes)) =>
-                      // * special case: type and symbols of args may hide in tree.tpe (sometime also in orig.tpe, but not always)
-                      // * example code: Array[String]
-                      val argsItr = args.iterator
-                      val tpesItr = argTpes.iterator
-                      while (argsItr.hasNext && tpesItr.hasNext) {
-                        val argTree = argsItr.next
-                        val argTpe = tpesItr.next
-                        val argSym = argTpe.typeSymbol
-                        val argName = argTree match {
-                          case Ident(name) => name.decode
-                          case _ => ""
-                        }
-                        val ref = ScalaRef(argSym, getIdToken(argTree, argName), ElementKind.CLASS, fo)
-                        if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                      }
+                    case (att: AppliedTypeTree, tref: TypeRef) => 
+                      // * special case: type and symbols of args may hide in parent's tpe (sometimes also in orig.tpe, but not always)
+                      // * example code: Array[String], Option[Array[String]]
+                      treeToKnownType += (orig -> tref)
+                      traverse(orig, level, false)
                     case _ => traverse(orig, level, false)
                   }
                 }
             }
 
             //printcln("TypeTree()" + nodeinfo2(tree))
+            
+          case AppliedTypeTree(tpt, args) =>
+
+            treeToKnownType.get(tree) match {
+              // * visit tpt and args with known types
+              case Some(TypeRef(pre, sym, argTpes)) =>
+                // * special case: type and symbols of args may hide in parent's tpe (sometimes also in orig.tpe, but not always)
+                // * example code: Array[String], Option[Array[String]]
+
+                treeToKnownType += (tpt -> sym.tpe)
+                traverse(tpt, level + 1, true)
+
+                val argsItr = args.iterator
+                val tpesItr = argTpes.iterator
+                while (argsItr.hasNext && tpesItr.hasNext) {
+                  val argTree = argsItr.next
+                  val argTpe = tpesItr.next
+                  val argSym = argTpe.typeSymbol
+                  treeToKnownType += (argTree -> argTpe)
+                  traverse(argTree, level + 2, false)
+                }
+              case _ => 
+                traverse(tpt, level + 1, true)
+                args foreach {traverse(_, level + 2, false)}
+            }
+
+            /* println("AppliedTypeTree(" + nodeinfo(tree))
+             traverse(tpt, level + 1, true)
+             if (args.isEmpty) {} println("  List() // no argument")
+             else {
+             val n = args.length
+             println("  List( // " + n + " arguments(s)")
+             for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
+             println("  )")
+             }
+             printcln(")") */
+
+          case Ident(name) =>
+            val sym = tree.symbol
+            if (sym != null) {
+              val idToken = getIdToken(tree, name.decode.trim)
+              val sym1 = if (sym == NoSymbol) {
+                treeToKnownType.get(tree) match {
+                  case Some(x) => x.typeSymbol
+                  case None => sym
+                }
+              } else sym
+
+              val ref = ScalaRef(sym1, idToken, ElementKind.OTHER, fo)
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+
+              //val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
+
+              /**
+               * @Note: this symbol may has wrong tpe, for example, an error tree,
+               * to get the proper resultType, we'll check if the qualierMaybeType isDefined
+               */
+              if (qualiferMaybeType.isDefined) {
+                ref.resultType = qualiferMaybeType.get
+              }
+            }
+
+            //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
 
           case TypeDef(mods, name, tparams, rhs)  =>
             val scope = ScalaScope(getBoundsTokens(tree))
@@ -617,26 +669,6 @@ abstract class ScalaAstVisitor {
             }
             //printcln(")")
 
-          case Ident(name) =>
-            val sym = tree.symbol
-            if (sym != null) {
-              val idToken = getIdToken(tree, name.decode.trim)
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
-
-              /**
-               * @Note: this symbol may has wrong tpe, for example, an error tree,
-               * to get the proper resultType, we'll check if the qualierMaybeType isDefined
-               */
-              val tpe = sym.tpe
-              if (qualiferMaybeType.isDefined) {
-                ref.resultType = qualiferMaybeType.get
-              }
-              
-              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-            }
-
-            //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
-
           case This(qual) =>
             val sym = tree.symbol
             if (sym != null) {
@@ -669,18 +701,6 @@ abstract class ScalaAstVisitor {
           case Function(vparams, body) =>
             vparams foreach {traverse(_, level, false)}
             traverse(body, level, false)
-
-          case AppliedTypeTree(tpt, args) =>
-            //println("AppliedTypeTree(" + nodeinfo(tree))
-            traverse(tpt, level + 1, true)
-            if (args.isEmpty) {} //println("  List() // no argument")
-            else {
-              val n = args.length
-              //println("  List( // " + n + " arguments(s)")
-              for (i <- 0 until n) traverse(args(i), level + 2, i < n-1)
-              //println("  )")
-            }
-            //printcln(")")
 
           case ApplyDynamic(fun, args) =>
             //println("ApplyDynamic(" + nodeinfo(tree))
