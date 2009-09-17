@@ -49,7 +49,7 @@ import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.symtab.Flags._
-import scala.tools.nsc.util.{SourceFile}
+import scala.tools.nsc.util.{SourceFile, OffsetPosition}
 import scala.collection.mutable.{Stack, HashSet, HashMap}
 
 /**
@@ -339,6 +339,24 @@ abstract class ScalaAstVisitor {
           } else false
         }
 
+        def addRefForTypeDirectly(onTree: Tree, tpe: Type): Unit = {
+          val sym = tpe.typeSymbol
+
+          val idToken = onTree.pos match {
+            // tree.pos in case of `classOf[...]` may be set as an OffsetPosition instead of RangePosition,
+            // I have to add forward looking char length. @todo get range between "[..., [..],.]"
+            case _: OffsetPosition => getIdToken(onTree, sym.name.decode, 20, sym)
+            case _ => getIdToken(onTree, sym.name.decode, -1, sym)
+          }
+          val ref = ScalaRef(sym, idToken, ElementKind.CLASS, fo)
+          if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+
+          tpe match {
+            case TypeRef(_, _, argTpesx) => argTpesx foreach {addRefForTypeDirectly(onTree, _)}
+            case _ =>
+          }
+        }
+
         // ----- begin visiting
 
         if (!visited.add(tree)) return // has visited
@@ -473,7 +491,7 @@ abstract class ScalaAstVisitor {
 
             traverse(body, level, false)
 
-          case me@TypeTree() =>
+          case tt@TypeTree() =>
             tree.symbol match {
               case null =>
                 // * in case of: <type ?>
@@ -481,7 +499,7 @@ abstract class ScalaAstVisitor {
               case NoSymbol =>
                 // * type tree in case def, for example: case Some(_),
                 // * since the symbol is NoSymbol, we should visit its original type
-                val original = me.original
+                val original = tt.original
                 if (original != null && original != tree && !isTupleClass(original.symbol)) {
                   traverse(original, level, false)
                 }
@@ -493,30 +511,14 @@ abstract class ScalaAstVisitor {
                   tree.tpe match {
                     // special case for `classOf[.....]` etc
                     case TypeRef(pre, sym, argTpes) if sym.fullNameString == "java.lang.Class" => 
-                      def addRefForArgType(argTpe: Type): Unit = {
-                        val argSym = argTpe.typeSymbol
-
-                        // tree.pos in this case is set as an OffsetPosition instead of RangePosition,
-                        // I have to add forward looking char length. @todo get range between "[..., [..],.]"
-                        val idToken = getIdToken(tree, argSym.name.decode, 20)
-                        val ref = ScalaRef(argSym, idToken, ElementKind.CLASS, fo)
-                        if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                        
-                        argTpe match {
-                          case TypeRef(_, _, argTpesx) => argTpesx foreach addRefForArgType
-                          case _ =>
-                        }
-                      }
-                      
-                      argTpes foreach addRefForArgType
-
+                      argTpes foreach {addRefForTypeDirectly(tree, _)}
                     case _ =>
                       val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS, fo)
                       if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                   }
                 }
                 
-                val orig = me.original
+                val orig = tt.original
                 if (orig != null && orig != tree) {
                   (orig, tree.tpe) match {
                     case (att: AppliedTypeTree, tref: TypeRef) => 
@@ -589,6 +591,13 @@ abstract class ScalaAstVisitor {
             }
 
             //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
+
+          case Literal(value) =>
+            value.value match {
+              case tpe: Type => addRefForTypeDirectly(tree, tpe)
+              case _ =>
+            }
+            //printcln("Literal(" + value + ")")
 
           case TypeDef(mods, name, tparams, rhs)  =>
             val scope = ScalaScope(getBoundsTokens(tree))
@@ -707,11 +716,6 @@ abstract class ScalaAstVisitor {
           case Import(expr, selectors) =>
             // Import tree has been added into context and replaced by EmptyTree in typer phase
             traverse(expr, level, false)
-            selectors foreach {
-              case (x:Name, y:Name) =>
-              case (x:Name, null) =>
-              case _ =>
-            }
 
           case Function(vparams, body) =>
             vparams foreach {traverse(_, level, false)}
@@ -743,9 +747,6 @@ abstract class ScalaAstVisitor {
             
           case EmptyTree =>
             //printcln("EmptyTree")
-
-          case Literal(value) =>
-            //printcln("Literal(" + value + ")")
 
           case New(tpt) =>
             //println("New(" + nodeinfo(tree))
@@ -815,6 +816,7 @@ abstract class ScalaAstVisitor {
       buf setLength 0
       traverse(tree, 0, false)
       if (debug) rootScope.debugPrintTokens(th)
+      treeToKnownType.clear
       buf.toString
     }
   }
@@ -850,8 +852,8 @@ abstract class ScalaAstVisitor {
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree: Tree, knownName: String = "", forwardLen: Int = -1): Option[Token[TokenId]] = {
-    val sym = tree.symbol
+  protected def getIdToken(tree: Tree, knownName: String = "", forward: Int = -1, asym: Symbol = null): Option[Token[TokenId]] = {
+    val sym = if (asym != null) asym else tree.symbol
     if (sym == null) return None
 
     if (sym.hasFlag(Flags.SYNTHETIC)) {
@@ -868,8 +870,8 @@ abstract class ScalaAstVisitor {
     if (offset == -1) return None
 
     var endOffset = if (pos.isDefined) pos.endOrPoint else -1
-    if (forwardLen != -1) {
-      endOffset = Math.max(endOffset, offset + forwardLen)
+    if (forward != -1) {
+      endOffset = Math.max(endOffset, offset + forward)
     }
     
     val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None}
