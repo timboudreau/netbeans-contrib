@@ -493,8 +493,30 @@ abstract class ScalaAstVisitor {
                 // * for example: val (a, b), where (a, b) as a whole has a type tree, but we only
                 // * need binding trees of a and b
                 if (!isTupleClass(sym)) {
-                  val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS, fo)
-                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                  tree.tpe match {
+                    // special case for `classOf[.....]` etc
+                    case TypeRef(pre, sym, argTpes) if sym.fullNameString == "java.lang.Class" => 
+                      def addRefForArgType(argTpe: Type): Unit = {
+                        val argSym = argTpe.typeSymbol
+
+                        // tree.pos in this case is set as an OffsetPosition instead of RangePosition,
+                        // I have to add forward looking char length. @todo get range between "[..., [..],.]"
+                        val idToken = getIdToken(tree, argSym.name.decode, 20)
+                        val ref = ScalaRef(argSym, idToken, ElementKind.CLASS, fo)
+                        if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                        
+                        argTpe match {
+                          case TypeRef(_, _, argTpesx) => argTpesx foreach addRefForArgType
+                          case _ =>
+                        }
+                      }
+                      
+                      argTpes foreach addRefForArgType
+
+                    case _ =>
+                      val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS, fo)
+                      if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                  }
                 }
                 
                 val orig = me.original
@@ -513,13 +535,11 @@ abstract class ScalaAstVisitor {
             //printcln("TypeTree()" + nodeinfo2(tree))
             
           case AppliedTypeTree(tpt, args) =>
-
+            // * special case: type and symbols of args may hide in parent's tpe (sometimes also in orig.tpe, but not always)
+            // * example code: Array[String], Option[Array[String]]
             treeToKnownType.get(tree) match {
               // * visit tpt and args with known types
               case Some(TypeRef(pre, sym, argTpes)) =>
-                // * special case: type and symbols of args may hide in parent's tpe (sometimes also in orig.tpe, but not always)
-                // * example code: Array[String], Option[Array[String]]
-
                 treeToKnownType += (tpt -> sym.tpe)
                 traverse(tpt, level + 1, true)
 
@@ -561,8 +581,6 @@ abstract class ScalaAstVisitor {
 
               val ref = ScalaRef(sym1, idToken, ElementKind.OTHER, fo)
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-
-              //val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
 
               /**
                * @Note: this symbol may has wrong tpe, for example, an error tree,
@@ -835,7 +853,7 @@ abstract class ScalaAstVisitor {
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree: Tree, knownName: String = ""): Option[Token[TokenId]] = {
+  protected def getIdToken(tree: Tree, knownName: String = "", forwardLen: Int = -1): Option[Token[TokenId]] = {
     val sym = tree.symbol
     if (sym == null) return None
 
@@ -845,16 +863,16 @@ abstract class ScalaAstVisitor {
 
     /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
     val name = if (knownName.length > 0) knownName else (if (sym != NoSymbol) sym.rawname.decode.trim else "")
-    if (name == "") {
-      return None
-    }
+    if (name == "") return None
 
 
     val pos = tree.pos
     val offset = if (pos.isDefined) pos.startOrPoint else -1
-    val endOffset = if (pos.isDefined) pos.endOrPoint else -1
-    if (offset == -1) {
-      return None
+    if (offset == -1) return None
+
+    var endOffset = if (pos.isDefined) pos.endOrPoint else -1
+    if (forwardLen != -1) {
+      endOffset = Math.max(endOffset, offset + forwardLen)
     }
     
     val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None}
