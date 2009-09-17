@@ -135,7 +135,6 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         val candidates = for (i <- mapImports(imports)
                               if !defs.exists(a => a == i._1))
                                   yield i
-
 //        candidates.foreach( a => println("candidate" + a._3))
         val toRet = mutable.ListBuffer[Hint]()
         for ((imp, (start, end, text)) <- candidates) {
@@ -143,7 +142,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
               toRet +=  new Hint(this, "Remove Unused Import " + imp, context.getFileObject, rangeOpt.get,
                              new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
         }
-
+        toRet ++= removeDuplicateHints(imports, context)
         toRet.toList
     }
 
@@ -162,6 +161,34 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
                     toRet = toRet + (imp._3 -> imp)
                 }
             }
+        }
+        toRet
+    }
+
+    private def removeDuplicateHints(imports : List[Tuple3[Int, Int, String]], context : ScalaRuleContext) = {
+        var toRet = mutable.ListBuffer[Hint]()
+        var processed = mutable.ListBuffer[Tuple3[Int, Int, String]]()
+        def packName( s : String) = {
+            val lastInd = s.lastIndexOf(".")
+            if (lastInd > 0) s.substring(0, lastInd) else s
+        }
+        def isWildcard( s : String ) = s.endsWith("_")
+
+        for (imp <- imports) {
+            val found = processed.find(ex => ex._3 == imp._3 ||
+                                ((isWildcard(ex._3) || isWildcard(imp._3)) &&
+                                  packName(ex._3) == packName(imp._3)))
+            found match {
+                case Some(x) => {
+                    val tohint = if (isWildcard(imp._3) && !isWildcard(x._3)) x else imp
+                    val rangeOpt = context.calcOffsetRange(tohint._1, tohint._2)
+                    toRet +=
+                        new Hint(this, "Remove Duplicate Import " + tohint._3, context.getFileObject, rangeOpt.get,
+                             new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
+                }
+                case None => {}
+            }
+            processed.add(imp)
         }
         toRet
     }
