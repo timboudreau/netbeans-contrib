@@ -136,12 +136,11 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
           case ref: ScalaRefs#ScalaRef => (ref.symbol, 100)
         }
 
-        val importantLevel = base + (if (sym.isSetter || sym.isVariable) 10
+        val importantLevel = base + (if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 10
                                      else if (sym.isGetter) 20
                                      else if (sym.isConstructor) 30
                                      else if (!sym.isMethod) 40
                                      else 50)
-
 
         (importantLevel, x)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
@@ -167,7 +166,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   coloringSet.add(ColoringAttributes.DECLARATION)
                   coloringSet.add(ColoringAttributes.GLOBAL)
 
-                case sym if sym.isClass || sym.isTypeParameter =>
+                case sym if sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter =>
                   coloringSet.add(ColoringAttributes.CLASS)
                   coloringSet.add(ColoringAttributes.DECLARATION)
 
@@ -181,18 +180,17 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
                 case sym if sym.isMethod && sym.hasFlag(Flags.DEFERRED) =>
                   coloringSet.add(ColoringAttributes.METHOD)
+                  coloringSet.add(ColoringAttributes.DECLARATION)
                   coloringSet.add(ColoringAttributes.GLOBAL)
-                  coloringSet.add(ColoringAttributes.ABSTRACT)
 
                 case sym if sym.isMethod =>
                   coloringSet.add(ColoringAttributes.METHOD)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
                   coloringSet.add(ColoringAttributes.DECLARATION)
                   
                 case sym if sym.hasFlag(Flags.PARAM) =>
                   coloringSet.add(ColoringAttributes.PARAMETER)
 
-                case sym if sym.isVariable && !sym.hasFlag(Flags.LAZY) =>
+                case sym if sym.hasFlag(Flags.MUTABLE) && !sym.hasFlag(Flags.LAZY) =>
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
@@ -203,7 +201,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
               
             case ref: ScalaRefs#ScalaRef =>
               ref.symbol match {
-                case sym if sym.isClass || sym.isTypeParameter || sym.isConstructor =>
+                case sym if sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter || sym.isConstructor =>
                   coloringSet.add(ColoringAttributes.CLASS)
 
                 case sym if sym.isModule && !sym.hasFlag(Flags.PACKAGE) =>
@@ -212,9 +210,13 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
                 case sym if sym.hasFlag(Flags.LAZY) => // why it's also setter/getter?
                   coloringSet.add(ColoringAttributes.FIELD)
-                  coloringSet.add(ColoringAttributes.ABSTRACT)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.isSetter =>
+                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
+
+                case sym if sym.isGetter && sym.hasFlag(Flags.MUTABLE) =>
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   coloringSet.add(ColoringAttributes.GLOBAL)
 
@@ -234,7 +236,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case sym if sym.hasFlag(Flags.IMPLICIT) =>
                   coloringSet.add(ColoringAttributes.INTERFACE)
 
-                case sym if sym.isVariable =>
+                case sym if sym.hasFlag(Flags.MUTABLE) =>
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
 
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
@@ -246,7 +248,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
           val sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
           if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
-          if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.ABSTRACT)
+          if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.GLOBAL)
 
           if (!coloringSet.isEmpty) highlights.put(hiRange, coloringSet)
 

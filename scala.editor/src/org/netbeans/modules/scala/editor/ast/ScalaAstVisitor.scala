@@ -326,8 +326,11 @@ abstract class ScalaAstVisitor {
           }
           buf.append(", tpe=" + tree.tpe)
           if (tree.tpe != null) {
-            var sym = tree.tpe.termSymbol
-            if (sym == NoSymbol) sym = tree.tpe.typeSymbol
+            val sym = tree.tpe.termSymbol match {
+              case NoSymbol => tree.tpe.typeSymbol
+              case x => x
+            }
+            
             buf.append(", tpe.sym=" + sym)
             if (sym != NoSymbol) {
               buf.append(", tpe.sym.owner=" + sym.owner)
