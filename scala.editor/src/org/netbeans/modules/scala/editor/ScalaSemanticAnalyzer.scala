@@ -157,76 +157,90 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
       idToken.id match {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>
           val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)
-          val coloringSet = item match {
+          val coloringSet = new java.util.HashSet[ColoringAttributes]
+          item match {
             
             case dfn: ScalaDfns#ScalaDfn =>
               dfn.symbol match {
                 case sym if sym.isModule =>
-                  java.util.EnumSet.of(ColoringAttributes.CLASS, ColoringAttributes.DECLARATION, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.CLASS)
+                  coloringSet.add(ColoringAttributes.DECLARATION)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.isClass || sym.isTypeParameter =>
-                  java.util.EnumSet.of(ColoringAttributes.CLASS, ColoringAttributes.DECLARATION)
+                  coloringSet.add(ColoringAttributes.CLASS)
+                  coloringSet.add(ColoringAttributes.DECLARATION)
 
                 case sym if sym.isSetter =>
-                  java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.isGetter =>
-                  java.util.EnumSet.of(ColoringAttributes.FIELD, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.FIELD)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.isMethod && sym.hasFlag(Flags.DEFERRED) =>
-                  java.util.EnumSet.of(ColoringAttributes.METHOD, ColoringAttributes.GLOBAL, ColoringAttributes.ABSTRACT)
+                  coloringSet.add(ColoringAttributes.METHOD)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.ABSTRACT)
 
                 case sym if sym.isMethod =>
-                  java.util.EnumSet.of(ColoringAttributes.METHOD, ColoringAttributes.GLOBAL, ColoringAttributes.DECLARATION)
+                  coloringSet.add(ColoringAttributes.METHOD)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.DECLARATION)
                   
                 case sym if sym.hasFlag(Flags.PARAM) =>
-                  java.util.EnumSet.of(ColoringAttributes.PARAMETER)
+                  coloringSet.add(ColoringAttributes.PARAMETER)
 
                 case sym if sym.isVariable && !sym.hasFlag(Flags.LAZY) =>
-                  java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE)
+                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
-                  java.util.EnumSet.of(ColoringAttributes.FIELD)
+                  coloringSet.add(ColoringAttributes.FIELD)
 
-                case _ => java.util.Collections.emptySet[ColoringAttributes]
+                case _ => 
               }
               
             case ref: ScalaRefs#ScalaRef =>
               ref.symbol match {
                 case sym if sym.isClass || sym.isTypeParameter || sym.isConstructor =>
-                  java.util.EnumSet.of(ColoringAttributes.CLASS)
+                  coloringSet.add(ColoringAttributes.CLASS)
 
                 case sym if sym.isModule && !sym.hasFlag(Flags.PACKAGE) =>
-                  java.util.EnumSet.of(ColoringAttributes.CLASS, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.CLASS)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.hasFlag(Flags.LAZY) => // why it's also setter/getter?
-                  java.util.EnumSet.of(ColoringAttributes.FIELD, ColoringAttributes.ABSTRACT)
+                  coloringSet.add(ColoringAttributes.FIELD)
+                  coloringSet.add(ColoringAttributes.ABSTRACT)
 
                 case sym if sym.isSetter =>
-                  java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.isGetter =>
-                  java.util.EnumSet.of(ColoringAttributes.FIELD, ColoringAttributes.GLOBAL)
+                  coloringSet.add(ColoringAttributes.FIELD)
+                  coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.hasFlag(Flags.PARAM) || sym.hasFlag(Flags.PARAMACCESSOR) =>
-                  java.util.EnumSet.of(ColoringAttributes.PARAMETER)
+                  coloringSet.add(ColoringAttributes.PARAMETER)
 
                 case sym if sym.isMethod && ref.getKind == ElementKind.RULE => // implicit call          
-                  java.util.EnumSet.of(ColoringAttributes.INTERFACE)
+                  coloringSet.add(ColoringAttributes.INTERFACE)
 
                 case sym if sym.isMethod =>
-                  java.util.EnumSet.of(ColoringAttributes.METHOD)
+                  coloringSet.add(ColoringAttributes.METHOD)
 
                 case sym if sym.hasFlag(Flags.IMPLICIT) =>
-                  java.util.EnumSet.of(ColoringAttributes.INTERFACE)
+                  coloringSet.add(ColoringAttributes.INTERFACE)
 
                 case sym if sym.isVariable =>
-                  java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE)
+                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
 
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
-                  java.util.EnumSet.of(ColoringAttributes.FIELD)
+                  coloringSet.add(ColoringAttributes.FIELD)
 
-                case _ => java.util.Collections.emptySet[ColoringAttributes]
+                case _ => 
               }
           }
 
