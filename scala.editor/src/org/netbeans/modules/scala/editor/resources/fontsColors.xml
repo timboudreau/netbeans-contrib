@@ -13,34 +13,37 @@
     <fontcolor name="xml" foreColor="2E92C7"/>
 
     <!-- ScalaTokenId categories -->
-    <fontcolor name="character" default="char" foreColor="b22222"/>
+    <fontcolor name="character" default="char" foreColor="9999FF"/>
+    <fontcolor name="string" default="string" foreColor="CE7B00"/>
     <fontcolor name="errors" default="error"/>
     <fontcolor name="identifier" default="identifier"/>
     <fontcolor name="keyword" default="keyword"/>
     <fontcolor name="literal" default="keyword"/>
     <fontcolor name="comment" default="comment"/>
-    <fontcolor name="number" default="number"/>
+    <fontcolor name="number" default="number" foreColor="280099"/>
     <fontcolor name="operator" default="operator"/>
-    <fontcolor name="string" default="string" foreColor="b22222"/>
     <fontcolor name="separator" default="separator"/>
     <fontcolor name="whitespace" default="whitespace"/>
     <fontcolor name="keyword-directive" default="keyword"/>
     
-    <fontcolor name="CharacterLiteral" default="char" foreColor="b22222"/>
+    <fontcolor name="StringLiteral" default="string"/>
+    <fontcolor name="CharacterLiteral" default="character"/>
+    <fontcolor name="SymbolLiteral" default="identifier"/>
     <fontcolor name="IntegerLiteral" default="number"/>
     <fontcolor name="FloatingPointLiteral" default="number"/>
-    <fontcolor name="Operator" default="operator"/>
+    <fontcolor name="DoubleLiteral" default="number"/>
     <fontcolor name="INSTANCE_VAR" default="field"/>
     <fontcolor name="GLOBAL_VAR" foreColor="black">
         <font style="italic"/>
     </fontcolor>
-    <fontcolor name="StringLiteral" default="string" foreColor="b22222"/>
+
     <fontcolor name="BlockComment" default="comment"/>
     <fontcolor name="LineComment" default="comment"/>
     <fontcolor name="DocComment" default="comment"/>
     <fontcolor name="CommentTag" default="comment">
         <font style="bold"/>
     </fontcolor>
+
     <fontcolor name="REGEXP_LITERAL" foreColor="9933CC"/>
     <fontcolor name="Error" default="error"/>
     <fontcolor name="CONSTANT" foreColor="black">
@@ -67,41 +70,42 @@
     -->
 
     <!--"semantic" highlighting:-->
+    <fontcolor name="mod-declaration" underline="000000">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="mod-static">
+        <font style="bold+italic"/>
+    </fontcolor>
+    <fontcolor name="mod-global">
+        <font style="italic"/>
+    </fontcolor>
+    <fontcolor name="mod-abstract" underline="000000"/>
+    <fontcolor name="mod-deprecated" strikeThrough="404040"/>
+
+    <fontcolor name="mod-class" foreColor="7E0021"/>
+
+    <fontcolor name="mod-constructor">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="mod-method"/>
+    <fontcolor name="mod-interface" underline="000000"> <!-- implicit method Ref -->
+      <font style="italic"/>
+    </fontcolor>
+
+    <fontcolor name="mod-field" foreColor="009B00"/> <!-- val -->
+    <fontcolor name="mod-local-variable" foreColor="FF0000"/> <!-- var -->
+    <fontcolor name="mod-parameter" foreColor="808000"/>
+
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
-    <fontcolor name="mod-field" default="field" foreColor="009B00"/>  
-    <fontcolor name="mod-local-variable" />
-    <fontcolor name="mod-parameter" foreColor="A06001"/>
 
-    <fontcolor name="mod-static-field" foreColor="000000" waveUnderlined="000000"> <!-- override function def -->
-        <font style="bold" />
-    </fontcolor>
-    <fontcolor name="mod-method"> <!-- function def -->
-        <font style="bold" />
-    </fontcolor>
-    <fontcolor name="mod-abstract" waveUnderlined="000000"> <!-- override def -->
-        <font style="bold" />
-    </fontcolor>
-    <fontcolor name="mod-constructor" >
-        <font style="bold" />
-    </fontcolor>
-    <fontcolor name="mod-class" underline="000000"> <!-- Class declaration -->
-        <font style="bold" />
-    </fontcolor>
-    <fontcolor name="mod-static" foreColor="B8860B"/> <!-- for Class  Ref bc8f8f, 717ab3, light blue:7777cc, dark red:bc8f8f, purple:a020f0 -->
-    <fontcolor name="mod-global" foreColor="B8860B">  <!-- for Object Ref bc8f8f, 717ab3, light blue:7777cc -->
-        <font style="italic" />
-    </fontcolor>
-    <fontcolor name="mod-interface" foreColor="009B00" underline="009B00"/> <!-- for implicit method Ref -->
-    <fontcolor name="mod-annotation-type" />
-    <fontcolor name="mod-enum" />
-    <fontcolor name="mod-deprecated" foreColor="009B00" strikeThrough="404040" /> <!-- for deprecated method Ref -->
+    <fontcolor name="mod-annotation-type"/>
 
-    <fontcolor name="mod-private" />
-    <fontcolor name="mod-package-private" />
-    <fontcolor name="mod-protected" />
-    <fontcolor name="mod-public" />
+    <fontcolor name="mod-public"/>
+    <fontcolor name="mod-private"/>
+    <fontcolor name="mod-package-private"/>
+    <fontcolor name="mod-protected"/>
 
-    <fontcolor name="mod-regexp" foreColor="9933CC" />
+    <fontcolor name="mod-regexp" foreColor="9933CC"/>
     
     <!--currently not used:-->
 <!--    <fontcolor name="mod-type-parameter-declaration" bgColor="lightGray"/>
@@ -111,10 +115,6 @@
     <!--mark occurrences:-->
     <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
     
-    <!-- JsCommentTokenId categories -->
-    <fontcolor name="js-comment-tag" default="comment">
-        <font style="bold" />
-    </fontcolor>
     <fontcolor name="html-tag" default="comment">
         <font style="bold" />
     </fontcolor>
