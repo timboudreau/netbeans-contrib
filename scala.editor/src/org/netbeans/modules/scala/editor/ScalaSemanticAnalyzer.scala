@@ -43,7 +43,7 @@ import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ColoringAttributes, OffsetRange, SemanticAnalyzer}
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope}
+import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaItems}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.Flags
@@ -131,16 +131,18 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
     def importantItem(items: List[AstItem]): AstItem = {
       items map {x =>
-        val importantLevel = x match {
-          case dfn: ScalaDfns#ScalaDfn => 0
-          case ref: ScalaRefs#ScalaRef =>
-            val sym = ref.symbol
-            if (sym.isSetter || sym.isVariable) 10
-            else if (sym.isGetter) 20
-            else if (sym.isConstructor) 30
-            else if (!sym.isMethod) 40
-            else 50
+        val (sym, base) = x match {
+          case dfn: ScalaDfns#ScalaDfn => (dfn.symbol, 0)
+          case ref: ScalaRefs#ScalaRef => (ref.symbol, 100)
         }
+
+        val importantLevel = base + (if (sym.isSetter || sym.isVariable) 10
+                                     else if (sym.isGetter) 20
+                                     else if (sym.isConstructor) 30
+                                     else if (!sym.isMethod) 40
+                                     else 50)
+
+
         (importantLevel, x)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
         case (level, item) => item
@@ -175,12 +177,12 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   java.util.EnumSet.of(ColoringAttributes.METHOD, ColoringAttributes.GLOBAL, ColoringAttributes.ABSTRACT)
 
                 case sym if sym.isMethod =>
-                  java.util.EnumSet.of(ColoringAttributes.METHOD, ColoringAttributes.GLOBAL)
+                  java.util.EnumSet.of(ColoringAttributes.METHOD, ColoringAttributes.GLOBAL, ColoringAttributes.DECLARATION)
                   
                 case sym if sym.hasFlag(Flags.PARAM) =>
                   java.util.EnumSet.of(ColoringAttributes.PARAMETER)
 
-                case sym if sym.isVariable =>
+                case sym if sym.isVariable && !sym.hasFlag(Flags.LAZY) =>
                   java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE)
                   
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
@@ -197,6 +199,9 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case sym if sym.isModule && !sym.hasFlag(Flags.PACKAGE) =>
                   java.util.EnumSet.of(ColoringAttributes.CLASS, ColoringAttributes.GLOBAL)
 
+                case sym if sym.hasFlag(Flags.LAZY) => // why it's also setter/getter?
+                  java.util.EnumSet.of(ColoringAttributes.FIELD, ColoringAttributes.ABSTRACT)
+
                 case sym if sym.isSetter =>
                   java.util.EnumSet.of(ColoringAttributes.LOCAL_VARIABLE, ColoringAttributes.GLOBAL)
 
@@ -205,9 +210,6 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
                 case sym if sym.hasFlag(Flags.PARAM) || sym.hasFlag(Flags.PARAMACCESSOR) =>
                   java.util.EnumSet.of(ColoringAttributes.PARAMETER)
-
-                case sym if sym.isMethod && sym.isDeprecated =>
-                  java.util.EnumSet.of(ColoringAttributes.DEPRECATED)
 
                 case sym if sym.isMethod && ref.getKind == ElementKind.RULE => // implicit call          
                   java.util.EnumSet.of(ColoringAttributes.INTERFACE)
@@ -227,6 +229,10 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case _ => java.util.Collections.emptySet[ColoringAttributes]
               }
           }
+
+          val sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
+          if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
+          if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.ABSTRACT)
 
           if (!coloringSet.isEmpty) highlights.put(hiRange, coloringSet)
 

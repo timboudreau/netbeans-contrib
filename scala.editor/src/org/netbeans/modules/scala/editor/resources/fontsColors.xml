@@ -70,7 +70,7 @@
     -->
 
     <!--"semantic" highlighting:-->
-    <fontcolor name="mod-declaration" underline="000000">
+    <fontcolor name="mod-declaration">
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="mod-static">
@@ -88,9 +88,7 @@
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="mod-method"/>
-    <fontcolor name="mod-interface" underline="000000"> <!-- implicit method Ref -->
-      <font style="italic"/>
-    </fontcolor>
+    <fontcolor name="mod-interface" underline="000000"/> <!-- implicit method Ref -->
 
     <fontcolor name="mod-field" foreColor="009B00"/> <!-- val -->
     <fontcolor name="mod-local-variable" foreColor="FF0000"/> <!-- var -->

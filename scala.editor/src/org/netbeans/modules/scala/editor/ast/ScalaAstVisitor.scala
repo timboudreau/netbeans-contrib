@@ -202,10 +202,12 @@ abstract class ScalaAstVisitor {
       override def traverse(tree: Tree) = {
         if (tree.hasSymbol) {
           val sym = tree.symbol
-          for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
-            args foreach visit
-            args foreach traverse
-          }
+          try {
+            for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
+              args foreach visit
+              args foreach traverse
+            }
+          } catch {case _ =>}
         }
 
         super.traverse(tree)
