@@ -70,10 +70,10 @@ abstract class ScalaAstVisitor {
 
   private var debug: Boolean = _
   private var indentLevel: Int = _
-  private var astPath = new Stack[Tree]
-  private var visited = new HashSet[Tree]
+  private val astPath = new Stack[Tree]
+  private val visited = new HashSet[Tree]
 
-  private var scopes = new Stack[AstScope]
+  private val scopes = new Stack[AstScope]
   private var rootScope: ScalaRootScope = _
 
   private var fo: Option[FileObject] = _

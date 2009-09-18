@@ -144,7 +144,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
         (importantLevel, x)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
-        case (_, ref: ScalaRefs#ScalaRef) => rootScope.findDfnOf(ref) match {
+        // we have to deal with special case of setter usage, when only read access, it's highlighted as val
+        case (_, ref: ScalaRefs#ScalaRef) if ref.symbol.isGetter => rootScope.findDfnOf(ref) match {
             case Some(x) => x.idToken match {
                 case Some(token) => rootScope.idTokenToItems.get(token) match {
                     case Some(itemsx) => importantItem(itemsx)
@@ -154,7 +155,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
               }
             case None => ref
           }
-        case (_, dfn) => dfn
+        case (_, any) => any
       }
     }
     
