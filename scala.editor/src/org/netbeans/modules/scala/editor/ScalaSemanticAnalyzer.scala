@@ -144,7 +144,17 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
         (importantLevel, x)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
-        case (level, item) => item
+        case (_, ref: ScalaRefs#ScalaRef) => rootScope.findDfnOf(ref) match {
+            case Some(x) => x.idToken match {
+                case Some(token) => rootScope.idTokenToItems.get(token) match {
+                    case Some(itemsx) => importantItem(itemsx)
+                    case None => ref
+                  }
+                case None => ref
+              }
+            case None => ref
+          }
+        case (_, dfn) => dfn
       }
     }
     

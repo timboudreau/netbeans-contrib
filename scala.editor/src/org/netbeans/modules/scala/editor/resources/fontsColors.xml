@@ -80,7 +80,9 @@
         <font style="italic"/>
     </fontcolor>
     <fontcolor name="mod-public" underline="000000"/>
-    <fontcolor name="mod-abstract" underline="000000"/>
+    <fontcolor name="mod-abstract">
+      <font style="italic"/>
+    </fontcolor>
     <fontcolor name="mod-deprecated" strikeThrough="404040"/>
 
     <fontcolor name="mod-class" foreColor="7E0021"/>
@@ -92,7 +94,7 @@
     <fontcolor name="mod-interface" underline="000000"/> <!-- implicit method Ref -->
 
     <fontcolor name="mod-field" foreColor="009B00"/> <!-- val -->
-    <fontcolor name="mod-local-variable" foreColor="FF0000"/> <!-- var -->
+    <fontcolor name="mod-local-variable" foreColor="CC0000"/> <!-- var -->
     <fontcolor name="mod-parameter" foreColor="808000"/>
 
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
