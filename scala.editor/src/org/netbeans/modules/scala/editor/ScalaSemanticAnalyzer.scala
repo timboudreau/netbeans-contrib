@@ -121,7 +121,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     import global._
 
     for ((idToken, items) <- root.idTokenToItems;
-         item = ScalaUtil.importantItem(items, root);
+         item = ScalaUtil.importantItem(items);
          name = item.getName if name != "this" && name != "super"
     ) {
       // * token may be xml tokens, @see AstVisit#getTokenId

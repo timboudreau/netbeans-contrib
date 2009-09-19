@@ -496,7 +496,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       } else false
     }
 
-    def importantItem(items: List[AstItem], root: ScalaRootScope): AstItem = {
+    def importantItem(items: List[AstItem]): AstItem = {
       items map {item =>
         val (sym, baseLevel) = item match {
           case dfn: ScalaDfn => (dfn.symbol, 0)
