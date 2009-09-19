@@ -77,8 +77,8 @@ transient String identifier =
 ;
 
 transient String idrest = 
-  ( letter / '$' / '_' !opIdentifier / digit )+ ( '_' opIdentifier )? 
-/ ( '_' opIdentifier )
+  ( letter / '$' / '_' !( opchar+ ) / digit )+ ( '_' opIdentifier )?
+/ ( '_' opchar+ )
 ;
 
 transient String opchar = [!%&+\-<=>?@\\^`|~#:/*] ;
