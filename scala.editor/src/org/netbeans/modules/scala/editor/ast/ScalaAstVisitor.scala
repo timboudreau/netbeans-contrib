@@ -101,6 +101,8 @@ abstract class ScalaAstVisitor {
       } else None
     } else None
 
+    //println(global.selectTypeErrors)
+
     reset
     rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, srcFile.length))
     scopes push rootScope
@@ -599,8 +601,6 @@ abstract class ScalaAstVisitor {
               } else sym
 
               val ref = ScalaRef(sym1, idToken, ElementKind.OTHER, fo)
-              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-
               /**
                * @Note: this symbol may has wrong tpe, for example, an error tree,
                * to get the proper resultType, we'll check if the qualierMaybeType isDefined
@@ -608,6 +608,9 @@ abstract class ScalaAstVisitor {
               if (qualiferMaybeType.isDefined) {
                 ref.resultType = qualiferMaybeType.get
               }
+
+              // * set ref.resultType before addRef to scope, otherwise, it may not be added if there is same symbol had been added
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
 
             //printcln("Ident(\"" + name + "\")" + nodeinfo2(tree))
