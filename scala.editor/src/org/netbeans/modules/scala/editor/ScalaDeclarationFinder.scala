@@ -84,7 +84,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     }
   }
 
-  override def findDeclaration(info: ParserResult, lexOffset: int): DeclarationLocation = {
+  override def findDeclaration(info: ParserResult, lexOffset: Int): DeclarationLocation = {
     val pr = info.asInstanceOf[ScalaParserResult]
     val global = pr.global
     import global._

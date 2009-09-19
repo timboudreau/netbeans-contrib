@@ -155,10 +155,10 @@ abstract class ScalaAstVisitor {
             }
         }
       }
-      ct.children foreach {visitContextTree _}
+      ct.children foreach visitContextTree
     }
 
-    unit.contexts foreach {visitContextTree _}
+    unit.contexts foreach visitContextTree
   }
 
   /**
@@ -169,7 +169,10 @@ abstract class ScalaAstVisitor {
   def importedSymbol(tree: Import, name: Name): Symbol = {
     var result: List[Symbol] = Nil
     var renamed = false
-    val qual = tree.expr
+    val qual = tree.symbol.tpe match {
+      case analyzer.ImportType(expr) => expr
+      case _ => tree.expr
+    }
 
     if (qual == null || qual.tpe == null) return null
 
