@@ -497,33 +497,22 @@ trait ScalaUtils {self: ScalaGlobal =>
     }
 
     def importantItem(items: List[AstItem], root: ScalaRootScope): AstItem = {
-      items map {x =>
-        val (sym, base) = x match {
+      items map {item =>
+        val (sym, baseLevel) = item match {
           case dfn: ScalaDfn => (dfn.symbol, 0)
           case ref: ScalaRef => (ref.symbol, 100)
         }
 
-        val importantLevel = base + (if (sym == NoSymbol) 90
-                                     else if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 10
-                                     else if (sym.isGetter) 20
-                                     else if (sym.isConstructor) 30
-                                     else if (!sym.isMethod) 40
-                                     else 50)
+        val importantLevel = baseLevel + (if (sym == NoSymbol) 90
+                                          else if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 10
+                                          else if (sym.isGetter)      20
+                                          else if (sym.isConstructor) 30
+                                          else if (!sym.isMethod)     40
+                                          else 50)
 
-        (importantLevel, x)
+        (importantLevel, item)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
-        // we have to deal with special case of setter usage, when only read access, it's highlighted as val
-        case (_, ref: ScalaRef) if ref.symbol.isGetter => root.findDfnOf(ref) match {
-            case Some(x) => x.idToken match {
-                case Some(token) => root.idTokenToItems.get(token) match {
-                    case Some(itemsx) => importantItem(itemsx, root)
-                    case None => ref
-                  }
-                case None => ref
-              }
-            case None => ref
-          }
-        case (_, any) => any
+        case (_, item) => item
       }
     }
 

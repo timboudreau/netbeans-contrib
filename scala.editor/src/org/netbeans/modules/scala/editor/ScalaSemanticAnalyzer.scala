@@ -39,15 +39,13 @@
 
 package org.netbeans.modules.scala.editor
 
-import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ColoringAttributes, OffsetRange, SemanticAnalyzer}
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
-import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootScope, ScalaItems}
+import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.Flags
-import scala.tools.nsc.symtab.Symbols
 
 /**
  *
@@ -190,12 +188,19 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   coloringSet.add(ColoringAttributes.GLOBAL)
 
-                case sym if sym.isGetter && sym.hasFlag(Flags.MUTABLE) =>
-                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
-
                 case sym if sym.isGetter =>
-                  coloringSet.add(ColoringAttributes.FIELD)
+                  val name = sym.nameString
+                  val isVariable = try {
+                    val owntpe = sym.owner.tpe
+                    println(owntpe.members)
+                    owntpe.members find {x => x.isVariable && x.nameString == name} isDefined
+                  } catch {case _ => false}
+
+                  if (isVariable) {
+                    coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                  } else {
+                    coloringSet.add(ColoringAttributes.FIELD)
+                  }
                   coloringSet.add(ColoringAttributes.GLOBAL)
 
                 case sym if sym.hasFlag(Flags.PARAM) || sym.hasFlag(Flags.PARAMACCESSOR) =>
