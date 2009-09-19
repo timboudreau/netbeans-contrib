@@ -192,7 +192,6 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   val name = sym.nameString
                   val isVariable = try {
                     val owntpe = sym.owner.tpe
-                    println(owntpe.members)
                     owntpe.members find {x => x.isVariable && x.nameString == name} isDefined
                   } catch {case _ => false}
 
