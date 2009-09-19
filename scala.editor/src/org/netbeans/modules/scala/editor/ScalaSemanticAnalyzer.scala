@@ -47,6 +47,7 @@ import org.netbeans.modules.scala.editor.ast.{ScalaDfns, ScalaRefs, ScalaRootSco
 import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.Flags
+import scala.tools.nsc.symtab.Symbols
 
 /**
  *
@@ -80,33 +81,23 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
   }
 
   @throws(classOf[Exception])
-  override def run(info: ScalaParserResult, event: SchedulerEvent): Unit = {
+  override def run(pr: ScalaParserResult, event: SchedulerEvent): Unit = {
     resume
 
-    if (isCancelled) {
-      return
-    }
+    if (isCancelled) return
 
-    val pResult = info match {
-      case null => return
-      case x: ScalaParserResult => x
-    }
+    if (isCancelled) return
 
-    if (isCancelled) {
-      return
-    }
+    val root = pr.rootScope.getOrElse(return)
 
-    val rootScope = pResult.rootScope.getOrElse(return)
-
-    val th = pResult.getSnapshot.getTokenHierarchy
-    val doc = info.getSnapshot.getSource.getDocument(true)
-    if (doc == null) {
-      return
-    }
+    val doc = pr.getSnapshot.getSource.getDocument(true)
+    if (doc == null) return
+    val th = pr.getSnapshot.getTokenHierarchy
+    val global = pr.global
 
     val highlights = new java.util.HashMap[OffsetRange, java.util.Set[ColoringAttributes]](100)
     //visitScopeRecursively(doc, th, rootScope, highlights);
-    visitItems(th, rootScope, highlights)
+    visitItems(global, th, root, highlights)
 
     this.semanticHighlights = if (!highlights.isEmpty) {
       //            if (result.getTranslatedSource() != null) {
@@ -125,42 +116,14 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
     } else null
   }
 
-  private def visitItems(th: TokenHierarchy[_], rootScope: ScalaRootScope,
+  private def visitItems(global: ScalaGlobal, th: TokenHierarchy[_], root: ScalaRootScope,
                          highlights: java.util.Map[OffsetRange, java.util.Set[ColoringAttributes]]
   ): Unit = {
 
-    def importantItem(items: List[AstItem]): AstItem = {
-      items map {x =>
-        val (sym, base) = x match {
-          case dfn: ScalaDfns#ScalaDfn => (dfn.symbol, 0)
-          case ref: ScalaRefs#ScalaRef => (ref.symbol, 100)
-        }
+    import global._
 
-        val importantLevel = base + (if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 10
-                                     else if (sym.isGetter) 20
-                                     else if (sym.isConstructor) 30
-                                     else if (!sym.isMethod) 40
-                                     else 50)
-
-        (importantLevel, x)
-      } sortWith {(x1, x2) => x1._1 < x2._1} head match {
-        // we have to deal with special case of setter usage, when only read access, it's highlighted as val
-        case (_, ref: ScalaRefs#ScalaRef) if ref.symbol.isGetter => rootScope.findDfnOf(ref) match {
-            case Some(x) => x.idToken match {
-                case Some(token) => rootScope.idTokenToItems.get(token) match {
-                    case Some(itemsx) => importantItem(itemsx)
-                    case None => ref
-                  }
-                case None => ref
-              }
-            case None => ref
-          }
-        case (_, any) => any
-      }
-    }
-    
-    for ((idToken, items) <- rootScope.idTokenToItems;
-         item = importantItem(items);
+    for ((idToken, items) <- root.idTokenToItems;
+         item = ScalaUtil.importantItem(items, root);
          name = item.getName if name != "this" && name != "super"
     ) {
       // * token may be xml tokens, @see AstVisit#getTokenId
@@ -170,7 +133,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
           val coloringSet = new java.util.HashSet[ColoringAttributes]
           item match {
             
-            case dfn: ScalaDfns#ScalaDfn =>
+            case dfn: ScalaDfn =>
               dfn.symbol match {
                 case sym if sym.isModule =>
                   coloringSet.add(ColoringAttributes.CLASS)
@@ -210,7 +173,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case _ => 
               }
               
-            case ref: ScalaRefs#ScalaRef =>
+            case ref: ScalaRef =>
               ref.symbol match {
                 case sym if sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter || sym.isConstructor =>
                   coloringSet.add(ColoringAttributes.CLASS)
@@ -257,7 +220,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
               }
           }
 
-          val sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol
+          val sym = item.asInstanceOf[ScalaItem].symbol
           if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
           if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.GLOBAL)
 
