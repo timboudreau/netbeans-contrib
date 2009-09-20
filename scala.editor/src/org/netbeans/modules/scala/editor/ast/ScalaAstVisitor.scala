@@ -117,42 +117,44 @@ abstract class ScalaAstVisitor {
   }
 
   def visitImports(unit: RichCompilationUnit) = {
+    val visited = new HashSet[Context]
+    
     def visitContextTree(ct: ContextTree): Unit = {
       val c = ct.context
-      for (importInfo <- c.imports) {
-        importInfo.tree match {
-          case me@Import(qual, selectors) =>
-            val sym = qual.symbol
-            if (sym != null) {
-              val idToken = getIdToken(qual)
-              val ref = ScalaRef(sym, idToken, if (sym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+      if (visited.add(c)) {
+        for (importInfo <- c.imports;
+             me@Import(qual, selectors) = importInfo.tree
+        ) {
+          val sym = qual.symbol
+          if (sym != null) {
+            val idToken = getIdToken(qual)
+            val ref = ScalaRef(sym, idToken, if (sym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+          }
 
-              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-            }
-            
-            //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
-            selectors foreach {
-              case (null, null) =>
-              case (x, y) if x != nme.WILDCARD =>
-                val xsym = importedSymbol(me, x)
-                if (xsym != null) {
-                  val idToken = getIdToken(me, x.decode)
-                  val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
+          //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
+          selectors foreach {
+            case (null, null) =>
+            case (x, y) if x != nme.WILDCARD =>
+              val xsym = importedSymbol(me, x)
+              if (xsym != null) {
+                val idToken = getIdToken(me, x.decode)
+                val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
+                if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                rootScope putImportedItem ref
+              }
+
+              if (y != null) {
+                val ysym = importedSymbol(me, y)
+                if (ysym != null) {
+                  val idToken = getIdToken(me, y.decode)
+                  val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
                   if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
                   rootScope putImportedItem ref
                 }
-
-                if (y != null) {
-                  val ysym = importedSymbol(me, y)
-                  if (ysym != null) {
-                    val idToken = getIdToken(me, y.decode)
-                    val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
-                    if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                    rootScope putImportedItem ref
-                  }
-                }
-              case _ =>
-            }
+              }
+            case _ =>
+          }      
         }
       }
       ct.children foreach visitContextTree
