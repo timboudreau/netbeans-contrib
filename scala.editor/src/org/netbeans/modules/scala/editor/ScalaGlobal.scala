@@ -873,7 +873,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   /** Return all members visible without prefix in context enclosing `pos`. */
   override def scopeMembers(pos: Position): List[ScopeMember] = {
-    typedTreeAt(pos) // to make sure context is entered
+    //typedTreeAt(pos) // to make sure context is entered
     val context = try {
       doLocateContext(pos)
     } catch {case ex => ex.printStackTrace; NoContext}
