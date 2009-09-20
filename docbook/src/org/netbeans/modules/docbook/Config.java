@@ -49,7 +49,7 @@ import java.util.Properties;
  * Configuration of the DocBook & Slides libs.
  * @author Jesse Glick
  */
-final class Config {
+public final class Config {
 
     private Config() {}
 
@@ -58,6 +58,8 @@ final class Config {
     public static final String DOCBOOK_XML_VERSION;
     public static final String[] BROWSER_FILES;
     public static final String[] GRAPHICS_FILES;
+    public static final String SOLBOOK_XML_VERSION;
+    public static final String SOLBOOK_XSL_VERSION;
     
     static {
         Properties p = new Properties();
@@ -73,6 +75,8 @@ final class Config {
             SLIDES_VERSION = p.getProperty("slides.version");
             BROWSER_FILES = p.getProperty("browser.files").split(",");
             GRAPHICS_FILES = p.getProperty("graphics.files").split(",");
+            SOLBOOK_XSL_VERSION = p.getProperty("solbook-xsl.version");
+            SOLBOOK_XML_VERSION = p.getProperty("solbook-xml.version");
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }

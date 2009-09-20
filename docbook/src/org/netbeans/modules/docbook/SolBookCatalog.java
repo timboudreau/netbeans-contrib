@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.docbook.resources.solbook;
+package org.netbeans.modules.docbook;
 
 import java.awt.Image;
 import java.beans.BeanInfo;
@@ -49,12 +49,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import org.netbeans.modules.docbook.Config;
 import org.netbeans.modules.xml.catalog.spi.CatalogDescriptor;
 import org.netbeans.modules.xml.catalog.spi.CatalogListener;
 import org.netbeans.modules.xml.catalog.spi.CatalogProvider;
 import org.netbeans.modules.xml.catalog.spi.CatalogReader;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -68,26 +69,14 @@ public class SolBookCatalog implements CatalogProvider {
     
     static final Map<String,String> PUBLIC_2_SYSTEM = new HashMap<String,String>();
     static {
-/*        PUBLIC_2_SYSTEM.put("-//Norman Walsh//DTD Slides XML V" + Config.SLIDES_VERSION + "//EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/schema/dtd/slides.dtd");
-        PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V" + Config.DOCBOOK_XML_VERSION + "//EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
-        PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V4.4//EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
-*/        PUBLIC_2_SYSTEM.put("-//Sun Microsystems//DTD XML-SolBook 3.5 //EN",
+        PUBLIC_2_SYSTEM.put("-//Sun Microsystems//DTD XML-SolBook 3.5 //EN",
                             "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/solbookx.dtd--public2system");
         // XXX slides-full.dtd
     }
     
     static final Map<String,String> SYSTEM_2_SYSTEM = new HashMap<String,String>();
     static {
-/*        SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xsl-" + Config.DOCBOOK_XSL_VERSION + "/");
-        SYSTEM_2_SYSTEM.put("http://www.oasis-open.org/docbook/xml/" + Config.DOCBOOK_XML_VERSION + "/",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/");
-        SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl",
-                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/");
-*/        SYSTEM_2_SYSTEM.put("http://www.sun.com/solbook/xml/" + Config.SOLBOOK_XML_VERSION + "/",
+        SYSTEM_2_SYSTEM.put("http://www.sun.com/solbook/xml/" + Config.SOLBOOK_XML_VERSION + "/",
                             "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/--system2system");
     }
     
@@ -136,7 +125,7 @@ public class SolBookCatalog implements CatalogProvider {
         
         public Image getIcon(int type) {
             if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-                return Utilities.loadImage("org/netbeans/modules/docbook/resources/solbook/templates/solbook.png", true);
+                return ImageUtilities.loadImage("org/netbeans/modules/docbook/resources/solbook/templates/solbook.png", true);
             } else {
                 return null;
             }

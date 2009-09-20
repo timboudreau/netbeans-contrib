@@ -59,13 +59,12 @@ import java.util.List;
 import org.netbeans.api.docbook.Callback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
-import org.netbeans.modules.docbook.*;
-import org.netbeans.modules.docbook.resources.solbook.*;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
+import org.openide.loaders.DataObject;
 
 /**
  * Implementation of the ParsingService API interface.  One of these is in the
@@ -78,11 +77,7 @@ public final class ParsingServiceImpl extends ParsingService implements FileChan
     private final Object lock = new Object();
     private final List <Reference<Callback>> registered = new LinkedList <Reference <Callback>> ();
 
-    public ParsingServiceImpl(DocBookDataObject obj) {
-        this (obj.getPrimaryFile());
-    }
-
-    public ParsingServiceImpl(SolBookDataObject obj) {
+    public ParsingServiceImpl(DataObject obj) {
         this (obj.getPrimaryFile());
     }
 
@@ -144,7 +139,11 @@ public final class ParsingServiceImpl extends ParsingService implements FileChan
         callback.cancel();
         boolean remove;
         synchronized (lock) {
-            registered.remove(callback);
+            for (Iterator<Reference<Callback>> it = registered.iterator(); it.hasNext();) {
+                if (it.next().get() == callback) {
+                    it.remove();
+                }
+            }
             remove = registered.isEmpty();
         }
         if (remove) {
