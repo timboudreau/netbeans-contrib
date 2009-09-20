@@ -63,9 +63,9 @@ import org.openide.util.WeakListeners;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
-class DocBookDataNode extends DataNode {
+public class DocBookDataNode extends DataNode {
     private final InstanceContent content;
-    public DocBookDataNode(DocBookDataObject obj, InstanceContent content) {
+    public DocBookDataNode(DataObject obj, InstanceContent content) {
         super(obj, Children.LEAF, new AbstractLookup (content));
         OpenCookie oc = obj.getCookie(OpenCookie.class);
         assert oc != null : obj + " has no OpenCookie; DBES=" + obj.getCookie(DocBookEditorSupport.class);
@@ -82,7 +82,9 @@ class DocBookDataNode extends DataNode {
         }
         pcl = new PCL();
         obj.addPropertyChangeListener(WeakListeners.propertyChange(pcl, obj));
-        setIconBaseWithExtension("org/netbeans/modules/docbook/resources/docbook.png");
+        setIconBaseWithExtension(obj instanceof DocBookDataObject ?
+            "org/netbeans/modules/docbook/resources/docbook.png" : //NOI18N
+            "org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"); //NOI18N
     }
 
     private PropertyChangeListener pcl;
@@ -148,6 +150,8 @@ class DocBookDataNode extends DataNode {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_docbook_xml"); //NOI18N
         } else if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides"); //NOI18N
+        } else if (mime.equals(SolBookDataLoader.MIME_SOLBOOK)) {
+            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_solbook_xml"); //NOI18N
         } else {
             //Mime type can be wrong if the document is malformed
             return super.getShortDescription();
@@ -183,8 +187,8 @@ class DocBookDataNode extends DataNode {
     }
 
     private static final class Notifier implements MainFileProvider.Notifier {
-        private DocBookDataObject obj;
-        Notifier (DocBookDataObject obj) {
+        private DataObject obj;
+        Notifier (DataObject obj) {
             this.obj = obj;
         }
 

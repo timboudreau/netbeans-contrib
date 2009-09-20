@@ -53,8 +53,8 @@ import org.netbeans.modules.xml.catalog.spi.CatalogDescriptor;
 import org.netbeans.modules.xml.catalog.spi.CatalogListener;
 import org.netbeans.modules.xml.catalog.spi.CatalogProvider;
 import org.netbeans.modules.xml.catalog.spi.CatalogReader;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -132,7 +132,7 @@ public class DocBookCatalog implements CatalogProvider {
         
         public Image getIcon(int type) {
             if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-                return Utilities.loadImage("org/netbeans/modules/docbook/docbook.png", true);
+                return ImageUtilities.loadImage("org/netbeans/modules/docbook/docbook.png", true);
             } else {
                 return null;
             }

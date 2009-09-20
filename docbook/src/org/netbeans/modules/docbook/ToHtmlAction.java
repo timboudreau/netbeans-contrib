@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.docbook;
 
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -66,11 +67,11 @@ public class ToHtmlAction extends CookieAction {
     }
 
     protected void performAction(Node[] nodes) {
-        final DocBookDataObject o = (DocBookDataObject)nodes[0].getCookie(
-                DocBookDataObject.class);
+        final DataObject o = nodes[0].getLookup().lookup(DataObject.class);
         RequestProcessor.getDefault().post(new Processor (o));
     }
 
+    @Override
     protected boolean asynchronous() {
         return false;
     }

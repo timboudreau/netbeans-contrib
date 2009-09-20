@@ -38,26 +38,46 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.docbook.resources.solbook;
 
-import java.io.File;
-import org.netbeans.api.docbook.Renderer;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.RequestProcessor;
+package org.netbeans.modules.docbook;
 
+import java.io.IOException;
 
-final class RendererImpl implements Renderer {
-    private final SolBookDataObject obj;
-    public RendererImpl(SolBookDataObject obj) {
-        this.obj = obj;
-    }
+import org.netbeans.modules.docbook.DocBookDataObject;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.ExtensionList;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.UniFileLoader;
+import org.openide.util.NbBundle;
 
-    public void render(File destFolder, Renderer.JobStatus status) {
-        Processor processor = new Processor (obj);
-        RequestProcessor.getDefault().post(processor);
+public class SolBookDataLoader extends UniFileLoader {
+    public static final String MIME_SOLBOOK = "text/x-solbook+xml";
+    private static final long serialVersionUID = 1L;
+
+    public SolBookDataLoader() {
+        super("org.netbeans.modules.docbook.resources.solbook.SolBookDataObject"); //NOI18N
     }
     
-    public File getFile() {
-        return FileUtil.toFile (obj.getPrimaryFile());
+    @Override
+    protected String defaultDisplayName() {
+        return NbBundle.getMessage(SolBookDataLoader.class, "LBL_loaderName"); //NOI18N
+    }
+    
+    @Override
+    protected void initialize() {
+        super.initialize();
+        ExtensionList extensions = new ExtensionList();
+        extensions.addMimeType(MIME_SOLBOOK);
+        setExtensions(extensions);
+    }
+
+    @Override
+    protected String actionsContext () {
+        return "Loaders/text/x-solbook+xml/Actions"; // NOI18N
+    }
+    
+    protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
+        return new DocBookDataObject(primaryFile, this);
     }
 }

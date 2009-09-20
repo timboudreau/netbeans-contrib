@@ -67,6 +67,8 @@ import org.netbeans.api.imagepaste.ImagePasteSupport;
 import org.openide.cookies.*;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.MultiDataObject;
 import org.openide.text.Annotation;
 import org.openide.text.CloneableEditor;
 import org.openide.text.DataEditorSupport;
@@ -91,7 +93,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
             "    </mediaobject>\n" + //NOI18N
             " </figure>\n"; //NOI18N
     
-    public DocBookEditorSupport(DocBookDataObject obj) {
+    public DocBookEditorSupport(DataObject obj) {
         super(obj, new DocBookEnv(obj));
         setMIMEType("text/xml");
     }
@@ -138,7 +140,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
 
         private static final long serialVersionUID = 1L;
 
-        public DocBookEnv(DocBookDataObject obj) {
+        public DocBookEnv(DataObject obj) {
             super(obj);
         }
 
@@ -147,7 +149,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
 
         protected FileLock takeLock() throws IOException {
-            return ((DocBookDataObject)getDataObject()).getPrimaryEntry().takeLock();
+            return ((MultiDataObject) getDataObject()).getPrimaryEntry().takeLock();
         }
 
         public CloneableOpenSupport findCloneableOpenSupport() {
@@ -255,7 +257,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     private static final class AnnotationCallback extends ContentHandlerCallback implements Runnable {
         private final DocBookEditorSupport editor;
 
-        public AnnotationCallback (DocBookEditorSupport editor, DocBookDataObject dob) {
+        public AnnotationCallback (DocBookEditorSupport editor, DataObject dob) {
             super (new H(dob, editor.annotations));
             this.editor = editor;
         }
@@ -285,10 +287,10 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     }
 
     private static final class H extends DefaultHandler implements ErrorHandler {
-        private final DocBookDataObject dob;
+        private final DataObject dob;
         private Locator loc;
         private final Set <Ann> annotations;
-        H (DocBookDataObject dob, Set <Ann> annotations) {
+        H (DataObject dob, Set <Ann> annotations) {
             this.dob = dob;
             this.annotations = annotations;
         }

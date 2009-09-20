@@ -46,7 +46,7 @@ import java.beans.*;
 
 import org.openide.ErrorManager;
 import org.openide.loaders.UniFileLoader;
-import org.openide.util.Utilities;
+import org.openide.util.ImageUtilities;
 
 public class DocBookDataLoaderBeanInfo extends SimpleBeanInfo {
 
@@ -61,7 +61,7 @@ public class DocBookDataLoaderBeanInfo extends SimpleBeanInfo {
 
   public Image getIcon(int type) {
         if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-            return Utilities.loadImage("org/netbeans/modules/docbook/docbook.png", true);
+            return ImageUtilities.loadImage("org/netbeans/modules/docbook/docbook.png", true);
         } else {
             return null;
         }

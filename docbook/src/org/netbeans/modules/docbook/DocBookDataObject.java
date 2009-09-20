@@ -41,17 +41,19 @@
 
 package org.netbeans.modules.docbook;
 
-import org.openide.cookies.*;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.*;
-import org.openide.nodes.*;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.UniFileLoader;
+import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 
 public class DocBookDataObject extends MultiDataObject {
 
-    public DocBookDataObject(FileObject pf, DocBookDataLoader loader) throws DataObjectExistsException {
+    public DocBookDataObject(FileObject pf, UniFileLoader loader) throws DataObjectExistsException {
         super(pf, loader);
         getCookieSet().add(new DocBookEditorSupport(this));
     }

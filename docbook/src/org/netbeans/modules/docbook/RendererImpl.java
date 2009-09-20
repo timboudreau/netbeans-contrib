@@ -43,12 +43,13 @@ package org.netbeans.modules.docbook;
 import java.io.File;
 import org.netbeans.api.docbook.Renderer;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.util.RequestProcessor;
 
 
-final class RendererImpl implements Renderer {
-    private final DocBookDataObject obj;
-    public RendererImpl(DocBookDataObject obj) {
+public final class RendererImpl implements Renderer {
+    private final DataObject obj;
+    public RendererImpl(DataObject obj) {
         this.obj = obj;
     }
 

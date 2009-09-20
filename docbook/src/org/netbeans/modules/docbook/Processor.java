@@ -68,6 +68,7 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.NbBundle;
 import org.xml.sax.EntityResolver;
@@ -81,13 +82,13 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
     private static final String XSL_SLIDES = "http://docbook.sourceforge.net/release/slides/current/xsl/xhtml/plain.xsl";
     private static final String XSL_ARTICLE = "http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl";
     private final FileObject destFolder;
-    private final DocBookDataObject o;
+    private final DataObject o;
     private final Renderer.JobStatus status;
-    Processor(DocBookDataObject o) {
+    Processor(DataObject o) {
         this(o, null, null);
     }
 
-    Processor(DocBookDataObject o, FileObject destFolder, Renderer.JobStatus status) {
+    Processor(DataObject o, FileObject destFolder, Renderer.JobStatus status) {
         this.o = o;
         assert o != null;
         this.destFolder = destFolder;
@@ -99,7 +100,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
         process (o, destFolder);
     }
 
-    private void process(DocBookDataObject o, FileObject destFolder) {
+    private void process(DataObject o, FileObject destFolder) {
         FileObject fo = o.getPrimaryFile();
         File f = FileUtil.toFile(fo);
         if (f == null) {
