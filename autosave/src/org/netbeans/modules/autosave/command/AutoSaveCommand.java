@@ -37,6 +37,7 @@
  */
 package org.netbeans.modules.autosave.command;
 
+import java.awt.event.ActionEvent;
 import org.openide.actions.SaveAllAction;
 import org.openide.util.actions.SystemAction;
 
@@ -46,9 +47,10 @@ import org.openide.util.actions.SystemAction;
  */
 class AutoSaveCommand {
    static final void saveAll() {
-      SaveAllAction saveAllAction = SystemAction.get(SaveAllAction.class);
+      final SaveAllAction saveAllAction = SystemAction.get(SaveAllAction.class);
       if (saveAllAction.isEnabled()) {
-         saveAllAction.performAction();
+         saveAllAction.actionPerformed(new ActionEvent(saveAllAction,
+               ActionEvent.ACTION_PERFORMED, "save-all"));
       }
    }
 }
