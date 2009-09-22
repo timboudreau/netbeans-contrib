@@ -237,6 +237,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
           val sym = item.asInstanceOf[ScalaItem].symbol
           if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
           if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.INTERFACE)
+          if (sym.hasFlag(Flags.BYNAMEPARAM)) coloringSet.add(ColoringAttributes.INTERFACE)
 
           if (!coloringSet.isEmpty) highlights.put(hiRange, coloringSet)
 
