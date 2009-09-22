@@ -150,6 +150,13 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                   coloringSet.add(ColoringAttributes.FIELD)
                   coloringSet.add(ColoringAttributes.GLOBAL)
 
+                case sym if sym.hasFlag(Flags.LAZY) =>
+                  coloringSet.add(ColoringAttributes.FIELD)
+                  val owner = sym.owner
+                  if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
+                    coloringSet.add(ColoringAttributes.GLOBAL)
+                  }
+
                 case sym if sym.isMethod && sym.hasFlag(Flags.DEFERRED) =>
                   coloringSet.add(ColoringAttributes.METHOD)
                   coloringSet.add(ColoringAttributes.DECLARATION)
@@ -162,7 +169,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
                 case sym if sym.hasFlag(Flags.PARAM) =>
                   coloringSet.add(ColoringAttributes.PARAMETER)
 
-                case sym if sym.hasFlag(Flags.MUTABLE) && !sym.hasFlag(Flags.LAZY) =>
+                case sym if sym.hasFlag(Flags.MUTABLE) =>
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   
                 case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
@@ -182,7 +189,10 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
                 case sym if sym.hasFlag(Flags.LAZY) => // why it's also setter/getter?
                   coloringSet.add(ColoringAttributes.FIELD)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
+                  val owner = sym.owner
+                  if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
+                    coloringSet.add(ColoringAttributes.GLOBAL)
+                  }
 
                 case sym if sym.isSetter =>
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
@@ -226,7 +236,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
           val sym = item.asInstanceOf[ScalaItem].symbol
           if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
-          if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.GLOBAL)
+          if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.INTERFACE)
 
           if (!coloringSet.isEmpty) highlights.put(hiRange, coloringSet)
 
