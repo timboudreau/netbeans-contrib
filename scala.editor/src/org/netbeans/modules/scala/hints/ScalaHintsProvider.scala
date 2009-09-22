@@ -125,10 +125,10 @@ class ScalaHintsProvider() extends HintsProvider {
                 } else {
 
                     try {
-                        context.doc.readLock();
+                        //context.doc.readLock();
                         unhandled.addAll(errors.filter(x => !applyRules(x, manager, context.asInstanceOf[ScalaRuleContext], errHints, hints)))
                     } finally {
-                        context.doc.readUnlock();
+                        //context.doc.readUnlock();
                     }
                 }
             }
