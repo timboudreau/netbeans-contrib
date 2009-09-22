@@ -177,6 +177,35 @@ object ScalaGlobal {
     toResetGlobals = Set[ScalaGlobal]()
   }
 
+  def getOutFileObject(fo: FileObject): Option[FileObject] = {
+    val project = FileOwnerQuery.getOwner(fo)
+    if (project == null) {
+      // * it may be a standalone file, or file in standard lib
+      return None
+    }
+
+    val cache = projectToCaches.get(project) getOrElse {
+      val cachex = findDirResources(project)
+      projectToCaches.put(project, cachex)
+      cachex
+    }
+
+    // * is this `fo` under test source?
+    val forTest = cache.testToOut find {case (src, _) =>
+        src.equals(fo) || FileUtil.isParentOf(src, fo)
+    } isDefined
+
+    var outPath: FileObject = null
+    var srcPaths: List[FileObject] = Nil
+    for ((src, out) <- if (forTest) cache.testToOut else cache.srcToOut) {
+      srcPaths = src :: srcPaths
+
+      return Some(out)
+    }
+
+    None
+  }
+
   /**
    * Scala's global is not thread safed
    */
@@ -693,6 +722,17 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   // <editor-fold defaultstate="collapsed" desc="lambdaLift">
   // ----- @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
 
+  def askLambdaLift(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
+    scheduler postWorkItem new WorkItem {
+      def apply() = getLambdaLiftedTree(source, forceReload, result)
+      override def toString = "lambdaLift"
+    }
+
+  /** Set sync var `result` to a fully attributed tree corresponding to the entire compilation unit  */
+  def getLambdaLiftedTree(source : SourceFile, forceReload: Boolean, result: Response[Tree]) {
+    respond(result)(lambdaLiftedTree(source, forceReload))
+  }
+
   /** A fully lambdaLifted tree corresponding to the entire compilation unit  */
   def lambdaLiftedTree(source: SourceFile, forceReload: Boolean): Tree = {
     val unit = unitOf(source)
@@ -702,17 +742,6 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     currentTyperRun.typedTree(unitOf(source))
     currentTyperRun.lambdaLiftedTree(unitOf(source))
   }
-
-  /** Set sync var `result` to a fully attributed tree corresponding to the entire compilation unit  */
-  def getLambdaLiftedTree(source : SourceFile, forceReload: Boolean, result: Response[Tree]) {
-    respond(result)(lambdaLiftedTree(source, forceReload))
-  }
-
-  def askLambdaLift(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
-    scheduler postWorkItem new WorkItem {
-      def apply() = getLambdaLiftedTree(source, forceReload, result)
-      override def toString = "lambdaLift"
-    }
 
   // ----- end @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
   // </editor-fold>
