@@ -17,12 +17,12 @@ import scala.tools.nsc.ast._
 /** The main class of the presentation compiler in an interactive environment such as an IDE
  */
 class Global(settings: Settings, reporter: Reporter) 
-  extends scala.tools.nsc.Global(settings, reporter) 
-     with CompilerControl 
-     with RangePositions
-     with ContextTrees 
-     with RichCompilationUnits { 
-self =>
+extends scala.tools.nsc.Global(settings, reporter) 
+   with CompilerControl
+   with RangePositions
+   with ContextTrees
+   with RichCompilationUnits {
+  self =>
 
   import definitions._
 
@@ -39,7 +39,7 @@ self =>
   /** A map of all loaded files to the rich compilation units that correspond to them.
    */ 
   val unitOfFile = new LinkedHashMap[AbstractFile, RichCompilationUnit] with
-                       SynchronizedMap[AbstractFile, RichCompilationUnit]
+  SynchronizedMap[AbstractFile, RichCompilationUnit]
 
   /** The currently active typer run */
   var currentTyperRun: TyperRun = _
@@ -413,7 +413,7 @@ self =>
       addTypeMember(sym, pre, true, NoSymbol)
     val applicableViews: List[SearchResult] = 
       new ImplicitSearch(tree, functionType(List(tree.tpe), AnyClass.tpe), true, context.makeImplicit(false))
-        .allImplicits
+    .allImplicits
     for (view <- applicableViews) {
       val vtree = viewApply(view)
       val vpre = stabilizedType(vtree)
@@ -436,22 +436,22 @@ self =>
   }
 
   /** A traverser that resets all type and symbol attributes in a tree
-  object ResetAttrs extends Transformer {
-    override def transform(t: Tree): Tree = {
-      if (t.hasSymbol) t.symbol = NoSymbol
-      t match {
-        case EmptyTree => 
-          t
-        case tt: TypeTree =>
-          if (tt.original != null) tt.original
-          else t
-        case _ => 
-          t.tpe = null
-          super.transform(t)
-      }
-    }
-  }
-  */
+   object ResetAttrs extends Transformer {
+   override def transform(t: Tree): Tree = {
+   if (t.hasSymbol) t.symbol = NoSymbol
+   t match {
+   case EmptyTree =>
+   t
+   case tt: TypeTree =>
+   if (tt.original != null) tt.original
+   else t
+   case _ =>
+   t.tpe = null
+   super.transform(t)
+   }
+   }
+   }
+   */
 
   /** The typer run */
   class TyperRun extends Run {
@@ -460,14 +460,39 @@ self =>
     override def compiles(sym: Symbol) = false
 
     // * added by Caoyuan
-    val lambdaLiftPhase = phaseNamed("lambdalift")
-    def lambdaLift(unit: CompilationUnit): Unit = applyPhase(lambdaLiftPhase, unit)
+    // phaseName = "lambdalift"
+    /* object lambdaLiftInteractive extends {
+      val global: Global.this.type = Global.this
+      val runsAfter = List[String]("lazyvals")
+      val runsRightAfter = None
+    } with LambdaLift */
+
     def lambdaLiftedTree(unit: RichCompilationUnit): Tree = {
       assert(unit.status >= JustParsed)
       unit.targetPos = NoPosition
-      lambdaLift(unit)
+      enterSuperAccessors(unit)
+      enterPickler(unit)
+      enterRefChecks(unit)
+      enterUncurry(unit)
+      enterExplicitOuter(unit)
+      enterLambdaLift(unit)
       unit.body
     }
+
+    val superAccessorsPhaseInter = superAccessors.newPhase(typerPhase)
+    val picklerPhaseInter = pickler.newPhase(superAccessorsPhaseInter)
+    val refchecksPhaseInter = refchecks.newPhase(picklerPhaseInter)
+    val uncurryPhaseInter = uncurry.newPhase(refchecksPhaseInter)
+    val explicitOuterPhaseInter = explicitOuter.newPhase(uncurryPhaseInter)
+    val lambdaLiftPhaseInter = lambdaLift.newPhase(explicitOuterPhaseInter)
+
+    def enterSuperAccessors(unit: CompilationUnit): Unit = applyPhase(superAccessorsPhaseInter, unit)
+    def enterPickler(unit: CompilationUnit): Unit = applyPhase(picklerPhaseInter, unit)
+    def enterRefChecks(unit: CompilationUnit): Unit = applyPhase(refchecksPhaseInter, unit)
+    def enterUncurry(unit: CompilationUnit): Unit = applyPhase(uncurryPhaseInter, unit)
+    def enterExplicitOuter(unit: CompilationUnit): Unit = applyPhase(explicitOuterPhaseInter, unit)
+    def enterLambdaLift(unit: CompilationUnit): Unit = applyPhase(lambdaLiftPhaseInter, unit)
+ 
     // * end added by Caoyuan
 
     def typeCheck(unit: CompilationUnit): Unit = applyPhase(typerPhase, unit)

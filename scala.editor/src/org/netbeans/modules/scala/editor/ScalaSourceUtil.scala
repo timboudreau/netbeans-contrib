@@ -29,7 +29,9 @@ package org.netbeans.modules.scala.editor
 
 import java.io.{File, IOException}
 import java.net.URL
+import java.util.logging.Logger
 import javax.swing.text.BadLocationException
+import javax.swing.text.StyledDocument
 import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.api.java.classpath.GlobalPathRegistry
 import org.netbeans.api.java.queries.SourceForBinaryQuery
@@ -47,6 +49,7 @@ import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingController
 import org.netbeans.modules.parsing.spi.{ParseException, Parser}
 import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
+import org.openide.text.NbDocument
 import org.openide.util.{Exceptions}
 
 import org.netbeans.api.language.util.ast.{AstDfn, AstScope}
@@ -64,7 +67,9 @@ import scala.collection.mutable.ArrayBuffer
  * @author Caoyuan Deng
  */
 object ScalaSourceUtil {
-  
+
+  val Log = Logger.getLogger(getClass.getName)
+
   /** @see org.netbeans.api.java.project.JavaProjectConstants */
   val SOURCES_TYPE_JAVA = "java" // NOI18N
   /** a source group type for separate scala source roots, as seen in maven projects for example */
@@ -196,7 +201,7 @@ object ScalaSourceUtil {
       // Search forwards to find first nonspace char from offset
       while (i < text.length) {
         text.charAt(i) match {
-          case '\n' => return -1
+          case '\n' => return - 1
           case c if !Character.isWhitespace(c) => return i
           case _ => i += 1
         }
@@ -398,7 +403,8 @@ object ScalaSourceUtil {
         try {
           new ClassFile(in, false) match {
             case null => null
-            case clzFile => clzFile.getSourceFileName
+            case clzFile =>
+              clzFile.getSourceFileName
           }
         } finally {if (in != null) in.close}
       } else null
@@ -493,12 +499,90 @@ object ScalaSourceUtil {
 
   private val TMPL_KINDS = Set(ElementKind.CLASS, ElementKind.MODULE)
 
-  def getBinaryClassName(pr: ScalaParserResult, offset: Int): String = {
+  def getBinaryClassName(pr: ScalaParserResult, lineNumber: Int): String = {
+    val global = pr.global
+    import global._
+
+    val root = pr.rootScope.getOrElse(return null)
+    val fo = pr.getSnapshot.getSource.getFileObject
+    val doc = pr.getSnapshot.getSource.getDocument(false).asInstanceOf[StyledDocument]
+    val th = pr.getSnapshot.getTokenHierarchy
+    val offset = NbDocument.findLineOffset(doc, lineNumber - 1)
+
+    var clazzName = ""
+    root.enclosingDfn(TMPL_KINDS, th, offset) foreach {case enclDfn: ScalaDfn =>
+        val sym = enclDfn.symbol
+        // "scalarun.Dog.$talk$1"
+        val fqn = new StringBuilder(sym.fullNameString('.'))
+
+        // * getTopLevelClassName "scalarun.Dog"
+        val topSym = sym.toplevelClass
+        val topClzName = topSym.fullNameString('.')
+
+        // "scalarun.Dog$$talk$1"
+        for (i <- topClzName.length until fqn.length if fqn.charAt(i) == '.') {
+          fqn.setCharAt(i, '$')
+        }
+
+        // * According to Symbol#kindString, an object template isModuleClass()
+        // * trait's symbol name has been added "$class" by compiler
+        if (topSym.isModuleClass) {
+          fqn.append("$")
+        }
+        clazzName = fqn.toString
+    }
+
+    if (clazzName.length == 0) return null
+
+    val out = ScalaGlobal.getOutFileObject(fo).getOrElse(return clazzName)
+
+    def findAllClassFilesWith(prefix: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
+      dirFo.getChildren foreach {
+        case x if x.isFolder => findAllClassFilesWith(prefix, x, result)
+        case x if x.getExt == "class" && FileUtil.getRelativePath(out, x).startsWith(prefix) => result += x
+        case _ =>
+      }
+    }
+
+    val pathPrefix = clazzName.replace('.', File.separatorChar)
+    Log.info("Class prefix: " + pathPrefix + ", out dir: " + out)
+    val potentialClasses = new ArrayBuffer[FileObject]
+    findAllClassFilesWith(pathPrefix, out, potentialClasses)
+    for (clazzFo <- potentialClasses) {
+      val in = clazzFo.getInputStream
+      try {
+        val clazzBin = new ClassFile(in, true)
+        if (clazzBin != null) {
+          val itr = clazzBin.getMethods.iterator
+          while (itr.hasNext) {
+            val method = itr.next
+            val code = method.getCode
+            if (code != null) {
+              Log.info("LineNumbers: " + code.getLineNumberTable.mkString("[", ",", "]"))
+              if (code.getLineNumberTable find {_ == lineNumber} isDefined) {
+                clazzName = FileUtil.getRelativePath(out, clazzFo).replace(File.separatorChar, '.')
+                clazzName = clazzName.lastIndexOf(".class") match {
+                  case -1 => clazzName
+                  case i => clazzName.substring(0, i)
+                }
+                Log.info("Found class: " + clazzName)
+                return clazzName
+              }
+            }
+          }
+        }
+      } finally {if (in != null) in.close}
+    }
+
+    clazzName
+  }
+
+  /** @deprecated */
+  def getBinaryClassName_old(pr: ScalaParserResult, offset: Int): String = {
     val root = pr.getRootScopeForDebug.getOrElse(return null)
     val th = pr.getSnapshot.getTokenHierarchy
     
     var clzName = ""
-
     root.enclosingDfn(TMPL_KINDS, th, offset) foreach {enclDfn =>
       val sym = enclDfn.asInstanceOf[ScalaDfns#ScalaDfn].symbol
       if (sym != null) {
