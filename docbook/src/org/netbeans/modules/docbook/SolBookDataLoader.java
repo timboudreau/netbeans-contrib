@@ -56,7 +56,7 @@ public class SolBookDataLoader extends UniFileLoader {
     private static final long serialVersionUID = 1L;
 
     public SolBookDataLoader() {
-        super("org.netbeans.modules.docbook.resources.solbook.SolBookDataObject"); //NOI18N
+        super("org.netbeans.modules.docbook.resources.solbook.DocBookDataObject"); //NOI18N
     }
     
     @Override
