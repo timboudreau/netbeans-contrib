@@ -73,7 +73,7 @@ public abstract class GnatCommand {
 
     public abstract String getCommandId();
 
-    public abstract void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException;
+    public abstract void invokeCommand(String displayTitle, String args) throws IllegalArgumentException, AdaException;
 
     public GnatCompiler getGnatCompiler() {
         return gnatCompiler;

@@ -95,7 +95,6 @@ public class FmtTabsIndents extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(continuationIndentSizeLabel, org.openide.util.NbBundle.getMessage(FmtTabsIndents.class, "LBL_ContinuationIndentSize")); // NOI18N
 
         continuationIndentSizeField.setColumns(3);
-        continuationIndentSizeField.setEnabled(false);
 
         org.openide.awt.Mnemonics.setLocalizedText(reformatCommentsCheckBox, org.openide.util.NbBundle.getMessage(FmtTabsIndents.class, "LBL_ReformatComments")); // NOI18N
         reformatCommentsCheckBox.setEnabled(false);

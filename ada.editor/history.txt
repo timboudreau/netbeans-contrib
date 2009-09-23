@@ -1,3 +1,15 @@
+0.1.9: dd-mm-2009
+- Migrates from GSF to CSL for new Parsing & Indexing API
+
+0.1.8: 13-09-2009
+- Add improvements on ast parser, navigator, instant renamer.
+- Add others AST nodes.
+
+0.1.7: 01-02-2009
+- Fix ada generic declaration.
+- Add improvements on ast parser, navigator, instant renamer.
+- Add others AST nodes.
+
 0.1.6: 05-01-2009
 - Fix string and char literal
 
@@ -18,4 +30,4 @@
 
 0.1.0: 23-09-2008
 - Initial, very alpha release.
-- Based on PHP Editor 2. Thanks to the authors of PHP Editor 2.
+- Based on PHP Editor 2. A thanks to the authors of PHP Editor 2.

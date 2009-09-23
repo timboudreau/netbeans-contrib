@@ -46,26 +46,30 @@ import javax.swing.text.Document;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Scalar;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement;
-import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.csl.spi.ParserResult;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 
 /**
+ * Based on org.netbeans.modules.php.editor.nav.NavUtils
  *
- * @author Jan Lahoda
+ * @author Andrea Lucarelli
  */
 public class NavUtils {
 
-    public static List<ASTNode> underCaret(CompilationInfo info, final int offset) {
+    public static List<ASTNode> underCaret(ParserResult info, final int offset) {
         class Result extends Error {
 
             private Stack<ASTNode> result;
@@ -104,7 +108,7 @@ public class NavUtils {
         return Collections.emptyList();
     }
 
-    public static AttributedElement findElement(CompilationInfo info, List<ASTNode> path, int offset, SemiAttribute a) {
+    public static AttributedElement findElement(ParserResult info, List<ASTNode> path, int offset, SemiAttribute a) {
         if (path.size() == 0) {
             return null;
         }
@@ -118,10 +122,40 @@ public class NavUtils {
 
         for (ASTNode leaf : path) {
 
+            if (leaf instanceof FormalParameter) {
+                FormalParameter param = (FormalParameter) leaf;
+                Variable name = param.getParameterName();
+                if (name != null && offset < name.getEndOffset()) {
+                    return a.getElement(name);
+                }
+            }
+            
             if (leaf instanceof Variable) {
                 result = a.getElement(leaf);
                 previous = leaf;
                 continue;
+            }
+
+            if (leaf instanceof TypeDeclaration) {
+                result = a.getElement(leaf);
+                previous = leaf;
+                continue;
+            }
+
+            if (leaf instanceof Scalar) {
+                AttributedElement e = a.getElement(leaf);
+
+                if (e != null) {
+                    return e;
+                }
+            }
+
+            if (leaf instanceof SubprogramSpecification && ((SubprogramSpecification) leaf).getSubprogramName() == previous) {
+                return a.getElement(leaf);
+            }
+
+            if (leaf instanceof SubprogramBody && ((SubprogramBody) leaf).getSubprogramSpecification().getSubprogramName() == previous) {
+                return a.getElement(leaf);
             }
 
             if (leaf instanceof PackageSpecification) {
@@ -136,20 +170,6 @@ public class NavUtils {
                 if (iDeclaration.getName() == previous) {
                     return a.getElement(leaf);
                 }
-            } else if (leaf instanceof FormalParameter) {
-                FormalParameter param = (FormalParameter) leaf;
-                Identifier type = param.getParameterType();
-                if (type != null && offset < type.getEndOffset()) {
-                    return a.getElement(type);
-                }
-            }
-
-            if (leaf instanceof FunctionDeclaration && ((FunctionDeclaration) leaf).getIdentifier() == previous) {
-                return a.getElement(leaf);
-            }
-
-            if (leaf instanceof ProcedureDeclaration && ((ProcedureDeclaration) leaf).getIdentifier() == previous) {
-                return a.getElement(leaf);
             }
 
             if (result != null) {
@@ -174,8 +194,8 @@ public class NavUtils {
         return value.substring(1, value.length() - 1);
     }
 
-    public static FileObject resolveInclude(CompilationInfo info, With with) {
-        Identifier e = with.getPackageName();
+    public static FileObject resolveInclude(ParserResult info, With with) {
+        List<PackageName> packages = with.getPackages();
 
         // TODO: resolve packagename with file
 

@@ -187,8 +187,8 @@ import java_cup.runtime.*;
  *    Copyright © 2000 The MITRE Corporation, Inc.       *
  * 2. http://www.adaic.com/standards/95lrm/lexer9x.l     *
  *                                                       *
- * Modified for "Ada for Netbeans" and for using it with *
- * JFlex by Andrea Lucarelli.                            *
+ * Author: Andrea Lucarelli                              *
+ * Lexer Generator: JFlex                                *
  *                                                       *
  *********************************************************/
 
@@ -317,7 +317,7 @@ ANY_CHAR=(.|[\n])
 
     "=>"             { return createSymbol(Ada95ASTSymbols.ARROW); }
     ".."             { return createSymbol(Ada95ASTSymbols.DOT_DOT); }
-    "**"             { return createSymbol(Ada95ASTSymbols.EXPONENT); }
+    "**"             { return createSymbol(Ada95ASTSymbols.EXPON); }
     ":="             { return createSymbol(Ada95ASTSymbols.ASSIGNMENT); }
     "/="             { return createSymbol(Ada95ASTSymbols.INEQ); }
     ">="             { return createSymbol(Ada95ASTSymbols.GTEQ); }
@@ -329,19 +329,18 @@ ANY_CHAR=(.|[\n])
 }
 
 <ST_LOOKING_FOR_PROPERTY>"." {
-	return createSymbol(Ada95ASTSymbols.DOT);
+    return createSymbol(Ada95ASTSymbols.DOT);
 }
 
 <ST_LOOKING_FOR_PROPERTY>".." {
     popState();
-	return createSymbol(Ada95ASTSymbols.DOT_DOT);
+    return createSymbol(Ada95ASTSymbols.DOT_DOT);
 }
 
 <ST_LOOKING_FOR_PROPERTY>{IDENTIFIER} {
     popState();
     return createFullSymbol(Ada95ASTSymbols.IDENTIFIER);
 }
-
 
 <ST_LOOKING_FOR_PROPERTY>{ANY_CHAR} {
     yypushback(yylength());

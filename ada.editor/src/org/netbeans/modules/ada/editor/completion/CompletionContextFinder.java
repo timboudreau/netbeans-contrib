@@ -39,30 +39,6 @@
 
 package org.netbeans.modules.ada.editor.completion;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
-import org.netbeans.modules.gsf.api.annotations.NonNull;
-import org.netbeans.modules.ada.editor.lexer.AdaLexUtilities;
-import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
-import org.netbeans.modules.ada.editor.navigator.NavUtils;
-import org.netbeans.modules.ada.editor.parser.AdaParseResult;
-import org.netbeans.modules.ada.editor.parser.Utils;
-import org.netbeans.modules.ada.editor.ast.ASTError;
-import org.netbeans.modules.ada.editor.ast.ASTNode;
-import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 
 /**
  * Based on org.netbeans.modules.php.editor.CompletionContextFinder

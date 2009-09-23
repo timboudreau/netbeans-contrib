@@ -40,20 +40,32 @@
 package org.netbeans.modules.ada.editor.ast.nodes;
 
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
+import org.netbeans.modules.ada.editor.ast.ASTNode;
 
 /**
- * Based on org.netbeans.modules.php.editor.parser.astnodes.EmptyStatement
- * 
- * This class represents an empty statement.
- * <pre>e.g.<pre> ;
- * while (true) loop null; end loop; -- the while statement contains empty statement
+ * Holds a type name. 
+ * <pre>e.g.<pre> 
+ * Foo_Type
  *
  * @author Andrea Lucarelli
  */
-public class EmptyStatement extends Statement {
+public class TypeName extends ASTNode {
 
-    public EmptyStatement(int start, int end) {
+    private Identifier typeName;
+
+    public TypeName(int start, int end, Identifier typeName) {
         super(start, end);
+        assert (typeName != null);
+        this.typeName = typeName;
+    }
+
+    /**
+     * Returns the type name.
+     * 
+     * @return the typeName node
+     */
+    public Identifier getTypeName() {
+        return this.typeName;
     }
     
     @Override

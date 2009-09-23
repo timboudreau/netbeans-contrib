@@ -39,33 +39,36 @@
 
 package org.netbeans.modules.ada.editor.ast.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 
 /**
  * Represents use type statement
- * <pre>e.g.<pre> use type Rational_Numbers.Rational;
+ * <pre>e.g.<pre> 
+ * use type Rational_Numbers.Rational;
  *
  * @author Andrea Lucarelli
  */
 public class UseType extends Statement {
     
-    private String type;
+    private final ArrayList<TypeName> types = new ArrayList<TypeName>();
 
-    public UseType(int start, int end, String type) {
+    public UseType(int start, int end, List<TypeName> types) {
         super(start, end);
 
-        this.type = type;
+        this.types.addAll(types);
     }
 
     
     /**
-     * Returns the type of this use type.
+     * Returns the list of types of this use.
      * 
-     * @return the type node
+     * @return the types node
      */
-    public String getType() {
-        return type;
+    public List<TypeName> getTypes() {
+        return types;
     }
 
     

@@ -44,27 +44,28 @@ import org.netbeans.modules.ada.editor.ast.ASTNode;
 
 /**
  * Holds a package name. 
- * <pre>e.g.<pre> FooPackage
+ * <pre>e.g.<pre> 
+ * FooPackage
  *
  * @author Andrea Lucarelli
  */
 public class PackageName extends ASTNode {
 
-    private Expression name;
+    private Identifier packageName;
 
-    public PackageName(int start, int end, Expression packageName) {
+    public PackageName(int start, int end, Identifier packageName) {
         super(start, end);
         assert (packageName != null);
-        name = packageName;
+        this.packageName = packageName;
     }
 
     /**
-     * Returns the expression of this package name.
+     * Returns the package name.
      * 
-     * @return the expression node
+     * @return the packageName node
      */
-    public Expression getName() {
-        return this.name;
+    public Identifier getPackageName() {
+        return this.packageName;
     }
     
     @Override

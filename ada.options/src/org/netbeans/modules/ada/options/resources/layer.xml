@@ -44,4 +44,15 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
             <attr name="position" intvalue="650"/>
         </file>
     </folder>
+    <folder name="OptionsExport">
+        <folder name="Ada">
+            <attr name="displayName" bundlevalue="org.netbeans.modules.ada.options.resources.Bundle#Ada.Options.Export.Category.displayName"/>
+            <attr name="position" intvalue="700"/>
+            <file name="General">
+                <attr name="include" stringvalue="config/Preferences/org/netbeans/modules/ada/options/general/.*|config/Preferences/org/netbeans/modules/ada/options/general.properties|config/Editors/text/x-ada/.*"/>
+                <attr name="exclude" stringvalue="config/Preferences/org/netbeans/modules/ada/options/private/.*|config/Preferences/org/netbeans/modules/ada/options/private.properties"/>
+                <attr name="displayName" bundlevalue="org.netbeans.modules.ada.options.resources.Bundle#Ada.Options.Export.General.displayName"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>

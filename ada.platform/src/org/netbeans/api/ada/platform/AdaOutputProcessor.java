@@ -42,7 +42,6 @@ package org.netbeans.api.ada.platform;
 import java.io.IOException;
 import org.netbeans.api.extexecution.input.InputProcessor;
 
-
 /**
  *
  * @author Andrea Lucarelli

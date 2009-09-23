@@ -43,22 +43,43 @@ import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.ada.editor.ast.nodes.Use;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
-import org.netbeans.modules.ada.editor.ast.nodes.EmptyStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.AbortStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.ArrayAccess;
+import org.netbeans.modules.ada.editor.ast.nodes.Assignment;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.BlockStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.CaseStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.CaseWhen;
+import org.netbeans.modules.ada.editor.ast.nodes.CodeStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.DelayStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.ExitStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.GotoStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.IfStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.LoopStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.NullStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageInstanceCreation;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageRenames;
+import org.netbeans.modules.ada.editor.ast.nodes.QualifiedExpression;
+import org.netbeans.modules.ada.editor.ast.nodes.RaiseStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.ReturnStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.Scalar;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.SubtypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TaskName;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeName;
+import org.netbeans.modules.ada.editor.ast.nodes.UnaryOperation;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.astnodes.visitors.Visitor
@@ -67,45 +88,87 @@ import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
  */
 public interface Visitor {
 
-    public void visit(ASTError astError);
+    public void visit(ASTError node);
 
     public void visit(ASTNode node);
 
-    public void visit(Comment comment);
+    public void visit(AbortStatement node);
 
-    public void visit(EmptyStatement emptyStatement);
+	public void visit(ArrayAccess arrayAccess);
 
-    public void visit(FieldsDeclaration fieldsDeclaration);
+    public void visit(Assignment node);
 
-	public void visit(FormalParameter formalParameter);
+    public void visit(BlockStatement node);
 
-	public void visit(FunctionDeclaration functionDeclaration);
+    public void visit(CaseStatement node);
 
-    public void visit(Identifier identifier);
+    public void visit(CaseWhen node);
 
-	public void visit(MethodDeclaration methodDeclaration);
+    public void visit(CodeStatement node);
 
-    public void visit(PackageSpecification packageSpecification);
+    public void visit(Comment node);
 
-    public void visit(PackageBody packageBody);
+    public void visit(DelayStatement node);
 
-	public void visit(PackageInstanceCreation packageInstanceCreation);
+    public void visit(ExitStatement node);
 
-    public void visit(PackageName packageName);
+    public void visit(FieldsDeclaration node);
 
-	public void visit(ProcedureDeclaration functionDeclaration);
+	public void visit(FormalParameter node);
 
-    public void visit(Program program);
+    public void visit(GotoStatement node);
 
-    public void visit(SingleFieldDeclaration singleFieldDeclaration);
+    public void visit(Identifier node);
 
-    public void visit(TypeDeclaration typeDeclaration);
+    public void visit(IfStatement node);
 
-    public void visit(Variable variable);
+    public void visit(LoopStatement node);
 
-    public void visit(With with);
+	public void visit(MethodDeclaration node);
 
-    public void visit(Use use);
+    public void visit(NullStatement node);
 
-    public void visit(Block block);
+    public void visit(PackageSpecification node);
+
+    public void visit(PackageBody node);
+
+	public void visit(PackageInstanceCreation node);
+
+    public void visit(PackageName node);
+
+    public void visit(PackageRenames node);
+
+    public void visit(Program node);
+
+    public void visit(QualifiedExpression node);
+
+	public void visit(Scalar node);
+
+	public void visit(SubprogramBody node);
+
+	public void visit(SubprogramSpecification node);
+
+    public void visit(RaiseStatement node);
+
+    public void visit(ReturnStatement node);
+
+    public void visit(SingleFieldDeclaration node);
+
+	public void visit(SubtypeDeclaration node);
+
+    public void visit(TaskName node);
+
+    public void visit(TypeName node);
+
+    public void visit(TypeDeclaration node);
+
+    public void visit(Variable node);
+
+    public void visit(With node);
+
+    public void visit(Use node);
+
+    public void visit(UnaryOperation node);
+
+    public void visit(Block node);
 }

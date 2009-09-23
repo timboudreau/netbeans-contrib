@@ -1,3 +1,19 @@
+0.1.9: dd-mm-2009
+- Migrating GSF framework to CSL (Parsing & Indexing API)
+
+0.1.8: 13-09-2009
+- Add improvements on ast parser, navigator, instant renamer.
+- Add others AST nodes.
+- Add improvements for gpr handling.
+- Minor changes.
+
+0.1.7: 01-02-2009
+- Fix ada generic declaration.
+- Add improvements on ast parser, navigator, instant renamer.
+- Add others AST nodes.
+- Add search into environment path variable for autodetect ada platform.
+- Fix the manage clean/build/run actions.
+
 0.1.6: 05-01-2009
 Note: These corrections have been added thanks to comments posted by comp.lang.ada users --> http://groups.google.it/group/comp.lang.ada/browse_thread/thread/5bcecfde044a119d
 - Fix string and char literal recognition.

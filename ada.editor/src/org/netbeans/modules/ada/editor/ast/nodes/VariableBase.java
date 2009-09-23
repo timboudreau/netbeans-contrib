@@ -44,7 +44,7 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  * This interface is base for all the Ada variables
  * including simple variable, function invocation, list, dispatch, etc.
  */
-public class VariableBase extends Statement {
+public class VariableBase extends Expression {
 
     public VariableBase(int start, int end) {
         super(start, end);

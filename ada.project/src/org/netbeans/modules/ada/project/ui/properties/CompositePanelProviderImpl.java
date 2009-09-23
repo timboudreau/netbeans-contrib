@@ -42,6 +42,7 @@ package org.netbeans.modules.ada.project.ui.properties;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import org.netbeans.modules.ada.project.options.AdaGeneralOptionsPanel;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer.CompositeCategoryProvider;
 import org.openide.util.Lookup;
@@ -55,6 +56,7 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
 
     public static final String SOURCE_PACKAGES = "SourcePackages"; // NOI18N
     public static final String LIBRARIES_PATH = "LibrariesPath"; //NOI18N
+    public static final String STANDARDS_AND_NAMING = "Naming"; //NOI18N
     public static final String BUILD = "Build"; // NOI18N
     public static final String RUN = "Run"; // NOI18N
     private final String name;
@@ -91,6 +93,12 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
                     NbBundle.getMessage(CompositePanelProviderImpl.class, "LBL_Config_LibrariesPath"),
                     null,
                     categories);
+        } else if (STANDARDS_AND_NAMING.equals(name)) {
+            toReturn = ProjectCustomizer.Category.create(
+                    STANDARDS_AND_NAMING,
+                    NbBundle.getMessage(CompositePanelProviderImpl.class, "LBL_Standards_Naming"),
+                    null,
+                    categories);
         }
         
         assert toReturn != null : "No category for name: " + name;
@@ -109,6 +117,8 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
             return new CustomizerRun(uiProps);
         } else if (LIBRARIES_PATH.equals(nm)) {
             return new CustomizerLibrariesPath(uiProps);
+        } else if (STANDARDS_AND_NAMING.equals(nm)) {
+            return new AdaGeneralOptionsPanel(uiProps);
         }
         
         return new JPanel();
@@ -128,5 +138,9 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
 
     public static CompositePanelProviderImpl createLibrariesPath() {
         return new CompositePanelProviderImpl(LIBRARIES_PATH);
+    }
+
+    public static CompositePanelProviderImpl createNamingConfig() {
+        return new CompositePanelProviderImpl(STANDARDS_AND_NAMING);
     }
 }

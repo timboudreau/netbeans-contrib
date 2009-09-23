@@ -36,15 +36,16 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project.ui.wizards;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
@@ -53,6 +54,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.ada.project.AdaProjectType;
 import org.netbeans.modules.ada.project.SourceRoots;
+import org.netbeans.modules.ada.project.options.AdaOptions;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -62,6 +64,7 @@ import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -71,21 +74,27 @@ import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressInstantiatingIterator {    
-    
-    static final String SET_AS_MAIN = "setAsMain";  //NOI18N
-    static final String MAIN_FILE ="mainFile";      //NOI18N
-    static final String PROP_PROJECT_NAME = "projectName";  //NOI18N
-    static final String PROP_PROJECT_LOCATION = "pojectLocation";   //NOI18N
-    static final String PROP_PLATFORM_ID = "platform";              //NOI18N
-    static final String SOURCE_ROOTS = "sources";                   //NOI18N
-    static final String TEST_ROOTS = "tests";                       //NOI18N
+public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressInstantiatingIterator {
+
+    static final String SET_AS_MAIN = "setAsMain"; //NOI18N
+    static final String MAIN_FILE = "mainFile"; //NOI18N
+    static final String PROP_PROJECT_NAME = "projectName"; //NOI18N
+    static final String PROP_PROJECT_LOCATION = "pojectLocation"; //NOI18N
+    static final String PROP_PLATFORM_ID = "platform"; //NOI18N
+    static final String PROP_SOURCE_ROOTS = "sources"; //NOI18N
+    static final String PROP_TEST_ROOTS = "tests"; //NOI18N
+    static final String PROP_BUILD_ROOT = "build"; //NOI18N
+    static final String PROP_DIST_ROOT = "dist"; //NOI18N
+    static final String DEFAULT_SOURCE_DIR = "src"; //NOI18N
+    static final String DEFAULT_TEST_DIR = "test"; //NOI18N
+    static final String DEFAULT_BUILD_DIR = "build"; //NOI18N
+    static final String DEFAULT_DIST_DIR = "dist"; //NOI18N
 
     public static enum WizardType {
+
         NEW,
         EXISTING,
     }
-
     private final WizardType wizardType;
     private WizardDescriptor descriptor;
     private WizardDescriptor.Panel[] panels;
@@ -97,14 +106,14 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
 
     private NewAdaProjectWizardIterator(WizardType wizardType) {
         this.wizardType = wizardType;
-    }   
-    
-    public static NewAdaProjectWizardIterator createApplication () {
+    }
+
+    public static NewAdaProjectWizardIterator createApplication() {
         return new NewAdaProjectWizardIterator();
     }
 
-    public static NewAdaProjectWizardIterator createExistingProject () {        
-        return new NewAdaProjectWizardIterator (WizardType.EXISTING);
+    public static NewAdaProjectWizardIterator createExistingProject() {
+        return new NewAdaProjectWizardIterator(WizardType.EXISTING);
     }
 
     public void initialize(WizardDescriptor wizard) {
@@ -137,7 +146,7 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         // project
         File projectDirectory = (File) descriptor.getProperty(PROP_PROJECT_LOCATION);
         ProjectChooser.setProjectsFolder(projectDirectory.getParentFile());
-        
+
         String projectName = (String) descriptor.getProperty(PROP_PROJECT_NAME);
         AntProjectHelper helper = createProject(projectDirectory, projectName);
         resultSet.add(helper.getProjectDirectory());
@@ -152,13 +161,13 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
             resultSet.add(testDir);
 
             // main file
-            final String mainName = (String) descriptor.getProperty(NewAdaProjectWizardIterator.MAIN_FILE);        
-            if (mainName != null) {            
-                resultSet.add(createMainFile(FileUtil.getConfigFile("Templates/Ada/NewAdaMain.adb"),
-                        sourceDir,mainName).getPrimaryFile());
+            final String mainName = (String) descriptor.getProperty(NewAdaProjectWizardIterator.MAIN_FILE);
+            if (mainName != null) {
+                resultSet.add(createMainFile(Repository.getDefault().getDefaultFileSystem().findResource("Templates/Ada/NewAdaMain"),
+                        sourceDir, mainName).getPrimaryFile());
             }
         }
-        
+
         msg = NbBundle.getMessage(
                 NewAdaProjectWizardIterator.class, "LBL_NewAdaProjectWizardIterator_WizardProgress_PreparingToOpen");
         handle.progress(msg, 5);
@@ -173,15 +182,18 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     public boolean hasNext() {
         return index < panels.length - 1;
     }
+
     public boolean hasPrevious() {
         return index > 0;
     }
+
     public void nextPanel() {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
         index++;
     }
+
     public void previousPanel() {
         if (!hasPrevious()) {
             throw new NoSuchElementException();
@@ -201,47 +213,41 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
 
     public void removeChangeListener(ChangeListener l) {
     }
-    
-    static String getFreeFolderName (final File owner, final String proposal) {
+
+    static String getFreeFolderName(final File owner, final String proposal) {
         assert owner != null;
         assert proposal != null;
         String freeName = proposal;
-        File f = new File (owner, freeName);
-        int counter = 1;        
+        File f = new File(owner, freeName);
+        int counter = 1;
         while (f.exists()) {
             counter++;
-            freeName = proposal+counter;
-            f = new File (owner,freeName);
+            freeName = proposal + counter;
+            f = new File(owner, freeName);
         }
-       return freeName;
+        return freeName;
     }
 
     private WizardDescriptor.Panel[] createPanels() {
         switch (wizardType) {
-            case NEW:
-            {
-                String[] steps = new String[] {
-                    NbBundle.getBundle(NewAdaProjectWizardIterator.class).getString("LBL_ProjectNameLocation"),
-                };
+            case NEW: {
+                String[] steps = new String[]{
+                    NbBundle.getBundle(NewAdaProjectWizardIterator.class).getString("LBL_ProjectNameLocation"),};
 
                 PanelConfigureProject configureProjectPanel = new PanelConfigureProject(wizardType, steps);
-                return new WizardDescriptor.Panel[] {
-                    configureProjectPanel,
-                };
+                return new WizardDescriptor.Panel[]{
+                            configureProjectPanel,};
             }
-            case EXISTING:
-            {
-                String[] steps = new String[] {
+            case EXISTING: {
+                String[] steps = new String[]{
                     NbBundle.getBundle(NewAdaProjectWizardIterator.class).getString("LBL_ProjectNameLocation"),
-                    NbBundle.getMessage(NewAdaProjectWizardIterator.class, "LBL_ProjectSources"),
-                };
+                    NbBundle.getMessage(NewAdaProjectWizardIterator.class, "LBL_ProjectSources"),};
 
                 PanelConfigureProject configureProjectPanel = new PanelConfigureProject(wizardType, steps);
                 PanelConfigureSources configureSourcesPanel = new PanelConfigureSources(wizardType, steps);
-                return new WizardDescriptor.Panel[] {
-                    configureProjectPanel,
-                    configureSourcesPanel,
-                };
+                return new WizardDescriptor.Panel[]{
+                            configureProjectPanel,
+                            configureSourcesPanel,};
             }
             default:
                 throw new IllegalStateException(wizardType.toString());
@@ -252,68 +258,73 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     private void initDescriptor(WizardDescriptor settings) {
         settings.putProperty(PROP_PROJECT_NAME, null);
         settings.putProperty(PROP_PROJECT_LOCATION, null);
-        settings.putProperty(SOURCE_ROOTS, new File[0]);            
-        settings.putProperty(TEST_ROOTS, new File[0]);
-    }    
-    
+        settings.putProperty(PROP_SOURCE_ROOTS, new File[0]);
+        settings.putProperty(PROP_TEST_ROOTS, new File[0]);
+        settings.putProperty(PROP_BUILD_ROOT, new File[0]);
+        settings.putProperty(PROP_DIST_ROOT, new File[0]);
+    }
+
     private AntProjectHelper createProject(final File dir, final String name) throws IOException {
         FileObject projectFO = FileUtil.createFolder(dir);
         final AntProjectHelper helper = ProjectGenerator.createProject(projectFO, AdaProjectType.TYPE);
         try {
             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
-                public Void run () throws MutexException {
+
+                public Void run() throws MutexException {
                     try {
-                    // configure
-                    final Element data = helper.getPrimaryConfigurationData(true);
-                    Document doc = data.getOwnerDocument();
-                    Element nameEl = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE, "name"); // NOI18N
-                    nameEl.appendChild(doc.createTextNode(name));
-                    data.appendChild(nameEl);
+                        // configure
+                        final Element data = helper.getPrimaryConfigurationData(true);
+                        Document doc = data.getOwnerDocument();
+                        Element nameEl = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE, "name"); // NOI18N
+                        nameEl.appendChild(doc.createTextNode(name));
+                        data.appendChild(nameEl);
 
 
-                    EditableProperties properties = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                        EditableProperties properties = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
 
-                    configureSources(helper, data, properties);
-                    configureRuntime(properties);
-                    configureMainFile(properties);        
-                    helper.putPrimaryConfigurationData(data, true);
-                    helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, properties);
+                        configureSources(helper, data, properties);
+                        configureRuntime(helper, properties);
+                        configureMainFile(properties);
+                        configureNaming(properties);
 
-                    Project project = ProjectManager.getDefault().findProject(helper.getProjectDirectory());
-                    ProjectManager.getDefault().saveProject(project);
-                    return null;
+                        helper.putPrimaryConfigurationData(data, true);
+                        helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, properties);
+
+                        Project project = ProjectManager.getDefault().findProject(helper.getProjectDirectory());
+                        ProjectManager.getDefault().saveProject(project);
+                        return null;
                     } catch (IOException ioe) {
-                       throw new MutexException(ioe); 
+                        throw new MutexException(ioe);
                     }
                 }
             });
         } catch (MutexException e) {
             Exception ie = e.getException();
             if (ie instanceof IOException) {
-                throw (IOException)ie;
+                throw (IOException) ie;
             }
             Exceptions.printStackTrace(e);
         }
         return helper;
-    }    
+    }
 
     private void configureSources(final AntProjectHelper helper, final Element data, final EditableProperties properties) {
         // Sources root
         final List<? extends File> srcDirs = getSources();
         final Document doc = data.getOwnerDocument();
-        final Element sourceRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE,SourceRoots.E_SOURCES);
+        final Element sourceRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE, SourceRoots.E_SOURCES);
         final File projectDirectory = FileUtil.toFile(helper.getProjectDirectory());
-        appendRoots (sourceRoots, properties, srcDirs, projectDirectory, doc);        
-        data.appendChild (sourceRoots);
+        appendRoots(sourceRoots, properties, srcDirs, projectDirectory, doc);
+        data.appendChild(sourceRoots);
 
         // Tests root
         final List<? extends File> testDirs = getTests();
-        final Element testRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE,SourceRoots.E_TESTS);
-        appendRoots (testRoots, properties, testDirs, projectDirectory, doc);
-        data.appendChild (testRoots);
-    }    
-    
-    private void appendRoots (Element node, EditableProperties properties, List<? extends File> roots, File projectDirectory, Document doc) { 
+        final Element testRoots = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE, SourceRoots.E_TESTS);
+        appendRoots(testRoots, properties, testDirs, projectDirectory, doc);
+        data.appendChild(testRoots);
+    }
+
+    private void appendRoots(Element node, EditableProperties properties, List<? extends File> roots, File projectDirectory, Document doc) {
         for (File srcDir : roots) {
             String srcPath = PropertyUtils.relativizeFile(projectDirectory, srcDir);
             // # 132319
@@ -321,34 +332,53 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
                 // relative path, change to absolute
                 srcPath = srcDir.getAbsolutePath();
             }
-            Element root = doc.createElementNS (AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE,"root");   //NOI18N
+            Element root = doc.createElementNS(AdaProjectType.PROJECT_CONFIGURATION_NAMESPACE, "root");   //NOI18N
             String propName;
             String name = srcDir.getName();
             propName = name + ".dir";    //NOI18N
-            int rootIndex = 1;                            
+            int rootIndex = 1;
             while (properties.containsKey(propName)) {
                 rootIndex++;
                 propName = name + rootIndex + ".dir";   //NOI18N
             }
-            root.setAttribute ("id",propName);   //NOI18N
+            root.setAttribute("id", propName);   //NOI18N
             node.appendChild(root);
-            properties.setProperty(propName, srcPath);            
+            properties.setProperty(propName, srcPath);
         }
     }
 
-    private void configureRuntime (final EditableProperties properties) {
+    private void configureRuntime(final AntProjectHelper helper, final EditableProperties properties) {
         String platformId = (String) descriptor.getProperty(PROP_PLATFORM_ID);
         assert platformId != null;
         properties.setProperty(AdaProjectProperties.ACTIVE_PLATFORM, platformId);
         properties.setProperty(AdaProjectProperties.ADA_LIB_PATH, "");    //NOI18N
+        final File projectDirectory = FileUtil.toFile(helper.getProjectDirectory());
+        String buildPath = projectDirectory + File.separator + DEFAULT_BUILD_DIR;
+        properties.setProperty(AdaProjectProperties.BUILD_DIR, buildPath);
+        String distPath = projectDirectory + File.separator + DEFAULT_DIST_DIR;
+        properties.setProperty(AdaProjectProperties.DIST_DIR, distPath);
     }
-    
+
     private void configureMainFile(EditableProperties properties) {
         String mainFile = (String) descriptor.getProperty(NewAdaProjectWizardIterator.MAIN_FILE);
         if (mainFile != null) {
             properties.setProperty(AdaProjectProperties.MAIN_FILE, mainFile);
         }
-    }   
+    }
+
+    private void configureNaming(EditableProperties properties) {
+        properties.setProperty(AdaOptions.ADA_DIALECTS, AdaOptions.getInstance().getAdaDialects());
+        properties.setProperty(AdaOptions.ADA_RESTRICTIONS, AdaOptions.getInstance().getAdaRestrictions());
+        properties.setProperty(AdaOptions.PKG_SPEC_PREFIX, AdaOptions.getInstance().getPkgSpecPrefix());
+        properties.setProperty(AdaOptions.PKG_BODY_PREFIX, AdaOptions.getInstance().getPkgBodyPrefix());
+        properties.setProperty(AdaOptions.SEPARATE_PREFIX, AdaOptions.getInstance().getSeparatePrefix());
+        properties.setProperty(AdaOptions.PKG_SPEC_POSTFIX, AdaOptions.getInstance().getPkgSpecPostfix());
+        properties.setProperty(AdaOptions.PKG_BODY_POSTFIX, AdaOptions.getInstance().getPkgBodyPostfix());
+        properties.setProperty(AdaOptions.SEPARATE_POSTFIX, AdaOptions.getInstance().getSeparatePostfix());
+        properties.setProperty(AdaOptions.PKG_SPEC_EXT, AdaOptions.getInstance().getPkgSpecExt());
+        properties.setProperty(AdaOptions.PKG_BODY_EXT, AdaOptions.getInstance().getPkgBodyExt());
+        properties.setProperty(AdaOptions.SEPARATE_EXT, AdaOptions.getInstance().getSeparateExt());
+    }
 
     private FileObject createSourceRoot() throws IOException {
         return FileUtil.createFolder(getSources().get(0));
@@ -358,26 +388,22 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
         return FileUtil.createFolder(getTests().get(0));
     }
 
-    private List<? extends File> getSources () {
+    private List<? extends File> getSources() {
         if (wizardType == WizardType.NEW) {
-            return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"src"));   //NOI18N
-        }
-        else if (wizardType == WizardType.EXISTING) {
-            return Arrays.asList((File[])descriptor.getProperty(SOURCE_ROOTS));            
-        }
-        else {
+            return Collections.singletonList(new File((File) descriptor.getProperty(PROP_PROJECT_LOCATION), DEFAULT_SOURCE_DIR));   //NOI18N
+        } else if (wizardType == WizardType.EXISTING) {
+            return Arrays.asList((File[]) descriptor.getProperty(PROP_SOURCE_ROOTS));
+        } else {
             throw new UnsupportedOperationException();
         }
     }
-        
-    private List<? extends File> getTests () {
+
+    private List<? extends File> getTests() {
         if (wizardType == WizardType.NEW) {
-            return Collections.singletonList(new File ((File) descriptor.getProperty(PROP_PROJECT_LOCATION),"test"));   //NOI18N
-        }
-        else if (wizardType == WizardType.EXISTING) {
-            return Arrays.asList((File[])descriptor.getProperty(TEST_ROOTS));            
-        }
-        else {
+            return Collections.singletonList(new File((File) descriptor.getProperty(PROP_PROJECT_LOCATION), DEFAULT_TEST_DIR));   //NOI18N
+        } else if (wizardType == WizardType.EXISTING) {
+            return Arrays.asList((File[]) descriptor.getProperty(PROP_TEST_ROOTS));
+        } else {
             throw new UnsupportedOperationException();
         }
     }
@@ -385,12 +411,15 @@ public class NewAdaProjectWizardIterator implements WizardDescriptor.ProgressIns
     private DataObject createMainFile(FileObject template, FileObject sourceDir, String name) throws IOException {
         DataFolder dataFolder = DataFolder.findFolder(sourceDir);
         DataObject dataTemplate = DataObject.find(template);
+
+        Map<String, Object> wizardProps = new HashMap<String, Object>();
+
         //Strip extension when needed
         int idx = name.lastIndexOf('.');
-        if (idx >0 && idx<name.length()-1 && "adb".equalsIgnoreCase(name.substring(idx+1))) {
-            name = name.substring(0, idx);
+        if (idx > 0 && idx < name.length() - 1) {
+            wizardProps.put("name", name.substring(0, idx));//NOI18N
         }
-        return dataTemplate.createFromTemplate(dataFolder, name);
+
+        return dataTemplate.createFromTemplate(dataFolder, name, wizardProps);
     }
-    
 }

@@ -1,3 +1,12 @@
+0.1.7: dd-mm-2009
+- TBD
+
+0.1.6: 13-11-2009
+- Minor changes.
+
+0.1.5: 01-02-2009
+- Fix the manage clean/build/run actions.
+
 0.1.4: 05-01-2009
 - Fix project actions for linux systems.
 

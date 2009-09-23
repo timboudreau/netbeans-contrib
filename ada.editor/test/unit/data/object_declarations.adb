@@ -13,7 +13,7 @@
 -- NOTE: This module is not compilation is used only for testing purposes
 --
 
-procedure Object_Declaratios is
+procedure Object_Declaration is
 
     -- Example of a multiple object declaration:
 

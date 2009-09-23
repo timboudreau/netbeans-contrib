@@ -39,7 +39,10 @@
 
 package org.netbeans.modules.ada.editor.indexer;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+
 
 /**
  *
@@ -49,5 +52,9 @@ public class IndexedPackageSpec extends IndexedElement {
 
     public IndexedPackageSpec(String name, String in, AdaIndex index, String fileUrl, int offset,  int flags){
         super(name, in, index, fileUrl, offset, flags, ElementKind.CLASS);
+    }
+
+    public OffsetRange getOffsetRange(ParserResult result) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

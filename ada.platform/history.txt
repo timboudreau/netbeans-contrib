@@ -1,3 +1,9 @@
+0.1.5: 13-09-2009
+- Add improvements for gpr handling.
+
+0.1.4: 01-02-2009
+- Add search into environment path variable for autodetect ada platform.
+
 0.1.3: 05-01-2009
 - Fix new ada platform and autodetect in linux system.
 - Fix gpr template file for linux system.

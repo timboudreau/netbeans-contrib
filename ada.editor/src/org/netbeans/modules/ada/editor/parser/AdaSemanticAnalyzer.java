@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
 import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration.Modifier;
@@ -56,19 +55,21 @@ import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
-import org.netbeans.modules.gsf.api.ColoringAttributes;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.SemanticAnalyzer;
-import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.SemanticAnalyzer;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.spi.Parser.Result;
+import org.netbeans.modules.parsing.spi.Scheduler;
+import org.netbeans.modules.parsing.spi.SchedulerEvent;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.SemanticAnalysis
  *
  * @author Andrea Lucarelli
  */
-public class AdaSemanticAnalyzer implements SemanticAnalyzer {
+public class AdaSemanticAnalyzer extends SemanticAnalyzer {
 
     public static final EnumSet<ColoringAttributes> UNUSED_FIELD_SET = EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.FIELD);
     public static final EnumSet<ColoringAttributes> UNUSED_METHOD_SET = EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.METHOD);
@@ -87,26 +88,7 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
         cancelled = true;
     }
 
-    public void run(CompilationInfo compilationInfo) throws Exception {
-        resume();
-
-        if (isCancelled()) {
-            return;
-        }
-
-        AdaParseResult result = getParseResult(compilationInfo);
-        Map<OffsetRange, Set<ColoringAttributes>> highlights =
-                new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
-
-        if (result.getProgram() != null) {
-            result.getProgram().accept(new SemanticHighlightVisitor(highlights, result.getTranslatedSource()));
-
-            if (highlights.size() > 0) {
-                semanticHighlights = highlights;
-            } else {
-                semanticHighlights = null;
-            }
-        }
+    public void run(ParserResult compilationInfo) throws Exception {
     }
 
     protected final synchronized boolean isCancelled() {
@@ -117,14 +99,37 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
         cancelled = false;
     }
 
-    private AdaParseResult getParseResult(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
+    @Override
+    public void run(Result r, SchedulerEvent event) {
+        resume();
 
-        if (result == null) {
-            return null;
-        } else {
-            return ((AdaParseResult) result);
+        if (isCancelled()) {
+            return;
         }
+
+        AdaParseResult result = (AdaParseResult) r;
+        Map<OffsetRange, Set<ColoringAttributes>> highlights =
+                new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
+
+        if (result.getProgram() != null) {
+            result.getProgram().accept(new SemanticHighlightVisitor(highlights, result.getSnapshot()));
+
+            if (highlights.size() > 0) {
+                semanticHighlights = highlights;
+            } else {
+                semanticHighlights = null;
+            }
+        }
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
+    @Override
+    public Class<? extends Scheduler> getSchedulerClass() {
+        return Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER;
     }
 
     private class SemanticHighlightVisitor extends DefaultVisitor {
@@ -147,24 +152,20 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
         private final Map<String, IdentifierColoring> privateMethod;
         // this is holder of blocks, which has to be scanned for usages in the class.
         private List<Block> needToScan = new ArrayList<Block>();
-        private final TranslatedSource translatedSource;
+        private final Snapshot snapshot;
 
-        public SemanticHighlightVisitor(Map<OffsetRange, Set<ColoringAttributes>> highlights, TranslatedSource translatedSource) {
+        public SemanticHighlightVisitor(Map<OffsetRange, Set<ColoringAttributes>> highlights, Snapshot snapshot) {
             this.highlights = highlights;
             privateFieldsUsed = new HashMap<String, IdentifierColoring>();
             privateMethod = new HashMap<String, IdentifierColoring>();
-            this.translatedSource = translatedSource;
+            this.snapshot = snapshot;
         }
 
         private void addOffsetRange(ASTNode node, Set<ColoringAttributes> coloring) {
-            if (translatedSource == null) {
-                highlights.put(new OffsetRange(node.getStartOffset(), node.getEndOffset()), coloring);
-            } else {
-                int start = translatedSource.getLexicalOffset(node.getStartOffset());
-                if (start > -1) {
-                    int end = start + node.getEndOffset() - node.getStartOffset();
-                    highlights.put(new OffsetRange(start, end), coloring);
-                }
+            int start = snapshot.getOriginalOffset(node.getStartOffset());
+            if (start > -1) {
+                int end = start + node.getEndOffset() - node.getStartOffset();
+                highlights.put(new OffsetRange(start, end), coloring);
             }
         }
 
@@ -201,37 +202,27 @@ public class AdaSemanticAnalyzer implements SemanticAnalyzer {
         }
 
         @Override
-        public void visit(MethodDeclaration md) {
-            boolean isPrivate = Modifier.isPrivate(md.getModifier());
+        public void visit(MethodDeclaration method) {
+            boolean isPrivate = Modifier.isPrivate(method.getModifier());
             EnumSet<ColoringAttributes> coloring = ColoringAttributes.METHOD_SET;
 
-            Identifier identifier = md.getIdentifier();
+            Identifier identifier = method.getSubrogramName();
             addOffsetRange(identifier, coloring);
-            if (md.getNameEnd() != null) {
-                Identifier nameEnd = md.getIdentifierEnd();
+            if (!method.isSpefication()) {
+                Identifier nameEnd = method.getSubrogramNameEnd();
                 addOffsetRange(nameEnd, coloring);
             }
 
-
-            if (!Modifier.isAbstract(md.getModifier())) {
+            if (method.getSubprogramBody() != null) {
                 // don't scan the body now. It should be scanned after all declarations
                 // are known
-                Block block;
-                if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
-                    block = md.getFunction().getDeclarations();
-                } else {
-                    block = md.getProcedure().getDeclarations();
+                Block declarations = method.getSubprogramBody().getDeclarations();
+                if (declarations != null) {
+                    needToScan.add(declarations);
                 }
-                if (block != null) {
-                    needToScan.add(block);
-                }
-                if (md.getKind() == MethodDeclaration.Kind.FUNCTION) {
-                    block = md.getFunction().getBody();
-                } else {
-                    block = md.getProcedure().getBody();
-                }
-                if (block != null) {
-                    needToScan.add(block);
+                Block body = method.getSubprogramBody().getBody();
+                if (body != null) {
+                    needToScan.add(body);
                 }
             }
         }

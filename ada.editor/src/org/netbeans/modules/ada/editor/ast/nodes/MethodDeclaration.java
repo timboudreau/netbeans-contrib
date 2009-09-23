@@ -48,117 +48,61 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public class MethodDeclaration extends BodyDeclaration {
 
-    public enum Kind {
-        PROCEDURE, FUNCTION;
-    }
+    private SubprogramSpecification subprogramSpecification;
+    private SubprogramBody subprogramBody;
 
-    private FunctionDeclaration function;
-    private ProcedureDeclaration procedure;
-    private Kind kind;
-
-    public MethodDeclaration(int start, int end, int modifier, Statement statement) {
-        super(start, end, modifier, false);
-
-        if (statement == null) {
-            throw new IllegalArgumentException();
-        }
-        if (statement instanceof FunctionDeclaration) {
-            this.function = (FunctionDeclaration)statement;
-            this.kind = Kind.FUNCTION;
-        } else {
-            this.procedure = (ProcedureDeclaration)statement;
-            this.kind = Kind.PROCEDURE;
-        }
-
-    }
-
-    private MethodDeclaration(int start, int end, int modifier, FunctionDeclaration function, boolean shouldComplete) {
+    private MethodDeclaration(int start, int end, int modifier, SubprogramSpecification subprogramSpecification, boolean shouldComplete) {
         super(start, end, modifier, shouldComplete);
 
-        if (function == null) {
+        if (subprogramSpecification == null) {
             throw new IllegalArgumentException();
         }
-        this.function = function;
-        this.kind = Kind.FUNCTION;
+        this.subprogramSpecification = subprogramSpecification;
     }
 
-    public MethodDeclaration(int start, int end, int modifier, FunctionDeclaration function) {
-        this(start, end, modifier, function, false);
+    public MethodDeclaration(int start, int end, int modifier, SubprogramSpecification subprogramSpecification) {
+        this(start, end, modifier, subprogramSpecification, false);
     }
 
-    private MethodDeclaration(int start, int end, int modifier, ProcedureDeclaration procedure, boolean shouldComplete) {
+    private MethodDeclaration(int start, int end, int modifier, SubprogramBody subprogramBody, boolean shouldComplete) {
         super(start, end, modifier, shouldComplete);
 
-        if (procedure == null) {
+        if (subprogramBody == null) {
             throw new IllegalArgumentException();
         }
-        this.procedure = procedure;
-        this.kind = Kind.PROCEDURE;
+        this.subprogramBody = subprogramBody;
     }
 
-    public MethodDeclaration(int start, int end, int modifier, ProcedureDeclaration procedure) {
-        this(start, end, modifier, procedure, false);
+    public MethodDeclaration(int start, int end, int modifier, SubprogramBody subprogramBody) {
+        this(start, end, modifier, subprogramBody, false);
     }
 
-    public Identifier getIdentifier () {
-        Identifier identifier;
-        if (this.kind == Kind.FUNCTION) {
-            identifier = this.getFunction().getIdentifier();
+    public boolean isSpefication() {
+        return (this.subprogramBody == null);
+    }
+
+    public Identifier getSubrogramName() {
+        if (this.subprogramSpecification != null) {
+            return (this.subprogramSpecification.getSubprogramName());
         } else {
-            identifier = this.getProcedure().getIdentifier();
+            return (this.subprogramBody.getSubprogramSpecification().getSubprogramName());
         }
-        return identifier;
     }
 
-    public Identifier getIdentifierEnd () {
-        Identifier identifier;
-        if (this.kind == Kind.FUNCTION) {
-            identifier = this.getFunction().getIdentifierEnd();
+    public Identifier getSubrogramNameEnd() {
+        if (!this.isSpefication()) {
+            return (this.subprogramBody.getSubprogramNameEnd());
         } else {
-            identifier = this.getProcedure().getIdentifierEnd();
-        }
-        return identifier;
-    }
-
-    public void setIdentifierEnd(Identifier nameEnd) {
-        if (this.kind == Kind.FUNCTION) {
-            this.getFunction().setIdentifierEnd(nameEnd);
-        } else {
-            this.getProcedure().setIdentifierEnd(nameEnd);
+            return null;
         }
     }
 
-    public String getName () {
-        String name;
-        if (this.kind == Kind.FUNCTION) {
-            name = this.getFunction().getIdentifier().getName();
-        } else {
-            name = this.getProcedure().getIdentifier().getName();
-        }
-        return name;
+    public String getMethodName() {
+        return (this.getSubrogramName().getName());
     }
 
-    public String getNameEnd () {
-        String name = null;
-        if (this.kind == Kind.FUNCTION) {
-            if (this.getFunction().getIdentifierEnd() != null) {
-                name = this.getFunction().getIdentifierEnd().getName();
-            }
-        } else if (this.kind == Kind.PROCEDURE) {
-            if (this.getProcedure().getIdentifierEnd() != null) {
-                name = this.getProcedure().getIdentifierEnd().getName();
-            }
-        }
-        return name;
-    }
-    
-    /**
-     * The function declaration component of this method
-     *
-     * @return function declaration component of this method
-     */
-    public FunctionDeclaration getFunction() {
-        return function;
+    public String getMethodNameEnd() {
+        return (this.getSubrogramNameEnd().getName());
     }
 
     /**
@@ -166,28 +110,17 @@ public class MethodDeclaration extends BodyDeclaration {
      *
      * @return function declaration component of this method
      */
-    public ProcedureDeclaration getProcedure() {
-        return procedure;
+    public SubprogramSpecification getSubprogramSpecification() {
+        return subprogramSpecification;
     }
 
-    public Kind getKind() {
-        return kind;
-    }
-
-    public void setDeclarations(Block declarations) {
-        if (this.kind == Kind.FUNCTION) {
-            this.getFunction().setDeclarations(declarations);
-        } else {
-            this.getProcedure().setDeclarations(declarations);
-        }
-    }
-
-    public void setBody(Block body) {
-        if (this.kind == Kind.FUNCTION) {
-            this.getFunction().setBody(body);
-        } else {
-            this.getProcedure().setBody(body);
-        }
+    /**
+     * The function declaration component of this method
+     *
+     * @return function declaration component of this method
+     */
+    public SubprogramBody getSubprogramBody() {
+        return subprogramBody;
     }
 
     @Override

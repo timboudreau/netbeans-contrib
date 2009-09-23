@@ -39,7 +39,6 @@
 
 package org.netbeans.modules.ada.project.ui.wizards;
 
-import org.netbeans.modules.ada.project.ui.*;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
@@ -50,7 +49,7 @@ import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
 
-public class EmptyAdaProjectPanelVisual extends SettingsPanel implements DocumentListener {
+class EmptyAdaProjectPanelVisual extends SettingsPanel implements DocumentListener {
     
 
     private PanelConfigureProject panel;

@@ -39,7 +39,7 @@
 
 package org.netbeans.modules.ada.options;
 
-import org.netbeans.modules.ada.options.general.GeneralOptionsPanel;
+import org.netbeans.modules.ada.project.options.AdaGeneralOptionsPanel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
@@ -51,6 +51,7 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.ada.project.options.AdaOptions;
 import org.netbeans.modules.ada.editor.formatter.ui.FormattingOptionsPanel;
 import org.netbeans.spi.options.AdvancedOption;
 import org.netbeans.spi.options.OptionsPanelController;
@@ -65,7 +66,7 @@ import org.openide.util.lookup.Lookups;
 public class AdaOptionsPanelController extends OptionsPanelController implements ChangeListener {
 
     private static final String TAB_FOLDER = "org.netbeans.modules.ada/options/"; // NOI18N
-    private final GeneralOptionsPanel generalOptionsPanel = new GeneralOptionsPanel();
+    private final AdaGeneralOptionsPanel generalOptionsPanel = new AdaGeneralOptionsPanel(null);
     private final FormattingOptionsPanel formattingOptionsPanel = new FormattingOptionsPanel();
     private final Collection<? extends AdvancedOption> options;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -76,7 +77,6 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
     public AdaOptionsPanelController() {
         options = Lookups.forPath(TAB_FOLDER).lookupAll(AdvancedOption.class);
         generalOptionsPanel.addChangeListener(this);
-        //formattingOptionsPanel.addChangeListener(this);
     }
 
     private synchronized Map<OptionsPanelController, AdvancedOption> getControllers2Options() {
@@ -100,6 +100,18 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
         for (OptionsPanelController c : getControllers()) {
             c.update();
         }
+
+        generalOptionsPanel.setAdaDialects(getAdaOptions().getAdaDialects());
+        generalOptionsPanel.setAdaRestrictions(getAdaOptions().getAdaRestrictions());
+        generalOptionsPanel.setPkgSpecPrefix(getAdaOptions().getPkgSpecPrefix());
+        generalOptionsPanel.setPkgBodyPrefix(getAdaOptions().getPkgBodyPrefix());
+        generalOptionsPanel.setSeparatePrefix(getAdaOptions().getSeparatePrefix());
+        generalOptionsPanel.setPkgSpecPostfix(getAdaOptions().getPkgSpecPostfix());
+        generalOptionsPanel.setPkgBodyPostfix(getAdaOptions().getPkgBodyPostfix());
+        generalOptionsPanel.setSeparatePostfix(getAdaOptions().getSeparatePostfix());
+        generalOptionsPanel.setPkgSpecExt(getAdaOptions().getPkgSpecExt());
+        generalOptionsPanel.setPkgBodyExt(getAdaOptions().getPkgBodyExt());
+        generalOptionsPanel.setSeparateExt(getAdaOptions().getSeparateExt());
         
         changed = false;
     }
@@ -109,6 +121,18 @@ public class AdaOptionsPanelController extends OptionsPanelController implements
         for (OptionsPanelController c : getControllers()) {
             c.applyChanges();
         }
+
+        getAdaOptions().setAdaDialects(generalOptionsPanel.getAdaDialects());
+        getAdaOptions().setAdaRestrictions(generalOptionsPanel.getAdaRestrictions());
+        getAdaOptions().setPkgSpecPrefix(generalOptionsPanel.getPkgSpecPrefix());
+        getAdaOptions().setPkgBodyPrefix(generalOptionsPanel.getPkgBodyPrefix());
+        getAdaOptions().setSeparatePrefix(generalOptionsPanel.getSeparatePrefix());
+        getAdaOptions().setPkgSpecPostfix(generalOptionsPanel.getPkgSpecPostfix());
+        getAdaOptions().setPkgBodyPostfix(generalOptionsPanel.getPkgBodyPostfix());
+        getAdaOptions().setSeparatePostfix(generalOptionsPanel.getSeparatePostfix());
+        getAdaOptions().setPkgSpecExt(generalOptionsPanel.getPkgSpecExt());
+        getAdaOptions().setPkgBodyExt(generalOptionsPanel.getPkgBodyExt());
+        getAdaOptions().setSeparateExt(generalOptionsPanel.getSeparateExt());
 
         changed = false;
     }

@@ -51,6 +51,7 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
 %char
 
 %state ST_LOOKING_FOR_PROPERTY
+%state ST_CHAR_LITERAL
 %state ST_LINE_COMMENT
 %state ST_HIGHLIGHTING_ERROR
 
@@ -194,8 +195,8 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
  *    Copyright © 2000 The MITRE Corporation, Inc.       *
  * 2. http://www.adaic.com/standards/95lrm/lexer9x.l     *
  *                                                       *
- * Modified for "Ada for Netbeans" and for using it with *
- * JFlex by Andrea Lucarelli.                            *
+ * Author: Andrea Lucarelli                              *
+ * Lexer Generator: JFlex                                *
  *                                                       *
  *********************************************************/
 

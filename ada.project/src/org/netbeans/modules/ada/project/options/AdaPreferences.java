@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,38 +34,32 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.ada.editor.parser;
+package org.netbeans.modules.ada.project.options;
 
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.PositionManager;
-
+import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
 
 /**
- * Based on org.netbeans.modules.php.editor.parser.PHPPositionManager
- * 
+ * Based on org.netbeans.modules.php.project.PhpPreferences (Radek Matous)
+ *
+ * @author Andrea Lucarelli
  */
-public class AdaPositionManager implements PositionManager {
-    
+public class AdaPreferences {
+    // Do not change arbitrary - consult with layer's folder OptionsExport
+    // Path to Preferences node for storing private preferences which are not imported
+    private static final String PRIVATE_PREFERENCES_PATH = "private";//NOI18N
 
-    public AdaPositionManager() {
-        
+    /**
+     * @param importEnabled true means that preferences in this preferences node are
+     * expected to be imported through import/export dialog in Options Dialog and also
+     * by upgrader when first started new NB version
+     * @return instance of Preferences node
+     */
+    public static final Preferences getPreferences(boolean importEnabled) {
+        Preferences forModule = NbPreferences.forModule(AdaPreferences.class);
+        return (importEnabled) ? forModule : forModule.node(PRIVATE_PREFERENCES_PATH);
     }
-    
-    public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
-        if (object instanceof AdaElementHandle) {
-            AdaElementHandle h = (AdaElementHandle) object;
-            
-            if (h.getASTNode() != null) {
-                return new OffsetRange(h.getASTNode().getStartOffset(), h.getASTNode().getEndOffset());
-            }
-        }
-        
-        return OffsetRange.NONE;
-    }
-
 }

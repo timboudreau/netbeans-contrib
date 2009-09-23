@@ -40,11 +40,10 @@
 package org.netbeans.modules.ada.editor.hints;
 
 import java.util.List;
-import org.netbeans.modules.gsf.api.Error;
-import org.netbeans.modules.gsf.api.Hint;
-import org.netbeans.modules.gsf.api.HintsProvider;
-import org.netbeans.modules.gsf.api.Rule;
-import org.netbeans.modules.gsf.api.RuleContext;
+import org.netbeans.modules.csl.api.Hint;
+import org.netbeans.modules.csl.api.HintsProvider;
+import org.netbeans.modules.csl.api.Rule;
+import org.netbeans.modules.csl.api.RuleContext;
 
 /**
  *
@@ -64,10 +63,6 @@ public class AdaHintsProvider implements HintsProvider {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void computeErrors(HintsManager manager, RuleContext context, List<Hint> hints, List<Error> unhandled) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public void cancel() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -77,6 +72,10 @@ public class AdaHintsProvider implements HintsProvider {
     }
 
     public RuleContext createRuleContext() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void computeErrors(HintsManager manager, RuleContext context, List<Hint> hints, List<org.netbeans.modules.csl.api.Error> unhandled) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

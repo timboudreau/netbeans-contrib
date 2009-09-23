@@ -42,9 +42,6 @@ package org.netbeans.modules.ada.editor.ast;
 import org.netbeans.modules.ada.editor.parser.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.ada.editor.AdaLanguage;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
@@ -53,25 +50,14 @@ import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
-import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.api.Utils
  * 
  */
 public class ASTUtils {
-
-    public static int getAstOffset(CompilationInfo info, int lexOffset) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                return ts.getAstOffset(lexOffset);
-            }
-        }
-
-        return lexOffset;
-    }
 
     /**
      * 
@@ -102,9 +88,7 @@ public class ASTUtils {
         return possible;
     }
 
-    public static Program getRoot(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
-
+    public static Program getRoot(ParserResult result) {
         if (result == null) {
             return null;
         }
@@ -116,7 +100,7 @@ public class ASTUtils {
         }
     }
 
-    public static ASTNode getNodeAtOffset(CompilationInfo info, int astOffset) {
+    public static ASTNode getNodeAtOffset(ParserResult info, int astOffset) {
         Program program = getRoot(info);
         return getNodeAtOffset(program, astOffset);
     }

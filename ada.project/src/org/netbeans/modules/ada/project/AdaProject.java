@@ -44,6 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
@@ -51,8 +53,6 @@ import org.netbeans.modules.ada.project.path.AdaClassPathProvider;
 import org.netbeans.modules.ada.project.ui.Utils;
 import org.netbeans.modules.ada.project.ui.properties.AdaCustomizerProvider;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.ProjectXmlSavedHook;
@@ -92,7 +92,7 @@ public class AdaProject implements Project {
     protected ReferenceHelper refHelper;
     protected AuxiliaryConfiguration aux;
 
-    private FileObject sourcesDirectory;
+    private FileObject[] sourcesDirectory;
 
     public AdaProject(final AntProjectHelper helper) {
         assert helper != null;
@@ -135,9 +135,9 @@ public class AdaProject implements Project {
                     new AdaLogicalViewProvider(this), // Logical view if project implementation
                     new AdaOpenedHook(), //Called by project framework when project is opened (closed)
                     new AdaProjectXmlSavedHook(), //Called when project.xml changes
-                    new AdaSources(helper, evaluator, sourceRoots, testRoots), // Ada source grops - used by package view, factories, refactoring, ...
+                    new AdaSources(this, helper, evaluator, sourceRoots, testRoots), // Ada source grops - used by package view, factories, refactoring, ...
                     new AdaProjectOperations(this), //move, rename, copy of project
-                    new RecommendedTemplatesImpl(this.updateHelper), // Recommended Templates
+                    new AdaRecommendedTemplates(this.updateHelper), // Recommended Templates
                     new AdaCustomizerProvider(this), //Project custmoizer
                     new AdaProjectFileEncodingQuery(getEvaluator()), //Provides encoding of the project - used by editor, runtime
                     new AdaSharabilityQuery(helper, getEvaluator(), getSourceRoots(), getTestRoots()), //Sharabilit info - used by VCS
@@ -166,7 +166,7 @@ public class AdaProject implements Project {
         return this.helper;
     }
 
-    public synchronized FileObject getSourcesDirectory() {
+    public synchronized FileObject[] getSourcesDirectory() {
         if (sourcesDirectory == null) {
             sourcesDirectory = resolveSourcesDirectory();
         }
@@ -174,12 +174,12 @@ public class AdaProject implements Project {
         return sourcesDirectory;
     }
 
-    private FileObject resolveSourcesDirectory() {
+    private FileObject[] resolveSourcesDirectory() {
         // get the first source root
         //  in fact, there should *always* be only 1 source root but see #141200, #141204 or #141229
         FileObject[] sourceObjects = Utils.getSourceObjects(this);
         if (sourceObjects.length > 0) {
-            return sourceObjects[0];
+            return sourceObjects;
         }
         // #144371 - source folder probably deleted => so:
         // #145477 (project sharability):
@@ -191,11 +191,15 @@ public class AdaProject implements Project {
         if (srcDir.mkdirs()) {
             // original sources restored
             informUser(projectName, NbBundle.getMessage(AdaProject.class, "MSG_SourcesFolderRestored", srcDir.getAbsolutePath()), NotifyDescriptor.INFORMATION_MESSAGE);
-            return FileUtil.toFileObject(srcDir);
+            FileObject[] sourceObjectsTemp = new FileObject[1];
+            sourceObjectsTemp[0] = FileUtil.toFileObject(srcDir);
+            return sourceObjectsTemp;
         }
         // temporary set sources to project directory, do not store it anywhere
         informUser(projectName, NbBundle.getMessage(AdaProject.class, "MSG_SourcesFolderTemporaryToProjectDirectory", srcDir.getAbsolutePath()), NotifyDescriptor.ERROR_MESSAGE);
-        return helper.getProjectDirectory();
+        FileObject[] sourceObjectsTemp = new FileObject[1];
+        sourceObjectsTemp[0] = helper.getProjectDirectory();
+        return sourceObjectsTemp;
     }
 
     private void informUser(String title, String message, int type) {
@@ -320,15 +324,15 @@ public class AdaProject implements Project {
         }
     }
 
-    private static final class RecommendedTemplatesImpl implements RecommendedTemplates, PrivilegedTemplates {
+    private static final class AdaRecommendedTemplates implements RecommendedTemplates, PrivilegedTemplates {
 
-        RecommendedTemplatesImpl(UpdateHelper helper) {
+        AdaRecommendedTemplates(UpdateHelper helper) {
             this.helper = helper;
         }
 
         private final UpdateHelper helper;
 
-        private static final String[] TYPES = new String[]{
+        private static final String[] RECOMMENDED_TYPES = new String[]{
             "Ada", // NOI18N
             "c-types", // NOI18N
             "cpp-types", // NOI18N
@@ -339,14 +343,14 @@ public class AdaProject implements Project {
 
         // List of primarily supported templates
         private static final String[] PRIVILEGED_NAMES = new String[]{
-            "Templates/Ada/NewAdaMain.adb", //NOI18N
-            "Templates/Ada/NewAdaSpec.ads", // NOI18N
-            "Templates/Ada/NewAdaBody.adb", // NOI18N
+            "Templates/Ada/NewAdaMain", //NOI18N
+            "Templates/Ada/NewAdaPackageSpec", // NOI18N
+            "Templates/Ada/NewAdaPackageBody", // NOI18N
             "Templates/Other/Folder"
         };
 
         public String[] getRecommendedTypes() {
-            return TYPES;
+            return RECOMMENDED_TYPES;
         }
 
         public String[] getPrivilegedTemplates() {

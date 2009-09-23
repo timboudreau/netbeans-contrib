@@ -39,6 +39,7 @@
 package org.netbeans.modules.ada.project.ui.properties;
 
 import java.io.IOException;
+import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
@@ -47,6 +48,7 @@ import org.netbeans.api.ada.platform.AdaPlatformManager;
 import org.netbeans.modules.ada.project.ui.Utils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
 import org.openide.util.Exceptions;
@@ -57,7 +59,7 @@ import org.openide.util.actions.CallableSystemAction;
  *
  * @author  Andrea Lucarelli
  */
-public class CustomizerBuild extends javax.swing.JPanel implements HelpCtx.Provider {
+public class CustomizerBuild extends JPanel implements HelpCtx.Provider {
 
     private final AdaProjectProperties uiProperties;
     private final DocListener listener;
@@ -102,7 +104,7 @@ public class CustomizerBuild extends javax.swing.JPanel implements HelpCtx.Provi
 
         jLabel1 = new javax.swing.JLabel();
         mainModule = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        browse = new javax.swing.JButton();
         platforms = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         manage = new javax.swing.JButton();
@@ -112,10 +114,10 @@ public class CustomizerBuild extends javax.swing.JPanel implements HelpCtx.Provi
 
         mainModule.setEditable(false);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(CustomizerBuild.class, "CustomizerRun.browseMain.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(browse, org.openide.util.NbBundle.getMessage(CustomizerBuild.class, "CustomizerRun.browseMain.text")); // NOI18N
+        browse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                browseActionPerformed(evt);
             }
         });
 
@@ -150,7 +152,7 @@ public class CustomizerBuild extends javax.swing.JPanel implements HelpCtx.Provi
                     .add(mainModule, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, browse, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, manage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -165,21 +167,18 @@ public class CustomizerBuild extends javax.swing.JPanel implements HelpCtx.Provi
                 .add(9, 9, 9)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(jButton1)
+                    .add(browse)
                     .add(mainModule, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(224, Short.MAX_VALUE))
         );
-
-        mainModule.getAccessibleContext().setAccessibleDescription("null");
-        jButton1.getAccessibleContext().setAccessibleDescription("null");
     }// </editor-fold>//GEN-END:initComponents
 
-private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+private void browseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseActionPerformed
     String main = Utils.chooseMainModule(uiProperties.getProject().getSourceRoots().getRoots());
     if (main != null) {
         mainModule.setText(main);
     }
-}//GEN-LAST:event_jButton1ActionPerformed
+}//GEN-LAST:event_browseActionPerformed
 
 private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_platformsActionPerformed
     uiProperties.setActivePlatformId(
@@ -188,7 +187,8 @@ private void platformsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
 private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageActionPerformed
     // Workaround, Needs an API to display platform customizer
-    final FileObject fo = FileUtil.getConfigFile("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
+//    final FileObject fo = FileUtil.getConfigFile("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
+    final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
     if (fo != null) {
         try {
             InstanceDataObject ido = (InstanceDataObject) DataObject.find(fo);
@@ -203,7 +203,7 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     }
 }//GEN-LAST:event_manageActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton browse;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField mainModule;

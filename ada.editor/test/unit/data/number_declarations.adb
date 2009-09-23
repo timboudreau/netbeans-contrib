@@ -7,7 +7,7 @@
 -- NOTE: This module is not compilation is used only for testing purposes
 --
 
-procedure Number_Declaratios is
+procedure Number_Declarations is
 
     -- Examples of number declarations:
     Two_Pi          : constant := 2.0*Ada.Numerics.Pi;  -- a real number (see A.5)
@@ -20,4 +20,4 @@ begin
 
     null;
 
-end Number_Declaratios;
+end Number_Declarations;

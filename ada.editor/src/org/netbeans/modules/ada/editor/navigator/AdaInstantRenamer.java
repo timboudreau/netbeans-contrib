@@ -40,9 +40,9 @@
 package org.netbeans.modules.ada.editor.navigator;
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.InstantRenamer;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.csl.api.InstantRenamer;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  *
@@ -50,11 +50,12 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class AdaInstantRenamer implements InstantRenamer {
 
-    public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
+    public boolean isRenameAllowed(ParserResult info, int caretOffset, String[] explanationRetValue) {
+		// TODO: to implement.
         return true;
     }
 
-    public Set<OffsetRange> getRenameRegions(CompilationInfo info, int caretOffset) {
+    public Set<OffsetRange> getRenameRegions(ParserResult info, int caretOffset) {
         return new HashSet<OffsetRange>(AdaOccurrencesFinder.compute(info, caretOffset));
     }
 

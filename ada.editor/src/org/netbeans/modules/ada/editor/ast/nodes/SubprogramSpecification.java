@@ -43,72 +43,58 @@ import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a function declaration
+ * Represents a procedure/function specification (ARM95 - 6.1 Subprogram Declarations)
+ *
  * <pre>e.g.<pre>
+ * procedure Traverse_Tree;
+ * procedure Increment(X : in out Integer);
+ * procedure Right_Indent(Margin : out Line_Size);
+ * procedure Switch(From, To : in out Link);
  * function Random return Probability;
  * function Min_Cell(X : Link) return Cell;
  * function Next_Frame(K : Positive) return Frame;
  * function Dot_Product(Left, Right : Vector) return Real;
  * function "*"(Left, Right : Matrix) return Matrix;
  */
-public class FunctionDeclaration extends Statement {
+public class SubprogramSpecification extends Statement {
 
-    private boolean isSpecification;
-    private Identifier name;
-    private Identifier nameEnd;
+    private Identifier subprogramName;
     private final ArrayList<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
-    private Block declarations;
-    private Block body;
+    private Identifier subtypeReturn;
 
-    private FunctionDeclaration(int start, int end, Identifier functionName, FormalParameter[] formalParameters, final boolean isSpecification) {
+    private SubprogramSpecification(int start, int end, Identifier subprogramName, FormalParameter[] formalParameters, Identifier subtypeReturn) {
         super(start, end);
-        this.isSpecification = isSpecification;
-        this.name = functionName;
+
+        this.subprogramName = subprogramName;
         for (FormalParameter formalParameter : formalParameters) {
             this.formalParameters.add(formalParameter);
         }
+        this.subtypeReturn = subtypeReturn;
     }
 
-    public FunctionDeclaration(int start, int end, Identifier functionName, List<FormalParameter> formalParameters) {
-        this(start, end, functionName, (FormalParameter[]) formalParameters.toArray(new FormalParameter[formalParameters.size()]), true);
+    public SubprogramSpecification(int start, int end, Identifier subprogramName, List<FormalParameter> formalParameters) {
+        this(start, end, subprogramName, (FormalParameter[]) formalParameters.toArray(new FormalParameter[formalParameters.size()]), null);
     }
 
-    public FunctionDeclaration(int start, int end, Identifier functionName) {
-        this(start, end, functionName, new FormalParameter[0], true);
+    public SubprogramSpecification(int start, int end, Identifier subprogramName, List<FormalParameter> formalParameters, Identifier subtypeReturn) {
+        this(start, end, subprogramName, (FormalParameter[]) formalParameters.toArray(new FormalParameter[formalParameters.size()]), subtypeReturn);
     }
 
-    public Block getDeclarations() {
-        return declarations;
-    }
-
-    public void setDeclarations(Block declarations) {
-        this.declarations = declarations;
-    }
-
-    public void setIdentifierEnd(Identifier nameEnd) {
-        this.nameEnd = nameEnd;
-    }
-
-    public Identifier getIdentifierEnd() {
-        return nameEnd;
+    public SubprogramSpecification(int start, int end, Identifier subprogramName) {
+        this(start, end, subprogramName, new FormalParameter[0], null);
     }
 
     /**
-     * Body of this function declaration
-     * 
-     * @return Body of this function declaration
+     * Subprogram name of this declaration
+     *   
+     * @return Subprogram name of this specification
      */
-    public Block getBody() {
-        return body;
-    }
-
-    public void setBody(Block body) {
-        this.isSpecification = false;
-        this.body = body;
+    public Identifier getSubprogramName() {
+        return subprogramName;
     }
 
     /**
-     * List of the formal parameters of this function declaration
+     * List of the formal parameters of this procedure declaration
      * 
      * @return the parameters of this declaration   
      */
@@ -117,22 +103,14 @@ public class FunctionDeclaration extends Statement {
     }
 
     /**
-     * Function name of this declaration
-     *   
-     * @return Function name of this declaration
+     * 
+     * @return
      */
-    public Identifier getIdentifier() {
-        return name;
+    public Identifier getSubtypeReturn() {
+        return subtypeReturn;
     }
 
-    /**
-     * True if this function's return variable will be referenced 
-     * @return True if this function's return variable will be referenced
-     */
-    public boolean isSpefication() {
-        return isSpecification;
-    }
-    
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

@@ -24,11 +24,11 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="projectFolder" pref="481" max="32767" attributes="0"/>
+                      <Component id="projectFolderTextField" pref="276" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
                       <Component id="browse" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="projectName" pref="549" max="32767" attributes="0"/>
+                  <Component id="projectNameTextField" pref="344" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -40,12 +40,12 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="projectName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="projectNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="projectFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="projectFolderTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="browse" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="29" max="32767" attributes="0"/>
@@ -57,7 +57,7 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="projectName"/>
+          <ComponentRef name="projectNameTextField"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/ada/project/ui/wizards/Bundle.properties" key="ExistingAdaProjectPanelVisual.projectName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
@@ -77,9 +77,9 @@
         <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JTextField" name="projectName">
+    <Component class="javax.swing.JTextField" name="projectNameTextField">
     </Component>
-    <Component class="javax.swing.JTextField" name="projectFolder">
+    <Component class="javax.swing.JTextField" name="projectFolderTextField">
     </Component>
     <Component class="javax.swing.JButton" name="browse">
       <Properties>

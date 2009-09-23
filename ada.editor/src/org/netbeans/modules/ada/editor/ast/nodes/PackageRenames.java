@@ -36,70 +36,41 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.ada.platform.compiler;
 
-import org.netbeans.api.ada.platform.AdaPlatform;
+package org.netbeans.modules.ada.editor.ast.nodes;
+
+import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
+import org.netbeans.modules.ada.editor.ast.ASTNode;
 
 /**
+ * Holds a package name. 
+ * <pre>e.g.<pre> 
+ * package TM renames Table_Manager;
  *
  * @author Andrea Lucarelli
  */
-public abstract class CompilerFactory {
+public class PackageRenames extends PackageDeclaration {
 
-    private final AdaPlatform platform;
-    private final String projectName;
-    private final String projectPath;
-    private final String sourceFolder;
-    private final String mainFile;
-    private final String executableFile;
-    private final String commandName;
+    private Identifier packageRenames;
 
-    public abstract void Build();
+    public PackageRenames(int start, int end, Identifier packageName, Identifier packageRenames) {
+        super(start, end, packageName);
 
-    public abstract void Compile();
-
-    public abstract void Clean();
-
-    public abstract void Rebuild();
-
-    public abstract void Run();
-
-    public CompilerFactory(AdaPlatform platform, String projectName, String projectPath, String sourceFolder, String mainFile, String executableFile, String commandName) {
-        assert platform != null;
-        this.platform = platform;
-        this.projectName = projectName;
-        this.projectPath = projectPath;
-        this.sourceFolder = sourceFolder;
-        this.mainFile = mainFile;
-        this.executableFile = executableFile;
-        this.commandName = commandName;
+		assert (packageRenames != null);
+        this.packageRenames = packageRenames;
     }
 
-    public AdaPlatform getPlatform() {
-        return platform;
+	/**
+     * Returns the package renames.
+     * 
+     * @return the packageRenames node
+     */
+    public Identifier getPackageRenames() {
+        return this.packageRenames;
     }
-
-    public String getExecutableFile() {
-        return executableFile;
-    }
-
-    public String getCommandName() {
-        return commandName;
-    }
-
-    public String getMainFile() {
-        return mainFile;
-    }
-
-    public String getProjectPath() {
-        return projectPath;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public String getSourceFolder() {
-        return sourceFolder;
+    
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

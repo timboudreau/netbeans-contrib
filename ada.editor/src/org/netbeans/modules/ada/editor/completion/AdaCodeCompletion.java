@@ -39,18 +39,6 @@
 
 package org.netbeans.modules.ada.editor.completion;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.gsf.api.CodeCompletionContext;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
-import org.netbeans.modules.gsf.api.CodeCompletionResult;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.CompletionProposal;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ParameterInfo;
 
 
 /**

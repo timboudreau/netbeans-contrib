@@ -39,8 +39,7 @@
 
 package org.netbeans.modules.ada.editor.parser;
 
-import org.netbeans.modules.gsf.api.Error;
-import org.netbeans.modules.gsf.api.Severity;
+import org.netbeans.modules.csl.api.Severity;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -48,7 +47,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Andrea Lucarelli
  */
-public class AdaError implements Error {
+public class AdaError implements org.netbeans.modules.csl.api.Error {
 
     private final String displayName;
     private final FileObject file;
@@ -97,5 +96,9 @@ public class AdaError implements Error {
 
     public Object[] getParameters() {
         return this.parameters;
+    }
+
+    public boolean isLineError() {
+       return true;
     }
 }
