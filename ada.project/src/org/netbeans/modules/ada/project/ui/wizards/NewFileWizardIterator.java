@@ -51,6 +51,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.ada.project.AdaMimeResolver;
 import org.netbeans.modules.ada.project.AdaProject;
+import org.netbeans.modules.ada.project.options.AdaOptions;
 import org.netbeans.modules.ada.project.ui.Utils;
 import org.netbeans.modules.ada.project.ui.properties.AdaProjectProperties;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
@@ -132,8 +133,21 @@ public final class NewFileWizardIterator implements WizardDescriptor.Instantiati
             }
         }
         FileObject template = Templates.getTemplate(this.wizard);
-        String targetName = (targetFolder != null) ? FileUtil.findFreeFileName(targetFolder, template.getName(), template.getExt()) : template.getName();//NOI18N
-        // TODO: get naming by options
+        String ext = template.getExt();
+        String postfix = "";
+        if (template.getName().startsWith("NewAdaMain")) {
+            ext = AdaOptions.getInstance().getSeparateExt();
+            postfix = AdaOptions.getInstance().getSeparatePostfix();
+        } else if (template.getName().startsWith("NewAdaPackageSpec")) {
+            ext = AdaOptions.getInstance().getPkgSpecExt();
+            postfix = AdaOptions.getInstance().getPkgSpecPostfix();
+        } else if (template.getName().startsWith("NewAdaPackageBody")) {
+            ext = AdaOptions.getInstance().getPkgBodyExt();
+            postfix = AdaOptions.getInstance().getPkgBodyPostfix();
+        }
+        String targetName = (targetFolder != null) ? FileUtil.findFreeFileName(targetFolder, template.getName(), ext) : template.getName();//NOI18N
+        // TODO: manage postfix naming
+        targetName += /*postfix + */"." + ext;
         Templates.setTargetName(this.wizard, targetName);//NOI18N
         wizardPanels = getPanels();
 

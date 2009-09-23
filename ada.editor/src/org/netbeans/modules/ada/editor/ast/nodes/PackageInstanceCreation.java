@@ -50,7 +50,7 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  * new $a('start'),
  * new foo()(1, $a)
  */
-public class PackageInstanceCreation extends Statement {
+public class PackageInstanceCreation extends Expression {
 
     private PackageName packageName;
     private ArrayList<Expression> ctorParams = new ArrayList<Expression>();

@@ -49,7 +49,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatCommand;
+import org.openide.filesystems.FileUtil;
 
 public class GnatProject {
 
@@ -71,7 +73,7 @@ public class GnatProject {
         File[] children = folder.listFiles();
         if (children != null) {
             for (int i = 0; i < children.length; i++) {
-                if (children[i].getName().startsWith("Gprfile-impl")) { // NOI18N
+                if (children[i].getName().endsWith("gpr")) { // NOI18N
                     children[i].delete();
                 }
             }
@@ -79,7 +81,7 @@ public class GnatProject {
     }
 
     private void writeGprfileImpl() {
-        String resource = "/org/netbeans/modules/ada/platform/resources/MasterGprfile-impl.gpr"; // NOI18N
+        String resource = "/org/netbeans/modules/ada/platform/resources/GprFileTemplate.gpr"; // NOI18N
         InputStream is = null;
         FileOutputStream os = null;
         try {
@@ -104,10 +106,14 @@ public class GnatProject {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
 
-        // Project name
         String projectName = gnat.getProjectName();
         String mainFile = gnat.getMainFile();
         String execFile = gnat.getExecutableFile();
+        ArrayList<String> sources = gnat.getSourceFolders();
+
+        //if (src.equalsIgnoreCase("src")) {
+        //    src = "../src/**";
+        //}
 
         try {
             while (true) {
@@ -118,11 +124,34 @@ public class GnatProject {
                 if (line.indexOf("<PN>") >= 0) { // NOI18N
                     line = line.replaceFirst("<PN>", projectName); // NOI18N
                 }
+                if (line.indexOf("<SRC>") >= 0) { // NOI18N
+                    String srcDirs = new String();
+                    for (int index = 0; index < sources.size(); index++) {
+                        srcDirs = srcDirs + "\"" + FileUtil.toFileObject(new File(sources.get(index))).getPath() + "/**\"";
+                        if (index < sources.size()-1) srcDirs = srcDirs + ",";
+                    }
+                    line = line.replaceFirst("\"<SRC>\"", srcDirs); // NOI18N
+                }
                 if (line.indexOf("<MAINFILE>") >= 0) { // NOI18N
                     line = line.replaceFirst("<MAINFILE>", mainFile); // NOI18N
                 }
                 if (line.indexOf("<EXECFILE>") >= 0) { // NOI18N
                     line = line.replaceFirst("<EXECFILE>", execFile); // NOI18N
+                }
+                if (line.indexOf("<SPC-EXT>") >= 0) { // NOI18N
+                    line = line.replaceFirst("<SPC-EXT>", gnat.getSpcExt()); // NOI18N
+                }
+                if (line.indexOf("<BDY-EXT>") >= 0) { // NOI18N
+                    line = line.replaceFirst("<BDY-EXT>", gnat.getBdyExt()); // NOI18N
+                }
+                if (line.indexOf("<EXT-SEP>") >= 0) { // NOI18N
+                    line = line.replaceFirst("<EXT-SEP>", gnat.getSepExt()); // NOI18N
+                }
+                if (line.indexOf("<SPC-POSTFIX>") >= 0) { // NOI18N
+                    line = line.replaceFirst("<SPC-POSTFIX>", gnat.getSpcPostfix()); // NOI18N
+                }
+                if (line.indexOf("<BDY-POSTFIX>") >= 0) { // NOI18N
+                    line = line.replaceFirst("<BDY-POSTFIX>", gnat.getBdyPostfix()); // NOI18N
                 }
                 bw.write(line + "\n"); // NOI18N
             }

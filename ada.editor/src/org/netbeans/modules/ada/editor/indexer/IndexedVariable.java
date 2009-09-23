@@ -38,8 +38,11 @@
  */
 package org.netbeans.modules.ada.editor.indexer;
 
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+
 
 /**
  *
@@ -74,5 +77,9 @@ public class IndexedVariable extends IndexedElement {
         }
 
         this.typeName = typeName;
+    }
+
+    public OffsetRange getOffsetRange(ParserResult result) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

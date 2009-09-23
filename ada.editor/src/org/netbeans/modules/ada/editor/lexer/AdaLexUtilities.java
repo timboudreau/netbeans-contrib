@@ -39,16 +39,10 @@
 package org.netbeans.modules.ada.editor.lexer;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -56,6 +50,8 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -88,9 +84,9 @@ public class AdaLexUtilities {
     private static final Set<TokenId> INDENT_WORDS = new HashSet<TokenId>();
 
     static {
-        END_PAIRS.add(AdaTokenId.BEGIN);
+        END_PAIRS.add(AdaTokenId.PROCEDURE);
+        END_PAIRS.add(AdaTokenId.FUNCTION);
         END_PAIRS.add(AdaTokenId.FOR);
-        END_PAIRS.add(AdaTokenId.PACKAGE);
         END_PAIRS.add(AdaTokenId.WHILE);
         END_PAIRS.add(AdaTokenId.IF);
         END_PAIRS.add(AdaTokenId.PACKAGE);
@@ -104,56 +100,33 @@ public class AdaLexUtilities {
         // where only the "if" is considered an end-pair.)
         INDENT_WORDS.add(AdaTokenId.ELSE);
         INDENT_WORDS.add(AdaTokenId.ELSIF);
-        INDENT_WORDS.add(AdaTokenId.WHEN);
-        INDENT_WORDS.add(AdaTokenId.PROCEDURE);
-        INDENT_WORDS.add(AdaTokenId.FUNCTION);
-
-        // XXX What about BEGIN{} and END{} ?
+        INDENT_WORDS.add(AdaTokenId.BEGIN);
     }
 
     private AdaLexUtilities() {
     }
 
-    /** 
+    /**
      * For a possibly generated offset in an AST, return the corresponding lexing/true document offset
      */
-    public static int getLexerOffset(CompilationInfo info, int astOffset) {
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                return ts.getLexicalOffset(astOffset);
-            }
-        }
-        
-        return astOffset;
+    public static int getLexerOffset(Parser.Result result, int astOffset) {
+        return result.getSnapshot().getOriginalOffset(astOffset);
     }
-    
-    public static OffsetRange getLexerOffsets(CompilationInfo info, OffsetRange astRange) {
-        if (astRange == OffsetRange.NONE) {
+
+    public static OffsetRange getLexerOffsets(Parser.Result result, OffsetRange astRange) {
+        int rangeStart = astRange.getStart();
+        int start = result.getSnapshot().getOriginalOffset(rangeStart);
+        if (start == rangeStart) {
+            return astRange;
+        } else if (start == -1) {
             return OffsetRange.NONE;
+        } else {
+            // Assumes the translated range maintains size
+            return new OffsetRange(start, start + astRange.getLength());
         }
-        ParserResult result = info.getEmbeddedResult(AdaMimeResolver.ADA_MIME_TYPE, 0);
-        if (result != null) {
-            TranslatedSource ts = result.getTranslatedSource();
-            if (ts != null) {
-                int rangeStart = astRange.getStart();
-                int start = ts.getLexicalOffset(rangeStart);
-                if (start == rangeStart) {
-                    return astRange;
-                } else if (start == -1) {
-                    return OffsetRange.NONE;
-                } else {
-                    // Assumes the translated range maintains size
-                    return new OffsetRange(start, start+astRange.getLength());
-                }
-            }
-        }
-
-        return astRange;
     }
 
-    /** 
+    /**
      * Find the Ada token sequence (in case it's embedded in something else at the top level
      */
     @SuppressWarnings("unchecked")
@@ -161,7 +134,7 @@ public class AdaLexUtilities {
         TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
         return getAdaTokenSequence(th, offset);
     }
-        
+
     @SuppressWarnings("unchecked")
     public static TokenSequence<?extends AdaTokenId> getAdaTokenSequence(TokenHierarchy<Document> th, int offset) {
         TokenSequence<?extends AdaTokenId> ts = th.tokenSequence(AdaTokenId.language());
@@ -194,10 +167,10 @@ public class AdaLexUtilities {
         return null;
     }
 
-    
+
     public static Token<?extends AdaTokenId> getToken(BaseDocument doc, int offset) {
         TokenSequence<?extends AdaTokenId> ts = getPositionedSequence(doc, offset);
-        
+
         if (ts != null) {
             return ts.token();
         }
@@ -279,8 +252,8 @@ public class AdaLexUtilities {
 //
         return OffsetRange.NONE;
     }
-    
-    /** 
+
+    /**
      * Search forwards in the token sequence until a token of type <code>down</code> is found
      */
     public static OffsetRange findFwd(BaseDocument doc, TokenSequence<?extends AdaTokenId> ts, TokenId up,
@@ -290,7 +263,7 @@ public class AdaLexUtilities {
         while (ts.moveNext()) {
             Token<?extends AdaTokenId> token = ts.token();
             TokenId id = token.id();
-            
+
             if (id == up) {
                 balance++;
             } else if (id == down) {
@@ -305,7 +278,7 @@ public class AdaLexUtilities {
         return OffsetRange.NONE;
     }
 
-    /** 
+    /**
      * Search backwards in the token sequence until a token of type <code>up</code> is found
      */
     public static OffsetRange findBwd(BaseDocument doc, TokenSequence<?extends AdaTokenId> ts, TokenId up,
@@ -350,7 +323,7 @@ public class AdaLexUtilities {
                 }
 
                 balance--;
-            } else if (id == AdaTokenId.END) {
+            } else if (id == AdaTokenId.END || id == AdaTokenId.END_CASE || id == AdaTokenId.END_IF || id == AdaTokenId.END_LOOP) {
                 balance++;
             }
         }
@@ -367,7 +340,7 @@ public class AdaLexUtilities {
 
             if (isBeginToken(id, doc, ts)) {
                 balance--;
-            } else if (id == AdaTokenId.END) {
+            } else if (id == AdaTokenId.END || id == AdaTokenId.END_CASE || id == AdaTokenId.END_IF || id == AdaTokenId.END_LOOP) {
                 if (balance == 0) {
                     return new OffsetRange(ts.offset(), ts.offset() + token.length());
                 }
@@ -378,8 +351,8 @@ public class AdaLexUtilities {
 
         return OffsetRange.NONE;
     }
-    
-    /** 
+
+    /**
      * Determine whether "loop" is an indent-token (e.g. matches an end) or if
      * it's simply a separator in while, for expressions)
      */
@@ -396,7 +369,7 @@ public class AdaLexUtilities {
         //
         // In the second case, the end matches the while, but in the first case
         // the end matches the loop
-        
+
         // Look at the first token of the current line
         try {
             int first = Utilities.getRowFirstNonWhite(doc, offset);
@@ -412,7 +385,7 @@ public class AdaLexUtilities {
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
-        
+
         return true;
     }
 
@@ -439,7 +412,7 @@ public class AdaLexUtilities {
         }
         return END_PAIRS.contains(id);
     }
-    
+
     /**
      * Return true iff the given token is a token that indents its content,
      * such as the various begin tokens as well as "else", "when", etc.
@@ -478,7 +451,7 @@ public class AdaLexUtilities {
 
                 if (isBeginToken(id, doc, ts)) {
                     balance++;
-                } else if (id == AdaTokenId.END) {
+                } else if (id == AdaTokenId.END || id == AdaTokenId.END_CASE || id == AdaTokenId.END_IF || id == AdaTokenId.END_LOOP) {
                     balance--;
                 }
             } while (ts.moveNext() && (ts.offset() <= end));
@@ -814,11 +787,11 @@ public class AdaLexUtilities {
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    
+
     public static OffsetRange getCommentBlock(BaseDocument doc, int caretOffset) {
         // Check if the caret is within a comment, and if so insert a new
         // leaf "node" which contains the comment line and then comment block
@@ -865,7 +838,7 @@ public class AdaLexUtilities {
                     int offset = token.offset(th);
                     return new OffsetRange(offset, offset + token.length());
                 }
-            } 
+            }
             //else if (token != null && token.id() == AdaTokenId.DOCUMENTATION) {
             //    // Select the whole token block
             //    TokenHierarchy<BaseDocument> th = TokenHierarchy.get(doc);
@@ -876,14 +849,14 @@ public class AdaLexUtilities {
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
-        
+
         return OffsetRange.NONE;
     }
 
     /**
-     * Back up to the first space character prior to the given offset - as long as 
+     * Back up to the first space character prior to the given offset - as long as
      * it's on the same line!  If there's only leading whitespace on the line up
-     * to the lex offset, return the offset itself 
+     * to the lex offset, return the offset itself
      */
     public static int findSpaceBegin(BaseDocument doc, int lexOffset) {
         TokenSequence ts = AdaLexUtilities.getAdaTokenSequence(doc, lexOffset);
@@ -936,10 +909,10 @@ public class AdaLexUtilities {
                 }
             }
         }
-        
+
         return lexOffset;
     }
-    
+
     /**
      * Get the rdoc documentation associated with the given node in the given document.
      * The node must have position information that matches the source in the document.
@@ -988,7 +961,8 @@ public class AdaLexUtilities {
                 int lineEnd = Utilities.getRowLastNonWhite(baseDoc, offset) + 1;
                 String line = baseDoc.getText(lineBegin, lineEnd - lineBegin);
 
-                // Tolerate "public", "private" and "protected" here --
+                // TODO: should be changed
+				// Tolerate "public", "private" and "protected" here --
                 // Test::Unit::Assertions likes to put these in front of each
                 // method.
                 if (line.startsWith("#")) {
@@ -1038,7 +1012,7 @@ public class AdaLexUtilities {
             return OffsetRange.NONE;
         }
     }
-    
+
     private static int findInlineDocStart(BaseDocument baseDoc, int offset) throws BadLocationException {
         // offset points to a line containing =end
         // Skip the =end list
@@ -1064,7 +1038,7 @@ public class AdaLexUtilities {
             // Previous line
             offset--;
         }
-        
+
         return -1;
     }
 }

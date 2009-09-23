@@ -103,8 +103,8 @@ import org.openide.util.NbBundle;
  */
 public final class Utils {
 
-    public static SourceGroup[] getSourceGroups(Project phpProject) {
-        Sources sources = ProjectUtils.getSources(phpProject);
+    public static SourceGroup[] getSourceGroups(Project adaProject) {
+        Sources sources = ProjectUtils.getSources(adaProject);
         //SourceGroup[] groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
         SourceGroup[] groups = sources.getSourceGroups(AdaSources.SOURCES_TYPE_ADA);
         // #141200 - disabled due to problems while creating/deleting project etc.
@@ -112,8 +112,8 @@ public final class Utils {
         return groups;
     }
 
-    public static FileObject[] getSourceObjects(Project phpProject) {
-        SourceGroup[] groups = getSourceGroups(phpProject);
+    public static FileObject[] getSourceObjects(Project adaProject) {
+        SourceGroup[] groups = getSourceGroups(adaProject);
 
         FileObject[] fileObjects = new FileObject[groups.length];
         for (int i = 0; i < groups.length; i++) {
@@ -411,9 +411,6 @@ public final class Utils {
             removeButton.setEnabled(remove);
             upButton.setEnabled(up);
             downButton.setEnabled(down);
-
-        //System.out.println("Selection changed " + edit + ", " + remove + ", " +  + ", " + + ", ");
-
         }
 
         public void editingCanceled(ChangeEvent e) {

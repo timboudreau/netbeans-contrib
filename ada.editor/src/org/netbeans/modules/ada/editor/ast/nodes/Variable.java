@@ -57,12 +57,31 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public class Variable extends VariableBase {
 
-    private Identifier name;
+    public enum Kind {
+        DEFAULT,
+        CONSTANT,
+        ALIASED,
+        ALIASED_CONSTANT,
+    }
 
-    public Variable(int start, int end, Identifier variableName) {
+    private Identifier name;
+    private Kind variableKind;
+	private TypeName variableType;
+
+    public Variable(int start, int end, Identifier variableName, Variable.Kind kind, TypeName type) {
         super(start, end);
         this.name = variableName;
+        this.variableKind = kind;
+        this.variableType = type;
     }
+
+	public Variable(int start, int end, Identifier variableName, Variable.Kind kind) {
+		this(start, end, variableName, kind, null);
+	}
+
+	public Variable(int start, int end, Identifier variableName) {
+		this(start, end, variableName, Kind.DEFAULT, null);
+	}
 
     /**
      * Returns the name (Identifier) of this variable
@@ -70,7 +89,16 @@ public class Variable extends VariableBase {
      * @return the identifier name node
      */
     public Identifier getName() {
-        return name;
+        return this.name;
+    }
+
+	/**
+     * Returns the type of this variable
+     * 
+     * @return the type node
+     */
+    public TypeName getVariableType() {
+        return this.variableType;
     }
 
     @Override

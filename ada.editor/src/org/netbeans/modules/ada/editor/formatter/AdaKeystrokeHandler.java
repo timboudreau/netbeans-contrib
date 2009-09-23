@@ -46,9 +46,6 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.EditorOptions;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -57,10 +54,13 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.editor.indent.api.IndentUtils;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.ada.editor.lexer.AdaLexUtilities;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
-
+import org.netbeans.modules.csl.api.EditorOptions;
+import org.netbeans.modules.csl.api.KeystrokeHandler;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  * Based on org.netbeans.modules.ruby.RubyKeystrokeHandler (Tor Norbye)
@@ -101,32 +101,27 @@ import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
  *
  * @author Andrea Lucarelli
  */
-public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.KeystrokeHandler {
+public class AdaKeystrokeHandler implements KeystrokeHandler {
+
     /** When true, automatically reflows comments that are being edited according to the rdoc
      * conventions as well as the right hand side margin
      */
     private static final boolean REFLOW_COMMENTS = Boolean.getBoolean("ada.autowrap.comments"); // NOI18N
-
     /** When true, continue comments if you press return in a line comment (that does not
      * also have code on the same line 
      */
     static final boolean CONTINUE_COMMENTS = Boolean.getBoolean("ada.cont.comment"); // NOI18N
-
     /** Tokens which indicate that we're within a literal string */
-    private final static TokenId[] STRING_TOKENS =
-        {
-            AdaTokenId.STRING_LITERAL
-        };
-    
+    private final static TokenId[] STRING_TOKENS = {
+        AdaTokenId.STRING_LITERAL
+    };
     /** When != -1, this indicates that we previously adjusted the indentation of the
      * line to the given offset, and if it turns out that the user changes that token,
      * we revert to the original indentation
      */
     private int previousAdjustmentOffset = -1;
-
     /** True iff we're processing bracket matching AFTER the key has been inserted rather than before  */
     private boolean isAfter;
-
     /**
      * The indentation to revert to when previousAdjustmentOffset is set and the token
      * changed
@@ -135,7 +130,12 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
     public AdaKeystrokeHandler() {
     }
-    
+
+    /**
+     * 
+     * @param doc
+     * @return
+     */
     public boolean isInsertMatchingEnabled(BaseDocument doc) {
         // The editor options code is calling methods on BaseOptions instead of looking in the settings map :(
         //Boolean b = ((Boolean)Settings.getValue(doc.getKitClass(), SettingsNames.PAIR_CHARACTERS_COMPLETION));
@@ -144,42 +144,50 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         if (options != null) {
             return options.getMatchBrackets();
         }
-        
+
         return true;
     }
 
+    /**
+     * 
+     * @param document
+     * @param offset
+     * @param target
+     * @return
+     * @throws javax.swing.text.BadLocationException
+     */
     public int beforeBreak(Document document, int offset, JTextComponent target)
-        throws BadLocationException {
+            throws BadLocationException {
         isAfter = false;
-        
+
         Caret caret = target.getCaret();
-        BaseDocument doc = (BaseDocument)document;
-        
+        BaseDocument doc = (BaseDocument) document;
+
         boolean insertMatching = isInsertMatchingEnabled(doc);
-        
-        int lineBegin = Utilities.getRowStart(doc,offset);
-        int lineEnd = Utilities.getRowEnd(doc,offset);
-        
+
+        int lineBegin = Utilities.getRowStart(doc, offset);
+        int lineEnd = Utilities.getRowEnd(doc, offset);
+
         if (lineBegin == offset && lineEnd == offset) {
             // Pressed return on a blank newline - do nothing
             return -1;
         }
-        
+
         // Look for an unterminated heredoc string
         if (lineBegin != -1 && lineEnd != -1) {
-            TokenSequence<?extends AdaTokenId> lineTs = AdaLexUtilities.getAdaTokenSequence(doc, offset);
+            TokenSequence<? extends AdaTokenId> lineTs = AdaLexUtilities.getAdaTokenSequence(doc, offset);
             if (lineTs != null) {
                 lineTs.move(lineBegin);
                 StringBuilder sb = new StringBuilder();
                 while (lineTs.moveNext() && lineTs.offset() <= lineEnd) {
-                    Token<?extends AdaTokenId> token = lineTs.token();
+                    Token<? extends AdaTokenId> token = lineTs.token();
                     TokenId id = token.id();
-                    
+
                     if (id == AdaTokenId.STRING_LITERAL) {
                         String text = token.text().toString();
                     }
                 }
-                
+
                 if (sb.length() > 0) {
                     if (lineEnd == doc.getLength()) {
                         // At the end of the buffer we need a newline after the end
@@ -194,8 +202,8 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 }
             }
         }
-        
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
+
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
 
         if (ts == null) {
             return -1;
@@ -207,7 +215,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             return -1;
         }
 
-        Token<?extends AdaTokenId> token = ts.token();
+        Token<? extends AdaTokenId> token = ts.token();
         TokenId id = token.id();
 
         // Is it an umatched begin token?
@@ -225,7 +233,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
         boolean[] insertRBraceResult = new boolean[1];
         int[] indentResult = new int[1];
         boolean insert = insertMatching &&
-            isEndMissing(doc, offset, false, insertEndResult, insertRBraceResult, null, indentResult);
+                isEndMissing(doc, offset, false, insertEndResult, insertRBraceResult, null, indentResult);
 
         if (insert) {
             boolean insertEnd = insertEndResult[0];
@@ -242,25 +250,72 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             } else {
                 // I'm inserting a newline in the middle of a sentence, such as the scenario in #118656
                 // I should insert the end AFTER the text on the line
-                String restOfLine = doc.getText(offset, Utilities.getRowEnd(doc, afterLastNonWhite)-offset);
+                String restOfLine = doc.getText(offset, Utilities.getRowEnd(doc, afterLastNonWhite) - offset);
                 sb.append(restOfLine);
                 sb.append("\n");
                 sb.append(IndentUtils.createIndentString(doc, indent));
                 doc.remove(offset, restOfLine.length());
             }
-            
+
             if (insertEnd) {
-                sb.append("end;"); // NOI18N
+                ts.movePrevious();
+                id = ts.token().id();
+                if (id == AdaTokenId.IF || id == AdaTokenId.THEN) {
+                    sb.append("end if;"); // NOI18N
+                } else if (id == AdaTokenId.CASE) {
+                    sb.append("end case;"); // NOI18N
+                } else if (id == AdaTokenId.IS) {
+                    while (ts.index() != 0) {
+                        ts.movePrevious();
+                        if (ts.token().id() == AdaTokenId.CASE) {
+                            sb.append("end case;"); // NOI18N
+                            break;
+                        } else if (ts.token().id() == AdaTokenId.PROCEDURE ||
+                                ts.token().id() == AdaTokenId.FUNCTION) {
+                            ts.moveNext();
+                            ts.moveNext();
+                            sb.append("begin"); // NOI18N
+                            sb.append("\n"); // XXX On Windows, do \r\n?
+                            sb.append(IndentUtils.createIndentString(doc, indent * 2));
+                            sb.append("null;"); // NOI18N
+                            sb.append("\n"); // XXX On Windows, do \r\n?
+                            sb.append(IndentUtils.createIndentString(doc, indent));
+                            sb.append("end " + ts.token().text().toString() + ";"); // NOI18N
+                            break;
+                        } else if (ts.token().id() == AdaTokenId.PACKAGE) {
+                            ts.moveNext();
+                            ts.moveNext();
+                            sb.append("null;"); // NOI18N
+                            sb.append("\n"); // XXX On Windows, do \r\n?
+                            sb.append(IndentUtils.createIndentString(doc, indent));
+                            sb.append("end " + ts.token().text().toString() + ";"); // NOI18N
+                            break;
+                        }
+                    }
+                } else if (id == AdaTokenId.WHILE || id == AdaTokenId.FOR || id == AdaTokenId.LOOP) {
+                    sb.append("end loop;"); // NOI18N
+                } else {
+                    boolean found = false;
+
+                    while (ts.index() != 0) {
+                        ts.movePrevious();
+                        if (ts.token().id() == AdaTokenId.RENAMES) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) sb.append("end;"); // NOI18N
+                }
             }
 
             int insertOffset = offset;
             doc.insertString(insertOffset, sb.toString(), null);
             caret.setDot(insertOffset);
-            
+
             return -1;
         }
 
-        
+
         if (id == AdaTokenId.WHITESPACE) {
             // Pressing newline in the whitespace before a comment
             // should be identical to pressing newline with the caret
@@ -276,7 +331,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 }
             }
         }
-        
+
         if (id == AdaTokenId.COMMENT) {
             // Only do this if the line only contains comments OR if there is content to the right on this line,
             // or if the next line is a comment!
@@ -288,23 +343,23 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             // (and a comment from the beginning, not a trailing comment)
             boolean previousLineWasComment = false;
             int rowStart = Utilities.getRowStart(doc, offset);
-            if (rowStart > 0) {                
-                int prevBegin = Utilities.getRowFirstNonWhite(doc, rowStart-1);
+            if (rowStart > 0) {
+                int prevBegin = Utilities.getRowFirstNonWhite(doc, rowStart - 1);
                 if (prevBegin != -1) {
                     Token<? extends AdaTokenId> firstToken = AdaLexUtilities.getToken(doc, prevBegin);
                     if (firstToken != null && firstToken.id() == AdaTokenId.COMMENT) {
                         previousLineWasComment = true;
-                    }                
+                    }
                 }
             }
-            
+
             // See if we have more input on this comment line (to the right
             // of the inserted newline); if so it's a "split" operation on
             // the comment
             if (previousLineWasComment || offset > begin) {
-                if (ts.offset()+token.length() > offset+1) {
+                if (ts.offset() + token.length() > offset + 1) {
                     // See if the remaining text is just whitespace
-                    String trailing = doc.getText(offset,Utilities.getRowEnd(doc, offset)-offset);
+                    String trailing = doc.getText(offset, Utilities.getRowEnd(doc, offset) - offset);
                     if (trailing.trim().length() != 0) {
                         continueComment = true;
                     }
@@ -319,7 +374,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 if (!continueComment) {
                     // See if the next line is a comment; if so we want to continue
                     // comments editing the middle of the comment
-                    int nextLine = Utilities.getRowEnd(doc, offset)+1;
+                    int nextLine = Utilities.getRowEnd(doc, offset) + 1;
                     if (nextLine < doc.getLength()) {
                         int nextLineFirst = Utilities.getRowFirstNonWhite(doc, nextLine);
                         if (nextLineFirst != -1) {
@@ -331,7 +386,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                     }
                 }
             }
-                
+
             if (continueComment) {
                 // Line comments should continue
                 int indent = GsfUtilities.getLineIndent(doc, offset);
@@ -339,8 +394,8 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 sb.append(IndentUtils.createIndentString(doc, indent));
                 sb.append("-- "); // NOI18N
                 // Copy existing indentation
-                int afterHash = begin+1;
-                String line = doc.getText(afterHash, Utilities.getRowEnd(doc, afterHash)-afterHash);
+                int afterHash = begin + 1;
+                String line = doc.getText(afterHash, Utilities.getRowEnd(doc, afterHash) - afterHash);
                 for (int i = 0; i < line.length(); i++) {
                     char c = line.charAt(i);
                     if (c == ' ' || c == '\t') {
@@ -352,15 +407,15 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
                 int insertOffset = offset; // offset < length ? offset+1 : offset;
                 if (offset == begin && insertOffset > 0) {
-                    insertOffset = Utilities.getRowStart(doc, offset);                    
-                    int sp = Utilities.getRowStart(doc, offset)+sb.length();
+                    insertOffset = Utilities.getRowStart(doc, offset);
+                    int sp = Utilities.getRowStart(doc, offset) + sb.length();
                     doc.insertString(insertOffset, sb.toString(), null);
                     caret.setDot(sp);
                     return sp;
                 }
                 doc.insertString(insertOffset, sb.toString(), null);
                 caret.setDot(insertOffset);
-                return insertOffset+sb.length()+1;
+                return insertOffset + sb.length() + 1;
             }
         }
 
@@ -394,8 +449,8 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      *   first elements.
      */
     static boolean isEndMissing(BaseDocument doc, int offset, boolean skipJunk,
-        boolean[] insertEndResult, boolean[] insertRBraceResult, int[] startOffsetResult,
-        int[] indentResult) throws BadLocationException {
+            boolean[] insertEndResult, boolean[] insertRBraceResult, int[] startOffsetResult,
+            int[] indentResult) throws BadLocationException {
         int length = doc.getLength();
 
         // Insert an end statement? Insert a } marker?
@@ -441,8 +496,8 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                             // and if so refrain from inserting the end
                             int lineBegin = Utilities.getRowFirstNonWhite(doc, next);
 
-                            Token<?extends AdaTokenId> token =
-                                AdaLexUtilities.getToken(doc, lineBegin);
+                            Token<? extends AdaTokenId> token =
+                                    AdaLexUtilities.getToken(doc, lineBegin);
 
                             if ((token != null) && AdaLexUtilities.isIndentToken(token.id()) &&
                                     !AdaLexUtilities.isBeginToken(token.id(), doc, lineBegin)) {
@@ -470,15 +525,15 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     }
 
     public boolean beforeCharInserted(Document document, int caretOffset, JTextComponent target, char ch)
-        throws BadLocationException {
+            throws BadLocationException {
         isAfter = false;
         Caret caret = target.getCaret();
-        BaseDocument doc = (BaseDocument)document;
+        BaseDocument doc = (BaseDocument) document;
 
         if (!isInsertMatchingEnabled(doc)) {
             return false;
         }
-        
+
         //dumpTokens(doc, caretOffset);
 
         // Gotta look for the string begin pair in tokens since ANY character can
@@ -496,10 +551,10 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                     target.setSelectionEnd(start);
                     caretOffset = start;
                     caret.setDot(caretOffset);
-                    doc.remove(start, end-start);
+                    doc.remove(start, end - start);
                 }
-                // Fall through to do normal insert matching work
-            } else if (ch == '"' || ch == '\'' || ch == '(' || ch == '{' || ch == '[' || ch == '/') {
+            // Fall through to do normal insert matching work
+            } else if (ch == '"' || ch == '(') {
                 // Bracket the selection
                 String selection = target.getSelectedText();
                 if (selection != null && selection.length() > 0) {
@@ -509,21 +564,21 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                         int end = target.getSelectionEnd();
                         TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getPositionedSequence(doc, start);
                         if (ts != null && ts.token().id() != AdaTokenId.STRING_LITERAL) {
-                            int lastChar = selection.charAt(selection.length()-1);
+                            int lastChar = selection.charAt(selection.length() - 1);
                             // Replace the surround-with chars?
-                            if (selection.length() > 1 && 
+                            if (selection.length() > 1 &&
                                     ((firstChar == '"' || firstChar == '(') &&
                                     lastChar == matching(firstChar))) {
-                                doc.remove(end-1, 1);
-                                doc.insertString(end-1, Character.toString(matching(ch)), null);
+                                doc.remove(end - 1, 1);
+                                doc.insertString(end - 1, Character.toString(matching(ch)), null);
                                 doc.remove(start, 1);
                                 doc.insertString(start, Character.toString(ch), null);
                                 target.getCaret().setDot(end);
                             } else {
                                 // No, insert around
-                                doc.remove(start,end-start);
+                                doc.remove(start, end - start);
                                 doc.insertString(start, ch + selection + matching(ch), null);
-                                target.getCaret().setDot(start+selection.length()+2);
+                                target.getCaret().setDot(start + selection.length() + 2);
                             }
 
                             return true;
@@ -536,15 +591,15 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 String selection = target.getSelectedText();
                 if (selection != null && selection.length() > 0 && selection.charAt(0) != ch) {
                     int start = target.getSelectionStart();
-                    doc.remove(start, target.getSelectionEnd()-start);
+                    doc.remove(start, target.getSelectionEnd() - start);
                     doc.insertString(start, "-- " + selection, null);
-                    target.getCaret().setDot(start+selection.length()+3);
+                    target.getCaret().setDot(start + selection.length() + 3);
                     return true;
                 }
             }
         }
 
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, caretOffset);
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, caretOffset);
 
         if (ts == null) {
             return false;
@@ -556,11 +611,11 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             return false;
         }
 
-        Token<?extends AdaTokenId> token = ts.token();
+        Token<? extends AdaTokenId> token = ts.token();
         TokenId id = token.id();
         TokenId[] stringTokens = null;
         TokenId beginTokenId = null;
-        
+
         if (id == AdaTokenId.COMMENT && target.getSelectionStart() != -1) {
             if (ch == '*' || ch == '+' || ch == '_') {
                 // See if it's a comment and if so surround the text with an rdoc modifier
@@ -569,10 +624,10 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 // Don't allow any spaces - you can't bracket multiple words in rdoc I think (TODO - check that)
                 if (selection != null && selection.length() > 0 && selection.charAt(0) != ch && selection.indexOf(' ') == -1) {
                     int start = target.getSelectionStart();
-                    doc.remove(start, target.getSelectionEnd()-start);
+                    doc.remove(start, target.getSelectionEnd() - start);
                     doc.insertString(start, ch + selection + matching(ch), null);
-                    target.getCaret().setDot(start+selection.length()+2);
-                
+                    target.getCaret().setDot(start + selection.length() + 2);
+
                     return true;
                 }
             }
@@ -581,7 +636,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
         if (stringTokens != null) {
             boolean inserted =
-                completeQuote(doc, caretOffset, caret, ch, stringTokens, beginTokenId);
+                    completeQuote(doc, caretOffset, caret, ch, stringTokens, beginTokenId);
 
             if (inserted) {
                 caret.setDot(caretOffset + 1);
@@ -619,7 +674,6 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     //        } while (ts.moveNext());
     //    }
     //}
-
     /**
      * A hook method called after a character was inserted into the
      * document. The function checks for special characters for
@@ -634,10 +688,10 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @throws BadLocationException if dotPos is not correct
      */
     public boolean afterCharInserted(Document document, int dotPos, JTextComponent target, char ch)
-        throws BadLocationException {
+            throws BadLocationException {
         isAfter = true;
         Caret caret = target.getCaret();
-        BaseDocument doc = (BaseDocument)document;
+        BaseDocument doc = (BaseDocument) document;
 
 // TODO: to be verify
 //        if (REFLOW_COMMENTS) {
@@ -649,7 +703,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 //                }
 //            }
 //        }
-        
+
         // See if our automatic adjustment of indentation when typing (for example) "end" was
         // premature - if you were typing a longer word beginning with one of my adjustment
         // prefixes, such as "endian", then put the indentation back.
@@ -658,7 +712,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 // Revert indentation iff the character at the insert position does
                 // not start a new token (e.g. the previous token that we reindented
                 // was not complete)
-                TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
+                TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
 
                 if (ts != null) {
                     ts.move(dotPos);
@@ -674,106 +728,107 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
         //dumpTokens(doc, dotPos);
         switch (ch) {
-        case ')':
-        case '(': {
-            
-            if (!isInsertMatchingEnabled(doc)) {
-                return false;
-            }
+            case ')':
+            case '(':
+                 {
 
-            
-            Token<?extends AdaTokenId> token = AdaLexUtilities.getToken(doc, dotPos);
-            if (token == null) {
-                return true;
-            }
+                    if (!isInsertMatchingEnabled(doc)) {
+                        return false;
+                    }
 
-            TokenId id = token.id();
 
-            if (((id == AdaTokenId.IDENTIFIER) && (token.length() == 1)) ||
-                    (id == AdaTokenId.LPAREN) || (id == AdaTokenId.RPAREN)) {
-                if (ch == ')') {
-                    skipClosingBracket(doc, caret, ch, AdaTokenId.RPAREN);
-                } else if (ch == '(') {
-                    completeOpeningBracket(doc, dotPos, caret, ch);
+                    Token<? extends AdaTokenId> token = AdaLexUtilities.getToken(doc, dotPos);
+                    if (token == null) {
+                        return true;
+                    }
+
+                    TokenId id = token.id();
+
+                    if (((id == AdaTokenId.IDENTIFIER) && (token.length() == 1)) ||
+                            (id == AdaTokenId.LPAREN) || (id == AdaTokenId.RPAREN)) {
+                        if (ch == ')') {
+                            skipClosingBracket(doc, caret, ch, AdaTokenId.RPAREN);
+                        } else if (ch == '(') {
+                            completeOpeningBracket(doc, dotPos, caret, ch);
+                        }
+                    }
                 }
-            }
-        }
 
-        break;
+                break;
 
-        case 'd':
-            // See if it's the end of an "end" - if so, reindent
-            reindent(doc, dotPos, AdaTokenId.END, caret);
+            case 'd':
+                // See if it's the end of an "end" - if so, reindent
+                reindent(doc, dotPos, AdaTokenId.END, caret);
 
-            break;
+                break;
 
-        case 'e':
-            // See if it's the end of an "else" or an "ensure" - if so, reindent
-            reindent(doc, dotPos, AdaTokenId.ELSE, caret);
+            case 'e':
+                // See if it's the end of an "else" or an "ensure" - if so, reindent
+                reindent(doc, dotPos, AdaTokenId.ELSE, caret);
 
-            break;
+                break;
 
-        case 'f':
-            // See if it's the end of an "else" - if so, reindent
-            reindent(doc, dotPos, AdaTokenId.ELSIF, caret);
+            case 'f':
+                // See if it's the end of an "else" - if so, reindent
+                reindent(doc, dotPos, AdaTokenId.ELSIF, caret);
 
-            break;
+                break;
 
-        case 'n':
-            // See if it's the end of an "when" - if so, reindent
-            reindent(doc, dotPos, AdaTokenId.WHEN, caret);
-            
-            break;
-            
-        case '|': {
-            if (!isInsertMatchingEnabled(doc)) {
-                return false;
-            }
+            case 'n':
+                // See if it's the end of an "when" - if so, reindent
+                //reindent(doc, dotPos, AdaTokenId.WHEN, caret);
 
-            Token<?extends AdaTokenId> token = AdaLexUtilities.getToken(doc, dotPos);
-            if (token == null) {
-                return true;
-            }
+                break;
 
-            TokenId id = token.id();
+            case '|': {
+                if (!isInsertMatchingEnabled(doc)) {
+                    return false;
+                }
 
-            // Ensure that we're not in a comment, strings etc.
-            if (id == AdaTokenId.IDENTIFIER && token.length() == 1 && "|".equals(token.text().toString())) {
-                // Only insert a matching | if there aren't any others on this line AND we're in a block
-                if (isBlockDefinition(doc, dotPos)) {
-                    boolean found = false;
-                    int lineEnd = Utilities.getRowEnd(doc, dotPos);
-                    if (lineEnd > dotPos+1) {
-                        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos+1);
-                        ts.move(dotPos+1);
-                        while (ts.moveNext() && ts.offset() < lineEnd) {
-                            Token<? extends AdaTokenId> t = ts.token();
-                            if (t.id() == AdaTokenId.IDENTIFIER && t.length() == 1 && "|".equals(t.text().toString())) {
-                                found = true;
-                                break;
+                Token<? extends AdaTokenId> token = AdaLexUtilities.getToken(doc, dotPos);
+                if (token == null) {
+                    return true;
+                }
+
+                TokenId id = token.id();
+
+                // Ensure that we're not in a comment, strings etc.
+                if (id == AdaTokenId.IDENTIFIER && token.length() == 1 && "|".equals(token.text().toString())) {
+                    // Only insert a matching | if there aren't any others on this line AND we're in a block
+                    if (isBlockDefinition(doc, dotPos)) {
+                        boolean found = false;
+                        int lineEnd = Utilities.getRowEnd(doc, dotPos);
+                        if (lineEnd > dotPos + 1) {
+                            TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos + 1);
+                            ts.move(dotPos + 1);
+                            while (ts.moveNext() && ts.offset() < lineEnd) {
+                                Token<? extends AdaTokenId> t = ts.token();
+                                if (t.id() == AdaTokenId.IDENTIFIER && t.length() == 1 && "|".equals(t.text().toString())) {
+                                    found = true;
+                                    break;
+                                }
                             }
+                        }
+
+                        if (!found) {
+                            doc.insertString(dotPos + 1, "|", null);
+                            caret.setDot(dotPos + 1);
                         }
                     }
 
-                    if (!found) {
-                        doc.insertString(dotPos+1, "|", null);
-                        caret.setDot(dotPos + 1);
-                    }
+                    return true;
                 }
-                
-                return true;
+                break;
             }
-            break;
-        }
         }
 
         return true;
     }
-    
+
     private boolean isBlockDefinition(BaseDocument doc, int dotPos) throws BadLocationException {
         TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
         int lineStart = Utilities.getRowStart(doc, dotPos);
-        ts.move(dotPos+1);
+        ts.move(dotPos + 1);
         while (ts.movePrevious() && ts.offset() >= lineStart) {
             TokenId tid = ts.token().id();
             if (tid == AdaTokenId.DO || tid == AdaTokenId.WHILE) {
@@ -789,13 +844,13 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 break;
             }
         }
-        
+
         return false;
     }
 
     private void reindent(BaseDocument doc, int offset, TokenId id, Caret caret)
-        throws BadLocationException {
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
+            throws BadLocationException {
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
 
         if (ts != null) {
             ts.move(offset);
@@ -804,7 +859,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 return;
             }
 
-            Token<?extends AdaTokenId> token = ts.token();
+            Token<? extends AdaTokenId> token = ts.token();
 
             if ((token.id() == id)) {
                 final int rowFirstNonWhite = Utilities.getRowFirstNonWhite(doc, offset);
@@ -829,9 +884,9 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     }
 
     public OffsetRange findMatching(Document document, int offset /*, boolean simpleSearch*/) {
-        BaseDocument doc = (BaseDocument)document;
+        BaseDocument doc = (BaseDocument) document;
 
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
 
         if (ts != null) {
             ts.move(offset);
@@ -840,7 +895,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 return OffsetRange.NONE;
             }
 
-            Token<?extends AdaTokenId> token = ts.token();
+            Token<? extends AdaTokenId> token = ts.token();
 
             if (token == null) {
                 return OffsetRange.NONE;
@@ -872,7 +927,11 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 // No matching dot for "loop" used in conditionals etc.
                 return OffsetRange.NONE;
             } else if (id == AdaTokenId.BEGIN) {
-                return AdaLexUtilities.findBwd(doc, ts, AdaTokenId.PROCEDURE, AdaTokenId.IS);
+                OffsetRange offsetRange = AdaLexUtilities.findBwd(doc, ts, AdaTokenId.PROCEDURE, AdaTokenId.IS);
+                if (offsetRange == OffsetRange.NONE) {
+                    offsetRange = AdaLexUtilities.findBwd(doc, ts, AdaTokenId.FUNCTION, AdaTokenId.IS);
+                }
+                return offsetRange;
             } else if (id.primaryCategory().equals("keyword")) {
                 if (AdaLexUtilities.isBeginToken(id, doc, ts)) {
                     return AdaLexUtilities.findEnd(doc, ts);
@@ -891,49 +950,49 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     }
 
     /**
-    * Hook called after a character *ch* was backspace-deleted from
-    * *doc*. The function possibly removes bracket or quote pair if
-    * appropriate.
-    * @param doc the document
-    * @param dotPos position of the change
-    * @param caret caret
-    * @param ch the character that was deleted
-    */
+     * Hook called after a character *ch* was backspace-deleted from
+     * *doc*. The function possibly removes bracket or quote pair if
+     * appropriate.
+     * @param doc the document
+     * @param dotPos position of the change
+     * @param caret caret
+     * @param ch the character that was deleted
+     */
     @SuppressWarnings("fallthrough")
     public boolean charBackspaced(Document document, int dotPos, JTextComponent target, char ch)
-        throws BadLocationException {
-        BaseDocument doc = (BaseDocument)document;
-        
+            throws BadLocationException {
+        BaseDocument doc = (BaseDocument) document;
+
         switch (ch) {
-        case ' ': {
-        // Backspacing over "# " ? Delete the "#" too!
-            TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
-            ts.move(dotPos);
-            if ((ts.moveNext() || ts.movePrevious()) && (ts.offset() == dotPos-1 && ts.token().id() == AdaTokenId.COMMENT)) {
-                doc.remove(dotPos-1, 1);
-                target.getCaret().setDot(dotPos-1);
-                
-                return true;
-            }
-            break;
-        }
+            case ' ': {
+                // Backspacing over "# " ? Delete the "#" too!
+                TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
+                ts.move(dotPos);
+                if ((ts.moveNext() || ts.movePrevious()) && (ts.offset() == dotPos - 1 && ts.token().id() == AdaTokenId.COMMENT)) {
+                    doc.remove(dotPos - 1, 1);
+                    target.getCaret().setDot(dotPos - 1);
 
-        case '(': { // and '{' via fallthrough
-            char tokenAtDot = AdaLexUtilities.getTokenChar(doc, dotPos);
-
-            if ((((tokenAtDot == ')') && 
-                    (AdaLexUtilities.getTokenBalance(doc, AdaTokenId.LPAREN, AdaTokenId.RPAREN, dotPos) != 0)))) {
-                doc.remove(dotPos, 1);
+                    return true;
+                }
+                break;
             }
-            break;
-        }
-        case '|': {
-            char[] match = doc.getChars(dotPos, 1);
 
-            if ((match != null) && (match[0] == ch)) {
-                doc.remove(dotPos, 1);
+            case '(': { // and '{' via fallthrough
+                char tokenAtDot = AdaLexUtilities.getTokenChar(doc, dotPos);
+
+                if ((((tokenAtDot == ')') &&
+                        (AdaLexUtilities.getTokenBalance(doc, AdaTokenId.LPAREN, AdaTokenId.RPAREN, dotPos) != 0)))) {
+                    doc.remove(dotPos, 1);
+                }
+                break;
             }
-        } // TODO: Test other auto-completion chars, like %q-foo-
+            case '|': {
+                char[] match = doc.getChars(dotPos, 1);
+
+                if ((match != null) && (match[0] == ch)) {
+                    doc.remove(dotPos, 1);
+                }
+            } // TODO: Test other auto-completion chars, like %q-foo-
         }
         return true;
     }
@@ -949,7 +1008,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @param bracket the bracket character ']' or ')'
      */
     private void skipClosingBracket(BaseDocument doc, Caret caret, char bracket, TokenId bracketId)
-        throws BadLocationException {
+            throws BadLocationException {
         int caretOffset = caret.getDot();
 
         if (isSkipClosingBracket(doc, caretOffset, bracketId)) {
@@ -968,7 +1027,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @param caretOffset
      */
     private boolean isSkipClosingBracket(BaseDocument doc, int caretOffset, TokenId bracketId)
-        throws BadLocationException {
+            throws BadLocationException {
         // First check whether the caret is not after the last char in the document
         // because no bracket would follow then so it could not be skipped.
         if (caretOffset == doc.getLength()) {
@@ -977,7 +1036,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
         boolean skipClosingBracket = false; // by default do not remove
 
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, caretOffset);
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, caretOffset);
 
         if (ts == null) {
             return false;
@@ -991,19 +1050,19 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             return false;
         }
 
-        Token<?extends AdaTokenId> token = ts.token();
+        Token<? extends AdaTokenId> token = ts.token();
 
         // Check whether character follows the bracket is the same bracket
         if ((token != null) && (token.id() == bracketId)) {
             int bracketIntId = bracketId.ordinal();
             int leftBracketIntId =
-                (bracketIntId == AdaTokenId.RPAREN.ordinal()) ? AdaTokenId.LPAREN.ordinal()
-                                                               : AdaTokenId.RPAREN.ordinal();
+                    (bracketIntId == AdaTokenId.RPAREN.ordinal()) ? AdaTokenId.LPAREN.ordinal()
+                    : AdaTokenId.RPAREN.ordinal();
 
             // Skip all the brackets of the same type that follow the last one
             ts.moveNext();
 
-            Token<?extends AdaTokenId> nextToken = ts.token();
+            Token<? extends AdaTokenId> nextToken = ts.token();
 
             while ((nextToken != null) && (nextToken.id() == bracketId)) {
                 token = nextToken;
@@ -1020,7 +1079,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             // Search would stop on an extra opening left brace if found
             int braceBalance = 0; // balance of '{' and '}'
             int bracketBalance = -1; // balance of the brackets or parenthesis
-            Token<?extends AdaTokenId> lastRBracket = token;
+            Token<? extends AdaTokenId> lastRBracket = token;
             ts.movePrevious();
             token = ts.token();
 
@@ -1063,14 +1122,14 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             }
 
             if (bracketBalance != 0) { // not found matching bracket
-                                       // Remove the typed bracket as it's unmatched
+                // Remove the typed bracket as it's unmatched
                 skipClosingBracket = true;
             } else { // the bracket is matched
-                     // Now check whether the bracket would be matched
-                     // when the closing bracket would be removed
-                     // i.e. starting from the original lastRBracket token
-                     // and search for the same bracket to the right in the text
-                     // The search would stop on an extra right brace if found
+                // Now check whether the bracket would be matched
+                // when the closing bracket would be removed
+                // i.e. starting from the original lastRBracket token
+                // and search for the same bracket to the right in the text
+                // The search would stop on an extra right brace if found
                 braceBalance = 0;
                 bracketBalance = 1; // simulate one extra left bracket
 
@@ -1137,7 +1196,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @param bracket the bracket that was inserted
      */
     private void completeOpeningBracket(BaseDocument doc, int dotPos, Caret caret, char bracket)
-        throws BadLocationException {
+            throws BadLocationException {
         if (isCompletablePosition(doc, dotPos + 1)) {
             String matchingBracket = "" + matching(bracket);
             doc.insertString(dotPos + 1, matchingBracket, null);
@@ -1149,7 +1208,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
     // really is escaped. I know where those are!
     // TODO Adjust for Ada
     private boolean isEscapeSequence(BaseDocument doc, int dotPos)
-        throws BadLocationException {
+            throws BadLocationException {
         if (dotPos <= 0) {
             return false;
         }
@@ -1168,7 +1227,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @param bracket the character that was inserted
      */
     private boolean completeQuote(BaseDocument doc, int dotPos, Caret caret, char bracket,
-        TokenId[] stringTokens, TokenId beginToken) throws BadLocationException {
+            TokenId[] stringTokens, TokenId beginToken) throws BadLocationException {
         if (isEscapeSequence(doc, dotPos)) { // \" or \' typed
 
             return false;
@@ -1179,7 +1238,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             return false;
         }
 
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, dotPos);
 
         if (ts == null) {
             return false;
@@ -1191,8 +1250,8 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             return false;
         }
 
-        Token<?extends AdaTokenId> token = ts.token();
-        Token<?extends AdaTokenId> previousToken = null;
+        Token<? extends AdaTokenId> token = ts.token();
+        Token<? extends AdaTokenId> previousToken = null;
 
         if (ts.movePrevious()) {
             previousToken = ts.token();
@@ -1254,11 +1313,11 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                     if (!isAfter) {
                         doc.insertString(dotPos, "" + bracket, null); //NOI18N
                     } else {
-                        if (!(dotPos < doc.getLength()-1 && doc.getText(dotPos+1,1).charAt(0) == bracket)) {
+                        if (!(dotPos < doc.getLength() - 1 && doc.getText(dotPos + 1, 1).charAt(0) == bracket)) {
                             return true;
                         }
                     }
- 
+
                     doc.remove(dotPos, 1);
 
                     return true;
@@ -1274,7 +1333,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
 
         return false;
     }
-    
+
     /**
      * Checks whether dotPos is a position at which bracket and quote
      * completion is performed. Brackets and quotes are not completed
@@ -1283,7 +1342,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      * @param dotPos position to be tested
      */
     private boolean isCompletablePosition(BaseDocument doc, int dotPos)
-        throws BadLocationException {
+            throws BadLocationException {
         if (dotPos == doc.getLength()) { // there's no other character to test
 
             return true;
@@ -1292,12 +1351,12 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
             char chr = doc.getChars(dotPos, 1)[0];
 
             return ((chr == ')') || (chr == ',') || (chr == ' ') ||
-            (chr == '\n') || (chr == '\t') || (chr == ';'));
+                    (chr == '\n') || (chr == '\t') || (chr == ';'));
         }
     }
 
     private boolean isQuoteCompletablePosition(BaseDocument doc, int dotPos)
-        throws BadLocationException {
+            throws BadLocationException {
         if (dotPos == doc.getLength()) { // there's no other character to test
 
             return true;
@@ -1327,23 +1386,23 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
      */
     private char matching(char bracket) {
         switch (bracket) {
-        case '(':
-            return ')';
+            case '(':
+                return ')';
 
-        default:
-            return bracket;
+            default:
+                return bracket;
         }
     }
 
-    public List<OffsetRange> findLogicalRanges(CompilationInfo info, int caretOffset) {
+    public List<OffsetRange> findLogicalRanges(ParserResult info, int caretOffset) {
         // TODO: review the original class
         return Collections.<OffsetRange>emptyList();
     }
 
     // UGH - this method has gotten really ugly after successive refinements based on unit tests - consider cleaning up
     public int getNextWordOffset(Document document, int offset, boolean reverse) {
-        BaseDocument doc = (BaseDocument)document;
-        TokenSequence<?extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
+        BaseDocument doc = (BaseDocument) document;
+        TokenSequence<? extends AdaTokenId> ts = AdaLexUtilities.getAdaTokenSequence(doc, offset);
         if (ts == null) {
             return -1;
         }
@@ -1376,7 +1435,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 id = token.id();
             }
             if (reverse) {
-                int start = ts.offset()+token.length();
+                int start = ts.offset() + token.length();
                 if (start < offset) {
                     return start;
                 }
@@ -1386,7 +1445,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                     return start;
                 }
             }
-            
+
         }
 
         if (id == AdaTokenId.IDENTIFIER ||
@@ -1394,10 +1453,10 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 id == AdaTokenId.CONSTANT) {
             String s = token.text().toString();
             int length = s.length();
-            int wordOffset = offset-ts.offset();
+            int wordOffset = offset - ts.offset();
             if (reverse) {
                 // Find previous
-                int offsetInImage = offset - 1 - ts.offset(); 
+                int offsetInImage = offset - 1 - ts.offset();
                 if (offsetInImage < 0) {
                     return -1;
                 }
@@ -1424,7 +1483,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                             for (int j = i; j >= 0; j--) {
                                 char charAtJ = s.charAt(j);
                                 if (charAtJ == '_') {
-                                    return ts.offset() + j+1;
+                                    return ts.offset() + j + 1;
                                 }
                                 if (!Character.isUpperCase(charAtJ)) {
                                     // return offset of previous uppercase char in the identifier
@@ -1434,18 +1493,18 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                             return ts.offset();
                         }
                     }
-                    
+
                     return ts.offset();
                 }
             } else {
                 // Find next
-                int start = wordOffset+1;
+                int start = wordOffset + 1;
                 if (wordOffset < 0 || wordOffset >= s.length()) {
                     // Probably the end of a token sequence, such as this:
                     // <%s|%>
                     return -1;
                 }
-                if (Character.isUpperCase(s.charAt(wordOffset))) { 
+                if (Character.isUpperCase(s.charAt(wordOffset))) {
                     // if starting from a Uppercase char, first skip over follwing upper case chars
                     for (int i = start; i < length; i++) {
                         char charAtI = s.charAt(i);
@@ -1453,7 +1512,7 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                             break;
                         }
                         if (s.charAt(i) == '_') {
-                            return ts.offset()+i;
+                            return ts.offset() + i;
                         }
                         start++;
                     }
@@ -1461,12 +1520,12 @@ public class AdaKeystrokeHandler implements org.netbeans.modules.gsf.api.Keystro
                 for (int i = start; i < length; i++) {
                     char charAtI = s.charAt(i);
                     if (charAtI == '_' || Character.isUpperCase(charAtI)) {
-                        return ts.offset()+i;
+                        return ts.offset() + i;
                     }
                 }
             }
         }
-        
+
         // Default handling in the IDE
         return -1;
     }

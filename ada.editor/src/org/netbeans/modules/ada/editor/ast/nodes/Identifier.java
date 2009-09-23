@@ -56,36 +56,16 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 public class Identifier extends Expression {
 
     private String name;
-    private String parent;
-    private String child;
 
     public Identifier(int start, int end, String name) {
         super(start, end);
-		// Fullname unit
 		this.name = name;
-
-		// Parent/child unit name
-//        int lastNameIndex = name.lastIndexOf("."); // NOI18N
-//        this.child = name.substring(lastNameIndex > 0 ? lastNameIndex + 1 : 0, name.length() - 1);
-//        this.parent = name.substring(0, (lastNameIndex > 0) ? lastNameIndex + 1 : name.length() - 1);
     }
 
     public String getName() {
         return name;
     }
 
-	public String getParent() {
-        return parent;
-    }
-
-	public String getChild() {
-        return child;
-    }
-
-	public Boolean isChild() {
-		return (!child.equalsIgnoreCase(name));
-    }
-    
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

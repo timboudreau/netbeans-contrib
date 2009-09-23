@@ -43,7 +43,6 @@ import org.netbeans.api.ada.platform.AdaException;
 import org.netbeans.api.ada.platform.AdaExecution;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatProject;
 import org.netbeans.modules.ada.platform.compiler.gnat.GnatCompiler;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -64,19 +63,16 @@ public class Run extends GnatCommand {
     }
 
     @Override
-    public void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException {
+    public void invokeCommand(String displayTitle, String args) throws IllegalArgumentException, AdaException {
 
         // Make the GPR file
         GnatProject gpr = new GnatProject(this.getGnatCompiler());
         gpr.write();
 
-        System.out.println("ProjectPath: " + this.getGnatCompiler().getProjectPath());
-
-
         try {
             AdaExecution adaExec = new AdaExecution();
             adaExec.setCommand(this.getGnatCompiler().getProjectPath() + "/dist/" + this.getGnatCompiler().getExecutableFile());
-            adaExec.setCommandArgs("");
+            adaExec.setCommandArgs(args);
             adaExec.setWorkingDirectory(this.getGnatCompiler().getProjectPath());
             adaExec.setDisplayName(displayTitle);
             adaExec.setShowControls(true);

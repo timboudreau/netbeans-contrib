@@ -8,7 +8,7 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.ada.editor</code-name-base>
                     <run-dependency>
-                        <specification-version>0.1.6</specification-version>
+                        <specification-version>0.1.9</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -20,21 +20,19 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.ada.options</code-name-base>
                     <run-dependency>
-                        <specification-version>0.1.2</specification-version>
+                        <specification-version>0.1.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.ada.platform</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
-                        <specification-version>0.1.3</specification-version>
+                        <specification-version>0.1.5</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.ada.project</code-name-base>
                     <run-dependency>
-                        <specification-version>0.1.4</specification-version>
+                        <specification-version>0.1.7</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>

@@ -15,6 +15,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.api.java.classpath</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.19.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.api.progress</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -28,16 +37,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>0.1.3</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.gsfpath.api</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>0.35</specification-version>
+                        <specification-version>0.1.5</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -152,7 +152,10 @@
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.ada.editor</friend>
+                <friend>org.netbeans.modules.ada.options</friend>
                 <package>org.netbeans.modules.ada.project.api</package>
+                <package>org.netbeans.modules.ada.project.options</package>
+                <package>org.netbeans.modules.ada.project.ui.properties</package>
             </friend-packages>
         </data>
     </configuration>

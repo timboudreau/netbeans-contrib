@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.navigator;
 
 import java.io.IOException;
@@ -52,33 +51,36 @@ import org.netbeans.modules.ada.editor.ast.nodes.With;
 import org.netbeans.modules.ada.editor.indexer.IndexedElement;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
-import org.netbeans.modules.gsf.api.CancellableTask;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.DeclarationFinder;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.SourceModel;
-import org.netbeans.modules.gsf.api.SourceModelFactory;
+import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.ParserManager;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.spi.ParseException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.openide.util.Union2;
 
 /**
+ * Based on org.netbeans.modules.php.editor.nav.DeclarationFinderImpl (Jan Lahoda)
  *
  * @author Andrea Lucarelli
  */
 public class AdaDeclarationFinder implements DeclarationFinder {
 
-    public DeclarationLocation findDeclaration(CompilationInfo info, int caretOffset) {
+    public DeclarationLocation findDeclaration(ParserResult info, int caretOffset) {
         return findDeclarationImpl(info, caretOffset);
     }
 
+    @Override
     public OffsetRange getReferenceSpan(Document doc, final int caretOffset) {
         List<TokenSequence<?>> ets = TokenHierarchy.get(doc).embeddedTokenSequences(caretOffset, false);
-
+        boolean inDocComment = false;
         ets = new LinkedList<TokenSequence<?>>(ets);
 
         Collections.reverse(ets);
@@ -95,41 +97,45 @@ public class AdaDeclarationFinder implements DeclarationFinder {
 
         //XXX: to find out includes, we need to parse - but this means we are parsing on mouse move in AWT!:
         FileObject file = NavUtils.getFile(doc);
+        final OffsetRange[] result = new OffsetRange[1];
 
-        if (file != null) {
-            SourceModel model = SourceModelFactory.getInstance().getModel(file);
-            final OffsetRange[] result = new OffsetRange[1];
+        if (!inDocComment) {
+            if (file != null) {
+                try {
+                    ParserManager.parse(Collections.singleton(Source.create(doc)), new UserTask() {
 
-            try {
-                model.runUserActionTask(new CancellableTask<CompilationInfo>() {
-                    public void cancel() {}
-                    public void run(CompilationInfo parameter) throws Exception {
-                        List<ASTNode> path = NavUtils.underCaret(parameter, caretOffset);
-
-                        if (path.size() == 0) {
-                            return ;
+                        public void cancel() {
                         }
 
-                        path = new LinkedList<ASTNode>(path);
+                        public void run(ResultIterator resultIterator) throws Exception {
+                            ParserResult parameter = (ParserResult) resultIterator.getParserResult();
+                            List<ASTNode> path = NavUtils.underCaret(parameter, caretOffset);
 
-                        Collections.reverse(path);
+                            if (path.size() == 0) {
+                                return;
+                            }
 
-                        // TODO: see original file
-                    }
-                }, true);
-            } catch (IOException e) {
-                Exceptions.printStackTrace(e);
-            }
+                            path = new LinkedList<ASTNode>(path);
 
-            if (result[0] != null) {
-                return result[0];
+                            Collections.reverse(path);
+
+                            // TODO: see base file
+                        }
+                    });
+                } catch (ParseException e) {
+                    Exceptions.printStackTrace(e);
+                }
+
+                if (result[0] != null) {
+                    return result[0];
+                }
             }
         }
 
         return OffsetRange.NONE;
     }
 
-    static DeclarationLocation findDeclarationImpl(CompilationInfo info, final int offset) {
+    static DeclarationLocation findDeclarationImpl(ParserResult info, final int offset) {
         List<ASTNode> path = NavUtils.underCaret(info, offset);
         SemiAttribute a = SemiAttribute.semiAttribute(info);//, offset);
 
@@ -169,15 +175,15 @@ public class AdaDeclarationFinder implements DeclarationFinder {
         }
 
         public ElementHandle getElement() {
-            return el;
+            return (ElementHandle) el;
         }
 
         public String getDisplayHtml(HtmlFormatter formatter) {
             formatter.reset();
             ElementKind ek = null;
             switch (k) {
-                case PROCEDURE:
-                case FUNCTION:
+                case SUBPROG_SPEC:
+                case SUBPROG_BODY:
                     ek = ElementKind.METHOD;
                     break;
                 case PACKAGE_SPEC:
@@ -210,6 +216,5 @@ public class AdaDeclarationFinder implements DeclarationFinder {
 
             return this.el.getName().compareTo(i.el.getName());
         }
-
     }
 }

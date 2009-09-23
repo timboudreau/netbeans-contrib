@@ -39,11 +39,11 @@
 
 package org.netbeans.modules.ada.project.ui.wizards;
 
-import org.netbeans.modules.ada.project.ui.*;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
@@ -70,8 +70,8 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
     }
     
     private void postInitComponents () {
-        this.projectFolder.getDocument().addDocumentListener(this);
-        this.projectName.getDocument().addDocumentListener(this);
+        this.projectFolderTextField.getDocument().addDocumentListener(this);
+        this.projectNameTextField.getDocument().addDocumentListener(this);
     }
 
     /** This method is called from within the constructor to
@@ -85,11 +85,11 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        projectName = new javax.swing.JTextField();
-        projectFolder = new javax.swing.JTextField();
+        projectNameTextField = new javax.swing.JTextField();
+        projectFolderTextField = new javax.swing.JTextField();
         browse = new javax.swing.JButton();
 
-        jLabel1.setLabelFor(projectName);
+        jLabel1.setLabelFor(projectNameTextField);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.projectName.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ExistingAdaProjectPanelVisual.projectFolder.text")); // NOI18N
@@ -112,10 +112,10 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(projectFolder, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
+                        .add(projectFolderTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
                         .add(1, 1, 1)
                         .add(browse))
-                    .add(projectName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE))
+                    .add(projectNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -124,11 +124,11 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(projectName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(projectNameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
-                    .add(projectFolder, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(projectFolderTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(browse))
                 .addContainerGap(29, Short.MAX_VALUE))
         );
@@ -139,7 +139,7 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
         FileUtil.preventFileChooserSymlinkTraversal(chooser, null);
         chooser.setDialogTitle(NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "LBL_SelectProjectFolder"));
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        String path = this.projectFolder.getText();
+        String path = this.projectFolderTextField.getText();
         if (path.length() > 0) {
             File f = new File(path);
             if (f.exists()) {
@@ -148,7 +148,7 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
         }
         if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
             File projectDir = chooser.getSelectedFile();
-            projectFolder.setText(FileUtil.normalizeFile(projectDir).getAbsolutePath());
+            projectFolderTextField.setText(FileUtil.normalizeFile(projectDir).getAbsolutePath());
         }
         panel.fireChangeEvent();
     }//GEN-LAST:event_browseAction
@@ -158,15 +158,15 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
     private javax.swing.JButton browse;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField projectFolder;
-    private javax.swing.JTextField projectName;
+    private javax.swing.JTextField projectFolderTextField;
+    private javax.swing.JTextField projectNameTextField;
     // End of variables declaration//GEN-END:variables
 
     @Override
     void store(WizardDescriptor settings) {
         assert  settings != null;
-        String name = projectName.getText().trim();
-        String folder = projectFolder.getText().trim();
+        String name = projectNameTextField.getText().trim();
+        String folder = projectFolderTextField.getText().trim();
         settings.putProperty(NewAdaProjectWizardIterator.PROP_PROJECT_LOCATION, FileUtil.normalizeFile(new File(folder)));
         settings.putProperty(NewAdaProjectWizardIterator.PROP_PROJECT_NAME, name);
     }
@@ -179,25 +179,25 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
             defaultName = NewAdaProjectWizardIterator.getFreeFolderName(ProjectChooser.getProjectsFolder(), "NewAdaApplication");     //NOI18N
             projectLocation = new File (ProjectChooser.getProjectsFolder(),defaultName);
         }
-        this.projectFolder.setText(projectLocation.getAbsolutePath());
+        this.projectFolderTextField.setText(projectLocation.getAbsolutePath());
 
         String projectName = (String) settings.getProperty(NewAdaProjectWizardIterator.PROP_PROJECT_NAME);
         if (projectName == null) {
             assert defaultName != null;
             projectName = defaultName;
         }
-        this.projectName.setText(projectName);
-        this.projectName.selectAll();
+        this.projectNameTextField.setText(projectName);
+        this.projectNameTextField.selectAll();
     }
 
     @Override
     boolean valid(WizardDescriptor settings) {
-        if (projectName.getText().length() == 0) {
+        if (projectNameTextField.getText().length() == 0) {
             settings.putProperty("WizardPanel_errorMessage",
                     NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ERR_WrongName"));
             return false; // Display name not specified
         }
-        File f = FileUtil.normalizeFile(new File(projectFolder.getText()).getAbsoluteFile());
+        File f = FileUtil.normalizeFile(new File(projectFolderTextField.getText()).getAbsoluteFile());
         if (f.exists() && !f.isDirectory()) {
             String message = NbBundle.getMessage(ExistingAdaProjectPanelVisual.class, "ERR_WrongProjectFolder");
             settings.putProperty("WizardPanel_errorMessage", message);
@@ -236,18 +236,18 @@ class ExistingAdaProjectPanelVisual extends SettingsPanel implements DocumentLis
 
     public void insertUpdate(DocumentEvent e) {
         handleDocChange ();
-    }
+        }
 
     public void removeUpdate(DocumentEvent e) {
         handleDocChange ();
-    }
+        }
 
     public void changedUpdate(DocumentEvent e) {
         handleDocChange ();
-    }
+        }
     
     private void handleDocChange () {
         this.panel.fireChangeEvent();
-    }
+        }
 
 }

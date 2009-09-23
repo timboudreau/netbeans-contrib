@@ -271,8 +271,8 @@ private void removeTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     }
     
     void store (final WizardDescriptor descriptor) {
-        descriptor.putProperty(NewAdaProjectWizardIterator.SOURCE_ROOTS,sourcesModel.getData());
-        descriptor.putProperty(NewAdaProjectWizardIterator.TEST_ROOTS,testsModel.getData());
+        descriptor.putProperty(NewAdaProjectWizardIterator.PROP_SOURCE_ROOTS,sourcesModel.getData());
+        descriptor.putProperty(NewAdaProjectWizardIterator.PROP_TEST_ROOTS,testsModel.getData());
     }
 
     void read (final WizardDescriptor descriptor) {
@@ -281,12 +281,12 @@ private void removeTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         ((FolderRenderer)sources.getCellRenderer()).setProjectFolder(projectDirectory);
         ((FolderRenderer)tests.getCellRenderer()).setProjectFolder(projectDirectory);
         this.sourcesModel.removeAllElements();
-        final File[] src = (File[]) descriptor.getProperty(NewAdaProjectWizardIterator.SOURCE_ROOTS);
+        final File[] src = (File[]) descriptor.getProperty(NewAdaProjectWizardIterator.PROP_SOURCE_ROOTS);
         for (File f : src) {
             this.sourcesModel.addElement(f);
         }
         this.testsModel.removeAllElements();
-        final File[] tst = (File[]) descriptor.getProperty(NewAdaProjectWizardIterator.TEST_ROOTS);
+        final File[] tst = (File[]) descriptor.getProperty(NewAdaProjectWizardIterator.PROP_TEST_ROOTS);
         for (File f : tst) {
             this.testsModel.addElement(f);
         }

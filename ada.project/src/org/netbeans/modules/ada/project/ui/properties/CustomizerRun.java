@@ -125,9 +125,6 @@ public class CustomizerRun extends javax.swing.JPanel implements HelpCtx.Provide
                     .add(appArgs, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(237, Short.MAX_VALUE))
         );
-
-        executableFile.getAccessibleContext().setAccessibleDescription("null");
-        appArgs.getAccessibleContext().setAccessibleDescription("null");
     }// </editor-fold>//GEN-END:initComponents
 
 

@@ -44,17 +44,23 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  * Represents a type declaration of package
  *
  * <pre>e.g.<pre>
- * type Count_Type is range 1..10;
+ * subtype Rainbow is Color range Red .. Blue;
+ * subtype Red_Blue is Rainbow;
+ * subtype Int is Integer;
+ * subtype Small_Int is Integer range -10 .. 10;
+ * subtype Up_To_K is Column range 1 .. K;
+ * subtype Square is Matrix(1 .. 10, 1 .. 10);
+ * subtype Male is Person(Sex => M);
  */
 public class SubtypeDeclaration extends TypeDeclaration {
 
     private Identifier subTypeName;
-    private TypeDeclaration type;
+	private TypeName parentType;
 
-    public SubtypeDeclaration(int start, int end, Identifier subTypeName, TypeDeclaration type) {
-        super(start, end, subTypeName, type.getTypeDef());
+    public SubtypeDeclaration(int start, int end, Identifier subTypeName, TypeName parentType) {
+        super(start, end, subTypeName);
         this.subTypeName = subTypeName;
-        this.type = type;
+        this.parentType = parentType;
     }
 
     /**
@@ -63,15 +69,17 @@ public class SubtypeDeclaration extends TypeDeclaration {
     public Identifier getSubTypeName() {
         return this.subTypeName;
     }
-
-    /**
-     * @return the initial value of this field, null if none
-     */
-    public TypeDeclaration getType() {
-        return this.type;
-    }
     
-    @Override
+	/**
+     * Returns the parent type of this subtype
+     * 
+     * @return the type node
+     */
+    public TypeName getParentType() {
+        return this.parentType;
+    }
+
+	@Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }

@@ -503,11 +503,11 @@ public class FmtOptions {
         }
 
         public void removeUpdate(DocumentEvent e) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            changed();
         }
 
         public void changedUpdate(DocumentEvent e) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            changed();
         }
 
         private static class ComboItem {

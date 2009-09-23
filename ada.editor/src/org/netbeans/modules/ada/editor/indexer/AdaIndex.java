@@ -42,11 +42,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,14 +58,16 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration.Modifier;
 import org.netbeans.modules.ada.editor.parser.AdaParseResult;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Index;
-import org.netbeans.modules.gsf.api.Index.SearchResult;
-import org.netbeans.modules.gsf.api.Index.SearchScope;
-import org.netbeans.modules.gsf.api.NameKind;
-import org.netbeans.modules.gsf.api.annotations.NonNull;
+import org.netbeans.modules.ada.project.api.AdaSourcePath;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
@@ -77,13 +80,12 @@ import org.openide.util.Exceptions;
  */
 public class AdaIndex {
 
+    private static final Logger LOG = Logger.getLogger(AdaIndex.class.getName());
     /** Set property to true to find ALL functions regardless of file includes */
     //private static final boolean ALL_REACHABLE = Boolean.getBoolean("javascript.findall");
     public static final int ANY_ATTR = 0xFFFFFFFF;
     private static String clusterUrl = null;
     private static final String CLUSTER_URL = "cluster:"; // NOI18N
-    static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
-    static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private static final Set<String> TERMS_BASE = Collections.singleton(AdaIndexer.FIELD_BASE);
     private static final Set<String> TERMS_CONST = Collections.singleton(AdaIndexer.FIELD_CONST);
     private static final Set<String> TERMS_PKGSPC = Collections.singleton(AdaIndexer.FIELD_PKGSPC);
@@ -91,32 +93,50 @@ public class AdaIndex {
     private static final Set<String> TERMS_VAR = Collections.singleton(AdaIndexer.FIELD_VAR);
     private static final Set<String> TERMS_ALL = new HashSet<String>();
 
-
     {
         TERMS_ALL.add(AdaIndexer.FIELD_CONST);
         TERMS_ALL.add(AdaIndexer.FIELD_PKGSPC);
         TERMS_ALL.add(AdaIndexer.FIELD_PKGBDY);
         TERMS_ALL.add(AdaIndexer.FIELD_VAR);
     }
-    private final Index index;
+    private static final String[] TOP_LEVEL_TERMS = new String[]{AdaIndexer.FIELD_BASE,
+        AdaIndexer.FIELD_CONST, AdaIndexer.FIELD_PKGSPC, AdaIndexer.FIELD_PKGBDY, AdaIndexer.FIELD_VAR};
+    private final QuerySupport index;
 
     /** Creates a new instance of JsIndex */
-    public AdaIndex(Index index) {
+    public AdaIndex(QuerySupport index) {
         this.index = index;
     }
 
-    public static AdaIndex get(Index index) {
-        return new AdaIndex(index);
+//    public static AdaIndex get(QuerySupport index) {
+//        return new AdaIndex(index);
+//    }
+
+    public static AdaIndex get(Collection<FileObject> roots) {
+        try {
+            return new AdaIndex(QuerySupport.forRoots(AdaIndexer.Factory.NAME,
+                    AdaIndexer.Factory.VERSION,
+                    roots.toArray(new FileObject[roots.size()])));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return new AdaIndex(null);
+        }
+
     }
 
-    public Collection<IndexedElement> getAllTopLevel(AdaParseResult context, String prefix, NameKind nameKind) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
+    public static AdaIndex get(ParserResult info){
+        // TODO: specify the claspath ids to improve performance and avoid conflicts
+        return get(QuerySupport.findRoots(info.getSnapshot().getSource().getFileObject(), Collections.singleton(AdaSourcePath.SOURCE_CP), Collections.singleton(AdaSourcePath.BOOT_CP), Collections.<String>emptySet()));
+    }
+
+    public Collection<IndexedElement> getAllTopLevel(AdaParseResult context, String prefix, QuerySupport.Kind nameKind) {
         final Collection<IndexedElement> elements = new ArrayList<IndexedElement>();
         Collection<IndexedPackageSpec> classes = new ArrayList<IndexedPackageSpec>();
         Collection<IndexedVariable> vars = new ArrayList<IndexedVariable>();
 
         // search through the top leve elements
-        search(AdaIndexer.FIELD_TOP_LEVEL, prefix.toLowerCase(), NameKind.PREFIX, result, ALL_SCOPE, TERMS_ALL);
+        final Collection<? extends IndexResult> result = search(AdaIndexer.FIELD_TOP_LEVEL,
+                prefix.toLowerCase(), QuerySupport.Kind.PREFIX, TOP_LEVEL_TERMS);
 
         findPackageSpec(result, nameKind, prefix, classes);
         findTopVariables(result, nameKind, prefix, vars);
@@ -125,73 +145,69 @@ public class AdaIndex {
         return elements;
     }
 
-    protected void findPackageSpec(final Set<SearchResult> result, NameKind kind, String name, Collection<IndexedPackageSpec> packages) {
-        for (SearchResult map : result) {
-            if (map.getPersistentUrl() != null) {
-                String[] signatures = map.getValues(AdaIndexer.FIELD_PKGSPC);
-                if (signatures == null) {
-                    continue;
-                }
-                for (String signature : signatures) {
-                    Signature sig = Signature.get(signature);
-                    String packageName = sig.string(1);
-                    if (kind == NameKind.PREFIX || kind == NameKind.CASE_INSENSITIVE_PREFIX) {
-                        //case sensitive
-                        if (!packageName.toLowerCase().startsWith(name.toLowerCase())) {
-                            continue;
-                        }
-                    } else if (kind == NameKind.EXACT_NAME) {
-                        if (!packageName.toLowerCase().equals(name.toLowerCase())) {
-                            continue;
-                        }
+    protected void findPackageSpec(final Collection<? extends IndexResult> result, QuerySupport.Kind kind, String name, Collection<IndexedPackageSpec> packages) {
+        for (IndexResult map : result) {
+            String[] signatures = map.getValues(AdaIndexer.FIELD_PKGSPC);
+            if (signatures == null) {
+                continue;
+            }
+            for (String signature : signatures) {
+                Signature sig = Signature.get(signature);
+                String packageName = sig.string(1);
+                if (kind == QuerySupport.Kind.PREFIX || kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX) {
+                    //case sensitive
+                    if (!packageName.toLowerCase().startsWith(name.toLowerCase())) {
+                        continue;
                     }
-                    //TODO: handle search kind
-                    int offset = sig.integer(2);
-                    String superClass = sig.string(3);
-                    superClass = superClass.length() == 0 ? null : superClass;
-                    IndexedPackageSpec clazz = new IndexedPackageSpec(packageName, null, this, map.getPersistentUrl(), offset, 0);
-                    //clazz.setResolved(context != null && isReachable(context, map.getPersistentUrl()));
-                    packages.add(clazz);
+                } else if (kind == QuerySupport.Kind.EXACT) {
+                    if (!packageName.toLowerCase().equals(name.toLowerCase())) {
+                        continue;
+                    }
                 }
+                //TODO: handle search kind
+                int offset = sig.integer(2);
+                String superClass = sig.string(3);
+                superClass = superClass.length() == 0 ? null : superClass;
+                IndexedPackageSpec clazz = new IndexedPackageSpec(packageName, null, this, map.getUrl().toString(), offset, 0);
+                //clazz.setResolved(context != null && isReachable(context, map.getUrl().toString()));
+                packages.add(clazz);
             }
         }
     }
 
-    protected void findPackageBody(final Set<SearchResult> result, NameKind kind, String name, Collection<IndexedPackageBody> packages) {
-        for (SearchResult map : result) {
-            if (map.getPersistentUrl() != null) {
-                String[] signatures = map.getValues(AdaIndexer.FIELD_PKGBDY);
-                if (signatures == null) {
-                    continue;
-                }
-                for (String signature : signatures) {
-                    Signature sig = Signature.get(signature);
-                    String packageName = sig.string(1);
-                    if (kind == NameKind.PREFIX || kind == NameKind.CASE_INSENSITIVE_PREFIX) {
-                        //case sensitive
-                        if (!packageName.toLowerCase().startsWith(name.toLowerCase())) {
-                            continue;
-                        }
-                    } else if (kind == NameKind.EXACT_NAME) {
-                        if (!packageName.toLowerCase().equals(name.toLowerCase())) {
-                            continue;
-                        }
+    protected void findPackageBody(final Collection<? extends IndexResult> result, QuerySupport.Kind kind, String name, Collection<IndexedPackageBody> packages) {
+        for (IndexResult map : result) {
+            String[] signatures = map.getValues(AdaIndexer.FIELD_PKGBDY);
+            if (signatures == null) {
+                continue;
+            }
+            for (String signature : signatures) {
+                Signature sig = Signature.get(signature);
+                String packageName = sig.string(1);
+                if (kind == QuerySupport.Kind.PREFIX || kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX) {
+                    //case sensitive
+                    if (!packageName.toLowerCase().startsWith(name.toLowerCase())) {
+                        continue;
                     }
-                    //TODO: handle search kind
-                    int offset = sig.integer(2);
-                    String superClass = sig.string(3);
-                    superClass = superClass.length() == 0 ? null : superClass;
-                    IndexedPackageBody clazz = new IndexedPackageBody(packageName, null, this, map.getPersistentUrl(), offset, 0);
-                    //clazz.setResolved(context != null && isReachable(context, map.getPersistentUrl()));
-                    packages.add(clazz);
+                } else if (kind == QuerySupport.Kind.EXACT) {
+                    if (!packageName.toLowerCase().equals(name.toLowerCase())) {
+                        continue;
+                    }
                 }
+                //TODO: handle search kind
+                int offset = sig.integer(2);
+                String superClass = sig.string(3);
+                superClass = superClass.length() == 0 ? null : superClass;
+                IndexedPackageBody clazz = new IndexedPackageBody(packageName, null, this, map.getUrl().toString(), offset, 0);
+                //clazz.setResolved(context != null && isReachable(context, map.getUrl().toString()));
+                packages.add(clazz);
             }
         }
     }
 
-    protected void findTopVariables(final Set<SearchResult> result, NameKind kind, String name, Collection<IndexedVariable> vars) {
-        for (SearchResult map : result) {
-            if (map.getPersistentUrl() != null) {
+    protected void findTopVariables(final Collection<? extends IndexResult> result, QuerySupport.Kind kind, String name, Collection<IndexedVariable> vars) {
+        for (IndexResult map : result) {
+            if (map.getUrl().toString() != null) {
                 String[] signatures = map.getValues(AdaIndexer.FIELD_VAR);
                 if (signatures == null) {
                     continue;
@@ -200,12 +216,12 @@ public class AdaIndex {
                     Signature sig = Signature.get(signature);
                     //sig.string(0) is the case insensitive search key
                     String constName = sig.string(1);
-                    if (kind == NameKind.PREFIX || kind == NameKind.CASE_INSENSITIVE_PREFIX) {
+                    if (kind == QuerySupport.Kind.PREFIX || kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX) {
                         //case sensitive
                         if (!constName.startsWith(name)) {
                             continue;
                         }
-                    } else if (kind == NameKind.EXACT_NAME) {
+                    } else if (kind == QuerySupport.Kind.EXACT) {
                         if (!constName.equals(name)) {
                             continue;
                         }
@@ -214,24 +230,45 @@ public class AdaIndex {
                     typeName = typeName.length() == 0 ? null : typeName;
                     int offset = sig.integer(3);
                     IndexedVariable var = new IndexedVariable(constName, null, this,
-                            map.getPersistentUrl(), offset, 0, typeName);
-                    //var.setResolved(context != null && isReachable(context, map.getPersistentUrl()));
+                            map.getUrl().toString(), offset, 0, typeName);
+                    //var.setResolved(context != null && isReachable(context, map.getUrl().toString()));
                     vars.add(var);
                 }
             }
         }
     }
 
-    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
-            Set<SearchScope> scope, Set<String> terms) {
+    private Collection<? extends IndexResult> search(String key, String name, QuerySupport.Kind kind, String... terms) {
         try {
-            index.search(key, name, kind, scope, result, terms);
+            Collection<? extends IndexResult> results = index.query(key, name, kind, terms);
 
-            return true;
+            if (LOG.isLoggable(Level.FINE)) {
+                String msg = "PHPIndex.search(" + key + ", " + name + ", " + kind + ", " //NOI18N
+                        + (terms == null || terms.length == 0 ? "no terms" : Arrays.asList(terms)) + ")"; //NOI18N
+                LOG.fine(msg);
+
+                if (LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, null, new Throwable(msg));
+                }
+
+                for (IndexResult r : results) {
+                    LOG.fine("Fields in " + r + " (" + r.getFile().getPath() + "):"); //NOI18N
+                    for (String field : AdaIndexer.ALL_FIELDS) {
+                        String value = r.getValue(field);
+                        if (value != null) {
+                            LOG.fine(" <" + field + "> = <" + value + ">"); //NOI18N
+                        }
+                    }
+                    LOG.fine("----"); //NOI18N
+                }
+
+                LOG.fine("===="); //NOI18N
+            }
+
+            return results;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
-
-            return false;
+            return Collections.<IndexResult>emptySet();
         }
     }
 
@@ -290,22 +327,22 @@ public class AdaIndex {
     }
 
     /** returns all methods of a package. */
-    public Collection<IndexedFunction> getAllMethods(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+    public Collection<IndexedFunction> getAllMethods(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind, int attrMask) {
         Map<String, IndexedFunction> methods = new TreeMap<String, IndexedFunction>();
 
         // #147730 - prefer the current file
-        File currentFile = getCurrentFile(context);
+        FileObject currentFile = context != null ? context.getSnapshot().getSource().getFileObject() : null;
         Set<String> currentFileClasses = new HashSet<String>();
 
         for (String className : getClassAncestors(context, typeName)) {
             int mask = className.equals(typeName) ? attrMask : (attrMask & (~Modifier.PRIVATE));
 
-            for (IndexedFunction method : getMethods(context, className, name, kind, mask)){
+            for (IndexedFunction method : getMethods(context, className, name, kind, mask)) {
                 String methodName = method.getName();
 
-                if (!methods.containsKey(methodName) || className.equals(typeName)){
+                if (!methods.containsKey(methodName) || className.equals(typeName)) {
                     methods.put(methodName, method);
-                    if (currentFile != null && currentFile.equals(method.getFile().getFile())) {
+                    if (currentFile != null && currentFile.equals(method.getFilenameUrl())) {
                         currentFileClasses.add(className);
                     }
                 }
@@ -318,11 +355,11 @@ public class AdaIndex {
     }
 
     /** returns all fields of a package. */
-    public Collection<IndexedVariable> getAllFields(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+    public Collection<IndexedVariable> getAllFields(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind, int attrMask) {
         Map<String, IndexedVariable> fields = new TreeMap<String, IndexedVariable>();
 
         // #147730 - prefer the current file
-        File currentFile = getCurrentFile(context);
+        FileObject currentFile = context != null ? context.getSnapshot().getSource().getFileObject() : null;
         Set<String> currentFileClasses = new HashSet<String>();
 
         for (String className : getClassAncestors(context, typeName)) {
@@ -333,7 +370,7 @@ public class AdaIndex {
                     fields.put(fieldName, field);
                 }
 
-                if (currentFile != null && field != null && currentFile.equals(field.getFile().getFile())) {
+                if (currentFile != null && field != null && currentFile.equals(field.getFilenameUrl())) {
                     currentFileClasses.add(className);
                 }
             }
@@ -345,11 +382,11 @@ public class AdaIndex {
     }
 
     /** returns all fields of a package. */
-    public Collection<IndexedType> getAllTypes(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+    public Collection<IndexedType> getAllTypes(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind, int attrMask) {
         Map<String, IndexedType> types = new TreeMap<String, IndexedType>();
 
         // #147730 - prefer the current file
-        File currentFile = getCurrentFile(context);
+        FileObject currentFile = context != null ? context.getSnapshot().getSource().getFileObject() : null;
         Set<String> currentFileClasses = new HashSet<String>();
 
         for (String className : getClassAncestors(context, typeName)) {
@@ -360,7 +397,7 @@ public class AdaIndex {
                     types.put(fieldName, field);
                 }
 
-                if (currentFile != null && field != null && currentFile.equals(field.getFile().getFile())) {
+                if (currentFile != null && field != null && currentFile.equals(field.getFilenameUrl())) {
                     currentFileClasses.add(className);
                 }
             }
@@ -372,19 +409,19 @@ public class AdaIndex {
     }
 
     /** Current file for the context or <code>null</code> */
-    private File getCurrentFile(AdaParseResult context) {
-        if (context != null && context.getFile() != null) {
-            return context.getFile().getFile();
-        }
-        return null;
-    }
+//    private File getCurrentFile(AdaParseResult context) {
+//        if (context != null && context.getFile() != null) {
+//            return context.getFile().getFile();
+//        }
+//        return null;
+//    }
 
     // #147730 - prefer the current file
-    private void filterClassMembers(Collection<? extends IndexedElement> elements, Set<String> currentFileClasses, File currentFile) {
+    private void filterClassMembers(Collection<? extends IndexedElement> elements, Set<String> currentFileClasses, FileObject currentFile) {
         if (elements.size() > 0 && currentFileClasses.size() > 0) {
             for (Iterator<? extends IndexedElement> it = elements.iterator(); it.hasNext();) {
                 IndexedElement method = it.next();
-                if (currentFileClasses.contains(method.getIn()) && !currentFile.equals(method.getFile().getFile())) {
+                if (currentFileClasses.contains(method.getIn()) && !currentFile.equals(method.getFilenameUrl())) {
                     it.remove();
                 }
             }
@@ -409,7 +446,7 @@ public class AdaIndex {
 
         processedClasses.add(className);
         List<String> assumedParents = new LinkedList<String>();
-        Collection<IndexedPackageSpec> classes = getPackageSpec(context, className, NameKind.EXACT_NAME);
+        Collection<IndexedPackageSpec> classes = getPackageSpec(context, className, QuerySupport.Kind.EXACT);
 
         if (classes != null) {
             for (IndexedPackageSpec clazz : classes) {
@@ -425,16 +462,16 @@ public class AdaIndex {
     }
 
     /** returns methods of a package. */
-    public Collection<IndexedFunction> getMethods(AdaParseResult context, String typeName, String name, NameKind kind, int attrMask) {
+    public Collection<IndexedFunction> getMethods(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind, int attrMask) {
         Collection<IndexedFunction> methods = new ArrayList<IndexedFunction>();
-        Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_METHOD, name, kind, ALL_SCOPE);
+        Map<String, IndexResult> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_METHOD, name, kind);
 
         for (String signature : signaturesMap.keySet()) {
             //items are not indexed, no case insensitive search key user
             Signature sig = Signature.get(signature);
             int flags = sig.integer(5);
 
-            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0){
+            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0) {
                 flags |= Modifier.PUBLIC; // default modifier
             }
 
@@ -444,7 +481,7 @@ public class AdaIndex {
                 int offset = sig.integer(2);
 
                 IndexedFunction func = new IndexedFunction(funcName, typeName,
-                        this, signaturesMap.get(signature), args, offset, flags, ElementKind.METHOD);
+                        this, signaturesMap.get(signature).getUrl().toString(), args, offset, flags, ElementKind.METHOD);
 
                 int optionalArgs[] = extractOptionalArgs(sig.string(3));
                 func.setOptionalArgs(optionalArgs);
@@ -460,54 +497,58 @@ public class AdaIndex {
     }
 
     /** returns fields of a package. */
-    public Collection<IndexedVariable> getFields(AdaParseResult context, String typeName, String name, NameKind kind) {
+    public Collection<IndexedVariable> getFields(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind) {
         Collection<IndexedVariable> fields = new ArrayList<IndexedVariable>();
-        Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_FIELD, name, kind, ALL_SCOPE);
+        Map<String, IndexResult> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_FIELD, name, kind);
 
         for (String signature : signaturesMap.keySet()) {
             Signature sig = Signature.get(signature);
             int flags = sig.integer(2);
 
-            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0){
+            if ((flags & (Modifier.PUBLIC | Modifier.PRIVATE)) == 0) {
                 flags |= Modifier.PUBLIC; // default modifier
             }
 
             /*
             if ((flags & attrMask) != 0) {
-                String propName = "$" + sig.string(0);
-                int offset = sig.integer(1);
-                String type = sig.string(3);
+            String propName = "$" + sig.string(0);
+            int offset = sig.integer(1);
+            String type = sig.string(3);
 
-                if (type.length() == 0){
-                    type = null;
-                }
-
-                IndexedConstant prop = new IndexedConstant(propName, typeName,
-                        this, signaturesMap.get(signature), offset, flags, type,ElementKind.FIELD);
-
-                fields.add(prop);
+            if (type.length() == 0){
+            type = null;
             }
-            */
+
+            IndexedConstant prop = new IndexedConstant(propName, typeName,
+            this, signaturesMap.get(signature), offset, flags, type,ElementKind.FIELD);
+
+            fields.add(prop);
+            }
+             */
         }
 
         return fields;
     }
 
     /** returns fields of a package. */
-    public Collection<IndexedType> getTypes(AdaParseResult context, String typeName, String name, NameKind kind) {
+    public Collection<IndexedType> getTypes(AdaParseResult context, String typeName, String name, QuerySupport.Kind kind) {
         Collection<IndexedType> types = new ArrayList<IndexedType>();
-        Map<String, String> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_TYPE, name, kind, ALL_SCOPE);
-
+        Map<String, IndexResult> signaturesMap = getTypeSpecificSignatures(typeName, AdaIndexer.FIELD_TYPE, name, kind);
         return types;
     }
 
-    private Map<String, String> getTypeSpecificSignatures(String typeName, String fieldName, String name, NameKind kind, Set<SearchScope> scope) {
-        final Set<SearchResult> searchResult = new HashSet<SearchResult>();
-        Map<String, String> signatures = new HashMap<String, String>();
-        for (String indexField : new String[]{AdaIndexer.FIELD_PKGSPC, AdaIndexer.FIELD_PKGBDY}) {
-            search(indexField, typeName.toLowerCase(), NameKind.PREFIX, searchResult, scope, TERMS_BASE);
+    private Map<String, IndexResult> getTypeSpecificSignatures(String typeName, String fieldName, String name, QuerySupport.Kind kind) {
+        return getTypeSpecificSignatures(typeName, fieldName, name, kind, false);
+    }
 
-            for (SearchResult typeMap : searchResult) {
+    private Map<String, IndexResult> getTypeSpecificSignatures(String typeName, String fieldName, String name,
+            QuerySupport.Kind kind, boolean forConstructor) {
+        Map<String, IndexResult> signatures = new HashMap<String, IndexResult>();
+        for (String indexField : new String[]{AdaIndexer.FIELD_PKGSPC, AdaIndexer.FIELD_PKGBDY}) {
+            final Collection<? extends IndexResult> indexResult = search(indexField, typeName.toLowerCase(), QuerySupport.Kind.PREFIX,
+                                                    new String [] {indexField, fieldName, AdaIndexer.FIELD_BASE});
+
+            for (IndexResult typeMap : indexResult) {
                 String[] typeSignatures = typeMap.getValues(indexField);
                 String[] rawSignatures = typeMap.getValues(fieldName);
 
@@ -518,7 +559,6 @@ public class AdaIndex {
                 assert typeSignatures.length == 1;
                 String foundTypeName = getSignatureItem(typeSignatures[0], 1);
                 foundTypeName = (foundTypeName != null) ? foundTypeName.toLowerCase() : null;
-                String persistentURL = typeMap.getPersistentUrl();
 
                 if (!typeName.toLowerCase().equals(foundTypeName)) {
                     continue;
@@ -529,8 +569,8 @@ public class AdaIndex {
 
                     // TODO: now doing IC prefix search only, handle other search types
                     // according to 'kind'
-                    if ((kind == NameKind.CASE_INSENSITIVE_PREFIX && elemName.toLowerCase().startsWith(name.toLowerCase())) || (kind == NameKind.PREFIX && elemName.startsWith(name)) || (kind == NameKind.EXACT_NAME && elemName.equals(name))) {
-                        signatures.put(signature, persistentURL);
+                    if ((kind == QuerySupport.Kind.CASE_INSENSITIVE_PREFIX && elemName.toLowerCase().startsWith(name.toLowerCase())) || (kind == QuerySupport.Kind.PREFIX && elemName.startsWith(name)) || (kind == QuerySupport.Kind.EXACT && elemName.equals(name))) {
+                            signatures.put(signature, typeMap);
                     }
 
                 }
@@ -564,102 +604,90 @@ public class AdaIndex {
         return null;
     }
 
-    public Collection<IndexedVariable> getTopLevelVariables(AdaParseResult context, String name, NameKind kind) {
-        return getTopLevelVariables(context, name, kind, ALL_SCOPE);
-    }
-
-    public Collection<IndexedVariable> getTopLevelVariables(AdaParseResult context, String name, NameKind kind, Set<SearchScope> scope) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
+    public Collection<IndexedVariable> getTopLevelVariables(AdaParseResult context, String name, QuerySupport.Kind kind) {
         Collection<IndexedVariable> vars = new ArrayList<IndexedVariable>();
-        search(AdaIndexer.FIELD_VAR, name.toLowerCase(), NameKind.PREFIX, result, scope, TERMS_VAR);
+        Collection<? extends IndexResult> result = search(AdaIndexer.FIELD_VAR, name.toLowerCase(), QuerySupport.Kind.PREFIX, AdaIndexer.FIELD_VAR);
         findTopVariables(result, kind, name, vars);
         return vars;
     }
 
     public Set<FileObject> filesWithIdentifiers(String identifierName) {
         final Set<FileObject> result = new HashSet<FileObject>();
-        final Set<SearchResult> idSearchResult = new HashSet<SearchResult>();
-        search(AdaIndexer.FIELD_IDENTIFIER, identifierName.toLowerCase(), NameKind.PREFIX, idSearchResult, ALL_SCOPE, TERMS_BASE);
-        for (SearchResult searchResult : idSearchResult) {
-            result.add(FileUtil.toFileObject(new File(URI.create(searchResult.getPersistentUrl()))));
+
+        Collection<? extends IndexResult> idIndexResult = search(AdaIndexer.FIELD_IDENTIFIER, identifierName.toLowerCase(), QuerySupport.Kind.PREFIX, AdaIndexer.FIELD_BASE);
+        for (IndexResult indexResult : idIndexResult) {
+            URL url = indexResult.getUrl();
+            FileObject fo = null;
+            try {
+                fo = "file".equals(url.getProtocol()) ? //NOI18N
+                    FileUtil.toFileObject(new File(url.toURI())) : URLMapper.findFileObject(url);
+            } catch (URISyntaxException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            if (fo != null) {
+                result.add(fo);
+            }
         }
         return result;
     }
 
-    public Set<String> typeNamesForIdentifier(String identifierName, ElementKind kind, NameKind nameKind) {
-        return typeNamesForIdentifier(identifierName, kind, nameKind, ALL_SCOPE);
-    }
-
-    public Set<String> typeNamesForIdentifier(String identifierName, ElementKind kind, NameKind nameKind, Set<SearchScope> scope) {
+    public Set<String> typeNamesForIdentifier(String identifierName, ElementKind kind,QuerySupport.Kind nameKind) {
         final Set<String> result = new HashSet<String>();
-        final Set<SearchResult> idSearchResult = new HashSet<SearchResult>();
-        search(AdaIndexer.FIELD_IDENTIFIER_DECLARATION, identifierName.toLowerCase(), NameKind.PREFIX, idSearchResult, scope, TERMS_BASE);
-        for (SearchResult searchResult : idSearchResult) {
-            if (searchResult.getPersistentUrl() != null) {
-                String[] signatures = searchResult.getValues(AdaIndexer.FIELD_IDENTIFIER_DECLARATION);
-                if (signatures == null) {
+        Collection<? extends IndexResult> idIndexResult = search(AdaIndexer.FIELD_IDENTIFIER_DECLARATION, identifierName.toLowerCase(), QuerySupport.Kind.PREFIX);
+        for (IndexResult IndexResult : idIndexResult) {
+            String[] signatures = IndexResult.getValues(AdaIndexer.FIELD_IDENTIFIER_DECLARATION);
+            if (signatures == null) {
+                continue;
+            }
+            for (String sign : signatures) {
+                IdentifierSignature idSign = IdentifierSignature.createDeclaration(Signature.get(sign));
+                if ((!idSign.isPackageMember() && !idSign.isIfaceMember()) ||
+                        idSign.getTypeName() == null) {
                     continue;
                 }
-                for (String sign : signatures) {
-                    IdentifierSignature idSign = IdentifierSignature.createDeclaration(Signature.get(sign));
-                    if ((!idSign.isPackageMember() && !idSign.isIfaceMember()) ||
-                            idSign.getTypeName() == null) {
-                        continue;
-                    }
-                    switch (nameKind) {
-                        case CASE_INSENSITIVE_PREFIX:
-                            if (!idSign.getName().startsWith(identifierName.toLowerCase())) {
-                                continue;
-                            }
-                            break;
-                        case PREFIX:
-                            if (!idSign.getName().startsWith(identifierName)) {
-                                continue;
-                            }
-                            break;
-                        default:
-                            assert false : nameKind.toString();
+                switch (nameKind) {
+                    case CASE_INSENSITIVE_PREFIX:
+                        if (!idSign.getName().startsWith(identifierName.toLowerCase())) {
                             continue;
-                    }
-                    if (kind == null) {
-                        result.add(idSign.getTypeName());
-                    } else if (kind.equals(ElementKind.FIELD) && idSign.isField()) {
-                        result.add(idSign.getTypeName());
-                    } else if (kind.equals(ElementKind.METHOD) && idSign.isMethod()) {
-                        result.add(idSign.getTypeName());
-                    } else if (kind.equals(ElementKind.CONSTANT) && idSign.isClassConstant()) {
-                        result.add(idSign.getTypeName());
-                    }
+                        }
+                        break;
+                    case PREFIX:
+                        if (!idSign.getName().startsWith(identifierName)) {
+                            continue;
+                        }
+                        break;
+                    default:
+                        assert false : nameKind.toString();
+                        continue;
+                }
+                if (kind == null) {
+                    result.add(idSign.getTypeName());
+                } else if (kind.equals(ElementKind.FIELD) && idSign.isField()) {
+                    result.add(idSign.getTypeName());
+                } else if (kind.equals(ElementKind.METHOD) && idSign.isMethod()) {
+                    result.add(idSign.getTypeName());
+                } else if (kind.equals(ElementKind.CONSTANT) && idSign.isClassConstant()) {
+                    result.add(idSign.getTypeName());
                 }
             }
         }
         return result;
     }
 
-    public Collection<IndexedPackageSpec> getPackageSpec(AdaParseResult context, String name, NameKind kind) {
-        return getPackageSpec(context, name, kind, ALL_SCOPE);
+    public Collection<IndexedPackageSpec> getPackageSpec(AdaParseResult context, String name, QuerySupport.Kind kind) {
+        Collection<IndexedPackageSpec> packages = new ArrayList<IndexedPackageSpec>();
+        final Collection<? extends IndexResult> result = search(AdaIndexer.FIELD_PKGSPC, name.toLowerCase(), QuerySupport.Kind.PREFIX);
+        findPackageSpec(result, kind, name, packages);
+
+        return packages;
     }
 
-    public Collection<IndexedPackageSpec> getPackageSpec(AdaParseResult context, String name, NameKind kind, Set<SearchScope> scope) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-        Collection<IndexedPackageSpec> pkg = new ArrayList<IndexedPackageSpec>();
-        search(AdaIndexer.FIELD_PKGSPC, name.toLowerCase(), NameKind.PREFIX, result, scope, TERMS_PKGSPC);
-        findPackageSpec(result, kind, name, pkg);
+    public Collection<IndexedPackageBody> getPackageBody(AdaParseResult context, String name, QuerySupport.Kind kind) {
+        Collection<IndexedPackageBody> packages = new ArrayList<IndexedPackageBody>();
+        final Collection<? extends IndexResult> result = search(AdaIndexer.FIELD_PKGBDY, name.toLowerCase(), QuerySupport.Kind.PREFIX);
+        findPackageBody(result, kind, name, packages);
 
-        return pkg;
-    }
-
-    public Collection<IndexedPackageBody> getPackageBody(AdaParseResult context, String name, NameKind kind) {
-        return getPackageBody(context, name, kind, ALL_SCOPE);
-    }
-
-    public Collection<IndexedPackageBody> getPackageBody(AdaParseResult context, String name, NameKind kind, Set<SearchScope> scope) {
-        final Set<SearchResult> result = new HashSet<SearchResult>();
-        Collection<IndexedPackageBody> pkg = new ArrayList<IndexedPackageBody>();
-        search(AdaIndexer.FIELD_PKGBDY, name.toLowerCase(), NameKind.PREFIX, result, scope, TERMS_PKGSPC);
-        findPackageBody(result, kind, name, pkg);
-
-        return pkg;
+        return packages;
     }
 
     // copied from JspUtils
@@ -714,14 +742,14 @@ public class AdaIndex {
                 // some file
                 result = result + tok;
             }
-        //System.out.println("result : " + result); // NOI18N
+            //System.out.println("result : " + result); // NOI18N
         }
         //System.out.println("- resolved to " + result);
         return result;
     }
 
     private int[] extractOptionalArgs(String optionalParamsStr) {
-        if (optionalParamsStr.length() == 0){
+        if (optionalParamsStr.length() == 0) {
             return new int[0];
         }
 
@@ -729,9 +757,9 @@ public class AdaIndex {
         int optionalArgs[] = new int[optionalParamsStrParts.length];
 
         for (int i = 0; i < optionalParamsStrParts.length; i++) {
-            try{
-            optionalArgs[i] = Integer.parseInt(optionalParamsStrParts[i]);
-            } catch (NumberFormatException e){
+            try {
+                optionalArgs[i] = Integer.parseInt(optionalParamsStrParts[i]);
+            } catch (NumberFormatException e) {
                 System.err.println(String.format("*** couldnt parse '%s', part %d", optionalParamsStr, i));
             }
         }

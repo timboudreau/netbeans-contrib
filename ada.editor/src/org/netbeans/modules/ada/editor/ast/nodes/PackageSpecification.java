@@ -54,11 +54,33 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public class PackageSpecification extends PackageDeclaration {
 
-    public PackageSpecification(int start, int end, Identifier packageName, Identifier packageNameEnd, Block body) {
-        super(start, end, packageName, packageNameEnd, body);
+    private Block body;
+    private Identifier nameEnd;
+
+    public PackageSpecification(int start, int end, Identifier packageName, Identifier nameEnd, Block body) {
+        super(start, end, packageName);
+
+		this.body = body;
+		this.nameEnd = nameEnd;
     }
 
-    
+    /**
+     * The body component of this package declaration node
+     * @return body component of this package declaration node
+     */
+    public Block getBody() {
+        return body;
+    }
+
+	/**
+     * The optional name of the package declaration node used at end package
+     * declaration
+     * @return name of the package declaration node
+     */
+    public Identifier getNameEnd() {
+        return this.nameEnd;
+    }
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

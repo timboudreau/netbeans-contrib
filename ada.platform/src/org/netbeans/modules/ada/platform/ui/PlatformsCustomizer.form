@@ -28,18 +28,18 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="makeDefaultButton" alignment="0" pref="156" max="32767" attributes="0"/>
-                  <Component id="autoDetectButton" alignment="0" pref="156" max="32767" attributes="1"/>
+                  <Component id="makeDefaultButton" alignment="0" pref="130" max="32767" attributes="0"/>
+                  <Component id="autoDetectButton" alignment="0" pref="130" max="32767" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="newButton" pref="67" max="32767" attributes="0"/>
+                      <Component id="newButton" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="removeButton" pref="83" max="32767" attributes="0"/>
+                      <Component id="removeButton" max="32767" attributes="0"/>
                   </Group>
                   <Component id="paltformsListTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="platformsListScrollPanel" alignment="0" pref="156" max="32767" attributes="2"/>
+                  <Component id="platformsListScrollPanel" alignment="0" pref="130" max="32767" attributes="2"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="tabbedPane" pref="654" max="32767" attributes="0"/>
+              <Component id="tabbedPane" pref="512" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -168,18 +168,24 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Component id="compilerCommand" pref="534" max="32767" attributes="0"/>
+                              <Component id="compilerCommand" pref="392" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="platformName" pref="514" max="32767" attributes="0"/>
-                              <EmptySpace min="30" pref="30" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="platformInfoTextField" pref="534" max="32767" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="platformName" alignment="0" pref="392" max="32767" attributes="0"/>
+                                  <Component id="platformInfoTextField" alignment="1" pref="392" max="32767" attributes="0"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace pref="230" max="32767" attributes="0"/>
+                      <Component id="autoDetectLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="5" pref="5" max="5" attributes="0"/>
+                      <Component id="autoDetectProgress" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -201,7 +207,12 @@
                           <Component id="compilerCommandLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="compilerCommand" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="200" max="32767" attributes="0"/>
+                      <EmptySpace pref="175" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="autoDetectLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="autoDetectProgress" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -254,6 +265,18 @@
                 </Property>
               </Properties>
             </Component>
+            <Component class="javax.swing.JLabel" name="autoDetectLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/ada/platform/ui/Bundle.properties" key="PlatformsCustomizer.autoDetectLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JProgressBar" name="autoDetectProgress">
+              <Properties>
+                <Property name="indeterminate" type="boolean" value="true"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="adaPathPanel">
@@ -274,13 +297,13 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Component id="jScrollPane2" pref="508" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="392" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="moveDownPath" pref="115" max="32767" attributes="0"/>
-                                  <Component id="moveUpPath" pref="115" max="32767" attributes="1"/>
-                                  <Component id="removePath" pref="115" max="32767" attributes="1"/>
-                                  <Component id="addPath" pref="115" max="32767" attributes="1"/>
+                                  <Component id="moveDownPath" max="32767" attributes="0"/>
+                                  <Component id="moveUpPath" pref="89" max="32767" attributes="1"/>
+                                  <Component id="removePath" pref="89" max="32767" attributes="1"/>
+                                  <Component id="addPath" pref="89" max="32767" attributes="1"/>
                               </Group>
                           </Group>
                           <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>

@@ -54,11 +54,10 @@ public class AdaAutoDetector {
     private Logger LOGGER = Logger.getLogger(AdaAutoDetector.class.getName());
     private ArrayList<String> matches = new ArrayList<String>();
     private boolean searchNestedDirectoies = true;
-
-    private void processAction(File dir) {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "Inspecting: " + dir.getAbsolutePath());
-        }
+    
+	private void processAction(File dir, String tool) {
+        //LOGGER.setLevel(Level.FINE);
+        LOGGER.fine("Inspecting: " + dir.getAbsolutePath());
         if (dir.isFile()) {
             int pos = dir.getName().indexOf(".");
             String name = null;
@@ -67,11 +66,9 @@ public class AdaAutoDetector {
             } else {
                 name = dir.getName();
             }
-            if (name.equalsIgnoreCase("gnat") || name.equalsIgnoreCase("gnatmake")) {
+            if (name.equalsIgnoreCase(tool)) {
                 matches.add(dir.getParent());
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
-                }
+                LOGGER.fine("Match: " + dir.getAbsolutePath());
             }
         }
         if (dir.isDirectory()) {
@@ -89,7 +86,7 @@ public class AdaAutoDetector {
                     String[] children = dir.list();
                     if (children != null) {
                         for (int i = 0; i < children.length; i++) {
-                            traverse(new File(dir, children[i]), searchNestedDirectoies);
+                            traverse(new File(dir, children[i]), tool, searchNestedDirectoies);
                         }
                     }
                 }
@@ -98,7 +95,7 @@ public class AdaAutoDetector {
                     String[] children = dir.list();
                     if (children != null) {
                         for (int i = 0; i < children.length; i++) {
-                            traverse(new File(dir, children[i]), searchNestedDirectoies);
+                            traverse(new File(dir, children[i]), tool, searchNestedDirectoies);
                         }
                     }
                 }
@@ -107,9 +104,9 @@ public class AdaAutoDetector {
 
     }
 
-    public void traverse(File dir, boolean recursive) {
+    public void traverse(File dir, String tool, boolean recursive) {
 
-        processAction(dir);
+        processAction(dir, tool);
 
         if (dir.isDirectory()) {
             String[] children = dir.list();
@@ -119,15 +116,20 @@ public class AdaAutoDetector {
                         searchNestedDirectoies = recursive;
                     }
                     for (int i = 0; i < children.length; i++) {
-                        traverse(new File(dir, children[i]), recursive);
+                        traverse(new File(dir, children[i]), tool, recursive);
                     }
                 }
             }
         }
+    }
 
+    // TODO: this method fix the AdaAutoDetector bug on manage the
+    // recursive folders. Remove this method after fix bug.
+    public void setSearchNestedDirectoies(boolean searchNestedDirectoies) {
+        this.searchNestedDirectoies = searchNestedDirectoies;
     }
 
     public ArrayList<String> getMatches() {
-        return matches;
+        return this.matches;
     }
 }

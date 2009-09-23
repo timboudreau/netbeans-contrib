@@ -110,7 +110,7 @@ public class AdaPlatform implements Serializable {
     }
 
     /**
-     *Build a path string from arraylist
+     * Build a path string from arraylist
      * @param path
      * @return
      */

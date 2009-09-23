@@ -43,7 +43,7 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
  * Represents a function/procedure formal parameter
- * <pre>e.g.<pre> $a,
+ * <pre>e.g.<pre>
  * procedure Foo (a : in bar; b : in out foo_bar; c : out boolean)
  * function Foo (a : in bar; b : in foo_bar) return boolean
  */
@@ -53,12 +53,12 @@ public class FormalParameter extends ASTNode {
         IN, OUT, IN_OUT, ACCESS;
     }
 
-	private Identifier parameterType;
     private Variable parameterName;
     private Mode parameterMode;
+	private TypeName parameterType;
     private Expression defaultValue;
 
-    private FormalParameter(int start, int end, final Variable parameterName, Mode parameterMode, Identifier type, Expression defaultValue) {
+    public FormalParameter(int start, int end, final Variable parameterName, Mode parameterMode, TypeName type, Expression defaultValue) {
         super(start, end);
 
         this.parameterName = parameterName;
@@ -67,7 +67,7 @@ public class FormalParameter extends ASTNode {
         this.defaultValue = defaultValue;
     }
 
-    public FormalParameter(int start, int end, final Variable parameterName, Mode parameterMode, Identifier type) {
+    public FormalParameter(int start, int end, final Variable parameterName, Mode parameterMode, TypeName type) {
         this(start, end, parameterName, parameterMode, type, null);
     }
 
@@ -95,7 +95,7 @@ public class FormalParameter extends ASTNode {
     /**
      * @return the type of this parameter
      */
-    public Identifier getParameterType() {
+    public TypeName getParameterType() {
         return parameterType;
     }
     

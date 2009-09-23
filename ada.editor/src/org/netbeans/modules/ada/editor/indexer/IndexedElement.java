@@ -39,19 +39,16 @@
 
 package org.netbeans.modules.ada.editor.indexer;
 
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.text.Document;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
-import org.netbeans.modules.gsf.spi.GsfUtilities;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.openide.filesystems.FileObject;
-import org.netbeans.modules.ada.project.api.AdaSourcePath;
-import org.netbeans.modules.gsf.api.Modifier;
 
 
 /**
@@ -174,16 +171,6 @@ public abstract class IndexedElement extends AdaElement {
         return document;
     }
 
-    public ParserFile getFile() {
-        FileObject fobj = getFileObject();
-        boolean platform = false;
-
-        if (fobj != null) {
-            AdaSourcePath.FileType fileType = AdaSourcePath.getType(fileObject);
-            platform = fileType == AdaSourcePath.FileType.SOURCE;
-        }
-        return new DefaultParserFile(fobj, null, platform);
-    }
 
     @Override
     @CheckForNull

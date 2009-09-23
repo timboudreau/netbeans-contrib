@@ -39,13 +39,13 @@
 
 package org.netbeans.modules.ada.project.path;
 
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
-import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.netbeans.spi.java.classpath.ClassPathImplementation;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
 
 final class BootClassPathImplementation implements ClassPathImplementation {
     private List<PathResourceImplementation> resourcesCache;

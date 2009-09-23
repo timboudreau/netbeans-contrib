@@ -46,6 +46,9 @@ import org.openide.filesystems.FileObject;
  * @author Andrea Lucarelli
  */
 public final class AdaSourcePath {
+    public static final String BOOT_CP = "classpath/ada-boot"; //NOI18N
+    public static final String SOURCE_CP = "classpath/ada-source"; //NOI18N
+    public static final String  MIME_TYPE = "text/x-ada"; // NOI18N
 
     /**
      * Possible types of a file.

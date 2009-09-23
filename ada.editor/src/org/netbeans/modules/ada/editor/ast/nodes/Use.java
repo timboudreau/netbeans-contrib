@@ -39,34 +39,37 @@
 
 package org.netbeans.modules.ada.editor.ast.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 
 /**
  * Represents use statement
- * <pre>e.g.<pre> use Ada.Text_IO
+ * <pre>e.g.<pre> 
+ * use Ada.Text_IO;
  * use Rational_Numbers.IO, Ada.Exceptions;
  *
  * @author Andrea Lucarelli
  */
 public class Use extends Statement {
     
-    private Identifier packageName;
+    private final ArrayList<Identifier> packages = new ArrayList<Identifier>();
 
-    public Use(int start, int end, Identifier packageName) {
+    public Use(int start, int end, List<Identifier> packages) {
         super(start, end);
 
-        this.packageName = packageName;
+        this.packages.addAll(packages);
     }
 
     
     /**
-     * Returns the packagename of this use.
+     * Returns the list of packages of this use.
      * 
-     * @return the packagename node
+     * @return the list of packages node
      */
-    public Identifier getPackageName() {
-        return packageName;
+    public List<Identifier> getPackages() {
+        return packages;
     }
 
     

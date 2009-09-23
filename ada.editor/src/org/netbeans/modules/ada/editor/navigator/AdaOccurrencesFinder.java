@@ -44,34 +44,43 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.parsing.spi.Scheduler;
+import org.netbeans.modules.parsing.spi.SchedulerEvent;
 import org.netbeans.modules.ada.editor.CodeUtils;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.Scalar;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeName;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement;
 import org.netbeans.modules.ada.editor.navigator.SemiAttribute.AttributedElement.Kind;
-import org.netbeans.modules.ada.editor.navigator.SemiAttribute.PackageElement;
-import org.netbeans.modules.gsf.api.ColoringAttributes;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OccurrencesFinder;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.OccurrencesFinder;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.spi.Parser.Result;
 
 /**
  * Based on org.netbeans.modules.php.editor.nav.OccurrencesFinderImpl
  *
  * @author Andrea Lucarelli
  */
-public class AdaOccurrencesFinder implements OccurrencesFinder {
+public class AdaOccurrencesFinder extends OccurrencesFinder {
 
+    private static final Logger LOGGER = Logger.getLogger(AdaOccurrencesFinder.class.getName());
     private int offset;
     private Map<OffsetRange, ColoringAttributes> range2Attribs;
 
@@ -87,19 +96,19 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
     public void cancel() {
     }
 
-    public void run(CompilationInfo parameter) throws Exception {
-        for (OffsetRange r : compute(parameter, offset)) {
+    public void run(Result result, SchedulerEvent event) {
+        for (OffsetRange r : compute((ParserResult) result, GsfUtilities.getLastKnownCaretOffset(result.getSnapshot(), event))) {
             range2Attribs.put(r, ColoringAttributes.MARK_OCCURRENCES);
         }
     }
 
-    static Collection<OffsetRange> compute(final CompilationInfo parameter, final int offset) {
+    static Collection<OffsetRange> compute(final ParserResult parameter, final int offset) {
         final List<OffsetRange> result = new LinkedList<OffsetRange>();
         final List<ASTNode> path = NavUtils.underCaret(parameter, offset);
-        final SemiAttribute a = SemiAttribute.semiAttribute(parameter);
-        final AttributedElement el = NavUtils.findElement(parameter, path, offset, a);
+        final SemiAttribute attribute = SemiAttribute.semiAttribute(parameter);
+        final AttributedElement element = NavUtils.findElement(parameter, path, offset, attribute);
 
-        if (el == null) {
+        if (element == null) {
             return result;
         }
         Identifier id = null;
@@ -117,6 +126,8 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
         final List<ASTNode> usages = new LinkedList<ASTNode>();
         final List<ASTNode> memberDeclaration = new LinkedList<ASTNode>();
 
+        LOGGER.setLevel(Level.FINE);
+
         new DefaultVisitor() {
 
             private String pkgName = null;
@@ -124,16 +135,16 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             @Override
             public void visit(MethodDeclaration node) {
                 boolean found = false;
-                if (el instanceof SemiAttribute.PackageMemberElement) {
-                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
+                if (element instanceof SemiAttribute.PackageMemberElement) {
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) element;
                     String methName = CodeUtils.extractMethodName(node);
-                    Identifier methNode = node.getIdentifier();
+                    Identifier methNode = node.getSubrogramName();
 
                     if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(methName)) {
                         memberDeclaration.add(methNode);
                         usages.add(methNode);
-                        if (node.getIdentifierEnd().getName() != null) {
-                            usages.add(node.getIdentifierEnd());
+                        if (node.getMethodName() != null) {
+                            usages.add(node.getSubrogramNameEnd());
                         }
                         found = true;
                     }
@@ -145,12 +156,15 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
 
             @Override
             public void visit(TypeDeclaration node) {
+                LOGGER.fine("called visist(TypeDeclaration): " + node.getTypeName().getName());
                 boolean found = false;
-                if (el instanceof SemiAttribute.PackageMemberElement) {
-                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
+                if (element instanceof SemiAttribute.PackageMemberElement) {
+                    LOGGER.fine("package element: " + node.getTypeName().getName());
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) element;
                     Identifier type = node.getTypeName();
                     String typeName = type.getName();
                     if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(typeName)) {
+                        LOGGER.fine("if: " + node.getTypeName().getName());
                         memberDeclaration.add(type);
                         usages.add(type);
                         found = true;
@@ -163,12 +177,15 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
 
             @Override
             public void visit(SingleFieldDeclaration node) {
+                LOGGER.fine("called visist(SingleFieldDeclaration): " + CodeUtils.extractVariableName(node.getName()));
                 boolean found = false;
-                if (el instanceof SemiAttribute.PackageMemberElement) {
-                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) el;
+                if (element instanceof SemiAttribute.PackageMemberElement) {
+                    LOGGER.fine("package element: " + CodeUtils.extractVariableName(node.getName()));
+                    SemiAttribute.PackageMemberElement pkgEl = (SemiAttribute.PackageMemberElement) element;
                     Variable variable = node.getName();
                     String varName = CodeUtils.extractVariableName(variable);
                     if (pkgName != null && pkgEl.getPackageName().equals(pkgName) && pkgEl.getName().equals(varName)) {
+                        LOGGER.fine("if: " + CodeUtils.extractVariableName(node.getName()));
                         memberDeclaration.add(variable);
                         usages.add(variable);
                         found = true;
@@ -180,25 +197,22 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             }
 
             @Override
-            public void visit(FunctionDeclaration node) {
-                if (!(el instanceof SemiAttribute.PackageMemberElement)) {
-                    if (el == a.getElement(node)) {
-                        usages.add(node.getIdentifier());
-                        if (node.getIdentifierEnd().getName() != null) {
-                            usages.add(node.getIdentifierEnd());
-                        }
+            public void visit(SubprogramSpecification node) {
+                if (!(element instanceof SemiAttribute.PackageMemberElement)) {
+                    if (element == attribute.getElement(node)) {
+                        usages.add(node.getSubprogramName());
                     }
                 }
                 super.visit(node);
             }
 
             @Override
-            public void visit(ProcedureDeclaration node) {
-                if (!(el instanceof SemiAttribute.PackageMemberElement)) {
-                    if (el == a.getElement(node)) {
-                        usages.add(node.getIdentifier());
-                        if (node.getIdentifierEnd().getName() != null) {
-                            usages.add(node.getIdentifierEnd());
+            public void visit(SubprogramBody node) {
+                if (!(element instanceof SemiAttribute.PackageMemberElement)) {
+                    if (element == attribute.getElement(node)) {
+                        usages.add(node.getSubprogramSpecification().getSubprogramName());
+                        if (node.getSubprogramNameEnd().getName() != null) {
+                            usages.add(node.getSubprogramNameEnd());
                         }
                     }
                 }
@@ -207,7 +221,7 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
 
             @Override
             public void visit(PackageSpecification node) {
-                if (el == a.getElement(node)) {
+                if (element == attribute.getElement(node)) {
                     usages.add(node.getName());
                     if (node.getNameEnd().getName() != null) {
                         usages.add(node.getNameEnd());
@@ -226,7 +240,7 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
 
             @Override
             public void visit(PackageBody node) {
-                if (el == a.getElement(node)) {
+                if (element == attribute.getElement(node)) {
                     usages.add(node.getName());
                     if (node.getNameEnd().getName() != null) {
                         usages.add(node.getNameEnd());
@@ -244,17 +258,53 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
             }
 
             @Override
+            public void visit(FormalParameter node) {
+                Variable parameterName = node.getParameterName();
+                if (parameterName != null) {
+                    String name = parameterName.getName().getName();
+                    if (name != null && element == attribute.getElement(parameterName)) {
+                        usages.add(parameterName);
+                    }
+                }
+                TypeName parameterType = node.getParameterType();
+                if (parameterType != null) {
+                    String name = parameterType.getTypeName().getName();
+                    if (name != null && element == attribute.getElement(parameterType)) {
+                        usages.add(parameterType);
+                    }
+                }
+                super.visit(node);
+            }
+
+            @Override
             public void visit(Variable node) {
-                if (el == a.getElement(node)) {
+                if (element == attribute.getElement(node)) {
                     usages.add(node);
                 }
                 super.visit(node);
             }
+
+            @Override
+            public void visit(TypeName node) {
+                if (element == attribute.getElement(node)) {
+                    usages.add(node);
+                }
+                super.visit(node);
+            }
+
+            @Override
+            public void visit(Scalar scalar) {
+                if (element == attribute.getElement(scalar)) {
+                    usages.add(scalar);
+                }
+                super.visit(scalar);
+            }
         }.scan(ASTUtils.getRoot(parameter));
 
         for (ASTNode n : usages) {
-            OffsetRange forNode = forNode(n, el.getKind());
+            OffsetRange forNode = forNode(n, element.getKind());
             if (forNode != null) {
+                LOGGER.fine("usage item: " + forNode);
                 result.add(forNode);
             }
         }
@@ -263,6 +313,24 @@ public class AdaOccurrencesFinder implements OccurrencesFinder {
     }
 
     private static OffsetRange forNode(ASTNode n, Kind kind) {
-        return new OffsetRange(n.getStartOffset(), n.getEndOffset());
+        OffsetRange retval = null;
+        if (n instanceof Scalar && ((Scalar) n).getScalarType() == Scalar.Type.STRING && NavUtils.isQuoted(((Scalar) n).getStringValue())) {
+            retval = new OffsetRange(n.getStartOffset(), n.getEndOffset());
+        } else if (n instanceof Variable) {
+            retval = new OffsetRange(n.getStartOffset(), n.getEndOffset());
+        } else if (n != null) {
+            retval = new OffsetRange(n.getStartOffset(), n.getEndOffset());
+        }
+        return retval;
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
+    @Override
+    public Class<? extends Scheduler> getSchedulerClass() {
+        return Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER;
     }
 }

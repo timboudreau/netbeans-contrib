@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.project;
 
 import java.beans.PropertyChangeEvent;
@@ -44,6 +43,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
@@ -62,9 +62,8 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
 
     private static final String BUILD_DIR_PROP = "${" + AdaProjectProperties.BUILD_DIR + "}";    //NOI18N
     private static final String DIST_DIR_PROP = "${" + AdaProjectProperties.DIST_DIR + "}";    //NOI18N
-
     public static final String SOURCES_TYPE_ADA = "ADASOURCE"; // NOI18N
-
+    private final Project project;
     private final ChangeSupport changeSupport;
     private final AntProjectHelper helper;
     private final PropertyEvaluator evaluator;
@@ -74,50 +73,53 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
     private SourcesHelper sourcesHelper;
     private boolean externalRootsRegistered;
 
-    public AdaSources (final AntProjectHelper helper, final PropertyEvaluator eval, final SourceRoots sources, final SourceRoots tests) {
+    public AdaSources(Project project, final AntProjectHelper helper, final PropertyEvaluator eval, final SourceRoots sources, final SourceRoots tests) {
+        assert project != null;
         assert helper != null;
         assert eval != null;
         assert sources != null;
         assert tests != null;
+
+        this.project = project;
         this.helper = helper;
         this.evaluator = eval;
         this.sourceRoots = sources;
         this.testRoots = tests;
         this.changeSupport = new ChangeSupport(this);
         this.sourceRoots.addPropertyChangeListener(this);
-        this.testRoots.addPropertyChangeListener(this);        
+        this.testRoots.addPropertyChangeListener(this);
         this.evaluator.addPropertyChangeListener(this);
         initSources();
     }
-    
-    
 
     public SourceGroup[] getSourceGroups(final String type) {
         return ProjectManager.mutex().readAccess(new Mutex.Action<SourceGroup[]>() {
+
             public SourceGroup[] run() {
                 Sources _delegate;
                 synchronized (AdaSources.this) {
-                    if (delegate == null) {                    
+                    if (delegate == null) {
                         delegate = initSources();
                         delegate.addChangeListener(AdaSources.this);
                     }
                     _delegate = delegate;
                 }
-                SourceGroup[] groups = _delegate.getSourceGroups(type);                
+                SourceGroup[] groups = _delegate.getSourceGroups(type);
                 return groups;
             }
         });
-    }    
-    
+    }
+
     private Sources initSources() {
-        this.sourcesHelper = new SourcesHelper(helper, evaluator);   //Safe to pass APH        
+        this.sourcesHelper = new SourcesHelper(project, helper, evaluator);
         register(sourceRoots);
         register(testRoots);
         this.sourcesHelper.addNonSourceRoot(BUILD_DIR_PROP);
         this.sourcesHelper.addNonSourceRoot(DIST_DIR_PROP);
         externalRootsRegistered = false;
         ProjectManager.mutex().postWriteRequest(new Runnable() {
-            public void run() {                
+
+            public void run() {
                 if (!externalRootsRegistered) {
                     sourcesHelper.registerExternalRoots(FileOwnerQuery.EXTERNAL_ALGORITHM_TRANSIENT);
                     externalRootsRegistered = true;
@@ -156,19 +158,17 @@ public class AdaSources implements Sources, ChangeListener, PropertyChangeListen
         }
         changeSupport.fireChange();
     }
-    
+
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
         if (SourceRoots.PROP_ROOT_PROPERTIES.equals(propName) ||
-            AdaProjectProperties.BUILD_DIR.equals(propName)  ||
-            AdaProjectProperties.DIST_DIR.equals(propName)) {
+                AdaProjectProperties.BUILD_DIR.equals(propName) ||
+                AdaProjectProperties.DIST_DIR.equals(propName)) {
             this.fireChange();
         }
     }
-    
-    public void stateChanged (ChangeEvent event) {
+
+    public void stateChanged(ChangeEvent event) {
         this.fireChange();
     }
-    
-
 }

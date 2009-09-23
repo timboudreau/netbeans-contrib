@@ -36,67 +36,76 @@
  *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.ada.editor.parser;
 
+import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java_cup.runtime.Symbol;
+import javax.swing.event.ChangeListener;
 import org.netbeans.modules.ada.editor.lexer.Ada95ASTLexer;
-import org.netbeans.modules.gsf.api.*;
 import org.netbeans.modules.ada.editor.ast.ASTError;
-import org.netbeans.modules.ada.editor.ast.nodes.EmptyStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.Comment;
+import org.netbeans.modules.ada.editor.ast.nodes.NullStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
 import org.netbeans.modules.ada.editor.ast.nodes.Statement;
-
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.GsfUtilities;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.api.Task;
+import org.netbeans.modules.parsing.spi.SourceModificationEvent;
+import org.openide.filesystems.FileObject;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.GSFPHPParser
  * 
  * @author Andrea Lucarelli
  */
-public class AdaParser implements Parser {
+public class AdaParser extends Parser {
 
-    private PositionManager positionManager = null;
-    
+//    private PositionManager positionManager = null;
     private static final Logger LOGGER = Logger.getLogger(AdaParser.class.getName());
-    
-    public void parseFiles(Job request) {
-        LOGGER.fine("parseFiles " + request.toString());
-        ParseListener listener = request.listener;
-        SourceFileReader reader = request.reader;
-        
-        for (ParserFile file : request.files) {
-            ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
-            request.listener.started(beginEvent);
-            ParserResult result = null;
-            try {
-                CharSequence buffer = reader.read(file);
-                String source = asString(buffer);
-                
-                int caretOffset = reader.getCaretOffset(file);
-                if (caretOffset != -1 && request.translatedSource != null) {
-                    caretOffset = request.translatedSource.getAstOffset(caretOffset);
-                }
-                LOGGER.fine("caretOffset: " + caretOffset); //NOI18N
-                Context context = new Context(file, listener, source, caretOffset, request.translatedSource);
-                result = parseBuffer(context, Sanitize.NONE, null);
-            } catch (Exception exception) {
-                listener.exception(exception);
-                LOGGER.fine ("Exception during parsing: " + exception);
-            }
-            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, result);
-            listener.finished(doneEvent);
+
+    private ParserResult result = null;
+
+    public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
+        FileObject file = snapshot.getSource().getFileObject();
+        LOGGER.fine("parseFiles " + file);
+//        ParseListener listener = request.listener;
+
+//        ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
+//        request.listener.started(beginEvent);
+        int end = 0;
+        try {
+            String source = snapshot.getText().toString();
+            end = source.length();
+            int caretOffset = GsfUtilities.getLastKnownCaretOffset(snapshot, event);
+            LOGGER.fine("caretOffset: " + caretOffset); //NOI18N
+            Context context = new Context(snapshot, source, caretOffset);
+            result = parseBuffer(context, Sanitize.NONE, null);
+        } catch (Exception exception) {
+            LOGGER.fine ("Exception during parsing: " + exception);
+            ASTError error = new ASTError(0, end);
+            List<Statement> statements = new ArrayList<Statement>();
+            statements.add(error);
+            Program emptyProgram = new Program(0, end, statements, Collections.<Comment>emptyList());
+            result = new AdaParseResult(snapshot, emptyProgram);
         }
-        
+
     }
 
-    protected AdaParseResult parseBuffer(final Context context, final Sanitize sanitizing, Ada95ErrorHandler errorHandler) throws Exception  {
+    protected AdaParseResult parseBuffer(final Context context, final Sanitize sanitizing, Ada95ErrorHandler errorHandler) throws Exception {
         boolean sanitizedSource = false;
         String source = context.source;
         if (errorHandler == null) {
-            errorHandler = new Ada95ErrorHandler(context,this);
+            errorHandler = new Ada95ErrorHandler(context, this);
         }
         if (!((sanitizing == Sanitize.NONE) || (sanitizing == Sanitize.NEVER))) {
             boolean ok = sanitizeSource(context, sanitizing, errorHandler);
@@ -111,15 +120,14 @@ public class AdaParser implements Parser {
             }
         }
 
-        AdaParseResult result;
+        AdaParseResult localResult;
         // calling the ada ast parser itself
         Ada95ASTLexer scanner = new Ada95ASTLexer(new StringReader(source));
         Ada95ASTParser parser = new Ada95ASTParser(scanner);
 
         if (!sanitizedSource) {
             parser.setErrorHandler(errorHandler);
-        }
-        else {
+        } else {
             parser.setErrorHandler(null);
         }
 
@@ -127,56 +135,52 @@ public class AdaParser implements Parser {
         if (rootSymbol != null) {
             Program program = null;
             if (rootSymbol.value instanceof Program) {
-                program = (Program)rootSymbol.value; // call the parser itself
+                program = (Program) rootSymbol.value; // call the parser itself
                 List<Statement> statements = program.getStatements();
                 //do we need sanitization?
                 boolean ok = false;
                 for (Statement statement : statements) {
-                    if (!(statement instanceof ASTError) && !(statement instanceof EmptyStatement)) {
+                    if (!(statement instanceof ASTError) && !(statement instanceof NullStatement)) {
                         ok = true;
                         break;
                     }
                 }
                 if (ok) {
-                    result = new AdaParseResult(this, context.getFile(), program);
+                    localResult = new AdaParseResult(context.getSnapshot(), program);
+                } else {
+                    localResult = sanitize(context, sanitizing, errorHandler);
                 }
-                else {
-                    result = sanitize(context, sanitizing, errorHandler);
-                }
+            } else {
+                LOGGER.fine("The parser value is not a Program: " + rootSymbol.value);
+                localResult = sanitize(context, sanitizing, errorHandler);
             }
-            else {
-                LOGGER.fine ("The parser value is not a Program: " + rootSymbol.value);
-                result = sanitize(context, sanitizing, errorHandler);
-            }
-            if (!sanitizedSource) {
-                errorHandler.displaySyntaxErrors(program);
-            }
+            //if (!sanitizedSource) {
+                localResult.setErrors(errorHandler.displaySyntaxErrors(program));
+            //}
+        } else {
+            localResult = sanitize(context, sanitizing, errorHandler);
+            localResult.setErrors(errorHandler.displayFatalError());
         }
-        else {
 
-            result = sanitize(context, sanitizing, errorHandler);
-        }
-        
-        return result;
+        return localResult;
     }
 
     private boolean sanitizeSource(Context context, Sanitize sanitizing, Ada95ErrorHandler errorHandler) {
         if (sanitizing == Sanitize.SYNTAX_ERROR_CURRENT) {
             List<Ada95ErrorHandler.SyntaxError> syntaxErrors = errorHandler.getSyntaxErrors();
             if (syntaxErrors.size() > 0) {
-                Ada95ErrorHandler.SyntaxError error =  syntaxErrors.get(0);
+                Ada95ErrorHandler.SyntaxError error = syntaxErrors.get(0);
                 String source;
                 if (context.sanitized == Sanitize.NONE) {
                     source = context.source;
-                }
-                else {
+                } else {
                     source = context.sanitizedSource;
                 }
 
                 int end = error.getCurrentToken().right;
                 int start = error.getCurrentToken().left;
 
-                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end-start) + source.substring(end);
+                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end - start) + source.substring(end);
                 context.sanitizedRange = new OffsetRange(start, end);
                 return true;
             }
@@ -184,13 +188,13 @@ public class AdaParser implements Parser {
         if (sanitizing == Sanitize.SYNTAX_ERROR_PREVIOUS) {
             List<Ada95ErrorHandler.SyntaxError> syntaxErrors = errorHandler.getSyntaxErrors();
             if (syntaxErrors.size() > 0) {
-                Ada95ErrorHandler.SyntaxError error =  syntaxErrors.get(0);
+                Ada95ErrorHandler.SyntaxError error = syntaxErrors.get(0);
                 String source = context.source;
 
                 int end = error.getPreviousToken().right;
                 int start = error.getPreviousToken().left;
 
-                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end-start) + source.substring(end);
+                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end - start) + source.substring(end);
                 context.sanitizedRange = new OffsetRange(start, end);
                 return true;
             }
@@ -198,24 +202,91 @@ public class AdaParser implements Parser {
         if (sanitizing == Sanitize.SYNTAX_ERROR_PREVIOUS_LINE) {
             List<Ada95ErrorHandler.SyntaxError> syntaxErrors = errorHandler.getSyntaxErrors();
             if (syntaxErrors.size() > 0) {
-                Ada95ErrorHandler.SyntaxError error =  syntaxErrors.get(0);
+                Ada95ErrorHandler.SyntaxError error = syntaxErrors.get(0);
                 String source = context.source;
 
                 int end = Utils.getRowEnd(source, error.getPreviousToken().right);
                 int start = Utils.getRowStart(source, error.getPreviousToken().left);
 
-                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end-start) + source.substring(end);
+                StringBuffer sb = new StringBuffer(end - start);
+                for (int index = start; index < end; index++) {
+                    if (source.charAt(index) == ' ' || source.charAt(index) == '\n' || source.charAt(index) == '\r') {
+                        sb.append(source.charAt(index));
+                    } else {
+                        sb.append(' ');
+                    }
+                }
+
+                context.sanitizedSource = source.substring(0, start) + sb.toString() + source.substring(end);
                 context.sanitizedRange = new OffsetRange(start, end);
                 return true;
+            }
+        }
+        if (sanitizing == Sanitize.EDITED_LINE) {
+            if (context.caretOffset > -1) {
+                String source = context.getSource();
+                int start = context.caretOffset - 1;
+                int end = context.caretOffset;
+                // fix until new line or }
+                char c = source.charAt(start);
+                while (start > 0 && c != '\n' && c != '\r') {
+                    c = source.charAt(--start);
+                }
+                start++;
+                if (end < source.length()) {
+                    c = source.charAt(end);
+                    while (end < source.length() && c != '\n' && c != '\r') {
+                        c = source.charAt(end++);
+                    }
+                }
+                context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end - start) + source.substring(end);
+                context.sanitizedRange = new OffsetRange(start, end);
+                return true;
+            }
+        }
+        if (sanitizing == Sanitize.SYNTAX_ERROR_BLOCK) {
+            List<Ada95ErrorHandler.SyntaxError> syntaxErrors = errorHandler.getSyntaxErrors();
+            if (syntaxErrors.size() > 0) {
+                Ada95ErrorHandler.SyntaxError error = syntaxErrors.get(0);
+                return sanitizeRemoveBlock(context, error.getCurrentToken().left);
             }
         }
         return false;
     }
 
+    private boolean sanitizeRemoveBlock(Context context, int index) {
+        String source = context.getSource();
+        Ada95ASTLexer scanner = new Ada95ASTLexer(new StringReader(source));
+        Symbol token = null;
+        int start = -1;
+        int end = -1;
+        try {
+            token = scanner.next_token();
+            while (token.sym != Ada95ASTSymbols.EOF && end == -1) {
+                /*
+                if (token.sym == Ada95ASTSymbols.T_CURLY_OPEN && token.left <= index) {
+                start = token.right;
+                }
+                if (token.sym == Ada95ASTSymbols.T_CURLY_CLOSE && token.left >= index ) {
+                end = token.right - 1;
+                }
+                 */
+                token = scanner.next_token();
+            }
+        } catch (IOException exception) {
+            LOGGER.log(Level.INFO, "Exception during removing block", exception);   //NOI18N
+        }
+        if (start > -1 && start < end) {
+            context.sanitizedSource = source.substring(0, start) + Utils.getSpaces(end - start) + source.substring(end);
+            context.sanitizedRange = new OffsetRange(start, end);
+            return true;
+        }
+        return false;
+    }
 
-    private AdaParseResult sanitize(final Context context, final Sanitize sanitizing, Ada95ErrorHandler errorHandler) throws Exception{
-        
-        switch(sanitizing) {
+    private AdaParseResult sanitize(final Context context, final Sanitize sanitizing, Ada95ErrorHandler errorHandler) throws Exception {
+
+        switch (sanitizing) {
             case NONE:
                 return parseBuffer(context, Sanitize.SYNTAX_ERROR_CURRENT, errorHandler);
             case SYNTAX_ERROR_CURRENT:
@@ -223,33 +294,58 @@ public class AdaParser implements Parser {
                 return parseBuffer(context, Sanitize.SYNTAX_ERROR_PREVIOUS, errorHandler);
             case SYNTAX_ERROR_PREVIOUS:
                 return parseBuffer(context, Sanitize.SYNTAX_ERROR_PREVIOUS_LINE, errorHandler);
+            case SYNTAX_ERROR_PREVIOUS_LINE:
+                return parseBuffer(context, Sanitize.EDITED_LINE, errorHandler);
+            case EDITED_LINE:
+                return parseBuffer(context, Sanitize.SYNTAX_ERROR_BLOCK, errorHandler);
             default:
                 int end = context.getSource().length();
-                Program emptyProgram = new Program(0, end, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
-                return new AdaParseResult(this, context.getFile(), emptyProgram);
+                // add the ast error, some features can recognized that there is something wrong.
+                // for example folding.
+                ASTError error = new ASTError(0, end);
+                List<Statement> statements = new ArrayList<Statement>();
+                statements.add(error);
+                Program emptyProgram = new Program(0, end, statements, Collections.<Comment>emptyList());
+
+                return new AdaParseResult(context.getSnapshot(), emptyProgram);
         }
-        
+
     }
 
     private static String asString(CharSequence sequence) {
         if (sequence instanceof String) {
-            return (String)sequence;
+            return (String) sequence;
         } else {
             return sequence.toString();
         }
     }
-    
-    public PositionManager getPositionManager() {
-        if (positionManager == null) {
-            positionManager = new AdaPositionManager();
-        }
-        return positionManager;
+
+    @Override
+    public Result getResult(Task task) throws ParseException {
+        return result;
     }
+
+    @Override
+    public void cancel() {
+        // TODO
+    }
+
+    @Override
+    public void addChangeListener(ChangeListener changeListener) {
+        // TODO
+    }
+
+    @Override
+    public void removeChangeListener(ChangeListener changeListener) {
+        // TODO
+    }
+
 
     /** Attempts to sanitize the input buffer */
     public static enum Sanitize {
+
         /** Only parse the current file accurately, don't try heuristics */
-        NEVER, 
+        NEVER,
         /** Perform no sanitization */
         NONE,
         /** Remove current error token */
@@ -258,27 +354,28 @@ public class AdaParser implements Parser {
         SYNTAX_ERROR_PREVIOUS,
         /** remove line with error */
         SYNTAX_ERROR_PREVIOUS_LINE,
+        /** try to delete the whole block, where is the error*/
+        SYNTAX_ERROR_BLOCK,
         /** Try to remove the trailing . or :: at the caret line */
-        EDITED_DOT, 
+        EDITED_DOT,
         /** Try to remove the trailing . or :: at the error position, or the prior
          * line, or the caret line */
-        ERROR_DOT, 
+        ERROR_DOT,
         /** Try to remove the initial "if" or "unless" on the block
          * in case it's not terminated
          */
         BLOCK_START,
         /** Try to cut out the error line */
-        ERROR_LINE, 
+        ERROR_LINE,
         /** Try to cut out the current edited line, if known */
         EDITED_LINE,
         /** Attempt to add an "end" to the end of the buffer to make it compile */
         MISSING_END,
     }
-    
+
     /** Parsing context */
     public static class Context {
-        private final ParserFile file;
-        private final ParseListener listener;
+        private final Snapshot snapshot;
         private int errorOffset;
         private String source;
         private String sanitizedSource;
@@ -286,22 +383,19 @@ public class AdaParser implements Parser {
         private String sanitizedContents;
         private int caretOffset;
         private Sanitize sanitized = Sanitize.NONE;
-        private TranslatedSource translatedSource;
 
-        
-        public Context(ParserFile parserFile, ParseListener listener, String source, int caretOffset, TranslatedSource translatedSource) {
-            this.file = parserFile;
-            this.listener = listener;
+
+        public Context(Snapshot snapshot, String source, int caretOffset) {
+            this.snapshot = snapshot;
             this.source = source;
             this.caretOffset = caretOffset;
-            this.translatedSource = translatedSource;
         }
-        
+
         @Override
         public String toString() {
-            return "AdaParser.Context(" + getFile().toString() + ")"; // NOI18N
+            return "AdaParser.Context(" + snapshot.getSource().getFileObject() + ")"; // NOI18N
         }
-        
+
         public OffsetRange getSanitizedRange() {
             return sanitizedRange;
         }
@@ -309,27 +403,20 @@ public class AdaParser implements Parser {
         public Sanitize getSanitized() {
             return sanitized;
         }
-        
+
         public String getSanitizedSource() {
             return sanitizedSource;
         }
-        
+
         public int getErrorOffset() {
             return errorOffset;
         }
 
         /**
-         * @return the listener
-         */
-        public ParseListener getListener() {
-            return listener;
-        }
-
-        /**
          * @return the file
          */
-        public ParserFile getFile() {
-            return file;
+        public Snapshot getSnapshot() {
+            return snapshot;
         }
 
         /**

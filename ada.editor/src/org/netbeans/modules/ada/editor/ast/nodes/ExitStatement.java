@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,35 +31,52 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.ada.editor.ast.nodes;
 
-package org.netbeans.modules.ada.platform;
+import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
-import java.util.prefs.Preferences;
-import org.openide.util.NbPreferences;
+/**
+ * Represent a exit statement
+ * <pre>e.g.<pre> 
+ * exit Main_Cycle when Found;
+ * exit when New_Item = Terminal_Item;
+ */
+public class ExitStatement extends Statement {
 
-public final class AdaPreferences {
+    private String loopName;
+    private Expression whenCondition;
+
+    public ExitStatement(int start, int end, String loopName, Expression whenCondition) {
+        super(start, end);
+        this.loopName = loopName;
+        this.whenCondition = whenCondition;
+    }
+
+    /**
+     * Returns the loop name of this exit statement.
+     * 
+     * @return the loopName node
+     */
+    public String getLoopName() {
+        return loopName;
+    }
+
+	/**
+     * Returns the loop name of this exit statement.
+     * 
+     * @return the whenCondition node
+     */
+    public Expression getWhenCondition() {
+        return whenCondition;
+    }
     
-    private static final String FIRST_TIME_KEY = "platform-manager-called-first-time"; // NOI18N
-
-    private AdaPreferences() {
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
-
-    /** Returns {@link NbPreferences preferences} for this module. */
-    public static Preferences getPreferences() {
-        return NbPreferences.forModule(AdaPreferences.class);
-    }
-
-    public static void setFirstPlatformTouch(boolean b) {
-        AdaPreferences.getPreferences().putBoolean(FIRST_TIME_KEY, b);
-    }
-
-    public static boolean isFirstPlatformTouch() {
-        return AdaPreferences.getPreferences().getBoolean(FIRST_TIME_KEY, true);
-    }
-
 }

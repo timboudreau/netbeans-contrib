@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.ada.editor.ast.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 
@@ -52,22 +54,22 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  */
 public class With extends Statement {
     
-    private Identifier packageName;
+    private final ArrayList<PackageName> packages = new ArrayList<PackageName>();
 
-    public With(int start, int end, Identifier packageName) {
+    public With(int start, int end, List<PackageName> packages) {
         super(start, end);
 
-        this.packageName = packageName;
+        this.packages.addAll(packages);
     }
 
     
     /**
-     * Returns the packagename of this with.
+     * Returns the list of packages of this with.
      * 
-     * @return the packagename node
+     * @return the packages node
      */
-    public Identifier getPackageName() {
-        return packageName;
+    public List<PackageName> getPackages() {
+        return packages;
     }
 
     

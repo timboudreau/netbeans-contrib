@@ -38,11 +38,12 @@
  */
 package org.netbeans.modules.ada.platform.compiler.gnat;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.netbeans.api.ada.platform.AdaException;
 import org.netbeans.api.ada.platform.AdaPlatform;
-import org.netbeans.modules.ada.platform.compiler.CompilerFactory;
+import org.netbeans.spi.ada.platform.Compiler;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatClean;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatMake;
 import org.netbeans.modules.ada.platform.compiler.gnat.commands.GnatCommand;
@@ -53,16 +54,40 @@ import org.openide.util.Exceptions;
  *
  * @author  Andrea Lucarelli
  */
-public class GnatCompiler extends CompilerFactory {
+public class GnatCompiler implements Compiler {
 
     private final Map<String, GnatCommand> gnatCommands;
+    private final AdaPlatform platform;
+    private final String projectName;
+    private final String projectPath;
+    private final ArrayList<String> sourceFolders;
+    private final String mainFile;
+    private final String executableFile;
+    private final String commandName;
+    private final String spcPostfix;
+    private final String bdyPostfix;
+    private final String sepPostfix;
+    private final String spcExt;
+    private final String bdyExt;
+    private final String sepExt;
 
     /**
      * 
      * @param project
      */
-    public GnatCompiler(AdaPlatform platform, String projectName, String projectPath, String sourceFolder, String mainProgram, String executableName, String commandName) {
-        super(platform, projectName, projectPath, sourceFolder, mainProgram, executableName, commandName);
+    public GnatCompiler(AdaPlatform platform, String projectName, String projectPath, ArrayList<String> sourceFolders, String mainFile, String executableFile, String commandName,
+            String spcPostfix, String bdyPostfix, String sepPostfix, String spcExt, String bdyExt, String sepExt) {
+
+        assert platform != null;
+
+        this.platform = platform;
+        this.projectName = projectName;
+        this.projectPath = projectPath;
+        this.sourceFolders = sourceFolders;
+        this.mainFile = mainFile;
+        this.executableFile = executableFile;
+        this.commandName = commandName;
+
         gnatCommands = new LinkedHashMap<String, GnatCommand>();
         GnatCommand[] gnatCommandArray = new GnatCommand[]{
             new GnatMake(this),
@@ -72,6 +97,12 @@ public class GnatCompiler extends CompilerFactory {
         for (GnatCommand gnatCommand : gnatCommandArray) {
             gnatCommands.put(gnatCommand.getCommandId(), gnatCommand);
         }
+        this.spcExt = spcExt;
+        this.bdyExt = bdyExt;
+        this.sepExt = sepExt;
+        this.spcPostfix = spcPostfix;
+        this.bdyPostfix = bdyPostfix;
+        this.sepPostfix = sepPostfix;
     }
 
     /**
@@ -79,10 +110,10 @@ public class GnatCompiler extends CompilerFactory {
      * @param commandName
      * @throws IllegalArgumentException
      */
-    private void invokeCommand(final String commandName, final String displayTitle) throws IllegalArgumentException, AdaException {
+    private void invokeCommand(final String commandName, final String displayTitle, final String args) throws IllegalArgumentException, AdaException {
         final GnatCommand gnatCommand = findCommand(commandName);
         assert gnatCommand != null;
-        gnatCommand.invokeCommand(displayTitle);
+        gnatCommand.invokeCommand(displayTitle, args);
     }
 
     /**
@@ -95,10 +126,9 @@ public class GnatCompiler extends CompilerFactory {
         return gnatCommands.get(commandName);
     }
 
-    @Override
     public void Build() {
         try {
-            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")", null);
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
@@ -106,11 +136,9 @@ public class GnatCompiler extends CompilerFactory {
         }
     }
 
-    @Override
-    public void Run() {
+    public void Run(String args) {
         try {
-            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
-            invokeCommand(GnatCommand.RUN, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.RUN, this.getProjectName() + "(" + this.getCommandName() + ")", args);
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
@@ -118,22 +146,9 @@ public class GnatCompiler extends CompilerFactory {
         }
     }
 
-    @Override
-    public void Rebuild() {
-        try {
-            invokeCommand(GnatCommand.GNAT_CLEAN, this.getProjectName() + "(" + this.getCommandName() + ")");
-            invokeCommand(GnatCommand.GNAT_MAKE, this.getProjectName() + "(" + this.getCommandName() + ")");
-        } catch (IllegalArgumentException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (AdaException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
-    @Override
     public void Compile() {
         try {
-            invokeCommand(GnatCommand.GNAT_COMPILE, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.GNAT_COMPILE, this.getProjectName() + "(" + this.getCommandName() + ")", null);
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
@@ -141,14 +156,65 @@ public class GnatCompiler extends CompilerFactory {
         }
     }
 
-    @Override
     public void Clean() {
         try {
-            invokeCommand(GnatCommand.GNAT_CLEAN, this.getProjectName() + "(" + this.getCommandName() + ")");
+            invokeCommand(GnatCommand.GNAT_CLEAN, this.getProjectName() + "(" + this.getCommandName() + ")", null);
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         } catch (AdaException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    public AdaPlatform getPlatform() {
+        return platform;
+    }
+
+    public String getExecutableFile() {
+        return executableFile;
+    }
+
+    public String getCommandName() {
+        return commandName;
+    }
+
+    public String getMainFile() {
+        return mainFile;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public ArrayList<String> getSourceFolders() {
+        return sourceFolders;
+    }
+
+    public String getBdyExt() {
+        return bdyExt;
+    }
+
+    public String getSepExt() {
+        return sepExt;
+    }
+
+    public String getSpcExt() {
+        return spcExt;
+    }
+
+    public String getBdyPostfix() {
+        return bdyPostfix;
+    }
+
+    public String getSepPostfix() {
+        return sepPostfix;
+    }
+
+    public String getSpcPostfix() {
+        return spcPostfix;
     }
 }

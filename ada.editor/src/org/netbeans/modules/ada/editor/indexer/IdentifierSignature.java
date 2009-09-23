@@ -52,7 +52,7 @@ import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Statement;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.csl.api.ElementKind;
 
 /**
  *
@@ -266,16 +266,9 @@ public class IdentifierSignature {
     }
 
     private static void add(MethodDeclaration declaration, String typename, Boolean pkgMember, List<IdentifierSignature> results) {
-        if (declaration.getKind() == MethodDeclaration.Kind.FUNCTION) {
-            IdentifierSignature is = new IdentifierSignature(declaration.getFunction().getIdentifier(),
-                    declaration.getModifier(), ElementKind.METHOD, typename, true, pkgMember);
-            results.add(is);
-        }
-        else {
-            IdentifierSignature is = new IdentifierSignature(declaration.getProcedure().getIdentifier(),
-                    declaration.getModifier(), ElementKind.METHOD, typename, true, pkgMember);
-            results.add(is);
-        }
+        IdentifierSignature is = new IdentifierSignature(declaration.getSubrogramName(),
+                declaration.getModifier(), ElementKind.METHOD, typename, true, pkgMember);
+        results.add(is);
     }
 
     private static void add(FieldsDeclaration declaration, String typename, Boolean pkgMember, List<IdentifierSignature> results) {

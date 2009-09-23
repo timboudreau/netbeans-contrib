@@ -46,25 +46,25 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  *  
  *  TODO: to verify the use for ACCESS attribute
  */
-public class Reference extends Statement {
+public class Reference extends Expression {
 
     /**
      *  the expressions can be either variable or class instantiation 
      *  note that other expressions can not be assigned to this field
      */
-    private Statement expression;
+    private Expression expression;
 
-    private Reference(int start, int end, Statement expression) {
+    private Reference(int start, int end, Expression expression) {
         super(start, end);
         this.expression = expression;
     }
 
     public Reference(int start, int end, VariableBase variable) {
-        this(start, end, (Statement)variable);
+        this(start, end, (Expression)variable);
     }
 
     public Reference(int start, int end, PackageInstanceCreation packageInstanciation) {
-        this(start, end, (Statement) packageInstanciation);
+        this(start, end, (Expression) packageInstanciation);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Reference extends Statement {
      * 
      * @return the expression node
      */
-    public Statement getExpression() {
+    public Expression getExpression() {
         return expression;
     }
     

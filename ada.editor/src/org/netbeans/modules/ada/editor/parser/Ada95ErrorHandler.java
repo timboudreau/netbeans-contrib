@@ -40,17 +40,18 @@
 package org.netbeans.modules.ada.editor.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
-import org.netbeans.modules.gsf.api.Error;
-import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.ada.editor.parser.AdaParser.Context;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.csl.api.Severity;
 import org.openide.util.NbBundle;
+import org.netbeans.modules.csl.api.Error;
 
 /**
  * Based on org.netbeans.modules.php.editor.parser.PHP5ErrorHandler
@@ -65,7 +66,7 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
         private final short[] expectedTokens;
         private final Symbol currentToken;
         private final Symbol previousToken;
-        
+
         public SyntaxError(short[] expectedTokens, Symbol currentToken, Symbol previousToken) {
             this.expectedTokens = expectedTokens;
             this.currentToken = currentToken;
@@ -114,7 +115,7 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
                 LOGGER.finest(message.toString());
             }
             syntaxErrors.add(new SyntaxError(expectedtokens, current, previous));
-        } else if (type == ParserErrorHandler.Type.FATAL_PARSER_ERROR) {
+        } else {
             String message = null;
             if (current != null) {
                 String tagText = getTokenTextForm(current.sym);
@@ -128,8 +129,8 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
             if (message == null) {
                 message = "Parser error"; // NOI18N
             }
-            error = new AdaError(message, context.getFile().getFileObject(), current.left, current.right, Severity.ERROR, null);
-            context.getListener().error(error);
+            error = new AdaError(message, context.getSnapshot().getSource().getFileObject(), current.left, current.right, Severity.ERROR, null);
+            //context.getListener().error(error);
         }
     }
 
@@ -139,12 +140,18 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
             if (message == null) {
                 message = "Parser error";
             }
-            error = new AdaError(message, context.getFile().getFileObject(), symbol.left, symbol.right, Severity.ERROR, null);
-            context.getListener().error(error);
+            error = new AdaError(message,  context.getSnapshot().getSource().getFileObject(), symbol.left, symbol.right, Severity.ERROR, null);
+            //TODO: context.getListener().error(error);
         }
     }
+
+    public List<Error> displayFatalError(){
+        Error error = new FatalError();
+        return Arrays.asList(error);
+    }
     
-    public void displaySyntaxErrors(Program program) {
+    public List<Error>  displaySyntaxErrors(Program program) {
+        List<Error> errors = new ArrayList<Error>();
         for (SyntaxError syntaxError : syntaxErrors) {
             ASTNode astError = null;
             if (program != null) {
@@ -162,8 +169,9 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
                 }
             }
             Error error = defaultSyntaxErrorHandling(syntaxError, astError);
-            context.getListener().error(error);
+            errors.add(error);
         }
+        return errors;
     }
     
     // This is just defualt handling. We can do a logic, which will find metter 
@@ -238,7 +246,7 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
                 start = start + lastNewLine + 1;
             }
         }
-        error = new AdaError(message.toString(), context.getFile().getFileObject(), start, end, Severity.ERROR, new Object[]{syntaxError});
+        error = new AdaError(message.toString(), context.getSnapshot().getSource().getFileObject(), start, end, Severity.ERROR, new Object[]{syntaxError});
         return error;
     }
 
@@ -339,7 +347,7 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
             case Ada95ASTSymbols.BAR : text = "|"; break; //NOI18N
             case Ada95ASTSymbols.ARROW : text = "=>"; break; //NOI18N
             case Ada95ASTSymbols.DOT_DOT : text = ".."; break; //NOI18N
-            case Ada95ASTSymbols.EXPONENT : text = "**"; break; //NOI18N
+            case Ada95ASTSymbols.EXPON : text = "**"; break; //NOI18N
             case Ada95ASTSymbols.ASSIGNMENT : text = ":="; break; //NOI18N
             case Ada95ASTSymbols.INEQ : text = "/="; break; //NOI18N
             case Ada95ASTSymbols.GTEQ : text = ">="; break; //NOI18N
@@ -349,5 +357,19 @@ public class Ada95ErrorHandler implements ParserErrorHandler {
             case Ada95ASTSymbols.BOX : text = "<>"; break; //NOI18N
         }
         return text;
+    }
+
+    private class FatalError extends AdaError{
+        FatalError(){
+            super(NbBundle.getMessage(Ada95ErrorHandler.class, "MSG_FatalError"),
+                context.getSnapshot().getSource().getFileObject(),
+                0, context.getSource().length(),
+                Severity.ERROR, null);
+        }
+
+        @Override
+        public boolean isLineError() {
+            return false;
+        }
     }
 }

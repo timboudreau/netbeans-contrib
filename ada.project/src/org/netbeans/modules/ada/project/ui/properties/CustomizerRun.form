@@ -65,11 +65,6 @@
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="net/java/dev/nbpython/project/ui/customizer/Bundle.properties" key="CustomizerRun.mainModule.ad" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
-      </AccessibilityProperties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
@@ -85,11 +80,6 @@
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="appArgs">
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="net/java/dev/nbpython/project/ui/customizer/Bundle.properties" key="CustomizerRun.appArgs.ad" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
-      </AccessibilityProperties>
     </Component>
   </SubComponents>
 </Form>

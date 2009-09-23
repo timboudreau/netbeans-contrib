@@ -44,24 +44,27 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.ada.editor.formatter.AdaFormatter;
 import org.netbeans.modules.ada.editor.formatter.AdaKeystrokeHandler;
 import org.netbeans.modules.ada.editor.indexer.AdaIndexer;
-import org.netbeans.modules.gsf.api.Parser;
-import org.netbeans.modules.gsf.api.CodeCompletionHandler;
-import org.netbeans.modules.gsf.api.Indexer;
-import org.netbeans.modules.gsf.api.SemanticAnalyzer;
-import org.netbeans.modules.gsf.api.StructureScanner;
-import org.netbeans.modules.gsf.api.DeclarationFinder;
-import org.netbeans.modules.gsf.api.OccurrencesFinder;
-import org.netbeans.modules.gsf.api.Formatter;
-import org.netbeans.modules.gsf.api.KeystrokeHandler;
-import org.netbeans.modules.gsf.api.InstantRenamer;
-import org.netbeans.modules.gsf.api.HintsProvider;
-import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 import org.netbeans.modules.ada.editor.lexer.AdaTokenId;
 import org.netbeans.modules.ada.editor.navigator.AdaDeclarationFinder;
 import org.netbeans.modules.ada.editor.navigator.AdaOccurrencesFinder;
 import org.netbeans.modules.ada.editor.parser.AdaStructureScanner;
 import org.netbeans.modules.ada.editor.parser.AdaParser;
 import org.netbeans.modules.ada.editor.parser.AdaSemanticAnalyzer;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.Formatter;
+import org.netbeans.modules.csl.api.HintsProvider;
+import org.netbeans.modules.csl.api.InstantRenamer;
+import org.netbeans.modules.csl.api.KeystrokeHandler;
+import org.netbeans.modules.csl.api.OccurrencesFinder;
+import org.netbeans.modules.csl.api.SemanticAnalyzer;
+import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
+
 
 /**
  *
@@ -133,8 +136,8 @@ public class AdaLanguage extends DefaultLanguageConfig {
     }
 
     @Override
-    public Indexer getIndexer() {
-        return new AdaIndexer();
+    public EmbeddingIndexerFactory getIndexerFactory() {
+        return new AdaIndexer.Factory();
     }
 
     @Override

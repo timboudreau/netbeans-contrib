@@ -44,7 +44,9 @@ import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
  * Represents a type declaration of package
  *
  * <pre>e.g.<pre>
- * type Count_Type is range 1..10;
+ * type Color is (White, Red, Yellow, Green, Blue, Brown, Black);
+ * type Column is range 1 .. 72;
+ * type Table is array(1 .. 10) of Integer;
  */
 public class TypeDeclaration extends BodyDeclaration {
 

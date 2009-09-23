@@ -22,7 +22,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
+ * or only the GPL Version 2, indicate your decision by binary_adding_operator
  * "[Contributor] elects to include this software in this distribution
  * under the [CDDL or GPL Version 2] license." If you do not indicate a
  * single choice of license, a recipient has the option to distribute
@@ -70,6 +70,8 @@ parser code {:
 	   dispatch = new FieldAccess(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (Variable)property);
 	} else if (property instanceof FunctionInvocation) {
 	   dispatch = new MethodInvocation(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (FunctionInvocation)property);
+	} else if (property instanceof ProcedureInvocation) {
+	   dispatch = new MethodInvocation(dispatcher.getStartOffset(), property.getEndOffset(), dispatcher, (ProcedureInvocation)property);
 	} else {
 	   throw new IllegalArgumentException();
 	}
@@ -190,8 +192,8 @@ parser code {:
  *    Copyright © 2000 The MITRE Corporation, Inc.       *
  * 2. http://www.adaic.com/standards/95lrm/grammar9x.y   *
  *                                                       *
- * Modified for "Ada for Netbeans" and for using it with *
- * JavaCup by Andrea Lucarelli.                          *
+ * Author: Andrea Lucarelli                              *
+ * Parser Generator: JavCup                              *
  *                                                       *
  *********************************************************/
 
@@ -272,6 +274,8 @@ terminal WHILE;
 terminal WITH;
 terminal XOR;
 
+// 2.2 Lexical Elements, Separators, and Delimiters
+
 //
 // delimiters
 //
@@ -297,7 +301,7 @@ terminal BAR;
 //
 terminal ARROW;
 terminal DOT_DOT;
-terminal EXPONENT;
+terminal EXPON;
 terminal ASSIGNMENT;
 terminal INEQ;
 terminal GTEQ;
@@ -309,108 +313,208 @@ terminal BOX;
 //
 // others tokens
 //
-terminal String OPERATOR_SYMBOL;
-terminal String BASED_LITERAL;
-terminal String DECIMAL_LITERAL;
-terminal String CHAR_LITERAL;
-terminal String STRING_LITERAL;
-terminal String IDENTIFIER;
-
+// ??? terminal String OPERATOR_SYMBOL;
+terminal String CHAR_LITERAL;    // 2.1 Character Set
+terminal String IDENTIFIER;      // 2.3 Identifiers
+terminal String DECIMAL_LITERAL; // 2.4.1 Decimal Literals
+terminal String BASED_LITERAL;   // 2.4.2 Based Literals
+terminal String STRING_LITERAL;  // 2.6 String Literals
 
 
 /*************************
  * JavaCup Non terminals *
  *************************/
 
-// 10.1.1 Compilation Units - Library Units
-non terminal Program           compilation;
-non terminal List              compilation_unit_list;
-non terminal Statement         compilation_unit;
-non terminal Statement         unit;
-
-// 10.1.2 Context Clauses - With Clauses
-non terminal Statement         context_clause;
-non terminal Statement         with_clause;
-non terminal List              compound_name_list;
-
-// 8.4 Use Clauses
-non terminal Statement         use_clause;
-
-// 7.1 Package Specifications and Declarations
-non terminal Statement         package_declaration;
-non terminal Statement         package_specification;
-
-// 7.2 Package Bodies
-non terminal Statement         package_body;
-non terminal Statement         body;
-
-// 7.3 Private Types and Private Extensions
-non terminal PrivateType       private_type_declaration;
-non terminal Integer           tagged_opt;
-non terminal Integer           limited_opt;
-
-// 6.1 Subprogram Declarations
-non terminal MethodDeclaration subprogram_specification;
-non terminal MethodDeclaration subprogram_specification_is_push;
-non terminal MethodDeclaration generic_subp_inst;
-non terminal MethodDeclaration subprog_body;
-
 // 3.1 Declarations
-non terminal Statement         declaration;
-non terminal List              fields_declaration;
-non terminal Statement         type_declaration;
-non terminal Statement         subprog_declaration;
-non terminal Statement         subprog_decl;
-non terminal Identifier        defining_identifier;
+non terminal Statement               declaration;
+non terminal List                    fields_declaration;
+non terminal Statement               type_declaration;
+non terminal Statement               subprog_declaration;
+non terminal Identifier              defining_identifier;
 
 // 3.11 Declarative Parts
-non terminal List              declarative_items_opt;
-non terminal List              declarative_item_list;
-non terminal Statement         declarative_item;
-non terminal List              declarative_part;
-non terminal List              declarative_item_or_body_s1;
-non terminal List              private_part;
-non terminal Statement         proper_body;
-non terminal Statement         task_body;
+non terminal List                    declarative_items_opt;
+non terminal List                    declarative_item_list;
+non terminal Statement               declarative_item;
+non terminal List                    declarative_part;
+non terminal List                    declarative_item_or_body_s1;
+non terminal List                    private_part;
+non terminal Statement               proper_body;
+non terminal Statement               task_body;
+
+// 3.2.1 Type Declarations
+non terminal Expression              type_definition;
+
+// 3.2.2 Subtype Declarations
+non terminal Statement               subtype_declaration;
+non terminal TypeName                subtype_indication;
 
 // 3.3.1 Object Declarations
-non terminal List              object_declaration;
-non terminal List              defining_identifier_list;
+non terminal List                    object_declaration;
+non terminal List                    defining_identifier_list;
+non terminal Variable.Kind           object_qualifier_opt;
 
 // 3.3.2 Number Declarations
-non terminal List              number_declaration;
+non terminal List                    number_declaration;
+
+// 4.1 Names
+non terminal String                  name;
+non terminal String                  simple_name;
+
+// 4.1.3 Selected Components
+non terminal String                  selected_component;
+
+// 4.4 Expressions
+non terminal Expression              expression;
+non terminal Expression              relation;
+non terminal Expression              simple_expression;
+non terminal Expression              term;
+non terminal Expression              factor;
+non terminal Expression              primary;
+
+// 4.5 Operators and Expression Evaluation
+non terminal String                  logical_operator;
+non terminal String                  relational_operator;
+non terminal UnaryOperation.Operator binary_adding_operator;
+non terminal UnaryOperation.Operator unary_adding_operator;
+non terminal String                  multiplying_operator;
+
+// 4.7 Qualified Expressions
+non terminal Expression              qualified_expression;
+
+// 5.1 Simple and Compound Statements - Sequences of Statements
+non terminal List                    sequence_of_statements;
+non terminal Statement               simple_statement;
+non terminal Statement               compound_statement;
+non terminal Statement               null_statement;
+
+// 5.2 Assignment Statements
+non terminal Statement               assignment_statement;
+
+// 5.3 If Statements
+non terminal IfStatement             if_statement;
+non terminal List[]                  cond_clause_s;
+non terminal Expression              condition;
+non terminal Block                   else_opt;
+
+// 5.4 Case Statements
+non terminal CaseStatement           case_statement;
+non terminal List                    alternative_s;
+non terminal CaseWhen                alternative;
+
+// 5.5 Loop Statements
+non terminal LoopStatement           loop_statement;
+non terminal Block                   basic_loop;
+non terminal Expression              iteration;
+
+// 5.6 Block Statements
+non terminal BlockStatement          block_statement;
+non terminal Block                   block_declarative;
+non terminal Block                   block_body;
+
+// 5.7 Exit Statements
+non terminal Statement               exit_statement;
+non terminal String                  name_opt;
+
+// 5.8 Goto Statements
+non terminal Statement               goto_statement;
+
+// 6.1 Subprogram Declarations
+non terminal SubprogramSpecification subprogram_specification;
+non terminal SubprogramSpecification generic_subp_inst;
+non terminal MethodDeclaration       subprogram_body;
+non terminal List                    param_s;
+non terminal List                    formal_part_opt;
+non terminal List                    formal_part;
+non terminal List                    param;
+non terminal FormalParameter.Mode    mode;
+non terminal String                  designator;
+non terminal String                  operator_symbol;
+
+// 6.5 Return Statements
+non terminal Statement               return_statement;
+
+// 7.1 Package Specifications and Declarations
+non terminal Statement               package_declaration;
+non terminal Statement               package_specification;
+			        
+// 7.2 Package Bodies	        
+non terminal Statement               package_body;
+non terminal Statement               body;
+
+// 7.3 Private Types and Private Extensions
+non terminal PrivateType             private_type_declaration;
+non terminal Integer                 tagged_opt;
+non terminal Integer                 limited_opt;
+
+// 8.4 Use Clauses
+non terminal Statement               use_clause;
+non terminal List                    package_name_list;
+non terminal List                    subtype_mark_list;
+
+// 8.5 Renaming Declarations
+non terminal Statement               renaming_declaration;
+non terminal Statement               rename_unit;
 
 // 9.4 Protected Units and Protected Objects
-non terminal Statement         protected_body;
+non terminal Statement               protected_body;
+
+// 9.6 Delay Statements, Duration, and Time
+non terminal Statement               delay_statement;
+
+// 9.8 Abort of a Task - Abort of a Sequence of Statements
+non terminal Statement               abort_statement;
+non terminal List                    task_name_list;
+
+// 10.1.1 Compilation Units - Library Units
+non terminal Program                 compilation;
+non terminal List                    compilation_units;
+non terminal Statement               compilation_unit;
+non terminal Statement               unit;
+
+// 10.1.2 Context Clauses - With Clauses
+non terminal Statement               context_clause;
+non terminal Statement               with_clause;
+non terminal List                    library_unit_name_list;
+
+// 10.1.3 Subunits of Compilation Units
+non terminal Statement               body_stub;
+
+// 11.3 Raise Statements
+non terminal Statement               raise_statement;
+
+// 12.1 Generic Declarations
+non terminal Statement               generic_declaration;
+
+// 13.8 Machine Code Insertions
+non terminal Statement               code_statement;
+
 
 // TBD sections
-non terminal List              name_list;
-non terminal String            name;
-non terminal String            simple_name;
-non terminal String            compound_name;
-non terminal String            compound_name_opt;
-non terminal TypeDeclaration   object_subtype_def;
-non terminal Expression        init_opt;
-non terminal Statement         type_decl;
-non terminal Statement         subtype_decl;
-non terminal Expression        type_completion;
-non terminal TypeDeclaration   subtype_ind;
-non terminal List              param_s;
-non terminal List              formal_part_opt;
-non terminal List              formal_part;
-non terminal List              param;
-non terminal String            subtype_mark;
-non terminal String            designator;
-non terminal Expression        type_def;
-non terminal List              handled_stmt_s;
-non terminal List              statement_s;
-non terminal Statement         statement;
-non terminal List              block_body;
-non terminal FormalParameter.Mode mode;
-non terminal Statement         subunit;
-non terminal Expression        expression;
-non terminal String            id_opt;
-
+non terminal String                  compound_name;
+non terminal String                  compound_name_opt;
+non terminal TypeName                object_subtype_def;
+non terminal Expression              init_opt;
+non terminal Statement               type_decl;
+non terminal Expression              type_completion;
+non terminal String                  subtype_mark;
+non terminal List                    handled_stmt_s;
+non terminal Statement               statement;
+non terminal Statement               subunit;
+non terminal String                  id_opt;
+non terminal Statement               unlabeled;
+non terminal Expression              literal;
+non terminal Expression              parenthesized_primary;
+non terminal Expression              when_opt;
+non terminal Statement               procedure_call_statement;
+non terminal String                  used_char;
+non terminal Expression              choice_s;
+non terminal String                  label_opt;
+non terminal String                  attribute;
+non terminal String                  indexed_comp; // TODO: must be change it
+non terminal Expression              value_s;
+non terminal Expression              discrete_range;
+non terminal Expression              range;
 
 // TBD RM sections and types
 non terminal     pragma;
@@ -420,10 +524,6 @@ non terminal     pragma_s;
 non terminal     task_decl;
 non terminal     prot_decl;
 non terminal     exception_decl;
-non terminal     rename_decl;
-non terminal     generic_declaration;
-non terminal     body_stub;
-non terminal     object_qualifier_opt;
 non terminal     discrim_part_opt;
 non terminal     discrim_part;
 non terminal     enumeration_type;
@@ -438,8 +538,6 @@ non terminal     range_constraint;
 non terminal     decimal_digits_constraint;
 non terminal     range_constr_opt;
 non terminal     record_def;
-non terminal     range;
-non terminal     simple_expression;
 non terminal     enum_id_s;
 non terminal     enum_id;
 non terminal     range_spec;
@@ -454,7 +552,6 @@ non terminal     component_subtype_def;
 non terminal     aliased_opt;
 non terminal     iter_index_constraint;
 non terminal     iter_discrete_range_s;
-non terminal     discrete_range;
 non terminal     comp_list;
 non terminal     comp_decl_s;
 non terminal     comp_decl;
@@ -465,81 +562,29 @@ non terminal     discrim_spec;
 non terminal     access_opt;
 non terminal     variant_s;
 non terminal     variant;
-non terminal     choice_s;
 non terminal     choice;
 non terminal     discrete_with_range;
 non terminal     prot_opt;
 non terminal     rep_spec;
 non terminal     declarative_item_or_body;
-non terminal     indexed_comp;
-non terminal     selected_comp;
-non terminal     attribute;
-non terminal     operator_symbol;
 non terminal     attribute_id;
-non terminal     used_char;
-non terminal     value_s;
 non terminal     value;
 non terminal     comp_assoc;
-non terminal     literal;
 non terminal     aggregate;
 non terminal     value_s_2;
-non terminal     relation;
-non terminal     logical;
 non terminal     short_circuit;
-non terminal     relational;
 non terminal     membership;
-non terminal     unary;
-non terminal     term;
-non terminal     adding;
-non terminal     factor;
-non terminal     multiplying;
-non terminal     primary;
 non terminal     allocator;
-non terminal     qualified;
-non terminal     parenthesized_primary;
-non terminal     unlabeled;
 non terminal     label;
-non terminal     simple_stmt;
-non terminal     compound_stmt;
-non terminal     null_stmt;
-non terminal     assign_stmt;
-non terminal     exit_stmt;
-non terminal     return_stmt;
-non terminal     goto_stmt;
-non terminal     procedure_call;
-non terminal     delay_stmt;
-non terminal     abort_stmt;
-non terminal     raise_stmt;
-non terminal     code_stmt;
 non terminal     requeue_stmt;
-non terminal     if_stmt;
-non terminal     case_stmt;
-non terminal     loop_stmt;
-non terminal     block;
 non terminal     accept_stmt;
 non terminal     select_stmt;
-non terminal     cond_clause_s;
-non terminal     else_opt;
-non terminal     cond_clause;
-non terminal     cond_part;
-non terminal     condition;
-non terminal     case_hdr;
-non terminal     alternative_s;
-non terminal     alternative;
-non terminal     label_opt;
-non terminal     iteration;
-non terminal     basic_loop;
 non terminal     iter_part;
 non terminal     reverse_opt;
-non terminal     block_decl;
 non terminal     except_handler_part_opt;
 non terminal     except_handler_part;
-non terminal     name_opt;
-non terminal     when_opt;
 non terminal     generic_package_instantiation;
 non terminal     body_opt;
-non terminal     renames;
-non terminal     rename_unit;
 non terminal     generic_formal_part;
 non terminal     task_spec;
 non terminal     task_def;
@@ -586,7 +631,23 @@ non terminal     address_spec;
 non terminal     align_opt;
 non terminal     comp_loc_s;
 
-// root symbol 
+/*************************
+ * JavaCup precedence    *
+ *************************/
+
+//precedence left OR;
+//precedence left XOR;
+//precedence left AND;
+
+//precedence left SEMICOLON;
+
+//precedence left ELSIF;
+//precedence left ELSE;
+//precedence left END IF;
+
+///////////////////////////////////////////////////////////////////////////////
+// start with root symbol 
+//
 start with compilation;
 
 /*****************
@@ -595,6 +656,9 @@ start with compilation;
  *               *
  *****************/
 
+///////////////////////////////////////////////////////////////////////////////
+// 2.8 Pragmas
+//
 pragma  ::= PRAGMA IDENTIFIER SEMICOLON
 	| PRAGMA simple_name LPAREN pragma_arg_s RPAREN SEMICOLON
 	;
@@ -614,7 +678,7 @@ pragma_s ::=
 ///////////////////////////////////////////////////////////////////////////////
 // 3.1 Declarations
 //
-fields_declaration    ::=
+fields_declaration ::=
 object_declaration:statement
 {:
 	RESULT = statement;
@@ -625,39 +689,41 @@ object_declaration:statement
 :}
 ;
 
-type_declaration    ::=
+type_declaration ::=
 type_decl:statement
 {:
 	RESULT = statement;
 :}
-| subtype_decl:statement
+| subtype_declaration:statement
 {:
 	RESULT = statement;
 :}
 ;
 
-subprog_declaration    ::=
-subprog_decl:statement
-{:
-	RESULT = statement;
-:}
-;
-
-declaration    ::=
-package_declaration:statement
-{:
-	RESULT = statement;
-:}
-| task_decl
+declaration ::=
+task_decl
 | prot_decl
 | exception_decl
-| rename_decl
-| generic_declaration
-| body_stub
-| error SEMICOLON
+| renaming_declaration:statement
+{:
+	RESULT = statement;
+:}
+| generic_declaration:statement
+{:
+	RESULT = statement;
+:}
+| body_stub:statement
+{:
+	RESULT = statement;
+:}
+| error:theError SEMICOLON // error statement
+{:
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
+:}
 ;
 
-defining_identifier  ::=
+defining_identifier ::=
 IDENTIFIER:id
 {:
     Identifier identifier = new Identifier(idleft, idright, id);
@@ -669,13 +735,12 @@ IDENTIFIER:id
 // 3.3.1 Object Declarations
 //
 object_declaration ::= 
-defining_identifier_list:identifierList COLON object_qualifier_opt:objQualified object_subtype_def:subtype init_opt:init SEMICOLON
+defining_identifier_list:identifierList COLON object_qualifier_opt:varKind object_subtype_def:subtype init_opt:init SEMICOLON
 {:
     List list = new LinkedList();
     for (Object identifier : identifierList) {
-        // TODO: add the type on variable instance
-        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
-	list.add(new ASTNode[] {variable, init});
+        Variable variable = new Variable (((Identifier)identifier).getStartOffset(), ((Identifier)identifier).getEndOffset(), (Identifier)identifier, varKind, subtype);
+        list.add(new ASTNode[] {variable, init});
     }
     RESULT = list;
 :}
@@ -696,13 +761,25 @@ defining_identifier:identifier
 ;
 
 object_qualifier_opt ::=
+{:
+    RESULT = Variable.Kind.DEFAULT;
+:}
 | ALIASED
+{:
+    RESULT = Variable.Kind.ALIASED;
+:}
 | CONSTANT
+{:
+    RESULT = Variable.Kind.CONSTANT;
+:}
 | ALIASED CONSTANT
+{:
+    RESULT = Variable.Kind.ALIASED_CONSTANT;
+:}
 ;
 
 object_subtype_def ::= 
-subtype_ind:subtype
+subtype_indication:subtype
 {:
     RESULT = subtype;
 :}
@@ -723,22 +800,21 @@ init_opt ::=
 // 3.3.2 Number Declarations
 //
 number_declaration ::= 
-defining_identifier_list:identifierList COLON CONSTANT:subtype ASSIGNMENT expression:init SEMICOLON
+defining_identifier_list:identifierList COLON CONSTANT ASSIGNMENT expression:init SEMICOLON
 {:
     List list = new LinkedList();
     for (Object identifier : identifierList) {
-        // TODO: add the type on variable instance
-        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
-	list.add(new ASTNode[] {variable, init});
+        Variable variable = new Variable (((Identifier)identifier).getStartOffset(), ((Identifier)identifier).getEndOffset(), (Identifier)identifier, Variable.Kind.CONSTANT);
+        list.add(new ASTNode[] {variable, init});
     }
     RESULT = list;
 :}
 ;
 
 type_decl ::= 
-TYPE defining_identifier:identifier discrim_part_opt type_completion:typeCompletion SEMICOLON
+TYPE:token defining_identifier:identifier discrim_part_opt type_completion:typeCompletion SEMICOLON:end
 {:
-    TypeDeclaration type = new TypeDeclaration (identifierleft, identifierright, identifier, typeCompletion);
+    TypeDeclaration type = new TypeDeclaration (tokenleft, endright, identifier, typeCompletion);
     RESULT = type;
 :}
 ;
@@ -749,13 +825,17 @@ discrim_part_opt ::=
 	;
 
 type_completion ::=
-| IS type_def:typeDef
+// empty
+{:
+    RESULT = null;
+:}
+| IS type_definition:typeDef
 {:
     RESULT = typeDef;
 :}
 ;
 
-type_def ::=
+type_definition ::=
 enumeration_type 
 | integer_type
 | real_type
@@ -769,25 +849,28 @@ enumeration_type
 :}
 ;
 
-subtype_decl ::=
-SUBTYPE defining_identifier:identifier IS subtype_ind:subtypeIndication SEMICOLON
+///////////////////////////////////////////////////////////////////////////////
+// 3.2.2 Subtype Declarations
+//
+subtype_declaration ::=
+SUBTYPE:token defining_identifier:identifier IS subtype_indication:subtypeIndication SEMICOLON:end
 {:
-    SubtypeDeclaration type = new SubtypeDeclaration (identifierleft, identifierright, identifier, subtypeIndication);
+    SubtypeDeclaration type = new SubtypeDeclaration (tokenleft, endright, identifier, subtypeIndication);
     RESULT = type;
 :}
 ;
 
-subtype_ind ::= 
+subtype_indication ::= 
 name:name constraint
 {:    
     Identifier identifier = new Identifier(nameleft, nameright, name);
-    TypeDeclaration type = new TypeDeclaration (nameleft, nameright, identifier);
+    TypeName type = new TypeName (nameleft, nameright, identifier);
     RESULT = type;
 :}
 | name:name
 {:    
     Identifier identifier = new Identifier(nameleft, nameright, name);
-    TypeDeclaration type = new TypeDeclaration (nameleft, nameright, identifier);
+    TypeName type = new TypeName (nameleft, nameright, identifier);
     RESULT = type;
 :}
 ;
@@ -799,20 +882,27 @@ constraint ::= range_constraint
 decimal_digits_constraint ::= DIGITS expression range_constr_opt
 	;
 
-derived_type ::= NEW subtype_ind
-	| NEW subtype_ind WITH PRIVATE
-	| NEW subtype_ind WITH record_def
-	| ABSTRACT NEW subtype_ind WITH PRIVATE
-	| ABSTRACT NEW subtype_ind WITH record_def
+derived_type ::= NEW subtype_indication
+	| NEW subtype_indication WITH PRIVATE
+	| NEW subtype_indication WITH record_def
+	| ABSTRACT NEW subtype_indication WITH PRIVATE
+	| ABSTRACT NEW subtype_indication WITH record_def
 	;
 
 range_constraint ::= RANGE range
 	;
 
-range ::= simple_expression DOT_DOT simple_expression
-	| name TICK RANGE
-	| name TICK RANGE LPAREN expression RPAREN
-	;
+range ::=
+simple_expression:simple_expr DOT_DOT simple_expression
+{:
+    RESULT = simple_expr;
+:}
+| name TICK RANGE
+| name:name TICK RANGE LPAREN expression:expr RPAREN
+{:
+    RESULT = expr;
+:}
+;
 
 enumeration_type ::= LPAREN enum_id_s RPAREN
         ;
@@ -858,7 +948,7 @@ unconstr_array_type ::= ARRAY LPAREN index_s RPAREN OF component_subtype_def
 constr_array_type ::= ARRAY iter_index_constraint OF component_subtype_def
 	;
 
-component_subtype_def ::= aliased_opt subtype_ind
+component_subtype_def ::= aliased_opt subtype_indication
 	;
 
 aliased_opt ::= 
@@ -879,9 +969,13 @@ iter_discrete_range_s ::= discrete_range
 	| iter_discrete_range_s COMMA discrete_range
 	;
 
-discrete_range ::= name range_constr_opt
-	| range
-	;
+discrete_range ::=
+name range_constr_opt
+| range:range
+{:
+    RESULT = range;
+:}
+;
 
 range_constr_opt ::=
 	| range_constraint
@@ -921,9 +1015,14 @@ variant_part_opt ::= pragma_s
 	| pragma_s variant_part pragma_s
 	;
 
-comp_decl ::= defining_identifier_list COLON component_subtype_def init_opt SEMICOLON
-	| error SEMICOLON
-	;
+comp_decl ::= 
+defining_identifier_list COLON component_subtype_def init_opt SEMICOLON
+| error:theError SEMICOLON
+{:
+    ASTError error = new ASTError(theErrorleft, theErrorright);
+    RESULT = error;
+:}
+;
 
 discrim_part ::= LPAREN discrim_spec_s RPAREN
 	;
@@ -934,7 +1033,7 @@ discrim_spec_s ::= discrim_spec
 
 discrim_spec ::= 
 defining_identifier_list COLON access_opt subtype_mark init_opt
-| error:theError SEMICOLON  // error statement
+| error:theError  // error statement
 {:
     ASTError error = new ASTError(theErrorleft, theErrorright);
     RESULT = error;
@@ -968,9 +1067,9 @@ discrete_with_range ::= name range_constraint
 	| range
 	;
 
-access_type ::= ACCESS subtype_ind
-	| ACCESS CONSTANT subtype_ind
-	| ACCESS ALL subtype_ind
+access_type ::= ACCESS subtype_indication
+	| ACCESS CONSTANT subtype_indication
+	| ACCESS ALL subtype_indication
 	| ACCESS prot_opt PROCEDURE formal_part_opt
 	| ACCESS prot_opt FUNCTION formal_part_opt RETURN subtype_mark
 	;
@@ -992,7 +1091,7 @@ declarative_part ::=
 :}
 ;
 
-declarative_items_opt ::= 
+declarative_items_opt ::=
 // empty
 {:
     RESULT = new LinkedList();
@@ -1003,7 +1102,7 @@ declarative_items_opt ::=
 :}
 ;
 
-declarative_item_list ::= 
+declarative_item_list ::=
 declarative_item:declaritiveItem
 {:
     List declaritiveItemList = new LinkedList();
@@ -1017,7 +1116,7 @@ declarative_item:declaritiveItem
 :}
 ;
 
-declarative_item ::= 
+declarative_item ::=
 fields_declaration:list
 {:
     FieldsDeclaration fieldsDeclaration = new FieldsDeclaration(listleft, listright, list);
@@ -1031,8 +1130,18 @@ fields_declaration:list
 {:
     RESULT = statement;
 :}
-| declaration // todo: to be split
-| use_clause
+| package_declaration:statement
+{:
+    RESULT = statement;
+:}
+| declaration:statement // todo: to be split
+{:
+    RESULT = statement;
+:}
+| use_clause:statement
+{:
+    RESULT = statement;
+:}
 | rep_spec
 | pragma
 ;
@@ -1063,7 +1172,7 @@ body:statement
 ;
 
 body ::=
-subprog_body:statement
+subprogram_body:statement
 {:
     RESULT = statement;
 :}
@@ -1082,7 +1191,7 @@ subprog_body:statement
 ;
 
 proper_body ::=
-subprog_body:statement
+subprogram_body:statement
 {:
     RESULT = statement;
 :}
@@ -1101,12 +1210,28 @@ subprog_body:statement
 ;
 
 
-name ::= simple_name
-	| indexed_comp
-	| selected_comp
-	| attribute
-	| operator_symbol
-	;
+name ::=
+simple_name:name
+{:
+    RESULT = name;
+:}
+| indexed_comp:comp
+{:
+    RESULT = comp;
+:}
+| selected_component:comp
+{:
+    RESULT = comp;
+:}
+| attribute:attr
+{:
+    RESULT = attr;
+:}
+| operator_symbol:op
+{:
+    RESULT = op;
+:}
+;
 
 subtype_mark ::=
 simple_name:name
@@ -1131,7 +1256,7 @@ IDENTIFIER:identifier
 :}
 ;
 
-compound_name ::= 
+compound_name ::=
 simple_name:simpleName
 {:
     RESULT = simpleName;
@@ -1142,29 +1267,40 @@ simple_name:simpleName
 :}
 ;
 
-compound_name_list ::= 
+library_unit_name_list ::=
 compound_name:compoundName
 {:
     List nameList = new LinkedList();
-    nameList.add(compoundName);
+    Identifier id = new Identifier(compoundNameleft, compoundNameright, (String)compoundName);
+    PackageName packageName = new PackageName(compoundNameleft, compoundNameright, id);
+    nameList.add(packageName);
     RESULT = nameList;
 :}
-| compound_name_list:nameList COMMA compound_name:compoundName
+| library_unit_name_list:nameList COMMA compound_name:compoundName
 {:
     nameList.add(compoundName);
     RESULT = nameList;
 :}
 ;
 
-used_char ::= CHAR_LITERAL
-	;
+used_char ::=
+CHAR_LITERAL:charLiteral
+{:
+    RESULT = charLiteral;
+:}
+;
 
-// TODO: manage the overload operators ex: "+" "and" ecc.
-operator_symbol ::= STRING_LITERAL
-	;
-
-indexed_comp ::= name LPAREN value_s RPAREN
-	;
+indexed_comp ::=
+name:name LPAREN value_s:index RPAREN:end
+{:
+    System.out.println ("indexed_comp ::= name => " + name);
+    Identifier identifier = new Identifier(nameleft, nameright, name);
+    //Variable variable = new Variable (nameleft, nameright, name);
+	Variable indexedVar = new ArrayAccess(nameleft, endright, identifier, index, ArrayAccess.Type.VARIABLE_ARRAY);
+    //RESULT = indexedVar;
+    RESULT = name;
+:}
+;
 
 value_s ::= value
 	| value_s COMMA value
@@ -1180,14 +1316,34 @@ value ::= expression
 :}
 ;
 
-selected_comp ::= name DOT simple_name
-	| name DOT used_char
-	| name DOT operator_symbol
-	| name DOT ALL
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 4.1.3 Selected Components
+//
+selected_component ::=
+name:name DOT simple_name:simpleName
+{:
+    RESULT = name + "." + simpleName;
+:}
+| name:name DOT used_char:usedChar
+{:
+    RESULT = name + "." + usedChar;
+:}
+| name:name DOT operator_symbol:operator
+{:
+    RESULT = name + "." + operator;
+:}
+| name:name DOT ALL:all
+{:
+    RESULT = name + "." + all;
+:}
+;
 
-attribute ::= name TICK attribute_id
-	;
+attribute ::=
+name:name TICK attribute_id
+{:
+    RESULT = name;
+:}
+;
 
 attribute_id ::= IDENTIFIER
 	| DIGITS
@@ -1195,11 +1351,24 @@ attribute_id ::= IDENTIFIER
 	| ACCESS
 	;
 
-literal ::= DECIMAL_LITERAL
-        | BASED_LITERAL
-	| used_char
-	| NULL
-	;
+literal ::=
+DECIMAL_LITERAL:dec
+{:
+	Scalar scalar = new Scalar(decleft, decright, dec, Scalar.Type.INT);
+	RESULT = scalar;
+:}
+| BASED_LITERAL:dec
+{:
+	Scalar scalar = new Scalar(decleft, decright, dec, Scalar.Type.INT);
+	RESULT = scalar;
+:}
+| used_char:usedChar
+{:
+	Scalar scalar = new Scalar(usedCharleft, usedCharright, usedChar, Scalar.Type.STRING);
+	RESULT = scalar;
+:}
+| NULL
+;
 
 aggregate ::= LPAREN comp_assoc RPAREN
 	| LPAREN value_s_2 RPAREN
@@ -1215,94 +1384,210 @@ value_s_2 ::= value COMMA value
 comp_assoc ::= choice_s ARROW expression
 	;
 
-expression ::= relation
-	| expression logical relation
-	| expression short_circuit relation
-	;
 
-logical ::= AND
-	| OR
-	| XOR
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 4.5 Operators and Expression Evaluation
+//
+logical_operator ::=
+AND
+| OR
+| XOR
+;
 
 short_circuit ::= AND THEN
 	| OR ELSE
 	;
 
-relation ::= simple_expression
-	| simple_expression relational simple_expression
-	| simple_expression membership range
-	| simple_expression membership name
-	;
 
-relational ::= EQ
-	| INEQ
-	| GT
-	| LTEQ
-	| LT
-	| GTEQ
-	;
+relational_operator ::=
+EQ
+| INEQ
+| GT
+| LTEQ
+| LT
+| GTEQ
+;
 
 membership ::= IN
 	| NOT IN
 	;
 
-simple_expression ::= unary term
-	| term
-	| simple_expression adding term
-	;
+unary_adding_operator ::=
+PLUS
+{:
+    RESULT = UnaryOperation.Operator.PLUS;
+:}
+| MINUS
+{:
+    RESULT = UnaryOperation.Operator.MINUS;
+:}
+;
 
-unary   ::= PLUS
-	| MINUS
-	;
+binary_adding_operator ::= 
+PLUS
+{:
+    RESULT = UnaryOperation.Operator.PLUS;
+:}
+| MINUS
+{:
+    RESULT = UnaryOperation.Operator.MINUS;
+:}
+| AMP
+{:
+    RESULT = UnaryOperation.Operator.AMP;
+:}
+;
 
-adding  ::= PLUS
-	| MINUS
-	| AMP
-	;
+multiplying_operator ::=
+STAR
+| SLASH
+| MOD
+| REM
+;
 
-term    ::= factor
-	| term multiplying factor
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 4.4 Expressions
+//
+expression ::=
+relation:rel
+{:
+    System.out.println ("expression ::= relation => " + rel);
+	RESULT = rel;
+:}
+| expression:expr logical_operator relation:rel
+{:
+    System.out.println ("expression ::= expression => " + expr);
+    System.out.println ("expression ::= relation => " + rel);
+	RESULT = expr;
+:}
+| expression:expr short_circuit relation:rel
+{:
+    System.out.println ("expression ::= expression => " + expr);
+    System.out.println ("expression ::= relation => " + rel);
+	RESULT = expr;
+:}
+;
 
-multiplying ::= STAR
-	| SLASH
-	| MOD
-	| REM
-	;
+relation ::=
+simple_expression:simple_expr
+{:
+    RESULT = simple_expr;
+:}
+| simple_expression:simple_expr relational_operator simple_expression
+{:
+    RESULT = simple_expr;
+:}
+| simple_expression:simple_expr membership range
+{:
+    RESULT = simple_expr;
+:}
+| simple_expression:simple_expr membership name
+{:
+    RESULT = simple_expr;
+:}
+;
 
-factor ::= primary
-	| NOT primary
-	| ABS primary
-	| primary EXPONENT primary
-	;
+simple_expression ::=
+unary_adding_operator:op term:term
+{:
+	RESULT = new UnaryOperation(opleft, termright, term, op);
+:}
+| term:term
+{:
+    RESULT = term;
+:}
+| simple_expression:expr binary_adding_operator:op term:term
+{:
+	RESULT = new UnaryOperation(exprleft, termright, term, op);
+:}
+;
 
-primary ::= literal
-	| name
-	| allocator
-	| qualified
-	| parenthesized_primary
-	;
+term ::=
+factor:factor
+{:
+    RESULT = factor;
+:}
+| term multiplying_operator factor:factor
+{:
+    RESULT = factor;
+:}
+;
 
-parenthesized_primary ::= aggregate
-	| LPAREN expression RPAREN
-	;
+factor ::=
+primary:primary
+{:
+    RESULT = primary;
+:}
+| NOT primary:primary
+{:
+    RESULT = primary;
+:}
+| ABS primary:primary
+{:
+    RESULT = primary;
+:}
+| primary EXPON primary:primary
+{:
+    RESULT = primary;
+:}
+;
 
-qualified ::= name TICK parenthesized_primary
-	;
+primary ::=
+literal:literal
+{:
+    System.out.println ("primary ::= literal => " + literal);
+    RESULT = literal;
+:}
+| name:name
+{:
+    System.out.println ("primary ::= name => " + name);
+    Scalar scalar = new Scalar(nameleft, nameright, name, Scalar.Type.STRING);
+    RESULT = scalar;
+:}
+| allocator
+| qualified_expression:expr
+{:
+    System.out.println ("primary ::= qualified_expression => " + expr);
+    RESULT = expr;
+:}
+| parenthesized_primary:expr
+{:
+    System.out.println ("primary ::= parenthesized_primary => " + expr);
+    RESULT = expr;
+:}
+;
+
+parenthesized_primary ::=
+aggregate
+| LPAREN expression:expr RPAREN
+{:
+    RESULT = expr;
+:}
+;
+
+qualified_expression ::=
+name:name TICK parenthesized_primary:expr
+{:
+    Identifier subtypeMark = new Identifier (nameleft, nameright, name);
+    RESULT = new QualifiedExpression (nameleft, exprright, subtypeMark, expr);
+:}
+;
 
 allocator ::= NEW name
-	| NEW qualified
+	| NEW qualified_expression
 	;
 
-statement_s ::=
+///////////////////////////////////////////////////////////////////////////////
+// 5.1 Simple and Compound Statements - Sequences of Statements
+//
+sequence_of_statements ::=
 statement:statement
 {:
-	List list = new LinkedList();
+    List list = new LinkedList();
     list.add(statement);
     RESULT = list;
 :}
-| statement_s:list statement:statement
+| sequence_of_statements:list statement:statement
 {:
     list.add(statement);
     RESULT = list;
@@ -1310,26 +1595,70 @@ statement:statement
 ;
 
 statement ::=
-unlabeled
-| label statement
+unlabeled:statement
+{:
+    RESULT = statement;
+:}
+| label statement:statement
+{:
+    RESULT = statement;
+:}
 ;
 
-unlabeled ::= simple_stmt
-	| compound_stmt
-	| pragma
-	;
+unlabeled ::=
+simple_statement:statement
+{:
+    RESULT = statement;
+:}
+| compound_statement:statement
+{:
+    RESULT = statement;
+:}
+| pragma
+;
 
-simple_stmt ::= null_stmt
-	| assign_stmt
-	| exit_stmt
-	| return_stmt
-	| goto_stmt
-	| procedure_call
-	| delay_stmt
-	| abort_stmt
-	| raise_stmt
-	| code_stmt
-	| requeue_stmt
+simple_statement ::=
+null_statement:statement
+{:
+    RESULT = statement;
+:}
+| assignment_statement:statement
+{:
+    RESULT = statement;
+:}
+| exit_statement:statement
+{:
+    RESULT = statement;
+:}
+| return_statement:statement
+{:
+    RESULT = statement;
+:}
+| goto_statement:statement
+{:
+    RESULT = statement;
+:}
+| procedure_call_statement:statement
+{:
+    RESULT = statement;
+:}
+| delay_statement:statement
+{:
+    RESULT = statement;
+:}
+| abort_statement:statement
+{:
+    RESULT = statement;
+:}
+| raise_statement:statement
+{:
+    RESULT = statement;
+:}
+| code_statement:statement
+{:
+    RESULT = statement;
+:}
+| requeue_stmt
 | error:theError SEMICOLON /* error statement */
 {:
     ASTError error = new ASTError(theErrorleft, theErrorright);
@@ -1337,102 +1666,260 @@ simple_stmt ::= null_stmt
 :}
 ;
 
-compound_stmt ::= if_stmt
-	| case_stmt
-	| loop_stmt
-	| block
-	| accept_stmt
-	| select_stmt
-	;
+compound_statement ::=
+if_statement:statement
+{:
+    RESULT = statement;
+:}
+| case_statement:statement
+{:
+    RESULT = statement;
+:}
+| loop_statement:statement
+{:
+    RESULT = statement;
+:}
+| block_statement:statement
+{:
+    RESULT = statement;
+:}
+| accept_stmt
+| select_stmt
+;
 
 label ::= LTLT IDENTIFIER GTGT
 	;
 
-null_stmt ::= NULL SEMICOLON
-	;
+null_statement ::= 
+NULL:token SEMICOLON:end
+{:
+    RESULT = new NullStatement(tokenleft, endright);
+:}
+;
 
-assign_stmt ::= name ASSIGNMENT expression SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.2 Assignment Statements
+//
+assignment_statement ::=
+name:var ASSIGNMENT expression:expr SEMICOLON
+{:
+    System.out.println ("assignment_statement ::= var => " + var);
+    System.out.println ("assignment_statement ::= expr => " + expr);
+    Identifier id = new Identifier(varleft, varright, var);
+    Variable variable = new Variable (varleft, varright, (Identifier)id);
+    Assignment assignment = new Assignment(varleft, exprright, variable, expr);
+    RESULT = assignment;
+:}
+;
 
-if_stmt ::= IF cond_clause_s else_opt END IF SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.3 If Statements
+//
+if_statement ::= 
+IF:token cond_clause_s:condList else_opt:iffalse END IF SEMICOLON:end
+{:
+    Expression innerCondition = null;
+    Expression firstCondition = null;
+    Statement trueStatement = null;
+    Statement falseStatement = iffalse;
+		
+    for (int i=1 ; i < condList[0].size() ; i++) {
+        innerCondition = (Expression)condList[0].get(i);
+        trueStatement = (Statement)condList[1].get(i);
+        int start = ((Integer)condList[2].get(i)).intValue();
+        falseStatement = new IfStatement(start, endright, innerCondition, trueStatement, falseStatement);
+    }
+    
+    firstCondition = (Expression)condList[0].get(0);
+    trueStatement = (Statement)condList[1].get(0);
+    int start = ((Integer)condList[2].get(0)).intValue();
+    IfStatement ifStatement = new IfStatement(tokenleft, endright, firstCondition, trueStatement, falseStatement);		
+	
+    RESULT = ifStatement;
+:}
+;
 
-cond_clause_s ::= cond_clause
-	| cond_clause_s ELSIF cond_clause
-	;
+cond_clause_s ::= 
+condition:condition THEN:token sequence_of_statements:iftrue
+{:
+    List listConditions = new LinkedList();
+    List listStatements = new LinkedList();
+    List listTokens = new LinkedList();
 
-cond_clause ::= cond_part statement_s
-	;
+    Block block = new Block(iftrueleft, iftrueright, iftrue);
+    listConditions.add(condition);
+    listStatements.add(block);
+    listTokens.add(new Integer(tokenleft));
 
-cond_part ::= condition THEN
-	;
+    List[] returnList = new List[] { listConditions, listStatements, listTokens };
+	
+    RESULT = returnList;
+:}
+| cond_clause_s:condList ELSIF:token condition:condition THEN sequence_of_statements:iftrue
+{:
+    Block block = new Block(iftrueleft, iftrueright, iftrue);
+    ((LinkedList)condList[0]).addFirst(condition);
+    ((LinkedList)condList[1]).addFirst(block);
+    ((LinkedList)condList[2]).addFirst(new Integer(tokenleft));
 
-condition ::= expression
-	;
+    RESULT = condList;
+:}
+;
+
+condition ::=
+expression:expr
+{:
+    RESULT = expr;
+:}
+;
 
 else_opt ::=
-	| ELSE statement_s
-	;
+/* empty */
+{:
+    RESULT = null;
+:}
+| ELSE sequence_of_statements:statements
+{:
+    Block block = new Block(statementsleft, statementsright, statements);
+    RESULT = block;
+:}
+;
 
-case_stmt ::= case_hdr pragma_s alternative_s END CASE SEMICOLON
-	;
-
-case_hdr ::= CASE expression IS
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.4 Case Statements
+//
+case_statement ::=
+CASE:token expression:expr IS pragma_s alternative_s:whenList END CASE SEMICOLON:end
+{:
+    Block whenBlock = new Block(whenListleft, whenListright, whenList);
+    CaseStatement caseStatement = new CaseStatement(tokenleft, endright, expr, whenBlock);
+    RESULT = caseStatement;
+:}
+;
 
 alternative_s ::=
-	| alternative_s alternative
-	;
+/* empty */
+{:
+    RESULT = new LinkedList();
+:}
+| alternative_s:whenList alternative:when
+{:
+    whenList.add (when);
+    RESULT = whenList;
+:}
+;
 
-alternative ::= WHEN choice_s ARROW statement_s
-	;
+alternative ::=
+WHEN:token choice_s:expr ARROW sequence_of_statements:statements
+{:
+    CaseWhen caseWhen = new CaseWhen(tokenleft, statementsright, expr, statements);
+    RESULT = caseWhen;
+:}
+;
 
-loop_stmt ::= label_opt iteration basic_loop id_opt SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.5 Loop Statements
+//
+loop_statement ::=
+label_opt:label iteration:iteration basic_loop:statement id_opt SEMICOLON:end
+{:
+    int start = (label == null) ? iterationleft : labelleft;
+    Identifier identifier = new Identifier(labelleft, labelright, label);
+    LoopStatement loopStatement = new LoopStatement(start, endright, identifier, iteration, statement);
+    RESULT = loopStatement;
+:}
+;
 
 label_opt ::=
-	| IDENTIFIER COLON
-	;
+/* empty */
+{:
+    RESULT = null;
+:}
+| IDENTIFIER:id COLON
+{:
+    RESULT = id;
+:}
+;
 
 iteration ::=
-	| WHILE condition
-	| iter_part reverse_opt discrete_range
-	;
+/* empty */
+{:
+    RESULT = null;
+:}
+| WHILE condition:condition
+{:
+    RESULT = condition;
+:}
+| iter_part reverse_opt discrete_range:condition
+{:
+    RESULT = condition;
+:}
+;
 
-iter_part ::= FOR IDENTIFIER IN
-	;
+iter_part ::=
+FOR IDENTIFIER IN
+;
 
 reverse_opt ::=
-	| REVERSE
-	;
+| REVERSE
+;
 
-basic_loop ::= LOOP statement_s END LOOP
-	;
+basic_loop ::=
+LOOP sequence_of_statements:statements END LOOP
+{:
+    Block loopBlock = new Block(statementsleft, statementsright, statements);
+    RESULT = loopBlock;
+:}
+;
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 id_opt ::=
 // empty
+{:
+    RESULT = null;
+:}
 | designator:name
 {:
     RESULT = name;
 :}
 ;
 
-block ::= label_opt block_decl block_body END id_opt SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.6 Block Statements
+//
+block_statement ::=
+label_opt:label block_declarative:declarations block_body:body END id_opt SEMICOLON:end
+{:
+    int start = (label == null) ? declarationsleft : labelleft;
+    Identifier identifier = new Identifier(labelleft, labelright, label);
+    BlockStatement blockStatement = new BlockStatement (start, endleft, identifier, declarations, body);
+    RESULT = blockStatement;
+:}
+;
 
-block_decl ::=
-	| DECLARE declarative_part
-	;
+block_declarative ::=
+{:
+    RESULT = null;
+:}
+| DECLARE:token declarative_part:declarativePart
+{:
+    Block declarations = new Block(tokenright, declarativePartleft, declarativePart);
+    RESULT = declarations;
+:}
+;
 
 block_body ::=
-BEGIN:begin handled_stmt_s:statements
+BEGIN:token handled_stmt_s:statements
 {:
-    RESULT = statements;
+    Block body = new Block(tokenright, statementsright, statements);
+    RESULT = body;
 :}
 ;
 
 handled_stmt_s ::=
-statement_s:statements except_handler_part_opt
+sequence_of_statements:statements except_handler_part_opt
 {:
     RESULT = statements;
 :}
@@ -1442,61 +1929,97 @@ except_handler_part_opt ::=
 	| except_handler_part
 	;
 
-exit_stmt ::= EXIT name_opt when_opt SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.7 Exit Statements
+//
+exit_statement ::= 
+EXIT:token name_opt:loopName when_opt:whenCondition SEMICOLON:end
+{:
+    RESULT = new ExitStatement(tokenleft, endright, loopName, whenCondition); 
+:}
+;
 
 name_opt ::=
-	| name
-	;
+{:
+    RESULT = null;
+:}
+| name:name
+{:
+    RESULT = name;
+:}
+;
 
 when_opt ::=
-	| WHEN condition
-	;
+{:
+    RESULT = null;
+:}
+| WHEN condition:cond
+{:
+    RESULT = cond;
+:}
+;
 
-return_stmt ::= RETURN SEMICOLON
-	| RETURN expression SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 6.5 Return Statements
+//
+return_statement ::= 
+RETURN:token SEMICOLON:end
+{:
+    RESULT = new ReturnStatement(tokenleft, endright);
+:}
+| RETURN:token expression:expr SEMICOLON:end
+{:
+    RESULT = new ReturnStatement(tokenleft, endright, expr);
+:}
+;
 
-goto_stmt ::= GOTO name SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 5.8 Goto Statements
+//
+goto_statement ::= 
+GOTO:token name:labelName SEMICOLON:end
+{:
+    RESULT = new GotoStatement(tokenleft, endright, labelName);
+:}
+;
 
-subprog_decl ::=
+///////////////////////////////////////////////////////////////////////////////
+// 6.1 Subprogram Declarations
+//
+subprog_declaration ::=
 subprogram_specification:subprog SEMICOLON:end
 {:
-	RESULT = subprog;
+    RESULT = new MethodDeclaration(subprogleft, endright, 0/*modifier*/, subprog);
 :}
 | generic_subp_inst:subprog SEMICOLON:end
 {:
-	RESULT = subprog;
+    RESULT = new MethodDeclaration(subprogleft, endright, 0/*modifier*/, subprog);
 :}
-| subprogram_specification_is_push:subprog ABSTRACT SEMICOLON:end
+| subprogram_specification:subprog IS ABSTRACT SEMICOLON:end
 {:
-    subprog.setAbstract();
-	RESULT = subprog;
+    RESULT = new MethodDeclaration(subprogleft, endright, Ada95ASTParser.ABSTRACT, subprog);
 :}
 ;
 
 subprogram_specification ::=
 PROCEDURE:procedure compound_name:procedureName formal_part_opt:formalPart
 {:
-	Identifier procedureId = new Identifier(procedureNameleft, procedureNameright, procedureName);
-	ProcedureDeclaration procedureDeclaration = new ProcedureDeclaration(procedureleft, formalPartright, procedureId, formalPart);
-	MethodDeclaration methodDeclaration = new MethodDeclaration(procedureleft, formalPartright, 0/*modifier*/, procedureDeclaration);
-	RESULT = methodDeclaration;
+    Identifier procedureId = new Identifier(procedureNameleft, procedureNameright, procedureName);
+    SubprogramSpecification subprogramSpecification = new SubprogramSpecification(procedureleft, formalPartright, procedureId, formalPart);
+    RESULT = subprogramSpecification;
 :}
-| FUNCTION:function designator:functionName formal_part_opt:formalPart RETURN name:ret
+| FUNCTION:function designator:functionName formal_part_opt:formalPart RETURN name:subtypeMark
 {:
-	Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
-	FunctionDeclaration functionDeclaration = new FunctionDeclaration(functionleft, retright, functionId, formalPart);
-	MethodDeclaration methodDeclaration = new MethodDeclaration(functionleft, retright, 0/*modifier*/, functionDeclaration);
-	RESULT = methodDeclaration;
+    Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
+    Identifier subtypeReturn = new Identifier(subtypeMarkleft, subtypeMarkright, subtypeMark);
+    SubprogramSpecification subprogramSpecification = new SubprogramSpecification(functionleft, subtypeMarkright, functionId, formalPart, subtypeReturn);
+    RESULT = subprogramSpecification;
 :}
 | FUNCTION:function designator:functionName  /* for generic inst and generic rename */
 {:
-	Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
-	FunctionDeclaration functionDeclaration = new FunctionDeclaration(functionleft, functionNameright, functionId);
-	MethodDeclaration methodDeclaration = new MethodDeclaration(functionleft, functionNameright, 0/*modifier*/, functionDeclaration);
-	RESULT = methodDeclaration;
+    Identifier functionId = new Identifier(functionNameleft, functionNameright, functionName);
+    SubprogramSpecification subprogramSpecification = new SubprogramSpecification(functionleft, functionNameright, functionId);
+    RESULT = subprogramSpecification;
 :}
 ;
 
@@ -1505,7 +2028,7 @@ compound_name:name
 {:
     RESULT = name;
 :}
-| STRING_LITERAL:name
+| operator_symbol:name
 {:
     RESULT = name;
 :}
@@ -1533,26 +2056,28 @@ LPAREN param_s:list RPAREN
 param_s ::=
 param:parameter
 {:
-	List list = new LinkedList();
-	list.addAll(parameter);
-	RESULT = list;
+    List list = new LinkedList();
+    list.addAll(parameter);
+    RESULT = list;
 :}
 | param_s:list SEMICOLON param:parameter
 {:
-	list.addAll(parameter);
-	RESULT = list;
+    list.addAll(parameter);
+    RESULT = list;
 :}
 ;
 
 param ::=
-defining_identifier_list:identifierList COLON mode:mode subtype_mark:subtype init_opt
+defining_identifier_list:identifierList COLON mode:mode subtype_mark:subtype init_opt:init
 {:
     List list = new LinkedList();
     Identifier subtypeId = new Identifier(subtypeleft, subtyperight, subtype);
-    for (Object identifier : identifierList) {
-        // TODO: add the type on variable instance
-        Variable variable = new Variable (identifierListleft, identifierListright, (Identifier)identifier);
-        FormalParameter parameter = new FormalParameter(identifierListleft, identifierListright, variable, mode, subtypeId);
+    TypeName typeName = new TypeName(subtypeleft, subtyperight, subtypeId);
+    for (Object item : identifierList) {
+        Identifier identifier = (Identifier)item;
+        Variable variable = new Variable (identifier.getStartOffset(), identifier.getEndOffset(), identifier);
+	    int end = init == null ? subtyperight : initright;
+        FormalParameter parameter = new FormalParameter(identifierListleft, end, variable, mode, typeName, init);
     	list.add(parameter);
     }
     RESULT = list;
@@ -1589,43 +2114,44 @@ mode ::=
 :}
 ;
 
-subprogram_specification_is_push ::=
-subprogram_specification:subprog IS
+// TODO: manage the overload operators ex: "+" "and" ecc.
+operator_symbol ::=
+STRING_LITERAL:stringLiteral
 {:
-    RESULT = subprog;
+    RESULT = stringLiteral;
 :}
 ;
 
-subprog_body ::=
-subprogram_specification_is_push:subprog
-declarative_part:declarativePart block_body:blockBody END:end id_opt:idOpt SEMICOLON
+subprogram_body ::=
+subprogram_specification:subprog IS
+declarative_part:declarativePart block_body:body END id_opt:idOpt SEMICOLON:end
 {:
-    if (idOpt != null && !idOpt.equalsIgnoreCase (subprog.getName())) {
-        this.parser.message_error("mispelling of " + subprog.getName());
+    if (idOpt != null && !idOpt.equalsIgnoreCase (subprog.getSubprogramName().getName())) {
+        this.parser.message_error("mispelling of " + subprog.getSubprogramName().getName());
     } else {
-        Block declarations = new Block(declarativePartleft, declarativePartright, declarativePart);
-        Block body = new Block(blockBodyleft, endright, blockBody);
-
-        subprog.setDeclarations(declarations);
-        subprog.setBody(body);
-
+        Block declarations = new Block(subprogright, bodyleft, declarativePart);
+        body.setEndOffset(endright);
         Identifier nameEnd = new Identifier(idOptleft, idOptright, idOpt);
-        subprog.setIdentifierEnd (nameEnd);
-
-        RESULT = subprog;
+        SubprogramBody subprogramBody = new SubprogramBody(subprogleft, endright, subprog, declarations, body, nameEnd);
+        MethodDeclaration methodDeclaration = new MethodDeclaration(subprogleft, endright, 0/*modifier*/, subprogramBody);
+        RESULT = methodDeclaration;
     }
 :}
 ;
 
-procedure_call ::= 
-name:name SEMICOLON:end
+///////////////////////////////////////////////////////////////////////////////
+// 6.4 Subprogram Calls
+//
+procedure_call_statement ::=
+name SEMICOLON
 ;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // 7.1 Package Specifications and Declarations
 //
 package_declaration ::= 
-package_specification:statement
+package_specification:statement SEMICOLON
 {:
     RESULT = statement;
 :}
@@ -1635,7 +2161,7 @@ package_specification:statement
 package_specification ::= 
 PACKAGE:declarationStart compound_name:packageName IS:blockStart
   declarative_items_opt:declarativeItems private_part:privateDeclarativeItems
-END compound_name_opt:packageNameEnd SEMICOLON:declarationEnd
+END:declarationEnd compound_name_opt:packageNameEnd
 {:
     if (packageNameEnd != null && !packageNameEnd.equalsIgnoreCase (packageName)) {
         this.parser.message_error("mispelling of " + packageName);
@@ -1722,51 +2248,77 @@ limited_opt ::=
 // 8.4 Use Clauses
 //
 use_clause ::= 
-USE name_list:packageList SEMICOLON
+USE:token package_name_list:packageList SEMICOLON:end
 {:
-    for (Object packageName : packageList) {
-    	Identifier packageId = new Identifier(packageListleft, packageListright, (String)packageName);
-        Use use = new Use(packageListleft, packageListright, packageId);
-        RESULT = use;
-    }
+    RESULT = new Use(tokenleft, endright, packageList);
 :}
-| USE TYPE name_list:typeList SEMICOLON
+| USE:token TYPE subtype_mark_list:subTypeList SEMICOLON:end
 {:
-    for (Object type : typeList) {
-        UseType useType = new UseType(typeListleft, typeListright, (String)type);
-        RESULT = useType;
-    }
+    RESULT = new UseType(tokenleft, endright, subTypeList);
 :}
 ;
 
-name_list ::= 
+package_name_list ::=
 name:name
 {:
-    List nameList = new LinkedList();
-    nameList.add(name);
-    RESULT = nameList;
+    List idList = new LinkedList();
+    Identifier id = new Identifier(nameleft, nameright, name);
+    PackageName packageName = new PackageName(nameleft, nameright, id);
+    idList.add(packageName);
+    RESULT = idList;
 :}
-| name_list:nameList COMMA name:name
+| package_name_list:idList COMMA name:name
 {:
-    nameList.add(name);
-    RESULT = nameList;
+    Identifier id = new Identifier(nameleft, nameright, name);
+    PackageName packageName = new PackageName(nameleft, nameright, id);
+    idList.add(packageName);
+    RESULT = idList;
+:}
+;
+
+subtype_mark_list ::=
+name:name
+{:
+    List idList = new LinkedList();
+    Identifier id = new Identifier(nameleft, nameright, name);
+    TypeName typeName = new TypeName(nameleft, nameright, id);
+    idList.add(typeName);
+    RESULT = idList;
+:}
+| subtype_mark_list:idList COMMA name:name
+{:
+    Identifier id = new Identifier(nameleft, nameright, name);
+    TypeName typeName = new TypeName(nameleft, nameright, id);
+    idList.add(typeName);
+    RESULT = idList;
 :}
 ;
 
 
-rename_decl ::= defining_identifier_list COLON object_qualifier_opt subtype_ind renames SEMICOLON
-	| defining_identifier_list COLON EXCEPTION renames SEMICOLON
-	| rename_unit
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 8.5 Renaming Declarations
+//
+renaming_declaration ::=
+defining_identifier_list COLON object_qualifier_opt subtype_indication RENAMES name SEMICOLON
+| defining_identifier_list COLON EXCEPTION RENAMES name SEMICOLON
+| rename_unit:unit
+{:
+    RESULT = unit;
+:}
+;
 
-rename_unit ::= PACKAGE compound_name renames SEMICOLON
-	| subprogram_specification renames SEMICOLON
-	| generic_formal_part PACKAGE compound_name renames SEMICOLON
-	| generic_formal_part subprogram_specification renames SEMICOLON
-	;
-
-renames ::= RENAMES name
-	;
+rename_unit ::= 
+PACKAGE:token compound_name:name RENAMES name:renames SEMICOLON:end
+{:
+    Identifier packageNameId = new Identifier(nameleft, nameright, name);
+    Identifier packageRenamesId = new Identifier(renamesleft, renamesright, renames);
+    PackageRenames packageRenames = new PackageRenames(tokenleft, endright, packageNameId, packageRenamesId);
+    RESULT = packageRenames;
+:}
+| subprogram_specification RENAMES name SEMICOLON:end
+| generic_formal_part PACKAGE compound_name RENAMES name SEMICOLON
+| generic_formal_part subprogram_specification RENAMES name SEMICOLON
+;
 
 task_decl ::= task_spec SEMICOLON
 	;
@@ -1830,7 +2382,7 @@ prot_op_body_s ::= pragma_s
 	;
 
 prot_op_body ::= entry_body
-	| subprog_body
+	| subprogram_body
 	| subprogram_specification SEMICOLON
 	;
 
@@ -1856,7 +2408,7 @@ rep_spec_s ::=
 	;
 
 entry_call ::= 
-procedure_call:statement
+procedure_call_statement:statement
 {:
     RESULT = statement;
 :}
@@ -1873,9 +2425,19 @@ entry_name ::= simple_name
 	| entry_name LPAREN expression RPAREN
 	;
 
-delay_stmt ::= DELAY expression SEMICOLON
-	| DELAY UNTIL expression SEMICOLON
-	;
+/////////////////////////////////////////////////////////////////
+// 9.6 Delay Statements, Duration, and Time
+//
+delay_statement ::=
+DELAY:token expression:expr SEMICOLON:end
+{:
+    RESULT = new ReturnStatement(tokenleft, endright, expr);
+:}
+| DELAY:token UNTIL expression:expr SEMICOLON:end
+{:
+    RESULT = new ReturnStatement(tokenleft, endright, expr);
+:}
+;
 
 select_stmt ::= select_wait
 	| async_select
@@ -1896,71 +2458,99 @@ or_select ::=
 	;
 
 select_alt ::= accept_stmt stmts_opt
-	| delay_stmt stmts_opt
+	| delay_statement stmts_opt
 	| TERMINATE SEMICOLON
 	;
 
-delay_or_entry_alt ::= delay_stmt stmts_opt
+delay_or_entry_alt ::= delay_statement stmts_opt
 	| entry_call stmts_opt
 	;
 
 async_select ::= SELECT delay_or_entry_alt
-	       THEN ABORT statement_s
+	       THEN ABORT sequence_of_statements
 	       END SELECT SEMICOLON
 	;
 
 timed_entry_call ::= SELECT entry_call stmts_opt 
-		   OR delay_stmt stmts_opt
+		   OR delay_statement stmts_opt
 	           END SELECT SEMICOLON
 	;
 
 cond_entry_call ::= SELECT entry_call stmts_opt 
-		  ELSE statement_s
+		  ELSE sequence_of_statements
 	          END SELECT SEMICOLON
 	;
 
 stmts_opt ::=
-	| statement_s
+	| sequence_of_statements
 	;
 
-abort_stmt ::= ABORT name_list SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 9.8 Abort of a Task - Abort of a Sequence of Statements
+//
+abort_statement ::=
+ABORT:token task_name_list:taskList SEMICOLON:end
+{:
+    RESULT = new AbortStatement(tokenleft, endright, taskList);
+:}
+;
+
+task_name_list ::=
+name:name
+{:
+    List idList = new LinkedList();
+    Identifier id = new Identifier(nameleft, nameright, name);
+    TaskName taskName = new TaskName(nameleft, nameright, id);
+    idList.add(taskName);
+    RESULT = idList;
+:}
+| task_name_list:idList COMMA name:name
+{:
+    Identifier id = new Identifier(nameleft, nameright, name);
+    TaskName taskName = new TaskName(nameleft, nameright, id);
+    idList.add(taskName);
+    RESULT = idList;
+:}
+;
 
 ///////////////////////////////////////////////////////////////////////////////
 // 10.1.1 Compilation Units - Library Units
 //
 compilation ::=
-compilation_unit_list:compilationUnitList
+compilation_units:units
 {:
     Ada95ASTLexer adaAstLexer = (Ada95ASTLexer) parser.getScanner();
-    List commentList = adaAstLexer.getCommentList();
-    Program program = new Program(compilationUnitListleft, compilationUnitListright, compilationUnitList, commentList);
+    List comments = adaAstLexer.getCommentList();
+    Program program = new Program(unitsleft, unitsright, units, comments);
     RESULT = program;
 :}
-| pragma pragma_s  // 10.1.5 - 4
 ;
 
-compilation_unit_list ::=
+compilation_units ::=
 {:
     RESULT = new LinkedList();
 :}
-| compilation_unit_list:compilationUnitList compilation_unit:compilationUnit
+| compilation_units:units compilation_unit:unit
 {:
-    if(compilationUnit != null) {
-        compilationUnitList.add(compilationUnit);
+    if(units != null) {
+        units.add(unit);
     }
-    RESULT = compilationUnitList;
+    RESULT = units;
+:}
+| pragma pragma_s  // 10.1.5 - 4
+{:
+    RESULT = new LinkedList();
 :}
 ;
 
 compilation_unit ::=
-context_clause private_opt unit:statement pragma_s
+context_clause private_opt unit:unit pragma_s
 {:
-    RESULT = statement;
+    RESULT = unit;
 :}
-| private_opt unit:statement pragma_s  // 10.1.5 - 5/1
+| private_opt unit:unit pragma_s  // 10.1.5 - 5/1
 {:
-    RESULT = statement;
+    RESULT = unit;
 :}
 ;
 
@@ -1977,11 +2567,11 @@ package_declaration:statement
 {:
     RESULT = statement;
 :}
-| subprog_decl:statement
+| subprog_declaration:statement
 {:
     RESULT = statement;
 :}
-| subprog_body:statement
+| subprogram_body:statement
 {:
     RESULT = statement;
 :}
@@ -1989,7 +2579,10 @@ package_declaration:statement
 {:
     RESULT = statement;
 :}
-| generic_declaration
+| generic_declaration:statement
+{:
+    RESULT = statement;
+:}
 | rename_unit
 ;
 
@@ -2017,13 +2610,9 @@ with_clause:statement
 ;
 
 with_clause ::= 
-WITH compound_name_list:packageList SEMICOLON
+WITH:token library_unit_name_list:packageList SEMICOLON:end
 {:
-    for (Object packageName : packageList) {
-    	Identifier packageId = new Identifier(packageListleft, packageListright, (String)packageName);
-        With with = new With(packageListleft, packageListright, packageId);
-        RESULT = with;
-    }
+    RESULT = new With(tokenleft, endright, packageList);
 :}
 ;
 
@@ -2039,11 +2628,15 @@ proper_body:statement
 ;
 
 
-body_stub ::= TASK BODY simple_name IS SEPARATE SEMICOLON
-	| PACKAGE BODY compound_name IS SEPARATE SEMICOLON
-	| subprogram_specification IS SEPARATE SEMICOLON
-	| PROTECTED BODY simple_name IS SEPARATE SEMICOLON
-	;
+body_stub ::= 
+TASK BODY simple_name IS SEPARATE SEMICOLON
+| PACKAGE BODY compound_name IS SEPARATE SEMICOLON
+| subprogram_specification:subprog IS SEPARATE SEMICOLON
+{:
+    RESULT = subprog;
+:}
+| PROTECTED BODY simple_name IS SEPARATE SEMICOLON
+;
 
 exception_decl ::= defining_identifier_list COLON EXCEPTION SEMICOLON
 	;
@@ -2052,8 +2645,8 @@ except_handler_part ::= EXCEPTION exception_handler
 	| except_handler_part exception_handler
 	;
 
-exception_handler ::= WHEN except_choice_s ARROW statement_s
-	| WHEN IDENTIFIER COLON except_choice_s ARROW statement_s
+exception_handler ::= WHEN except_choice_s ARROW sequence_of_statements
+	| WHEN IDENTIFIER COLON except_choice_s ARROW sequence_of_statements
 	;
 
 except_choice_s ::= except_choice
@@ -2064,8 +2657,15 @@ except_choice ::= name
 	| OTHERS
 	;
 
-raise_stmt ::= RAISE name_opt SEMICOLON
-	;
+///////////////////////////////////////////////////////////////////////////////
+// 11.3 Raise Statements
+//
+raise_statement ::=
+RAISE:token name_opt:exceptionName SEMICOLON:end
+{:
+    RESULT = new RaiseStatement(tokenleft, endright, exceptionName); 
+:}
+;
 
 requeue_stmt ::= REQUEUE name SEMICOLON
 	| REQUEUE name WITH ABORT SEMICOLON
@@ -2076,7 +2676,10 @@ requeue_stmt ::= REQUEUE name SEMICOLON
 //
 generic_declaration ::= 
 generic_formal_part subprogram_specification SEMICOLON
-| generic_formal_part package_specification SEMICOLON
+| generic_formal_part package_specification:statement SEMICOLON
+{:
+    RESULT = statement;
+:}
 ;
 
 generic_formal_part ::= GENERIC
@@ -2116,9 +2719,9 @@ generic_type_def ::= LPAREN BOX RPAREN
 	| generic_derived_type
 	;
 
-generic_derived_type ::= NEW subtype_ind
-	| NEW subtype_ind WITH PRIVATE
-	| ABSTRACT NEW subtype_ind WITH PRIVATE
+generic_derived_type ::= NEW subtype_indication
+	| NEW subtype_indication WITH PRIVATE
+	| ABSTRACT NEW subtype_indication WITH PRIVATE
 	;
 
 generic_subp_inst ::=
@@ -2129,7 +2732,7 @@ subprogram_specification:subprog IS generic_inst
 ;
 
 // 12.3
-generic_package_instantiation ::= 
+generic_package_instantiation ::=
 PACKAGE compound_name IS generic_inst
 ;
 
@@ -2158,6 +2761,12 @@ comp_loc_s ::=
 address_spec ::= FOR subtype_mark USE AT expression SEMICOLON
 	;
 
-code_stmt ::= qualified SEMICOLON
-	;
-
+///////////////////////////////////////////////////////////////////////////////
+// 13.8 Machine Code Insertions
+//
+code_statement ::=
+qualified_expression:expr SEMICOLON:end
+{:
+    RESULT = new CodeStatement (exprleft, endright, expr);
+:}
+;

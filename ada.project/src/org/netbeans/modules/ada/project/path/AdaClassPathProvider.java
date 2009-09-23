@@ -40,12 +40,12 @@ package org.netbeans.modules.ada.project.path;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.ada.project.AdaProject;
 import org.netbeans.modules.ada.project.Pair;
 import org.netbeans.modules.ada.project.SourceRoots;
-import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathFactory;
-import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
+import org.netbeans.spi.java.classpath.ClassPathFactory;
+import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 

@@ -19,7 +19,15 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>0.1.6</specification-version>
+                        <specification-version>0.1.9</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.ada.project</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>0.1.7</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -48,7 +56,10 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.ada.options</package>
+                <package>org.netbeans.modules.ada.options.general</package>
+            </public-packages>
         </data>
     </configuration>
 </project>

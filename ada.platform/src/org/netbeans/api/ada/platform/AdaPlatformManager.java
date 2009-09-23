@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -69,11 +68,12 @@ import org.openide.filesystems.FileUtil;
  */
 public class AdaPlatformManager implements Serializable {
 
-    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AdaPlatformManager.class.getName());
     private static final String PLATFORM_FILE = System.getProperty("netbeans.user") + "/config/ada-platforms.xml";
+    private static final String GNAT_EXECUTABLE_NAME = "gnat"; // NOI18N
+    private static final String GNAT_PLATFORM_NAME = "GNAT";
     private HashMap<String, AdaPlatform> platforms;
     private String defaultPlatform;
-    private volatile boolean autoDetecting = false;
 
     /**
      * Constructor is a singelton
@@ -82,6 +82,7 @@ public class AdaPlatformManager implements Serializable {
         if (!load()) {
             platforms = new HashMap<String, AdaPlatform>();
         }
+        //LOGGER.setLevel(Level.FINE);
     }
     /** Singelton instance variable **/
     private static AdaPlatformManager instance;
@@ -164,12 +165,6 @@ public class AdaPlatformManager implements Serializable {
         platforms.remove(name);
     }
 
-//    public static String findTool(String toolName, String root) {
-//          AdaAutoDetector ad = new AdaAutoDetector();
-//          ad.traverse(new File(root), true);
-//          return ad.getMatches().get(0);
-//    }
-
     public static FileObject findTool(String toolName, FileObject root) {
         assert toolName != null;
         FileObject bin = root;
@@ -220,8 +215,7 @@ public class AdaPlatformManager implements Serializable {
 
         // Find GNAT Tool
         // ??? Now only GNAT platform is supported
-        FileObject gnat = findTool("gnat", folder);
-        final String PLATFORM = "GNAT";
+        FileObject gnat = findTool(GNAT_EXECUTABLE_NAME, folder);
 
         if (gnat != null) {
 
@@ -245,17 +239,17 @@ public class AdaPlatformManager implements Serializable {
                     String line = null;
                     try {
                         while ((line = reader.readLine()) != null) {
-                            if (line.contains(PLATFORM)) {
-                                int startIndex = line.indexOf(PLATFORM) + PLATFORM.length();
+                            if (line.contains(GNAT_PLATFORM_NAME)) {
+                                int startIndex = line.indexOf(GNAT_PLATFORM_NAME) + GNAT_PLATFORM_NAME.length();
                                 int endIndex = line.indexOf("(") < 0 ? line.length() : line.indexOf("(");
                                 int endIndex2 = line.indexOf(")") < 0 ? line.length() : line.indexOf(")");
-                                String name = "GNAT" + line.substring(startIndex, endIndex);
+
                                 platform = new AdaPlatform();
-                                platform.setName("GNAT" + line.substring(startIndex, endIndex));
+                                platform.setName(GNAT_PLATFORM_NAME + line.substring(startIndex, endIndex));
                                 if (endIndex < endIndex2) {
                                     platform.setInfo(line.substring(endIndex + 1, endIndex2));
                                 }
-                                platform.setCompilerCommand("gnatmake");
+                                platform.setCompilerCommand(GNAT_EXECUTABLE_NAME);
                                 platform.setCompilerPath(tool.getPath().substring(0, tool.getPath().lastIndexOf(tool.getName())));
                                 if (platforms.size() == 0) {
                                     setDefaultPlatform(platform.getName());
@@ -287,97 +281,48 @@ public class AdaPlatformManager implements Serializable {
     }
 
     public synchronized void autoDetect() {
-        //assert !SwingUtilities.isEventDispatchThread(); // Slow, don't block the UI
-        if (autoDetecting) {
-            // Already in progress
-            return;
+        platforms.clear();
+
+        AdaAutoDetector detector = new AdaAutoDetector();
+        // Check the path to see if we find any other Ada installations
+        for (String dir : Util.dirsOnPath()) {
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File(dir), GNAT_EXECUTABLE_NAME, false);
         }
 
-        try {
-            autoDetecting = true;
-            platforms.clear();
-
-            AdaAutoDetector ad = new AdaAutoDetector();
-
-            System.out.println("start autodetect----------------------------------------");
-
-            // TODO - Shouldn't we search the user's $PATH/%Path% instead of the below?
-            if (Utilities.isWindows()) {
-                ad.traverse(new File("c:/"), false);
-                ad.traverse(new File("c:/program files"), false);
-            } else { // TODO: mac and unix
-                ad.traverse(new File("/usr/bin"), false);
-            }
-
-            for (String path : ad.getMatches()) {
-                System.out.println(path + " => matched");
-
-                FileObject fo = FileUtil.toFileObject(new File(path));
-
-                try {
-                    findPlatformProperties(fo);
-                } catch (AdaException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-
-            System.out.println("end autodetect------------------------------------------");
-        } finally {
-            autoDetecting = false;
-        }
-    }
-
-    public void ensureExecutable(String path) {
-        // No excute permissions on Windows. On Unix and Mac, try.
         if (Utilities.isWindows()) {
-            return;
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File("c:/"), GNAT_EXECUTABLE_NAME, false);
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File("c:/program files"), GNAT_EXECUTABLE_NAME, false);
+        } else { // Unix and OSX
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File("/usr/bin"), GNAT_EXECUTABLE_NAME, false);
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File("/usr/local"), GNAT_EXECUTABLE_NAME, false);
+            // TODO: this method fix the AdaAutoDetector bug on manage the
+            // recursive folders. Remove this method after fix bug.
+            detector.setSearchNestedDirectoies(true);
+            detector.traverse(new File("/opt"), GNAT_EXECUTABLE_NAME, false);
         }
 
-        String binDirPath = path;
-        if (binDirPath == null) {
-            return;
-        }
-
-        File binDir = new File(binDirPath);
-        if (!binDir.exists()) {
-            return;
-        }
-
-        // Ensure that the binaries are installed as expected
-        // The following logic is from CLIHandler in core/bootstrap:
-        File chmod = new File("/bin/chmod"); // NOI18N
-
-        if (!chmod.isFile()) {
-            // Linux uses /bin, Solaris /usr/bin, others hopefully one of those
-            chmod = new File("/usr/bin/chmod"); // NOI18N
-        }
-
-        if (chmod.isFile()) {
+        for (String path : detector.getMatches()) {
+            LOGGER.fine("Auto Detect: " + path + " found");
+            FileObject fo = FileUtil.toFileObject(new File(path));
             try {
-                List<String> argv = new ArrayList<String>();
-                argv.add(chmod.getAbsolutePath());
-                argv.add("u+rx"); // NOI18N
-
-                String[] files = binDir.list();
-
-                for (String file : files) {
-                    argv.add(file);
-                }
-
-                ProcessBuilder pb = new ProcessBuilder(argv);
-                pb.directory(binDir);
-                Util.adjustProxy(pb);
-
-                Process process = pb.start();
-
-                int chmoded = process.waitFor();
-
-                if (chmoded != 0) {
-                    throw new IOException("could not run " + argv + " : Exit value=" + chmoded); // NOI18N
-                }
-            } catch (Throwable e) {
-                // 108252 - no loud complaints
-                LOGGER.log(Level.INFO, "Can't chmod+x bits", e);
+                findPlatformProperties(fo);
+            } catch (AdaException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
     }

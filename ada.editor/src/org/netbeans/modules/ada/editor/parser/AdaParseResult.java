@@ -39,12 +39,12 @@
 
 package org.netbeans.modules.ada.editor.parser;
 
-import org.netbeans.modules.gsf.api.ParserFile;
-import org.netbeans.modules.gsf.api.ParserResult;
-
-import org.netbeans.modules.ada.editor.AdaLanguage;
-import org.netbeans.modules.ada.editor.AdaMimeResolver;
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.csl.api.Error;
 
 /**
  * Based on  org.netbeans.modules.php.editor.parser.PHPParseResult
@@ -54,10 +54,12 @@ import org.netbeans.modules.ada.editor.ast.nodes.Program;
 public class AdaParseResult extends ParserResult {
     
     private final Program root;
+    private List<Error> errors;
 
-    public AdaParseResult(AdaParser parser, ParserFile file, Program rootNode) {
-        super(parser, file, AdaMimeResolver.ADA_MIME_TYPE);
+    public AdaParseResult(Snapshot snapshot, Program rootNode) {
+        super(snapshot);
         this.root = rootNode;
+        this.errors = Collections.<Error>emptyList();
     }
 
     public Program getProgram() {
@@ -65,8 +67,19 @@ public class AdaParseResult extends ParserResult {
     }
     
     @Override
-    public AstTreeNode getAst() {
-        return null;
+    public List<? extends Error> getDiagnostics() {
+        return errors;
+    }
+
+    @Override
+    protected void invalidate() {
+        // comments copied from Groovy:
+        // FIXME parsing API
+        // remove from parser cache (?)
+    }
+
+    public void setErrors(List<Error> errors) {
+        this.errors = errors;
     }
 
 }

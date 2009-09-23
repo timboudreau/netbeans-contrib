@@ -40,11 +40,19 @@
 package org.netbeans.api.ada.platform;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbCollections;
 import org.openide.util.NbPreferences;
 
 /**
@@ -55,6 +63,9 @@ public final class Util {
     private static final String USE_PROXY_AUTHENTICATION = "useProxyAuthentication"; // NOI18N
     private static final String PROXY_AUTHENTICATION_USERNAME = "proxyAuthenticationUsername"; // NOI18N
     private static final String PROXY_AUTHENTICATION_PASSWORD = "proxyAuthenticationPassword"; // NOI18N
+
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
+
     public static String readAsString(final InputStream is) throws IOException {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -113,6 +124,34 @@ public final class Util {
         }
 
         return host + ":" + port; // NOI18N
+    }
+
+	/**
+     * Returns an {@link Iterable} which will uniquely traverse all valid
+     * elements on the <em>PATH</em> environment variables. That means,
+     * duplicates and elements which are not valid, existing directories are
+     * skipped.
+     *
+     * @return an {@link Iterable} which will traverse all valid elements on the
+     * <em>PATH</em> environment variables.
+     */
+    public static Iterable<String> dirsOnPath() {
+        String rawPath = System.getenv("PATH"); // NOI18N
+        if (rawPath == null) {
+            rawPath = System.getenv("Path"); // NOI18N
+        }
+        if (rawPath == null) {
+            return Collections.emptyList();
+        }
+        Set<String> candidates = new LinkedHashSet<String>(Arrays.asList(rawPath.split(File.pathSeparator)));
+        for (Iterator<String> it = candidates.iterator(); it.hasNext();) {
+            String dir = it.next();
+            if (!new File(dir).isDirectory()) { // remove non-existing directories (#124562)
+                LOGGER.fine(dir + " found in the PATH environment variable. But is not a valid directory. Ignoring...");
+                it.remove();
+            }
+        }
+        return NbCollections.iterable(candidates.iterator());
     }
 
 }

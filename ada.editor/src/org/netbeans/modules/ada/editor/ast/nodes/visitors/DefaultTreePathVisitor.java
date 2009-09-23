@@ -43,22 +43,44 @@ import java.util.LinkedList;
 import java.util.List;
 import org.netbeans.modules.ada.editor.ast.ASTError;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
+import org.netbeans.modules.ada.editor.ast.nodes.AbortStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.ArrayAccess;
+import org.netbeans.modules.ada.editor.ast.nodes.Assignment;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
+import org.netbeans.modules.ada.editor.ast.nodes.BlockStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.CaseStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.CaseWhen;
+import org.netbeans.modules.ada.editor.ast.nodes.CodeStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
+import org.netbeans.modules.ada.editor.ast.nodes.DelayStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.ExitStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.GotoStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
+import org.netbeans.modules.ada.editor.ast.nodes.IfStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.LoopStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.NullStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageInstanceCreation;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageName;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.PackageRenames;
 import org.netbeans.modules.ada.editor.ast.nodes.Program;
+import org.netbeans.modules.ada.editor.ast.nodes.QualifiedExpression;
+import org.netbeans.modules.ada.editor.ast.nodes.RaiseStatement;
 import org.netbeans.modules.ada.editor.ast.nodes.Reference;
+import org.netbeans.modules.ada.editor.ast.nodes.ReturnStatement;
+import org.netbeans.modules.ada.editor.ast.nodes.Scalar;
 import org.netbeans.modules.ada.editor.ast.nodes.SingleFieldDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
+import org.netbeans.modules.ada.editor.ast.nodes.SubtypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TaskName;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.TypeName;
+import org.netbeans.modules.ada.editor.ast.nodes.UnaryOperation;
 import org.netbeans.modules.ada.editor.ast.nodes.Use;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.With;
@@ -93,6 +115,27 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(AbortStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(ArrayAccess node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(Assignment node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(Block node) {
         path.addFirst(node);
         super.visit(node);
@@ -100,7 +143,28 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(CodeStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(Comment node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(DelayStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(ExitStatement node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -121,7 +185,7 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
-    public void visit(FunctionDeclaration node) {
+    public void visit(GotoStatement node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -135,7 +199,21 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(LoopStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(MethodDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(NullStatement node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -170,14 +248,28 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
-    public void visit(ProcedureDeclaration node) {
+    public void visit(Program node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
     }
 
     @Override
-    public void visit(Program node) {
+    public void visit(QualifiedExpression node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(RaiseStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(ReturnStatement node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -191,7 +283,49 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(Scalar node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(SingleFieldDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(SubprogramBody node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(SubprogramSpecification node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(SubtypeDeclaration node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(TaskName node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(TypeName node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();
@@ -226,7 +360,49 @@ public class DefaultTreePathVisitor extends DefaultVisitor {
     }
 
     @Override
+    public void visit(BlockStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(CaseStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(CaseWhen node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(IfStatement node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(PackageRenames node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
     public void visit(ASTNode node) {
+        path.addFirst(node);
+        super.visit(node);
+        path.removeFirst();
+    }
+
+    @Override
+    public void visit(UnaryOperation node) {
         path.addFirst(node);
         super.visit(node);
         path.removeFirst();

@@ -42,9 +42,9 @@ package org.netbeans.modules.ada.editor.indexer;
 import java.util.Collections;
 import java.util.Set;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
 import org.openide.filesystems.FileObject;
 
 /**

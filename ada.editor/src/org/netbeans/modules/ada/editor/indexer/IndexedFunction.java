@@ -43,9 +43,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  *
@@ -169,4 +171,9 @@ public class IndexedFunction extends IndexedElement implements FunctionElement {
         }
         this.returnType = returnType;
     }
+
+    public OffsetRange getOffsetRange(ParserResult result) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

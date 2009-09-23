@@ -47,38 +47,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.text.Document;
 import org.netbeans.modules.ada.editor.ast.ASTError;
-import org.netbeans.modules.ada.editor.ast.nodes.Statement;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.StructureItem;
-import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.Block;
-import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Comment;
 import org.netbeans.modules.ada.editor.ast.nodes.Expression;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.FormalParameter;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.Reference;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.DefaultVisitor;
-import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodFunctionDeclarationHandle;
-import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodProcedureDeclarationHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.SubprogramSpecificationHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodSubprogSpecHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.MethodSubprogBodyHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageBodyHandle;
 import org.netbeans.modules.ada.editor.parser.AdaElementHandle.PackageSpecificationHandle;
-import org.netbeans.modules.ada.editor.parser.AdaElementHandle.TypeDeclarationHandle;
+import org.netbeans.modules.ada.editor.parser.AdaElementHandle.SubprogramBodyHandle;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.HtmlFormatter;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.StructureItem;
+import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Source;
 import org.openide.util.ImageUtilities;
 
 /**
@@ -88,9 +89,10 @@ import org.openide.util.ImageUtilities;
  */
 public class AdaStructureScanner implements StructureScanner {
 
+    private static final Logger LOGGER = Logger.getLogger(AdaStructureScanner.class.getName());
     private static ImageIcon TYPE_ICON = null;
     private static ImageIcon TYPE_PRIVATE_ICON = null;
-    private CompilationInfo info;
+    private ParserResult info;
     private static final String FOLD_CODE_BLOCKS = "codeblocks"; //NOI18N
     private static final String FOLD_PACKAGE = "codeblocks"; //NOI18N
     private static final String FOLD_ADADOC = "comments"; //NOI18N
@@ -99,7 +101,7 @@ public class AdaStructureScanner implements StructureScanner {
     private static final String CLOSE_FONT = "</font>";                   //NOI18N
     private static final String LAST_CORRECT_FOLDING_PROPERTY = "LAST_CORRECT_FOLDING_PROPERY";
 
-    public List<? extends StructureItem> scan(final CompilationInfo info) {
+    public List<? extends StructureItem> scan(final ParserResult info) {
         this.info = info;
         Program program = ASTUtils.getRoot(info);
         final List<StructureItem> items = new ArrayList<StructureItem>();
@@ -110,7 +112,7 @@ public class AdaStructureScanner implements StructureScanner {
         return Collections.emptyList();
     }
 
-    public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
+    public Map<String, List<OffsetRange>> folds(ParserResult info) {
         Program program = ASTUtils.getRoot(info);
         final Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
         if (program != null) {
@@ -118,7 +120,7 @@ public class AdaStructureScanner implements StructureScanner {
                 // check whether the ast is broken.
                 if (program.getStatements().get(0) instanceof ASTError) {
                     @SuppressWarnings("unchecked")
-                    Map<String, List<OffsetRange>> lastCorrect = (Map<String, List<OffsetRange>>) info.getDocument().getProperty(LAST_CORRECT_FOLDING_PROPERTY);
+                    Map<String, List<OffsetRange>> lastCorrect = (Map<String, List<OffsetRange>>) info.getSnapshot().getSource().getDocument(false).getProperty(LAST_CORRECT_FOLDING_PROPERTY);
                     if (lastCorrect != null) {
                         return lastCorrect;
                     } else {
@@ -133,7 +135,12 @@ public class AdaStructureScanner implements StructureScanner {
                     // TODO: for ada doc and spark ???
                 }
             }
-            info.getDocument().putProperty(LAST_CORRECT_FOLDING_PROPERTY, folds);
+            Source source = info.getSnapshot().getSource();
+            assert source != null : "source was null";
+            Document doc = source.getDocument(false);
+            if (doc != null){
+                doc.putProperty(LAST_CORRECT_FOLDING_PROPERTY, folds);
+            }
             return folds;
         }
         return Collections.emptyMap();
@@ -160,35 +167,75 @@ public class AdaStructureScanner implements StructureScanner {
 
         final List<StructureItem> items;
         private List<StructureItem> children = null;
-        private String pakageName;
-        private final Program program;
+        private Program program;
+        private PackageSpecification pkgspc;
+        private PackageBody pkgbdy;
 
         public StructureVisitor(List<StructureItem> items, Program program) {
+            //LOGGER.setLevel(Level.FINE);
             this.items = items;
             this.program = program;
+        }
+
+        public StructureVisitor(List<StructureItem> items, PackageSpecification pkgspc) {
+            //LOGGER.setLevel(Level.FINE);
+            this.items = items;
+            this.pkgspc = pkgspc;
+        }
+
+        public StructureVisitor(List<StructureItem> items, PackageBody pkgbdy) {
+            //LOGGER.setLevel(Level.FINE);
+            this.items = items;
+            this.pkgbdy = pkgbdy;
+        }
+
+        @Override
+        public void visit(SubprogramSpecification subprogSpec) {
+            if (children == null && subprogSpec.getSubprogramName() != null) {
+                AdaStructureItem item = new AdaSubprogSpecStructureItem(new AdaElementHandle.SubprogramSpecificationHandle(info, subprogSpec));
+                items.add(item);
+            }
+        }
+
+        @Override
+        public void visit(SubprogramBody procedure) {
+            if (children == null && procedure.getSubprogramSpecification().getSubprogramName() != null) {
+                AdaStructureItem item = new AdaSubprogBodyStructureItem(new AdaElementHandle.SubprogramBodyHandle(info, procedure));
+                items.add(item);
+            }
         }
 
         @Override
         public void visit(PackageSpecification pkgspc) {
             if (pkgspc.getName() != null) {
-                children = new ArrayList<StructureItem>();
-                pakageName = pkgspc.getName().getName();
-                super.visit(pkgspc);
-                AdaStructureItem item = new AdaPackageSpecificationStructureItem(new AdaElementHandle.PackageSpecificationHandle(info, pkgspc), children); //NOI18N
-                items.add(item);
-                children = null;
+                LOGGER.fine(pkgspc.getName().getName());
+                if (children == null) {
+                    children = new ArrayList<StructureItem>();
+                    super.visit(pkgspc);
+                    AdaStructureItem item = new AdaPackageSpecificationStructureItem(new AdaElementHandle.PackageSpecificationHandle(info, pkgspc), children); //NOI18N
+                    items.add(item);
+                } else {
+                    final List<StructureItem> subitems = new ArrayList<StructureItem>();
+                    pkgspc.accept(new StructureVisitor(subitems, pkgspc));
+                    children.addAll(subitems);
+                }
             }
         }
 
         @Override
         public void visit(PackageBody pkgbdy) {
             if (pkgbdy.getName() != null) {
-                children = new ArrayList<StructureItem>();
-                pakageName = pkgbdy.getName().getName();
-                super.visit(pkgbdy);
-                AdaStructureItem item = new AdaPackageBodyStructureItem(new AdaElementHandle.PackageBodyHandle(info, pkgbdy), children); //NOI18N
-                items.add(item);
-                children = null;
+                LOGGER.fine(pkgbdy.getName().getName());
+                if (children == null) {
+                    children = new ArrayList<StructureItem>();
+                    super.visit(pkgbdy);
+                    AdaStructureItem item = new AdaPackageBodyStructureItem(new AdaElementHandle.PackageBodyHandle(info, pkgbdy), children); //NOI18N
+                    items.add(item);
+                } else {
+                    final List<StructureItem> subitems = new ArrayList<StructureItem>();
+                    pkgbdy.accept(new StructureVisitor(subitems, pkgbdy));
+                    children.addAll(subitems);
+                }
             }
         }
 
@@ -198,6 +245,7 @@ public class AdaStructureScanner implements StructureScanner {
             if (variables != null) {
                 for (Variable variable : variables) {
                     String name = ASTUtils.resolveVariableName(variable);
+                    LOGGER.fine(name);
                     if (name != null) {
                         String text = name;
                         AdaStructureItem item = new AdaSimpleStructureItem(new AdaElementHandle.FieldsDeclarationHandle(info, fields), text, "0"); //NOI18N
@@ -212,6 +260,7 @@ public class AdaStructureScanner implements StructureScanner {
             Identifier id = type.getTypeName();
             if (id != null) {
                 String name = id.getName();
+                LOGGER.fine(name);
                 if (name != null) {
                     String text = name;
                     AdaStructureItem item = new AdaTypeStructureItem(new AdaElementHandle.TypeDeclarationHandle(info, type), text, "0"); //NOI18N
@@ -222,30 +271,26 @@ public class AdaStructureScanner implements StructureScanner {
 
         @Override
         public void visit(MethodDeclaration method) {
-            boolean removeChildren = false;
             if (children == null) {
-                children = new ArrayList<StructureItem>();
-                removeChildren = true;
+                children = items;
             }
-            if (method.getKind() == MethodDeclaration.Kind.FUNCTION) {
-                FunctionDeclaration function = method.getFunction();
-                if (function != null && function.getIdentifier() != null) {
+            LOGGER.fine(method.getMethodName());
+            if (method.getSubprogramBody() != null) {
+                SubprogramBody subprog = method.getSubprogramBody();
+                if (subprog != null && subprog.getSubprogramSpecification().getSubprogramName() != null) {
                     AdaStructureItem item;
                     // className doesn't have to be defined if it's interace
-                    item = new AdaMethodFunctionStructureItem(new AdaElementHandle.MethodFunctionDeclarationHandle(info, method));
+                    item = new AdaMethodSubprogBodyStructureItem(new AdaElementHandle.MethodSubprogBodyHandle(info, method));
                     children.add(item);
                 }
             } else {
-                ProcedureDeclaration procedure = method.getProcedure();
-                if (procedure != null && procedure.getIdentifier() != null) {
+                SubprogramSpecification subprog = method.getSubprogramSpecification();
+                if (subprog != null && subprog.getSubprogramName() != null) {
                     AdaStructureItem item;
                     // className doesn't have to be defined if it's interace
-                    item = new AdaMethodProcedureStructureItem(new AdaElementHandle.MethodProcedureDeclarationHandle(info, method));
+                    item = new AdaMethodSubprogSpecStructureItem(new AdaElementHandle.MethodSubprogSpecHandle(info, method));
                     children.add(item);
                 }
-            }
-            if (removeChildren) {
-                children = null;
             }
         }
     }
@@ -329,47 +374,35 @@ public class AdaStructureScanner implements StructureScanner {
             return null;
         }
 
-        protected void appendProcedureDescription(ProcedureDeclaration procedure, HtmlFormatter formatter) {
+        protected void appendSubprogDescription(SubprogramSpecification subprog, HtmlFormatter formatter) {
             formatter.reset();
-            if (procedure == null || procedure.getIdentifier() == null) {
+            if (subprog == null || subprog.getSubprogramName() == null) {
                 return;
             }
-            formatter.appendText(procedure.getIdentifier().getName());
+            formatter.appendText(subprog.getSubprogramName().getName());
             formatter.appendText("(");   //NOI18N
 
-            List<FormalParameter> parameters = procedure.getFormalParameters();
+            List<FormalParameter> parameters = subprog.getFormalParameters();
             if (parameters != null && parameters.size() > 0) {
                 boolean first = true;
                 for (FormalParameter formalParameter : parameters) {
                     String name = null;
-                    Statement parameter = formalParameter.getParameterName();
+                    Expression parameter = formalParameter.getParameterName();
                     if (parameter != null) {
                         Variable variable = null;
-                        boolean isReference = false;
-                        if (parameter instanceof Reference) {
-                            Reference reference = (Reference) parameter;
-                            isReference = true;
-                            if (reference.getExpression() instanceof Variable) {
-                                variable = (Variable) reference.getExpression();
-                            }
-                        } else if (parameter instanceof Variable) {
+                        if (parameter instanceof Variable) {
                             variable = (Variable) parameter;
                         }
 
                         if (variable != null) {
                             name = ASTUtils.resolveVariableName(variable);
-                            if (name != null) {
-                                if (isReference) {
-                                    name = name; //NOI18N
-                                }
-                            }
                         } else {
                             name = "??"; //NOI18N
                         }
                     }
                     String type = null;
                     if (formalParameter.getParameterType() != null) {
-                        type = formalParameter.getParameterType().getName();
+                        type = formalParameter.getParameterType().getTypeName().getName();
                     }
                     if (name != null) {
                         if (!first) {
@@ -397,50 +430,46 @@ public class AdaStructureScanner implements StructureScanner {
                 }
             }
             formatter.appendText(")");   //NOI18N
+
+            if (subprog.getSubtypeReturn() != null) {
+                String type = subprog.getSubtypeReturn().getName();
+                formatter.appendText(" : out ");   //NOI18N
+                formatter.appendHtml(FONT_GRAY_COLOR);
+                formatter.appendText(type);
+                formatter.appendHtml(CLOSE_FONT);
+            }
 
         }
 
-        protected void appendFunctionDescription(FunctionDeclaration function, HtmlFormatter formatter) {
+        protected void appendSubprogDescription(SubprogramBody subprog, HtmlFormatter formatter) {
             formatter.reset();
-            if (function == null || function.getIdentifier() == null) {
+            if (subprog == null || subprog.getSubprogramSpecification().getSubprogramName() == null) {
                 return;
             }
-            formatter.appendText(function.getIdentifier().getName());
+            formatter.appendText(subprog.getSubprogramSpecification().getSubprogramName().getName());
             formatter.appendText("(");   //NOI18N
 
-            List<FormalParameter> parameters = function.getFormalParameters();
+            List<FormalParameter> parameters = subprog.getSubprogramSpecification().getFormalParameters();
             if (parameters != null && parameters.size() > 0) {
                 boolean first = true;
                 for (FormalParameter formalParameter : parameters) {
                     String name = null;
-                    Statement parameter = formalParameter.getParameterName();
+                    Expression parameter = formalParameter.getParameterName();
                     if (parameter != null) {
                         Variable variable = null;
-                        boolean isReference = false;
-                        if (parameter instanceof Reference) {
-                            Reference reference = (Reference) parameter;
-                            isReference = true;
-                            if (reference.getExpression() instanceof Variable) {
-                                variable = (Variable) reference.getExpression();
-                            }
-                        } else if (parameter instanceof Variable) {
+                        if (parameter instanceof Variable) {
                             variable = (Variable) parameter;
                         }
 
                         if (variable != null) {
                             name = ASTUtils.resolveVariableName(variable);
-                            if (name != null) {
-                                if (isReference) {
-                                    name = name; //NOI18N
-                                }
-                            }
                         } else {
                             name = "??"; //NOI18N
                         }
                     }
                     String type = null;
                     if (formalParameter.getParameterType() != null) {
-                        type = formalParameter.getParameterType().getName();
+                        type = formalParameter.getParameterType().getTypeName().getName();
                     }
                     if (name != null) {
                         if (!first) {
@@ -469,6 +498,13 @@ public class AdaStructureScanner implements StructureScanner {
             }
             formatter.appendText(")");   //NOI18N
 
+            if (subprog.getSubprogramSpecification().getSubtypeReturn() != null) {
+                String type = subprog.getSubprogramSpecification().getSubtypeReturn().getName();
+                formatter.appendText(" : out ");   //NOI18N
+                formatter.appendHtml(FONT_GRAY_COLOR);
+                formatter.appendText(type);
+                formatter.appendHtml(CLOSE_FONT);
+            }
         }
     }
 
@@ -525,6 +561,36 @@ public class AdaStructureScanner implements StructureScanner {
         }
     }
 
+    private class AdaSubprogSpecStructureItem extends AdaStructureItem {
+
+        public AdaSubprogSpecStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "subspc"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            SubprogramSpecificationHandle handle = (SubprogramSpecificationHandle) getElementHandle();
+            SubprogramSpecification subprog = (SubprogramSpecification) handle.getASTNode();
+            appendSubprogDescription(subprog, formatter);
+            return formatter.getText();
+        }
+    }
+
+    private class AdaSubprogBodyStructureItem extends AdaStructureItem {
+
+        public AdaSubprogBodyStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "subbdy"); //NOI18N
+        }
+
+        public String getHtml(HtmlFormatter formatter) {
+            formatter.reset();
+            SubprogramBodyHandle handle = (SubprogramBodyHandle) getElementHandle();
+            SubprogramBody subprog = (SubprogramBody) handle.getASTNode();
+            appendSubprogDescription(subprog, formatter);
+            return formatter.getText();
+        }
+    }
+
     private class AdaPackageSpecificationStructureItem extends AdaStructureItem {
 
         public AdaPackageSpecificationStructureItem(AdaElementHandle elementHandle, List<? extends StructureItem> children) {
@@ -555,32 +621,32 @@ public class AdaStructureScanner implements StructureScanner {
         }
     }
 
-    private class AdaMethodProcedureStructureItem extends AdaStructureItem {
+    private class AdaMethodSubprogSpecStructureItem extends AdaStructureItem {
 
-        public AdaMethodProcedureStructureItem(AdaElementHandle elementHandle) {
-            super(elementHandle, null, "prc"); //NOI18N
+        public AdaMethodSubprogSpecStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "subspc"); //NOI18N
         }
 
         public String getHtml(HtmlFormatter formatter) {
             formatter.reset();
-            MethodProcedureDeclarationHandle handle = (MethodProcedureDeclarationHandle) getElementHandle();
+            MethodSubprogSpecHandle handle = (MethodSubprogSpecHandle) getElementHandle();
             MethodDeclaration method = (MethodDeclaration) handle.getASTNode();
-            appendProcedureDescription(method.getProcedure(), formatter);
+            appendSubprogDescription(method.getSubprogramSpecification(), formatter);
             return formatter.getText();
         }
     }
 
-    private class AdaMethodFunctionStructureItem extends AdaStructureItem {
+    private class AdaMethodSubprogBodyStructureItem extends AdaStructureItem {
 
-        public AdaMethodFunctionStructureItem(AdaElementHandle elementHandle) {
-            super(elementHandle, null, "fn"); //NOI18N
+        public AdaMethodSubprogBodyStructureItem(AdaElementHandle elementHandle) {
+            super(elementHandle, null, "subbdy"); //NOI18N
         }
 
         public String getHtml(HtmlFormatter formatter) {
             formatter.reset();
-            MethodFunctionDeclarationHandle handle = (MethodFunctionDeclarationHandle) getElementHandle();
+            MethodSubprogBodyHandle handle = (MethodSubprogBodyHandle) getElementHandle();
             MethodDeclaration method = (MethodDeclaration) handle.getASTNode();
-            appendFunctionDescription(method.getFunction(), formatter);
+            appendSubprogDescription(method.getSubprogramBody(), formatter);
             return formatter.getText();
         }
     }
@@ -624,18 +690,14 @@ public class AdaStructureScanner implements StructureScanner {
         }
 
         @Override
-        public void visit(FunctionDeclaration function) {
+        public void visit(SubprogramBody subprog) {
             foldType = FOLD_CODE_BLOCKS;
-            if (function.getBody() != null) {
-                scan(function.getBody());
+            if (subprog.getDeclarations() != null) {
+                scan(subprog.getDeclarations());
             }
-        }
-
-        @Override
-        public void visit(ProcedureDeclaration procedure) {
             foldType = FOLD_CODE_BLOCKS;
-            if (procedure.getBody() != null) {
-                scan(procedure.getBody());
+            if (subprog.getBody() != null) {
+                scan(subprog.getBody());
             }
         }
     }

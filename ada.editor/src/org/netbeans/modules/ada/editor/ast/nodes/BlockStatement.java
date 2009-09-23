@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,9 +31,9 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.ada.editor.ast.nodes;
@@ -43,93 +43,58 @@ import java.util.List;
 import org.netbeans.modules.ada.editor.ast.nodes.visitors.Visitor;
 
 /**
- * Represents a procedure declaration
+ * Represents a block of statements
+ *
  * <pre>e.g.<pre>
- * procedure Traverse_Tree;
- * procedure Increment(X : in out Integer);
- * procedure Right_Indent(Margin : out Line_Size);
- * procedure Switch(From, To : in out Link);
+ * Swap:
+ *    declare
+ *       Temp : Integer;
+ *    begin
+ *       Temp := V;
+ *       V := U;
+ *       U := Temp;
+ *    end Swap;
+ *
+ * @author Andrea Lucarelli
  */
-public class ProcedureDeclaration extends Statement {
+public class BlockStatement extends Statement {
 
-    private boolean isSpefication;
-    private Identifier name;
-    private Identifier nameEnd;
-    private final ArrayList<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
+	private Identifier label;
     private Block declarations;
     private Block body;
 
-    private ProcedureDeclaration(int start, int end, Identifier procedureName, FormalParameter[] formalParameters, final boolean isSpecification) {
+    public BlockStatement(int start, int end, Identifier label, Block declarations, Block body) {
         super(start, end);
-        this.isSpefication = isSpecification;
-        this.name = procedureName;
-        for (FormalParameter formalParameter : formalParameters) {
-            this.formalParameters.add(formalParameter);
-        }
-    }
 
-    public ProcedureDeclaration(int start, int end, Identifier procedureName, List<FormalParameter> formalParameters) {
-        this(start, end, procedureName, (FormalParameter[]) formalParameters.toArray(new FormalParameter[formalParameters.size()]), false);
-    }
-
-    public Block getDeclarations() {
-        return declarations;
-    }
-
-    public void setDeclarations(Block declarations) {
+		this.label = label;
         this.declarations = declarations;
-    }
-
-    public void setIdentifierEnd(Identifier nameEnd) {
-        this.nameEnd = nameEnd;
-    }
-
-    public Identifier getIdentifierEnd() {
-        return nameEnd;
-    }
-
-    /**
-     * Body of this procedure declaration
-     * 
-     * @return Body of this procedure declaration
-     */
-    public Block getBody() {
-        return body;
-    }
-
-    public void setBody(Block body) {
-        this.isSpefication = false;
         this.body = body;
     }
 
-    /**
-     * List of the formal parameters of this procedure declaration
-     * 
-     * @return the parameters of this declaration   
-     */
-    public List<FormalParameter> getFormalParameters() {
-        return this.formalParameters;
-    }
+	public Identifier getLabel () {
+		return this.label;
+	}
 
     /**
-     * Procedure name of this declaration
-     *   
-     * @return Procedure name of this declaration
+     * Retrieves the declaration statements parts of this block
+     * @return declaration statements parts of this block
      */
-    public Identifier getIdentifier() {
-        return name;
+    public Block getDeclarations() {
+        return this.body;
     }
 
-    /**
-     * True if this procedure's return variable will be referenced
-     * @return True if this procedure's return variable will be referenced
+	/**
+     * Retrieves the body statements parts of this block
+     * @return body statements parts of this block
      */
-    public boolean isSpefication() {
-        return isSpefication;
+    public Block getBody() {
+        return this.body;
     }
     
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
+
 }
+

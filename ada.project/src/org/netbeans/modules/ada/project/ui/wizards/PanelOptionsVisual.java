@@ -50,10 +50,11 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import org.netbeans.api.ada.platform.AdaPlatform;
 import org.netbeans.api.ada.platform.AdaPlatformManager;
+import org.netbeans.modules.ada.project.options.AdaOptions;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.InstanceDataObject;
 import org.openide.util.Exceptions;
@@ -121,7 +122,8 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
         if (NewAdaProjectWizardIterator.PROP_PROJECT_NAME.equals(event.getPropertyName())) {
             String newProjectName = (String) event.getNewValue();
             this.mainFileTextField.setText(MessageFormat.format(
-                    NbBundle.getMessage(PanelOptionsVisual.class, "TXT_MainFileName"), new Object[]{newProjectName}));
+                    NbBundle.getMessage(PanelOptionsVisual.class, "TXT_MainFileName"), 
+                    new Object[]{newProjectName + "." + AdaOptions.getInstance().getSeparateExt()}));
         }
         if (NewAdaProjectWizardIterator.PROP_PROJECT_LOCATION.equals(event.getPropertyName())) {
             projectLocation = (String) event.getNewValue();
@@ -214,13 +216,14 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
 
 private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageActionPerformed
     // Workaround, Needs an API to display platform customizer
-    final FileObject fo = FileUtil.getConfigFile("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
+    final FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/Ada/org-netbeans-modules-ada-platform-PlatformsCustomizerAction.instance");  //NOI18N
     if (fo != null) {
         try {
             InstanceDataObject ido = (InstanceDataObject) DataObject.find(fo);
             CallableSystemAction action = (CallableSystemAction) ido.instanceCreate();
             action.performAction();
             platforms.setModel(Utils.createPlatformModel()); //Currentl the AdaManager doesn't fire events, we need to replace model.
+            this.panel.fireChangeEvent();
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ClassNotFoundException ex) {

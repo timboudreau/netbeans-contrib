@@ -41,25 +41,25 @@ package org.netbeans.modules.ada.editor.parser;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.openide.filesystems.FileObject;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.ada.editor.AdaLanguage;
 import org.netbeans.modules.ada.editor.AdaMimeResolver;
 import org.netbeans.modules.ada.editor.ast.ASTNode;
 import org.netbeans.modules.ada.editor.ast.ASTUtils;
 import org.netbeans.modules.ada.editor.ast.nodes.BodyDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.FieldsDeclaration;
-import org.netbeans.modules.ada.editor.ast.nodes.FunctionDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Identifier;
 import org.netbeans.modules.ada.editor.ast.nodes.MethodDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageBody;
 import org.netbeans.modules.ada.editor.ast.nodes.PackageSpecification;
-import org.netbeans.modules.ada.editor.ast.nodes.ProcedureDeclaration;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramBody;
+import org.netbeans.modules.ada.editor.ast.nodes.SubprogramSpecification;
 import org.netbeans.modules.ada.editor.ast.nodes.TypeDeclaration;
 import org.netbeans.modules.ada.editor.ast.nodes.Variable;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  * Based on  org.netbeans.modules.php.editor.parser.GSFPHPElementHandle
@@ -68,25 +68,29 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public abstract class AdaElementHandle implements ElementHandle {
 
-    final private CompilationInfo info;
+    final private ParserResult info;
 
-    AdaElementHandle(CompilationInfo info) {
+    AdaElementHandle(ParserResult info) {
         this.info = info;
     }
 
+    @Override
     public FileObject getFileObject() {
-        return info.getFileObject();
+        return info.getSnapshot().getSource().getFileObject();
     }
 
+    @Override
     public String getMimeType() {
         return AdaMimeResolver.ADA_MIME_TYPE;
     }
 
     // TODO what is about?
+    @Override
     public String getIn() {
         return null;
     }
 
+    @Override
     public boolean signatureEquals(ElementHandle handle) {
         // TODO needs to be done
         return false;
@@ -94,15 +98,27 @@ public abstract class AdaElementHandle implements ElementHandle {
 
     public abstract ASTNode getASTNode();
 
+    @Override
+    public OffsetRange getOffsetRange(ParserResult result) {
+        AdaElementHandle h = (AdaElementHandle) this;
+
+        if (h.getASTNode() != null) {
+            return new OffsetRange(h.getASTNode().getStartOffset(), h.getASTNode().getEndOffset());
+        } else {
+            return OffsetRange.NONE;
+        }
+    }
+
     public static class PackageSpecificationHandle extends AdaElementHandle {
 
         private PackageSpecification declaration;
 
-        public PackageSpecificationHandle(CompilationInfo info, PackageSpecification declaration) {
+        public PackageSpecificationHandle(ParserResult info, PackageSpecification declaration) {
             super(info);
             this.declaration = declaration;
         }
 
+        @Override
         public String getName() {
             String name = "";
             if (declaration.getName() != null) {
@@ -111,10 +127,12 @@ public abstract class AdaElementHandle implements ElementHandle {
             return name;
         }
 
+        @Override
         public ElementKind getKind() {
             return ElementKind.CLASS;
         }
 
+        @Override
         public Set<Modifier> getModifiers() {
             return Collections.emptySet();
         }
@@ -129,11 +147,12 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         private PackageBody declaration;
 
-        public PackageBodyHandle(CompilationInfo info, PackageBody declaration) {
+        public PackageBodyHandle(ParserResult info, PackageBody declaration) {
             super(info);
             this.declaration = declaration;
         }
 
+        @Override
         public String getName() {
             String name = "";
             if (declaration.getName() != null) {
@@ -142,6 +161,7 @@ public abstract class AdaElementHandle implements ElementHandle {
             return name;
         }
 
+        @Override
         public ElementKind getKind() {
             return ElementKind.CLASS;
         }
@@ -160,7 +180,7 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         private TypeDeclaration declaration;
 
-        public TypeDeclarationHandle (CompilationInfo info, TypeDeclaration declaration) {
+        public TypeDeclarationHandle (ParserResult info, TypeDeclaration declaration) {
             super (info);
             this.declaration = declaration;
         }
@@ -182,7 +202,7 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         public ElementKind getKind() {
             // Custom icon
-            return ElementKind.OTHER;
+            return ElementKind.FIELD;
         }
 
         public Set<Modifier> getModifiers() {
@@ -194,7 +214,7 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         private FieldsDeclaration declaration;
 
-        public FieldsDeclarationHandle (CompilationInfo info, FieldsDeclaration declaration) {
+        public FieldsDeclarationHandle (ParserResult info, FieldsDeclaration declaration) {
             super (info);
             this.declaration = declaration;
         }
@@ -225,24 +245,24 @@ public abstract class AdaElementHandle implements ElementHandle {
         }
     }
 
-    public static class FunctionDeclarationHandle extends AdaElementHandle {
+    public static class SubprogramSpecificationHandle extends AdaElementHandle {
 
-        private FunctionDeclaration declaration;
+        private SubprogramSpecification suprog;
 
-        public FunctionDeclarationHandle (CompilationInfo info, FunctionDeclaration declaration) {
+        public SubprogramSpecificationHandle (ParserResult info, SubprogramSpecification declaration) {
             super (info);
-            this.declaration = declaration;
+            this.suprog = declaration;
         }
 
         @Override
         public ASTNode getASTNode() {
-            return declaration;
+            return suprog;
         }
 
         public String getName() {
             String name = "";
-            if (declaration.getIdentifier() != null) {
-                name = declaration.getIdentifier().getName();
+            if (suprog.getSubprogramName() != null) {
+                name = suprog.getSubprogramName().getName();
             }
             return name;
         }
@@ -256,11 +276,11 @@ public abstract class AdaElementHandle implements ElementHandle {
         }
     }
 
-    public static class ProcedureDeclarationHandle extends AdaElementHandle {
+    public static class SubprogramBodyHandle extends AdaElementHandle {
 
-        private ProcedureDeclaration declaration;
+        private SubprogramBody declaration;
 
-        public ProcedureDeclarationHandle (CompilationInfo info, ProcedureDeclaration declaration) {
+        public SubprogramBodyHandle (ParserResult info, SubprogramBody declaration) {
             super (info);
             this.declaration = declaration;
         }
@@ -272,8 +292,8 @@ public abstract class AdaElementHandle implements ElementHandle {
 
         public String getName() {
             String name = "";
-            if (declaration.getIdentifier() != null) {
-                name = declaration.getIdentifier().getName();
+            if (declaration.getSubprogramSpecification().getSubprogramName() != null) {
+                name = declaration.getSubprogramSpecification().getSubprogramName().getName();
             }
             return name;
         }
@@ -287,12 +307,12 @@ public abstract class AdaElementHandle implements ElementHandle {
         }
     }
 
-    public static class MethodFunctionDeclarationHandle extends FunctionDeclarationHandle {
+    public static class MethodSubprogSpecHandle extends SubprogramSpecificationHandle {
 
         private MethodDeclaration declaration;
 
-        public MethodFunctionDeclarationHandle (CompilationInfo info, MethodDeclaration declaration) {
-            super (info, declaration.getFunction());
+        public MethodSubprogSpecHandle (ParserResult info, MethodDeclaration declaration) {
+            super (info, declaration.getSubprogramSpecification());
             this.declaration = declaration;
         }
 
@@ -307,12 +327,12 @@ public abstract class AdaElementHandle implements ElementHandle {
         }
     }
 
-    public static class MethodProcedureDeclarationHandle extends ProcedureDeclarationHandle {
+    public static class MethodSubprogBodyHandle extends SubprogramBodyHandle {
 
         private MethodDeclaration declaration;
 
-        public MethodProcedureDeclarationHandle (CompilationInfo info, MethodDeclaration declaration) {
-            super (info, declaration.getProcedure());
+        public MethodSubprogBodyHandle (ParserResult info, MethodDeclaration declaration) {
+            super (info, declaration.getSubprogramBody());
             this.declaration = declaration;
         }
 

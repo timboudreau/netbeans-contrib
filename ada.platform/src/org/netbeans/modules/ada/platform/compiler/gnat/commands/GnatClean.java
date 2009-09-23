@@ -63,7 +63,7 @@ public class GnatClean extends GnatCommand {
     }
 
     @Override
-    public void invokeCommand(String displayTitle) throws IllegalArgumentException, AdaException {
+    public void invokeCommand(String displayTitle, String args) throws IllegalArgumentException, AdaException {
 
         // Make the GPR file
         GnatProject gpr = new GnatProject(this.getGnatCompiler());

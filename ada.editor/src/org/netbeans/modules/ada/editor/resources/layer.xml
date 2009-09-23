@@ -50,8 +50,8 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
         </folder>
     </folder>
 
-    <!-- GSF -->
-    <folder name="GsfPlugins">
+    <!-- CLS -->
+    <folder name="CslPlugins">
         <folder name="text">
             <folder name="x-ada">
                 <file name="language.instance">
@@ -64,6 +64,21 @@ Portions Copyrighted 2008 Sun Microsystems, Inc.
         </folder>
     </folder>
 
+    <!-- GSF 
+    <folder name="GsfPlugins">
+        <folder name="text">
+            <folder name="x-ada">
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.ada.editor.AdaLanguage"/>
+                </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.ada.editor.parser.AdaStructureScanner"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    -->
+    
     <!-- EDITORS -->
     <folder name="Editors">
         <folder name="text">
