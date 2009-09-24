@@ -176,10 +176,10 @@ class MoveClassesUI(javaObjects: Set[FileObject], targetFolder: FileObject, past
   def getRefactoring: AbstractRefactoring = {
     if (refactoring == null) {
       if (isDisable) {
-        refactoring = new MoveRefactoring(Lookups.fixed(javaObjects.toArray: _*))
+        refactoring = new MoveRefactoring(Lookups.fixed(javaObjects.toArray.asInstanceOf[Array[java.lang.Object]]: _*))
         refactoring.getContext().add(RetoucheUtils.getClasspathInfoFor(javaObjects.toArray))
       } else {
-        refactoring = new MoveRefactoring (Lookups.fixed(resources.toArray: _*))
+        refactoring = new MoveRefactoring (Lookups.fixed(resources.toArray.asInstanceOf[Array[java.lang.Object]]: _*))
         refactoring.getContext().add(RetoucheUtils.getClasspathInfoFor(resources.toArray))
       }
     }
