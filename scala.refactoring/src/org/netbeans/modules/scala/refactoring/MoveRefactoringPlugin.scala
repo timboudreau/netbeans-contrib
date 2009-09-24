@@ -85,7 +85,7 @@ class MoveRefactoringPlugin(refactoring: AbstractRefactoring) extends ScalaRefac
   val isRenameRefactoring = refactoring match {
     case _ : MoveRefactoring =>
       val files = refactoring.getRefactoringSource.lookupAll(classOf[FileObject])
-      setup(files.toArray(new Array[FileObject](files.size)), "", true)
+      setup(files.toArray.asInstanceOf[Array[FileObject]], "", true)
       
       false
     case _ : RenameRefactoring =>
