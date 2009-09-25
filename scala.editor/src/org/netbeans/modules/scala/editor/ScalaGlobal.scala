@@ -229,9 +229,9 @@ object ScalaGlobal {
     }
 
     // * is this `fo` under test source?
-    val forTest = cache.testToOut find {case (src, _) =>
+    val forTest = cache.testToOut exists {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
-    } isDefined
+    }
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
     val idx = if (forDebug) {
@@ -291,6 +291,7 @@ object ScalaGlobal {
     settings.outputDirs.setSingleOutput(outPath)
 
     Log.info("project's source paths set for global: " + srcPaths)
+    Log.info("project's output paths set for global: " + outPath)
     if (srcCp != null){
       Log.info(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
     } else {
@@ -434,12 +435,23 @@ object ScalaGlobal {
       }
     }
 
+    if (out == null) {
+      val execCp = ClassPath.getClassPath(srcRoot, ClassPath.EXECUTE)
+      if (execCp != null) {
+        val candidates = execCp.getRoots filter (!_.getFileSystem.isInstanceOf[JarFileSystem])
+        candidates find (x => x.getPath.endsWith("classes")) foreach {out = _}
+        if (out == null & candidates.length > 0) {
+          out = candidates(0)
+        }
+      }
+    }
+
     // * global requires an exist out path, so we have to create a tmp folder
     if (out == null) {
       val projectDir = project.getProjectDirectory
       if (projectDir != null && projectDir.isFolder) {
         try {
-          val tmpClasses = "tmpClasses"
+          val tmpClasses = "build/classes"
           out = projectDir.getFileObject(tmpClasses) match {
             case null => projectDir.createFolder(tmpClasses)
             case x => x
