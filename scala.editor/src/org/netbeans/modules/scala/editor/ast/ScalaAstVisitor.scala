@@ -123,25 +123,37 @@ abstract class ScalaAstVisitor {
       val c = ct.context
       if (visited.add(c)) {
         for (importInfo <- c.imports;
-             me@Import(qual, selectors) = importInfo.tree
+             me@Import(qual, selectors) = importInfo.tree if me.pos.isDefined
         ) {
-          val sym = qual.symbol
-          if (sym != null) {
+          val qualSym = qual.symbol
+          if (qualSym != null) {
             val idToken = getIdToken(qual)
-            val ref = ScalaRef(sym, idToken, if (sym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+            val ref = ScalaRef(qualSym, idToken, if (qualSym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
             if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
           }
 
           //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
           selectors foreach {
             case (null, null) =>
-            case (x, y) if x != nme.WILDCARD =>
+
+            case (nme.WILDCARD, _) =>
+              // * idToken == "_", sym == qualSym
+              val idToken = getIdToken(me, nme.WILDCARD.decode)
+              val ref = ScalaRef(qualSym, idToken, ElementKind.OTHER, fo)
+              if (scopes.top.addRef(ref)) {
+                info("\tAdded: ", ref)
+                rootScope putImportingItem ref
+              }
+
+            case (x, y) =>
               val xsym = importedSymbol(me, x)
               if (xsym != null) {
                 val idToken = getIdToken(me, x.decode)
                 val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
-                if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                rootScope putImportedItem ref
+                if (scopes.top.addRef(ref)) {
+                  info("\tAdded: ", ref)
+                  rootScope putImportingItem ref
+                }
               }
 
               if (y != null) {
@@ -149,11 +161,12 @@ abstract class ScalaAstVisitor {
                 if (ysym != null) {
                   val idToken = getIdToken(me, y.decode)
                   val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
-                  if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
-                  rootScope putImportedItem ref
+                  if (scopes.top.addRef(ref)) {
+                    info("\tAdded: ", ref)
+                    rootScope putImportingItem ref
+                  }
                 }
               }
-            case _ =>
           }      
         }
       }

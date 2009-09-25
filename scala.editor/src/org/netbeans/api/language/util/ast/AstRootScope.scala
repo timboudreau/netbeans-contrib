@@ -51,7 +51,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   protected val _idTokenToItems = new HashMap[Token[TokenId], List[AstItem]]
   private var sortedTokens = Array[Token[TokenId]]()
   private var tokensSorted = false
-  private val _importedItems = new HashSet[AstItem]
+  private val _importingItems = new HashSet[AstItem]
 
   def contains(idToken: Token[TokenId]): Boolean = _idTokenToItems.contains(idToken)
 
@@ -59,8 +59,8 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     _idTokenToItems
   }
 
-  def importedItems: Set[AstItem] = {
-    _importedItems.toSet
+  def importingItems: Set[AstItem] = {
+    _importingItems.toSet
   }
 
   private def sortedTokens(th: TokenHierarchy[_]): Array[Token[TokenId]] = {
@@ -71,27 +71,28 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     sortedTokens
   }
 
-  def putImportedItem(item: AstItem): Boolean = {
-    _importedItems add item
+  def putImportingItem(item: AstItem): Boolean = {
+    if (item.idToken.isDefined) {
+      _importingItems add item
+    } else false
   }
   
   /**
-   * each idToken may correspond to more then one AstItems
+   * each idToken may correspond to more then one AstItem
    */
   protected def put(idToken: Token[TokenId], item: AstItem): Boolean = {
     val items = _idTokenToItems.getOrElse(idToken, Nil)
-    items find {_.symbol == item.symbol} match {
-      case Some(existOne) =>
-        if (item.resultType != null) {
-          // * it has exlicit assigned resultType, always add it
-          _idTokenToItems += (idToken -> (item :: items))
-          tokensSorted = false
-          true
-        } else false // * don't add item with same symbol and resultType == null
-      case _ =>
+    if (items exists {_.symbol == item.symbol}) {
+      if (item.resultType != null) {
+        // * it has exlicit assigned resultType, always add it
         _idTokenToItems += (idToken -> (item :: items))
         tokensSorted = false
         true
+      } else false // * don't add item with same symbol and resultType == null
+    } else {
+      _idTokenToItems += (idToken -> (item :: items))
+      tokensSorted = false
+      true
     }
   }
 

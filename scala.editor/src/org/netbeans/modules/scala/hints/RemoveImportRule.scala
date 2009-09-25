@@ -75,204 +75,238 @@ import scala.tools.nsc.symtab._
 
 
 class RemoveImportRule() extends ScalaAstRule with NbBundler {
-    val DEFAULT_PRIORITY = 293
+  val DEFAULT_PRIORITY = 293
 
-    /** Gets unique ID of the rule
-     */
-    def getId() : String = "RemoveImportRule"
+  /** Gets unique ID of the rule
+   */
+  def getId() : String = "RemoveImportRule"
 
-    /** Gets longer description of the rule
-     */
-    def getDescription() : String = "Desc"
+  /** Gets longer description of the rule
+   */
+  def getDescription() : String = "Desc"
 
-    /** Finds out whether the rule is currently enabled.
-     * @return true if enabled false otherwise.
-     */
-    def getDefaultEnabled() : Boolean = true
+  /** Finds out whether the rule is currently enabled.
+   * @return true if enabled false otherwise.
+   */
+  def getDefaultEnabled() : Boolean = true
 
-    /** Gets the UI description for this rule. It is fine to return null
-     * to get the default behavior. Notice that the Preferences node is a copy
-     * of the node returned from {link:getPreferences()}. This is in oder to permit
-     * canceling changes done in the options dialog.<BR>
-     * Default implementation return null, which results in no customizer.
-     * It is fine to return null (as default implementation does)
-     * @param node Preferences node the customizer should work on.
-     * @return Component which will be shown in the options dialog.
-     */
-    def getCustomizer(node : Preferences) : JComponent = new JPanel()
+  /** Gets the UI description for this rule. It is fine to return null
+   * to get the default behavior. Notice that the Preferences node is a copy
+   * of the node returned from {link:getPreferences()}. This is in oder to permit
+   * canceling changes done in the options dialog.<BR>
+   * Default implementation return null, which results in no customizer.
+   * It is fine to return null (as default implementation does)
+   * @param node Preferences node the customizer should work on.
+   * @return Component which will be shown in the options dialog.
+   */
+  def getCustomizer(node : Preferences) : JComponent = new JPanel()
 
-    /**
-     * Return true iff this hint applies to the given file
-     */
-    def appliesTo(context : RuleContext) : Boolean = true
+  /**
+   * Return true iff this hint applies to the given file
+   */
+  def appliesTo(context : RuleContext) : Boolean = true
 
-    /** Get's UI usable name of the rule
-     */
-    def getDisplayName : String = "Remove import"
+  /** Get's UI usable name of the rule
+   */
+  def getDisplayName : String = "Remove import"
 
-    /**
-     * Whether this task should be shown in the tasklist
-     */
-    def showInTasklist : Boolean = false
+  /**
+   * Whether this task should be shown in the tasklist
+   */
+  def showInTasklist : Boolean = false
 
-    /** Gets current severiry of the hint.
-     * @return Hints severity in current profile.
-     */
-    def getDefaultSeverity : HintSeverity = HintSeverity.WARNING
+  /** Gets current severiry of the hint.
+   * @return Hints severity in current profile.
+   */
+  def getDefaultSeverity : HintSeverity = HintSeverity.WARNING
 
 
-    def getKinds() : java.util.Set[_] = java.util.Collections.singleton(ScalaAstRule.ROOT)
+  def getKinds() : java.util.Set[_] = java.util.Collections.singleton(ScalaAstRule.ROOT)
 
-    def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint] = {
-        val defs = findTypeUsages(scope) //findDefinitions(scope)
+  def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint] = {
+    val pr = context.parserResult.asInstanceOf[ScalaParserResult]
+    import pr.global._
 
-        //debug start
-        //println("creating rmeove import hint")
-        //defs.foreach(a => println(a))
-        //println("we have " + defs.size + " defs")
-        //debug end
+    val th = pr.getSnapshot.getTokenHierarchy
+    val content = pr.getSnapshot.getText
+    val doc = pr.getSnapshot.getSource.getDocument(false)
+    val usages = findTypeUsages(scope)
+    val importings = scope.importingItems.asInstanceOf[Set[ScalaItem]]
 
-        val imports = FixImportsHelper.allGlobalImports(context.doc)
-
-        val candidates = for (i <- mapImports(imports)
-                              if !defs.exists(a => a == i._1))
-                                  yield i
-//        candidates.foreach( a => println("candidate" + a._3))
-        val toRet = mutable.ListBuffer[Hint]()
-        for ((imp, (start, end, text)) <- candidates) {
-              val rangeOpt = context.calcOffsetRange(start, end)
-              toRet +=  new Hint(this, "Remove Unused Import " + imp, context.getFileObject, rangeOpt.get,
-                             new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
-        }
-        toRet ++= removeDuplicateHints(imports, context)
-        toRet.toList
+    def qualName(qName: String) = qName.lastIndexOf(".") match {
+      case -1 => ""
+      case i => qName.substring(0, i)
     }
 
-    private def mapImports(imports : List[(Int, Int, String)]) = {
-        var toRet = Map[String, (Int, Int, String)]()
-        for (imp@(starter, finisher, text) <- imports) {
-            if (!text.contains("_") && !text.contains("=>")) {
-                val leftBrack = text.indexOf("{")
-                val rightBrack = text.indexOf("}")
-                if (leftBrack >= 0 && rightBrack > leftBrack) {
-                    val pack = text.substring(0, leftBrack)
-                    for (single <- text.substring(leftBrack + 1, rightBrack).split(",")) {
-                        toRet = toRet + ((pack + single) -> imp)
-                    }
-                } else {
-                    toRet = toRet + (text -> imp)
-                }
-            }
+    val added = new mutable.HashSet[String]
+    importings filter {imp =>
+      //println("import: " + imp)
+      val impSym = imp.symbol
+      if (impSym.hasFlag(Flags.PACKAGE)) {
+        // @todo
+        false
+      } else {
+        if (imp.idToken.get.id == ScalaTokenId.Wild) { // qual._, symbol is pointed to qual
+          val qual = impSym.fullNameString
+          //println("wild import: " + qual)
+          // @todo
+          //added.add(qual) && !(usages exists {qualName(_) == qual})
+          false
+        } else {
+          val qName = impSym.fullNameString
+          added.add(qName) && !(usages contains qName)
         }
-        toRet
-    }
+      }
+    } map {item =>
+      var offset = item.idOffset(th)
+      var endOffset = item.idEndOffset(th)
+      var text = item.idToken.get.text
 
-    private def findTypeUsages(scope: AstRootScope): Set[String] = {
-      val imported = scope.importedItems
-      (for ((idToken, items) <- scope.idTokenToItems;
-            item <- items if !imported.contains(item);
-            sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
+      ScalaLexUtil.findImportAt(th, offset) match {
+        case me@ScalaLexUtil.ImportTokens(start, end, qual, hd :: Nil) => // has only one selector
+          offset = start.offset(th)
+          endOffset = end.offset(th) + end.length
+          text = content.subSequence(offset, endOffset + 1)
+        case _ =>
+      }
+
+      val rangeOpt = context.calcOffsetRange(offset, endOffset)
+      new Hint(this, "Remove Unused Import " +  (offset, endOffset, text), context.getFileObject, rangeOpt.get,
+               new ju.ArrayList() /**new RemoveImportFix(context, offset, endOffset, text)) */, DEFAULT_PRIORITY)
+    } toList
+  }
+
+  private def findTypeUsages(scope: AstRootScope): Set[String] = {
+    val imported = scope.importingItems
+    (for ((idToken, items) <- scope.idTokenToItems;
+          item <- items if !imported.contains(item);
+          sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
       ) yield sym.fullNameString) toSet
-    }
+  }
 
-    private def removeDuplicateHints(imports : List[Tuple3[Int, Int, String]], context : ScalaRuleContext) = {
-        var toRet = mutable.ListBuffer[Hint]()
-        var processed = mutable.ListBuffer[Tuple3[Int, Int, String]]()
-        def packName( s : String) = {
-            val lastInd = s.lastIndexOf(".")
-            if (lastInd > 0) s.substring(0, lastInd) else s
-        }
-        def isWildcard( s : String ) = s.endsWith("_")
+  /* def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint] = {
+   val defs = findTypeUsages(scope) //findDefinitions(scope)
 
-        for (imp <- imports) {
-            val found = processed.find(ex => ex._3 == imp._3 ||
-                                ((isWildcard(ex._3) || isWildcard(imp._3)) &&
-                                  packName(ex._3) == packName(imp._3)))
-            found match {
-                case Some(x) => {
-                    val tohint = if (isWildcard(imp._3) && !isWildcard(x._3)) x else imp
-                    val rangeOpt = context.calcOffsetRange(tohint._1, tohint._2)
-                    toRet +=
-                        new Hint(this, "Remove Duplicate Import " + tohint._3, context.getFileObject, rangeOpt.get,
-                             new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
-                }
-                case None => {}
-            }
-            processed.add(imp)
-        }
-        toRet
-    }
+   //debug start
+   //println("creating rmeove import hint")
+   //defs.foreach(a => println(a))
+   //println("we have " + defs.size + " defs")
+   //debug end
 
-    private def findDefinitions(scope : AstScope) : List[String] = {
-        val buf = mutable.HashSet[String]()
-//        val defs = scope.dfns.filter(a => a.getKind == ElementKind.CLASS || a.getKind == ElementKind.INTERFACE || a.getKind == ElementKind.TYPE_PARAMETER)
-//        println("defs size=" + defs.size)
-//        println("scope= " + scope.bindingDfn.getOrElse("xxx"));
-        for (d <- scope.refs) {
-            val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
-//            println("symbol=" + sym)
-            if (sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule) {
-                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+   val imports = FixImportsHelper.allGlobalImports(context.doc)
 
-            }
-            if (sym.isType || sym.isTypeParameter) {
-                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
-            }
-            if (sym.isValueParameter) {
-//                printSymbolDetails("valparam ref", sym)
-                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
-            }
-            if (sym.isMethod || sym.isConstructor) {
-//              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " ref", sym)
-              for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-              for (meth <- sym.tpe.paramTypes) {
-//                  println("meth param=" + meth)
-                  buf.add(meth.trimPrefix(meth.toString))
-                  for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-                  //add type params
-              }
-              val res = sym.tpe.resultType
-//              println("result type=" + res.trimPrefix(res.toString))
-              buf.add(res.trimPrefix(res.toString))
-              for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-            }
+   val candidates = for (i <- mapImports(imports)
+   if !defs.exists(a => a == i._1))
+   yield i
+   //        candidates.foreach( a => println("candidate" + a._3))
+   val toRet = mutable.ListBuffer[Hint]()
+   for ((imp, (start, end, text)) <- candidates) {
+   val rangeOpt = context.calcOffsetRange(start, end)
+   toRet +=  new Hint(this, "Remove Unused Import " + imp, context.getFileObject, rangeOpt.get,
+   new ju.ArrayList() /**new RemoveImportFix(context, start, end, text)) */, DEFAULT_PRIORITY)
+   }
+   toRet ++= removeDuplicateHints(imports, context)
+   toRet.toList
+   }
 
-        }
-        for (d <- scope.dfns) {
-            val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
-//            println("symbol2=" + sym)
-            if (sym.isValueParameter) {
-                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
-            }
-            if (sym.isType || sym.isTypeParameter) {
-                buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
-            }
-            if (sym.isMethod || sym.isConstructor) {
-//              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " def", sym)
-              for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-              for (meth <- sym.tpe.paramTypes) {
-//                  println("meth param=" + meth)
-                  buf.add(meth.trimPrefix(meth.toString))
-                  for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-                  //add type params
-              }
-              val res = sym.tpe.resultType
-//              println("result type=" + res.trimPrefix(res.toString))
-              buf.add(res.trimPrefix(res.toString))
-              for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
-            }
-        }
-//        println("scope end=================================")
-        for (sc <- scope.subScopes) {
-           buf.addAll(findDefinitions(sc))
-        }
-        buf.toList
-    }
+   private def mapImports(imports : List[(Int, Int, String)]) = {
+   var toRet = Map[String, (Int, Int, String)]()
+   for (imp@(starter, finisher, text) <- imports) {
+   if (!text.contains("_") && !text.contains("=>")) {
+   val leftBrack = text.indexOf("{")
+   val rightBrack = text.indexOf("}")
+   if (leftBrack >= 0 && rightBrack > leftBrack) {
+   val pack = text.substring(0, leftBrack)
+   for (single <- text.substring(leftBrack + 1, rightBrack).split(",")) {
+   toRet = toRet + ((pack + single) -> imp)
+   }
+   } else {
+   toRet = toRet + (text -> imp)
+   }
+   }
+   }
+   toRet
+   }
 
-    //debug method
-    private def printSymbolDetails(prefix : String, s : scala.tools.nsc.symtab.Symbols#Symbol) : Unit = {
-        println(prefix + "=" + s)
-        println("    fullname=" + s.fullNameString)
-    }
+   private def findTypeUsages(scope: AstRootScope): Set[String] = {
+   val imported = scope.importedItems
+   (for ((idToken, items) <- scope.idTokenToItems;
+   item <- items if !imported.contains(item);
+   sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
+   ) yield sym.fullNameString) toSet
+   }
+   
+   private def findDefinitions(scope : AstScope) : List[String] = {
+   val buf = mutable.HashSet[String]()
+   //        val defs = scope.dfns.filter(a => a.getKind == ElementKind.CLASS || a.getKind == ElementKind.INTERFACE || a.getKind == ElementKind.TYPE_PARAMETER)
+   //        println("defs size=" + defs.size)
+   //        println("scope= " + scope.bindingDfn.getOrElse("xxx"));
+   for (d <- scope.refs) {
+   val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
+   //            println("symbol=" + sym)
+   if (sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule) {
+   buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+
+   }
+   if (sym.isType || sym.isTypeParameter) {
+   buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+   }
+   if (sym.isValueParameter) {
+   //                printSymbolDetails("valparam ref", sym)
+   buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+   }
+   if (sym.isMethod || sym.isConstructor) {
+   //              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " ref", sym)
+   for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   for (meth <- sym.tpe.paramTypes) {
+   //                  println("meth param=" + meth)
+   buf.add(meth.trimPrefix(meth.toString))
+   for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   //add type params
+   }
+   val res = sym.tpe.resultType
+   //              println("result type=" + res.trimPrefix(res.toString))
+   buf.add(res.trimPrefix(res.toString))
+   for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   }
+
+   }
+   for (d <- scope.dfns) {
+   val sym = d.symbol.asInstanceOf[scala.tools.nsc.symtab.Symbols#Symbol]
+   //            println("symbol2=" + sym)
+   if (sym.isValueParameter) {
+   buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+   }
+   if (sym.isType || sym.isTypeParameter) {
+   buf.add(sym.tpe.trimPrefix(sym.tpe.toString))
+   }
+   if (sym.isMethod || sym.isConstructor) {
+   //              printSymbolDetails( (if (sym.isConstructor) "constructor" else "method" ) + " def", sym)
+   for (ss <- sym.tpe.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   for (meth <- sym.tpe.paramTypes) {
+   //                  println("meth param=" + meth)
+   buf.add(meth.trimPrefix(meth.toString))
+   for (ss <- meth.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   //add type params
+   }
+   val res = sym.tpe.resultType
+   //              println("result type=" + res.trimPrefix(res.toString))
+   buf.add(res.trimPrefix(res.toString))
+   for (ss <- res.typeArgs) buf.add(ss.trimPrefix(ss.toString))
+   }
+   }
+   //        println("scope end=================================")
+   for (sc <- scope.subScopes) {
+   buf.addAll(findDefinitions(sc))
+   }
+   buf.toList
+   }
+   */
+
+  //debug method
+  private def printSymbolDetails(prefix : String, s : scala.tools.nsc.symtab.Symbols#Symbol) : Unit = {
+    println(prefix + "=" + s)
+    println("    fullname=" + s.fullNameString)
+  }
 
 }

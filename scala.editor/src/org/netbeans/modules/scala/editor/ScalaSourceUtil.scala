@@ -565,7 +565,7 @@ object ScalaSourceUtil {
                   case -1 => clazzName
                   case i => clazzName.substring(0, i)
                 }
-                Log.info("Found class: " + clazzName)
+                Log.info("Found binary class name: " + clazzName)
                 return clazzName
               }
             }

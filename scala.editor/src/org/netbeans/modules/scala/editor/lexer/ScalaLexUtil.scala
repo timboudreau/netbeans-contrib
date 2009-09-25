@@ -143,7 +143,8 @@ object ScalaLexUtil extends LexUtil {
         ScalaTokenId.XmlSTagName,
         ScalaTokenId.XmlSTagName,
         ScalaTokenId.XmlCharData,
-        ScalaTokenId.LArrow
+        ScalaTokenId.LArrow,
+        ScalaTokenId.Wild
     )
 
   override def getDocCommentRangeBefore(th: TokenHierarchy[_], lexOffset: Int): OffsetRange = {
@@ -238,7 +239,7 @@ object ScalaLexUtil extends LexUtil {
     ts.move(lexOffset)
     var lbraceMet = false
     var lbraceExpected = false
-    var extractBehindComma = false
+    var exactBehindComma = false
     var paths = new ArrayBuffer[Token[TokenId]]
     while (ts.isValid && ts.movePrevious) {
       val token = ts.token
@@ -262,14 +263,14 @@ object ScalaLexUtil extends LexUtil {
             // * keep first met idToken only
             val idToken = paths(0)
             paths.clear
-            if (!extractBehindComma) {
+            if (!exactBehindComma) {
               paths += idToken
             }
           }
         case ScalaTokenId.Comma =>
           lbraceExpected = true
           if (paths.isEmpty) {
-            extractBehindComma = true
+            exactBehindComma = true
           }
         case id if isWsComment(id) =>
         case _ => return Nil
@@ -277,6 +278,74 @@ object ScalaLexUtil extends LexUtil {
     }
 
     Nil
+  }
+
+  case class ImportTokens(start: Token[TokenId], end: Token[TokenId], qual: List[Token[TokenId]], selectors: List[(Token[TokenId], Token[TokenId])])
+  val NullImportTokens = ImportTokens(null, null, Nil, Nil)
+  def findImportAt(th: TokenHierarchy[_], offsetInImporting: Int): ImportTokens = {
+    val ts = getTokenSequence(th, offsetInImporting).getOrElse(return NullImportTokens)
+    ts.move(offsetInImporting)
+    ts.moveNext
+    val importToken = findPrevious(ts, ScalaTokenId.Import).getOrElse(return NullImportTokens)
+    var start = if (importToken.isFlyweight) ts.offsetToken else importToken
+    var end = start
+
+    var qual: List[Token[TokenId]] = Nil
+    var selectors: List[(Token[TokenId], Token[TokenId])] = Nil
+
+    var inBrace = false
+    var rarrowMet = false
+    var newlineAllowed = false
+    while (ts.isValid && ts.moveNext) {
+      val token = ts.token match {
+        case x if x.isFlyweight => ts.offsetToken
+        case x => x
+      }
+
+      token.id match {
+        case ScalaTokenId.Identifier | ScalaTokenId.Wild =>
+          end = token
+          if (inBrace) {
+            if (rarrowMet) {
+              selectors match {
+                case (x, _) :: xs =>
+                  selectors = (x, token) :: xs
+                  rarrowMet = false
+                case _ =>
+              }
+            } else {
+              selectors = (token, token) :: selectors
+            }
+          } else {
+            newlineAllowed = false
+            qual = token :: qual
+          }
+        case ScalaTokenId.Dot =>
+          newlineAllowed = true
+        case ScalaTokenId.LBrace =>
+          if (inBrace) return NullImportTokens // * we can only meet LBrace one time
+          inBrace = true
+          newlineAllowed = true
+        case ScalaTokenId.RBrace =>
+          end = token
+          newlineAllowed = false
+        case ScalaTokenId.RArrow =>
+          rarrowMet = true
+        case ScalaTokenId.Comma =>
+        case ScalaTokenId.Nl =>
+          if (!newlineAllowed) {
+            if (selectors.isEmpty) {
+              selectors = (qual.head, qual.head) :: selectors
+              qual = qual.tail
+            }
+            return ImportTokens(start, end, qual.reverse, selectors.reverse)
+          }
+        case id if isWsComment(id) =>
+        case _ => return NullImportTokens
+      }
+    }
+
+    NullImportTokens
   }
 
   /** @Require: move ts to `else` token first */
