@@ -558,8 +558,8 @@ object ScalaSourceUtil {
             val method = itr.next
             val code = method.getCode
             if (code != null) {
-              Log.info("LineNumbers: " + code.getLineNumberTable.mkString("[", ",", "]"))
-              if (code.getLineNumberTable find {_ == lineNumber} isDefined) {
+              //Log.info("LineNumbers: " + code.getLineNumberTable.mkString("[", ",", "]"))
+              if (code.getLineNumberTable exists {_ == lineNumber}) {
                 clazzName = FileUtil.getRelativePath(out, clazzFo).replace(File.separatorChar, '.')
                 clazzName = clazzName.lastIndexOf(".class") match {
                   case -1 => clazzName
