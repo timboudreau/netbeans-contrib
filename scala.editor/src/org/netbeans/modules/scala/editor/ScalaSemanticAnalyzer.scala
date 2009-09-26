@@ -84,8 +84,6 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
     if (isCancelled) return
 
-    if (isCancelled) return
-
     val root = pr.rootScope.getOrElse(return)
 
     val doc = pr.getSnapshot.getSource.getDocument(true)
@@ -124,6 +122,8 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
          item = ScalaUtil.importantItem(items);
          name = item.getName if name != "this" && name != "super"
     ) {
+      if (isCancelled) return
+
       // * token may be xml tokens, @see AstVisit#getTokenId
       idToken.id match {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>

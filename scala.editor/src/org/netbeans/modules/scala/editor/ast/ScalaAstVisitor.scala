@@ -77,11 +77,7 @@ abstract class ScalaAstVisitor {
   private var srcFile: SourceFile = _
   private var docLength: Int = _
 
-  def reset: Unit = {
-    this.scopes.clear
-  }
-  
-  def visit(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
+  def apply(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
     this.th = th
     this.srcFile = unit.source
     this.docLength = srcFile.content.size
@@ -97,21 +93,22 @@ abstract class ScalaAstVisitor {
 
     //println(global.selectTypeErrors)
 
-    reset
-    rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, srcFile.length))
+    scopes.clear
+    rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, docLength))
     scopes push rootScope
 
     unit match {
-      case u: RichCompilationUnit => visitImports(u)
+      case u: RichCompilationUnit => importingTraverser(u)
       case _ =>
     }
 
-    (new TreeTraverser) apply unit.body
+    treeTraverser(unit.body)
+    
     rootScope
   }
 
-  def visitImports(unit: RichCompilationUnit) = {
-    val visited = new HashSet[Context]
+  private object importingTraverser {
+    private val visited = new HashSet[Context]
     
     def visitContextTree(ct: ContextTree): Unit = {
       val c = ct.context
@@ -164,45 +161,49 @@ abstract class ScalaAstVisitor {
           }      
         }
       }
+      
       ct.children foreach visitContextTree
     }
 
-    unit.contexts foreach visitContextTree
-  }
+    /**
+     * The symbol with name <code>name</code> imported from import clause <code>tree</code>.
+     * We'll find class/trait instead of object first.
+     * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
+     */
+    def importedSymbol(tree: Import, name: Name): Symbol = {
+      var result: List[Symbol] = Nil
+      var renamed = false
+      val qual = tree.symbol.tpe match {
+        case analyzer.ImportType(expr) => expr
+        case _ => tree.expr
+      }
 
-  /**
-   * The symbol with name <code>name</code> imported from import clause <code>tree</code>.
-   * We'll find class/trait instead of object first.
-   * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
-   */
-  def importedSymbol(tree: Import, name: Name): Symbol = {
-    var result: List[Symbol] = Nil
-    var renamed = false
-    val qual = tree.symbol.tpe match {
-      case analyzer.ImportType(expr) => expr
-      case _ => tree.expr
+      if (qual == null || qual.tpe == null) return null
+
+      var selectors = tree.selectors
+      while (selectors != Nil && result == Nil) {
+        val (x, y) = selectors.head
+        if (y == name.toTermName)
+          result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
+        else if (x == name.toTermName)
+          renamed = true
+        else if (x == nme.WILDCARD && !renamed)
+          result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
+
+        selectors = selectors.tail
+      }
+
+      // * prefer type over object
+      result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
     }
 
-    if (qual == null || qual.tpe == null) return null
-
-    var selectors = tree.selectors
-    while (selectors != Nil && result == Nil) {
-      val (x, y) = selectors.head
-      if (y == name.toTermName)
-        result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
-      else if (x == name.toTermName)
-        renamed = true
-      else if (x == nme.WILDCARD && !renamed)
-        result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
-    
-      selectors = selectors.tail
+    def apply(unit: RichCompilationUnit) {
+      visited.clear
+      unit.contexts foreach visitContextTree
     }
-
-    // * prefer type over object
-    result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
   }
 
-  class TreeTraverser {
+  private object treeTraverser {
     private val visited = new HashSet[Tree]
     private var qualiferMaybeType: Option[Type] = None
     private val treeToKnownType = new HashMap[Tree, Type]
@@ -219,12 +220,13 @@ abstract class ScalaAstVisitor {
           val scope = ScalaScope(getBoundsTokens(tree))
           scopes.top.addScope(scope)
 
-          val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.PACKAGE, scope, fo)
+          val sym = tree.symbol
+          val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.PACKAGE, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
           scopes push scope
-          traverse(pid)
-          atOwner(tree.symbol.moduleClass) {
+          atOwner(sym.moduleClass) {
+            traverse(pid)
             traverseTrees(stats)
           }
           scopes pop
@@ -599,10 +601,15 @@ abstract class ScalaAstVisitor {
     }
 
     def apply[T <: Tree](tree: T): T = {
+      visited.clear
+      treeToKnownType.clear
+      qualiferMaybeType = None
+      currentOwner = definitions.RootClass
+
       traverse(tree)
 
       if (debug) rootScope.debugPrintTokens(th)
-
+      
       tree
     }
 

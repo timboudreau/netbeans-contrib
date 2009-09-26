@@ -622,9 +622,9 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     resetSelectTypeErrors
 
-    val resp = new Response[Tree]
+    val resp = new Response[ScalaRootScope]
     try {
-      askType(srcFile, true, resp)
+      askSemantic(srcFile, true, resp, th)
     } catch {
       case ex: AssertionError =>
         /**
@@ -637,37 +637,32 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
       case ex: Throwable => // just ignore all ex
     }
 
-    resp.get.left.toOption map {tree =>
-      val start = System.currentTimeMillis
-      val root = scalaAstVisitor.visit(unitOf(srcFile), th)
-      Log.info("Visit took " + (System.currentTimeMillis - start) + "ms")
-      root
-    } getOrElse ScalaRootScope.EMPTY
+    resp.get.left.toOption getOrElse ScalaRootScope.EMPTY
   }
 
-  def askForDebug(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
-    resetSelectTypeErrors
-
-    val resp = new Response[Tree]
-    try {
-      askLambdaLift(srcFile, true, resp)
-    } catch {
-      case ex: AssertionError =>
-        /**
-         * @Note: avoid scala nsc's assert error. Since global's
-         * symbol table may have been broken, we have to reset ScalaGlobal
-         * to clean this global
-         */
-        ScalaGlobal.resetLate(this, ex)
-      case ex: java.lang.Error => // avoid scala nsc's Error error
-      case ex: Throwable => // just ignore all ex
+  def askSemantic(source: SourceFile, forceReload: Boolean, result: Response[ScalaRootScope], th: TokenHierarchy[_]) =
+    scheduler postWorkItem new WorkItem {
+      def apply() = getSemanticRoot(source, forceReload, result, th)
+      override def toString = "semantic"
     }
 
-    resp.get.left.toOption map {tree =>
-      scalaAstVisitor.visit(unitOf(srcFile), th)
-    } getOrElse ScalaRootScope.EMPTY
+  def getSemanticRoot(source : SourceFile, forceReload: Boolean, result: Response[ScalaRootScope], th: TokenHierarchy[_]) {
+    respond(result)(semanticRoot(source, forceReload, th))
   }
 
+  def semanticRoot(source: SourceFile, forceReload: Boolean, th: TokenHierarchy[_]): ScalaRootScope = {
+    val unit = unitOf(source)
+    val sources = List(source)
+    if (unit.status == NotLoaded || forceReload) reloadSources(sources)
+    moveToFront(sources)
+    currentTyperRun.typedTree(unitOf(source))
+
+    val start = System.currentTimeMillis
+    val root = scalaAstVisitor(unitOf(source), th)
+    Log.info("Visit took " + (System.currentTimeMillis - start) + "ms")
+    root
+  }
+  
   /** batch complie */
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
     settings.stop.value = Nil
@@ -730,7 +725,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
           })
       }
 
-      scalaAstVisitor.visit(unit, th)
+      scalaAstVisitor(unit, th)
     } getOrElse ScalaRootScope.EMPTY
   }
 
