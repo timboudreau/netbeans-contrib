@@ -197,7 +197,7 @@ object ScalaTokenId extends Enumeration {
    * MIME type for Erlang. Don't change this without also consulting the various XML files
    * that cannot reference this value directly.
    */
-  val SCALA_MIME_TYPE = ScalaMimeResolver.MIME_TYPE // NOI18N
+  val SCALA_MIME_TYPE = ScalaMimeResolver.MIME_TYPE
 
   // * should use "val" instead of "def" here to get a singleton language val, which
   // * will be used to identity the token's language by "==" comparasion by other classes.

@@ -638,7 +638,10 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
 
     resp.get.left.toOption map {tree =>
-      scalaAstVisitor.visit(unitOf(srcFile), th)
+      val start = System.currentTimeMillis
+      val root = scalaAstVisitor.visit(unitOf(srcFile), th)
+      Log.info("Visit took " + (System.currentTimeMillis - start) + "ms")
+      root
     } getOrElse ScalaRootScope.EMPTY
   }
 

@@ -3,6 +3,7 @@ import scala.tools.nsc._
 
 import java.io.{ PrintWriter, StringWriter }
 
+import java.util.logging.Logger
 import scala.collection.mutable.{LinkedHashMap, SynchronizedMap}
 import scala.concurrent.SyncVar
 import scala.util.control.ControlException
@@ -27,6 +28,8 @@ extends scala.tools.nsc.Global(settings, reporter)
   import definitions._
 
   final val debugIDE = false
+
+  private val GlobalLog = Logger.getLogger(this.getClass.getName)
 
   override def onlyPresentation = true
 
@@ -239,8 +242,10 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   /** Parse unit and create a name index. */
   def parse(unit: RichCompilationUnit): Unit = {
+    val start = System.currentTimeMillis
     currentTyperRun.compileLate(unit)
     if (!reporter.hasErrors) validatePositions(unit.body)
+    GlobalLog.info("Parse took " + (System.currentTimeMillis - start) + "ms")
     //println("parsed: [["+unit.body+"]]")
     unit.status = JustParsed
   }
@@ -529,7 +534,9 @@ extends scala.tools.nsc.Global(settings, reporter)
     def typedTree(unit: RichCompilationUnit): Tree = {
       assert(unit.status >= JustParsed)
       unit.targetPos = NoPosition
+      val start = System.currentTimeMillis
       typeCheck(unit)
+      GlobalLog.info("Typer took " + (System.currentTimeMillis - start) + "ms")
       unit.body
     } 
 
