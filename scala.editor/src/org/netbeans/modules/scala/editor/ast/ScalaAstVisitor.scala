@@ -69,7 +69,6 @@ abstract class ScalaAstVisitor {
   val EOL = System.getProperty("line.separator", "\n")
 
   private val debug = false
-  private val visited = new HashSet[Tree]
   private val scopes = new Stack[AstScope]
   private var rootScope: ScalaRootScope = _
 
@@ -80,7 +79,6 @@ abstract class ScalaAstVisitor {
 
   def reset: Unit = {
     this.scopes.clear
-    this.visited.clear
   }
   
   def visit(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
@@ -205,25 +203,9 @@ abstract class ScalaAstVisitor {
   }
 
   class TreeTraverser {
-
+    private val visited = new HashSet[Tree]
     private var qualiferMaybeType: Option[Type] = None
     private val treeToKnownType = new HashMap[Tree, Type]
-
-    object annotTraverser extends Traverser {
-      override def traverse(tree: Tree) = {
-        if (tree.hasSymbol) {
-          val sym = tree.symbol
-          try {
-            for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
-              args foreach TreeTraverser.this.traverse
-              args foreach traverse
-            }
-          } catch {case _ =>}
-        }
-
-        super.traverse(tree)
-      }
-    }
 
     protected var currentOwner: Symbol = definitions.RootClass
     
@@ -253,12 +235,16 @@ abstract class ScalaAstVisitor {
 
           (if (mods.isTrait) "trait " else "class ")
 
-          val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.CLASS, scope, fo)
+          val sym = tree.symbol
+          val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.CLASS, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
           scopes push scope
-          atOwner(tree.symbol) {
-            traverseTrees(mods.annotations); traverseTrees(tparams); traverse(impl)
+          atOwner(sym) {
+            traverseAnnots(sym)
+            traverseTrees(mods.annotations)
+            traverseTrees(tparams)
+            traverse(impl)
           }
           scopes pop
 
@@ -266,12 +252,15 @@ abstract class ScalaAstVisitor {
           val scope = ScalaScope(getBoundsTokens(tree))
           scopes.top.addScope(scope)
 
-          val dfn = ScalaDfn(tree.symbol, getIdToken(tree), ElementKind.MODULE, scope, fo)
+          val sym = tree.symbol
+          val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.MODULE, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
           scopes push scope
-          atOwner(tree.symbol.moduleClass) {
-            traverseTrees(mods.annotations); traverse(impl)
+          atOwner(sym.moduleClass) {
+            traverseAnnots(sym)
+            traverseTrees(mods.annotations)
+            traverse(impl)
           }
           scopes pop
 
@@ -279,15 +268,19 @@ abstract class ScalaAstVisitor {
           val scope = ScalaScope(getBoundsTokens(tree))
           scopes.top.addScope(scope)
 
+          val sym = tree.symbol
           // * special case for: val (a, b, c) = (1, 2, 3)
           if (!isTupleClass(tpt.symbol)) {
-            val dfn = ScalaDfn(tree.symbol, getIdToken(tree, name.decode.trim), ElementKind.OTHER, scope, fo)
+            val dfn = ScalaDfn(sym, getIdToken(tree, name.decode.trim), ElementKind.OTHER, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
           scopes push scope
-          atOwner(tree.symbol) {
-            traverseTrees(mods.annotations); traverse(tpt); traverse(rhs)
+          atOwner(sym) {
+            traverseAnnots(sym)
+            traverseTrees(mods.annotations)
+            traverse(tpt)
+            traverse(rhs)
           }
           scopes pop
 
@@ -297,12 +290,18 @@ abstract class ScalaAstVisitor {
 
           val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
 
-          val dfn = ScalaDfn(tree.symbol, getIdToken(tree), kind, scope, fo)
+          val sym = tree.symbol
+          val dfn = ScalaDfn(sym, getIdToken(tree), kind, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
           scopes push scope
-          atOwner(tree.symbol) {
-            traverseTrees(mods.annotations); traverseTrees(tparams); traverseTreess(vparamss); traverse(tpt); traverse(rhs)
+          atOwner(sym) {
+            traverseAnnots(sym)
+            traverseTrees(mods.annotations)
+            traverseTrees(tparams)
+            traverseTreess(vparamss)
+            traverse(tpt)
+            traverse(rhs)
           }
           scopes pop
 
@@ -320,9 +319,10 @@ abstract class ScalaAstVisitor {
 
           scopes push scope
           atOwner(sym) {
+            traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverseTrees(tparams)
-            if (sym !=null && sym != NoSymbol)  {
+            if (sym != null && sym != NoSymbol)  {
               (rhs, sym.info) match {
                 case (TypeBoundsTree(lo, hi), TypeBounds(loTpe, hiTpe)) =>
                   // * specical case: type of lo, hi are hidden in sym.info (not in sym.tpe)
@@ -592,13 +592,16 @@ abstract class ScalaAstVisitor {
         else traverse(stat))
     }
 
+    def traverseAnnots(sym: Symbol) {
+      for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
+        args foreach traverse
+      }
+    }
+
     def apply[T <: Tree](tree: T): T = {
       traverse(tree)
 
       if (debug) rootScope.debugPrintTokens(th)
-      treeToKnownType.clear
-
-      annotTraverser traverse tree
 
       tree
     }
@@ -673,8 +676,7 @@ abstract class ScalaAstVisitor {
       endOffset = Math.max(endOffset, offset + forward)
     }
     
-    val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None}
-    
+    val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None} 
     ts.move(offset)
     if (!ts.moveNext && !ts.movePrevious) {
       assert(false, "Should not happen!")
