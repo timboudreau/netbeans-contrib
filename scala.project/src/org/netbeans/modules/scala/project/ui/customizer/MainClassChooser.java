@@ -66,7 +66,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.language.util.ast.AstDfn;
-import org.netbeans.modules.scala.editor.ScalaSourceUtil;
+import org.netbeans.modules.scala.core.ScalaSourceUtil;
 
 /** Browses and allows to choose a project's main class.
  *

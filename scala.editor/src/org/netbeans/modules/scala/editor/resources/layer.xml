@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Services">
-        <folder name="MIMEResolver">
-            <file name="Scala.xml" url="scalaResolver.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.resources.Bundle"/>
-                <attr name="position" intvalue="1005"/>
-            </file>
-        </folder>
-    </folder>
-
     <folder name="Editors">
       <!-- Reference binding color themes are under module: main/defaults/src/org/netbeans/modules/defaults -->
       <!-- color theme for nbeditor-settings-ColoringType -->
@@ -39,7 +30,7 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.Bundle"/>
 
                 <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editor.lexer.ScalaTokenId.language"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.core.lexer.ScalaTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
                 

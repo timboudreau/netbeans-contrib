@@ -42,8 +42,10 @@ package org.netbeans.modules.scala.editor
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ColoringAttributes, OffsetRange, SemanticAnalyzer}
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.ScalaGlobal
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ast.{ScalaRootScope}
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.Flags
 

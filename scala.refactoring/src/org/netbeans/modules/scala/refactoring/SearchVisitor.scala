@@ -40,7 +40,7 @@
  */
 package org.netbeans.modules.scala.refactoring;
 
-import org.netbeans.modules.scala.editor.ScalaParserResult;
+import org.netbeans.modules.scala.core.ScalaParserResult;
 
 /**
  *

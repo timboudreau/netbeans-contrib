@@ -44,7 +44,8 @@ import org.netbeans.modules.csl.api.{ColoringAttributes, OccurrencesFinder, Offs
 import org.netbeans.modules.parsing.spi.{Scheduler, SchedulerEvent}
 import org.openide.filesystems.FileObject
 
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil}
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil}
 
 /**
  *

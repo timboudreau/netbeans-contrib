@@ -58,8 +58,8 @@ import org.openide.util.HelpCtx
 import org.openide.util.NbBundle
 import org.openide.util.lookup.Lookups
 
-import org.netbeans.modules.scala.editor.ScalaSourceUtil
-import org.netbeans.modules.scala.editor.ast.ScalaItems
+import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ast.ScalaItems
 import org.netbeans.modules.scala.refactoring.RetoucheUtils
 import org.netbeans.modules.scala.refactoring.WhereUsedQueryConstants
 import scala.collection.mutable.HashSet

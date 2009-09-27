@@ -43,7 +43,8 @@ import org.netbeans.modules.csl.api.{InstantRenamer, ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.util.NbBundle
 
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 
 /**
  * Handle instant rename for Scala

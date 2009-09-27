@@ -94,8 +94,8 @@ import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editor.ScalaParserResult;
-import org.netbeans.modules.scala.editor.ScalaSourceUtil;
+import org.netbeans.modules.scala.core.ScalaParserResult;
+import org.netbeans.modules.scala.core.ScalaSourceUtil;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 

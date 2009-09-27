@@ -33,29 +33,6 @@ Microsystems, Inc. All Rights Reserved.
     <target name="compile" depends="init,projectized-common.compile,scala-compile"/>
     <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build"/>
 
-    <target name="rats" depends="init" description="Scanner">
-        <echo message="Rebuilding token scanner... ${rats.package.dir}"/>
-        <java fork="yes"
-             dir="${src.dir}/${rats.package.dir}"
-             classname="xtc.parser.Rats"
-             classpath="${rats.jar}">
-            <arg value="-in"/>
-            <arg value="${src.dir}"/>
-            <arg value="${rats.lexer.file}"/>
-        </java>
-        
-        <echo message="Rebuilding grammar parser... ${rats.package.dir}"/>
-        <java fork="yes"
-             dir="${src.dir}/${rats.package.dir}"
-             classname="xtc.parser.Rats"
-             classpath="${rats.jar}">
-            <arg value="-in"/>
-            <arg value="${src.dir}"/>
-            <arg value="${rats.parser.file}"/>
-        </java>
-        
-    </target>
-
     <target name="fixcrlf">
         <fixcrlf srcdir="./" includes="**,**/*" excludes="**/*.gif, **/*.png" eol="lf"/>
     </target>

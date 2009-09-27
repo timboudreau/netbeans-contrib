@@ -41,7 +41,8 @@
 package org.netbeans.modules.scala.editor
 
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.modules.scala.core.ScalaParser
+import org.netbeans.modules.scala.core.lexer.ScalaTokenId
 import org.netbeans.modules.scala.hints.ScalaHintsProvider
 
 /**

@@ -60,16 +60,16 @@ import org.netbeans.api.java.source.ClassIndex
 import javax.lang.model.element.ElementKind
 import org.openide.filesystems.FileObject
 import javax.lang.model.element.TypeElement
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
 import org.netbeans.api.language.util.ast.{AstRef, AstDfn, AstItem, AstRootScope}
 import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
 
 import org.netbeans.modules.csl.api.EditList
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.lexer.ScalaTokenId
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 import org.netbeans.editor.BaseDocument
 
 import org.netbeans.modules.scala.editor.imports.FixImportsHelper
-import org.netbeans.modules.scala.editor.ScalaParserResult
 
 class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
 

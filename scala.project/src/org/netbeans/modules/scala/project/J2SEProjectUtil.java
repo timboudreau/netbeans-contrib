@@ -63,7 +63,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 import org.netbeans.api.language.util.ast.AstDfn;
-import org.netbeans.modules.scala.editor.ScalaSourceUtil;
+import org.netbeans.modules.scala.core.ScalaSourceUtil;
 
 /**
  * Miscellaneous utilities for the j2seproject module.

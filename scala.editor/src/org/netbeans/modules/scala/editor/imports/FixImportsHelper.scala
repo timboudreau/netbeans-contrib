@@ -50,8 +50,8 @@ import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenId, TokenSequence}
 import org.netbeans.editor.Utilities;
 import org.netbeans.api.java.source.ui.ElementIcons
 import org.netbeans.modules.csl.api.{EditList, OffsetRange}
-import org.netbeans.modules.scala.editor.{ScalaSourceUtil}
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.{ScalaSourceUtil}
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.openide.filesystems.FileObject
 import scala.collection.mutable.ArrayBuffer
 

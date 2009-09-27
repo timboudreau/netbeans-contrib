@@ -67,9 +67,9 @@ import org.netbeans.modules.refactoring.api.ProgressEvent;
 import org.netbeans.modules.refactoring.api.WhereUsedQuery;
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 
-import org.netbeans.modules.scala.editor.ScalaParserResult
-import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ast.{ScalaItems, ScalaRootScope}
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 import org.openide.filesystems.FileObject
 import org.openide.util.NbBundle;
 import scala.collection.mutable.ArrayBuffer

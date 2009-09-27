@@ -166,8 +166,8 @@ trait ScalaHtmlFormatters {
   }
 
 
-  import org.netbeans.api.lexer.{Token, TokenHierarchy, TokenSequence}
-  import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+  import org.netbeans.api.lexer.{TokenHierarchy}
+  import org.netbeans.modules.scala.core.lexer.ScalaTokenId
   import org.openide.util.NbBundle
 
   /**

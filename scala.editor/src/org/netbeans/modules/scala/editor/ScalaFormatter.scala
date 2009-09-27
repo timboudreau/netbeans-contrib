@@ -49,7 +49,7 @@ import org.openide.filesystems.FileUtil
 import org.openide.loaders.DataObject
 import org.openide.util.Exceptions
 
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.editor.options.{CodeStyle}
 
 import scala.collection.mutable.{ArrayBuffer, Stack}

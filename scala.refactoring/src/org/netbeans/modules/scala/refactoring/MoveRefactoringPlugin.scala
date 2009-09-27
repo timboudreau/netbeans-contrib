@@ -59,7 +59,6 @@ import org.netbeans.modules.refactoring.api.Problem
 import org.netbeans.modules.refactoring.api.ProgressEvent
 import org.netbeans.modules.refactoring.api.RenameRefactoring
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
-import org.netbeans.modules.scala.editor.ast.ScalaItems
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
@@ -68,8 +67,9 @@ import org.openide.util.NbBundle;
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
-import org.netbeans.modules.scala.editor.ScalaParserResult
-import org.netbeans.modules.scala.editor.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ast.ScalaItems
 
 /**
  * Implemented abilities:

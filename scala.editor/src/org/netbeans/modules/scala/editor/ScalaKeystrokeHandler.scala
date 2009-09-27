@@ -47,7 +47,9 @@ import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.netbeans.modules.editor.indent.api.IndentUtils
 import org.openide.util.Exceptions
 
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.ScalaMimeResolver
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
  * (Based on BracketCompletion class in NetBeans' java editor support)

@@ -54,8 +54,8 @@ import org.netbeans.modules.parsing.api.ResultIterator
 import org.netbeans.modules.parsing.api.Source
 
 
-import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
+import org.netbeans.modules.scala.core.ast.ScalaItems
+import org.netbeans.modules.scala.core.{ScalaMimeResolver, ScalaParserResult}
 
 import org.netbeans.modules.refactoring.api.AbstractRefactoring
 import org.netbeans.modules.refactoring.api.Problem

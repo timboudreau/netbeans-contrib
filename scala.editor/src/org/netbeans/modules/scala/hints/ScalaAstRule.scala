@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.hints
 
 import org.netbeans.modules.csl.api.Hint
 import org.netbeans.modules.csl.api.Rule
-import org.netbeans.modules.scala.editor.ast.ScalaRootScope
+import org.netbeans.modules.scala.core.ast.ScalaRootScope
 
 
 abstract class ScalaAstRule extends Rule.AstRule {

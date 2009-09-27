@@ -46,7 +46,7 @@ import javax.swing.text.Document
 import org.netbeans.editor.BaseAction
 import org.openide.util.NbBundle
 import org.openide.util.RequestProcessor
-import org.netbeans.modules.scala.editor.{ScalaGlobal}
+import org.netbeans.modules.scala.core.{ScalaGlobal}
 
 /**
  *

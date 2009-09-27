@@ -11,6 +11,7 @@
       <ant dir="../../contrib/xtc"/>
       <ant dir="../../contrib/languages.execution"/>
       <ant dir="../../contrib/libs.scala"/>
+      <ant dir="../../contrib/scala.core"/>
       <ant dir="../../contrib/scala.editor"/>
       <ant dir="../../contrib/scala.refactoring"/>
       <ant dir="../../contrib/scala.platform"/>
@@ -27,6 +28,7 @@
       <ant dir="../../contrib/xtc" target="nbm"/>
       <ant dir="../../contrib/languages.execution" target="nbm"/>
       <ant dir="../../contrib/libs.scala" target="nbm"/>
+      <ant dir="../../contrib/scala.core" target="nbm"/>
       <ant dir="../../contrib/scala.editor" target="nbm"/>
       <ant dir="../../contrib/scala.refactoring" target="nbm"/>
       <ant dir="../../contrib/scala.platform" target="nbm"/>
@@ -45,6 +47,9 @@
               <filename name="*.nbm"/>
           </fileset>
           <fileset dir="../../contrib/libs.scala/build">
+              <filename name="*.nbm"/>
+          </fileset>
+          <fileset dir="../../contrib/scala.core/build">
               <filename name="*.nbm"/>
           </fileset>
           <fileset dir="../../contrib/scala.editor/build">
@@ -83,6 +88,7 @@
       <ant dir="../../contrib/scala.platform" inheritAll="false" target="clean"/>
       <ant dir="../../contrib/scala.refactoring" inheritAll="false" target="clean"/>
       <ant dir="../../contrib/scala.editor" inheritAll="false" target="clean"/>
+      <ant dir="../../contrib/scala.core" inheritAll="false" target="clean"/>
       <ant dir="../../contrib/libs.scala" inheritAll="false" target="clean"/>
       <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
       <ant dir="../../contrib/xtc" inheritAll="false" target="clean"/>

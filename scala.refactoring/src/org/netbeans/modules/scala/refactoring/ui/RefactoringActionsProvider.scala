@@ -54,9 +54,9 @@ import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.refactoring.spi.ui.UI;
 import org.netbeans.modules.refactoring.spi.ui.ActionsImplementationProvider;
 import org.netbeans.modules.refactoring.spi.ui.RefactoringUI;
-import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
-import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil;
+import org.netbeans.modules.scala.core.{ScalaMimeResolver, ScalaParserResult}
+import org.netbeans.modules.scala.core.ast.{ScalaItems, ScalaRootScope}
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil;
 import org.netbeans.modules.scala.refactoring.RetoucheUtils;
 
 import org.netbeans.modules.parsing.api.Embedding;

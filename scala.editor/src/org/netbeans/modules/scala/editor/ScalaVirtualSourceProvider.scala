@@ -56,7 +56,9 @@ import org.openide.filesystems.{FileUtil}
 import org.openide.util.Exceptions
 
 import org.netbeans.api.language.util.ast.{AstScope}
-import org.netbeans.modules.scala.editor.ast.ScalaDfns
+import org.netbeans.modules.scala.core.ScalaGlobal
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ast.ScalaDfns
 import scala.collection.mutable.ArrayBuffer
 
 import scala.util.NameTransformer
@@ -398,7 +400,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         } catch {case ex: IOException =>}
       }
 
-      Log.log(Level.INFO, "Java stub: {0}", sw)
+      //Log.log(Level.INFO, "Java stub: {0}", sw)
 
       sw.toString
     }
@@ -410,7 +412,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
     }
 
     private def isAbstractClass(tpe: Type): Boolean = {
-      tpe != null && (tpe.members find (_ hasFlag Flags.DEFERRED) isDefined)
+      tpe != null && (tpe.members exists (_ hasFlag Flags.DEFERRED))
     }
 
     private def genMemebers(pw: PrintWriter, sym: Symbol, tpe: Type, isObject: Boolean, isTrait: Boolean) {

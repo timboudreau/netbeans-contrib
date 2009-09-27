@@ -76,7 +76,7 @@ import org.openide.util.WeakListeners;
 
 import org.netbeans.api.language.util.ast.AstDfn;
 import org.netbeans.api.language.util.ast.AstRootScope;
-import org.netbeans.modules.scala.editor.ScalaParserResult;
+import org.netbeans.modules.scala.core.ScalaParserResult;
 
 /**
  *

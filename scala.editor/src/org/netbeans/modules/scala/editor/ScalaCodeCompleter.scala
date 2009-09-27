@@ -52,10 +52,14 @@ import org.openide.filesystems.FileObject
 import org.openide.util.{Exceptions}
 
 import org.netbeans.api.language.util.ast.{AstItem}
-import org.netbeans.modules.scala.editor.ast.{ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
-import org.netbeans.modules.scala.editor.ScalaParser.Sanitize
-import org.netbeans.modules.scala.editor.rats.ParserScala
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ScalaSymbolResolver
+import org.netbeans.modules.scala.core.ast.{ScalaRootScope}
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.ScalaGlobal
+import org.netbeans.modules.scala.core.ScalaParser.Sanitize
+import org.netbeans.modules.scala.core.rats.ParserScala
 
 import scala.concurrent.SyncVar
 import scala.tools.nsc.symtab.Flags
@@ -171,6 +175,12 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   import ScalaCodeCompleter._
 
   import global._
+
+  private object completionProposals extends {
+    val global = ScalaCodeCompleter.this.global
+  } with ScalaCompletionProposals
+
+  import completionProposals._
 
   private object resolver extends {
     val global = ScalaCodeCompleter.this.global
@@ -748,19 +758,19 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   private def createSymbolProposal(sym: Symbol): Option[CompletionProposal] = {
     if (sym.hasFlag(Flags.PRIVATE)) return None
 
-    var element:  ScalaElement = null
+    var element: ScalaElement = null
     var proposal: CompletionProposal = null
     if (sym.isMethod) {
-      element  = ScalaElement(sym, pResult)
+      element = ScalaElement(sym, pResult)
       proposal = FunctionProposal(element, this)
     } else if (sym.isVariable) {
-      element  = ScalaElement(sym, pResult)
+      element = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     } else if (sym.isValue) {
-      element  = ScalaElement(sym, pResult)
+      element = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     } else if (sym.isClass || sym.isTrait || sym.isModule || sym.isPackage) {
-      element  = ScalaElement(sym, pResult)
+      element = ScalaElement(sym, pResult)
       proposal = PlainProposal(element, this)
     }
 

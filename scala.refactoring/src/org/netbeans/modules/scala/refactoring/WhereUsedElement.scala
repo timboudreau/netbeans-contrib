@@ -58,9 +58,9 @@ import org.openide.util.Exceptions
 import org.openide.util.Lookup
 import org.openide.util.lookup.Lookups
 
-import org.netbeans.modules.scala.editor.ScalaParserResult;
-import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.modules.scala.core.ScalaParserResult;
+import org.netbeans.modules.scala.core.ast.ScalaItems
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 import org.netbeans.modules.scala.refactoring.ui.tree.ElementGripFactory
 
 /**

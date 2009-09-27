@@ -45,8 +45,8 @@ import org.netbeans.api.java.source.ClasspathInfo
 import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.editor.Utilities
 
-import org.netbeans.modules.scala.editor.ScalaSourceUtil
-import org.netbeans.modules.scala.editor.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ScalaParserResult
 
 
 

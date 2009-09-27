@@ -41,7 +41,7 @@ package org.netbeans.modules.scala.editor
 
 import javax.swing.text.{AbstractDocument, BadLocationException}
 import org.netbeans.editor.BaseDocument
-import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
+import org.netbeans.modules.scala.core.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.netbeans.spi.editor.bracesmatching.{BracesMatcher, MatcherContext}
 
 /**

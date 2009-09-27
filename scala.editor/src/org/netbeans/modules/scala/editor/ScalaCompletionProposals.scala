@@ -43,6 +43,7 @@ import javax.swing.ImageIcon
 import javax.swing.text.BadLocationException
 import org.netbeans.modules.csl.api.{CompletionProposal, ElementHandle, ElementKind, HtmlFormatter, Modifier,OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
+import org.netbeans.modules.scala.core.ScalaGlobal
 import org.openide.filesystems.FileObject
 import org.openide.util.{Exceptions, ImageUtilities}
 
@@ -52,7 +53,10 @@ import org.netbeans.api.language.util.ast.{AstElementHandle}
  *
  * @author Caoyuan Deng
  */
-trait ScalaCompletionProposals {self: ScalaGlobal =>
+abstract class ScalaCompletionProposals {
+
+  val global: ScalaGlobal
+  import global._
 
   object ScalaCompletionProposal {
     val KEYWORD = "org/netbeans/modules/scala/editor/resources/scala16x16.png" //NOI18N
@@ -124,7 +128,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
               case null => null
               case x => x.resultType
             }
-          } catch {case ex => ScalaGlobal.resetLate(self, ex); null}
+          } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
 
           if (retType != null && !sym.isConstructor) {
             fm.appendText(ScalaUtil.typeToString(retType))
@@ -150,8 +154,10 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
     override def getCustomInsertTemplate: String = null
   }
 
-  case class FunctionProposal(element: ScalaElement, completer: ScalaCodeCompleter
+  case class FunctionProposal(element: AstElementHandle, completer: ScalaCodeCompleter
   ) extends ScalaCompletionProposal(element, completer) {
+    private val sym = element.asInstanceOf[ScalaElement].symbol
+
 
     override def getInsertPrefix: String = getName
 
@@ -174,9 +180,9 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       if (emphasize) fm.emphasis(false)
       if (strike)    fm.deprecated(false)
       if (preStar)   fm.appendHtml("</u>")
-      
+
       val typeParams = try {
-        element.symbol.tpe match {
+        sym.tpe match {
           case null => Nil
           case tpe => tpe.typeParams
         }
@@ -188,7 +194,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
       }
 
       try {
-        element.symbol.tpe match {
+        sym.tpe match {
           case MethodType(params, resultType) =>
             if (!params.isEmpty) {
               fm.appendHtml("(") // NOI18N
@@ -226,7 +232,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
 
     def getInsertParams: List[String] = {
       try {
-        element.symbol.tpe match {
+        sym.tpe match {
           case MethodType(params, resultType) => params map (_.nameString)
           case _ => Nil
         }

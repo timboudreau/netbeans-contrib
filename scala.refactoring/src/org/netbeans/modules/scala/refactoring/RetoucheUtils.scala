@@ -71,9 +71,9 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.csl.api.ElementKind
-import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult, ScalaSourceUtil}
-import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.modules.scala.core.{ScalaMimeResolver, ScalaParserResult, ScalaSourceUtil}
+import org.netbeans.modules.scala.core.ast.ScalaItems
+import org.netbeans.modules.scala.core.lexer.ScalaTokenId
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport

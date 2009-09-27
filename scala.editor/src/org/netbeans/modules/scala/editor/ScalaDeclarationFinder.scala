@@ -46,7 +46,8 @@ import org.netbeans.modules.csl.api.DeclarationFinder.DeclarationLocation
 import org.netbeans.modules.csl.spi.ParserResult
 //import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
  *

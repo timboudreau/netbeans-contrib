@@ -57,18 +57,18 @@ import java.util.regex.{Pattern, Matcher}
 import org.netbeans.api.java.source.ElementHandle
 import javax.swing.JPanel
 import org.openide.filesystems.FileObject
-import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
+import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 import org.netbeans.api.language.util.ast.{AstRef, AstDfn, AstItem, AstRootScope}
 import org.netbeans.api.lexer.{Language, Token, TokenHierarchy, TokenId, TokenSequence}
 
 import org.netbeans.modules.csl.api.EditList
-import org.netbeans.modules.scala.editor.lexer.ScalaTokenId
+import org.netbeans.modules.scala.core.lexer.ScalaTokenId
 import org.netbeans.editor.BaseDocument
 
-import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.editor.ast.ScalaRootScope
+import org.netbeans.modules.scala.core.ast.ScalaItems
+import org.netbeans.modules.scala.core.ast.ScalaRootScope
 import org.netbeans.modules.scala.editor.imports.FixImportsHelper
-import org.netbeans.modules.scala.editor.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.api.language.util.ast._
 import scala.tools.nsc.symtab._
 

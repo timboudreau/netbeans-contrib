@@ -49,7 +49,9 @@ import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
 import org.openide.util.{Exceptions, NbBundle}
 
 import org.netbeans.api.language.util.ast.AstElementHandle
-import org.netbeans.modules.scala.editor.lexer.{ScalaLexUtil, ScalaTokenId}
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
  * Code completion handler for JavaScript

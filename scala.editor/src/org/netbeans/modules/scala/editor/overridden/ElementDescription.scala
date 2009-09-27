@@ -46,8 +46,8 @@ import org.openide.util.NbBundle
 
 import org.netbeans.modules.csl.api.Modifier
 import org.netbeans.modules.csl.core.UiUtils
-import org.netbeans.modules.scala.editor.ScalaParserResult
-import org.netbeans.modules.scala.editor.element.ScalaElements
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.element.ScalaElements
 
 /**
  *

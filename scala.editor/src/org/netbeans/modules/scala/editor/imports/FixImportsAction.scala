@@ -55,7 +55,7 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.scala.editor.ScalaParserResult;
+import org.netbeans.modules.scala.core.ScalaParserResult;
 import org.openide.util.Exceptions;
 import scala.collection.mutable.ArrayBuffer
 

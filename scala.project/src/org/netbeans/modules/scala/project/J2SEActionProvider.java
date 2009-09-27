@@ -113,7 +113,7 @@ import org.openide.util.TaskListener;
 
 import org.netbeans.api.language.util.ast.AstDfn;
 import org.netbeans.api.language.util.ast.AstRootScope;
-import org.netbeans.modules.scala.editor.ScalaParserResult;
+import org.netbeans.modules.scala.core.ScalaParserResult;
 
 
 /** Action provider of the J2SE project. This is the place where to do

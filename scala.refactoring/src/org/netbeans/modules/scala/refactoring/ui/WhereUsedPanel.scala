@@ -71,9 +71,9 @@ import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel
 import org.openide.awt.Mnemonics
 import org.openide.util.NbBundle
 
-import org.netbeans.modules.scala.editor.ScalaParserResult
-import org.netbeans.modules.scala.editor.ast.ScalaItems
-import org.netbeans.modules.scala.editor.element.ScalaElements
+import org.netbeans.modules.scala.core.ScalaParserResult
+import org.netbeans.modules.scala.core.ast.ScalaItems
+import org.netbeans.modules.scala.core.element.ScalaElements
 import org.netbeans.modules.scala.refactoring.RefactoringModule
 import org.netbeans.modules.scala.refactoring.RetoucheUtils
 import scala.tools.nsc.symtab.Flags

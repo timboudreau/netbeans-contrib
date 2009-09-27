@@ -47,7 +47,7 @@ import org.netbeans.modules.refactoring.spi.RefactoringPlugin
 import org.netbeans.modules.refactoring.spi.RefactoringPluginFactory
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.netbeans.modules.scala.editor.ast.ScalaItems
+import org.netbeans.modules.scala.core.ast.ScalaItems
 
 
 /**

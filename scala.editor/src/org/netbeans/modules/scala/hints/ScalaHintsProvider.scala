@@ -39,7 +39,7 @@
 
 package org.netbeans.modules.scala.hints
 
-import org.netbeans.modules.scala.editor.ast.ScalaRootScope
+import org.netbeans.modules.scala.core.ast.ScalaRootScope
 import scala.collection.JavaConversions
 import scala.collection.JavaConversions._
 
@@ -47,7 +47,7 @@ import java.{ lang => jl, util => ju }
 import org.netbeans.modules.csl.api.HintsProvider.HintsManager;
 import org.netbeans.modules.csl.api._;
 import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.scala.editor.ScalaParserResult
+import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.api.language.util.ast.AstScope
 import scala.collection.mutable.ListBuffer
 

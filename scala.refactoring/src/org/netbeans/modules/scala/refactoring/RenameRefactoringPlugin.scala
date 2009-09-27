@@ -68,9 +68,9 @@ import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.support.ModificationResult;
 import org.netbeans.modules.csl.spi.support.ModificationResult.Difference;
-import org.netbeans.modules.scala.editor.{ScalaMimeResolver, ScalaParserResult}
-import org.netbeans.modules.scala.editor.ast.{ScalaItems, ScalaRootScope}
-import org.netbeans.modules.scala.editor.lexer.{ScalaTokenId, ScalaLexUtil}
+import org.netbeans.modules.scala.core.{ScalaMimeResolver, ScalaParserResult}
+import org.netbeans.modules.scala.core.ast.{ScalaItems, ScalaRootScope}
+import org.netbeans.modules.scala.core.lexer.{ScalaTokenId, ScalaLexUtil}
 import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.refactoring.api._
 import org.openide.filesystems.FileObject

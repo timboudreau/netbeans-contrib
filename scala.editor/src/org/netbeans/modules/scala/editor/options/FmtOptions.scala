@@ -50,7 +50,8 @@ import org.netbeans.api.editor.mimelookup.{MimeLookup, MimePath}
 import org.netbeans.api.editor.settings.SimpleValueNames
 
 import org.netbeans.modules.options.editor.spi.{PreferencesCustomizer, PreviewProvider}
-import org.netbeans.modules.scala.editor.{ScalaFormatter, ScalaMimeResolver}
+import org.netbeans.modules.scala.core.ScalaMimeResolver
+import org.netbeans.modules.scala.editor.{ScalaFormatter}
 import org.netbeans.spi.options.OptionsPanelController
 import org.openide.util.{Exceptions, HelpCtx, NbBundle}
 

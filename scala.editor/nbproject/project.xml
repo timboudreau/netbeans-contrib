@@ -4,6 +4,9 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.scala.editor</code-name-base>
+            <!-- currently, for scala modules, registering following as public-packages in project.xml doesn't work yet
+                 should register them in manifest.mf instead.
+            -->
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.jdesktop.layout</code-name-base>
@@ -244,6 +247,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.scala.core</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>0.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.awt</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -324,16 +335,7 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <!-- currently, for scala modules, registering following as public-packages in project.xml doesn't work yet
-                 should register them in manifest.mf instead.
-            -->
-            <public-packages>
-                <package>org.netbeans.api.language.util.lex</package>
-                <package>org.netbeans.api.language.util.ast</package>
-                <package>org.netbeans.modules.scala.editor</package>
-                <package>org.netbeans.modules.scala.editor.ast</package>
-                <package>org.netbeans.modules.scala.editor.lexer</package>
-            </public-packages>
+            <public-packages/>
         </data>
     </configuration>
 </project>
