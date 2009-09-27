@@ -3,4 +3,4 @@ OpenIDE-Module: org.netbeans.modules.scala.core
 OpenIDE-Module-Layer: org/netbeans/modules/scala/core/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/core/Bundle.properties
 OpenIDE-Module-Specification-Version: 0.1.0
-OpenIDE-Module-Public-Packages: org.netbeans.api.language.util.lex.*, org.netbeans.api.language.util.ast.*, org.netbeans.api.language.util.text.*, org.netbeans.modules.scala.core.*, org.netbeans.modules.scala.core.ast.* org.netbeans.modules.scala.core.lexer.* org.netbeans.modules.scala.core.element.*
+OpenIDE-Module-Public-Packages: org.netbeans.api.language.util.lex.*, org.netbeans.api.language.util.ast.*, org.netbeans.api.language.util.text.*, org.netbeans.modules.scala.core.*, org.netbeans.modules.scala.core.ast.* org.netbeans.modules.scala.core.lexer.* org.netbeans.modules.scala.core.element.* org.netbeans.modules.scala.core.interactive.*

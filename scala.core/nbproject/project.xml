@@ -280,6 +280,7 @@
                 <package>org.netbeans.modules.scala.core</package>
                 <package>org.netbeans.modules.scala.core.ast</package>
                 <package>org.netbeans.modules.scala.core.lexer</package>
+                <package>org.netbeans.modules.scala.core.interactive</package>
             </public-packages>
         </data>
     </configuration>
