@@ -261,7 +261,7 @@ class ImportChooserInnerPanel extends javax.swing.JPanel {
     
   private class DelegatingRenderer(orig: ListCellRenderer, values: Array[String], icons: Array[Icon]) extends ListCellRenderer {
 
-    def getListCellRendererComponent(list: JList, value: Object, index: int, isSelected: boolean, cellHasFocus: boolean): Component = {
+    def getListCellRendererComponent(list: JList, value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
       val res = orig.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       if (res.isInstanceOf[JLabel] && null != icons ) {
         var i = 0

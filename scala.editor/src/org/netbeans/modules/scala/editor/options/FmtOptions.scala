@@ -107,7 +107,7 @@ object FmtOptions {
   //        return getDefaultAsInt(indentSize);
   //    }
 
-  def getGlobalRightMargin: int = {
+  def getGlobalRightMargin: Int = {
     getPreferences.getInt(SimpleValueNames.TEXT_LIMIT_WIDTH, getDefaultAsInt(SimpleValueNames.TEXT_LIMIT_WIDTH))
   }
 
@@ -314,7 +314,7 @@ object FmtOptions {
 
     // Private methods -----------------------------------------------------
 
-    private def performOperation(operation: int, jc: JComponent, optionID: String, p: Preferences) {
+    private def performOperation(operation: Int, jc: JComponent, optionID: String, p: Preferences) {
       operation match {
         case LOAD => loadData(jc, optionID, p)
         case STORE => storeData(jc, optionID, p)
@@ -323,7 +323,7 @@ object FmtOptions {
       }
     }
 
-    private def scan(what: int, p: Preferences) {
+    private def scan(what: Int, p: Preferences) {
       for (jc <- components) {
         jc.getClientProperty(OPTION_ID) match {
           case x: String => performOperation(what, jc, x, p)
@@ -524,7 +524,7 @@ object FmtOptions {
 
     @throws(classOf[BackingStoreException])
     protected def keysSpi: Array[String] = {
-      map.keys.toList.toArray
+      map.keysIterator.toList.toArray
     }
 
     @throws(classOf[BackingStoreException])

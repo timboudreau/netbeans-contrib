@@ -172,8 +172,8 @@ class IsOverriddenPopup(caption: String, declarations: List[ElementDescription])
     override def getListCellRendererComponent(list: JList,
                                      value: Object,
                                      index: Int,
-                                     isSelected: boolean,
-                                     cellHasFocus: boolean): Component = {
+                                     isSelected: Boolean,
+                                     cellHasFocus: Boolean): Component = {
       val c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
             
       value match {

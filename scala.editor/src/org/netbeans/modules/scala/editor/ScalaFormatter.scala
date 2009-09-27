@@ -347,8 +347,8 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
 
         // Insert whitespace on empty lines too -- needed for abbreviations expansion
         if (lineBegin != -1 || indentEmptyLines) {
-          indents + indent
-          offsets + offset
+          indents += indent
+          offsets += offset
           idx += 1
         }
 

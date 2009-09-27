@@ -783,7 +783,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     null
   }
 
-  override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: int,
+  override def resolveTemplateVariable(variable: String, info: ParserResult, caretOffset: Int,
                                        name: String , parameters: java.util.Map[_, _]): String = {
     throw new UnsupportedOperationException("Not supported yet.")
   }

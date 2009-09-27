@@ -339,7 +339,7 @@ trait LexUtil {
   /**
    * Tries to skip parenthesis
    */
-  def skipParenthesis(ts: TokenSequence[TokenId], back: boolean, left: TokenId = LPAREN, right: TokenId = RPAREN): Boolean = {
+  def skipParenthesis(ts: TokenSequence[TokenId], back: Boolean, left: TokenId = LPAREN, right: TokenId = RPAREN): Boolean = {
     var balance = 0
 
     var token = ts.token
@@ -387,7 +387,7 @@ trait LexUtil {
   /**
    * Tries to skip pair, ts will be put at the found `left` token
    */
-  def skipPair(ts: TokenSequence[TokenId], back: boolean, left: TokenId, right: TokenId): Boolean = {
+  def skipPair(ts: TokenSequence[TokenId], back: Boolean, left: TokenId, right: TokenId): Boolean = {
     var balance = 0
 
     var token = ts.token
@@ -747,7 +747,7 @@ trait LexUtil {
    * @param close the token that decreses the count
    */
   @throws(classOf[BadLocationException])
-  def getTokenBalance(doc: BaseDocument, open: String, close: String, offset: Int): int = {
+  def getTokenBalance(doc: BaseDocument, open: String, close: String, offset: Int): Int = {
     val ts = getTokenSequence(doc, 0).getOrElse(return 0)
     // XXX Why 0? Why not offset?
     ts.moveIndex(0)

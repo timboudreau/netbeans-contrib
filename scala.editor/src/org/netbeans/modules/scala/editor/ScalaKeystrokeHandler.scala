@@ -557,7 +557,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
   }
 
   @throws(classOf[BadLocationException])
-  override def beforeCharInserted(document: Document, acaretOffset: Int, target: JTextComponent, c: char): Boolean = {
+  override def beforeCharInserted(document: Document, acaretOffset: Int, target: JTextComponent, c: Char): Boolean = {
     val doc =  document.asInstanceOf[BaseDocument]
     if (!isInsertMatchingEnabled(doc)) {
       return false
@@ -643,30 +643,40 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     val id = token.id
 
     // "/" is handled AFTER the character has been inserted since we need the lexer's help
-    val (stringTokens, beginTokenId): (Set[TokenId], TokenId) = c match {
+    var stringTokens = Set[TokenId]()
+    var beginTokenId: TokenId = null
+    c match {
       case '"' | '\'' =>
-        (STRING_TOKENS, ScalaTokenId.STRING_BEGIN)
+        stringTokens = STRING_TOKENS
+        beginTokenId = ScalaTokenId.STRING_BEGIN
       case _ =>
         id match {
           case ScalaTokenId.Error if ts.movePrevious =>
             ts.token.id match {
               case ScalaTokenId.STRING_BEGIN =>
-                (STRING_TOKENS, ScalaTokenId.STRING_BEGIN)
+                stringTokens = STRING_TOKENS
+                beginTokenId = ScalaTokenId.STRING_BEGIN
               case ScalaTokenId.REGEXP_BEGIN =>
-                (REGEXP_TOKENS, ScalaTokenId.REGEXP_BEGIN)
-              case _ => (Set(), null)
+                stringTokens = REGEXP_TOKENS
+                beginTokenId = ScalaTokenId.REGEXP_BEGIN
+              case _ =>
             }
           case ScalaTokenId.STRING_BEGIN if caretOffset == ts.offset + 1 && !Character.isLetter(c) => // %q, %x, etc. Only %[], %!!, %<space> etc. is allowed
-            (STRING_TOKENS, ScalaTokenId.STRING_BEGIN)
+            stringTokens = STRING_TOKENS
+            beginTokenId = ScalaTokenId.STRING_BEGIN
           case ScalaTokenId.STRING_BEGIN if caretOffset == ts.offset + 2 =>
-            (STRING_TOKENS, ScalaTokenId.STRING_BEGIN)
+            stringTokens = STRING_TOKENS
+            beginTokenId = ScalaTokenId.STRING_BEGIN
           case ScalaTokenId.STRING_END =>
-            (STRING_TOKENS, ScalaTokenId.STRING_BEGIN)
+            stringTokens = STRING_TOKENS
+            beginTokenId = ScalaTokenId.STRING_BEGIN
           case ScalaTokenId.REGEXP_BEGIN if caretOffset == ts.offset + 2 =>
-            (REGEXP_TOKENS, ScalaTokenId.REGEXP_BEGIN)
+            stringTokens = REGEXP_TOKENS
+            beginTokenId = ScalaTokenId.REGEXP_BEGIN
           case ScalaTokenId.REGEXP_END =>
-            (REGEXP_TOKENS, ScalaTokenId.REGEXP_BEGIN)
-          case _ => (Set(), null)
+            stringTokens = REGEXP_TOKENS
+            beginTokenId = ScalaTokenId.REGEXP_BEGIN
+          case _ =>
         }
     }
 
@@ -693,7 +703,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    * @throws BadLocationException if dotPos is not correct
    */
   @throws(classOf[BadLocationException])
-  override def afterCharInserted(document: Document, dotPos: Int, target: JTextComponent, ch: char): Boolean = {
+  override def afterCharInserted(document: Document, dotPos: Int, target: JTextComponent, ch: Char): Boolean = {
     isAfter = true
     val caret = target.getCaret
     val doc = document.asInstanceOf[BaseDocument]
@@ -914,7 +924,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    * @param ch the character that was deleted
    */
   @throws(classOf[BadLocationException])
-  override def charBackspaced(document: Document, dotPos: Int, target: JTextComponent, ch: char): Boolean = {
+  override def charBackspaced(document: Document, dotPos: Int, target: JTextComponent, ch: Char): Boolean = {
     val doc = document.asInstanceOf[BaseDocument]
 
     ch match {
@@ -995,7 +1005,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    * @param caretOffset
    */
   @throws(classOf[BadLocationException])
-  private def isSkipClosingBracket(doc: BaseDocument, caretOffset: int, bracketId: TokenId): Boolean = {
+  private def isSkipClosingBracket(doc: BaseDocument, caretOffset: Int, bracketId: TokenId): Boolean = {
     // First check whether the caret is not after the last char in the document
     // because no bracket would follow then so it could not be skipped.
     if (caretOffset == doc.getLength) {
@@ -1176,7 +1186,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
    * @param bracket the bracket that was inserted
    */
   @throws(classOf[BadLocationException])
-  private def completeOpeningBracket(doc: BaseDocument, dotPos: int, caret: Caret, bracket: Char): Unit =  {
+  private def completeOpeningBracket(doc: BaseDocument, dotPos: Int, caret: Caret, bracket: Char): Unit =  {
     if (isCompletablePosition(doc, dotPos + 1)) {
       val matchingBracket = "" + matching(bracket)
       doc.insertString(dotPos + 1, matchingBracket, null)

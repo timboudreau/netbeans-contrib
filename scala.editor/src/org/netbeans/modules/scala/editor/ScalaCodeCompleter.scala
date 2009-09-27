@@ -489,7 +489,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
    */
   protected def computeMethodCall(info: ParserResult, lexOffset: Int, astOffset: Int,
                                   methodHolder: Array[ExecutableElement],
-                                  parameterIndexHolder: Array[int],
+                                  parameterIndexHolder: Array[Int],
                                   anchorOffsetHolder: Array[Int],
                                   alternativesHolder: Array[Set[Function]]): Boolean = {
     try {

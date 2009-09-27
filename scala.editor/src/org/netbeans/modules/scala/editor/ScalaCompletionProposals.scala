@@ -259,7 +259,7 @@ trait ScalaCompletionProposals {self: ScalaGlobal =>
         sb.append(" default=\"") // NOI18N
         paramDesc.indexOf(':') match {
           case -1 => sb.append(paramDesc)
-          case typeIdx => sb.append(paramDesc.toArray, 0, typeIdx)
+          case typeIdx => sb.appendAll(paramDesc.toArray, 0, typeIdx)
         }
         sb.append("\"") // NOI18N
 

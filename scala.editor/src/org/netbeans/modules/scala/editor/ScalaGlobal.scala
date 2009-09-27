@@ -114,8 +114,8 @@ object ScalaGlobal {
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
   case class NormalReason(msg: String) extends Throwable(msg)
-  case object userRequest extends NormalReason("User's action")
-  case object compCpChanged extends NormalReason("Change of compile classpath")
+  object userRequest extends NormalReason("User's action")
+  object compCpChanged extends NormalReason("Change of compile classpath")
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
     reason match {

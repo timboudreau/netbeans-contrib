@@ -52,7 +52,7 @@ import org.netbeans.modules.scala.editor.lexer.ScalaLexUtil
  */
 class ScalaInstantRenamer extends InstantRenamer {
 
-  override def isRenameAllowed(info: ParserResult, caretOffset: int, explanationRetValue: Array[String]): Boolean = {
+  override def isRenameAllowed(info: ParserResult, caretOffset: Int, explanationRetValue: Array[String]): Boolean = {
     val pResult = info.asInstanceOf[ScalaParserResult]
     val rootScope = pResult.rootScope.getOrElse{
       explanationRetValue(0) = NbBundle.getMessage(classOf[ScalaInstantRenamer], "NoRenameWithErrors")
@@ -89,7 +89,7 @@ class ScalaInstantRenamer extends InstantRenamer {
     }
   }
 
-  override def getRenameRegions(info: ParserResult, caretOffset: int): java.util.Set[OffsetRange] = {
+  override def getRenameRegions(info: ParserResult, caretOffset: Int): java.util.Set[OffsetRange] = {
     if (info == null) {
       return java.util.Collections.emptySet[OffsetRange]
     }

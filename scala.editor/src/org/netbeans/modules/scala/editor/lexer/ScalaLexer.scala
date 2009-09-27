@@ -78,7 +78,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
   val tokenStream = new ArrayBuffer[TokenInfo]
   // * tokenStream.elements always return a new iterator, which point the first
   // * item, so we should have a global one.
-  var tokenStreamItr: Iterator[TokenInfo]  = tokenStream.elements
+  var tokenStreamItr: Iterator[TokenInfo]  = tokenStream.iterator
   var lookahead: Int = 0
 
   override def release = {}
@@ -91,7 +91,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     if (!tokenStreamItr.hasNext) {
       tokenStream.clear
       scanTokens
-      tokenStreamItr = tokenStream.elements
+      tokenStreamItr = tokenStream.iterator
 
       /**
        * @Bug of LexerInput.backup(int) ?
@@ -125,7 +125,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
       lookahead -= tokenInfo.length
       // * to cheat incremently lexer, we needs to lookahead one more char when
       // * tokenStream.size() > 1 (batched tokens that are not context free),
-      // * so, when modification happens extractly behind latest token, will
+      // * so, when modification happens exactly behind latest token, will
       // * force lexer relexer from the 1st token of tokenStream
       val lookahead1 = if (tokenStream.size > 1) lookahead + 1 else lookahead
       if (lookahead1 > 0) {
@@ -203,7 +203,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
           assert(false, "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?")
         case child: String =>
           val length = child.length
-          val id = ScalaTokenId.valueOf(node.getName) match {
+          val id = ScalaTokenId.values find {_.toString == node.getName} match {
             case None => ScalaTokenId.IGNORED
             case Some(v) => v.asInstanceOf[TokenId]
           }

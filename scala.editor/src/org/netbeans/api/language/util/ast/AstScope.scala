@@ -236,7 +236,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     dfn match {
       case Some(x) =>
         val occurrences = new ArrayBuffer[AstItem]
-        occurrences + x
+        occurrences += x
         // @todo ArrayBuffer.++ has strange signature: ++[B >: A](that:  Iterable[B]):  ArrayBuffer[B]
         occurrences ++= findRefsOf(x)
 
@@ -293,7 +293,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
       case None =>
     }
 
-    result ++ _refs.filter{dfn isReferredBy _}
+    result ++= _refs.filter{dfn isReferredBy _}
 
     // * search downward
     _subScopes.foreach{_.findRefsOfDownward(dfn, result)}
@@ -307,14 +307,14 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   private def findAllRefsSameAs(ref: AstRef): Seq[AstRef] = {
     val result = new ArrayBuffer[AstRef]
 
-    result + ref
+    result += ref
     root.findAllRefsSameAsDownward(ref, result)
 
     result
   }
 
   protected def findAllRefsSameAsDownward(ref: AstRef,  result: ArrayBuffer[AstRef]): Unit = {
-    result ++ _refs.filter{ref isOccurrence _}
+    result ++= _refs.filter{ref isOccurrence _}
 
     // * search downward
     _subScopes.foreach{_.findAllRefsSameAsDownward(ref, result)}
@@ -361,7 +361,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   }
 
   private def visibleDfnsUpward(kind: ElementKind, result: ArrayBuffer[AstDfn]): Unit = {
-    result ++ _dfns.filter{_.getKind == kind}
+    result ++= _dfns.filter{_.getKind == kind}
 
     parent match {
       case Some(x) => x.visibleDfnsUpward(kind, result)
