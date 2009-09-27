@@ -191,9 +191,9 @@ object ScalaGlobal {
     }
 
     // * is this `fo` under test source?
-    val forTest = cache.testToOut find {case (src, _) =>
+    val forTest = cache.testToOut exists {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
-    } isDefined
+    }
 
     var outPath: FileObject = null
     var srcPaths: List[FileObject] = Nil
@@ -495,7 +495,7 @@ object ScalaGlobal {
     val srcRoots = srcCp.getRoots
 
     private def isUnderSrcDir(fo: FileObject) = {
-      srcRoots find {x => FileUtil.isParentOf(x, fo)} isDefined
+      srcRoots exists {x => FileUtil.isParentOf(x, fo)}
     }
 
     override def fileDataCreated(fe: FileEvent): Unit = {
