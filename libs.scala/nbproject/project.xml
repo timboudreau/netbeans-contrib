@@ -47,19 +47,22 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.libs.scala</code-name-base>
             <module-dependencies/>
             <public-packages>
+                <package>actors</package>
                 <package>scala</package>
                 <package>scala.actors</package>
-                <package>scala.actors.forkjoin</package>
                 <package>scala.actors.remote</package>
+                <package>scala.actors.scheduler</package>
                 <package>scala.annotation</package>
                 <package>scala.annotation.unchecked</package>
                 <package>scala.collection</package>
                 <package>scala.collection.generic</package>
                 <package>scala.collection.immutable</package>
+                <package>scala.collection.interfaces</package>
                 <package>scala.collection.mutable</package>
                 <package>scala.collection.script</package>
                 <package>scala.compat</package>
                 <package>scala.concurrent</package>
+                <package>scala.concurrent.forkjoin</package>
                 <package>scala.dbc</package>
                 <package>scala.dbc.datatype</package>
                 <package>scala.dbc.exception</package>
@@ -72,7 +75,6 @@ made subject to such option by the copyright holder.
                 <package>scala.io</package>
                 <package>scala.mobile</package>
                 <package>scala.net</package>
-                <package>scala.netbeans</package>
                 <package>scala.ref</package>
                 <package>scala.reflect</package>
                 <package>scala.runtime</package>
@@ -130,7 +132,6 @@ made subject to such option by the copyright holder.
                 <package>scala.xml.include</package>
                 <package>scala.xml.include.sax</package>
                 <package>scala.xml.parsing</package>
-                <package>scala.xml.path</package>
                 <package>scala.xml.persistent</package>
                 <package>scala.xml.pull</package>
                 <package>scala.xml.transform</package>
@@ -150,10 +151,6 @@ made subject to such option by the copyright holder.
             <class-path-extension>
                 <runtime-relative-path>ext/scala-swing-2.8.0.jar</runtime-relative-path>
                 <binary-origin>external/scala-swing-2.8.0.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala.netbeans-2.8.0.jar</runtime-relative-path>
-                <binary-origin>external/scala.netbeans-2.8.0.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
