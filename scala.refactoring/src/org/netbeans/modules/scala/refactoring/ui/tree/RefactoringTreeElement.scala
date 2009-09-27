@@ -63,7 +63,7 @@ class RefactoringTreeElement(element: RefactoringElement) extends TreeElement {
     el
   }
 
-  override def getParent(isLogical: boolean): TreeElement = {
+  override def getParent(isLogical: Boolean): TreeElement = {
     if (isLogical) {
       TreeElementFactory.getTreeElement(parent)
     } else {

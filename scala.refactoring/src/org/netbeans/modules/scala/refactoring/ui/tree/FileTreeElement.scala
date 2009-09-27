@@ -73,7 +73,7 @@ class FileTreeElement(fo: FileObject) extends TreeElement {
     } catch {case ex: DataObjectNotFoundException => return null}
   }
 
-  override def getText(isLogical: boolean): String = {
+  override def getText(isLogical: Boolean): String = {
     fo.getNameExt
   }
 

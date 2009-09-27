@@ -79,7 +79,7 @@ class SourceGroupTreeElement(asg: SourceGroup) extends TreeElement {
     case x => x
   }
     
-  override def getParent(isLogical: boolean): TreeElement = {
+  override def getParent(isLogical: Boolean): TreeElement = {
     TreeElementFactory.getTreeElement(FileOwnerQuery.getOwner(dir))
   }
 

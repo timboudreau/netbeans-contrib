@@ -313,7 +313,7 @@ class MoveClassPanel(parent: ChangeListener, startPackage: String, headLine: Str
     packageComboBox.setModel(PackageView.createListView(g))
   }
     
-  def setCombosEnabled(enabled: boolean) {
+  def setCombosEnabled(enabled: Boolean) {
     packageComboBox.setEnabled(enabled);
     rootComboBox.setEnabled(enabled);
     projectsComboBox.setEnabled(enabled);
@@ -404,7 +404,7 @@ class MoveClassPanel(parent: ChangeListener, startPackage: String, headLine: Str
         
     def getListCellRendererComponent(list: JList,
                                      value: Object,
-                                     index: int,
+                                     index: Int,
                                      isSelected: Boolean,
                                      cellHasFocus: Boolean): Component = {
         

@@ -267,7 +267,7 @@ object RetoucheUtils {
 
 
 
-  def isOnSourceClasspath(fo: FileObject): boolean = {
+  def isOnSourceClasspath(fo: FileObject): Boolean = {
     val p = FileOwnerQuery.getOwner(fo)
     if (p == null) {
       return false
@@ -290,7 +290,7 @@ object RetoucheUtils {
     false
   }
 
-  def isRefactorable(file: FileObject): boolean = {
+  def isRefactorable(file: FileObject): Boolean = {
     isScalaFile(file) && isFileInOpenProject(file) && isOnSourceClasspath(file)
   }
 

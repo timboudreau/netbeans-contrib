@@ -108,8 +108,8 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   
   private val refactoring = rename
   private var searchHandle: ScalaItems#ScalaItem = _
-  private var overriddenByMethods: Collection[_] = null // methods that override the method to be renamed
-  private var overridesMethods: Collection[_] = null // methods that are overridden by the method to be renamed
+  private var overriddenByMethods: Seq[_] = null // methods that override the method to be renamed
+  private var overridesMethods: Seq[_] = null // methods that are overridden by the method to be renamed
   private var doCheckName: Boolean = true
 
   init

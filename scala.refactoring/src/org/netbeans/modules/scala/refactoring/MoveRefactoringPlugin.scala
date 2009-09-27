@@ -109,7 +109,7 @@ class MoveRefactoringPlugin(refactoring: AbstractRefactoring) extends ScalaRefac
   val whoReferences = new HashMap[FileObject, Set[FileObject]]
     
 
-  private def setup(fileObjects: Seq[FileObject], postfix: String, recursively: boolean, sameRootList: ArrayBuffer[FileObject] = null) {
+  private def setup(fileObjects: Seq[FileObject], postfix: String, recursively: Boolean, sameRootList: ArrayBuffer[FileObject] = null) {
     val itr = fileObjects.iterator
     while (itr.hasNext) {
       val fo = itr.next
@@ -298,7 +298,7 @@ class MoveRefactoringPlugin(refactoring: AbstractRefactoring) extends ScalaRefac
       set ++= files
       whoReferences.put(fo, files)
     }
-    set ++ filesToMove
+    set ++= filesToMove
     set.toSet
   }
     
