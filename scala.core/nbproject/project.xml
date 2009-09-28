@@ -155,7 +155,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>1.23</specification-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -277,6 +277,7 @@
             <public-packages>
                 <package>org.netbeans.api.language.util.lex</package>
                 <package>org.netbeans.api.language.util.ast</package>
+                <package>org.netbeans.api.language.util.text</package>
                 <package>org.netbeans.modules.scala.core</package>
                 <package>org.netbeans.modules.scala.core.ast</package>
                 <package>org.netbeans.modules.scala.core.lexer</package>
