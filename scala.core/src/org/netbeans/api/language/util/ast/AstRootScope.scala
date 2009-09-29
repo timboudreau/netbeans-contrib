@@ -96,11 +96,11 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     }
   }
 
-  def findItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
+  final def findItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
     val tokens = sortedTokens(th)
 
     var lo = 0
-    var hi = tokens.size - 1
+    var hi = tokens.length - 1
     while (lo <= hi) {
       val mid = (lo + hi) >> 1
       val middle = tokens(mid)
@@ -116,11 +116,11 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     Nil
   }
 
-  def findNeastItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
+  final def findNeastItemsAt(th: TokenHierarchy[_], offset: Int): List[AstItem] = {
     val tokens = sortedTokens(th)
 
     var lo = 0
-    var hi = tokens.size - 1
+    var hi = tokens.length - 1
     while (lo <= hi) {
       val mid = (lo + hi) >> 1
       val middle = tokens(mid)
@@ -137,13 +137,13 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
     }
 
     // * found null, return AstItem at lo, lo is always increasing during above procedure
-    if (lo < tokens.size) {
+    if (lo < tokens.length) {
       val neastToken = tokens(lo)
       _idTokenToItems.get(neastToken).getOrElse(Nil)
     } else Nil
   }
 
-  def findItemsAt(token: Token[TokenId]): List[AstItem] = {
+  final def findItemsAt(token: Token[TokenId]): List[AstItem] = {
     _idTokenToItems.get(token).getOrElse(Nil)
   }
 

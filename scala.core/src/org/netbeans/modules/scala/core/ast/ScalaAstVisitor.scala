@@ -70,6 +70,7 @@ abstract class ScalaAstVisitor {
 
   private val debug = false
   private val scopes = new Stack[AstScope]
+  private val owners = new Stack[Symbol]
   private var rootScope: ScalaRootScope = _
 
   private var fo: Option[FileObject] = _
@@ -97,6 +98,9 @@ abstract class ScalaAstVisitor {
     rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, docLength))
     scopes push rootScope
 
+    owners.clear
+    owners push definitions.RootClass
+
     unit match {
       case u: RichCompilationUnit => importingTraverser(u)
       case _ =>
@@ -107,9 +111,14 @@ abstract class ScalaAstVisitor {
     rootScope
   }
 
-  private object importingTraverser {
+  private final object importingTraverser {
     private val visited = new HashSet[Context]
     
+    def apply(unit: RichCompilationUnit) {
+      visited.clear
+      unit.contexts foreach visitContextTree
+    }
+
     private def visitContextTree(ct: ContextTree): Unit = {
       val c = ct.context
       if (visited.add(c)) {
@@ -197,19 +206,25 @@ abstract class ScalaAstVisitor {
       result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
     }
 
-    def apply(unit: RichCompilationUnit) {
-      visited.clear
-      unit.contexts foreach visitContextTree
-    }
   }
 
-  private object treeTraverser {
+  private final object treeTraverser {
     private val visited = new HashSet[Tree]
     private val treeToKnownType = new HashMap[Tree, Type]
     private var qualiferMaybeType: Option[Type] = None
 
-    private var currentOwner: Symbol = definitions.RootClass
-    
+    def apply[T <: Tree](tree: T): T = {
+      visited.clear
+      treeToKnownType.clear
+      qualiferMaybeType = None
+
+      traverse(tree)
+
+      if (debug) rootScope.debugPrintTokens(th)
+
+      tree
+    }
+
     private def traverse(tree: Tree): Unit = {
       if (!visited.add(tree)) return // has visited
 
@@ -224,12 +239,11 @@ abstract class ScalaAstVisitor {
           val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.PACKAGE, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-          scopes push scope
-          atOwner(sym.moduleClass) {
+
+          atOwner(sym.moduleClass, scope) {
             traverse(pid)
             traverseTrees(stats)
           }
-          scopes pop
 
         case ClassDef(mods, name, tparams, impl) =>
           val scope = ScalaScope(getBoundsTokens(tree))
@@ -241,14 +255,12 @@ abstract class ScalaAstVisitor {
           val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.CLASS, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-          scopes push scope
-          atOwner(sym) {
+          atOwner(sym, scope) {
             traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverseTrees(tparams)
             traverse(impl)
           }
-          scopes pop
 
         case ModuleDef(mods, name, impl) =>
           val scope = ScalaScope(getBoundsTokens(tree))
@@ -258,13 +270,11 @@ abstract class ScalaAstVisitor {
           val dfn = ScalaDfn(sym, getIdToken(tree), ElementKind.MODULE, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-          scopes push scope
-          atOwner(sym.moduleClass) {
+          atOwner(sym.moduleClass, scope) {
             traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverse(impl)
           }
-          scopes pop
 
         case ValDef(mods, name, tpt, rhs) =>
           val scope = ScalaScope(getBoundsTokens(tree))
@@ -277,14 +287,12 @@ abstract class ScalaAstVisitor {
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
-          scopes push scope
-          atOwner(sym) {
+          atOwner(sym, scope) {
             traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverse(tpt)
             traverse(rhs)
           }
-          scopes pop
 
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           val scope = ScalaScope(getBoundsTokens(tree))
@@ -296,8 +304,7 @@ abstract class ScalaAstVisitor {
           val dfn = ScalaDfn(sym, getIdToken(tree), kind, scope, fo)
           if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
 
-          scopes push scope
-          atOwner(sym) {
+          atOwner(sym, scope) {
             traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverseTrees(tparams)
@@ -305,7 +312,6 @@ abstract class ScalaAstVisitor {
             traverse(tpt)
             traverse(rhs)
           }
-          scopes pop
 
         case TypeDef(mods, name, tparams, rhs) =>
           val scope = ScalaScope(getBoundsTokens(tree))
@@ -319,8 +325,7 @@ abstract class ScalaAstVisitor {
             }
           }
 
-          scopes push scope
-          atOwner(sym) {
+          atOwner(sym, scope) {
             traverseAnnots(sym)
             traverseTrees(mods.annotations)
             traverseTrees(tparams)
@@ -340,8 +345,15 @@ abstract class ScalaAstVisitor {
               }
             } else traverse(rhs)
           }
-          scopes pop
 
+        case Function(vparams, body) =>
+          val sym = tree.symbol
+
+          atOwner(sym) {
+            traverseTrees(vparams)
+            traverse(body)
+          }
+          
         case LabelDef(name, params, rhs) =>
           traverseTrees(params); traverse(rhs)
         case Import(expr, selectors) =>
@@ -381,10 +393,6 @@ abstract class ScalaAstVisitor {
           traverse(fun); traverseTrees(args)
         case ArrayValue(elemtpt, trees) =>
           traverse(elemtpt); traverseTrees(trees)
-        case Function(vparams, body) =>
-          atOwner(tree.symbol) {
-            traverseTrees(vparams); traverse(body)
-          }
         case Assign(lhs, rhs) =>
           traverse(lhs); traverse(rhs)
         case AssignOrNamedArg(lhs, rhs) =>
@@ -590,8 +598,11 @@ abstract class ScalaAstVisitor {
 
     private def traverseStats(stats: List[Tree], exprOwner: Symbol) {
       stats foreach (stat =>
-        if (exprOwner != currentOwner && stat.isTerm) atOwner(exprOwner)(traverse(stat))
-        else traverse(stat))
+        if (exprOwner != owners.top && stat.isTerm) {
+          atOwner(exprOwner) {
+            traverse(stat)
+          }
+        } else traverse(stat))
     }
 
     private def traverseAnnots(sym: Symbol) {
@@ -600,24 +611,12 @@ abstract class ScalaAstVisitor {
       }
     }
 
-    def apply[T <: Tree](tree: T): T = {
-      visited.clear
-      treeToKnownType.clear
-      qualiferMaybeType = None
-      currentOwner = definitions.RootClass
-
-      traverse(tree)
-
-      if (debug) rootScope.debugPrintTokens(th)
-      
-      tree
-    }
-
-    private def atOwner(owner: Symbol)(traverse: => Unit) {
-      val prevOwner = currentOwner
-      currentOwner = owner
+    private def atOwner(owner: Symbol, scope: AstScope = null)(traverse: => Unit) {
+      if (scope != null) scopes push scope
+      owners push owner
       traverse
-      currentOwner = prevOwner
+      owners.pop
+      if (scope != null) scopes.pop
     }
 
     private def isTupleClass(symbol: Symbol): Boolean = {
@@ -671,12 +670,10 @@ abstract class ScalaAstVisitor {
 
     /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
     val name = if (knownName.length > 0) knownName else (if (sym != NoSymbol) sym.rawname.decode.trim else "")
-    if (name == "") return None
-
+    if (name.length == 0) return None
 
     val pos = tree.pos
-    val offset = if (pos.isDefined) pos.startOrPoint else -1
-    if (offset == -1) return None
+    val offset = if (pos.isDefined) pos.startOrPoint else return None
 
     var endOffset = if (pos.isDefined) pos.endOrPoint else -1
     if (forward != -1) {
@@ -845,17 +842,13 @@ abstract class ScalaAstVisitor {
   }
 
   private def info(message: String): Unit = {
-    if (!debug) {
-      return
-    }
+    if (!debug) return
 
     println(message)
   }
 
   private def info(message: String, item: AstItem): Unit = {
-    if (!debug) {
-      return
-    }
+    if (!debug) return
 
     print(message)
     println(item)
@@ -910,6 +903,6 @@ abstract class ScalaAstVisitor {
       }
     }
 
-    children foreach {setBoundsEndToken(_)}
+    children foreach setBoundsEndToken
   }
 }

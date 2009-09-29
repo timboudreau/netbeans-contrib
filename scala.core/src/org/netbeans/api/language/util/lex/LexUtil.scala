@@ -153,7 +153,7 @@ trait LexUtil {
   }
 
   /** Find the token hierarchy (in case it's embedded in something else at the top level */
-  def getTokenHierarchy(doc: BaseDocument, offset: Int): Option[TokenHierarchy[_]] = {
+  final def getTokenHierarchy(doc: BaseDocument, offset: Int): Option[TokenHierarchy[_]] = {
     TokenHierarchy.get(doc) match {
       case null => None
       case x => Some(x)
@@ -161,12 +161,12 @@ trait LexUtil {
   }
 
   /** Find the token sequence (in case it's embedded in something else at the top level */
-  def getTokenSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
+  final def getTokenSequence(doc: BaseDocument, offset: Int): Option[TokenSequence[TokenId]] = {
     val th = TokenHierarchy.get(doc)
     getTokenSequence(th, offset)
   }
 
-  def getTokenSequence(th: TokenHierarchy[_], offset: Int): Option[TokenSequence[TokenId]] = {
+  final def getTokenSequence(th: TokenHierarchy[_], offset: Int): Option[TokenSequence[TokenId]] = {
     var ts = th.tokenSequence(LANGUAGE)
     if (ts == null) {
       // Possibly an embedding scenario such as an RHTML file
@@ -255,23 +255,23 @@ trait LexUtil {
     ts.moveNext
   }
 
-  def findNextNoWsNoComment(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
+  final def findNextNoWsNoComment(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
     findNextNotIn(ts, WS_COMMENTS)
   }
 
-  def findPreviousNoWsNoComment(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
+  final def findPreviousNoWsNoComment(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
     findPreviousNotIn(ts, WS_COMMENTS)
   }
 
-  def findNextNoWs(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
+  final def findNextNoWs(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
     findNextNotIn(ts, WS)
   }
 
-  def findPreviousNoWs(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
+  final def findPreviousNoWs(ts: TokenSequence[TokenId]): Option[Token[TokenId]] = {
     findPreviousNotIn(ts, WS)
   }
 
-  def findNextNotIn(ts: TokenSequence[TokenId], excludes: Set[TokenId]): Option[Token[TokenId]] = {
+  final def findNextNotIn(ts: TokenSequence[TokenId], excludes: Set[TokenId]): Option[Token[TokenId]] = {
     if (excludes.contains(ts.token.id)) {
       while (ts.moveNext && excludes.contains(ts.token.id)) {}
     }
@@ -280,7 +280,7 @@ trait LexUtil {
     if (token == null) None else Some(token)
   }
 
-  def findPreviousNotIn(ts:TokenSequence[TokenId], excludes:Set[TokenId]): Option[Token[TokenId]] = {
+  final def findPreviousNotIn(ts:TokenSequence[TokenId], excludes:Set[TokenId]): Option[Token[TokenId]] = {
     if (excludes.contains(ts.token.id)) {
       while (ts.movePrevious && excludes.contains(ts.token.id)) {}
     }
@@ -289,7 +289,7 @@ trait LexUtil {
     if (token == null) None else Some(token)
   }
 
-  def findNext(ts: TokenSequence[TokenId], id: TokenId): Option[Token[TokenId]] = {
+  final def findNext(ts: TokenSequence[TokenId], id: TokenId): Option[Token[TokenId]] = {
     if (ts.token.id != id) {
       while (ts.moveNext && ts.token.id != id) {}
     }
@@ -298,7 +298,7 @@ trait LexUtil {
     if (token == null) None else Some(token)
   }
 
-  def findNextIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Option[Token[TokenId]] = {
+  final def findNextIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Option[Token[TokenId]] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.moveNext && !includes.contains(ts.token.id)) {}
     }
@@ -307,7 +307,7 @@ trait LexUtil {
     if (token == null) None else Some(token)
   }
 
-  def findPrevious(ts: TokenSequence[TokenId], id: TokenId): Option[Token[TokenId]] = {
+  final def findPrevious(ts: TokenSequence[TokenId], id: TokenId): Option[Token[TokenId]] = {
     if (ts.token.id != id) {
       while (ts.movePrevious && ts.token.id != id) {}
     }
@@ -323,7 +323,7 @@ trait LexUtil {
     if (token == null) None else Some(token)
   }
 
-  def findPreviousIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Option[Token[TokenId]] = {
+  final def findPreviousIn(ts: TokenSequence[TokenId], includes: Set[TokenId]): Option[Token[TokenId]] = {
     if (!includes.contains(ts.token.id)) {
       while (ts.movePrevious && !includes.contains(ts.token.id)) {}
     }
@@ -1322,28 +1322,28 @@ trait LexUtil {
     END_PAIRS.contains(id)
   }
 
-  def isWs(id: TokenId): Boolean = {
+  final def isWs(id: TokenId): Boolean = {
     WS.contains(id)
   }
 
-  def isWsComment(id: TokenId): Boolean = {
+  final def isWsComment(id: TokenId): Boolean = {
     WS_COMMENTS.contains(id)
   }
 
-  def isComment(id: TokenId): Boolean = {
+  final def isComment(id: TokenId): Boolean = {
     isLineComment(id) || isBlockComment(id) || isDocComment(id)
   }
 
-  def isLineComment(id: TokenId): Boolean = {
+  final def isLineComment(id: TokenId): Boolean = {
     LINE_COMMENTS.contains(id)
   }
 
-  def isDocComment(id: TokenId): Boolean = {
+  final def isDocComment(id: TokenId): Boolean = {
     DOC_COMMENTS.contains(id)
 
   }
 
-  def isBlockComment(id: TokenId): Boolean = {
+  final def isBlockComment(id: TokenId): Boolean = {
     BLOCK_COMMENTS.contains(id)
   }
 
@@ -1360,7 +1360,7 @@ trait LexUtil {
     id.primaryCategory.equals("keyword")
   }
 
-  def getRangeOfToken(th: TokenHierarchy[_], token: Token[_ <: TokenId]): OffsetRange = {
+  final def getRangeOfToken(th: TokenHierarchy[_], token: Token[_ <: TokenId]): OffsetRange = {
     val offset = token.offset(th)
     new OffsetRange(offset, offset + token.length)
   }
