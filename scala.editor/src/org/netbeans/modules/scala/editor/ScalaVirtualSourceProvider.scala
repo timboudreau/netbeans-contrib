@@ -43,7 +43,6 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.logging.Level
 import java.util.logging.Logger
 import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.modules.java.preprocessorbridge.spi.VirtualSourceProvider
@@ -51,6 +50,7 @@ import org.netbeans.modules.parsing.api.ParserManager
 import org.netbeans.modules.parsing.api.ResultIterator
 import org.netbeans.modules.parsing.api.Source
 import org.netbeans.modules.parsing.api.UserTask
+import org.netbeans.modules.parsing.impl.indexing.TimeStamps
 import org.netbeans.modules.parsing.spi.ParseException
 import org.openide.filesystems.{FileUtil}
 import org.openide.util.Exceptions
@@ -121,11 +121,21 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
   override def index: Boolean = true
 
   override def translate(files: java.lang.Iterable[File], sourceRoot: File, result: VirtualSourceProvider.Result) {
-    Log.info("Translating " + files)
-    
+    val root = FileUtil.toFileObject(sourceRoot)
+    val timeStamps = TimeStamps.forRoot(root.getURL, false)
+
     val itr = files.iterator
     while (itr.hasNext) {
-      translate(itr.next, sourceRoot, result)
+      val file = itr.next
+      val fo = FileUtil.toFileObject(file)
+      // * JavaIndexer tends to reindex all dependent (via VirtualSources calculating) files
+      // * when dependee source file is modified, it's not neccessary for VirtualSource in my opinion,
+      // * so, filter them here:
+      val isUpToDate = timeStamps.checkAndStoreTimestamp(fo, FileUtil.getRelativePath(root, fo))
+      if (!isUpToDate) {
+        Log.info("Translating " + file)
+        translate(file, sourceRoot, result)
+      }
     }
   }
 
