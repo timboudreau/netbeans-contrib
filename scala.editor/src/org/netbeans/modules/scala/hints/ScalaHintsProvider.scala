@@ -63,7 +63,7 @@ class ScalaHintsProvider() extends HintsProvider {
       val parserResult = context.parserResult;
       if (parserResult != null) {
           val scalaParserResult = parserResult.asInstanceOf[ScalaParserResult]
-          val rootScope = scalaParserResult.rootScope.get
+          val rootScope = scalaParserResult.rootScope
           val hintRules  = manager.getHints.asInstanceOf[ju.Map[_, ju.List[ScalaAstRule]]]
           if (!hintRules.isEmpty && !cancelled) {
             try {

@@ -98,7 +98,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
       return
     }
 
-    val rootScope = pResult.rootScope.getOrElse(return)
+    val rootScope = pResult.rootScope
 
     var highlights = new java.util.HashMap[OffsetRange, ColoringAttributes](100)
 

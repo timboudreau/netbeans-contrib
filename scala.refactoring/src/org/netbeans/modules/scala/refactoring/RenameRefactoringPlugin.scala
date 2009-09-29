@@ -133,7 +133,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
             override def run(ri: ResultIterator) {
               if (ri.getSnapshot.getMimeType == ScalaMimeResolver.MIME_TYPE) {
                 val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
-                val root = pr.rootScope.get
+                val root = pr.rootScope
                 val tmpls = new ArrayBuffer[AstDfn]
                 RetoucheUtils.getTopTemplates(List(root), tmpls)
                 if (!tmpls.isEmpty) {
@@ -487,7 +487,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       val searchCtx = searchHandle
       var error: Error = null
       val th = workingCopy.getSnapshot.getTokenHierarchy
-      val root = workingCopy.rootScope.get
+      val root = workingCopy.rootScope
       val workingCopyFo = workingCopy.getSnapshot.getSource.getFileObject
       val global = workingCopy.global
       import global._

@@ -284,7 +284,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
       if (ri.getSnapshot.getMimeType.equals(ScalaMimeResolver.MIME_TYPE)) {
         val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
         val th = ri.getSnapshot.getTokenHierarchy
-        val root = pr.rootScope.get
+        val root = pr.rootScope
         val global = pr.global
         import global._
 
@@ -353,7 +353,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
     def run(ri: ResultIterator) {
       if (ri.getSnapshot.getMimeType.equals(ScalaMimeResolver.MIME_TYPE)) {
         val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
-        val root = pr.rootScope.get
+        val root = pr.rootScope
         val tmpls = new ArrayBuffer[AstDfn]
         RetoucheUtils.getTopTemplates(List(root), tmpls)
         if (!tmpls.isEmpty) {
@@ -400,7 +400,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
     def run(ri: ResultIterator) {
       if (ri.getSnapshot.getMimeType.equals(ScalaMimeResolver.MIME_TYPE)) {
         val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
-        val root = pr.rootScope.get
+        val root = pr.rootScope
         val tmpls = new ArrayBuffer[AstDfn]
         RetoucheUtils.getTopTemplates(List(root), tmpls)
         if (!tmpls.isEmpty) {

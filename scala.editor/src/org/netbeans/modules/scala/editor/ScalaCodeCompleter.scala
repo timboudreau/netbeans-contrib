@@ -350,7 +350,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   }
 
   def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
-    val root = pResult.rootScope.getOrElse(return)
+    val root = pResult.rootScope
 
     val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
     val resp = new Response[List[Member]]
@@ -504,7 +504,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
                                   alternativesHolder: Array[Set[Function]]): Boolean = {
     try {
       val pResult = info.asInstanceOf[ScalaParserResult]
-      val root = pResult.rootScope.getOrElse(return false)
+      val root = pResult.rootScope
 
       var targetMethod: ExecutableElement = null
       var index = -1

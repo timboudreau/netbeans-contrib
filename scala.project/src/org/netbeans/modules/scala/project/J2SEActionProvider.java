@@ -112,8 +112,8 @@ import org.openide.util.Task;
 import org.openide.util.TaskListener;
 
 import org.netbeans.api.language.util.ast.AstDfn;
-import org.netbeans.api.language.util.ast.AstRootScope;
 import org.netbeans.modules.scala.core.ScalaParserResult;
+import org.netbeans.modules.scala.core.ast.ScalaRootScope;
 
 
 /** Action provider of the J2SE project. This is the place where to do
@@ -751,7 +751,7 @@ class J2SEActionProvider implements ActionProvider {
 
                     @Override
                     public void run(ResultIterator resultIterator) throws Exception {
-                        AstRootScope rootScope = ((ScalaParserResult) resultIterator.getParserResult()).rootScope().getOrElse(null);
+                        ScalaRootScope rootScope = ((ScalaParserResult) resultIterator.getParserResult()).rootScope();
                         if (rootScope == null) {
                             return;
                         }

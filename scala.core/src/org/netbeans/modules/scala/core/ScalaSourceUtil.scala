@@ -503,7 +503,7 @@ object ScalaSourceUtil {
     val global = pr.global
     import global._
 
-    val root = pr.rootScope.getOrElse(return null)
+    val root = pr.rootScope
     val fo = pr.getSnapshot.getSource.getFileObject
     val doc = pr.getSnapshot.getSource.getDocument(false).asInstanceOf[StyledDocument]
     val th = pr.getSnapshot.getTokenHierarchy
@@ -580,7 +580,7 @@ object ScalaSourceUtil {
 
   /** @deprecated */
   def getBinaryClassName_old(pr: ScalaParserResult, offset: Int): String = {
-    val root = pr.getRootScopeForDebug.getOrElse(return null)
+    val root = pr.rootScopeForDebug
     val th = pr.getSnapshot.getTokenHierarchy
     
     var clzName = ""
@@ -654,10 +654,7 @@ object ScalaSourceUtil {
           @throws(classOf[Exception])
           override def run(ri: ResultIterator): Unit = {
             val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
-            val root = pr.rootScope match {
-              case None => return
-              case Some(x) => x
-            }
+            val root = pr.rootScope
             val global = pr.global
             import global._
             

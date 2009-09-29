@@ -238,7 +238,7 @@ class IsOverriddenAnnotationHandler(file: FileObject) extends ParserResultTask[S
       if (isCanceled) return Nil
     }
 
-    val root = pr.rootScope.getOrElse(return Nil)
+    val root = pr.rootScope
     val th = pr.getSnapshot.getTokenHierarchy
 
     if (root == ScalaRootScope.EMPTY || th == null) return Nil

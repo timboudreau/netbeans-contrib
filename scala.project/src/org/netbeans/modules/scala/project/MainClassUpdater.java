@@ -75,8 +75,8 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 
 import org.netbeans.api.language.util.ast.AstDfn;
-import org.netbeans.api.language.util.ast.AstRootScope;
 import org.netbeans.modules.scala.core.ScalaParserResult;
+import org.netbeans.modules.scala.core.ast.ScalaRootScope;
 
 /**
  *
@@ -232,7 +232,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                             if (pResult == null) {
                                 return;
                             }
-                            AstRootScope rootScope = pResult.rootScope().getOrElse(null);
+                            ScalaRootScope rootScope = pResult.rootScope();
                             if (rootScope == null) {
                                 return;
                             }

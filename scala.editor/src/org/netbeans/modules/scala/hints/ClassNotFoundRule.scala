@@ -203,11 +203,7 @@ class ClassNotFoundRule extends ScalaErrorRule with NbBundler {
             var collecting = false
             val result = context.parserResult.asInstanceOf[ScalaParserResult]
             println("result=" + result)
-            val root = result.rootScope match {
-              case Some(x) => x
-              case None => return
-            }
-            println("have root scope")
+            val root = result.rootScope
 
             if (start != -1) {
               ts.move(start)

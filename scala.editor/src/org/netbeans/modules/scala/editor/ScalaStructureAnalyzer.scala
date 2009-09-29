@@ -64,7 +64,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
   override def scan(result: ParserResult): java.util.List[StructureItem] = {
     result match {
       case pResult: ScalaParserResult =>
-        val rootScope = pResult.rootScope.getOrElse(return java.util.Collections.emptyList[StructureItem])
+        val rootScope = pResult.rootScope
 
         val items = new java.util.ArrayList[StructureItem]
         scanTopForms(rootScope, items, pResult)

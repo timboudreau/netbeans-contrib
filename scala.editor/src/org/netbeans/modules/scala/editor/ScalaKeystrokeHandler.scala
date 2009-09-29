@@ -1392,14 +1392,13 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
   override def findLogicalRanges(info: ParserResult, caretOffset: Int): java.util.List[OffsetRange] = {
     val pResult = info.asInstanceOf[ScalaParserResult]
-    val root = pResult.rootScope.getOrElse(return java.util.Collections.emptyList[OffsetRange])
+    val root = pResult.rootScope
 
     val astOffset = ScalaLexUtil.getAstOffset(info, caretOffset)
     if (astOffset == -1) {
       return java.util.Collections.emptyList[OffsetRange]
     }
 
-    //AstPath path = new AstPath(root, astOffset);
     val ranges = new  java.util.ArrayList[OffsetRange]
 
     /** Furthest we can go back in the buffer (in RHTML documents, this
@@ -1414,7 +1413,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
     try {
       val doc = info.getSnapshot.getSource.getDocument(true) match {
         case null => return ranges
-        case x :BaseDocument => x
+        case x: BaseDocument => x
       }
       length = doc.getLength
 

@@ -155,7 +155,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           override def run(ri: ResultIterator) {
             val pr = ri.getParserResult.asInstanceOf[ScalaParserResult]
             val global = pr.global
-            val rootScope = pr.rootScope getOrElse {assert(false, "Parse result is null : " + fo.getName); return}
+            val rootScope = pr.rootScope
             val tmpls = new ArrayBuffer[ScalaDfns#ScalaDfn]
             visit(rootScope, tmpls)
             process(global, tmpls.toList)

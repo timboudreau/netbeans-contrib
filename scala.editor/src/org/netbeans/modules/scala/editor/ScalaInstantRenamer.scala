@@ -55,10 +55,7 @@ class ScalaInstantRenamer extends InstantRenamer {
 
   override def isRenameAllowed(info: ParserResult, caretOffset: Int, explanationRetValue: Array[String]): Boolean = {
     val pResult = info.asInstanceOf[ScalaParserResult]
-    val rootScope = pResult.rootScope.getOrElse{
-      explanationRetValue(0) = NbBundle.getMessage(classOf[ScalaInstantRenamer], "NoRenameWithErrors")
-      return false
-    }
+    val rootScope = pResult.rootScope
 
     val document = info.getSnapshot.getSource.getDocument(true)
     if (document == null) {
@@ -109,7 +106,7 @@ class ScalaInstantRenamer extends InstantRenamer {
       return java.util.Collections.emptySet[OffsetRange]
     }
 
-    val rootScope = pResult.rootScope.getOrElse(return java.util.Collections.emptySet[OffsetRange])
+    val rootScope = pResult.rootScope
 
     val occurrences = rootScope.findItemsAt(th, caretOffset) match {
       case Nil => return java.util.Collections.emptySet[OffsetRange]

@@ -77,9 +77,11 @@ class ScalaParser extends Parser {
 
   @throws(classOf[ParseException])
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
-    val context = new Context(snapshot, event)
     Log.info("Parsing " + snapshot.getSource.getFileObject.getNameExt)
-    lastResult = parseBuffer(context, Sanitize.NONE)
+    // * We'll lazyly doing true parsing in ScalaParserResult
+    lastResult = new ScalaParserResult(snapshot, this)
+    //val context = new Context(snapshot, event)
+    //lastResult = parseBuffer(context, Sanitize.NONE)
   }
 
   private def isIndexUpToDate(fo: FileObject): Boolean = {
@@ -420,9 +422,7 @@ class ScalaParser extends Parser {
       }
     }
 
-    new ScalaParserResult(context.snapshot, context.global, context.rootScope,
-                          java.util.Arrays.asList(context.errors.toArray: _*),
-                          context.srcFile)
+    new ScalaParserResult(context.snapshot, this)
   }
 
   private def processObjectSymbolError(context: Context, root: ScalaRootScope): Sanitize = {
@@ -501,7 +501,6 @@ class ScalaParser extends Parser {
     override def toString = {
       "ScalaParser.Context(" + fileObject.toString + ")" // NOI18N
     }
-
   }
 
   private class ErrorReporter(context: Context, doc: BaseDocument, sanitizing: Sanitize) extends Reporter {

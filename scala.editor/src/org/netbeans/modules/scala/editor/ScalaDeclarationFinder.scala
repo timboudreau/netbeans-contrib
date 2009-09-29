@@ -90,7 +90,7 @@ class ScalaDeclarationFinder extends DeclarationFinder {
     val global = pr.global
     import global._
 
-    val root = pr.rootScope.getOrElse(return DeclarationLocation.NONE)
+    val root = pr.rootScope
 
     val astOffset = ScalaLexUtil.getAstOffset(pr, lexOffset)
     if (astOffset == -1) return DeclarationLocation.NONE

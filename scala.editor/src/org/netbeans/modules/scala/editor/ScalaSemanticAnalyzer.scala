@@ -86,7 +86,7 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
 
     if (isCancelled) return
 
-    val root = pr.rootScope.getOrElse(return)
+    val root = pr.rootScope
 
     val doc = pr.getSnapshot.getSource.getDocument(true)
     if (doc == null) return

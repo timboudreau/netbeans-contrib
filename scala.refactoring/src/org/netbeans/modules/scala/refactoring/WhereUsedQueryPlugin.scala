@@ -261,7 +261,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
       var error: Error = null
 
       val th = pr.getSnapshot.getTokenHierarchy
-      val root = pr.rootScope.get
+      val root = pr.rootScope
       val global = pr.global
       import global._
 

@@ -51,6 +51,7 @@ import org.openide.util.{Exceptions, NbBundle}
 import org.netbeans.api.language.util.ast.AstElementHandle
 import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.ScalaSourceUtil
+import org.netbeans.modules.scala.core.ast.ScalaRootScope
 import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 /**
@@ -193,9 +194,8 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
        return completionResult
        } */
 
-      val rootOpt = pResult.rootScope
-      if (rootOpt.isDefined) {
-        val root = rootOpt.get
+      val root = pResult.rootScope
+      if (root != ScalaRootScope.EMPTY) {
         var offset = astOffset
 
         val sanitizedRange = pResult.sanitizedRange
@@ -252,7 +252,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         }
       }
 
-      if (rootOpt == None) {
+      if (root == ScalaRootScope.EMPTY) {
         completer.completeKeywords(proposals)
         return completionResult
       }
