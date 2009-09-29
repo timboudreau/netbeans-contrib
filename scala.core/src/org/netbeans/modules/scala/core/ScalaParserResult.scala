@@ -60,7 +60,6 @@ class ScalaParserResult(snapshot: Snapshot,
                         var errors: java.util.List[Error],
                         val srcFile: SourceFile
 ) extends ParserResult(snapshot) {
-  assume(global != null)
 
   if (ScalaParserResult.debug) {
     ScalaParserResult.unreleasedResults.put(this, srcFile.file.path)

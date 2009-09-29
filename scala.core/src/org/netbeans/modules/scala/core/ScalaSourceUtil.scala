@@ -538,6 +538,7 @@ object ScalaSourceUtil {
 
     def findAllClassFilesWith(prefix: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
       dirFo.getChildren foreach {
+        case null => // will this happen?
         case x if x.isFolder => findAllClassFilesWith(prefix, x, result)
         case x if x.getExt == "class" && FileUtil.getRelativePath(out, x).startsWith(prefix) => result += x
         case _ =>

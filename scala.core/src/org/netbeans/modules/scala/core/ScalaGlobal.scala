@@ -274,7 +274,7 @@ object ScalaGlobal {
 
       // * we only need one out path
       if (outPath == "") {
-        outPath = out
+        outPath = out 
 
         // * Had out path dir been deleted? (a clean task etc), if so, create it, since scalac
         // * can't parse anything correctly without an exist out dir (sounds a bit strange)
@@ -618,7 +618,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
   }
 
-  def askForPresentation(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def askForSemantic(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
     resetSelectTypeErrors
 
     val resp = new Response[ScalaRootScope]

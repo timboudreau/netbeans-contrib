@@ -40,12 +40,15 @@
  */
 package org.netbeans.modules.scala.core
 
+import java.util.logging.Logger
 import javax.swing.event.ChangeListener
 import javax.swing.text.BadLocationException
+import org.netbeans.api.java.classpath.ClassPath
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.{Error, OffsetRange, Severity}
 import org.netbeans.modules.csl.spi.{DefaultError, GsfUtilities}
 import org.netbeans.modules.parsing.api.{Snapshot, Task}
+import org.netbeans.modules.parsing.impl.indexing.TimeStamps
 import org.netbeans.modules.parsing.spi.{ParseException, Parser, ParserFactory, SourceModificationEvent}
 import org.netbeans.modules.scala.core.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
@@ -75,7 +78,20 @@ class ScalaParser extends Parser {
   @throws(classOf[ParseException])
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
     val context = new Context(snapshot, event)
+    Log.info("Parsing " + snapshot.getSource.getFileObject.getNameExt)
     lastResult = parseBuffer(context, Sanitize.NONE)
+  }
+
+  private def isIndexUpToDate(fo: FileObject): Boolean = {
+    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+    if (srcCp != null) {
+      srcCp.getRoots find {x => FileUtil.isParentOf(x, fo)} foreach {root =>
+        val timeStamps = TimeStamps.forRoot(root.getURL, false)
+        return timeStamps != null && timeStamps.checkAndStoreTimestamp(fo, FileUtil.getRelativePath(root, fo))
+      }
+    }
+    
+    return false
   }
 
   @throws(classOf[ParseException])
@@ -94,46 +110,6 @@ class ScalaParser extends Parser {
     // no-op, we don't support state changes
   }
 
-  /** Parse the given set of files, and notify the parse listener for each transition
-   * (compilation results are attached to the events )
-   */
-  //    public void parseFiles(Parser.Job job) {
-  //        ParseListener listener = job.listener;
-  //        SourceFileReader reader = job.reader;
-  //
-  //        for (ParserFile file:  job.files) {
-  //            long start = System.currentTimeMillis();
-  //
-  //            ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
-  //            listener.started(beginEvent);
-  //
-  //            ParserResult pResult = null;
-  //
-  //            try {
-  //                CharSequence buffer = reader.read(file);
-  //                String source = asString(buffer);
-  //                int caretOffset = reader.getCaretOffset(file);
-  //                if (caretOffset != -1 && job.translatedSource != null) {
-  //                    caretOffset = job.translatedSource.getAstOffset(caretOffset);
-  //                }
-  //                Context context = new Context(file, listener, source, caretOffset, job.translatedSource);
-  //                pResult = parseBuffer(context, Sanitize.NONE);
-  //            } catch (IOException ioe) {
-  //                listener.exception(ioe);
-  //                pResult = createParserResult(file, null, null, TokenHierarchy.create("", ScalaTokenId.language()), Collections.<DefaultError>emptyList());
-  //            }
-  //
-  //            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
-  //            listener.finished(doneEvent);
-  //
-  //            long time = System.currentTimeMillis() - start;
-  //            profile[0] += time / 1000.0f;
-  //            profile[1] += 1.0f;
-  //        //System.out.println("Parsing time: " + time / 1000.0f + "s");
-  //        //System.out.println("Average parsing time: " + profile[0] / profile[1] + "s");
-  //        }
-  //    }
-  
   private final class Factory extends ParserFactory {
     override def createParser(snapshots: java.util.Collection[Snapshot]): Parser = new ScalaParser
   }
@@ -397,7 +373,7 @@ class ScalaParser extends Parser {
 
     var root: Option[ScalaRootScope] = None
     try {
-      root = Some(global.askForPresentation(srcFile, th))
+      root = Some(global.askForSemantic(srcFile, th))
       //rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
       case ex: AssertionError =>
@@ -565,6 +541,8 @@ class ScalaParser extends Parser {
 }
 
 object ScalaParser {
+  val Log = Logger.getLogger(classOf[ScalaParser].getName)
+
   private var version: Long = _
   private val profile = Array(0.0f, 0.0f)
 
