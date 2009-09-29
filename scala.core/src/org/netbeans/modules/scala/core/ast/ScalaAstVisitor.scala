@@ -66,7 +66,7 @@ abstract class ScalaAstVisitor {
   val global: ScalaGlobal
   import global._
 
-  val EOL = System.getProperty("line.separator", "\n")
+  private val EOL = System.getProperty("line.separator", "\n")
 
   private val debug = false
   private val scopes = new Stack[AstScope]
@@ -110,7 +110,7 @@ abstract class ScalaAstVisitor {
   private object importingTraverser {
     private val visited = new HashSet[Context]
     
-    def visitContextTree(ct: ContextTree): Unit = {
+    private def visitContextTree(ct: ContextTree): Unit = {
       val c = ct.context
       if (visited.add(c)) {
         for (importInfo <- c.imports;
@@ -170,7 +170,7 @@ abstract class ScalaAstVisitor {
      * We'll find class/trait instead of object first.
      * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
      */
-    def importedSymbol(tree: Import, name: Name): Symbol = {
+    private def importedSymbol(tree: Import, name: Name): Symbol = {
       var result: List[Symbol] = Nil
       var renamed = false
       val qual = tree.symbol.tpe match {
@@ -205,12 +205,12 @@ abstract class ScalaAstVisitor {
 
   private object treeTraverser {
     private val visited = new HashSet[Tree]
-    private var qualiferMaybeType: Option[Type] = None
     private val treeToKnownType = new HashMap[Tree, Type]
+    private var qualiferMaybeType: Option[Type] = None
 
-    protected var currentOwner: Symbol = definitions.RootClass
+    private var currentOwner: Symbol = definitions.RootClass
     
-    def traverse(tree: Tree): Unit = {
+    private def traverse(tree: Tree): Unit = {
       if (!visited.add(tree)) return // has visited
 
       tree match {
@@ -576,25 +576,25 @@ abstract class ScalaAstVisitor {
           traverse(qualifier)
         case Parens(ts) =>
           traverseTrees(ts)
-        case tree : StubTree =>
+        case tree: StubTree =>
       }
     }
 
-    def traverseTrees(trees: List[Tree]) {
+    private def traverseTrees(trees: List[Tree]) {
       trees foreach traverse
     }
 
-    def traverseTreess(treess: List[List[Tree]]) {
+    private def traverseTreess(treess: List[List[Tree]]) {
       treess foreach traverseTrees
     }
 
-    def traverseStats(stats: List[Tree], exprOwner: Symbol) {
+    private def traverseStats(stats: List[Tree], exprOwner: Symbol) {
       stats foreach (stat =>
         if (exprOwner != currentOwner && stat.isTerm) atOwner(exprOwner)(traverse(stat))
         else traverse(stat))
     }
 
-    def traverseAnnots(sym: Symbol) {
+    private def traverseAnnots(sym: Symbol) {
       for (AnnotationInfo(atp, args, assocs) <- sym.annotations) {
         args foreach traverse
       }
@@ -613,7 +613,7 @@ abstract class ScalaAstVisitor {
       tree
     }
 
-    def atOwner(owner: Symbol)(traverse: => Unit) {
+    private def atOwner(owner: Symbol)(traverse: => Unit) {
       val prevOwner = currentOwner
       currentOwner = owner
       traverse
@@ -652,7 +652,7 @@ abstract class ScalaAstVisitor {
 
   // ---- Helper methods
   
-  protected def getOffset(tree: Tree): Int = {
+  private def getOffset(tree: Tree): Int = {
     tree.pos.startOrPoint
   }
 
@@ -661,7 +661,7 @@ abstract class ScalaAstVisitor {
    * following void productions, but nameString has stripped the void productions,
    * so we should adjust nameRange according to name and its length.
    */
-  protected def getIdToken(tree: Tree, knownName: String = "", forward: Int = -1, asym: Symbol = null): Option[Token[TokenId]] = {
+  private def getIdToken(tree: Tree, knownName: String = "", forward: Int = -1, asym: Symbol = null): Option[Token[TokenId]] = {
     val sym = if (asym != null) asym else tree.symbol
     if (sym == null) return None
 
@@ -690,9 +690,9 @@ abstract class ScalaAstVisitor {
     }
 
     var token = tree match {
-      case This(qual)  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
+      case This(qual) => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case Super(qual, mix) => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
-      case _ if name == "this"  => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
+      case _ if name == "this" => ScalaLexUtil.findNext(ts, ScalaTokenId.This)
       case _ if name == "super" => ScalaLexUtil.findNext(ts, ScalaTokenId.Super)
       case _ if name == "expected" => Some(ts.token)
       case ValDef(mods, namex, tpt, rhs) if sym hasFlag SYNTHETIC =>
@@ -789,11 +789,11 @@ abstract class ScalaAstVisitor {
     } else ""
   }
 
-  protected def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {
+  private def getBoundsTokens(offset: Int, endOffset: Int): Array[Token[TokenId]] = {
     Array(getBoundsToken(offset).getOrElse(null), getBoundsEndToken(endOffset).getOrElse(null))
   }
 
-  protected def getBoundsTokens(tree: Tree): Array[Token[TokenId]] = {
+  private def getBoundsTokens(tree: Tree): Array[Token[TokenId]] = {
     val pos = tree.pos
     val (offset, endOffset) = if (tree.pos.isDefined) {
       (pos.startOrPoint, pos.endOrPoint)
@@ -802,7 +802,7 @@ abstract class ScalaAstVisitor {
     getBoundsTokens(offset, endOffset)
   }
   
-  protected def getBoundsToken(offset: Int): Option[Token[TokenId]]  = {
+  private def getBoundsToken(offset: Int): Option[Token[TokenId]]  = {
     if (offset < 0) {
       return None
     }
@@ -825,7 +825,7 @@ abstract class ScalaAstVisitor {
     startToken
   }
 
-  protected def getBoundsEndToken(endOffset: Int): Option[Token[TokenId]] = {
+  private def getBoundsEndToken(endOffset: Int): Option[Token[TokenId]] = {
     if (endOffset == -1) {
       return None
     }
@@ -844,7 +844,7 @@ abstract class ScalaAstVisitor {
     endToken
   }
 
-  protected def info(message: String): Unit = {
+  private def info(message: String): Unit = {
     if (!debug) {
       return
     }
@@ -852,7 +852,7 @@ abstract class ScalaAstVisitor {
     println(message)
   }
 
-  protected def info(message: String, item: AstItem): Unit = {
+  private def info(message: String, item: AstItem): Unit = {
     if (!debug) {
       return
     }
@@ -861,7 +861,7 @@ abstract class ScalaAstVisitor {
     println(item)
   }
 
-  protected def debugPrintAstPath(tree: Tree): Unit = {
+  private def debugPrintAstPath(tree: Tree): Unit = {
     if (!debug) {
       return
     }
