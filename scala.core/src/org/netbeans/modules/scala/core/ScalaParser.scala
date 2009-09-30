@@ -77,7 +77,7 @@ class ScalaParser extends Parser {
 
   @throws(classOf[ParseException])
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
-    Log.info("Parsing " + snapshot.getSource.getFileObject.getNameExt)
+    Log.info("Parsing (late) " + snapshot.getSource.getFileObject.getNameExt)
     // * We'll lazyly doing true parsing in ScalaParserResult
     lastResult = new ScalaParserResult(snapshot, this)
     //val context = new Context(snapshot, event)

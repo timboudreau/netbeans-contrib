@@ -53,6 +53,7 @@ import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.ScalaSourceUtil
 import org.netbeans.modules.scala.core.ast.ScalaRootScope
 import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
+import scala.tools.nsc.symtab.Flags
 
 /**
  * Code completion handler for JavaScript
@@ -118,19 +119,19 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
       case _ => return CodeCompletionResult.NONE
     }
     
-    val pResult = context.getParserResult.asInstanceOf[ScalaParserResult]
+    val pr = context.getParserResult.asInstanceOf[ScalaParserResult]
     val lexOffset = context.getCaretOffset
     val prefix = context.getPrefix match {
       case null => ""
       case x => x
     }
 
-    val doc = pResult.getSnapshot.getSource.getDocument(true) match {
+    val doc = pr.getSnapshot.getSource.getDocument(true) match {
       case null => return CodeCompletionResult.NONE
       case x => x.asInstanceOf[BaseDocument]
     }
 
-    val astOffset = ScalaLexUtil.getAstOffset(pResult, lexOffset) match {
+    val astOffset = ScalaLexUtil.getAstOffset(pr, lexOffset) match {
       case -1 => return CodeCompletionResult.NONE
       case x => x
     }
@@ -141,20 +142,23 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     // * Read-lock due to Token hierarchy use
     //doc.readLock
     try {
-      val th = pResult.getSnapshot.getTokenHierarchy
+      val th = pr.getSnapshot.getTokenHierarchy
 
-      val completer = new ScalaCodeCompleter(pResult.global)
+      val global = pr.global
+      import global._
+
+      val completer = new ScalaCodeCompleter(global)
       completer.completionResult = completionResult
       completer.caseSensitive = context.isCaseSensitive
       completer.queryType = context.getQueryType
-      completer.pResult = pResult
+      completer.pResult = pr
       completer.lexOffset = lexOffset
       completer.astOffset = astOffset
       completer.doc = doc
       completer.prefix = prefix
       completer.kind = QuerySupport.Kind.PREFIX
       completer.th = th
-      completer.fileObject = pResult.getSnapshot.getSource.getFileObject
+      completer.fileObject = pr.getSnapshot.getSource.getFileObject
       completer.anchor = lexOffset - prefix.length
       //completer.index = ScalaIndex.get(info.getSnapshot().getSource().getFileObject());
 
@@ -194,11 +198,11 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
        return completionResult
        } */
 
-      val root = pResult.rootScope
+      val root = pr.rootScope
       if (root != ScalaRootScope.EMPTY) {
         var offset = astOffset
 
-        val sanitizedRange = pResult.sanitizedRange
+        val sanitizedRange = pr.sanitizedRange
         if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(offset)) {
           offset = sanitizedRange.getStart
         }
@@ -211,27 +215,36 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
         }
 
         completer.findCall(root, ts, th) match {
-          case completer.Call(Some(base), select, caretAfterDot) =>
-            val go = if (caretAfterDot) {
-              true 
-            } else !isAtNewLine
+          case completer.Call(null, _, _) =>
+          case completer.Call(base, select, caretAfterDot) =>
+            val items = root.findItemsAt(th, base.offset(th))
+            val baseItem = items find {_.resultType != null} getOrElse {
+              items find {x => x.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} getOrElse {
+                if (items.isEmpty) null else items.head
+              }
+            }
+            
+            if (baseItem != null) {
+              val go = if (caretAfterDot) {
+                true
+              } else !isAtNewLine
           
-            if (go) {
-              if (select.length > 0) completer.prefix = select
-              if (base.symbol != null) {
-                if (completer.completeSymbolMembers(base, proposals)) {
-                  // * it should be expecting call proposals, so just return right
-                  // * now to avoid keyword local vars proposals
+              if (go) {
+                if (select.length > 0) completer.prefix = select
+                if (baseItem.symbol != null) {
+                  if (completer.completeSymbolMembers(baseItem, proposals)) {
+                    // * it should be expecting call proposals, so just return right
+                    // * now to avoid keyword local vars proposals
+                    return completionResult
+                  }
+                }
+
+                if (caretAfterDot) {
+                  // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
                   return completionResult
                 }
               }
-
-              if (caretAfterDot) {
-                // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
-                return completionResult
-              }
             }
-          case _ =>
         }
 
         // ----- try to complete import

@@ -203,7 +203,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   //var index: ScalaIndex = _
 
 
-  case class Call(base: Option[AstItem], select: String, caretAfterDot: Boolean)
+  case class Call(base: Token[TokenId], select: String, caretAfterDot: Boolean)
 
   private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
                                            ScalaTokenId.This,
@@ -214,7 +214,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
   private def isCallId(id: TokenId) = CALL_IDs.contains(id)
 
-  def findCall(rootScope: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
+  def findCall(root: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
     var collector: List[Token[TokenId]] = Nil
     var break = false
     while (ts.movePrevious && !break) {
@@ -274,19 +274,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
         case _ => (null, false, null)
       }
 
-
-    val baseItem = if (base != null) {
-      val items = rootScope.findItemsAt(th, base.offset(th))
-      items.find{_.resultType != null} match {
-        case None => items.find{_.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} match {
-            case None => if (items.isEmpty) None else Some(items.head)
-            case x => x
-          }
-        case x => x
-      }
-    } else None
-
-    Call(baseItem, if (select != null) select.text.toString else "", afterDot)
+    Call(base, if (select != null) select.text.toString else "", afterDot)
   }
 
   private def startsWith(theString: String, prefix: String): Boolean = {

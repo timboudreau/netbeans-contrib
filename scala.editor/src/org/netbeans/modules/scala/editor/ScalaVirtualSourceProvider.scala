@@ -133,7 +133,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
       // * so, filter them here:
       val isUpToDate = timeStamps.checkAndStoreTimestamp(fo, FileUtil.getRelativePath(root, fo))
       if (!isUpToDate) {
-        Log.info("Translating " + file)
+        Log.info("Translating " + fo.getNameExt)
         translate(file, sourceRoot, result)
       }
     }
