@@ -29,7 +29,7 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   final val debugIDE = false
 
-  private val GlobalLog = Logger.getLogger(this.getClass.getName)
+  protected val GlobalLog = Logger.getLogger(this.getClass.getName)
 
   override def onlyPresentation = true
 
@@ -345,16 +345,23 @@ extends scala.tools.nsc.Global(settings, reporter)
   /** Return all members visible without prefix in context enclosing `pos`. */
   def scopeMembers(pos: Position): List[ScopeMember] = {
     typedTreeAt(pos) // to make sure context is entered
-    val context = doLocateContext(pos)
+    val context = try {
+      doLocateContext(pos)
+    } catch {case ex => ex.printStackTrace; NoContext}
+
     val locals = new LinkedHashMap[Name, ScopeMember]
     def addScopeMember(sym: Symbol, pre: Type, viaImport: Tree) =
-      if (!sym.name.decode.containsName(Dollar) &&  
+      if (!sym.name.decode.containsName(Dollar) &&
           !sym.hasFlag(Flags.SYNTHETIC) &&
           !locals.contains(sym.name)) {
         //println("adding scope member: "+pre+" "+sym)
+        val tpe = try {
+          pre.memberType(sym)
+        } catch {case ex => ex.printStackTrace; NoPrefix}
+
         locals(sym.name) = new ScopeMember(
-          sym, 
-          pre.memberType(sym), 
+          sym,
+          tpe,
           context.isAccessible(sym, pre, false),
           viaImport)
       }
@@ -362,9 +369,16 @@ extends scala.tools.nsc.Global(settings, reporter)
     while (cx != NoContext) {
       for (sym <- cx.scope)
         addScopeMember(sym, NoPrefix, EmptyTree)
+
+      cx = cx.enclMethod
+      if (cx != NoContext) {
+        for (sym <- cx.scope)
+          addScopeMember(sym, NoPrefix, EmptyTree)
+      }
+
       cx = cx.enclClass
       val pre = cx.prefix
-      for (sym <- pre.members) 
+      for (sym <- pre.members)
         addScopeMember(sym, pre, EmptyTree)
       cx = cx.outer
     }
@@ -386,8 +400,29 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   def typeMembers(pos: Position): List[TypeMember] = {
     val tree = typedTreeAt(pos)
-    println("typeMembers at "+tree+" "+tree.tpe)
-    val context = doLocateContext(pos)
+    GlobalLog.info("Get typeMembers at "+tree+" "+tree.tpe)
+
+    val tpe = tree.tpe match {
+      case x@(null | ErrorType | NoType) =>
+        selectTypeErrors find {
+          case (x@Select(qual, selector), tpex) => x == tree || qual == tree
+          case (x, tpex) =>
+            GlobalLog.warning("selectTypeErrors: tree=" + x + ", class=" + x.getClass.getSimpleName + " tpe=" + tpex)
+            false
+        } match {
+          case Some((_, tpex)) => tpex.resultType
+          case None =>
+            GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
+            return Nil
+        }
+      case x => x.resultType
+    }
+
+    val isPackage = tpe.typeSymbol hasFlag Flags.PACKAGE
+
+    val context = try {
+      doLocateContext(pos)
+    } catch {case ex => println(ex.getMessage); NoContext}
     val superAccess = tree.isInstanceOf[Super]
     val scope = newScope
     val members = new LinkedHashMap[Symbol, TypeMember]
@@ -402,7 +437,18 @@ extends scala.tools.nsc.Global(settings, reporter)
           inherited,
           viaView)
       }
-    }        
+    }
+
+    def addPackageMember(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
+      // * don't ask symtpe here via pre.memberType(sym) or sym.tpe, which may throw "no-symbol does not have owner" in doComplete
+      members(sym) = new TypeMember(
+        sym,
+        NoPrefix,
+        context.isAccessible(sym, pre, false),
+        inherited,
+        viaView)
+    }
+
     def viewApply(view: SearchResult): Tree = {
       assert(view.tree != EmptyTree)
       try {
@@ -411,21 +457,50 @@ extends scala.tools.nsc.Global(settings, reporter)
         case ex: TypeError => EmptyTree
       }
     }
-    val pre = stabilizedType(tree)
-    for (sym <- tree.tpe.decls)
-      addTypeMember(sym, pre, false, NoSymbol)
-    for (sym <- tree.tpe.members)
-      addTypeMember(sym, pre, true, NoSymbol)
-    val applicableViews: List[SearchResult] = 
-      new ImplicitSearch(tree, functionType(List(tree.tpe), AnyClass.tpe), true, context.makeImplicit(false))
-    .allImplicits
-    for (view <- applicableViews) {
-      val vtree = viewApply(view)
-      val vpre = stabilizedType(vtree)
-      for (sym <- vtree.tpe.members) {
-        addTypeMember(sym, vpre, false, view.tree.symbol)
+
+    // ----- begin adding members
+
+    if (isPackage) {
+      val pre = tpe
+      for (sym <- tpe.members if !sym.isError && sym.nameString.indexOf('$') == -1) {
+        addPackageMember(sym, pre, false, NoSymbol)
       }
+    } else {
+
+      val pre = try {
+        stabilizedType(tree) match {
+          case null => tpe
+          case x => x
+        }
+      } catch {case ex => println(ex.getMessage); tpe}
+
+      try {
+        for (sym <- tpe.decls) {
+          addTypeMember(sym, pre, false, NoSymbol)
+        }
+      } catch {case ex => ex.printStackTrace}
+
+      try {
+        for (sym <- tpe.members) {
+          addTypeMember(sym, pre, true, NoSymbol)
+        }
+      } catch {case ex => ex.printStackTrace}
+
+      try {
+        val applicableViews: List[SearchResult] =
+          new ImplicitSearch(tree, definitions.functionType(List(tpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+
+        for (view <- applicableViews) {
+          val vtree = viewApply(view)
+          val vpre = stabilizedType(vtree)
+          for (sym <- vtree.tpe.members) {
+            addTypeMember(sym, vpre, false, view.tree.symbol)
+          }
+        }
+      } catch {case ex => ex.printStackTrace}
+
     }
+
     members.valuesIterator.toList
   }
 

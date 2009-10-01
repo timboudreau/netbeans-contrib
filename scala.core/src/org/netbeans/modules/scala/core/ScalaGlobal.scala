@@ -58,7 +58,6 @@ import scala.collection.mutable.{ArrayBuffer, LinkedHashMap, WeakHashMap}
 import scala.tools.nsc.{Settings}
 
 import org.netbeans.modules.scala.core.interactive.Global
-//import scala.tools.nsc.interactive.Global
 import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
@@ -658,7 +657,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     val start = System.currentTimeMillis
     val root = scalaAstVisitor(unitOf(source), th)
-    Log.info("Visit took " + (System.currentTimeMillis - start) + "ms")
+    GlobalLog.info("Visit took " + (System.currentTimeMillis - start) + "ms")
     root
   }
   
@@ -811,14 +810,14 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     val restpe = resultTpe
     tree.tpe match {
       case null | ErrorType | NoType =>
-        Log.warning("==== Tree type is null or error, will replace resultTpe with " + resultTpe)
+        GlobalLog.warning("==== Tree type is null or error, will replace resultTpe with " + resultTpe)
       case x =>
     }
 
     val isPackage = restpe.typeSymbol hasFlag Flags.PACKAGE
 
-    Log.info("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe +
-             ", restpe=" + restpe + ", isPackage=" + isPackage + ", typeSymbol=" + restpe.typeSymbol)
+    GlobalLog.info("typeMembers at " + tree + ", tree class=" + tree.getClass.getSimpleName + ", tpe=" + tree.tpe +
+                   ", restpe=" + restpe + ", isPackage=" + isPackage + ", typeSymbol=" + restpe.typeSymbol)
 
     val context = try {
       doLocateContext(pos)
@@ -907,75 +906,6 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
     
     members.valuesIterator.toList
-  }
-
-  /** Return all members visible without prefix in context enclosing `pos`. */
-  override def scopeMembers(pos: Position): List[ScopeMember] = {
-    //typedTreeAt(pos) // to make sure context is entered
-    val context = try {
-      doLocateContext(pos)
-    } catch {case ex => ex.printStackTrace; NoContext}
-    
-    val locals = new LinkedHashMap[Name, ScopeMember]
-
-    def addScopeMember1(sym: Symbol, pre: Type, viaImport: Tree) =
-      if (!sym.name.decode.containsName(Dollar) &&
-          !sym.hasFlag(Flags.SYNTHETIC) &&
-          !locals.contains(sym.name)) {
-        //println("adding scope member: "+pre+" "+sym)
-        val tpe = try {
-          pre.memberType(sym)
-        } catch {case ex => ex.printStackTrace; NoPrefix}
-        
-        locals(sym.name) = new ScopeMember(
-          sym,
-          tpe,
-          context.isAccessible(sym, pre, false),
-          viaImport)
-      }
-
-    var cx = context
-    while (cx != NoContext) {
-      for (sym <- cx.scope)
-        addScopeMember1(sym, NoPrefix, EmptyTree)
-
-      cx = cx.enclMethod
-      if (cx != NoContext) {
-        for (sym <- cx.scope)
-          addScopeMember1(sym, NoPrefix, EmptyTree)
-      }
-
-      cx = cx.enclClass
-      val pre = cx.prefix
-      for (sym <- pre.members)
-        addScopeMember1(sym, pre, EmptyTree)
-      cx = cx.outer
-    }
-    for (imp <- context.imports) {
-      val pre = imp.qual.tpe
-      for (sym <- imp.allImportedSymbols) {
-        addScopeMember1(sym, pre, imp.qual)
-      }
-    }
-    val result = locals.valuesIterator.toList
-    if (debugIDE) for (m <- result) println(m)
-    result
-  }
-
-  /**
-   * In interactive.Global, the `newRunnerThread` always waits for `scheduler.waitForMoreWork()`
-   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, if
-   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it.
-   * @Ticket #2289
-   */
-  override def askShutdown() = {
-    scheduler.raise(new ShutdownReq)
-    scheduler postWorkItem {() => println("A action to awake scheduler to process shutdown except")}
-  }
-
-  override def askReset() = {
-    scheduler.raise(new FreshRunReq)
-    scheduler postWorkItem {() => println("A action to awake scheduler to process reset except")}
   }
 
 }

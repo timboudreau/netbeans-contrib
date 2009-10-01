@@ -130,12 +130,22 @@ trait CompilerControl { self: Global =>
   /** Cancel current compiler run and start a fresh one where everything will be re-typechecked
    *  (but not re-loaded).
    */
-  def askReset() = 
+  def askReset() = {
     scheduler.raise(new FreshRunReq)
+    scheduler postWorkItem {() => println("A action to awake scheduler to process reset except")}
+  }
 
-  /** Tell the compile server to shutdown, and do not restart again */
-  def askShutdown() = 
+  /**
+   * Tell the compile server to shutdown, and do not restart again
+   * In interactive.Global, the `newRunnerThread` always waits for `scheduler.waitForMoreWork()`
+   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, if
+   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it.
+   * @Ticket #2289
+   */
+  def askShutdown() = {
     scheduler.raise(new ShutdownReq)
+    scheduler postWorkItem {() => println("A action to awake scheduler to process shutdown except")}
+  }
 
   // ---------------- Interpreted exeptions -------------------
 

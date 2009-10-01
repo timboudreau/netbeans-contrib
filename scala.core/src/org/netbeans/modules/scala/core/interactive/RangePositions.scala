@@ -4,6 +4,7 @@ import scala.tools.nsc._
 import ast.Trees
 import symtab.Positions
 import scala.tools.nsc.util.{SourceFile, Position, RangePosition, OffsetPosition, NoPosition, WorkScheduler}
+import scala.collection.mutable.HashSet
 import scala.collection.mutable.ListBuffer
 
 /** Handling range positions
@@ -24,7 +25,7 @@ import scala.collection.mutable.ListBuffer
  *   Otherwise, the singleton consisting of the node itself.
  */
 trait RangePositions extends Trees with Positions { 
-self: scala.tools.nsc.Global =>
+  self: Global =>
 
   case class Range(pos: Position, tree: Tree) {
     def isFree = tree == EmptyTree
@@ -54,17 +55,17 @@ self: scala.tools.nsc.Global =>
     if (headpos.isDefined) wrappingPos(headpos, trees) else headpos
   }
 
-/*
-  override def integratePos(tree: Tree, pos: Position) = 
-    if (pos.isSynthetic && !tree.pos.isSynthetic) tree.syntheticDuplicate 
-    else tree
-*/
+  /*
+   override def integratePos(tree: Tree, pos: Position) =
+   if (pos.isSynthetic && !tree.pos.isSynthetic) tree.syntheticDuplicate
+   else tree
+   */
 
   // -------------- ensuring no overlaps -------------------------------
 
   def solidDescendants(tree: Tree): List[Tree] = 
     if (tree.pos.isTransparent) tree.children flatMap solidDescendants 
-    else List(tree)
+  else List(tree)
 
   /** A free range from `lo` to `hi` */
   private def free(lo: Int, hi: Int): Range = 
@@ -76,7 +77,7 @@ self: scala.tools.nsc.Global =>
   /** A singleton list of a non-empty range from `lo` to `hi`, or else the empty List */ 
   private def maybeFree(lo: Int, hi: Int) = 
     if (lo < hi) List(free(lo, hi)) 
-    else List()
+  else List()
 
   /** Insert `pos` into ranges `rs` if possible;
    *  otherwise add conflicting trees to `conflicting`.
@@ -99,7 +100,7 @@ self: scala.tools.nsc.Global =>
   /** Replace elem `t` of `ts` by `replacement` list. */
   private def replace(ts: List[Tree], t: Tree, replacement: List[Tree]): List[Tree] = 
     if (ts.head == t) replacement ::: ts.tail
-    else ts.head :: replace(ts.tail, t, replacement)
+  else ts.head :: replace(ts.tail, t, replacement)
 
   /** Ensure that given tree has no positions that overlap with
    *  any of the positions of `others`. This is done by
@@ -209,8 +210,8 @@ self: scala.tools.nsc.Global =>
         if (tree.pos.isRange) {
           if (!encltree.pos.isRange)
             error("Synthetic tree ["+encltree.id+"] contains nonsynthetic tree ["+tree.id+"]") {
-            reportTree("Enclosing", encltree)
-            reportTree("Enclosed", tree)
+              reportTree("Enclosing", encltree)
+              reportTree("Enclosed", tree)
             }
           if (!(encltree.pos includes tree.pos))
             error("Enclosing tree ["+encltree.id+"] does not include tree ["+tree.id+"]") {
@@ -221,14 +222,14 @@ self: scala.tools.nsc.Global =>
           findOverlapping(tree.children flatMap solidDescendants) match {
             case List() => ;
             case xs => {
-              error("Overlapping trees "+xs.map { case (x, y) => (x.id, y.id) }.mkString("", ", ", "")) {
-                reportTree("Ancestor", tree)
-                for((x, y) <- xs) {
-                  reportTree("First overlapping", x)
-                  reportTree("Second overlapping", y)
+                error("Overlapping trees "+xs.map { case (x, y) => (x.id, y.id) }.mkString("", ", ", "")) {
+                  reportTree("Ancestor", tree)
+                  for((x, y) <- xs) {
+                    reportTree("First overlapping", x)
+                    reportTree("Second overlapping", y)
+                  }
                 }
               }
-            }
           }
         }
         for (ct <- tree.children flatMap solidDescendants) validate(ct, tree)
@@ -251,13 +252,43 @@ self: scala.tools.nsc.Global =>
     def locateIn(root: Tree): Tree = {
       this.last = EmptyTree
       traverse(root)
-      this.last
+      this.last match {
+        case PackageDef(_, _) | EmptyTree => new ImportingLocator(unitOf(pos).asInstanceOf[RichCompilationUnit], pos) locate
+        case x => x
+      }
     }
     override def traverse(t: Tree) {
       if (t.pos includes pos) {
         if (!t.pos.isTransparent) last = t
         super.traverse(t)
       }
+    }
+  }
+
+  class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
+    private val visited = new HashSet[Context]
+    var last: Tree = _
+
+    def locate: Tree = {
+      visited.clear
+      last = EmptyTree
+      unit.contexts foreach visitContextTree
+      last
+    }
+
+    private def visitContextTree(ct: ContextTree): Unit = {
+      val c = ct.context
+      if (visited.add(c)) {
+        for (importInfo <- c.imports;
+             me@Import(qual, selectors) = importInfo.tree if me.pos.isDefined
+        ) {
+          if (me.pos includes pos) {
+            if (!me.pos.isTransparent) last = me
+          }
+        }
+      }
+
+      ct.children foreach visitContextTree
     }
   }
 }

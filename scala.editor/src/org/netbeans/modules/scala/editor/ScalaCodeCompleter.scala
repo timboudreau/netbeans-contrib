@@ -55,7 +55,6 @@ import org.netbeans.api.language.util.ast.{AstItem}
 import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.ScalaSourceUtil
 import org.netbeans.modules.scala.core.ScalaSymbolResolver
-import org.netbeans.modules.scala.core.ast.{ScalaRootScope}
 import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 import org.netbeans.modules.scala.core.ScalaGlobal
 import org.netbeans.modules.scala.core.ScalaParser.Sanitize
@@ -189,7 +188,6 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   var caseSensitive: Boolean = _
   var completionResult: DefaultCompletionResult = _
   var th: TokenHierarchy[_] = _
-  var root: ScalaRootScope = _
   var anchor: Int = _
   var lexOffset: Int = _
   var astOffset: Int = _
@@ -214,7 +212,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
   private def isCallId(id: TokenId) = CALL_IDs.contains(id)
 
-  def findCall(root: ScalaRootScope, ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
+  def findCall(ts: TokenSequence[TokenId], th: TokenHierarchy[_]): Call = {
     var collector: List[Token[TokenId]] = Nil
     var break = false
     while (ts.movePrevious && !break) {
@@ -643,6 +641,31 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
       case ble: BadLocationException => Exceptions.printStackTrace(ble); return false
     }
 
+    true
+  }
+
+  def completeSymbolMembers(baseToken: Token[TokenId], proposals: java.util.List[CompletionProposal]): Boolean = {
+    try {
+      val offset = baseToken.offset(th)
+      val pos = rangePos(pResult.srcFile, offset, offset, offset)
+      val resp = new Response[List[Member]]
+      askTypeCompletion(pos, resp)
+      resp.get match {
+        case Left(members) =>
+          for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members
+               if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
+          ) {
+            createSymbolProposal(sym) foreach {proposal =>
+              proposal.getElement.asInstanceOf[ScalaElement].isInherited = inherited
+              proposal.getElement.asInstanceOf[ScalaElement].isImplicit = (viaView != NoSymbol)
+              proposals.add(proposal)
+            }
+          }
+        case Right(ex) => {ScalaGlobal.resetLate(global, ex)}
+      }
+    } catch {case ex => ScalaGlobal.resetLate(global, ex)}
+
+    // always return true ?
     true
   }
 

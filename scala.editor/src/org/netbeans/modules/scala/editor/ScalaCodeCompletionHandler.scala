@@ -198,82 +198,127 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
        return completionResult
        } */
 
-      val root = pr.rootScope
-      if (root != ScalaRootScope.EMPTY) {
-        var offset = astOffset
+      var offset = astOffset
 
-        val sanitizedRange = pr.sanitizedRange
-        if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(offset)) {
-          offset = sanitizedRange.getStart
-        }
-
-        completer.root = root
-
-        ts.move(lexOffset)
-        if (!ts.moveNext && !ts.movePrevious) {
-          return completionResult
-        }
-
-        completer.findCall(root, ts, th) match {
-          case completer.Call(null, _, _) =>
-          case completer.Call(base, select, caretAfterDot) =>
-            val items = root.findItemsAt(th, base.offset(th))
-            val baseItem = items find {_.resultType != null} getOrElse {
-              items find {x => x.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} getOrElse {
-                if (items.isEmpty) null else items.head
-              }
-            }
-            
-            if (baseItem != null) {
-              val go = if (caretAfterDot) {
-                true
-              } else !isAtNewLine
-          
-              if (go) {
-                if (select.length > 0) completer.prefix = select
-                if (baseItem.symbol != null) {
-                  if (completer.completeSymbolMembers(baseItem, proposals)) {
-                    // * it should be expecting call proposals, so just return right
-                    // * now to avoid keyword local vars proposals
-                    return completionResult
-                  }
-                }
-
-                if (caretAfterDot) {
-                  // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
-                  return completionResult
-                }
-              }
-            }
-        }
-
-        // ----- try to complete import
-
-        (ScalaLexUtil.findImportPrefix(th, lexOffset) match {
-            case Nil => None
-            case List(selector, dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some((qual, selector.text.toString))
-            case List(dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some(qual, "")
-            case _ => None
-          }) match {
-          case None =>
-          case Some((qualToken, selector)) => root.findItemsAt(qualToken) match {
-              case Nil =>
-              case head :: xs =>
-                completer.completeImport(head, selector, proposals)
-                return completionResult
-            }
-        }
+      val sanitizedRange = pr.sanitizedRange
+      if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(offset)) {
+        offset = sanitizedRange.getStart
       }
 
-      if (root == ScalaRootScope.EMPTY) {
-        completer.completeKeywords(proposals)
+      ts.move(lexOffset)
+      if (!ts.moveNext && !ts.movePrevious) {
         return completionResult
       }
+      
+      // ----- try to complete import first
+
+      (ScalaLexUtil.findImportPrefix(th, lexOffset) match {
+          case Nil => None
+          case List(selector, dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some((qual, selector.text.toString))
+          case List(dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some(qual, "")
+          case _ => None
+        }) match {
+        case Some((qual, selector)) =>
+          completer.prefix = selector
+          completer.completeSymbolMembers(qual, proposals)
+          return completionResult
+        case None =>
+      }
+
+      // ----- try to complete call
+
+      completer.findCall(ts, th) match {
+        case completer.Call(null, _, _) =>
+        case completer.Call(base, select, caretAfterDot) =>
+          val go = if (caretAfterDot) {
+            true
+          } else !isAtNewLine
+
+          if (go) {
+            if (select.length > 0) completer.prefix = select
+            if (completer.completeSymbolMembers(base, proposals)) {
+              // * it should be expecting call proposals, so just return right
+              // * now to avoid keyword local vars proposals
+              return completionResult
+            }
+
+            if (caretAfterDot) {
+              // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
+              return completionResult
+            }
+          }
+      }
+
+      /* val root = pr.rootScope
+       if (root != ScalaRootScope.EMPTY) {
+       var offset = astOffset
+
+       val sanitizedRange = pr.sanitizedRange
+       if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(offset)) {
+       offset = sanitizedRange.getStart
+       }
+
+       completer.root = root
+
+       ts.move(lexOffset)
+       if (!ts.moveNext && !ts.movePrevious) {
+       return completionResult
+       }
+
+       completer.findCall(s, th) match {
+       case completer.Call(null, _, _) =>
+       case completer.Call(base, select, caretAfterDot) =>
+       val items = root.findItemsAt(th, base.offset(th))
+       val baseItem = items find {_.resultType != null} getOrElse {
+       items find {x => x.symbol.asInstanceOf[Symbol].hasFlag(Flags.METHOD)} getOrElse {
+       if (items.isEmpty) null else items.head
+       }
+       }
+
+       if (baseItem != null) {
+       val go = if (caretAfterDot) {
+       true
+       } else !isAtNewLine
+
+       if (go) {
+       if (select.length > 0) completer.prefix = select
+       if (baseItem.symbol != null) {
+       if (completer.completeSymbolMembers(baseItem, proposals)) {
+       // * it should be expecting call proposals, so just return right
+       // * now to avoid keyword local vars proposals
+       return completionResult
+       }
+       }
+
+       if (caretAfterDot) {
+       // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
+       return completionResult
+       }
+       }
+       }
+       }
+
+       // ----- try to complete import
+
+       (ScalaLexUtil.findImportPrefix(th, lexOffset) match {
+       case Nil => None
+       case List(selector, dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some((qual, selector.text.toString))
+       case List(dot, qual, _*) if dot.id == ScalaTokenId.Dot => Some(qual, "")
+       case _ => None
+       }) match {
+       case None =>
+       case Some((qualToken, selector)) => root.findItemsAt(qualToken) match {
+       case Nil =>
+       case head :: xs =>
+       completer.completeImport(head, selector, proposals)
+       return completionResult
+       }
+       }
+       } */
 
       if (completer.completeNew(proposals)) {
         return completionResult
       }
-
 
       completer.completeLocals(proposals)
       completer.completeKeywords(proposals)
