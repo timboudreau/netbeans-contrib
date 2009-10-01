@@ -73,8 +73,6 @@ trait AstDfn extends AstItem with AstElementHandle {
 
   override def getFileObject: FileObject = fo.getOrElse(null)
 
-  override def getKind: ElementKind = super[AstItem].getKind
-
   override def getModifiers: java.util.Set[Modifier] = {
     modifiers.getOrElse(java.util.Collections.emptySet[Modifier])
   }

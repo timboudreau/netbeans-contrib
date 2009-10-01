@@ -39,13 +39,28 @@
 
 package org.netbeans.modules.scala.core.ast
 
+import org.netbeans.modules.csl.api.ElementKind
 import org.netbeans.api.language.util.ast.AstItem
 import org.netbeans.modules.scala.core.ScalaGlobal
+import scala.tools.nsc.symtab.Flags
 
 trait ScalaItems {self: ScalaGlobal =>
   abstract class ScalaItem extends AstItem {
     type S = Symbol
     type T = Type
+
+    override def getKind: ElementKind = {
+      if (super.getKind != ElementKind.OTHER) return super.getKind
+
+      if (symbol hasFlag Flags.ACCESSOR)        return ElementKind.FIELD
+      if (symbol hasFlag Flags.METHOD)          return ElementKind.METHOD
+      if (symbol hasFlag Flags.MODULE)          return ElementKind.MODULE
+      if (symbol hasFlag Flags.PACKAGE)         return ElementKind.PACKAGE
+      if (symbol.isClass || symbol.isTrait)     return ElementKind.CLASS
+      if (symbol.isVariable || symbol.isValue)  return ElementKind.VARIABLE
+
+      return ElementKind.OTHER
+    }    
 
     var samePlaceSymbols = Set[Symbol]()
   }
