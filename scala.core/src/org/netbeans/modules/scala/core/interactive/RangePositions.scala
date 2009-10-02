@@ -252,11 +252,13 @@ trait RangePositions extends Trees with Positions {
     def locateIn(root: Tree): Tree = {
       this.last = EmptyTree
       traverse(root)
-      this.last match {
-        case PackageDef(_, _) | EmptyTree => new ImportingLocator(unitOf(pos).asInstanceOf[RichCompilationUnit], pos) locate
-        case x => x
+
+      new ImportingLocator(unitOf(pos).asInstanceOf[RichCompilationUnit], pos) locate match {
+        case EmptyTree => this.last
+        case importing => if (this.last.pos includes importing.pos) importing else this.last
       }
     }
+    
     override def traverse(t: Tree) {
       if (t.pos includes pos) {
         if (!t.pos.isTransparent) last = t
