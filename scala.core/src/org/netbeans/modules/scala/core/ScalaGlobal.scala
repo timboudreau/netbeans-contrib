@@ -617,12 +617,12 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     }
   }
 
-  def askForSemantic(srcFile: SourceFile, th: TokenHierarchy[_]): ScalaRootScope = {
+  def askForSemantic(srcFile: SourceFile, forceReload: Boolean, th: TokenHierarchy[_]): ScalaRootScope = {
     resetSelectTypeErrors
 
     val resp = new Response[ScalaRootScope]
     try {
-      askSemantic(srcFile, true, resp, th)
+      askSemantic(srcFile, forceReload, resp, th)
     } catch {
       case ex: AssertionError =>
         /**

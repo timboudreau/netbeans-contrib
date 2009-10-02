@@ -78,7 +78,7 @@ class ScalaParser extends Parser {
   @throws(classOf[ParseException])
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
     Log.info("Ready to parse " + snapshot.getSource.getFileObject.getNameExt)
-    // * We'll lazyly doing true parsing in ScalaParserResult
+    // * We'll lazily doing true parsing in ScalaParserResult
     lastResult = new ScalaParserResult(snapshot, this)
     //val context = new Context(snapshot, event)
     //lastResult = parseBuffer(context, Sanitize.NONE)
@@ -375,7 +375,7 @@ class ScalaParser extends Parser {
 
     var root: Option[ScalaRootScope] = None
     try {
-      root = Some(global.askForSemantic(srcFile, th))
+      root = Some(global.askForSemantic(srcFile, true, th))
       //rootScope = Some(global.compileSourceForPresentation(srcFile, th))
     } catch {
       case ex: AssertionError =>

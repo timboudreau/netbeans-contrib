@@ -99,6 +99,9 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
     } else errors
   }
 
+  /** Is source file loaded? (loaded in scala's Global means passed first phase: parse) */
+  var loaded = false
+
   lazy val srcFile: SourceFile = {
     val fo = snapshot.getSource.getFileObject
     val file: File = if (fo != null) FileUtil.toFile(fo) else null
@@ -115,7 +118,9 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
     val doc = snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
 
     global.reporter = new ErrorReporter(doc)
-    global.askForSemantic(srcFile, th)
+    val root = global.askForSemantic(srcFile, !loaded, th)
+    loaded = true
+    root
   }
 
   lazy val rootScopeForDebug: ScalaRootScope = {

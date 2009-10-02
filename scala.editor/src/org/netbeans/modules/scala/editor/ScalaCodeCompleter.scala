@@ -648,6 +648,14 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     try {
       val offset = baseToken.offset(th)
       val pos = rangePos(pResult.srcFile, offset, offset, offset)
+
+      // * it seems CompleteHandle will always be called before other csl features (semantic, structure etc)
+      // * that's good. But then, we need to reload source first:
+      if (!pResult.loaded) {
+        reloadSources(List(pos.source))
+        pResult.loaded = true
+      }
+
       val resp = new Response[List[Member]]
       askTypeCompletion(pos, resp)
       resp.get match {

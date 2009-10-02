@@ -69,7 +69,7 @@ abstract class ScalaSymbolResolver {
     val srcFile = new BatchSourceFile(new VirtualFile("<NetBeansErrorRecover.scala>", ""), sb)
     val th = TokenHierarchy.create(sb.toString, ScalaTokenId.language)
     global.reporter = dummyReport
-    val rootScope = global.askForSemantic(srcFile, th)
+    val rootScope = global.askForSemantic(srcFile, true, th)
     
     val lastDot = fqn.lastIndexOf('.')
     val lastPart = if (lastDot == -1) fqn else fqn.substring(lastDot + 1, fqn.length)
