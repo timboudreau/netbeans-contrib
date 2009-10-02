@@ -106,7 +106,7 @@ object ScalaGlobal {
 
   private var globalForStdLib: Option[ScalaGlobal] = None
   
-  private val projectToCaches = new WeakHashMap[Project, Cache]
+  private val projectToCache = new WeakHashMap[Project, Cache]
   private var globalToListeners = Map[ScalaGlobal, List[FileChangeListener]]()
   private var toResetGlobals = Set[ScalaGlobal]()
 
@@ -127,13 +127,13 @@ object ScalaGlobal {
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
-      projectToCaches find {case (p, r) =>
+      projectToCache find {case (p, c) =>
           var found = false
           var i = 0
-          val size = r.globals.size
-          while (i < size && !found) {
-            if (r.globals(i) == global) {
-              r.globals(i) = null
+          val len = c.globals.length
+          while (i < len && !found) {
+            if (c.globals(i) == global) {
+              c.globals(i) = null
               globalToListeners.get(global) foreach {xs =>
                 xs foreach {x =>
                   p.getProjectDirectory.getFileSystem.removeFileChangeListener(x)
@@ -183,9 +183,9 @@ object ScalaGlobal {
       return None
     }
 
-    val cache = projectToCaches.get(project) getOrElse {
+    val cache = projectToCache.get(project) getOrElse {
       val cachex = findDirResources(project)
-      projectToCaches.put(project, cachex)
+      projectToCache.put(project, cachex)
       cachex
     }
 
@@ -221,9 +221,9 @@ object ScalaGlobal {
       }
     }
 
-    val cache = projectToCaches.get(project) getOrElse {
+    val cache = projectToCache.get(project) getOrElse {
       val cachex = findDirResources(project)
-      projectToCaches.put(project, cachex)
+      projectToCache += (project -> cachex)
       cachex
     }
 
@@ -494,7 +494,7 @@ object ScalaGlobal {
     val srcRoots = srcCp.getRoots
 
     private def isUnderSrcDir(fo: FileObject) = {
-      srcRoots find {x => FileUtil.isParentOf(x, fo)} isDefined
+      srcRoots exists {x => FileUtil.isParentOf(x, fo)}
     }
 
     override def fileDataCreated(fe: FileEvent): Unit = {
@@ -890,9 +890,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
       try {
         val applicableViews: List[SearchResult] =
-          //if (context != NoContext) {
         new ImplicitSearch(tree, definitions.functionType(List(restpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
-        //} else Nil
 
         for (view <- applicableViews) {
           val vtree = viewApply1(view)
