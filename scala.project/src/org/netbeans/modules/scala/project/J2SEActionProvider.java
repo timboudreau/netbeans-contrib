@@ -756,7 +756,8 @@ class J2SEActionProvider implements ActionProvider {
                             return;
                         }
 
-                        scala.collection.Sequence<AstDfn> tmpls = rootScope.visibleDfns(ElementKind.CLASS);
+                        rootScope.visibleDfns(ElementKind.CLASS);
+                        scala.collection.Seq<AstDfn> tmpls = rootScope.visibleDfns(ElementKind.CLASS);
                         if (!tmpls.isEmpty()) {
                             scala.collection.Iterator itr = tmpls.iterator();
                             while (itr.hasNext()) {

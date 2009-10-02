@@ -237,7 +237,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
                                 return;
                             }
 
-                            scala.collection.Sequence<AstDfn> objs = null;
+                            scala.collection.Seq<AstDfn> objs = null;
                             scala.collection.Iterator<AstDfn> itr = rootScope.visibleDfns(ElementKind.PACKAGE).iterator();
                             while (itr.hasNext()) {
                                 AstDfn packaging = itr.next();

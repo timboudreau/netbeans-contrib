@@ -618,7 +618,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   }
 
   def askForSemantic(srcFile: SourceFile, forceReload: Boolean, th: TokenHierarchy[_]): ScalaRootScope = {
-    resetSelectTypeErrors
+    qualToRecoveredType = Map()
 
     val resp = new Response[ScalaRootScope]
     try {
@@ -693,7 +693,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   def compileSource(srcFile: SourceFile, stopPhaseName: String, th: TokenHierarchy[_]): ScalaRootScope = synchronized {
     settings.stop.value = Nil
     settings.stop.tryToSetColon(List(stopPhaseName))
-    resetSelectTypeErrors
+    qualToRecoveredType = Map()
 
     val run = new this.Run
 

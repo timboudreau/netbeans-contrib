@@ -339,6 +339,12 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     val root = pResult.rootScope
 
     val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
+
+    if (!pResult.loaded) {
+      reloadSources(List(pos.source))
+      pResult.loaded = true
+    }
+    
     val resp = new Response[List[Member]]
     try {
       global.askScopeCompletion(pos, resp)
