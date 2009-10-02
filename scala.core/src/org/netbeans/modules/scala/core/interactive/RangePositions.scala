@@ -3,7 +3,7 @@ import scala.tools.nsc._
 
 import ast.Trees
 import symtab.Positions
-import scala.tools.nsc.util.{SourceFile, Position, RangePosition, OffsetPosition, NoPosition, WorkScheduler}
+import scala.tools.nsc.util.{SourceFile, Position, RangePosition, OffsetPosition, NoPosition}
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.ListBuffer
 
