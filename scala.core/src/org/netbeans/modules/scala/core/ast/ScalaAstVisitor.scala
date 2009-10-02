@@ -211,12 +211,10 @@ abstract class ScalaAstVisitor {
   private final object treeTraverser {
     private val visited = new HashSet[Tree]
     private val treeToKnownType = new HashMap[Tree, Type]
-    private var qualiferMaybeType: Option[Type] = None
 
     def apply[T <: Tree](tree: T): T = {
       visited.clear
       treeToKnownType.clear
-      qualiferMaybeType = None
 
       traverse(tree)
 
@@ -461,21 +459,14 @@ abstract class ScalaAstVisitor {
              * @Note: this symbol may has wrong tpe, for example, an error tree,
              * to get the proper resultType, we'll check if the qualierMaybeType isDefined
              */
-            if (qualiferMaybeType.isDefined) {
-              ref.resultType = qualiferMaybeType.get
+            qualToRecoveredType.get(tree) foreach {x =>
+              ref.resultType = x
             }
 
             if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
           }
 
-          //* is this tree marked as select type error? if so, the qualifier may be below type
-          //* @Note: since `selectTypeErrors` are gathered upon `Select` tree, this detecting should happen here only
-          qualiferMaybeType = global.qualToRecoveredType.get(tree)
-
           traverse(qualifier)
-
-          // * reset qualiferMaybeType
-          qualiferMaybeType = None
 
         case Ident(name) =>
           val sym = tree.symbol
@@ -493,10 +484,10 @@ abstract class ScalaAstVisitor {
              * @Note: this symbol may has wrong tpe, for example, an error tree,
              * to get the proper resultType, we'll check if the qualierMaybeType isDefined
              */
-            if (qualiferMaybeType.isDefined) {
-              ref.resultType = qualiferMaybeType.get
+            qualToRecoveredType.get(tree) foreach {x =>
+              ref.resultType = x
             }
-
+            
             // * set ref.resultType before addRef to scope, otherwise, it may not be added if there is same symbol had been added
             if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
           }
