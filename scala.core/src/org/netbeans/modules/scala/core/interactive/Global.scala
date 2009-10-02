@@ -404,17 +404,10 @@ extends scala.tools.nsc.Global(settings, reporter)
 
     val tpe = tree.tpe match {
       case x@(null | ErrorType | NoType) =>
-        selectTypeErrors find {
-          case (x@Select(qual, selector), tpex) => x == tree || qual == tree
-          case (x, tpex) =>
-            GlobalLog.warning("selectTypeErrors: tree=" + x + ", class=" + x.getClass.getSimpleName + " tpe=" + tpex)
-            false
-        } match {
-          case Some((_, tpex)) => tpex.resultType
-          case None =>
-            GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
-            return Nil
-        }
+        qualToRecoveredType.get(tree) getOrElse {
+          GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
+          return Nil
+        } resultType
       case x => x.resultType
     }
 
@@ -542,10 +535,10 @@ extends scala.tools.nsc.Global(settings, reporter)
     // * added by Caoyuan
     // phaseName = "lambdalift"
     /* object lambdaLiftInteractive extends {
-      val global: Global.this.type = Global.this
-      val runsAfter = List[String]("lazyvals")
-      val runsRightAfter = None
-    } with LambdaLift */
+     val global: Global.this.type = Global.this
+     val runsAfter = List[String]("lazyvals")
+     val runsRightAfter = None
+     } with LambdaLift */
 
     def lambdaLiftedTree(unit: RichCompilationUnit): Tree = {
       assert(unit.status >= JustParsed)

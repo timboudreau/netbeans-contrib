@@ -470,7 +470,7 @@ abstract class ScalaAstVisitor {
 
           //* is this tree marked as select type error? if so, the qualifier may be below type
           //* @Note: since `selectTypeErrors` are gathered upon `Select` tree, this detecting should happen here only
-          qualiferMaybeType = global.selectTypeErrors.get(tree)
+          qualiferMaybeType = global.qualToRecoveredType.get(tree)
 
           traverse(qualifier)
 
