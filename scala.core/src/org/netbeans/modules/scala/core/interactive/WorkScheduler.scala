@@ -46,9 +46,15 @@ class WorkScheduler {
 
   /** Called from client:
    *  Require an exception to be thrown on next poll.
+   *
+   * @Note: In interactive.Global, the `newRunnerThread` always waits for `scheduler.waitForMoreWork()`
+   * before `pollForWork()`, which may cause raised `except`s never have chance to be polled, if
+   * there is no more `WorkItem` in `todo` queue, so I have to post another Action to awake it.
+   * @Ticket #2289
    */
   def raise(exc: Exception) = synchronized {
     except = Some(exc)
+    postWorkItem {() => println("A action to awake scheduler to process "  + exc.getClass.getSimpleName + " except")}
   }
 }
 
