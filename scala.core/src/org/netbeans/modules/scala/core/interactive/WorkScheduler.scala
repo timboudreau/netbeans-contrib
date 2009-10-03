@@ -1,8 +1,11 @@
 package org.netbeans.modules.scala.core.interactive
 
+import java.util.logging.Logger
 import scala.collection.mutable.Queue
 
 class WorkScheduler {
+
+  val Log = Logger.getLogger(classOf[WorkScheduler].getName)
 
   type Action = () => Unit
 
@@ -54,7 +57,7 @@ class WorkScheduler {
    */
   def raise(exc: Exception) = synchronized {
     except = Some(exc)
-    postWorkItem {() => println("A action to awake scheduler to process "  + exc.getClass.getSimpleName + " except")}
+    postWorkItem {() => Log.info("An empty action to awake scheduler to process "  + exc.getClass.getSimpleName + " except was fired")}
   }
 }
 
