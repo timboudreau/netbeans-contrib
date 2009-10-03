@@ -1,4 +1,0 @@
-
-<antlib>
-    <taskdef name="nb-fsc" classname="org.netbeans.libs.scala.ant.NetBeansFastScalac"/>
-</antlib>
