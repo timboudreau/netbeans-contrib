@@ -134,7 +134,6 @@ extends scala.tools.nsc.Global(settings, reporter)
           if (debugIDE) println("done with work item: "+action)
         } catch {
           case ex: CancelActionReq =>
-            GlobalLog.info("Cancelled work item: " + action)
             if (debugIDE) println("cancelled work item: "+action)
         } finally {
           if (debugIDE) println("quitting work item: "+action)

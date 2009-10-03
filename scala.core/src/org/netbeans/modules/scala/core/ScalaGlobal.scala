@@ -586,7 +586,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
                                                              with JavaElements
                                                              with ScalaUtils {
   import ScalaGlobal._
-  
+
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
   // * but, is it thread safe? http://lampsvn.epfl.ch/trac/scala/ticket/1591
   private object scalaAstVisitor extends {
@@ -648,12 +648,19 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     respond(result)(semanticRoot(source, forceReload, th))
   }
 
+  private var semanticCancelled = false
   def semanticRoot(source: SourceFile, forceReload: Boolean, th: TokenHierarchy[_]): ScalaRootScope = {
+    semanticCancelled = false
     val unit = unitOf(source)
     val sources = List(source)
     if (unit.status == NotLoaded || forceReload) reloadSources(sources)
     moveToFront(sources)
+
+    if (semanticCancelled) return ScalaRootScope.EMPTY
+
     currentTyperRun.typedTree(unitOf(source))
+
+    if (semanticCancelled) return ScalaRootScope.EMPTY
 
     val start = System.currentTimeMillis
     val root = scalaAstVisitor(unitOf(source), th)
@@ -661,14 +668,15 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     root
   }
 
-  def askCancelSemantic(source: SourceFile) {
+  def cancelSemantic(source: SourceFile) {
     currentAction match {
       case workItem: WorkItem if workItem.toString.startsWith("semantic") =>
         val fileA = workItem.sources.head.file.file
         val fileB = source.file.file
         if (fileA != null && fileB != null && fileA.getAbsolutePath == fileB.getAbsolutePath) {
-          GlobalLog.info("AskCancelSemantic " + fileA.getName)
-          askCancel
+          GlobalLog.info("CancelSemantic " + fileA.getName)
+          semanticCancelled = true
+          scalaAstVisitor.cancel
         }
       case _ =>
     }

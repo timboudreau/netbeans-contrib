@@ -630,7 +630,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
     val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
 
-    global.askCancelSemantic(pos.source)
+    global.cancelSemantic(pos.source)
     if (!pResult.loaded) {
       val resp = new Response[Unit]
       askReload(List(pos.source), resp)
@@ -661,7 +661,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
       // * it seems CompleteHandle will always be called before other csl features (semantic, structure etc)
       // * that's good. But then, we need to reload source first:
-      global.askCancelSemantic(pos.source)
+      global.cancelSemantic(pos.source)
       if (!pResult.loaded) {
         val resp = new Response[Unit]
         askReload(List(pos.source), resp)

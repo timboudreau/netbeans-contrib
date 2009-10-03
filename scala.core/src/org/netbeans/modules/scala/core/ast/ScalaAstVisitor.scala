@@ -78,7 +78,12 @@ abstract class ScalaAstVisitor {
   private var srcFile: SourceFile = _
   private var docLength: Int = _
 
+  private var cancelled = false
+
+  def cancel {cancelled = true}
+
   def apply(unit: CompilationUnit, th: TokenHierarchy[_]): ScalaRootScope = {
+    this.cancelled = false
     this.th = th
     this.srcFile = unit.source
     this.docLength = srcFile.content.length
@@ -92,7 +97,7 @@ abstract class ScalaAstVisitor {
       } else None
     } else None
 
-    //println(global.selectTypeErrors)
+    //println(global.qualToRecoveredType)
 
     scopes.clear
     rootScope = ScalaRootScope(Some(unit), getBoundsTokens(0, docLength))
@@ -120,9 +125,11 @@ abstract class ScalaAstVisitor {
     }
 
     private def visitContextTree(ct: ContextTree): Unit = {
+      if (cancelled) return
+      
       val c = ct.context
       if (visited.add(c)) {
-        for (importInfo <- c.imports;
+        for (importInfo <- c.imports if !cancelled;
              me@Import(qual, selectors) = importInfo.tree if me.pos.isDefined
         ) {
           val qualSym = qual.symbol
@@ -226,6 +233,7 @@ abstract class ScalaAstVisitor {
     }
 
     private def traverse(tree: Tree): Unit = {
+      if (cancelled) return
       if (!visited.add(tree)) return // has visited
 
       tree match {
