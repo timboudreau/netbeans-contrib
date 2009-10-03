@@ -49,6 +49,7 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   /** Is a background compiler run needed? */
   private var outOfDate = false
+  var currentAction: () => Unit = _
 
   /** Units compiled by a run with id >= minRunId are considered up-to-date  */
   private[interactive] var minRunId = 1
@@ -127,15 +128,18 @@ extends scala.tools.nsc.Global(settings, reporter)
       case Some(action) =>
         try {
           acting = true
+          currentAction = action
           if (debugIDE) println("picked up work item: "+action)
           action()
           if (debugIDE) println("done with work item: "+action)
         } catch {
           case ex: CancelActionReq =>
+            GlobalLog.info("Cancelled work item: " + action)
             if (debugIDE) println("cancelled work item: "+action)
         } finally {
           if (debugIDE) println("quitting work item: "+action)
           acting = false
+          currentAction = null
         }
       case None =>
     }
@@ -404,10 +408,12 @@ extends scala.tools.nsc.Global(settings, reporter)
 
     val tpe = tree.tpe match {
       case x@(null | ErrorType | NoType) =>
-        qualToRecoveredType.get(tree) getOrElse {
-          GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
-          return Nil
-        } resultType
+        qualToRecoveredType find {case (qualx, _) => qualx.pos eq tree.pos} match {
+          case Some((_, tpex)) => tpex.resultType
+          case None =>
+            GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
+            return Nil
+        }
       case x => x.resultType
     }
 

@@ -190,9 +190,9 @@ object ScalaGlobal {
     }
 
     // * is this `fo` under test source?
-    val forTest = cache.testToOut find {case (src, _) =>
+    val forTest = cache.testToOut exists {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
-    } isDefined
+    }
 
     var outPath: FileObject = null
     var srcPaths: List[FileObject] = Nil
@@ -639,7 +639,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   }
 
   def askSemantic(source: SourceFile, forceReload: Boolean, result: Response[ScalaRootScope], th: TokenHierarchy[_]) =
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(source)) {
       def apply() = getSemanticRoot(source, forceReload, result, th)
       override def toString = "semantic"
     }
@@ -660,7 +660,20 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     GlobalLog.info("Visit took " + (System.currentTimeMillis - start) + "ms")
     root
   }
-  
+
+  def askCancelSemantic(source: SourceFile) {
+    currentAction match {
+      case workItem: WorkItem if workItem.toString.startsWith("semantic") =>
+        val fileA = workItem.sources.head.file.file
+        val fileB = source.file.file
+        if (fileA != null && fileB != null && fileA.getAbsolutePath == fileB.getAbsolutePath) {
+          GlobalLog.info("AskCancelSemantic " + fileA.getName)
+          askCancel
+        }
+      case _ =>
+    }
+  }
+
   /** batch complie */
   def compileSourcesForPresentation(srcFiles: List[FileObject]): Unit = {
     settings.stop.value = Nil
@@ -731,7 +744,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   // ----- @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
 
   def askLambdaLift(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(source)) {
       def apply() = getLambdaLiftedTree(source, forceReload, result)
       override def toString = "lambdaLift"
     }
@@ -759,7 +772,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
   import analyzer.{SearchResult, ImplicitSearch}
 
   def askTypeCompletion(pos: Position, alternatePos: Position, resultTpe: Type, result: Response[List[Member]]) =
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(pos.source)) {
       def apply() = getTypeCompletion(pos, alternatePos, resultTpe, result)
       override def toString = "type completion "+pos.source+" "+pos.show
     }
@@ -890,7 +903,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
       try {
         val applicableViews: List[SearchResult] =
-        new ImplicitSearch(tree, definitions.functionType(List(restpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+          new ImplicitSearch(tree, definitions.functionType(List(restpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
 
         for (view <- applicableViews) {
           val vtree = viewApply1(view)

@@ -335,31 +335,6 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     true
   }
 
-  def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
-    val root = pResult.rootScope
-
-    val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
-
-    if (!pResult.loaded) {
-      reloadSources(List(pos.source))
-      pResult.loaded = true
-    }
-    
-    val resp = new Response[List[Member]]
-    try {
-      global.askScopeCompletion(pos, resp)
-      resp.get match {
-        case Left(members) =>
-          for (ScopeMember(sym, tpe, accessible, viaImport) <- members
-               if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
-          ) {
-            createSymbolProposal(sym) foreach {proposals add _}
-          }
-        case Right(thr) => ScalaGlobal.resetLate(global, thr)
-      }
-    } catch {case ex => ScalaGlobal.resetLate(global, ex)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
-  }
-
   /**
    * Determine if we're trying to complete the name for a "new" (in which case
    * we show available constructors.
@@ -650,6 +625,35 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     true
   }
 
+  def completeLocals(proposals: java.util.List[CompletionProposal]): Unit = {
+    val root = pResult.rootScope
+
+    val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
+
+    global.askCancelSemantic(pos.source)
+    if (!pResult.loaded) {
+      val resp = new Response[Unit]
+      askReload(List(pos.source), resp)
+      resp.get
+      //global.reloadSources(List(pos.source))
+      pResult.loaded = true
+    }
+
+    val resp = new Response[List[Member]]
+    try {
+      global.askScopeCompletion(pos, resp)
+      resp.get match {
+        case Left(members) =>
+          for (ScopeMember(sym, tpe, accessible, viaImport) <- members
+               if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
+          ) {
+            createSymbolProposal(sym) foreach {proposals add _}
+          }
+        case Right(thr) => ScalaGlobal.resetLate(global, thr)
+      }
+    } catch {case ex => ScalaGlobal.resetLate(global, ex)} // there is: scala.tools.nsc.FatalError: no context found for scala.tools.nsc.util.OffsetPosition@e302cef1
+  }
+
   def completeSymbolMembers(baseToken: Token[TokenId], proposals: java.util.List[CompletionProposal]): Boolean = {
     try {
       val offset = baseToken.offset(th)
@@ -657,13 +661,17 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
       // * it seems CompleteHandle will always be called before other csl features (semantic, structure etc)
       // * that's good. But then, we need to reload source first:
+      global.askCancelSemantic(pos.source)
       if (!pResult.loaded) {
-        reloadSources(List(pos.source))
+        val resp = new Response[Unit]
+        askReload(List(pos.source), resp)
+        resp.get
+        //global.reloadSources(List(pos.source))
         pResult.loaded = true
       }
 
       val resp = new Response[List[Member]]
-      askTypeCompletion(pos, resp)
+      global.askTypeCompletion(pos, resp)
       resp.get match {
         case Left(members) =>
           for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members

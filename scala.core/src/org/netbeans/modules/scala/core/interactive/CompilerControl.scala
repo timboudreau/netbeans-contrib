@@ -20,7 +20,7 @@ trait CompilerControl { self: Global =>
    */ 
   type Response[T] = SyncVar[Either[T, Throwable]]
 
-  abstract class WorkItem extends (() => Unit)
+  abstract class WorkItem(val sources: List[SourceFile]) extends (() => Unit)
 
   /** Info given for every member found by completion
    */
@@ -77,7 +77,7 @@ trait CompilerControl { self: Global =>
    *  Return () to syncvar `result` on completion.
    */
   def askReload(sources: List[SourceFile], result: Response[Unit]) = 
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(sources) {
       def apply() = reload(sources, result)
       override def toString = "reload "+sources
     }
@@ -85,13 +85,13 @@ trait CompilerControl { self: Global =>
   /** Set sync var `result` to a fully attributed tree located at position `pos`
    */
   def askTypeAt(pos: Position, result: Response[Tree]) = 
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(pos.source)) {
       def apply() = self.getTypedTreeAt(pos, result)
       override def toString = "typeat "+pos.source+" "+pos.show
     }
 
   def askType(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(source)) {
       def apply() = self.getTypedTree(source, forceReload, result)
       override def toString = "typecheck"
   }
@@ -101,7 +101,7 @@ trait CompilerControl { self: Global =>
    *   - if `selection` is false, as identifiers in the scope enclosing `pos`
    */
   def askTypeCompletion(pos: Position, result: Response[List[Member]]) = 
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(pos.source)) {
       def apply() = self.getTypeCompletion(pos, result)
       override def toString = "type completion "+pos.source+" "+pos.show
     }
@@ -110,14 +110,14 @@ trait CompilerControl { self: Global =>
    *  as members of the scope enclosing `pos`.
    */
   def askScopeCompletion(pos: Position, result: Response[List[Member]]) = 
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(pos.source)) {
       def apply() = self.getScopeCompletion(pos, result)
       override def toString = "scope completion "+pos.source+" "+pos.show
     }
 
   /** Ask to do unit first on present and subsequent type checking passes */
   def askToDoFirst(f: SourceFile) = {
-    scheduler postWorkItem new WorkItem {
+    scheduler postWorkItem new WorkItem(List(f)) {
       def apply() = moveToFront(List(f))
       override def toString = "dofirst "+f
     }
