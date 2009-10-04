@@ -118,7 +118,8 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
     val doc = snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
 
     global.reporter = new ErrorReporter(doc)
-    val root = global.askForSemantic(srcFile, !loaded, th)
+    // @Note it's safe to force reload here:
+    val root = global.askForSemantic(srcFile, true, th)
     loaded = true
     root
   }

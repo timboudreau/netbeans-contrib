@@ -102,7 +102,11 @@ class ScalaParser extends Parser {
     lastResult
   }
 
-  override def cancel {}
+  override def cancel {
+    /* if (lastResult != null && !lastResult.loaded) {
+      lastResult.global.cancelSemantic(lastResult.srcFile)
+    } */
+  }
 
   override def addChangeListener(changeListener: ChangeListener): Unit = {
     // no-op, we don't support state changes
