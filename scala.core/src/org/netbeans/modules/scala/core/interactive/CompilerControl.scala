@@ -84,9 +84,9 @@ trait CompilerControl { self: Global =>
 
   /** Set sync var `result` to a fully attributed tree located at position `pos`
    */
-  def askTypeAt(pos: Position, result: Response[Tree]) = 
+  def askTypeAt(pos: Position, forceReload: Boolean, result: Response[Tree]) =
     scheduler postWorkItem new WorkItem(List(pos.source)) {
-      def apply() = self.getTypedTreeAt(pos, result)
+      def apply() = self.getTypedTreeAt(pos, forceReload, result)
       override def toString = "typeat "+pos.source+" "+pos.show
     }
 
@@ -100,18 +100,18 @@ trait CompilerControl { self: Global =>
    *  as members of the tree enclosing `pos`, possibly reachable by an implicit.
    *   - if `selection` is false, as identifiers in the scope enclosing `pos`
    */
-  def askTypeCompletion(pos: Position, result: Response[List[Member]]) = 
+  def askTypeCompletion(pos: Position, forceReload: Boolean, result: Response[List[Member]]) =
     scheduler postWorkItem new WorkItem(List(pos.source)) {
-      def apply() = self.getTypeCompletion(pos, result)
+      def apply() = self.getTypeCompletion(pos, forceReload, result)
       override def toString = "type completion "+pos.source+" "+pos.show
     }
 
   /** Set sync var `result' to list of members that are visible
    *  as members of the scope enclosing `pos`.
    */
-  def askScopeCompletion(pos: Position, result: Response[List[Member]]) = 
+  def askScopeCompletion(pos: Position, forceReload: Boolean, result: Response[List[Member]]) =
     scheduler postWorkItem new WorkItem(List(pos.source)) {
-      def apply() = self.getScopeCompletion(pos, result)
+      def apply() = self.getScopeCompletion(pos, forceReload, result)
       override def toString = "scope completion "+pos.source+" "+pos.show
     }
 

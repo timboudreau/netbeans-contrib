@@ -88,11 +88,11 @@ object REPL {
       comp.rangePos(source, off1.toInt, off1.toInt, off2.toInt)
     }
     def doTypeAt(pos: Position) {
-      comp.askTypeAt(pos, typeatResult)
+      comp.askTypeAt(pos, false, typeatResult)
       show(typeatResult)
     }
     def doComplete(pos: Position) {
-      comp.askTypeCompletion(pos, completeResult)
+      comp.askTypeCompletion(pos, false, completeResult)
       show(completeResult)
     }
     loop { line =>

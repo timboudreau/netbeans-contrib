@@ -156,7 +156,7 @@ extends scala.tools.nsc.Global(settings, reporter)
     pw.flush
     
     val typed = new Response[Tree]
-    askTypeAt(pos, typed)
+    askTypeAt(pos, false, typed)
     val typ = typed.get.left.toOption match {
       case Some(tree) =>
         val sw = new StringWriter
@@ -168,7 +168,7 @@ extends scala.tools.nsc.Global(settings, reporter)
     }
 
     val completionResponse = new Response[List[Member]]
-    askTypeCompletion(pos, completionResponse)
+    askTypeCompletion(pos, false, completionResponse)
     val completion = completionResponse.get.left.toOption match {
       case Some(members) =>
         members mkString "\n"
@@ -303,10 +303,10 @@ extends scala.tools.nsc.Global(settings, reporter)
   }
 
   /** A fully attributed tree located at position `pos`  */
-  def typedTreeAt(pos: Position): Tree = {
+  def typedTreeAt(pos: Position, forceReload: Boolean): Tree = {
     val unit = unitOf(pos)
     val sources = List(unit.source)
-    if (unit.status == NotLoaded) reloadSources(sources)
+    if (unit.status == NotLoaded || forceReload) reloadSources(sources)
     moveToFront(sources)
     val typedTree = currentTyperRun.typedTreeAt(pos)
     new Locator(pos) locateIn typedTree
@@ -322,8 +322,8 @@ extends scala.tools.nsc.Global(settings, reporter)
   }
 
   /** Set sync var `result` to a fully attributed tree located at position `pos`  */
-  def getTypedTreeAt(pos: Position, result: Response[Tree]) {
-    respond(result)(typedTreeAt(pos))
+  def getTypedTreeAt(pos: Position, forceReload: Boolean, result: Response[Tree]) {
+    respond(result)(typedTreeAt(pos, forceReload))
   }
 
   /** Set sync var `result` to a fully attributed tree corresponding to the entire compilation unit  */
@@ -339,15 +339,15 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   import analyzer.{SearchResult, ImplicitSearch}
 
-  def getScopeCompletion(pos: Position, result: Response[List[Member]]) {
-    respond(result) { scopeMembers(pos) }
+  def getScopeCompletion(pos: Position, forceReload: Boolean, result: Response[List[Member]]) {
+    respond(result) { scopeMembers(pos, forceReload) }
   }
 
   val Dollar = newTermName("$")
 
   /** Return all members visible without prefix in context enclosing `pos`. */
-  def scopeMembers(pos: Position): List[ScopeMember] = {
-    typedTreeAt(pos) // to make sure context is entered
+  def scopeMembers(pos: Position, forceReload: Boolean): List[ScopeMember] = {
+    typedTreeAt(pos, forceReload) // to make sure context is entered
     val context = try {
       doLocateContext(pos)
     } catch {case ex => ex.printStackTrace; NoContext}
@@ -396,13 +396,13 @@ extends scala.tools.nsc.Global(settings, reporter)
     result
   }
 
-  def getTypeCompletion(pos: Position, result: Response[List[Member]]) {
-    respond(result) { typeMembers(pos) }
-    if (debugIDE) scopeMembers(pos)
+  def getTypeCompletion(pos: Position, forceReload: Boolean, result: Response[List[Member]]) {
+    respond(result) { typeMembers(pos, forceReload) }
+    if (debugIDE) scopeMembers(pos, forceReload)
   }
 
-  def typeMembers(pos: Position): List[TypeMember] = {
-    val tree = typedTreeAt(pos)
+  def typeMembers(pos: Position, forceReload: Boolean): List[TypeMember] = {
+    val tree = typedTreeAt(pos, forceReload: Boolean)
     GlobalLog.info("Get typeMembers at "+tree+" "+tree.tpe)
 
     val tpe = tree.tpe match {

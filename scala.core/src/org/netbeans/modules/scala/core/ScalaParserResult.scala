@@ -118,7 +118,7 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
     val doc = snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
 
     global.reporter = new ErrorReporter(doc)
-    // @Note it's safe to force reload here:
+    // @Note it's more safe to force reload here, since a partial typed tree may cause unpredicted error :
     val root = global.askForSemantic(srcFile, true, th)
     loaded = true
     root

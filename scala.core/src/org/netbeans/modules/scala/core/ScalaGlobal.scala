@@ -787,7 +787,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
   def getTypeCompletion(pos: Position, alternatePos: Position, resultTpe: Type, result: Response[List[Member]]) {
     respond(result) { typeMembers(pos, alternatePos, resultTpe) }
-    if (debugIDE) scopeMembers(pos)
+    if (debugIDE) scopeMembers(pos, true)
   }
 
   /**
@@ -796,7 +796,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
    */
   def completionTypeAt(pos: Position, alternatePos: Position): Tree = {
     try {
-      typedTreeAt(pos) match {
+      typedTreeAt(pos, true) match {
         case me@Ident(name) => me
         case Select(qualifier, name) => qualifier
         case x =>

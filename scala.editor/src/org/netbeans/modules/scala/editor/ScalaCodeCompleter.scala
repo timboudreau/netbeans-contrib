@@ -631,17 +631,9 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     val pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
 
     global.cancelSemantic(pos.source)
-    if (!pResult.loaded) {
-      val resp = new Response[Unit]
-      askReload(List(pos.source), resp)
-      resp.get
-      //global.reloadSources(List(pos.source))
-      pResult.loaded = true
-    }
-
     val resp = new Response[List[Member]]
     try {
-      global.askScopeCompletion(pos, resp)
+      global.askScopeCompletion(pos, !pResult.loaded, resp)
       resp.get match {
         case Left(members) =>
           for (ScopeMember(sym, tpe, accessible, viaImport) <- members
@@ -660,18 +652,10 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
       val pos = rangePos(pResult.srcFile, offset, offset, offset)
 
       // * it seems CompleteHandle will always be called before other csl features (semantic, structure etc)
-      // * that's good. But then, we need to reload source first:
+      // * that's good. But then, we may need to reload source first:
       global.cancelSemantic(pos.source)
-      if (!pResult.loaded) {
-        val resp = new Response[Unit]
-        askReload(List(pos.source), resp)
-        resp.get
-        //global.reloadSources(List(pos.source))
-        pResult.loaded = true
-      }
-
       val resp = new Response[List[Member]]
-      global.askTypeCompletion(pos, resp)
+      global.askTypeCompletion(pos, !pResult.loaded, resp)
       resp.get match {
         case Left(members) =>
           for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members
@@ -730,35 +714,6 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     true
   }
 
-  /** test method only */
-  private def askType(item: AstItem) = {
-    val offset = item.idOffset(th)
-    var pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
-    var resp = new SyncVar[Either[Tree, Throwable]]
-    global.askTypeAt(pos, resp)
-    resp.get.left.toOption foreach {x => 
-      println("tpe at item: " + x.tpe)
-    }
-
-    pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
-    resp = new SyncVar[Either[Tree, Throwable]]
-    global.askTypeAt(pos, resp)
-    resp.get.left.toOption foreach {
-      case me@Select(qulifier, name) =>
-        println("tpe at lexoffset: " + me.tpe)
-        println("tpe's quilifier at lexoffset: " + qulifier.tpe)
-      case x =>
-        println("tpe at lexoffset: " + x.tpe)
-    }
-
-    /* pos = rangePos(result.srcFile, lexOffset - 2, lexOffset -2 , lexOffset -2)
-     resp = new SyncVar[Either[Tree, Throwable]]
-     global.askTypeAt(pos, resp)
-     resp.get.left.toOption foreach {x =>
-     println("tpe at lexoffset - 2: " + x.tpe)
-     } */
-  }
-
   def completeScopeImplicits(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
     val sym = item.symbol.asInstanceOf[Symbol]
 
@@ -774,7 +729,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
 
     val pos = new OffsetPosition(pResult.srcFile, item.idOffset(th))
     try {
-      for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos)
+      for (ScopeMember(sym, tpe, accessible, viaImport) <- global.scopeMembers(pos, true)
            if sym.hasFlag(Flags.IMPLICIT) && tpe.paramTypes.size == 1 && tpe.paramTypes.head == resType;
            member <- tpe.resultType.members 
            if accessible && startsWith(member.nameString, prefix) && !member.isConstructor

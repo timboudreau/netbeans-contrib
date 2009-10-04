@@ -67,12 +67,19 @@ import scala.tools.nsc.util.{Position, SourceFile, BatchSourceFile}
  */
 class ScalaParser extends Parser {
   import ScalaParser._
-  
+
   private var lastResult: ScalaParserResult = _
 
-  private def asString(sequence: CharSequence): String = sequence match {
-    case x: String => x
-    case _ => sequence.toString
+  @throws(classOf[ParseException])
+  override def getResult(task: Task): Parser.Result = {
+    assert(lastResult != null, "getResult() called prior parse()") //NOI18N
+    lastResult
+  }
+
+  override def cancel {
+    /* if (lastResult != null && !lastResult.loaded) {
+      lastResult.global.cancelSemantic(lastResult.srcFile)
+    } */
   }
 
   @throws(classOf[ParseException])
@@ -94,18 +101,6 @@ class ScalaParser extends Parser {
     }
     
     return false
-  }
-
-  @throws(classOf[ParseException])
-  override def getResult(task: Task): Parser.Result = {
-    assert(lastResult != null, "getResult() called prior parse()") //NOI18N
-    lastResult
-  }
-
-  override def cancel {
-    /* if (lastResult != null && !lastResult.loaded) {
-      lastResult.global.cancelSemantic(lastResult.srcFile)
-    } */
   }
 
   override def addChangeListener(changeListener: ChangeListener): Unit = {
@@ -484,7 +479,10 @@ class ScalaParser extends Parser {
   class Context(val snapshot: Snapshot, event: SourceModificationEvent) {
 
     val fileObject: FileObject = snapshot.getSource.getFileObject
-    val source: String = asString(snapshot.getText)
+    lazy val source = snapshot.getText match {
+      case x: String => x
+      case x => x.toString
+    }
     var errorOffset: Int = _
     var caretOffset: Int = GsfUtilities.getLastKnownCaretOffset(snapshot, event)
     var sanitizedSource: String = _
