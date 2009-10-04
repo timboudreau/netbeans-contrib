@@ -305,7 +305,7 @@ extends scala.tools.nsc.Global(settings, reporter)
   /** A fully attributed tree located at position `pos`  */
   def typedTreeAt(pos: Position, forceReload: Boolean): Tree = {
     val unit = unitOf(pos)
-    val sources = List(unit.source)
+    val sources = List(pos.source)
     if (unit.status == NotLoaded || forceReload) reloadSources(sources)
     moveToFront(sources)
     val typedTree = currentTyperRun.typedTreeAt(pos)
@@ -403,14 +403,14 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   def typeMembers(pos: Position, forceReload: Boolean): List[TypeMember] = {
     val tree = typedTreeAt(pos, forceReload: Boolean)
-    GlobalLog.info("Get typeMembers at "+tree+" "+tree.tpe)
+    GlobalLog.info("Get typeMembers at treeType=" + tree.getClass.getSimpleName + ", tree=" + tree + ", tpe=" + tree.tpe)
 
     val tpe = tree.tpe match {
       case x@(null | ErrorType | NoType) =>
-        qualToRecoveredType find {case (qualx, _) => qualx.pos eq tree.pos} match {
-          case Some((_, tpex)) => tpex.resultType
+        recoveredType(tree) match {
+          case Some(x) => x.resultType
           case None =>
-            GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x)
+            GlobalLog.warning("Tree type is null or error: tree=" + tree + ", tpe=" + x + ", but we have qualToRecoveredType=" + qualToRecoveredType)
             return Nil
         }
       case x => x.resultType
@@ -500,6 +500,33 @@ extends scala.tools.nsc.Global(settings, reporter)
     }
 
     members.valuesIterator.toList
+  }
+
+  final def recoveredType(tree: Tree): Option[Type] = {
+    def find(atree: Tree) = qualToRecoveredType.get(atree) match {
+      case Some(tpe) => Some(tpe)
+      case None => qualToRecoveredType find {
+          case (Select(qual, _), _) => qual == atree
+          case (SelectFromTypeTree(qual, _), _) => qual == atree
+          case (Apply(fun, _), _) => fun == atree
+          case (x, _) => x == atree // usaully Ident tree
+        } match {
+          case Some((_, tpe)) => Some(tpe)
+          case None => None
+        }
+    }
+    
+    find(tree) match {
+      case None =>
+        tree match {
+          case Select(qual, _) => find(qual)
+          case SelectFromTypeTree(qual, _) => find(qual)
+          case Apply(fun, _) => find(fun)
+          case _ => None
+        }
+      case x => x
+    }
+
   }
 
   // ---------------- Helper classes ---------------------------

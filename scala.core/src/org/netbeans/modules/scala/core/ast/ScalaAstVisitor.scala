@@ -49,7 +49,7 @@ import org.netbeans.modules.scala.core.lexer.{ScalaLexUtil, ScalaTokenId}
 
 import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.symtab.Flags._
-import scala.tools.nsc.util.{SourceFile, OffsetPosition, Position}
+import scala.tools.nsc.util.{SourceFile, OffsetPosition}
 import scala.collection.mutable.{Stack, HashSet, HashMap}
 
 /**
@@ -222,12 +222,10 @@ abstract class ScalaAstVisitor {
   private final object treeTraverser {
     private val visited = new HashSet[Tree]
     private val treeToKnownType = new HashMap[Tree, Type]
-    private var posToRecoveredType: Map[Position, Type] = _
 
     def apply[T <: Tree](tree: T): T = {
       visited.clear
       treeToKnownType.clear
-      posToRecoveredType = qualToRecoveredType map {case (qualx, tpex) => (qualx.pos, tpex)}
 
       traverse(tree)
 
@@ -495,7 +493,9 @@ abstract class ScalaAstVisitor {
                  * @Note: this symbol may has wrong tpe, for example, an error tree,
                  * to get the proper resultType, we'll check if the qualierMaybeType isDefined
                  */
-                posToRecoveredType.get(tree.pos) foreach {tpex => ref.resultType = tpex}
+                if (sym != null && !sym.exists) {
+                  global.recoveredType(tree) foreach {tpex => ref.resultType = tpex}
+                }
                 if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
               }
             }
@@ -519,8 +519,9 @@ abstract class ScalaAstVisitor {
                * @Note: this symbol may has wrong tpe, for example, an error tree,
                * to get the proper resultType, we'll check if the qualierMaybeType isDefined
                */
-              posToRecoveredType.get(tree.pos) foreach {tpex => ref.resultType = tpex}
-            
+              if (!sym1.exists) {
+                global.recoveredType(tree) foreach {tpex => ref.resultType = tpex}
+              }
               // * set ref.resultType before addRef to scope, otherwise, it may not be added if there is same symbol had been added
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }

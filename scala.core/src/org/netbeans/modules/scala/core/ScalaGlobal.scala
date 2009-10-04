@@ -273,7 +273,7 @@ object ScalaGlobal {
 
       // * we only need one out path
       if (outPath == "") {
-        outPath = out 
+        outPath = out
 
         // * Had out path dir been deleted? (a clean task etc), if so, create it, since scalac
         // * can't parse anything correctly without an exist out dir (sounds a bit strange)
