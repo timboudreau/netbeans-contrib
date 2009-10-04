@@ -201,7 +201,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   //var index: ScalaIndex = _
 
 
-  case class Call(base: Token[TokenId], select: String, caretAfterDot: Boolean)
+  case class Call(base: Token[TokenId], dot: Token[TokenId], select: Token[TokenId])
 
   private val CALL_IDs: Set[TokenId] = Set(ScalaTokenId.Identifier,
                                            ScalaTokenId.This,
@@ -219,11 +219,12 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
       val token = ts.token
       token.id match {
         case ScalaTokenId.Dot =>
+          val dot = ts.offsetToken
           collector match {
             case x :: xs if ScalaLexUtil.isWsComment(x.id) =>
               // * replace previous sep token with this Dot
-              collector = token :: xs
-            case _ => collector = token :: collector
+              collector = dot :: xs
+            case _ => collector = dot :: collector
           }
 
         case ScalaTokenId.Nl =>
@@ -253,26 +254,22 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
       }
     }
 
-    val (base, afterDot, select) =
+    val (base, dot, select) =
       collector match {
         case List(basex, sep, selectx) =>
           if (isCallId(basex.id) && isCallId(selectx.id)) {
-            (basex, sep.id == ScalaTokenId.Dot, selectx)
-          } else {
-            (null, false, null)
-          }
+            (basex, if (sep.id == ScalaTokenId.Dot) sep else null, selectx)
+          } else (null, null, null)
 
         case List(basex, sep) =>
           if (isCallId(basex.id)) {
-            (basex, sep.id == ScalaTokenId.Dot, null)
-          } else {
-            (null, false, null)
-          }
+            (basex, if (sep.id == ScalaTokenId.Dot) sep else null, null)
+          } else (null, null, null)
 
-        case _ => (null, false, null)
+        case _ => (null, null, null)
       }
 
-    Call(base, if (select != null) select.text.toString else "", afterDot)
+    Call(base, dot, select)
   }
 
   private def startsWith(theString: String, prefix: String): Boolean = {
@@ -633,7 +630,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     global.cancelSemantic(pos.source)
     val resp = new Response[List[Member]]
     try {
-      global.askScopeCompletion(pos, !pResult.loaded, resp)
+      global.askScopeCompletion(pos, true, resp)
       resp.get match {
         case Left(members) =>
           for (ScopeMember(sym, tpe, accessible, viaImport) <- members
@@ -649,13 +646,14 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
   def completeSymbolMembers(baseToken: Token[TokenId], proposals: java.util.List[CompletionProposal]): Boolean = {
     try {
       val offset = baseToken.offset(th)
-      val pos = rangePos(pResult.srcFile, offset, offset, offset)
+      val endOffset = offset + baseToken.length - 1
+      val pos = rangePos(pResult.srcFile, offset, offset, endOffset)
 
       // * it seems CompleteHandle will always be called before other csl features (semantic, structure etc)
       // * that's good. But then, we may need to reload source first:
       global.cancelSemantic(pos.source)
       val resp = new Response[List[Member]]
-      global.askTypeCompletion(pos, !pResult.loaded, resp)
+      global.askTypeCompletion(pos, true, resp)
       resp.get match {
         case Left(members) =>
           for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members

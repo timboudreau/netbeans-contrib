@@ -229,20 +229,18 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
 
       completer.findCall(ts, th) match {
         case completer.Call(null, _, _) =>
-        case completer.Call(base, select, caretAfterDot) =>
-          val go = if (caretAfterDot) {
-            true
-          } else !isAtNewLine
+        case completer.Call(base, dot, select) =>
+          val go = dot != null || !isAtNewLine
 
           if (go) {
-            if (select.length > 0) completer.prefix = select
+            completer.prefix = if (select != null) select.text.toString else ""
+            // * it should be expecting call proposals, so just return right
+            // * now to avoid keyword local vars proposals
             if (completer.completeSymbolMembers(base, proposals)) {
-              // * it should be expecting call proposals, so just return right
-              // * now to avoid keyword local vars proposals
               return completionResult
             }
 
-            if (caretAfterDot) {
+            if (dot != null) {
               // * what ever, it should be expecting call proposals, so just return right now to avoid keyword local vars proposals
               return completionResult
             }
