@@ -54,7 +54,7 @@ trait AstItem extends ForElementHandle {
   type S  // type of symbol
   type T  // type of symbol's type
 
-  def make(idToken: Option[Token[TokenId]], kind: ElementKind, fo: Option[FileObject]): Unit = {
+  def make(idToken: Token[TokenId], kind: ElementKind, fo: Option[FileObject]): Unit = {
     this.idToken = idToken
     this.kind = kind
     this.fo = fo
@@ -70,7 +70,7 @@ trait AstItem extends ForElementHandle {
    *    will return null when an Identifier token modified, seems sync issue
    */
   private var _symbol: S = _
-  private var _idToken: Option[Token[TokenId]] = None
+  private var _idToken: Token[TokenId] = _
   private var _name: String = _
   private var _enclosingScope: Option[AstScope] = None
   private var _properties: Map[String, Any] = Map()
@@ -83,8 +83,9 @@ trait AstItem extends ForElementHandle {
   }
 
   def idToken = _idToken
-  def idToken_=(idToken: Option[Token[TokenId]]) = idToken foreach {
-    x => this._idToken = idToken; name = x.text.toString
+  def idToken_=(aidToken: Token[TokenId]) = {
+    this._idToken = aidToken
+    name = idToken.text.toString
   }
 
   def name = _name
@@ -112,21 +113,11 @@ trait AstItem extends ForElementHandle {
   }
 
   def idOffset(th: TokenHierarchy[_]): Int = {
-    idToken match {
-      case None =>
-        assert(false, getName + ": Should implement offset(th)")
-        -1
-      case Some(x) => x.offset(th)
-    }
+    idToken.offset(th)
   }
 
   def idEndOffset(th: TokenHierarchy[_]): Int = {
-    idToken match {
-      case None =>
-        assert(false, name + ": Should implement getIdEndOffset(th)")
-        -1
-      case Some(x) => x.offset(th) + x.length
-    }
+    idToken.offset(th) + idToken.length
   }
 
   def binaryName = name

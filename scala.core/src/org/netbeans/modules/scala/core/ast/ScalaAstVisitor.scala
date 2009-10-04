@@ -134,9 +134,10 @@ abstract class ScalaAstVisitor {
         ) {
           val qualSym = qual.symbol
           if (qualSym != null) {
-            val idToken = getIdToken(qual)
-            val ref = ScalaRef(qualSym, idToken, if (qualSym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
-            if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            withIdToken(getIdToken(qual)) {token =>
+              val ref = ScalaRef(qualSym, token, if (qualSym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
           }
 
           //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
@@ -145,32 +146,35 @@ abstract class ScalaAstVisitor {
 
             case (nme.WILDCARD, _) =>
               // * idToken == "_", sym == qualSym
-              val idToken = getIdToken(me, nme.WILDCARD.decode)
-              val ref = ScalaRef(qualSym, idToken, ElementKind.OTHER, fo)
-              if (scopes.top.addRef(ref)) {
-                info("\tAdded: ", ref)
-                rootScope putImportingItem ref
-              }
-
-            case (x, y) =>
-              val xsym = importedSymbol(me, x)
-              if (xsym != null) {
-                val idToken = getIdToken(me, x.decode)
-                val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
+              withIdToken(getIdToken(me, nme.WILDCARD.decode)) {token =>
+                val ref = ScalaRef(qualSym, token, ElementKind.OTHER, fo)
                 if (scopes.top.addRef(ref)) {
                   info("\tAdded: ", ref)
                   rootScope putImportingItem ref
                 }
               }
 
-              if (y != null) {
-                val ysym = importedSymbol(me, y)
-                if (ysym != null) {
-                  val idToken = getIdToken(me, y.decode)
-                  val ref = ScalaRef(ysym, idToken, ElementKind.OTHER, fo)
+            case (x, y) =>
+              val xsym = importedSymbol(me, x)
+              if (xsym != null) {
+                withIdToken(getIdToken(me, x.decode)) {idToken =>
+                  val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
                   if (scopes.top.addRef(ref)) {
                     info("\tAdded: ", ref)
                     rootScope putImportingItem ref
+                  }
+                }
+              }
+
+              if (y != null) {
+                val ysym = importedSymbol(me, y)
+                if (ysym != null) {
+                  withIdToken(getIdToken(me, y.decode)) {token =>
+                    val ref = ScalaRef(ysym, token, ElementKind.OTHER, fo)
+                    if (scopes.top.addRef(ref)) {
+                      info("\tAdded: ", ref)
+                      rootScope putImportingItem ref
+                    }
                   }
                 }
               }
@@ -244,8 +248,8 @@ abstract class ScalaAstVisitor {
           scopes.top.addScope(scope)
 
           val sym = tree.symbol
-          withIdToken(getIdToken(tree)) {idToken =>
-            val dfn = ScalaDfn(sym, idToken, ElementKind.PACKAGE, scope, fo)
+          withIdToken(getIdToken(tree)) {token =>
+            val dfn = ScalaDfn(sym, token, ElementKind.PACKAGE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
@@ -261,8 +265,8 @@ abstract class ScalaAstVisitor {
           (if (mods.isTrait) "trait " else "class ")
 
           val sym = tree.symbol
-          withIdToken(getIdToken(tree)) {idToken =>
-            val dfn = ScalaDfn(sym, idToken, ElementKind.CLASS, scope, fo)
+          withIdToken(getIdToken(tree)) {token =>
+            val dfn = ScalaDfn(sym, token, ElementKind.CLASS, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
@@ -278,8 +282,8 @@ abstract class ScalaAstVisitor {
           scopes.top.addScope(scope)
 
           val sym = tree.symbol
-          withIdToken(getIdToken(tree)) {idToken =>
-            val dfn = ScalaDfn(sym, idToken, ElementKind.MODULE, scope, fo)
+          withIdToken(getIdToken(tree)) {token =>
+            val dfn = ScalaDfn(sym, token, ElementKind.MODULE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
@@ -296,8 +300,8 @@ abstract class ScalaAstVisitor {
           val sym = tree.symbol
           // * special case for: val (a, b, c) = (1, 2, 3)
           if (!isTupleClass(tpt.symbol)) {
-            withIdToken(getIdToken(tree, name.decode)) {idToken =>
-              val dfn = ScalaDfn(sym, idToken, ElementKind.OTHER, scope, fo)
+            withIdToken(getIdToken(tree, name.decode)) {token =>
+              val dfn = ScalaDfn(sym, token, ElementKind.OTHER, scope, fo)
               if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
             }
           }
@@ -316,8 +320,8 @@ abstract class ScalaAstVisitor {
           val kind = if (tree.symbol.isConstructor) ElementKind.CONSTRUCTOR else ElementKind.METHOD
 
           val sym = tree.symbol
-          withIdToken(getIdToken(tree)) {idToken =>
-            val dfn = ScalaDfn(sym, idToken, kind, scope, fo)
+          withIdToken(getIdToken(tree)) {token =>
+            val dfn = ScalaDfn(sym, token, kind, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
@@ -337,8 +341,8 @@ abstract class ScalaAstVisitor {
           val sym = tree.symbol
           if (sym != null && sym != NoSymbol) {
             if (!sym.hasFlag(Flags.SYNTHETIC)) {
-              withIdToken(getIdToken(tree, name.decode)) {idToken =>
-                val dfn = ScalaDfn(sym, idToken, ElementKind.CLASS, scope, fo)
+              withIdToken(getIdToken(tree, name.decode)) {token =>
+                val dfn = ScalaDfn(sym, token, ElementKind.CLASS, scope, fo)
                 if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
               }
             }
@@ -354,12 +358,16 @@ abstract class ScalaAstVisitor {
                   // * specical case: type of lo, hi are hidden in sym.info (not in sym.tpe)
                   // * example code: Array[_ <: String]
                   val loSym = loTpe.typeSymbol
-                  val loRef = ScalaRef(loSym, getIdToken(lo, loSym.nameString), ElementKind.CLASS, fo)
-                  if (scopes.top.addRef(loRef)) info("\tAdded: ", loRef)
+                  withIdToken(getIdToken(lo, loSym.nameString)) {token =>
+                    val loRef = ScalaRef(loSym, token, ElementKind.CLASS, fo)
+                    if (scopes.top.addRef(loRef)) info("\tAdded: ", loRef)
+                  }
 
                   val hiSym = hiTpe.typeSymbol
-                  val hiRef = ScalaRef(hiSym, getIdToken(hi, hiSym.nameString), ElementKind.CLASS, fo)
-                  if (scopes.top.addRef(hiRef)) info("\tAdded: ", hiRef)
+                  withIdToken(getIdToken(hi, hiSym.nameString)) {token =>
+                    val hiRef = ScalaRef(hiSym, token, ElementKind.CLASS, fo)
+                    if (scopes.top.addRef(hiRef)) info("\tAdded: ", hiRef)
+                  }
                 case _ => traverse(rhs)
               }
             } else traverse(rhs)
@@ -401,8 +409,8 @@ abstract class ScalaAstVisitor {
           scopes.top.addScope(scope)
           
           // * "case c => println(c)", will define a bind val "c"
-          withIdToken(getIdToken(tree)) {idToken =>
-            val dfn = ScalaDfn(tree.symbol, idToken, ElementKind.VARIABLE, scope, fo)
+          withIdToken(getIdToken(tree)) {token =>
+            val dfn = ScalaDfn(tree.symbol, token, ElementKind.VARIABLE, scope, fo)
             if (scopes.top.addDfn(dfn)) info("\tAdded: ", dfn)
           }
 
@@ -440,8 +448,8 @@ abstract class ScalaAstVisitor {
         case Super(qual, mix) =>
           val sym = tree.symbol
           if (sym != null) {
-            withIdToken(getIdToken(tree, "super")) {idToken =>
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
+            withIdToken(getIdToken(tree, "super")) {token =>
+              val ref = ScalaRef(sym, token, ElementKind.OTHER, fo)
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
           }
@@ -449,8 +457,8 @@ abstract class ScalaAstVisitor {
         case This(qual) =>
           val sym = tree.symbol
           if (sym != null) {
-            withIdToken(getIdToken(tree, "this")) {idToken =>
-              val ref = ScalaRef(sym, idToken, ElementKind.OTHER, fo)
+            withIdToken(getIdToken(tree, "this")) {token =>
+              val ref = ScalaRef(sym, token, ElementKind.OTHER, fo)
               if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
             }
           }
@@ -481,8 +489,8 @@ abstract class ScalaAstVisitor {
               }
             } else {
               val name = selector.decode
-              withIdToken(getIdToken(tree, name)) {idToken =>
-                val ref = ScalaRef(sym, idToken, kind, fo)
+              withIdToken(getIdToken(tree, name)) {token =>
+                val ref = ScalaRef(sym, token, kind, fo)
                 /**
                  * @Note: this symbol may has wrong tpe, for example, an error tree,
                  * to get the proper resultType, we'll check if the qualierMaybeType isDefined
@@ -505,8 +513,8 @@ abstract class ScalaAstVisitor {
               }
             } else sym
 
-            withIdToken(getIdToken(tree, name.decode)) {idToken =>
-              val ref = ScalaRef(sym1, idToken, ElementKind.OTHER, fo)
+            withIdToken(getIdToken(tree, name.decode)) {token =>
+              val ref = ScalaRef(sym1, token, ElementKind.OTHER, fo)
               /**
                * @Note: this symbol may has wrong tpe, for example, an error tree,
                * to get the proper resultType, we'll check if the qualierMaybeType isDefined
@@ -546,8 +554,10 @@ abstract class ScalaAstVisitor {
                   case TypeRef(pre, sym, argTpes) if sym.fullNameString == "java.lang.Class" =>
                     argTpes foreach {addRefForTypeDirectly(tree, _)}
                   case _ =>
-                    val ref = ScalaRef(sym, getIdToken(tree), ElementKind.CLASS, fo)
-                    if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                    withIdToken(getIdToken(tree)) {token =>
+                      val ref = ScalaRef(sym, token, ElementKind.CLASS, fo)
+                      if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+                    }
                 }
               }
 
@@ -636,10 +646,6 @@ abstract class ScalaAstVisitor {
       if (scope != null) scopes.pop
     }
 
-    private def withIdToken(idToken: Option[Token[TokenId]])(op: Option[Token[TokenId]] => Unit) {
-      if (idToken.isDefined) op(idToken)
-    }
-
     private def isTupleClass(symbol: Symbol): Boolean = {
       if (symbol ne null) {
         symbol.ownerChain.map{_.rawname.decode} match {
@@ -659,8 +665,8 @@ abstract class ScalaAstVisitor {
         case _ => getIdToken(onTree, sym.name.decode, -1, sym)
       }
       
-      withIdToken(idToken) {idToken =>
-        val ref = ScalaRef(sym, idToken, ElementKind.CLASS, fo)
+      withIdToken(idToken) {token =>
+        val ref = ScalaRef(sym, token, ElementKind.CLASS, fo)
         if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
       }
 
@@ -674,9 +680,14 @@ abstract class ScalaAstVisitor {
   }
 
   // ---- Helper methods
-  
+
+
   private def getOffset(tree: Tree): Int = {
     tree.pos.startOrPoint
+  }
+
+  private def withIdToken(idToken: Option[Token[TokenId]])(op: Token[TokenId] => Unit) {
+    if (idToken.isDefined) op(idToken.get)
   }
 
   /**
@@ -819,9 +830,7 @@ abstract class ScalaAstVisitor {
   }
   
   private def getBoundsToken(offset: Int): Option[Token[TokenId]]  = {
-    if (offset < 0) {
-      return None
-    }
+    if (offset < 0) return None
 
     val ts = ScalaLexUtil.getTokenSequence(th, offset).getOrElse(return None)
     ts.move(offset)
@@ -842,9 +851,7 @@ abstract class ScalaAstVisitor {
   }
 
   private def getBoundsEndToken(endOffset: Int): Option[Token[TokenId]] = {
-    if (endOffset == -1) {
-      return None
-    }
+    if (endOffset == -1) return None
 
     val ts = ScalaLexUtil.getTokenSequence(th, endOffset).getOrElse{return None}
     ts.move(endOffset)

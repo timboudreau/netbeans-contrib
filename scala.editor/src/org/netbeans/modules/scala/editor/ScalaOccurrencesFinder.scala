@@ -130,7 +130,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     // . to the end of Scanf as a CallNode, which is a weird highlight.
     // We don't want occurrences highlights that span lines.
     for (item <- items;
-         idToken <- item.idToken
+         idToken = item.idToken
     ) {
       val doc = pResult.getSnapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
       if (doc == null) {
@@ -208,7 +208,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
       val _occurrences = rootScope.findOccurrences(item)
       for (x <- _occurrences;
            name = x.getName if !name.equals("this") || !name.equals("super");
-           idToken <- x.idToken
+           idToken = x.idToken
       ) {
         highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
       }

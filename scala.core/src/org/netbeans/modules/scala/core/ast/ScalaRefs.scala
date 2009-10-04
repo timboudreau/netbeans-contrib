@@ -56,12 +56,12 @@ import org.openide.filesystems.FileObject
 trait ScalaRefs {self: ScalaGlobal =>
 
   object ScalaRef{
-    def apply(symbol: Symbol, idToken: Option[Token[TokenId]], kind: ElementKind, fo: Option[FileObject]) = {
+    def apply(symbol: Symbol, idToken: Token[TokenId], kind: ElementKind, fo: Option[FileObject]) = {
       new ScalaRef(symbol, idToken, kind, fo)
     }
   }
 
-  class ScalaRef(asymbol: Symbol, aidToken: Option[Token[TokenId]], akind: ElementKind, afo: Option[FileObject]
+  class ScalaRef(asymbol: Symbol, aidToken: Token[TokenId], akind: ElementKind, afo: Option[FileObject]
   ) extends ScalaItem with AstRef {
 
     make(aidToken, akind, afo)

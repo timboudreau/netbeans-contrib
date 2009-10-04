@@ -72,9 +72,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def putImportingItem(item: AstItem): Boolean = {
-    if (item.idToken.isDefined) {
-      _importingItems add item
-    } else false
+    _importingItems add item
   }
   
   /**

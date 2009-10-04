@@ -116,16 +116,12 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
    * @retrun added successfully or not
    */
   def addDfn(dfn: AstDfn): Boolean = {
-    dfn.idToken match {
-      case Some(x) =>
-        if (root.put(x, dfn)) {
-          _dfns += dfn
-          dfnsSorted = false
-          dfn.enclosingScope = this
-          true
-        } else false
-      case None => false
-    }
+    if (root.put(dfn.idToken, dfn)) {
+      _dfns += dfn
+      dfnsSorted = false
+      dfn.enclosingScope = this
+      true
+    } else false
   }
 
   /**
@@ -133,16 +129,12 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
    * @retrun added successfully or not
    */
   def addRef(ref: AstRef): Boolean = {
-    ref.idToken match {
-      case Some(x) =>
-        if (root.put(x, ref)) {
-          _refs += ref
-          refsSorted = false
-          ref.enclosingScope = this
-          true
-        } else false
-      case None => false
-    }
+    if (root.put(ref.idToken, ref)) {
+      _refs += ref
+      refsSorted = false
+      ref.enclosingScope = this
+      true
+    } else false
   }
 
   def findDfnAt[A <: AstDfn](clazz: Class[A], th: TokenHierarchy[_], offset: Int): Option[A] = {

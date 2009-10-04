@@ -146,7 +146,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         // @todo
         false
       } else {
-        if (imp.idToken.get.id == ScalaTokenId.Wild) { // qual._, symbol is pointed to qual
+        if (imp.idToken.id == ScalaTokenId.Wild) { // qual._, symbol is pointed to qual
           val qual = impSym.fullNameString
           //println("wild import: " + qual)
           // @todo
@@ -160,7 +160,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
     } map {item =>
       var offset = item.idOffset(th)
       var endOffset = item.idEndOffset(th)
-      var text = item.idToken.get.text
+      var text = item.idToken.text
 
       ScalaLexUtil.findImportAt(th, offset) match {
         case me@ScalaLexUtil.ImportTokens(start, end, qual, hd :: Nil) => // has only one selector

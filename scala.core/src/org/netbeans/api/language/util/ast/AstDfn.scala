@@ -56,7 +56,7 @@ import org.openide.filesystems.FileObject
 trait AstDfn extends AstItem with AstElementHandle {
   private var _bindingScope: AstScope = _
   
-  def make(_idToken: Option[Token[TokenId]],
+  def make(_idToken: Token[TokenId],
            _kind: ElementKind,
            abindingScope: AstScope,
            _fo: Option[FileObject]) = {

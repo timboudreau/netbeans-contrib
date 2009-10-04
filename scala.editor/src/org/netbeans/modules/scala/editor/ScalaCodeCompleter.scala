@@ -613,8 +613,8 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
       methodHolder(0) = callMethod
       parameterIndexHolder(0) = index
 
-      if (anchorOffset == -1 && call.idToken.isDefined) {
-        anchorOffset = call.idToken.get.offset(th) // TODO - compute
+      if (anchorOffset == -1) {
+        anchorOffset = call.idToken.offset(th) // TODO - compute
 
       }
       anchorOffsetHolder(0) = anchorOffset

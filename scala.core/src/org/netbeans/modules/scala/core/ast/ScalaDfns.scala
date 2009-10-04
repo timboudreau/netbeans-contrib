@@ -52,7 +52,7 @@ trait ScalaDfns {self: ScalaGlobal =>
 
   object ScalaDfn {
     def apply(symbol: Symbol,
-              idToken: Option[Token[TokenId]],
+              idToken: Token[TokenId],
               kind: ElementKind,
               bindingScope: AstScope,
               fo: Option[FileObject]) = {
@@ -61,7 +61,7 @@ trait ScalaDfns {self: ScalaGlobal =>
   }
   
   class ScalaDfn(asymbol: Symbol,
-                 aidToken: Option[Token[TokenId]],
+                 aidToken: Token[TokenId],
                  akind: ElementKind,
                  abindingScope: AstScope,
                  afo: Option[FileObject]

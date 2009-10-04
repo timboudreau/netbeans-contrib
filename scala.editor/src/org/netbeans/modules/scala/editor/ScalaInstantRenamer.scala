@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editor
 
 import org.netbeans.modules.csl.api.{InstantRenamer, ElementKind, OffsetRange}
 import org.netbeans.modules.csl.spi.ParserResult
-import org.openide.util.NbBundle
 
 import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
@@ -115,7 +114,7 @@ class ScalaInstantRenamer extends InstantRenamer {
 
     val regions = new java.util.HashSet[OffsetRange]
     for (item <- occurrences;
-         idToken <- item.idToken
+         idToken = item.idToken
     ) {
       regions.add(ScalaLexUtil.getRangeOfToken(th, idToken))
     }
