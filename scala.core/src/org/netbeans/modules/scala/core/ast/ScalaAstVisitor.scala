@@ -130,8 +130,9 @@ abstract class ScalaAstVisitor {
       val c = ct.context
       if (visited.add(c)) {
         for (importInfo <- c.imports if !cancelled;
-             me@Import(qual, selectors) = importInfo.tree if me.pos.isDefined
-        ) {
+             tree@Import(qual0, selectors) = importInfo.tree if tree.pos.isDefined;
+             qual = tree.symbol.tpe match {case analyzer.ImportType(expr) => expr case _ => qual0} if qual != null && qual.tpe != null
+        ) {          
           val qualSym = qual.symbol
           if (qualSym != null) {
             withIdToken(getIdToken(qual)) {token =>
@@ -146,7 +147,7 @@ abstract class ScalaAstVisitor {
 
             case (nme.WILDCARD, _) =>
               // * idToken == "_", sym == qualSym
-              withIdToken(getIdToken(me, nme.WILDCARD.decode)) {token =>
+              withIdToken(getIdToken(tree, nme.WILDCARD.decode)) {token =>
                 val ref = ScalaRef(qualSym, token, ElementKind.OTHER, fo)
                 if (scopes.top.addRef(ref)) {
                   info("\tAdded: ", ref)
@@ -155,21 +156,19 @@ abstract class ScalaAstVisitor {
               }
 
             case (x, y) =>
-              val xsym = importedSymbol(me, x)
+              val xsym = importedSymbol(qual, x, y)
               if (xsym != null) {
-                withIdToken(getIdToken(me, x.decode)) {idToken =>
+                withIdToken(getIdToken(tree, x.decode)) {idToken =>
                   val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
                   if (scopes.top.addRef(ref)) {
                     info("\tAdded: ", ref)
                     rootScope putImportingItem ref
                   }
                 }
-              }
 
-              if (y != null) {
-                val ysym = importedSymbol(me, y)
-                if (ysym != null) {
-                  withIdToken(getIdToken(me, y.decode)) {token =>
+                if (y != null) {
+                  val ysym = xsym
+                  withIdToken(getIdToken(tree, y.decode)) {token =>
                     val ref = ScalaRef(ysym, token, ElementKind.OTHER, fo)
                     if (scopes.top.addRef(ref)) {
                       info("\tAdded: ", ref)
@@ -178,7 +177,7 @@ abstract class ScalaAstVisitor {
                   }
                 }
               }
-          }      
+          }
         }
       }
       
@@ -190,28 +189,9 @@ abstract class ScalaAstVisitor {
      * We'll find class/trait instead of object first.
      * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
      */
-    private def importedSymbol(tree: Import, name: Name): Symbol = {
-      var result: List[Symbol] = Nil
-      var renamed = false
-      val qual = tree.symbol.tpe match {
-        case analyzer.ImportType(expr) => expr
-        case _ => tree.expr
-      }
-
-      if (qual == null || qual.tpe == null) return null
-
-      var selectors = tree.selectors
-      while (selectors != Nil && result == Nil) {
-        val (x, y) = selectors.head
-        if (y == name.toTermName)
-          result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
-        else if (x == name.toTermName)
-          renamed = true
-        else if (x == nme.WILDCARD && !renamed)
-          result = qual.tpe.members filter {_.name.toTermName == x.toTermName}
-
-        selectors = selectors.tail
-      }
+    private def importedSymbol(qual: Tree, xname: Name, yname: Name): Symbol = {
+      val targetName = xname.toTermName
+      val result = qual.tpe.members filter {_.name.toTermName == targetName}
 
       // * prefer type over object
       result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
@@ -681,11 +661,6 @@ abstract class ScalaAstVisitor {
   }
 
   // ---- Helper methods
-
-
-  private def getOffset(tree: Tree): Int = {
-    tree.pos.startOrPoint
-  }
 
   private def withIdToken(idToken: Option[Token[TokenId]])(op: Token[TokenId] => Unit) {
     if (idToken.isDefined) op(idToken.get)
