@@ -77,9 +77,10 @@ class ScalaParser extends Parser {
   }
 
   override def cancel {
-    /* if (lastResult != null && !lastResult.loaded) {
+    if (lastResult != null && !lastResult.loaded) {
       lastResult.global.cancelSemantic(lastResult.srcFile)
-    } */
+      lastResult.loaded = false
+    }
   }
 
   @throws(classOf[ParseException])
