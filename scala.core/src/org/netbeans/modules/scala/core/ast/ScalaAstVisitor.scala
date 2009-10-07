@@ -117,20 +117,24 @@ abstract class ScalaAstVisitor {
   }
 
   private final object importingTraverser {
-    private val visited = new HashSet[Context]
+    private val visitedContexts = new HashSet[Context]
+    private val visitedImports = new HashSet[Tree]
     
     def apply(unit: RichCompilationUnit) {
-      visited.clear
       unit.contexts foreach visitContextTree
+      
+      // * clear after visit to free memory
+      visitedContexts.clear
+      visitedImports.clear
     }
 
     private def visitContextTree(ct: ContextTree): Unit = {
       if (cancelled) return
       
       val c = ct.context
-      if (visited.add(c)) {
+      if (visitedContexts.add(c)) {
         for (importInfo <- c.imports if !cancelled;
-             tree@Import(qual0, selectors) = importInfo.tree if tree.pos.isDefined;
+             tree@Import(qual0, selectors) = importInfo.tree if tree.pos.isDefined && visitedImports.add(tree);
              qual = tree.symbol.tpe match {case analyzer.ImportType(expr) => expr case _ => qual0} if qual != null && qual.tpe != null
         ) {          
           val qualSym = qual.symbol
@@ -204,10 +208,11 @@ abstract class ScalaAstVisitor {
     private val treeToKnownType = new HashMap[Tree, Type]
 
     def apply[T <: Tree](tree: T): T = {
+      traverse(tree)
+      
+      // * clear after visit to free memory
       visited.clear
       treeToKnownType.clear
-
-      traverse(tree)
 
       if (debug) rootScope.debugPrintTokens(th)
 

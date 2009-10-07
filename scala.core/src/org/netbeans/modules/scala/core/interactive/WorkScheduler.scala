@@ -10,7 +10,7 @@ class WorkScheduler {
   type Action = () => Unit
 
   private var todo = new Queue[Action]
-  private var except: Option[Exception] = None
+  private var except = new Queue[Exception]
 
   /** Called from server: block until todo list is nonempty */
   def waitForMoreWork() = synchronized {
@@ -33,7 +33,14 @@ class WorkScheduler {
    *  Reset to no exception.
    */
   def pollException(): Option[Exception] = synchronized {
-    val result = except; except = None; result
+    val result = except;
+    if (except.isEmpty)
+      None
+    else {
+      val result = Some(except.dequeue)
+      if (!except.isEmpty) postWorkItem {() =>} // post an empty work item to force process all execpts first
+      result
+    }
   }
 
   /** Called from client: have action executed by server */
@@ -56,7 +63,7 @@ class WorkScheduler {
    * @Ticket #2289
    */
   def raise(exc: Exception) = synchronized {
-    except = Some(exc)
+    except enqueue exc 
     postWorkItem {() => Log.info("An empty action to awake scheduler to process "  + exc.getClass.getSimpleName + " except was fired")}
   }
 }
