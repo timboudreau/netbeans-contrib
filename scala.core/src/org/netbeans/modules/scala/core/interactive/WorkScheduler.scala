@@ -38,7 +38,7 @@ class WorkScheduler {
       None
     else {
       val result = Some(except.dequeue)
-      if (!except.isEmpty) postWorkItem {() =>} // post an empty work item to force process all execpts first
+      if (!except.isEmpty) postWorkItem {() =>} // post an empty action to force process all execpts first
       result
     }
   }
@@ -64,7 +64,7 @@ class WorkScheduler {
    */
   def raise(exc: Exception) = synchronized {
     except enqueue exc 
-    postWorkItem {() => Log.info("An empty action to awake scheduler to process "  + exc.getClass.getSimpleName + " except was fired")}
+    postWorkItem {() =>} // An empty action to awake scheduler to process
   }
 }
 

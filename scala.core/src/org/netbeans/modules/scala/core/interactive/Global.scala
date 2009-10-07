@@ -205,8 +205,10 @@ extends scala.tools.nsc.Global(settings, reporter)
         case ex: InterruptedException =>
           Thread.currentThread.interrupt // interrupt again to avoid posible out-loop issue
         case ex: ShutdownReq =>
+          GlobalLog.info("ShutdownReq processed")
           Thread.currentThread.interrupt
         case ex => 
+          GlobalLog.info(ex.getClass.getSimpleName + " processed, will start a newRunnerThread")
           outOfDate = false
           compileRunner = newRunnerThread
           ex match { 
