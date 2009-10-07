@@ -505,7 +505,7 @@ extends scala.tools.nsc.Global(settings, reporter)
   }
 
   final def recoveredType(tree: Tree): Option[Type] = {
-    def find(atree: Tree) = qualToRecoveredType.get(atree) match {
+    def findViaGet(atree: Tree) = qualToRecoveredType.get(atree) match {
       case Some(tpe) => Some(tpe)
       case None => qualToRecoveredType find {
           case (Select(qual, _), _) => qual == atree
@@ -518,17 +518,37 @@ extends scala.tools.nsc.Global(settings, reporter)
         }
     }
     
-    find(tree) match {
-      case None =>
-        tree match {
-          case Select(qual, _) => find(qual)
-          case SelectFromTypeTree(qual, _) => find(qual)
-          case Apply(fun, _) => find(fun)
-          case _ => None
-        }
-      case x => x
+    def findViaPos(atree: Tree) = qualToRecoveredType find {
+      case (x@Select(qual, _), _) =>
+        (x.pos sameRange atree.pos) || (qual.pos sameRange atree.pos)
+      case (x@SelectFromTypeTree(qual, _), _) =>
+        (x.pos sameRange atree.pos) || (qual.pos sameRange atree.pos)
+      case (x@Apply(fun, _), _) =>
+        (x.pos sameRange atree.pos) || (fun.pos sameRange atree.pos)
+      case (x, _) =>
+        (x.pos sameRange atree.pos) // usaully Ident tree
+    } match {
+      case Some((_, tpe)) => Some(tpe)
+      case None => None
     }
 
+    def find(op: Tree => Option[Type]) = {
+      op(tree) match {
+        case None =>
+          tree match {
+            case Select(qual, _) => op(qual)
+            case SelectFromTypeTree(qual, _) => op(qual)
+            case Apply(fun, _) => op(fun)
+            case _ => None
+          }
+        case x => x
+      }
+    }
+
+    find(findViaGet) match {
+      case None => find(findViaPos)
+      case x => x
+    }
   }
 
   // ---------------- Helper classes ---------------------------
