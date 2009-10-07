@@ -268,24 +268,26 @@ trait RangePositions extends Trees with Positions {
   }
 
   class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
-    private val visited = new HashSet[Context]
+    private val visitedContexts = new HashSet[Context]
+    private val visitedImports = new HashSet[Tree]
     var last: Tree = _
 
     def locate: Tree = {
-      visited.clear
       last = EmptyTree
       unit.contexts foreach visitContextTree
+      visitedContexts.clear
+      visitedImports.clear
       last
     }
 
     private def visitContextTree(ct: ContextTree): Unit = {
       val c = ct.context
-      if (visited.add(c)) {
+      if (visitedContexts.add(c)) {
         for (importInfo <- c.imports;
-             me@Import(qual, selectors) = importInfo.tree if me.pos.isDefined
+             tree@Import(qual, selectors) = importInfo.tree if tree.pos.isDefined && visitedImports.add(tree)
         ) {
-          if (me.pos includes pos) {
-            if (!me.pos.isTransparent) last = me
+          if (tree.pos includes pos) {
+            if (!tree.pos.isTransparent) last = tree
           }
         }
       }
