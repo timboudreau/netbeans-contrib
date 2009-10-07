@@ -236,7 +236,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
             completer.prefix = if (select != null) select.text.toString else ""
             // * it should be expecting call proposals, so just return right
             // * now to avoid keyword local vars proposals
-            if (completer.completeSymbolMembers(base, proposals)) {
+            if (completer.completeSymbolMembers(if (dot != null) dot else base, proposals)) {
               return completionResult
             }
 
