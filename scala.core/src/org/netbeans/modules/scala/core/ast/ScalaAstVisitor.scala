@@ -147,9 +147,7 @@ abstract class ScalaAstVisitor {
 
           //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
           selectors foreach {
-            case (null, null) =>
-
-            case (nme.WILDCARD, _) =>
+            case ImportSelector(nme.WILDCARD, _, _, _) =>
               // * idToken == "_", sym == qualSym
               withIdToken(getIdToken(tree, nme.WILDCARD.decode)) {token =>
                 val ref = ScalaRef(qualSym, token, ElementKind.OTHER, fo)
@@ -159,7 +157,7 @@ abstract class ScalaAstVisitor {
                 }
               }
 
-            case (x, y) =>
+            case ImportSelector(x, _, y, _) =>
               val xsym = importedSymbol(qual, x, y)
               if (xsym != null) {
                 withIdToken(getIdToken(tree, x.decode)) {idToken =>
