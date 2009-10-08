@@ -199,6 +199,11 @@ object ScalaGlobal {
     for ((src, out) <- if (forTest) cache.testToOut else cache.srcToOut) {
       srcPaths = src :: srcPaths
 
+      try {
+        val file = FileUtil.toFile(out)
+        if (!file.exists) file.mkdirs
+      } catch {case _ =>}
+
       return Some(out)
     }
 
