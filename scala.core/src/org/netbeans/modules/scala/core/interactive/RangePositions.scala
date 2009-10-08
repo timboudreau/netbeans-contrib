@@ -252,11 +252,7 @@ trait RangePositions extends Trees with Positions {
     def locateIn(root: Tree): Tree = {
       this.last = EmptyTree
       traverse(root)
-
-      new ImportingLocator(unitOf(pos).asInstanceOf[RichCompilationUnit], pos) locate match {
-        case EmptyTree => this.last
-        case importing => if (this.last.pos includes importing.pos) importing else this.last
-      }
+      this.last
     }
     
     override def traverse(t: Tree) {
@@ -267,7 +263,10 @@ trait RangePositions extends Trees with Positions {
     }
   }
 
-  class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
+  /**
+   * From Scala r18962, import tree is kept until typer phase
+   */
+  @deprecated class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
     private val visitedContexts = new HashSet[Context]
     private val visitedImports = new HashSet[Tree]
     var last: Tree = _

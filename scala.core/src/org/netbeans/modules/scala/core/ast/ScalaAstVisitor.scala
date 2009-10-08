@@ -106,17 +106,15 @@ abstract class ScalaAstVisitor {
     owners.clear
     owners push definitions.RootClass
 
-    unit match {
-      case u: RichCompilationUnit => importingTraverser(u)
-      case _ =>
-    }
-
     treeTraverser(unit.body)
 
     rootScope
   }
 
-  private final object importingTraverser {
+  /**
+   * From Scala r18962, import tree is kept until typer phase
+   */
+  @deprecated private final object importingTraverser {
     private val visitedContexts = new HashSet[Context]
     private val visitedImports = new HashSet[Tree]
     
@@ -157,10 +155,10 @@ abstract class ScalaAstVisitor {
                 }
               }
 
-            case ImportSelector(x, _, y, _) =>
-              val xsym = importedSymbol(qual, x, y)
+            case ImportSelector(from, _, to, _) =>
+              val xsym = importedSymbol(qual, from, to)
               if (xsym != null) {
-                withIdToken(getIdToken(tree, x.decode)) {idToken =>
+                withIdToken(getIdToken(tree, from.decode)) {idToken =>
                   val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
                   if (scopes.top.addRef(ref)) {
                     info("\tAdded: ", ref)
@@ -168,9 +166,9 @@ abstract class ScalaAstVisitor {
                   }
                 }
 
-                if (y != null) {
+                if (to != null) {
                   val ysym = xsym
-                  withIdToken(getIdToken(tree, y.decode)) {token =>
+                  withIdToken(getIdToken(tree, to.decode)) {token =>
                     val ref = ScalaRef(ysym, token, ElementKind.OTHER, fo)
                     if (scopes.top.addRef(ref)) {
                       info("\tAdded: ", ref)
@@ -185,20 +183,6 @@ abstract class ScalaAstVisitor {
       
       ct.children foreach visitContextTree
     }
-
-    /**
-     * The symbol with name <code>name</code> imported from import clause <code>tree</code>.
-     * We'll find class/trait instead of object first.
-     * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
-     */
-    private def importedSymbol(qual: Tree, xname: Name, yname: Name): Symbol = {
-      val targetName = xname.toTermName
-      val result = qual.tpe.members filter {_.name.toTermName == targetName}
-
-      // * prefer type over object
-      result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
-    }
-
   }
 
   private final object treeTraverser {
@@ -365,8 +349,56 @@ abstract class ScalaAstVisitor {
         case LabelDef(name, params, rhs) =>
           traverseTrees(params); traverse(rhs)
         case Import(expr, selectors) =>
-          // Import tree has been added into context and replaced by EmptyTree in typer phase
-          traverse(expr)
+          val qual = tree.symbol.tpe match {
+            case analyzer.ImportType(expr0) => expr0
+            case _ => expr
+          }
+
+          val qualSym = qual.symbol
+          if (qualSym != null) {
+            withIdToken(getIdToken(qual)) {token =>
+              val ref = ScalaRef(qualSym, token, if (qualSym.hasFlag(Flags.PACKAGE)) ElementKind.PACKAGE else ElementKind.OTHER, fo)
+              if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+            }
+          }
+
+          //println("import: qual=" + qual.tpe + ", selectors=" + selectors.mkString("{", ",", "}" ))
+          selectors foreach {
+            case ImportSelector(nme.WILDCARD, _, _, _) =>
+              // * idToken == "_", sym == qualSym
+              withIdToken(getIdToken(tree, nme.WILDCARD.decode)) {token =>
+                val ref = ScalaRef(qualSym, token, ElementKind.OTHER, fo)
+                if (scopes.top.addRef(ref)) {
+                  info("\tAdded: ", ref)
+                  rootScope putImportingItem ref
+                }
+              }
+
+            case ImportSelector(from, _, to, _) =>
+              val xsym = importedSymbol(qual, from, to)
+              if (xsym != null) {
+                withIdToken(getIdToken(tree, from.decode)) {idToken =>
+                  val ref = ScalaRef(xsym, idToken, ElementKind.OTHER, fo)
+                  if (scopes.top.addRef(ref)) {
+                    info("\tAdded: ", ref)
+                    rootScope putImportingItem ref
+                  }
+                }
+
+                if (to != null) {
+                  val ysym = xsym
+                  withIdToken(getIdToken(tree, to.decode)) {token =>
+                    val ref = ScalaRef(ysym, token, ElementKind.OTHER, fo)
+                    if (scopes.top.addRef(ref)) {
+                      info("\tAdded: ", ref)
+                      rootScope putImportingItem ref
+                    }
+                  }
+                }
+              }
+          }
+
+          //traverse(expr)
         case Annotated(annot, arg) =>
           traverse(annot); traverse(arg)
         case DocDef(comment, definition) =>
@@ -664,6 +696,19 @@ abstract class ScalaAstVisitor {
   }
 
   // ---- Helper methods
+
+  /**
+   * The symbol with name <code>name</code> imported from import clause <code>tree</code>.
+   * We'll find class/trait instead of object first.
+   * @bug in scala compiler? why name is always TermName? which means it's object instead of class/trait
+   */
+  private def importedSymbol(qual: Tree, xname: Name, yname: Name): Symbol = {
+    val targetName = xname.toTermName
+    val result = qual.tpe.members filter {_.name.toTermName == targetName}
+
+    // * prefer type over object
+    result find ScalaUtil.isProperType getOrElse result.headOption.getOrElse(null)
+  }
 
   private def withIdToken(idToken: Option[Token[TokenId]])(op: Token[TokenId] => Unit) {
     if (idToken.isDefined) op(idToken.get)
