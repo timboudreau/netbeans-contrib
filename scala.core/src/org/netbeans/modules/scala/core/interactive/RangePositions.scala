@@ -263,10 +263,8 @@ trait RangePositions extends Trees with Positions {
     }
   }
 
-  /**
-   * From Scala r18962, import tree is kept until typer phase
-   */
-  @deprecated class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
+  @deprecated("From Scala r18962, import tree is kept until typer phase, this class is not necessary any more")
+  class ImportingLocator(unit: RichCompilationUnit, pos: Position) {
     private val visitedContexts = new HashSet[Context]
     private val visitedImports = new HashSet[Tree]
     var last: Tree = _

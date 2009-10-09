@@ -189,10 +189,10 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
        * And in Rats!, EOF is !_, the input.readLength() will return 0
        */
       val tokenInfo = if (input.readLength == 0) {
-        new TokenInfo(0, null)
+        TokenInfo(0, null)
       } else {
         Log.severe("This GNode: '" + node.getName + "' is a void node, this should happen only on EOF. Check you rats file.")
-        new TokenInfo(input.readLength, ScalaTokenId.Ws)
+        TokenInfo(input.readLength, ScalaTokenId.Ws)
       }
 
       tokenStream += tokenInfo
@@ -214,7 +214,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
             case Some(v) => v.asInstanceOf[TokenId]
           }
           
-          val tokenInfo = new TokenInfo(length, id)
+          val tokenInfo = TokenInfo(length, id)
           tokenStream += tokenInfo
         case child =>
           println("To be process: " + child)
@@ -241,7 +241,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     override def close = {}
   }
 
-  class TokenInfo(val length: Int, val id: TokenId) {
+  case class TokenInfo(val length: Int, val id: TokenId) {
     override def toString = "(id=" + id + ", length=" + length + ")"
   }
 }
