@@ -111,22 +111,22 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     }
 
     if (tokenStreamItr.hasNext) {
-      val tokenInfo = tokenStreamItr.next
+      val TokenInfo(length, id) = tokenStreamItr.next
 
-      if (tokenInfo.length == 0) {
+      if (length == 0) {
         // * EOF
         return null
       }
 
       // * read token's chars according to tokenInfo.length
       var i = 0
-      while (i < tokenInfo.length) {
+      while (i < length) {
         input.read
         i += 1
       }
 
       // * see if needs to lookahead, if true, perform it
-      lookahead -= tokenInfo.length
+      lookahead -= length
       // * to cheat incremently lexer, we needs to lookahead one more char when
       // * tokenStream.size() > 1 (batched tokens that are not context free),
       // * so, when modification happens exactly behind latest token, will
@@ -142,7 +142,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
       }
 
       val tokenLength = input.readLength
-      createToken(tokenInfo.id, tokenLength)
+      createToken(id, tokenLength)
     } else {
       assert(false, "unrecognized input" + input.read)
       null
@@ -228,7 +228,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
    * as the chars input, but uses only {@link java.io.Reader#read()} of all methods in
    * {@link xtc.parser.ParserBase#character(int)}
    */
-  class LexerInputReader(input:LexerInput) extends Reader {
+  class LexerInputReader(input: LexerInput) extends Reader {
     override def read: Int = input.read match {
       case LexerInput.EOF => -1
       case c => c
@@ -241,7 +241,5 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     override def close = {}
   }
 
-  case class TokenInfo(val length: Int, val id: TokenId) {
-    override def toString = "(id=" + id + ", length=" + length + ")"
-  }
+  case class TokenInfo(val length: Int, val id: TokenId)
 }
