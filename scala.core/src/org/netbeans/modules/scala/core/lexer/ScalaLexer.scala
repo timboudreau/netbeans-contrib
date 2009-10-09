@@ -41,6 +41,7 @@
 package org.netbeans.modules.scala.core.lexer
 
 import java.io.Reader
+import java.util.logging.Logger
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.spi.lexer.{Lexer, LexerInput, LexerRestartInfo, TokenFactory}
 import xtc.parser.Result
@@ -63,9 +64,12 @@ object ScalaLexer {
    * token length, offset etc in these inputs conflict?. Anyway it's safe to create a new one always.
    */
   def create(info: LexerRestartInfo[TokenId]) = new ScalaLexer(info)
+
+  val Log = Logger.getLogger(classOf[ScalaLexer].getName)
 }
 
 class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
+  import ScalaLexer._
   /** @Note:
    * it seems input at this time is empty, so we can not do scanning here.
    * input will be filled in chars when call nextToken
@@ -184,11 +188,13 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
        *
        * And in Rats!, EOF is !_, the input.readLength() will return 0
        */
-      assert(input.readLength == 0,
-             "This generic node: " + node.getName +
-             " is a void node, this should happen only on EOF. Check you rats file.")
+      val tokenInfo = if (input.readLength == 0) {
+        new TokenInfo(0, null)
+      } else {
+        Log.severe("This GNode: '" + node.getName + "' is a void node, this should happen only on EOF. Check you rats file.")
+        new TokenInfo(input.readLength, ScalaTokenId.Ws)
+      }
 
-      val tokenInfo = new TokenInfo(0, null)
       tokenStream += tokenInfo
     }
         
