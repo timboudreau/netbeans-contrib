@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="fuse-template">
+                <folder name="Actions">
+                    <file name="org-openide-actions-CopyAction.instance">
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="org-openide-actions-CutAction.instance">
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-openide-actions-DeleteAction.instance">
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="org-openide-actions-FileSystemAction.instance">
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                    <file name="org-openide-actions-OpenAction.instance">
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-openide-actions-PropertiesAction.instance">
+                        <attr name="position" intvalue="1400"/>
+                    </file>
+                    <file name="org-openide-actions-RenameAction.instance">
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance">
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="org-openide-actions-ToolsAction.instance">
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="sep-5.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                </folder>
+                <folder name="Factories">
+                    <file name="tmplDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/filetypes/iconTmpl.gif"/>
+                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.php.fuse.filetypes.tmplDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="text/fuse-template"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="OptionsExport">
+        <folder name="PHP">
+            <file name="Fuse">
+                <attr name="include" stringvalue="config/Preferences/org/netbeans/modules/php/fuse/fuse.properties"/>
+                <attr name="displayName" bundlevalue="org.netbeans.modules.php.fuse.resources.Bundle#LBL_FuseExportName"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="PHP">
+        <folder name="Frameworks">
+            <file name="org-netbeans-modules-php-fuse-FusePhpFrameworkProvider.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.FusePhpFrameworkProvider.getInstance"/>
+                <attr name="position" intvalue="189"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="PHP">
+            <file name="org-netbeans-modules-php-fuse-ui-actions-RunCommandAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.ui.actions.RunCommandAction.getInstance"/>
+            </file>
+            </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="fuse-helpset.xml" url="fuse-helpset.xml">
+                <attr name="position" intvalue="3998"/>
+            </file>
+        </folder>
+        <folder name="MIMEResolver">
+            <file name="tmplResolver.xml" url="tmplResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Scripting">
+            <file name="PHP FUSE Template" url="tmplTemplate.tmpl">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="PHP"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
