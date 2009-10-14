@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.php.fuse.commands;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -146,5 +147,10 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
         String displayName = getOutputTitle(commandDescriptor);
         ExecutionService service = ExecutionService.newService(callable, descriptor, displayName);
         service.run();
+    }
+
+    @Override
+    protected File getPluginsDirectory() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
