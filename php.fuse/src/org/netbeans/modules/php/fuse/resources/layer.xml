@@ -54,9 +54,9 @@
                     </file>
                 </folder>
                 <folder name="Factories">
-                    <file name="tmplDataLoader.instance">
-                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/filetypes/iconTmpl.gif"/>
-                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.php.fuse.filetypes.tmplDataObject"/>
+                    <file name="TmplDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
+                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.php.fuse.TmplDataObject"/>
                         <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
                         <attr name="mimeType" stringvalue="text/fuse-template"/>
                     </file>
@@ -95,14 +95,14 @@
             </file>
         </folder>
         <folder name="MIMEResolver">
-            <file name="tmplResolver.xml" url="tmplResolver.xml">
+            <file name="TmplResolver.xml" url="TmplResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
             </file>
         </folder>
     </folder>
     <folder name="Templates">
         <folder name="Scripting">
-            <file name="PHP FUSE Template" url="tmplTemplate.tmpl">
+            <file name="TmplTemplate.tmpl" url="TmplTemplate.tmpl">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="PHP"/>
