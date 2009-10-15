@@ -36,35 +36,25 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.fuse.filetypes;
+package org.netbeans.modules.php.fuse;
 
-import java.io.IOException;
+import junit.framework.TestCase;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataNode;
-import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.MultiDataObject;
-import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.CookieSet;
-import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.util.Lookup;
-import org.openide.text.DataEditorSupport;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataObject;
 
-public class tmplDataObject extends MultiDataObject {
+public class TmplDataObjectTest extends TestCase {
 
-    public tmplDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
-        super(pf, loader);
-        CookieSet cookies = getCookieSet();
-        cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
+    public TmplDataObjectTest(String testName) {
+        super(testName);
     }
 
-    @Override
-    protected Node createNodeDelegate() {
-        return new DataNode(this, Children.LEAF, getLookup());
-    }
+    public void testDataObject() throws Exception {
+        FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
+        FileObject template = root.getFileObject("Templates/Other/TmplTemplate.tmpl");
+        assertNotNull("Template file shall be found", template);
 
-    @Override
-    public Lookup getLookup() {
-        return getCookieSet().getLookup();
+        DataObject obj = DataObject.find(template);
+        assertEquals("It is our data object", TmplDataObject.class, obj.getClass());
     }
 }
