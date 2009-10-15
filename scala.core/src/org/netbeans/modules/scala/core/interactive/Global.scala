@@ -211,7 +211,8 @@ extends scala.tools.nsc.Global(settings, reporter)
           GlobalLog.info(ex.getClass.getSimpleName + " processed, will start a newRunnerThread")
           outOfDate = false
           compileRunner = newRunnerThread
-          ex match { 
+          ex match {
+            case _ : FreshRunReq =>   // This shouldn't be reported
             case _ : ValidateError => // This will have been reported elsewhere
             case _ => ex.printStackTrace(); inform("Fatal Error: "+ex)
           }
@@ -278,13 +279,18 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   // ----------------- Implementations of client commmands -----------------------
   
-  def respond[T](result: Response[T])(op: => T): Unit = try {
-    result set Left(op)
-  } catch {
-    case ex =>
-      result set Right(ex)
-      throw ex
-  }
+  def respond[T](result: Response[T])(op: => T): Unit =
+    try {
+      result set Left(op)
+      return
+    } catch {
+      case ex : FreshRunReq =>
+ 	scheduler.postWorkItem(() => respond(result)(op))
+ 	throw ex
+      case ex =>
+ 	result set Right(ex)
+ 	throw ex
+    }
 
   /** Make sure a set of compilation units is loaded and parsed */
   def reloadSources(sources: List[SourceFile]) {
