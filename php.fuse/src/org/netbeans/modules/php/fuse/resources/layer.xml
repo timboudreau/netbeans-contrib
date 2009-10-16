@@ -110,4 +110,31 @@
             </file>
         </folder>
     </folder>
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="fuse-template" url="SimpleTmplExample.tmpl"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="fuse-template">
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.lexer.Bundle"/>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-php-fuse-fontsColors.xml" url="fontsColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
