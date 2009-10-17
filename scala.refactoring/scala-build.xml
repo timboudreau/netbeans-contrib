@@ -72,7 +72,7 @@
 
   <target name="-do-fast-scalac" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc">
     <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}" fork="false"
+            encoding="UTF-8" target="jvm-${javac.target}" fork="true" jvmargs="-Xmx150m"
             deprecation="yes" unchecked="yes" addparams="-verbose">
     </fsc>
   </target>
