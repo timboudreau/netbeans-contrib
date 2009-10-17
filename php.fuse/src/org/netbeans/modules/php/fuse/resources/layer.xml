@@ -124,7 +124,7 @@
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.lexer.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.lexer.Bundle"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
