@@ -174,6 +174,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                             if (textLength == 2) {
                                 state = State.OUTER;
                                 return FuseTopTokenId.T_FUSE_CLOSE_DELIMITER;
+//                                }
                             } else {
                                 input.backup(2);
                                 return FuseTopTokenId.T_FUSE;

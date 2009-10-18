@@ -48,83 +48,35 @@ import java.util.Map;
 import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
-import org.netbeans.api.lexer.PartType;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
-import org.netbeans.modules.php.fuse.lexer.JavaLexer;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
 /**
- * Token ids of java language defined as enum.
+ * Token ids of Fuse template language
  *
- * @author Miloslav Metelka
+ * @author Martin Fousek
  */
-public enum JavaTokenId implements TokenId {
+public enum FuseTokenId implements TokenId {
 
     ERROR(null, "error"),
     IDENTIFIER(null, "identifier"),
 
-    ABSTRACT("abstract", "keyword"),
-    ASSERT("assert", "keyword-directive"),
-    BOOLEAN("boolean", "keyword"),
-    BREAK("break", "keyword-directive"),
-    BYTE("byte", "keyword"),
-    CASE("case", "keyword-directive"),
-    CATCH("catch", "keyword-directive"),
-    CHAR("char", "keyword"),
-    CLASS("class", "keyword"),
-    CONST("const", "keyword"),
-    CONTINUE("continue", "keyword-directive"),
-    DEFAULT("default", "keyword-directive"),
-    DO("do", "keyword-directive"),
-    DB_LOOP("double", "keyword"),
-    LOOP("else", "keyword-directive"),
-    ELSE("enum", "keyword"),
-    EXTENDS("extends", "keyword"),
-    ITERATOR("final", "keyword"),
-    FINALLY("finally", "keyword-directive"),
-    FLOAT("float", "keyword"),
-    FOR("for", "keyword-directive"),
-    GOTO("goto", "keyword-directive"),
-    IF("if", "keyword-directive"),
-    IMPLEMENTS("implements", "keyword"),
-    INCLUDE("import", "keyword"),
-    INSTANCEOF("instanceof", "keyword"),
-    INT("int", "keyword"),
-    INTERFACE("interface", "keyword"),
-    LONG("long", "keyword"),
-    NATIVE("native", "keyword"),
-    NEW("new", "keyword"),
-    PACKAGE("package", "keyword"),
-    PRIVATE("private", "keyword"),
-    PROTECTED("protected", "keyword"),
-    PUBLIC("public", "keyword"),
-    RETURN("return", "keyword-directive"),
-    SHORT("short", "keyword"),
-    STATIC("static", "keyword"),
-    STRICTFP("strictfp", "keyword"),
-    SUPER("super", "keyword"),
-    SWITCH("switch", "keyword-directive"),
-    SYNCHRONIZED("synchronized", "keyword"),
-    THIS("this", "keyword"),
-    THROW("throw", "keyword-directive"),
-    THROWS("throws", "keyword"),
-    TRANSIENT("transient", "keyword"),
-    TRY("try", "keyword-directive"),
-    VOID("void", "keyword"),
-    VOLATILE("volatile", "keyword"),
-    WHILE("while", "keyword-directive"),
+    DB_LOOP("db_loop", "keyword"),
+    LOOP("loop", "keyword"),
+    ELSE("else", "keyword"),
+    ITERATOR("iterator", "keyword"),
+    IF("if", "keyword"),
+    WHILE("while", "keyword"),
 
-    INT_LITERAL(null, "number"),
-    LONG_LITERAL(null, "number"),
-    FLOAT_LITERAL(null, "number"),
-    DOUBLE_LITERAL(null, "number"),
-    CHAR_LITERAL(null, "character"),
-    STRING_LITERAL(null, "string"),
-    
+    INCLUDE("include", "include"),
+    REQUIRE("require", "include"),
+    INCLUDE_ONCE("include_once", "include"),
+    REQUIRE_ONCE("require_once", "include"),
+
     TRUE("true", "literal"),
     FALSE("false", "literal"),
     NULL("null", "literal"),
@@ -162,9 +114,8 @@ public enum JavaTokenId implements TokenId {
     BAR("|", "operator"),
     CARET("^", "operator"),
     PERCENT("%", "operator"),
-    LTLT("<<", "operator"),
-    GTGT(">>", "operator"),
-    GTGTGT(">>>", "operator"),
+    LTLT("<-", "operator"),
+    GTGT("->", "operator"),
     PLUSEQ("+=", "operator"),
     MINUSEQ("-=", "operator"),
     STAREQ("*=", "operator"),
@@ -173,28 +124,14 @@ public enum JavaTokenId implements TokenId {
     BAREQ("|=", "operator"),
     CARETEQ("^=", "operator"),
     PERCENTEQ("%=", "operator"),
-    LTLTEQ("<<=", "operator"),
-    GTGTEQ(">>=", "operator"),
-    GTGTGTEQ(">>>=", "operator"),
     
-    ELLIPSIS("...", "special"),
-    AT("@", "special"),
-    
-    WHITESPACE(null, "whitespace"),
-    LINE_COMMENT(null, "comment"), // Token includes ending new-line
-    BLOCK_COMMENT(null, "comment"),
-    JAVADOC_COMMENT(null, "comment"),
-    
-    // Errors
-    INVALID_COMMENT_END("*/", "error"),
-    FLOAT_LITERAL_INVALID(null, "number");
-
+    WHITESPACE(null, "whitespace");
 
     private final String fixedText;
 
     private final String primaryCategory;
 
-    JavaTokenId(String fixedText, String primaryCategory) {
+    FuseTokenId(String fixedText, String primaryCategory) {
         this.fixedText = fixedText;
         this.primaryCategory = primaryCategory;
     }
@@ -207,47 +144,32 @@ public enum JavaTokenId implements TokenId {
         return primaryCategory;
     }
 
-    private static final Language<JavaTokenId> language = new LanguageHierarchy<JavaTokenId>() {
+    private static final Language<FuseTokenId> language = new LanguageHierarchy<FuseTokenId>() {
 
         @Override
         protected String mimeType() {
-            return "text/x-java";
+            return "text/fuse-template";
         }
 
         @Override
-        protected Collection<JavaTokenId> createTokenIds() {
-            return EnumSet.allOf(JavaTokenId.class);
+        protected Collection<FuseTokenId> createTokenIds() {
+            return EnumSet.allOf(FuseTokenId.class);
         }
         
         @Override
-        protected Map<String,Collection<JavaTokenId>> createTokenCategories() {
-            Map<String,Collection<JavaTokenId>> cats = new HashMap<String,Collection<JavaTokenId>>();
-            // Additional literals being a lexical error
-            cats.put("error", EnumSet.of(
-                JavaTokenId.FLOAT_LITERAL_INVALID
-            ));
-            // Literals category
-            EnumSet<JavaTokenId> l = EnumSet.of(
-                JavaTokenId.INT_LITERAL,
-                JavaTokenId.LONG_LITERAL,
-                JavaTokenId.FLOAT_LITERAL,
-                JavaTokenId.DOUBLE_LITERAL,
-                JavaTokenId.CHAR_LITERAL
-            );
-            l.add(JavaTokenId.STRING_LITERAL);
-            cats.put("literal", l);
-
+        protected Map<String,Collection<FuseTokenId>> createTokenCategories() {
+            Map<String,Collection<FuseTokenId>> cats = new HashMap<String,Collection<FuseTokenId>>();
             return cats;
         }
 
         @Override
-        protected Lexer<JavaTokenId> createLexer(LexerRestartInfo<JavaTokenId> info) {
-            return new JavaLexer(info);
+        protected Lexer<FuseTokenId> createLexer(LexerRestartInfo<FuseTokenId> info) {
+            return new FuseLexer(info);
         }
 
         @Override
         protected LanguageEmbedding<?> embedding(
-        Token<JavaTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
+        Token<FuseTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
             // Test language embedding in the block comment
 //            switch (token.id()) {
 //                case JAVADOC_COMMENT:
@@ -259,14 +181,9 @@ public enum JavaTokenId implements TokenId {
 //            }
             return null; // No embedding
         }
-
-//        protected CharPreprocessor createCharPreprocessor() {
-//            return CharPreprocessor.createUnicodeEscapesPreprocessor();
-//        }
-
     }.language();
 
-    public static Language<JavaTokenId> language() {
+    public static Language<FuseTokenId> language() {
         return language;
     }
 

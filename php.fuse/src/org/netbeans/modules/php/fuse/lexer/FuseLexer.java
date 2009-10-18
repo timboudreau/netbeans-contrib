@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.php.fuse.lexer;
 
 import org.netbeans.api.lexer.Token;
@@ -49,41 +48,58 @@ import org.netbeans.spi.lexer.TokenFactory;
 
 /**
  * Lexical analyzer for FUSE tmpl templates
+ * 
  * @author Martin Fousek
  */
+public class FuseLexer implements Lexer<FuseTokenId> {
 
-public class JavaLexer implements Lexer<JavaTokenId> {
-    
     private static final int EOF = LexerInput.EOF;
-
     private final LexerInput input;
-    
-    private final TokenFactory<JavaTokenId> tokenFactory;
-    
-    public JavaLexer(LexerRestartInfo<JavaTokenId> info) {
+    private final TokenFactory<FuseTokenId> tokenFactory;
+
+    public FuseLexer(LexerRestartInfo<FuseTokenId> info) {
         this.input = info.input();
         this.tokenFactory = info.tokenFactory();
         assert (info.state() == null); // never set to non-null value in state()
     }
-    
+
     public Object state() {
         return null; // always in default state after token recognition
     }
-    
-    public Token<JavaTokenId> nextToken() {
-        while(true) {
+
+    public Token<FuseTokenId> nextToken() {
+        while (true) {
             int c = input.read();
             switch (c) {
                 // Keywords lexing
                 case 'i':
                     switch (c = input.read()) {
                         case 'n':
-                            if ((c = input.read()) == 'c'
-                             && (c = input.read()) == 'l'
-                             && (c = input.read()) == 'u'
-                             && (c = input.read()) == 'd'
-                             && (c = input.read()) == 'e')
-                                return keywordOrIdentifier(JavaTokenId.INCLUDE);
+                            if ((c = input.read()) == 'c' && (c = input.read()) == 'l' && (c = input.read()) == 'u' && (c = input.read()) == 'd' && (c = input.read()) == 'e') {
+                                if ((c = input.read()) == '_' && (c = input.read()) == 'o' && (c = input.read()) == 'n' && (c = input.read()) == 'c' && (c = input.read()) == 'e') {
+                                    return keywordOrIdentifier(FuseTokenId.INCLUDE_ONCE);
+                                }
+                                else if (c == ' '){
+                                    input.backup(1);
+                                    return keywordOrIdentifier(FuseTokenId.INCLUDE);
+                                }
+                            }
+                            break;
+                    }
+                    return finishIdentifier(c);
+
+                case 'r':
+                    switch (c = input.read()) {
+                        case 'e':
+                            if ((c = input.read()) == 'q' && (c = input.read()) == 'u' && (c = input.read()) == 'i' && (c = input.read()) == 'r' && (c = input.read()) == 'e') {
+                                if ((c = input.read()) == '_' && (c = input.read()) == 'o' && (c = input.read()) == 'n' && (c = input.read()) == 'c' && (c = input.read()) == 'e') {
+                                    return keywordOrIdentifier(FuseTokenId.REQUIRE_ONCE);
+                                }
+                                else if (c == ' '){
+                                    input.backup(1);
+                                    return keywordOrIdentifier(FuseTokenId.REQUIRE);
+                                }
+                            }
                             break;
                     }
                     return finishIdentifier(c);
@@ -91,15 +107,11 @@ public class JavaLexer implements Lexer<JavaTokenId> {
                 case 'I':
                     switch (c = input.read()) {
                         case 'F':
-                            return keywordOrIdentifier(JavaTokenId.IF);
+                            return keywordOrIdentifier(FuseTokenId.IF);
                         case 'T':
-                            if ((c = input.read()) == 'E'
-                             && (c = input.read()) == 'R'
-                             && (c = input.read()) == 'A'
-                             && (c = input.read()) == 'T'
-                             && (c = input.read()) == 'O'
-                             && (c = input.read()) == 'R')
-                                return keywordOrIdentifier(JavaTokenId.ITERATOR);
+                            if ((c = input.read()) == 'E' && (c = input.read()) == 'R' && (c = input.read()) == 'A' && (c = input.read()) == 'T' && (c = input.read()) == 'O' && (c = input.read()) == 'R') {
+                                return keywordOrIdentifier(FuseTokenId.ITERATOR);
+                            }
                             break;
                     }
                     return finishIdentifier(c);
@@ -107,12 +119,9 @@ public class JavaLexer implements Lexer<JavaTokenId> {
                 case 'D':
                     switch (c = input.read()) {
                         case 'B':
-                            if ((c = input.read()) == '_'
-                             && (c = input.read()) == 'L'
-                             && (c = input.read()) == 'O'
-                             && (c = input.read()) == 'O'
-                             && (c = input.read()) == 'P')
-                                return keywordOrIdentifier(JavaTokenId.DB_LOOP);
+                            if ((c = input.read()) == '_' && (c = input.read()) == 'L' && (c = input.read()) == 'O' && (c = input.read()) == 'O' && (c = input.read()) == 'P') {
+                                return keywordOrIdentifier(FuseTokenId.DB_LOOP);
+                            }
                             break;
                     }
                     return finishIdentifier(c);
@@ -120,42 +129,73 @@ public class JavaLexer implements Lexer<JavaTokenId> {
                 case 'E':
                     switch (c = input.read()) {
                         case 'L':
-                            if ((c = input.read()) == 'S'
-                             && (c = input.read()) == 'E')
-                                return keywordOrIdentifier(JavaTokenId.FALSE);
+                            if ((c = input.read()) == 'S' && (c = input.read()) == 'E') {
+                                return keywordOrIdentifier(FuseTokenId.ELSE);
+                            }
                             break;
                     }
                     return finishIdentifier(c);
 
                 case 'L':
-                    if ((c = input.read()) == 'O'
-                     && (c = input.read()) == 'O'
-                     && (c = input.read()) == 'P')
-                        return keywordOrIdentifier(JavaTokenId.LOOP);
+                    if ((c = input.read()) == 'O' && (c = input.read()) == 'O' && (c = input.read()) == 'P') {
+                        return keywordOrIdentifier(FuseTokenId.LOOP);
+                    }
                     return finishIdentifier(c);
 
                 case 'W':
-                    if ((c = input.read()) == 'H'
-                     && (c = input.read()) == 'I'
-                     && (c = input.read()) == 'L'
-                     && (c = input.read()) == 'E')
-                        return keywordOrIdentifier(JavaTokenId.WHILE);
+                    if ((c = input.read()) == 'H' && (c = input.read()) == 'I' && (c = input.read()) == 'L' && (c = input.read()) == 'E') {
+                        return keywordOrIdentifier(FuseTokenId.WHILE);
+                    }
                     return finishIdentifier(c);
 
                 // Rest of letters starting identifiers
-                case 'a': case 'b': case 'c': case 'd': case 'e':
-                case 'f': case 'g': case 'h': case 'j':
-                case 'k': case 'l': case 'm': case 'n': case 'o':
-                case 'p': case 'q': case 'r': case 's': case 't':
-                case 'u': case 'v': case 'w': case 'x': case 'y':
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'g':
+                case 'h':
+                case 'j':
+                case 'k':
+                case 'l':
+                case 'm':
+                case 'n':
+                case 'o':
+                case 'p':
+                case 'q':
+                case 's':
+                case 't':
+                case 'u':
+                case 'v':
+                case 'w':
+                case 'x':
+                case 'y':
                 case 'z':
-                case 'A': case 'B': case 'C': 
-                case 'F': case 'G': case 'H': case 'J':
-                case 'K': case 'M': case 'N': case 'O':
-                case 'P': case 'Q': case 'R': case 'S': case 'T':
-                case 'U': case 'V': case 'X': case 'Y': case 'Z':
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'J':
+                case 'K':
+                case 'M':
+                case 'N':
+                case 'O':
+                case 'P':
+                case 'Q':
+                case 'R':
+                case 'S':
+                case 'T':
+                case 'U':
+                case 'V':
+                case 'X':
+                case 'Y':
+                case 'Z':
                     return finishIdentifier();
-                    
+
                 case '\t':
                 case '\n':
                 case 0x0b:
@@ -170,7 +210,7 @@ public class JavaLexer implements Lexer<JavaTokenId> {
                     c = input.read();
                     if (c == EOF || !Character.isWhitespace(c)) { // Return single space as flyweight token
                         input.backup(1);
-                        return tokenFactory.getFlyweightToken(JavaTokenId.WHITESPACE, " ");
+                        return tokenFactory.getFlyweightToken(FuseTokenId.WHITESPACE, " ");
                     }
                     return finishWhitespace();
 
@@ -178,26 +218,17 @@ public class JavaLexer implements Lexer<JavaTokenId> {
                     return null;
 
                 default:
-                    if (c >= 0x80) { // lowSurr ones already handled above
-                        c = translateSurrogates(c);
-                        if (Character.isJavaIdentifierStart(c))
-                            return finishIdentifier();
-                        if (Character.isWhitespace(c))
-                            return finishWhitespace();
-                    }
-
-                    // Invalid char
-                    return token(JavaTokenId.ERROR);
+                    return token(FuseTokenId.ERROR);
             } // end of switch (c)
         } // end of while(true)
     }
-    
+
     private int translateSurrogates(int c) {
-        if (Character.isHighSurrogate((char)c)) {
+        if (Character.isHighSurrogate((char) c)) {
             int lowSurr = input.read();
-            if (lowSurr != EOF && Character.isLowSurrogate((char)lowSurr)) {
+            if (lowSurr != EOF && Character.isLowSurrogate((char) lowSurr)) {
                 // c and lowSurr form the integer unicode char.
-                c = Character.toCodePoint((char)c, (char)lowSurr);
+                c = Character.toCodePoint((char) c, (char) lowSurr);
             } else {
                 // Otherwise it's error: Low surrogate does not follow the high one.
                 // Leave the original character unchanged.
@@ -210,55 +241,73 @@ public class JavaLexer implements Lexer<JavaTokenId> {
         return c;
     }
 
-    private Token<JavaTokenId> finishWhitespace() {
+    private Token<FuseTokenId> finishWhitespace() {
         while (true) {
             int c = input.read();
             // There should be no surrogates possible for whitespace
             // so do not call translateSurrogates()
             if (c == EOF || !Character.isWhitespace(c)) {
                 input.backup(1);
-                return tokenFactory.createToken(JavaTokenId.WHITESPACE);
+                return tokenFactory.createToken(FuseTokenId.WHITESPACE);
             }
         }
     }
-    
-    private Token<JavaTokenId> finishIdentifier() {
+
+    private boolean foundWhitespace(int c) {
+        switch(c) {
+            case '\t':
+            case '\n':
+            case 0x0b:
+            case '\f':
+            case '\r':
+            case 0x1c:
+            case 0x1d:
+            case 0x1e:
+            case 0x1f:
+            case ' ':
+                return true;
+        }
+        return false;
+    }
+
+    private Token<FuseTokenId> finishIdentifier() {
         return finishIdentifier(input.read());
     }
-    
-    private Token<JavaTokenId> finishIdentifier(int c) {
+
+    private Token<FuseTokenId> finishIdentifier(int c) {
         while (true) {
             if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c))) {
                 // For surrogate 2 chars must be backed up
                 input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
-                return tokenFactory.createToken(JavaTokenId.IDENTIFIER);
+                return tokenFactory.createToken(FuseTokenId.IDENTIFIER);
             }
             c = input.read();
         }
     }
 
-    private Token<JavaTokenId> keywordOrIdentifier(JavaTokenId keywordId) {
+    private Token<FuseTokenId> keywordOrIdentifier(FuseTokenId keywordId) {
         return keywordOrIdentifier(keywordId, input.read());
     }
 
-    private Token<JavaTokenId> keywordOrIdentifier(JavaTokenId keywordId, int c) {
+    private Token<FuseTokenId> keywordOrIdentifier(FuseTokenId keywordId, int c) {
         // Check whether the given char is non-ident and if so then return keyword
         if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c))) {
             // For surrogate 2 chars must be backed up
             input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
             return token(keywordId);
         } else // c is identifier part
+        {
             return finishIdentifier();
+        }
     }
-    
-    private Token<JavaTokenId> token(JavaTokenId id) {
+
+    private Token<FuseTokenId> token(FuseTokenId id) {
         String fixedText = id.fixedText();
         return (fixedText != null)
                 ? tokenFactory.getFlyweightToken(id, fixedText)
                 : tokenFactory.createToken(id);
     }
-    
+
     public void release() {
     }
-
 }
