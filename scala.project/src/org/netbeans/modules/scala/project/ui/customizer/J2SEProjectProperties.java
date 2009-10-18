@@ -143,7 +143,10 @@ public class J2SEProjectProperties {
     public static final String JAVAC_TARGET = "javac.target"; // NOI18N
     public static final String JAVAC_DEBUG = "javac.debug"; // NOI18N
     public static final String JAVAC_DEPRECATION = "javac.deprecation"; // NOI18N
+    public static final String SCALAC_DEPRECATION = "scalac.deprecation"; // NOI18N
+    public static final String SCALAC_UNCHECKED = "scalac.unchecked"; // NOI18N
     public static final String JAVAC_COMPILER_ARG = "javac.compilerargs";    //NOI18N
+    public static final String SCALAC_COMPILER_ARG = "scalac.compilerargs";    //NOI18N
     public static final String BUILD_DIR = "build.dir"; // NOI18N
     public static final String BUILD_TEST_RESULTS_DIR = "build.test.results.dir"; // NOI18N
     public static final String BUILD_CLASSES_EXCLUDES = "build.classes.excludes"; // NOI18N
@@ -217,11 +220,14 @@ public class J2SEProjectProperties {
 
     // CustomizerCompile
     ButtonModel JAVAC_DEPRECATION_MODEL;
+    ButtonModel SCALAC_DEPRECATION_MODEL;
+    ButtonModel SCALAC_UNCHECKED_MODEL;
     ButtonModel JAVAC_DEBUG_MODEL;
     ButtonModel DO_DEPEND_MODEL;
     ButtonModel COMPILE_ON_SAVE_MODEL;
     ButtonModel NO_DEPENDENCIES_MODEL;
     Document JAVAC_COMPILER_ARG_MODEL;
+    Document SCALAC_COMPILER_ARG_MODEL;
 
     // CustomizerCompileTest
 
@@ -329,7 +335,9 @@ public class J2SEProjectProperties {
         }
 
         // CustomizerCompile
-        JAVAC_DEPRECATION_MODEL = projectGroup.createToggleButtonModel( evaluator, JAVAC_DEPRECATION );
+        //JAVAC_DEPRECATION_MODEL = projectGroup.createToggleButtonModel( evaluator, JAVAC_DEPRECATION );
+        SCALAC_DEPRECATION_MODEL = projectGroup.createToggleButtonModel( evaluator, SCALAC_DEPRECATION );
+        SCALAC_UNCHECKED_MODEL = projectGroup.createToggleButtonModel( evaluator, SCALAC_UNCHECKED );
 
         //Hotfix of the issue #70058
         //Should use the StoreGroup when the StoreGroup SPI will be extended to allow false default value in ToggleButtonModel
@@ -343,6 +351,7 @@ public class J2SEProjectProperties {
 
         NO_DEPENDENCIES_MODEL = projectGroup.createInverseToggleButtonModel( evaluator, NO_DEPENDENCIES );
         JAVAC_COMPILER_ARG_MODEL = projectGroup.createStringDocument( evaluator, JAVAC_COMPILER_ARG );
+        SCALAC_COMPILER_ARG_MODEL = projectGroup.createStringDocument( evaluator, SCALAC_COMPILER_ARG );
 
         // CustomizerJar
         DIST_JAR_MODEL = projectGroup.createStringDocument( evaluator, DIST_JAR );

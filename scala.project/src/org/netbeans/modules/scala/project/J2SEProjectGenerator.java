@@ -262,10 +262,16 @@ public class J2SEProjectGenerator {
         ep.setComment("javac.compilerargs", new String[] {
             "# " + NbBundle.getMessage(J2SEProjectGenerator.class, "COMMENT_javac.compilerargs"), // NOI18N
         }, false);
+        ep.setProperty("scalac.compilerargs", ""); // NOI18N
+        ep.setComment("scalac.compilerargs", new String[] {
+            "# " + NbBundle.getMessage(J2SEProjectGenerator.class, "COMMENT_scalac.compilerargs"), // NOI18N
+        }, false);
         SpecificationVersion sourceLevel = getDefaultSourceLevel();
         ep.setProperty("javac.source", sourceLevel.toString()); // NOI18N
         ep.setProperty("javac.target", sourceLevel.toString()); // NOI18N
         ep.setProperty("javac.deprecation", "false"); // NOI18N
+        ep.setProperty("scalac.deprecation", "no"); // NOI18N
+        ep.setProperty("scalac.unchecked", "no"); // NOI18N
         ep.setProperty("javac.test.classpath", new String[] { // NOI18N
             "${javac.classpath}:", // NOI18N
             "${build.classes.dir}:", // NOI18N

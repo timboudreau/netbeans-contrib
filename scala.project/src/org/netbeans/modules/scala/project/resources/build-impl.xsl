@@ -483,7 +483,7 @@ Scala installation directory.
                     </attribute>
                     <attribute>
                         <xsl:attribute name="name">addparams</xsl:attribute>
-                        <xsl:attribute name="default">${javac.compilerargs}</xsl:attribute>
+                        <xsl:attribute name="default">${scalac.compilerargs}</xsl:attribute>
                     </attribute>
                     <attribute>
                         <xsl:attribute name="name">sourcepath</xsl:attribute>
@@ -498,7 +498,8 @@ Scala installation directory.
                             <xsl:attribute name="srcdir">@{srcdir}</xsl:attribute>
                             <xsl:attribute name="sourcepath">@{sourcepath}</xsl:attribute>
                             <xsl:attribute name="destdir">@{destdir}</xsl:attribute>
-                            <!--xsl:attribute name="deprecation">${javac.deprecation}</xsl:attribute-->
+                            <xsl:attribute name="deprecation">${scalac.deprecation}</xsl:attribute>
+                            <xsl:attribute name="unchecked">${scalac.unchecked}</xsl:attribute>
                             <xsl:attribute name="encoding">${source.encoding}</xsl:attribute>
                             <xsl:if test ="not(/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform/@explicit-source-supported ='false')">
                                 <!--<xsl:attribute name="source">${javac.source}</xsl:attribute>-->

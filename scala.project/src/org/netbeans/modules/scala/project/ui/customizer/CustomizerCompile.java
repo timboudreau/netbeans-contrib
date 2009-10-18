@@ -49,8 +49,11 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
     public CustomizerCompile( J2SEProjectProperties uiProperties ) {
         initComponents();
 
-        uiProperties.JAVAC_DEPRECATION_MODEL.setMnemonic( deprecationCheckBox.getMnemonic() );
-        deprecationCheckBox.setModel( uiProperties.JAVAC_DEPRECATION_MODEL );
+        uiProperties.SCALAC_DEPRECATION_MODEL.setMnemonic( deprecationCheckBox.getMnemonic() );
+        deprecationCheckBox.setModel( uiProperties.SCALAC_DEPRECATION_MODEL );
+
+        uiProperties.SCALAC_UNCHECKED_MODEL.setMnemonic( uncheckedCheckBox.getMnemonic() );
+        uncheckedCheckBox.setModel( uiProperties.SCALAC_UNCHECKED_MODEL );
 
         uiProperties.JAVAC_DEBUG_MODEL.setMnemonic( debugInfoCheckBox.getMnemonic() );
         debugInfoCheckBox.setModel( uiProperties.JAVAC_DEBUG_MODEL );
@@ -58,7 +61,7 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
         uiProperties.DO_DEPEND_MODEL.setMnemonic(doDependCheckBox.getMnemonic());
         doDependCheckBox.setModel(uiProperties.DO_DEPEND_MODEL);
 
-        additionalJavacParamsField.setDocument( uiProperties.JAVAC_COMPILER_ARG_MODEL );
+        additionalJavacParamsField.setDocument( uiProperties.SCALAC_COMPILER_ARG_MODEL );
     }
 
     public HelpCtx getHelpCtx() {
@@ -74,6 +77,7 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
         additionalJavacParamsLabel = new javax.swing.JLabel();
         additionalJavacParamsField = new javax.swing.JTextField();
         additionalJavacParamsExample = new javax.swing.JLabel();
+        uncheckedCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(debugInfoCheckBox, org.openide.util.NbBundle.getMessage(CustomizerCompile.class, "LBL_CustomizeCompile_Compiler_DebugInfo_JCheckBox")); // NOI18N
 
@@ -86,6 +90,13 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
 
         org.openide.awt.Mnemonics.setLocalizedText(additionalJavacParamsExample, org.openide.util.NbBundle.getMessage(CustomizerCompile.class, "LBL_AdditionalCompilerOptionsExample")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(uncheckedCheckBox, org.openide.util.NbBundle.getBundle(CustomizerCompile.class).getString("LBL_CustomizeCompile_Compiler_Unchecked_JCheckBox")); // NOI18N
+        uncheckedCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                uncheckedCheckBoxActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -93,15 +104,17 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(debugInfoCheckBox)
+                    .add(uncheckedCheckBox)
                     .add(deprecationCheckBox)
                     .add(doDependCheckBox)
                     .add(layout.createSequentialGroup()
+                        .addContainerGap()
                         .add(additionalJavacParamsLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(additionalJavacParamsExample)
-                            .add(additionalJavacParamsField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))))
-                .addContainerGap())
+                            .add(additionalJavacParamsField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 336, Short.MAX_VALUE)
+                            .add(additionalJavacParamsExample))))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -110,14 +123,16 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(deprecationCheckBox)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(uncheckedCheckBox)
+                .add(5, 5, 5)
                 .add(doDependCheckBox)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(additionalJavacParamsLabel)
                     .add(additionalJavacParamsField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(additionalJavacParamsExample)
-                .add(353, 353, 353))
+                .add(331, 331, 331))
         );
 
         debugInfoCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(CustomizerCompile.class, "ACSD_CustomizerCompile_jCheckBoxDebugInfo")); // NOI18N
@@ -126,6 +141,10 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
         additionalJavacParamsField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage (CustomizerCompile.class,"AD_AdditionalCompilerOptions"));
     }// </editor-fold>//GEN-END:initComponents
 
+    private void uncheckedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uncheckedCheckBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_uncheckedCheckBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel additionalJavacParamsExample;
     private javax.swing.JTextField additionalJavacParamsField;
@@ -133,6 +152,7 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
     private javax.swing.JCheckBox debugInfoCheckBox;
     private javax.swing.JCheckBox deprecationCheckBox;
     private javax.swing.JCheckBox doDependCheckBox;
+    private javax.swing.JCheckBox uncheckedCheckBox;
     // End of variables declaration//GEN-END:variables
 
 }
