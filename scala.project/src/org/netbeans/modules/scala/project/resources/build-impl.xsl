@@ -515,7 +515,6 @@ Scala installation directory.
                                     <include name="**/*.jar"/>
                                 </fileset>
                             </classpath>
-                            <!--<compilerarg line="${{javac.compilerargs}} ${{javac.compilerargs.jaxws}}"/>-->
                             <customize/>
                         </fsc>
                     </sequential>
@@ -1165,29 +1164,20 @@ Scala installation directory.
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{dist.javadoc.dir}}"/>
                 <!-- XXX do an up-to-date check first -->
-                <javadoc>
+                <scaladoc>
                     <xsl:attribute name="destdir">${dist.javadoc.dir}</xsl:attribute>
-                    <xsl:attribute name="source">${javac.source}</xsl:attribute>
-                    <xsl:attribute name="notree">${javadoc.notree}</xsl:attribute>
-                    <xsl:attribute name="use">${javadoc.use}</xsl:attribute>
-                    <xsl:attribute name="nonavbar">${javadoc.nonavbar}</xsl:attribute>
-                    <xsl:attribute name="noindex">${javadoc.noindex}</xsl:attribute>
-                    <xsl:attribute name="splitindex">${javadoc.splitindex}</xsl:attribute>
-                    <xsl:attribute name="author">${javadoc.author}</xsl:attribute>
-                    <xsl:attribute name="version">${javadoc.version}</xsl:attribute>
+                    <xsl:attribute name="srcdir">${src.dir}</xsl:attribute>
+                    <xsl:attribute name="deprecation">yes</xsl:attribute>
+                    <xsl:attribute name="unchecked">yes</xsl:attribute>
                     <xsl:attribute name="windowtitle">${javadoc.windowtitle}</xsl:attribute>
-                    <xsl:attribute name="private">${javadoc.private}</xsl:attribute>
-                    <xsl:attribute name="additionalparam">${javadoc.additionalparam}</xsl:attribute>
-                    <xsl:attribute name="failonerror">true</xsl:attribute> <!-- #47325 -->
-                    <xsl:attribute name="useexternalfile">true</xsl:attribute> <!-- #57375, requires Ant >=1.6.5 -->
+                    <xsl:attribute name="doctitle">${javadoc.windowtitle}</xsl:attribute>
+                    <xsl:attribute name="addparams">${javadoc.additionalparam}</xsl:attribute>
                     <xsl:attribute name="encoding">${javadoc.encoding.used}</xsl:attribute>
-                    <xsl:attribute name="docencoding">UTF-8</xsl:attribute>
-                    <xsl:attribute name="charset">UTF-8</xsl:attribute>
-                    <xsl:if test="/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform">
-                        <xsl:attribute name="executable">${platform.javadoc}</xsl:attribute>
-                    </xsl:if>
                     <classpath>
                         <path path="${{javac.classpath}}"/>
+                        <fileset dir="${{scala.lib}}">
+                            <include name="**/*.jar"/>
+                        </fileset>
                     </classpath>
                     <!-- Does not work with includes/excludes:
                     <sourcepath>
@@ -1201,11 +1191,11 @@ Scala installation directory.
                         <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:source-roots"/>
                     </xsl:call-template>
                     -->
-                    <xsl:call-template name="createFilesets">
+                    <!--xsl:call-template name="createFilesets">
                         <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:source-roots"/>
-                        <xsl:with-param name="includes2">**/*.java</xsl:with-param>
-                    </xsl:call-template>
-                </javadoc>
+                        <xsl:with-param name="includes2">**/*.scala</xsl:with-param>
+                    </xsl:call-template-->
+                </scaladoc>
             </target>
             
             <target name="-javadoc-browse">
