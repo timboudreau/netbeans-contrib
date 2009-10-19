@@ -113,7 +113,7 @@
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
-                <file name="fuse-template" url="SimpleTmplExample.tmpl"/>
+                <file name="fuse-template" url="simpleTmplExample.tmpl"/>
             </folder>
         </folder>
     </folder>
@@ -129,7 +129,7 @@
                     <folder name="NetBeans">
                         <folder name="Defaults">
                             <file name="org-netbeans-modules-php-fuse-fontsColors.xml" url="fontsColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.lexer.Bundle"/>
                             </file>
                         </folder>
                     </folder>

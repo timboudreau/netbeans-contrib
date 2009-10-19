@@ -1,0 +1,8 @@
+<{include '../Layout/Layout-Header.tmpl'}>
+    <TABLE>
+    <{ITERATOR archive_list}>
+        <{IF ($row++ % 2 == 0) && ($coloring == true) && ($column == "News")}>
+            <TR><TD style="secondStyle"><{date}> - <{description}></TD></TR>
+        <{ELSE}>
+            <TR><TD style="firstStyle"><{date}> - <{description}></TD></TR>
+        <{/IF}>
