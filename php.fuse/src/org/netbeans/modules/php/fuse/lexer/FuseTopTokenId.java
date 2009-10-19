@@ -113,11 +113,8 @@ public enum FuseTopTokenId implements TokenId {
                         return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, true);
                     } 
                     else if (id == T_FUSE) {
-                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, false);
                     }
-//                    else if (id == T_TEMPLATE_CONTROL) {
-//                        return LanguageEmbedding.create(TemplateControlTokenId.language(), 0, 0, false);
-//                    }
 
                     return null; // No embedding
                 }

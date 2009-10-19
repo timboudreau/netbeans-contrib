@@ -2,12 +2,22 @@
 <!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
 <fontscolors>
     <!-- "lexical" highlighting -->
-    <fontcolor name="include" foreColor="218429" />
-    <fontcolor name="keyword" default="keyword">
+    <fontcolor name="fuse_delimiter" foreColor="6B0042">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="include" foreColor="218429">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="keyword" foreColor="D60000">
         <font style="bold"/>
     </fontcolor>
-    <fontcolor name="identifier" default="identifier" />
-    <fontcolor name="string" default="string" />
+    <fontcolor name="identifier" foreColor="844D18" />
+    <fontcolor name="string" foreColor="FF9C4A" />
+    <fontcolor name="literal" default="keyword" />
+    <fontcolor name="include_string" default="include">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="number" default="number" />
     <fontcolor name="operator" default="operator"/>
     <fontcolor name="separator" default="separator"/>
 

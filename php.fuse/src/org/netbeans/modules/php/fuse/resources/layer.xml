@@ -135,6 +135,17 @@
                     </folder>
                 </folder>
             </folder>
+            <folder name="fuse">
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-php-fuse-fontsColors.xml" url="fontsColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
         </folder>
     </folder>
 </filesystem>

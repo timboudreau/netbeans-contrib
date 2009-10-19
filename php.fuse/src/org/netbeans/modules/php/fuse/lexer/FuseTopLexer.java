@@ -82,10 +82,9 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
         OUTER,
         AFTER_LB,
         IN_FUSE_DELIMITER,
-        IN_FUSE_STRING,
-        IN_FUSE_CONSTANT_STRING,
         IN_END_DELIMITER,
         AFTER_QUESTION_MARK,
+        AFTER_FUSE_DELIMITER,
         IN_FUSE
     }
 
@@ -127,17 +126,24 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                                 if (textLength > 2) {
                                     input.backup(2);
                                     return FuseTopTokenId.T_HTML;
-                                }
+                                } else if (textLength == 2) {
+                                    input.backup(2);
+                                 }
                                 break;
                             default:
                                 state = State.OUTER;
                         }
                         break;
                     case IN_FUSE_DELIMITER:
-                        if (input.readLength() == 3) {
+                        if (input.readLength() == 2) {
                             state = State.IN_FUSE;
-                            input.backup(1);
                             return FuseTopTokenId.T_FUSE_OPEN_DELIMITER;
+                        }
+                        break;
+                    case AFTER_FUSE_DELIMITER:
+                        if (input.readLength() == 2) {
+                            state = State.OUTER;
+                            return FuseTopTokenId.T_FUSE_CLOSE_DELIMITER;
                         }
                         break;
                     case IN_FUSE:
@@ -145,28 +151,6 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                             case '}':
                                 state = State.IN_END_DELIMITER;
                                 break;
-                            case '\'':
-                                state = State.IN_FUSE_CONSTANT_STRING;
-                                break;
-                            case '"':
-                                state = State.IN_FUSE_STRING;
-                                break;
-                        }
-                        break;
-                    case IN_FUSE_CONSTANT_STRING:
-                        if (cc == '\'') {
-                            char before = text.charAt(input.readLength() - 2);
-                            if (before != '\\') {
-                                state = State.IN_FUSE;
-                            }
-                        }
-                        break;
-                    case IN_FUSE_STRING:
-                        if (cc == '"') {
-                            char before = text.charAt(input.readLength() - 2);
-                            if (before != '\\') {
-                                state = State.IN_FUSE;
-                            }
                         }
                         break;
                     case IN_END_DELIMITER:
@@ -176,6 +160,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                                 return FuseTopTokenId.T_FUSE_CLOSE_DELIMITER;
 //                                }
                             } else {
+                                state = State.AFTER_FUSE_DELIMITER;
                                 input.backup(2);
                                 return FuseTopTokenId.T_FUSE;
                             }
@@ -186,11 +171,11 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
 
             switch (state) {
                 case IN_FUSE:
-                case IN_FUSE_CONSTANT_STRING:
-                case IN_FUSE_STRING:
                     return FuseTopTokenId.T_FUSE;
                 case IN_FUSE_DELIMITER:
-                    return FuseTopTokenId.T_FUSE;
+                    return FuseTopTokenId.T_FUSE_OPEN_DELIMITER;
+                case AFTER_FUSE_DELIMITER:
+                    return FuseTopTokenId.T_FUSE_CLOSE_DELIMITER;
                 default:
                     return FuseTopTokenId.T_HTML;
             }

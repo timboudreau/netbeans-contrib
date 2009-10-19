@@ -71,6 +71,11 @@ public enum FuseTokenId implements TokenId {
     ITERATOR("iterator", "keyword"),
     IF("if", "keyword"),
     WHILE("while", "keyword"),
+    DB_LOOP_END("/db_loop", "keyword"),
+    LOOP_END("/loop", "keyword"),
+    ITERATOR_END("/iterator", "keyword"),
+    IF_END("/if", "keyword"),
+    WHILE_END("/while", "keyword"),
 
     INCLUDE("include", "include"),
     REQUIRE("require", "include"),
@@ -124,6 +129,11 @@ public enum FuseTokenId implements TokenId {
     BAREQ("|=", "operator"),
     CARETEQ("^=", "operator"),
     PERCENTEQ("%=", "operator"),
+
+    INT_LITERAL(null, "number"),
+    DOUBLE_LITERAL(null, "number"),
+    STRING_LITERAL(null, "string"),
+    INCLUDE_LITERAL(null, "include_string"),
     
     WHITESPACE(null, "whitespace");
 
