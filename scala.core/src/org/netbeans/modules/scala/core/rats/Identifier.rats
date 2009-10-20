@@ -48,6 +48,7 @@ import org.netbeans.modules.scala.core.rats.Character;
 import org.netbeans.modules.scala.core.rats.Keyword;
 import org.netbeans.modules.scala.core.rats.Spacing;
 import org.netbeans.modules.scala.core.rats.Literal;
+import org.netbeans.modules.scala.core.rats.Unicode;
 
 
 // ----- Identifier
@@ -61,9 +62,9 @@ transient String op     = SKIP opIdentifier ;
 // ----- token
 transient generic Identifier = identifier ;
 
-transient String opIdentifier    = v:( opchar+ )                  &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-transient String varIdentifier   = v:( lower            idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-transient String upperIdentifier = v:( ( upper / [$_] ) idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String opIdentifier    = v:( opchar+ )                              &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String varIdentifier   = v:( ( lower / unicodeLl )        idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String upperIdentifier = v:( ( upper / unicodeLu / [$_] ) idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
 
 transient String plainid =
   upperIdentifier
@@ -77,8 +78,21 @@ transient String identifier =
 ;
 
 transient String idrest = 
-  ( letter / '$' / '_' !( opchar+ ) / digit )+ ( '_' opIdentifier )?
+  ( letter
+  / unicodeLl
+  / unicodeLu
+  / unicodeLt
+  / unicodeLo
+  / unicodeNl
+  / '$'
+  / '_' !( opchar+ )
+  / digit
+  )+ ( '_' opIdentifier )?
 / ( '_' opchar+ )
 ;
 
-transient String opchar = [!%&+\-<=>?@\\^`|~#:/*] ;
+transient String opchar = 
+  [!%&+\-<=>?@\\^`|~#:/*]
+/ unicodeSm
+/ unicodeSo
+;

@@ -78,7 +78,3 @@ transient String octalEscape =
 transient String unicodeEscape  =
   '\\' 'u' hexDigit hexDigit hexDigit hexDigit
 ;
-
-transient String unicodeSm = 
-  [\u002B\u003C\u003D\u003E\u007C\u007E\u00AC\u00B1\u00D7\u00F7\u03F6\u2044\u2052\207A\u207B\u207C]
-;
