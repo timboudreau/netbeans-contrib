@@ -337,8 +337,6 @@ abstract class ScalaAstVisitor {
           traverseTrees(stats); traverse(expr)
         case CaseDef(pat, guard, body) =>
           traverse(pat); traverse(guard); traverse(body)
-        case Sequence(trees) =>
-          traverseTrees(trees)
         case Alternative(trees) =>
           traverseTrees(trees)
         case Star(elem) =>
