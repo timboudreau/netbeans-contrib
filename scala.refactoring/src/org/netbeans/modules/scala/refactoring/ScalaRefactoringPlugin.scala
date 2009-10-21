@@ -123,7 +123,7 @@ abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with Refac
     }
 
     try {
-      for(s <- sources) {
+      for (s <- sources) {
         ParserManager.parse(java.util.Collections.singletonList(s), task)
       }
       return task.results

@@ -117,9 +117,8 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   // should after init, since we need searchHandle is inited
   private val targetName = searchHandle.symbol.fullNameString
   private val samePlaceSyms = searchHandle.samePlaceSymbols
-  private val targetDefStrings = new HashMap[String, String]()
-  samePlaceSyms foreach {x => targetDefStrings += (x.defString -> x.fullNameString)}
-
+  private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
+  
   /** Creates a new instance of RenameRefactoring */
   private def init = {
     val item = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
@@ -498,25 +497,13 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         try {
           if (doc != null) doc.readLock
 
-          def isUsed(sym: Symbol) = {
+          def isUsed(sym: Symbol) = try {
             val qName = sym.fullNameString
-            val defString = try {
-              sym.tpe match {
-                case null => ""
-                case tpe => sym.defString
-              }
-            } catch {case _ => ""}
-
-
-            if (defString.length > 0) {
-              targetDefStrings.get(defString) match {
-                case Some(x) => x == qName
-                case None => false
-              }
-            } else {
-              samePlaceSyms.asInstanceOf[Set[Symbol]].contains(sym)
+            sym.tpe match {
+              case null => false
+              case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && isSameType(tpe, s.asInstanceOf[Symbol].tpe)}
             }
-          }
+          } catch {case ex => false}
 
           val tokens = new HashSet[Token[_]]
           for {(token, items) <- root.idTokenToItems

@@ -72,12 +72,9 @@ import org.netbeans.modules.scala.core.ast.{ScalaItems, ScalaRootScope}
 import org.netbeans.modules.scala.core.lexer.ScalaLexUtil
 import org.openide.filesystems.FileObject
 import org.openide.util.NbBundle;
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
-import scala.tools.nsc.ast.Trees
 import scala.tools.nsc.symtab.Flags
-import scala.tools.nsc.symtab.Symbols
+
 
 /**
  * Actual implementation of Find Usages query search
@@ -94,8 +91,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName = searchHandle.symbol.fullNameString
   private val samePlaceSyms = searchHandle.samePlaceSymbols
-  private val targetDefStrings = new HashMap[String, String]()
-  samePlaceSyms foreach {x => targetDefStrings += (x.defString -> x.fullNameString)}
+  private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
 
   override def preCheck: Problem = {
     searchHandle.fo match {
@@ -341,33 +337,22 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
        } else*/
 
       if (isFindUsages) {
-        def isUsed(sym: Symbol) = {
+        
+        def isUsed(sym: Symbol) = try {
           val qName = sym.fullNameString
-          val defString = try {
-            sym.tpe match {
-              case null => ""
-              case tpe => sym.defString
-            }
-          } catch {case _ => ""}
-
-
-          if (defString.length > 0) {
-            targetDefStrings.get(defString) match {
-              case Some(x) => x == qName
-              case None => false
-            }
-          } else {
-            samePlaceSyms.asInstanceOf[Set[Symbol]].contains(sym)
+          sym.tpe match {
+            case null => false
+            case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && isSameType(tpe, s.asInstanceOf[Symbol].tpe)}
           }
-        }
-  
+        } catch {case ex => false}
+        
         val tokens = new HashSet[Token[_]]
-        for {(token, items) <- root.idTokenToItems
-             item <- items
-             sym = item.asInstanceOf[ScalaItem].symbol
+        for ((token, items) <- root.idTokenToItems;
+             item <- items;
+             sym = item.asInstanceOf[ScalaItem].symbol;
              // * tokens.add(token) should be the last condition
              if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
-        } {
+        ) {
           Log.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + item)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
         }
