@@ -179,10 +179,10 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
     boolean valid(WizardDescriptor wizardDescriptor) {
         File f = FileUtil.normalizeFile(new File(projectLocationTextField.getText()).getAbsoluteFile());
         if (!f.isDirectory()) {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(AutoProjectPanelVisual.class, "ERR_not_a_dir"));
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(AutoProjectPanelVisual.class, "ERR_not_a_dir"));
             return false;
         }
-        wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+        wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, "");
         return true;
     }
 
