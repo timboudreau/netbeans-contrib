@@ -40,7 +40,7 @@
 package org.netbeans.modules.php.fuse;
 
 import java.io.FileNotFoundException;
-import org.netbeans.modules.php.fuse.other.FileHelper;
+import org.netbeans.modules.php.fuse.utils.FileHelper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -201,9 +201,12 @@ public class FuseFramework extends PhpProgram {
         String fusePath = "";
         fusePath = copyFrameworkIntoSources? phpModule.getSourceDirectory().getPath() + FUSE_INCLUDE_DIR : getProgram();
 
+        // get URL from New project wizard
+        String projectURL = phpModule.getProperties().getUrl();
+
         // create params for FUSE calling
         String[] cmdParams = mergeArrays(new String[]{phpModule.getSourceDirectory().getPath(),
-            "http://localhost/" + phpModule.getName()}, params, new String[]{fusePath});
+            projectURL}, params, new String[]{fusePath});
 
         FuseCommandSupport commandSupport = FuseCommandSupport.forCreatingProject(phpModule);
         ExternalProcessBuilder processBuilder = null;

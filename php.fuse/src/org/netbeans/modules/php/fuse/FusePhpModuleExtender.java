@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleExtender;
 import org.netbeans.modules.php.fuse.exceptions.InvalidFuseFrameworkException;
-import org.netbeans.modules.php.fuse.other.InitialFuseSetup;
+import org.netbeans.modules.php.fuse.utils.InitialFuseSetup;
 import org.netbeans.modules.php.fuse.ui.wizards.NewProjectConfigurationPanel;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;

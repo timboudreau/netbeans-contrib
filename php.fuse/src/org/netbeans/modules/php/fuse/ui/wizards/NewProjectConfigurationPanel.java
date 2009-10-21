@@ -63,7 +63,7 @@ import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.netbeans.modules.php.fuse.FuseFramework;
-import org.netbeans.modules.php.fuse.other.InitialFuseSetup;
+import org.netbeans.modules.php.fuse.utils.InitialFuseSetup;
 import org.openide.awt.Mnemonics;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;

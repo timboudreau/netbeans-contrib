@@ -418,19 +418,6 @@ public class FuseLexer implements Lexer<FuseTokenId> {
         } // end of while(true)
     }
 
-    private int translateSurrogates(int c) {
-        if (Character.isHighSurrogate((char) c)) {
-            int lowSurr = input.read();
-            if (lowSurr != EOF && Character.isLowSurrogate((char) lowSurr)) {
-                // c and lowSurr form the integer unicode char.
-                c = Character.toCodePoint((char) c, (char) lowSurr);
-            } else {
-                input.backup(1);
-            }
-        }
-        return c;
-    }
-
     private Token<FuseTokenId> finishWhitespace() {
         while (true) {
             int c = input.read();
@@ -462,7 +449,7 @@ public class FuseLexer implements Lexer<FuseTokenId> {
 
     private Token<FuseTokenId> finishIdentifier(int c) {
         while (true) {
-            if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c))) {
+            if (c == EOF || !(Character.isJavaIdentifierPart(c) || c == '$' || c == '_')) {
                 // For surrogate 2 chars must be backed up
                 input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
                 return tokenFactory.createToken(FuseTokenId.IDENTIFIER);
@@ -481,7 +468,7 @@ public class FuseLexer implements Lexer<FuseTokenId> {
 
     private Token<FuseTokenId> keywordOrIdentifier(FuseTokenId keywordId, int c, boolean endingTag) {
         // Check whether the given char is non-ident and if so then return keyword
-        if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c))) {
+        if (c == EOF || !(Character.isJavaIdentifierPart(c) || c == '$' || c == '_')) {
             // For surrogate 2 chars must be backed up
             input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
             if (endingTag) {

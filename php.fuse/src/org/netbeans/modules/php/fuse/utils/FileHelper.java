@@ -1,4 +1,4 @@
-package org.netbeans.modules.php.fuse.other;
+package org.netbeans.modules.php.fuse.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

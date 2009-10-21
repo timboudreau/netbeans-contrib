@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+
     <folder name="Loaders">
         <folder name="text">
             <folder name="fuse-template">
@@ -64,6 +65,7 @@
             </folder>
         </folder>
     </folder>
+
     <folder name="OptionsExport">
         <folder name="PHP">
             <file name="Fuse">
@@ -73,6 +75,7 @@
             </file>
         </folder>
     </folder>
+
     <folder name="PHP">
         <folder name="Frameworks">
             <file name="org-netbeans-modules-php-fuse-FusePhpFrameworkProvider.instance">
@@ -81,6 +84,7 @@
             </file>
         </folder>
     </folder>
+
     <folder name="Actions">
         <folder name="PHP">
             <file name="org-netbeans-modules-php-fuse-ui-actions-RunCommandAction.instance">
@@ -88,6 +92,7 @@
             </file>
             </folder>
     </folder>
+
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="fuse-helpset.xml" url="fuse-helpset.xml">
@@ -100,6 +105,7 @@
             </file>
         </folder>
     </folder>
+
     <folder name="Templates">
         <folder name="Scripting">
             <file name="TmplTemplate.tmpl" url="TmplTemplate.tmpl">
@@ -110,6 +116,7 @@
             </file>
         </folder>
     </folder>
+
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
@@ -117,6 +124,7 @@
             </folder>
         </folder>
     </folder>
+
     <folder name="Editors">
         <folder name="text">
             <folder name="fuse-template">
@@ -143,6 +151,36 @@
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
                             </file>
                         </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    
+    <folder name="CslPlugins">
+        <folder name="text">
+            <folder name="fuse-template">
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.csl.FuseLanguage"/>
+                </file>
+                <!--
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.csl.FuseStructureScanner"/>
+                </file>
+                -->
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="csl-hints">
+        <folder name="text">
+            <folder name="fuse-template">
+                <folder name="hints">
+                    <folder name="stable">
+                        <attr name="position" intvalue="300"/>
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.editor.hints.Bundle"/>
+                        <file name="org-netbeans-modules-php-editor-verification-AccidentalAssignmentRule.instance"/>
                     </folder>
                 </folder>
             </folder>
