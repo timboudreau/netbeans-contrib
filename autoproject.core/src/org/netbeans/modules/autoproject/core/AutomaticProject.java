@@ -41,6 +41,7 @@ package org.netbeans.modules.autoproject.core;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
+import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.netbeans.spi.project.ui.support.UILookupMergerSupport;
 import org.openide.filesystems.FileObject;
@@ -54,10 +55,12 @@ import org.openide.util.lookup.Lookups;
 class AutomaticProject implements Project {
 
     private final FileObject dir;
+    private final ProjectState state;
     private final Lookup lkp;
 
-    AutomaticProject(FileObject projectDirectory) {
+    AutomaticProject(FileObject projectDirectory, ProjectState state) {
         dir = projectDirectory;
+        this.state = state;
         // XXX consider adding:
         // CacheDirectoryProvider
         // CreateFromTemplateAttributesProvider
@@ -82,6 +85,10 @@ class AutomaticProject implements Project {
 
     public Lookup getLookup() {
         return lkp;
+    }
+
+    void unregister() {
+        state.notifyDeleted();
     }
 
     @Override

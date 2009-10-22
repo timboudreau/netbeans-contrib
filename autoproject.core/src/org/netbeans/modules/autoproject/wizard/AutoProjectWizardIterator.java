@@ -46,14 +46,18 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 public class AutoProjectWizardIterator implements WizardDescriptor.InstantiatingIterator {
     private int index;
@@ -81,7 +85,26 @@ public class AutoProjectWizardIterator implements WizardDescriptor.Instantiating
         File dir = FileUtil.normalizeFile((File) wiz.getProperty("projdir"));
         Cache.put(dir + Cache.PROJECT, "true");
         ProjectChooser.setProjectsFolder(dir.getParentFile());
-        return Collections.singleton(FileUtil.toFileObject(dir));
+        FileObject d = FileUtil.toFileObject(dir);
+        final FileObject nbproject = d.getFileObject("nbproject");
+        if (nbproject != null) { // #153232
+            // Need to use RP to avoid getting stack traces from Subversion when running in EQ.
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    try {
+                        FileLock lock = nbproject.lock();
+                        try {
+                            nbproject.rename(lock, "nbproject.bak", null);
+                        } finally {
+                            lock.releaseLock();
+                        }
+                    } catch (IOException x) {
+                        Logger.getLogger(AutoProjectWizardIterator.class.getName()).log(Level.WARNING, null, x);
+                    }
+                }
+            })./* otherwise will not recognize dir as AP */waitFinished();
+        }
+        return Collections.singleton(d);
     }
 
     public void initialize(WizardDescriptor wiz) {

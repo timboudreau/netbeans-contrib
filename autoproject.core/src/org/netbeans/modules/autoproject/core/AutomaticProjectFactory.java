@@ -101,7 +101,7 @@ public class AutomaticProjectFactory implements ProjectFactory {
 
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
         if (isProject(projectDirectory)) {
-            return new AutomaticProject(projectDirectory);
+            return new AutomaticProject(projectDirectory, state);
         } else {
             return null;
         }

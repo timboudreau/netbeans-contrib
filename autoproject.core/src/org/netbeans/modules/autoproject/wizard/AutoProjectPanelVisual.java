@@ -182,7 +182,11 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
             wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(AutoProjectPanelVisual.class, "ERR_not_a_dir"));
             return false;
         }
-        wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, "");
+        wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);
+        if (new File(f, "nbproject/project.xml").isFile()) { // #153232
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE,
+                    NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.nbproject"));
+        }
         return true;
     }
 
