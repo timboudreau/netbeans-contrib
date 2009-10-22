@@ -501,7 +501,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
             val qName = sym.fullNameString
             sym.tpe match {
               case null => false
-              case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && isSameType(tpe, s.asInstanceOf[Symbol].tpe)}
+              case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && matchesType(tpe, s.asInstanceOf[Symbol].tpe, true)}
             }
           } catch {case ex => false}
 
