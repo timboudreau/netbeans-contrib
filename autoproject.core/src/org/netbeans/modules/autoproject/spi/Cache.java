@@ -176,6 +176,4 @@ public class Cache {
         pcs.removePropertyChangeListener(l);
     }
 
-    // XXX will also want methods in AutomaticProject to get a key, looking in $basedir/netbeans.properties (or whatever) for overrides
-
 }

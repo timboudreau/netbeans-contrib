@@ -101,7 +101,6 @@ public class BuildSniffer extends AntLogger {
         return AntLogger.ALL_TARGETS;
     }
 
-    // XXX may also want/need: delete, copy, javadoc, ...
     private final String[] INTERESTING_TASKS = {"javac", "fileset", "jar"};
     @Override
     public String[] interestedInTasks(AntSession session) {

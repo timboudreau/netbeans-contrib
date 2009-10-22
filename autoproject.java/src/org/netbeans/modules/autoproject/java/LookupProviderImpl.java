@@ -70,10 +70,9 @@ public class LookupProviderImpl implements LookupProvider {
                 new SubprojectProviderImpl(p));
         // XXX consider adding:
         // AntArtifactProvider
-        // BinaryForSourceQueryImplementation
-        // FileBuiltQueryImplementation
-        // JavadocForBinaryQueryImplementation
-        // MultipleRootsUnitTestForSourceQueryImplementation
+        // BinaryForSourceQueryImplementation, FileBuiltQueryImplementation: #175166
+        // JavadocForBinaryQueryImplementation: #175165
+        // MultipleRootsUnitTestForSourceQueryImplementation: #175167
     }
 
 }

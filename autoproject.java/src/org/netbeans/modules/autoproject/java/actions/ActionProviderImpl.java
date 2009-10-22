@@ -100,13 +100,7 @@ public class ActionProviderImpl implements ActionProvider {
             ActionProvider.COMMAND_RUN,
             ActionProvider.COMMAND_TEST,
             JavaProjectConstants.COMMAND_JAVADOC,
-            /* XXX incomplete debugger integration:
-            ActionProvider.COMMAND_DEBUG,
-            ActionProvider.COMMAND_DEBUG_STEP_INTO,
-             */
             // XXX deploy, redeploy
-            // XXX rename, move, copy, delete
-            // XXX profile and debug should work by calling an Ant target for run but using presetdef to override <java> to add extra args
         };
     }
 
@@ -180,8 +174,6 @@ public class ActionProviderImpl implements ActionProvider {
                         }
                     }
                 });
-            } else {
-                // XXX support scripting, perhaps
             }
         }
     }

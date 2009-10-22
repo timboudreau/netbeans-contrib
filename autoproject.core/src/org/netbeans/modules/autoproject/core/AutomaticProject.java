@@ -65,7 +65,7 @@ class AutomaticProject implements Project {
         // CacheDirectoryProvider
         // CreateFromTemplateAttributesProvider
         // SearchInfo
-        // SharabilityQueryImplementation
+        // SharabilityQueryImplementation (#175161)
         // CustomizerProvider
         // AuxiliaryProperties
         // XXX introduce LookupMerger for ActionProvider, ProjectInformation
@@ -76,7 +76,6 @@ class AutomaticProject implements Project {
                 new FileEncodingQueryImpl(this),
                 new LogicalViewImpl(this),
                 this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
-        // XXX register external build products as owned by this one (once we can sniff them)
     }
 
     public FileObject getProjectDirectory() {

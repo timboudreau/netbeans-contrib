@@ -154,7 +154,6 @@ final class LibrariesNode extends AbstractNode {
                 sourceRoots.add(g.getRootFolder());
             }
             for (FileObject sourceRoot : sourceRoots) {
-                // XXX add in bootcp later?
                 ClassPath cp = ClassPath.getClassPath(sourceRoot, ClassPath.COMPILE);
                 if (cp != null) {
                     cp.removePropertyChangeListener(cpListener);
@@ -177,7 +176,6 @@ final class LibrariesNode extends AbstractNode {
         }
 
         protected Node[] createNodes(FileObject root) {
-            // XXX could use filter nodes to add actions to Show Javadoc, Go to Source, etc.
             URL u;
             try {
                 u = root.getURL();

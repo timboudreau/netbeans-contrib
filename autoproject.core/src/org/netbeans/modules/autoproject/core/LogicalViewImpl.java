@@ -143,41 +143,16 @@ class LogicalViewImpl implements LogicalViewProvider {
             actions.add(CommonProjectActions.openSubprojectsAction());
             actions.add(CommonProjectActions.closeProjectAction());
             actions.add(null);
-            /* XXX
-            actions.add(CommonProjectActions.renameProjectAction());
-            actions.add(CommonProjectActions.moveProjectAction());
-            actions.add(CommonProjectActions.copyProjectAction());
-            actions.add(CommonProjectActions.deleteProjectAction());
-            actions.add(null);
-             */
+            // XXX delete etc.: #157043
             actions.add(SystemAction.get(FindAction.class));
             actions.addAll(Utilities.actionsForPath("Projects/Actions")); // NOI18N
             actions.add(null);
             if ("true".equals(Cache.get(FileUtil.toFile(p.getProjectDirectory()) + Cache.PROJECT))) {
                 actions.add(new DeregisterAction(p));
             }
-            /* XXX
-            actions.add(CommonProjectActions.customizeProjectAction());
-             */
+            // XXX customize: #153233 etc.
             return actions.toArray(new Action[actions.size()]);
         }
-
-        /* XXX no rename support currently:
-        public boolean canRename() {
-            return true;
-        }
-
-        public void setName(String name) {
-            DefaultProjectOperations.performDefaultRenameOperation(p, name);
-        }
-         */
-
-        /* XXX would be good to add help:
-        public HelpCtx getHelpCtx() {
-            return new HelpCtx(...);
-        }
-         */
-
     }
 
 }
