@@ -66,7 +66,7 @@ import org.openide.util.NbBundle;
 public class ImageUtilitiesDeprecation extends AbstractHint {
 
     public ImageUtilitiesDeprecation() {
-        super(true, false, HintSeverity.WARNING);
+        super(false, false, HintSeverity.WARNING);
     }
 
     @Override

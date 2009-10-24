@@ -88,6 +88,7 @@ made subject to such option by the copyright holder.
                         <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-OrganizeImports.instance"/>
                     </file>
 		    <file name="org-netbeans-modules-javahints-StaticImport.instance"/>
+		    <file name="org-netbeans-modules-javahints-Excluded.instance"/>
                 </folder>
             </folder>
             

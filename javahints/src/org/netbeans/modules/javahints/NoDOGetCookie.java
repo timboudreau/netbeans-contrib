@@ -61,7 +61,7 @@ import org.netbeans.spi.editor.hints.Fix;
 public class NoDOGetCookie extends AbstractHint {
 
     public NoDOGetCookie() {
-        super(true, false, HintSeverity.WARNING);
+        super(false, false, HintSeverity.WARNING);
     }
 
     @Override
