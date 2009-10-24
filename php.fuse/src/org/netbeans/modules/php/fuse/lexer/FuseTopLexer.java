@@ -55,7 +55,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
 
     private FuseTopLexer(LexerRestartInfo<FuseTopTokenId> info) {
         this.tokenFactory = info.tokenFactory();
-        this.scanner = new FuseTopColoringLexer(info, (State)info.state());
+        scanner = new FuseTopColoringLexer(info, State.IN_FUSE);
     }
 
     public static synchronized FuseTopLexer create(LexerRestartInfo<FuseTopTokenId> info) {

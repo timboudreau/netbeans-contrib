@@ -90,7 +90,7 @@
             <file name="org-netbeans-modules-php-fuse-ui-actions-RunCommandAction.instance">
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.ui.actions.RunCommandAction.getInstance"/>
             </file>
-            </folder>
+        </folder>
     </folder>
 
     <folder name="Services">
@@ -173,17 +173,4 @@
         </folder>
     </folder>
 
-    <folder name="csl-hints">
-        <folder name="text">
-            <folder name="fuse-template">
-                <folder name="hints">
-                    <folder name="stable">
-                        <attr name="position" intvalue="300"/>
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.editor.hints.Bundle"/>
-                        <file name="org-netbeans-modules-php-editor-verification-AccidentalAssignmentRule.instance"/>
-                    </folder>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
 </filesystem>
