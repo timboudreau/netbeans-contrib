@@ -134,6 +134,6 @@ public final class FusePhpFrameworkProvider extends PhpFrameworkProvider {
 
     @Override
     public EditorExtender getEditorExtender(PhpModule phpModule) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 }

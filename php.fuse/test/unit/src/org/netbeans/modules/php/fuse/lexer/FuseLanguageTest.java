@@ -36,25 +36,36 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.fuse;
 
-import junit.framework.TestCase;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
+package org.netbeans.modules.php.fuse.lexer;
 
-public class TmplDataObjectTest extends TestCase {
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import org.junit.Test;
+import org.netbeans.api.lexer.Language;
+import org.netbeans.lib.lexer.test.LexerTestUtilities;
 
-    public TmplDataObjectTest(String testName) {
-        super(testName);
+/**
+ *
+ * @author Martin Fousek
+ */
+public class FuseLanguageTest {
+
+    public FuseLanguageTest() {
     }
 
-    public void testDataObject() throws Exception {
-        FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
-        FileObject template = root.getFileObject("Templates/Scripting/TmplTemplate.tmpl");
-        assertNotNull("Template file shall be found", template);
+    @Test
+    public void testTokenIds() {
+        // Check that token ids are all present and correctly ordered
+        Language language = FuseTokenId.language();
 
-        DataObject obj = DataObject.find(template);
-        assertEquals("It is our data object", TmplDataObject.class, obj.getClass());
+        // Check token categories
+        Set testTids = language.tokenCategories();
+        Collection tids = Arrays.asList(new String[] {
+            "error", "string", "keyword", "whitespace", "include_string", "number", "identifier", "separator",
+            "operator", "include", "literal" });
+        LexerTestUtilities.assertCollectionsEqual("Invalid token ids", tids, testTids);
     }
+
 }

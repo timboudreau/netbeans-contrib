@@ -46,10 +46,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
@@ -62,11 +58,11 @@ import org.netbeans.modules.php.api.util.UiUtils;
 import org.netbeans.modules.php.fuse.commands.FuseCommandSupport;
 import org.netbeans.modules.php.fuse.exceptions.InvalidFuseFrameworkException;
 import org.netbeans.modules.php.fuse.ui.options.FuseOptions;
+import org.netbeans.modules.php.fuse.utils.ArrayHelper;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -156,7 +152,10 @@ public class FuseFramework extends PhpProgram {
         File scaffoldFile = new File(dir + "/scripts/install/fuse_scaffold.php");
         if (!scaffoldFile.exists()) {
             return NbBundle.getMessage(FuseFramework.class, "MSG_NotFuseFramework");
-        }  
+        }
+        if (scaffoldFile.isDirectory()) {
+            return NbBundle.getMessage(FuseFramework.class, "MSG_NotFuseScaffoldFile");
+        }
 
         return null;
     }
@@ -205,7 +204,7 @@ public class FuseFramework extends PhpProgram {
         String projectURL = phpModule.getProperties().getUrl();
 
         // create params for FUSE calling
-        String[] cmdParams = mergeArrays(new String[]{phpModule.getSourceDirectory().getPath(),
+        String[] cmdParams = ArrayHelper.mergeArrays(new String[]{phpModule.getSourceDirectory().getPath(),
             projectURL}, params, new String[]{fusePath});
 
         FuseCommandSupport commandSupport = FuseCommandSupport.forCreatingProject(phpModule);
@@ -222,16 +221,6 @@ public class FuseFramework extends PhpProgram {
             new File(phpModule.getSourceDirectory().getPath() + "/include").mkdir();
         }
         FileHelper.copyDirectory(new File(getProgram()), new File(FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath(),FUSE_INCLUDE_DIR));
-    }
-
-    private static <T> T[] mergeArrays(T[]... arrays) {
-        List<T> list = new LinkedList<T>();
-        for (T[] array : arrays) {
-            list.addAll(Arrays.asList(array));
-        }
-        @SuppressWarnings("unchecked")
-        T[] merged = (T[]) Array.newInstance(arrays[0][0].getClass(), list.size());
-        return list.toArray(merged);
     }
 
     private static void runService(ExternalProcessBuilder processBuilder, ExecutionDescriptor executionDescriptor, String title, boolean warnUser) {
@@ -252,10 +241,10 @@ public class FuseFramework extends PhpProgram {
     }
 
     public boolean isImproved() {
-        return new File(getProgram() + CMD_INIT_PROJECT).exists();
+        return (validateNetBeansScaffoldFile() == null);
     }
 
-    public boolean improveFuseSupport() throws FileNotFoundException, IOException {
+    public void improveFuseSupport() throws FileNotFoundException, IOException {
         byte[] buf = new byte[1024];
         int len;
         InputStream in = getClass().getResourceAsStream("/org/netbeans/modules/php/fuse/resources/fuse_scaffold.php");
@@ -265,10 +254,9 @@ public class FuseFramework extends PhpProgram {
         }
         in.close();
         out.close();
-        return true;
     }
 
-    public boolean improveFuseSupport(String fusePath) throws FileNotFoundException, IOException {
-        return new FuseFramework(fusePath).improveFuseSupport();
+    public void improveFuseSupport(String fusePath) throws FileNotFoundException, IOException {
+        new FuseFramework(fusePath).improveFuseSupport();
     }
 }

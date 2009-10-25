@@ -36,25 +36,26 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.fuse;
 
-import junit.framework.TestCase;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
+package org.netbeans.modules.php.fuse.utils;
 
-public class TmplDataObjectTest extends TestCase {
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-    public TmplDataObjectTest(String testName) {
-        super(testName);
-    }
-
-    public void testDataObject() throws Exception {
-        FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
-        FileObject template = root.getFileObject("Templates/Scripting/TmplTemplate.tmpl");
-        assertNotNull("Template file shall be found", template);
-
-        DataObject obj = DataObject.find(template);
-        assertEquals("It is our data object", TmplDataObject.class, obj.getClass());
+/**
+ *
+ * @author Martin Fousek
+ */
+public class ArrayHelper {
+    public static <T> T[] mergeArrays(T[]... arrays) {
+        List<T> list = new LinkedList<T>();
+        for (T[] array : arrays) {
+            list.addAll(Arrays.asList(array));
+        }
+        @SuppressWarnings("unchecked")
+        T[] merged = (T[]) Array.newInstance(arrays[0][0].getClass(), list.size());
+        return list.toArray(merged);
     }
 }

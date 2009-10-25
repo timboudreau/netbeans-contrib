@@ -36,25 +36,50 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.fuse;
 
-import junit.framework.TestCase;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
+package org.netbeans.modules.php.fuse.commands;
 
-public class TmplDataObjectTest extends TestCase {
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.modules.php.fuse.exceptions.InvalidFuseFrameworkException;
+import org.openide.util.NbBundle;
 
-    public TmplDataObjectTest(String testName) {
-        super(testName);
+/**
+ *
+ * @author Martin Fousek
+ */
+public class CommandSupportTest {
+
+    public CommandSupportTest() {
     }
 
-    public void testDataObject() throws Exception {
-        FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
-        FileObject template = root.getFileObject("Templates/Scripting/TmplTemplate.tmpl");
-        assertNotNull("Template file shall be found", template);
+    @Test
+    public void testGeneratingScripts() throws InvalidFuseFrameworkException {
+        String[] generatingScripts = FuseCommandSupport.getFuseGeneratingScripts();
+        boolean wasViewGenerator = false;
 
-        DataObject obj = DataObject.find(template);
-        assertEquals("It is our data object", TmplDataObject.class, obj.getClass());
+        for(String script : generatingScripts) {
+            assertTrue(script.contains(new String(".php").subSequence(0, 4)));
+            if (script.equals("manage/view.php")) {
+                wasViewGenerator = true;
+            }
+        }
+
+        assertTrue("In manage scripts wasn't view.php generator", wasViewGenerator);
+    }
+
+    @Test
+    public void testGettingHelpForCommands() {
+        String[] commands = {
+            NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateControllerCommand"),
+            NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateControllerModelCommand"),
+            NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateControllerModelViewCommand"),
+            NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateModelCommand"),
+            NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateViewCommand")
+        };
+
+        for(String command : commands) {
+            assertNotSame(FuseCommandSupport.getHelp(command), "");
+        }
     }
 }

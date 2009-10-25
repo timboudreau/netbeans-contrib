@@ -88,12 +88,12 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
     public static String[] getFuseGeneratingScripts() {
         ArrayList<String> listOfScripts = new ArrayList<String>();
         for (int i = 0; i < FUSE_GENERATING_COMMANDS.length; i++) {
-            listOfScripts.add(FUSE_GENERATING_COMMANDS[i][1]);
+            listOfScripts.add(FUSE_GENERATING_COMMANDS[i][2]);
         }
         return listOfScripts.toArray(new String[]{});
     }
 
-    static String getHelp(String command) {
+    public static String getHelp(String command) {
         String help = "";
         for (int i = 0; i < FUSE_GENERATING_COMMANDS.length; i++) {
             if (FUSE_GENERATING_COMMANDS[i][2].equals(command))
@@ -151,6 +151,6 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
 
     @Override
     protected File getPluginsDirectory() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 }

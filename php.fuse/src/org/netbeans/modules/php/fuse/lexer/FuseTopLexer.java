@@ -55,7 +55,12 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
 
     private FuseTopLexer(LexerRestartInfo<FuseTopTokenId> info) {
         this.tokenFactory = info.tokenFactory();
-        scanner = new FuseTopColoringLexer(info, State.IN_FUSE);
+        State state = null;
+        try {
+            state = (State)info.state();
+        }
+        catch (ClassCastException e) {}
+        scanner = new FuseTopColoringLexer(info, state);
     }
 
     public static synchronized FuseTopLexer create(LexerRestartInfo<FuseTopTokenId> info) {
@@ -128,7 +133,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                                     return FuseTopTokenId.T_HTML;
                                 } else if (textLength == 2) {
                                     input.backup(2);
-                                 }
+                                } 
                                 break;
                             default:
                                 state = State.OUTER;
