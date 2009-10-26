@@ -43,10 +43,7 @@ package org.netbeans.modules.nborgsourcebrowse;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -76,14 +73,13 @@ public class BrowseSubmenu implements Presenter.Menu {
 
     /** Tuples of display label, URL format; use @REPO@, @FILEPATH@, @JAVABASENAME@, @CNBDASHES@ */
     private static final String[][] LINKS_FILE = {
-        {"Source (Hg)", "@REPO@/raw-file/tip/@FILEPATH@"},
-        {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@FILEPATH@"},
+        {"Source (Hg)", "@REPO@/raw-file/@BRANCH@/@FILEPATH@"},
         {"Javadoc (official)", "http://bits.netbeans.org/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
-        {"Javadoc (Hudson nbms-and-javadoc)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
+        {"Javadoc (Hudson)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
     };
     private static final String[][] LINKS_PRJ = {
-        {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/"},
-        {"Javadoc (Hudson nbms-and-javadoc)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/"},
+        {"Javadoc (official)", "http://bits.netbeans.org/dev/javadoc/@CNBDASHES@/"},
+        {"Javadoc (Hudson)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/"},
     };
 
     /** Default constructor for layer */
@@ -101,27 +97,30 @@ public class BrowseSubmenu implements Presenter.Menu {
             if (d != null) {
                 FileObject f = d.getPrimaryFile();
                 FileObject dir = f.isFolder() ? f : f.getParent();
-                String[] repoAndPath = findRepoAndPath(dir, "");
-                if (repoAndPath != null) {
+                String[] repoBranchAndPath = findRepoBranchAndPath(dir, "");
+                if (repoBranchAndPath != null) {
                     for (String[] data : LINKS_FILE) {
                         String label = data[0];
                         String url = data[1];
                         if (url.contains("@REPO@")) {
-                            if (repoAndPath[0] != null) {
-                                url = url.replace("@REPO@", repoAndPath[0]);
+                            if (repoBranchAndPath[0] != null) {
+                                url = url.replace("@REPO@", repoBranchAndPath[0]);
                             } else {
                                 continue;
                             }
                         }
+                        if (url.contains("@BRANCH@")) {
+                            url = url.replace("@BRANCH@", repoBranchAndPath[1]);
+                        }
                         if (url.contains("@FILEPATH@")) {
                             if (f.isData()) {
-                                url = url.replace("@FILEPATH@", repoAndPath[1] + f.getNameExt());
+                                url = url.replace("@FILEPATH@", repoBranchAndPath[2] + f.getNameExt());
                             } else if (f.isFolder()) {
-                                url = url.replace("@FILEPATH@", repoAndPath[1]);
+                                url = url.replace("@FILEPATH@", repoBranchAndPath[2]);
                             }
                         }
                         if (url.contains("@JAVABASENAME@")) {
-                            Matcher m = Pattern.compile(".*/src/(.+)\\.java").matcher(repoAndPath[1] + f.getNameExt());
+                            Matcher m = Pattern.compile(".*/src/(.+)\\.java").matcher(repoBranchAndPath[2] + f.getNameExt());
                             if (m.matches()) {
                                 url = url.replace("@JAVABASENAME@", m.group(1));
                             } else {
@@ -172,38 +171,37 @@ public class BrowseSubmenu implements Presenter.Menu {
             }
         }
 
-        private static String[] findRepoAndPath(FileObject dir, String path) {
+        private static String[] findRepoBranchAndPath(FileObject dir, String path) {
             FileObject dotHg = dir.getFileObject(".hg");
             if (dotHg != null && dotHg.isFolder()) {
                 String repo = null;
+                String branch = "default";
                 FileObject hgrc = dotHg.getFileObject("hgrc");
-                if (hgrc != null && hgrc.isData()) {
-                    try {
-                        InputStream is = hgrc.getInputStream();
-                        try {
-                            BufferedReader r = new BufferedReader(new InputStreamReader(is));
-                            String line;
-                            while ((line = r.readLine()) != null) {
-                                Matcher m = Pattern.compile("default *= *(https?://[^:]+[^/])/?").matcher(line);
-                                if (m.matches()) {
-                                    repo = m.group(1);
-                                    break;
-                                }
+                try {
+                    if (hgrc != null && hgrc.isData()) {
+                        for (String line : hgrc.asLines()) {
+                            // XXX verify that it is inside [paths]; could use libs.ini4j instead
+                            Matcher m = Pattern.compile("default *= *(https?://[^:]+[^/])/?").matcher(line);
+                            if (m.matches()) {
+                                repo = m.group(1);
+                                break;
                             }
-                        } finally {
-                            is.close();
                         }
-                    } catch (IOException x) {
-                        Exceptions.printStackTrace(x);
                     }
+                    FileObject branchFile = dotHg.getFileObject("branch");
+                    if (branchFile != null && branchFile.isData()) {
+                        branch = branchFile.asText().trim();
+                    }
+                } catch (IOException x) {
+                    Exceptions.printStackTrace(x);
                 }
-                return new String[] {repo, path};
+                return new String[] {repo, branch, path};
             } else {
                 FileObject parent = dir.getParent();
                 if (parent == null) {
                     return null;
                 } else {
-                    return findRepoAndPath(parent, dir.getNameExt() + "/" + path);
+                    return findRepoBranchAndPath(parent, dir.getNameExt() + "/" + path);
                 }
             }
         }
