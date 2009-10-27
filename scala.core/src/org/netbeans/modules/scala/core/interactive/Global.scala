@@ -436,7 +436,7 @@ extends scala.tools.nsc.Global(settings, reporter)
       doLocateContext(pos)
     } catch {case ex => println(ex.getMessage); NoContext}
     val superAccess = tree.isInstanceOf[Super]
-    val scope = newScope
+    val scope = new Scope
     val members = new LinkedHashMap[Symbol, TypeMember]
     def addTypeMember(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
       val symtpe = pre.memberType(sym)

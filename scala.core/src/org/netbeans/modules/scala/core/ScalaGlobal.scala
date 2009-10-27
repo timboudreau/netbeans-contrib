@@ -850,7 +850,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
     } catch {case ex => println(ex.getMessage); NoContext}
     
     val superAccess = tree.isInstanceOf[Super]
-    val scope = newScope
+    val scope = new Scope
     val members = new LinkedHashMap[Symbol, TypeMember]
 
     def addTypeMember1(sym: Symbol, pre: Type, inherited: Boolean, viaView: Symbol) {
