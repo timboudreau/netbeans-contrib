@@ -92,6 +92,8 @@ trait ScalaElements {self: ScalaGlobal =>
     private var javaElement: Option[Element] = None
     private var loaded: Boolean = _
 
+    private var triedGetFo: Boolean = _
+
 
     def this(kind: ElementKind) = {
       this(null, null)
@@ -103,13 +105,19 @@ trait ScalaElements {self: ScalaGlobal =>
     }
 
     override def getFileObject: FileObject = {
-      fo.getOrElse{
-        fo = ScalaSourceUtil.getFileObject(parserResult, symbol) // try to get
-        fo match {
-          case Some(x) => path = x.getPath; x
-          case None => null
+      if (!triedGetFo) {
+        fo getOrElse {
+          fo = ScalaSourceUtil.getFileObject(parserResult, symbol) // try to get
+          fo match {
+            case Some(x) => 
+              path = x.getPath
+              x
+            case None => 
+              triedGetFo = true
+              null
+          }
         }
-      }
+      } else fo getOrElse null
     }
 
     override def getIn: String = {
