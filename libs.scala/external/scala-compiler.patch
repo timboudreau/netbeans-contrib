@@ -1,0 +1,93 @@
+Index: src/compiler/scala/tools/nsc/Global.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/Global.scala	(revision 19336)
++++ src/compiler/scala/tools/nsc/Global.scala	(working copy)
+@@ -49,6 +49,7 @@
+   //def this() = this(new Settings, new ConsoleReporter)
+ 
+   // sub-components --------------------------------------------------
++  var qualToRecoveredType :Map[Tree, Type] = Map()
+ 
+   /** Print tree in detailed form */
+   object nodePrinters extends {
+Index: src/compiler/scala/tools/nsc/typechecker/Namers.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/typechecker/Namers.scala	(revision 19336)
++++ src/compiler/scala/tools/nsc/typechecker/Namers.scala	(working copy)
+@@ -1192,7 +1192,10 @@
+                 case ImportSelector(from, _, to, _) :: rest =>
+                   if (from != nme.WILDCARD && base != ErrorType) {
+                     if (base.member(from) == NoSymbol && base.member(from.toTypeName) == NoSymbol)
++                    { global.qualToRecoveredType += (tree -> base)
++                      global.qualToRecoveredType += (expr -> base)
+                       context.error(tree.pos, from.decode + " is not a member of " + expr);
++                    }
+                     if (checkNotRedundant(tree.pos, from, to))
+                       checkNotRedundant(tree.pos, from.toTypeName, to.toTypeName)
+                   }
+Index: src/compiler/scala/tools/nsc/typechecker/Typers.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 19336)
++++ src/compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
+@@ -3305,6 +3305,8 @@
+         if (!sym.exists) {
+           if (settings.debug.value) Console.err.println("qual = "+qual+":"+qual.tpe+"\nSymbol="+qual.tpe.termSymbol+"\nsymbol-info = "+qual.tpe.termSymbol.info+"\nscope-id = "+qual.tpe.termSymbol.info.decls.hashCode()+"\nmembers = "+qual.tpe.members+"\nname = "+name+"\nfound = "+sym+"\nowner = "+context.enclClass.owner)
+           if (!qual.tpe.widen.isErroneous) {
++            global.qualToRecoveredType += (tree -> qual.tpe.widen)
++            global.qualToRecoveredType += (qual -> qual.tpe.widen)
+             error(tree.pos,
+               if (name == nme.CONSTRUCTOR) 
+                 qual.tpe.widen+" does not have a constructor"
+@@ -3319,7 +3321,7 @@
+           // Temporary workaround to retain type information for qual so that askTypeCompletion has something to
+           // work with. This appears to work in the context of the IDE, but is incorrect and needs to be
+           // revisited.
+-          if (onlyPresentation) {
++          /* if (onlyPresentation) {
+             // Nb. this appears to throw away the effects of setError, but some appear to be
+             // retained across the copy.
+             setError(tree)
+@@ -3328,7 +3330,7 @@
+               case SelectFromTypeTree(_, _) => treeCopy.SelectFromTypeTree(tree, qual, name)
+             }
+             tree1
+-          } else
++          } else */
+             setError(tree)
+         } else {
+           val tree1 = tree match {
+Index: src/compiler/scala/tools/nsc/ast/parser/Parsers.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/ast/parser/Parsers.scala	(revision 19336)
++++ src/compiler/scala/tools/nsc/ast/parser/Parsers.scala	(working copy)
+@@ -426,7 +426,7 @@
+         ts map {
+           t =>
+             val dd = DocDef(doc._1, t)
+-            val pos = doc._2.withEnd(t.pos.endOrPoint)
++            val pos = if (t.pos.isDefined) doc._2.withEnd(t.pos.endOrPoint) else doc._2
+             dd setPos (if (t eq main) pos else pos.makeTransparent) 
+         }
+       }
+Index: src/compiler/scala/tools/nsc/symtab/Constants.scala
+===================================================================
+--- src/compiler/scala/tools/nsc/symtab/Constants.scala	(revision 19336)
++++ src/compiler/scala/tools/nsc/symtab/Constants.scala	(working copy)
+@@ -66,7 +66,16 @@
+       case StringTag  => StringClass.tpe
+       case NullTag    => NullClass.tpe
+       case ClassTag   => Predef_classOfType(value.asInstanceOf[Type])
+-      case EnumTag    => symbolValue.owner.linkedClassOfClass.tpe
++      case EnumTag    => symbolValue.owner.linkedClassOfClass.tpe match {
++          case x@NoType => println("EnumTag: " + symbolValue + ", owner=" + symbolValue.owner
++            + ", owner.linkedClassOfClass=" + symbolValue.owner.linkedClassOfClass
++            + ", owner.linkedClassOfModule=" + symbolValue.owner.linkedClassOfModule
++            + ", owner.linkedModuleOfClass=" + symbolValue.owner.linkedModuleOfClass
++            + ", owner.linkedModuleOfClass.moduleClass" + symbolValue.owner.linkedModuleOfClass.moduleClass
++            + ", tpe.underlying=" + symbolValue.tpe.underlying)
++            symbolValue.tpe.underlying
++          case x => x
++      }
+     }
+ 
+     /** We need the equals method to take account of tags as well as values.

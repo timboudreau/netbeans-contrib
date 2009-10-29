@@ -347,16 +347,21 @@ object ScalaSourceUtil {
   }
 
   def getFileObject(pr: ParserResult, sym: Symbols#Symbol): Option[FileObject] = {
+    var srcPath: String = null
+
     val pos = sym.pos
     if (pos.isDefined) {
       val srcFile = pos.source
       if (srcFile != null) {
-        var srcPath = srcFile.path
-        // * Check the strange behavior of Scala's compiler, which may omit the beginning File.separator ("/")
-        if (!srcPath.startsWith(File.separator)) {
-          srcPath = File.separator + srcPath
+        srcPath = srcFile.path
+        var afile = srcFile.file
+        var file = if (afile != null) afile.file else null
+        if (file == null) {
+          if (srcPath != null && srcPath.startsWith(File.separator)) {
+            file = new File(srcPath)
+          }
         }
-        val file = new File(srcPath)
+        
         if (file != null && file.exists) {
           // * it's a real file instead of an archive file
           return Some(FileUtil.toFileObject(file))
@@ -387,18 +392,25 @@ object ScalaSourceUtil {
 
     try {
       val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
-
       val clzFo = cp.findResource(clzName)
-      val root = cp.findOwnerRoot(clzFo)
+      val root  = cp.findOwnerRoot(clzFo)
+
+      if (srcPath != null && srcPath != "") {
+        findSourceFileObject(cp, root, srcPath) match {
+          case None =>
+          case some => return some
+        }
+      }
+
       val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
 
       // * see if we can find this class's source file straightforward
       findSourceFileObject(cp, root, qName + ext) match {
         case None =>
-        case x => return x
+        case some => return some
       }
 
-      var srcPath = if (clzFo != null) {
+      srcPath = if (clzFo != null) {
         val in = clzFo.getInputStream
         try {
           new ClassFile(in, false) match {
@@ -834,16 +846,16 @@ object ScalaSourceUtil {
 
   /** What's difference from getClassPath(fo: FileObject) ? */
   /* def getClassPath2(fo: FileObject) = {
-    val cpInfo = ClasspathInfo.create(fo)
-    val bootCp = cpInfo.getClassPath(PathKind_BOOT)
-    val compCp = cpInfo.getClassPath(PathKind_COMPILE)
-    val srcCp = cpInfo.getClassPath(PathKind_SOURCE)
-    ClassPathSupport.createProxyClassPath(Array(bootCp, compCp, srcCp): _*)
-  }
+   val cpInfo = ClasspathInfo.create(fo)
+   val bootCp = cpInfo.getClassPath(PathKind_BOOT)
+   val compCp = cpInfo.getClassPath(PathKind_COMPILE)
+   val srcCp = cpInfo.getClassPath(PathKind_SOURCE)
+   ClassPathSupport.createProxyClassPath(Array(bootCp, compCp, srcCp): _*)
+   }
 
-  /** trick to avoid Enum_Tag constant returns NoType */
-  val PathKind_BOOT = ClasspathInfo.PathKind.BOOT
-  val PathKind_COMPILE = ClasspathInfo.PathKind.COMPILE
-  val PathKind_SOURCE = ClasspathInfo.PathKind.SOURCE */
+   /** trick to avoid Enum_Tag constant returns NoType */
+   val PathKind_BOOT = ClasspathInfo.PathKind.BOOT
+   val PathKind_COMPILE = ClasspathInfo.PathKind.COMPILE
+   val PathKind_SOURCE = ClasspathInfo.PathKind.SOURCE */
 
 }
