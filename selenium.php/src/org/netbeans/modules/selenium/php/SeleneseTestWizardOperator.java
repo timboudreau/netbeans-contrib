@@ -98,7 +98,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
-        SeleniumPHPSupport.prepareProject(Templates.getProject(wiz));
+        SeleniumPHPSupport.getSeleniumDir(Templates.getProject(wiz), true);
         panel = createPanel(wiz);
     }
 

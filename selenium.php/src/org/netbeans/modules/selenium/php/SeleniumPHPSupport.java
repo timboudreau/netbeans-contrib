@@ -39,7 +39,9 @@
 package org.netbeans.modules.selenium.php;
 
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.netbeans.modules.php.project.api.PhpSeleniumProvider;
 import org.netbeans.spi.project.support.GenericSources;
 import org.openide.filesystems.FileObject;
@@ -52,33 +54,30 @@ import org.openide.util.NbBundle;
 final class SeleniumPHPSupport {
 
     static SourceGroup getSeleniumSourceGroup(Project project) {
-        FileObject dir = getSeleniumDir(project);
+        FileObject dir = getSeleniumDir(project, false);
+        if (dir == null) {
+            return ProjectUtils.getSources(project).getSourceGroups(Sources.TYPE_GENERIC)[0];
+        }
         String sourcesDisplayName = NbBundle.getMessage(SeleniumPHPSupport.class, "sources_display_name");
         return GenericSources.group(project, dir, "SeleniumDir", sourcesDisplayName, null, null);
     }
 
     static boolean isActive(Project project) {
-        PhpSeleniumProvider provider = getSeleniumProvider(project);
-        if (provider == null){
-            return false;
+        return getSeleniumProvider(project) != null;
+    }
+
+    static FileObject getSeleniumDir(Project project, boolean showCustomizer) {
+        return getSeleniumProvider(project).getTestDirectory(showCustomizer);
+    }
+
+    static void invokeTest(Project project) {
+        assert getSeleniumProvider(project) != null;
+        if (getSeleniumDir(project, true) != null) {
+            getSeleniumProvider(project).runAllTests();
         }
-        return provider.getTestDirectory(false) != null;
     }
 
-    static FileObject getSeleniumDir(Project project){
-        return getSeleniumProvider(project).getTestDirectory(false);
-    }
-
-    static void prepareProject(Project project) {
-        PhpSeleniumProvider provider = getSeleniumProvider(project);
-        provider.getTestDirectory(true);
-    }
-
-    static void invokeTest(Project project){
-        getSeleniumProvider(project).runAllTests();
-    }
-    
-    private static PhpSeleniumProvider getSeleniumProvider(Project project){
+    private static PhpSeleniumProvider getSeleniumProvider(Project project) {
         return project.getLookup().lookup(PhpSeleniumProvider.class);
     }
 

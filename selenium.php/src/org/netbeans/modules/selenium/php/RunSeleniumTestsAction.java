@@ -73,7 +73,7 @@ public class RunSeleniumTestsAction extends NodeAction {
         if (activatedNodes.length == 1){
             Node node = activatedNodes[0];
             Project proj = node.getLookup().lookup(Project.class);
-            if ((proj != null) && SeleniumPHPSupport.isActive(proj)) {
+            if (proj != null && SeleniumPHPSupport.isActive(proj)) {
                 return proj;
             }
         }
