@@ -99,7 +99,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
         return new MavenExecutor(p);
     }
 
-    public class MavenExecutor implements TestExecutor {
+    private static class MavenExecutor implements TestExecutor {
 
         private static final String failedConfPath = "target/surefire-reports/testng-failed.xml"; //NOI18N
         private static final String failedConfPath2 = "target/surefire-reports/testng-native-results/testng-failed.xml"; //NOI18N
