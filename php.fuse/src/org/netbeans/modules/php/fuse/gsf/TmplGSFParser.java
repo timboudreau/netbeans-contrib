@@ -36,39 +36,70 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.fuse.csl;
+package org.netbeans.modules.php.fuse.gsf;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.csl.api.StructureItem;
-import org.netbeans.modules.csl.api.StructureScanner;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.spi.ParserResult;
-//import org.netbeans.modules.css.editor.Css;
-//import org.netbeans.modules.css.gsf.api.CssParserResult;
-//import org.netbeans.modules.css.parser.CssParserTreeConstants;
-//import org.netbeans.modules.css.parser.NodeVisitor;
-//import org.netbeans.modules.css.parser.SimpleNode;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.api.Task;
+import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.modules.parsing.spi.Parser;
+import org.netbeans.modules.parsing.spi.SourceModificationEvent;
+
 
 /**
+ * just fake class - is needed to enable navigator of embedded languages in tmpl
  *
  * @author Martin Fousek
  */
-public class FuseStructureScanner implements StructureScanner {
+public class TmplGSFParser extends Parser {
+
+    private Result fakeResult;
 
     @Override
-    public List<? extends StructureItem> scan(final ParserResult info) {
-        return Collections.emptyList();
+    public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
+        fakeResult = new TmplFakeParserResult(snapshot);
     }
 
     @Override
-    public Map<String, List<OffsetRange>> folds(ParserResult info) {
-        return Collections.emptyMap();
+    public Result getResult(Task task) throws ParseException {
+        return fakeResult;
     }
 
     @Override
-    public Configuration getConfiguration() {
-        return new Configuration(false, false, 0);
+    public void cancel() {
+        //do nothing
     }
+
+    @Override
+    public void addChangeListener(ChangeListener changeListener) {
+        //do nothing
+    }
+
+    @Override
+    public void removeChangeListener(ChangeListener changeListener) {
+        //do nothing
+    }
+
+    private static class TmplFakeParserResult extends ParserResult {
+
+        public TmplFakeParserResult(Snapshot s) {
+            super(s);
+        }
+
+        @Override
+        public List<? extends Error> getDiagnostics() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        protected void invalidate() {
+            //do nothing
+        }
+
+    }
+
 }

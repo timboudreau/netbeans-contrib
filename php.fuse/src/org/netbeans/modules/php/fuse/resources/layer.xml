@@ -2,9 +2,35 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
 
-    <folder name="Loaders">
+    <folder name="CslPlugins">
         <folder name="text">
             <folder name="fuse-template">
+                <attr name="useCustomEditorKit" boolvalue="false"/>
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.gsf.TmplLanguage"/>
+                </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.gsf.TmplStructureScanner"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+   <!-- --><folder name="Loaders">
+        <folder name="text">
+            <folder name="fuse-template">
+
+                 <!--GSF-->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
+                 <folder name="Factories">
+                     <file name="org-netbeans-modules-php-fuse-TmplLoader.instance">
+                         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.Bundle"/>
+                        <attr name="position" intvalue="3000"/>
+                     </file>
+                 </folder>
+                  <!--eof GSF-->
+                
                 <folder name="Actions">
                     <file name="org-openide-actions-CopyAction.instance">
                         <attr name="position" intvalue="400"/>
@@ -54,14 +80,6 @@
                         <attr name="position" intvalue="1200"/>
                     </file>
                 </folder>
-                <folder name="Factories">
-                    <file name="TmplDataLoader.instance">
-                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
-                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.php.fuse.TmplDataObject"/>
-                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
-                        <attr name="mimeType" stringvalue="text/fuse-template"/>
-                    </file>
-                </folder>
             </folder>
         </folder>
     </folder>
@@ -102,17 +120,22 @@
         <folder name="MIMEResolver">
             <file name="TmplResolver.xml" url="TmplResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
+                <attr name="position" intvalue="259"/>
             </file>
         </folder>
     </folder>
 
     <folder name="Templates">
         <folder name="Scripting">
-            <file name="TmplTemplate.tmpl" url="TmplTemplate.tmpl">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
+            <file name="TmplTemplate.tmpl" url="nbresloc:/org/netbeans/modules/php/fuse/resources/TmplTemplate.tmpl">
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="PHP"/>
                 <attr name="position" intvalue="500"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/TmplDescription.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.resources.Bundle"/>
             </file>
         </folder>
     </folder>
@@ -128,13 +151,24 @@
     <folder name="Editors">
         <folder name="text">
             <folder name="fuse-template">
-                <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
-                </file>
+                <folder name="text">
+                    <folder name="html">
+                        <folder name="CodeTemplates">
+                            <folder name="Defaults">
+                                <file name="codetemplates.shadow">
+                                    <attr name="originalFile" stringvalue="Editors/text/html"/>
+                                </file>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-php-editor-PHPCodeCompletion.instance"/>
+                    <file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-html-editor-completion-HtmlPaletteCompletionProvider.instance"/>
                 </folder>
+                <file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>
                 <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>
                 <file name="org-netbeans-modules-php-fuse-editor-FuseEmbeddingProvider$Factory.instance"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.lexer.Bundle"/>
@@ -149,6 +183,11 @@
                 </folder>
             </folder>
             <folder name="fuse">
+                <!--<folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-php-editor-FSCompletion.instance"/>
+                </folder>-->
+                <!--<file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>-->
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -162,15 +201,18 @@
         </folder>
     </folder>
 
-    
-    <folder name="CslPlugins">
+<!--    <folder name="csl-hints">
         <folder name="text">
-            <folder name="fuse-template">
-                <file name="language.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.csl.FuseLanguage"/>
-                </file>
+            <folder name="x-php5">
+                <folder name="hints">
+                    <folder name="stable">
+                        <attr name="position" intvalue="200"/>
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.editor.verification.Bundle"/>
+                        <file name="org-netbeans-modules-php-fuse-editor-NotAddedClassProperty.instance"/>
+                    </folder>
+                </folder>
             </folder>
         </folder>
-    </folder>
+    </folder>-->
 
 </filesystem>

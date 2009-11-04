@@ -38,38 +38,29 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.php.fuse.csl;
+package org.netbeans.modules.php.fuse.gsf;
 
 import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.csl.api.CodeCompletionHandler;
-import org.netbeans.modules.csl.api.HintsProvider;
-import org.netbeans.modules.csl.api.KeystrokeHandler;
-import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.csl.api.StructureScanner;
-import org.netbeans.modules.csl.spi.CommentHandler;
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
 
 /**
- * Configuration for CSS
+ * Configuration for TMPL files
  */
-public class FuseLanguage extends DefaultLanguageConfig {
+public class TmplLanguage extends DefaultLanguageConfig {
     
-    public FuseLanguage() {
+    public TmplLanguage() {
     }
+
 
     @Override
     public boolean isIdentifierChar(char c) {
          /** Includes things you'd want selected as a unit when double clicking in the editor */
         return Character.isJavaIdentifierPart(c) || (c == '$') ||(c == '_');
     }
-
-    @Override
-    public CommentHandler getCommentHandler() {
-        return null;
-    }
-
+    
     @Override
     public Language getLexerLanguage() {
         return FuseTopTokenId.language();
@@ -85,42 +76,24 @@ public class FuseLanguage extends DefaultLanguageConfig {
         return "tmpl"; // NOI18N
     }
 
-    // Service Registrations
+    @Override
+    public boolean isUsingCustomEditorKit() {
+        return false;
+    }
     
     @Override
-    public SemanticAnalyzer getSemanticAnalyzer() {
-        return null;
-    }
-
-    @Override
     public Parser getParser() {
-        return null;
+        // we need the parser and the StructureScanner to enable navigator of embedded languages
+        return new TmplGSFParser();
     }
 
     @Override
-    public StructureScanner getStructureScanner() {
-        return null;
-    }
-
-    @Override
-    public CodeCompletionHandler getCompletionHandler() {
-        return null;
-    }
-
-    @Override
-    public KeystrokeHandler getKeystrokeHandler() {
-        return null;
-    }
-
-    @Override
-    public boolean hasHintsProvider() {
+    public boolean hasStructureScanner() {
         return true;
     }
 
     @Override
-    public HintsProvider getHintsProvider() {
-        return null;
+    public StructureScanner getStructureScanner() {
+        return new TmplStructureScanner();
     }
-
-
 }
