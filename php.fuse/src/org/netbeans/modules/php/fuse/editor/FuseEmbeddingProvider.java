@@ -56,7 +56,6 @@ import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
 /**
  * Provides code completion for T_HTML tokens
  *
- * @author Martin Fousek
  */
 public class FuseEmbeddingProvider extends EmbeddingProvider {
 
@@ -91,10 +90,8 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                 len += t.length();                
             } else {
                 if(from >= 0) {
-                    //lets suppose the text is always html :-(
-                    embeddings.add(snapshot.create(from, len, "text/html")); //NOI18N
-                    //add only one virtual generated token for a sequence of PHP tokens
-                    embeddings.add(snapshot.create(GENERATED_CODE, "text/html"));
+                    embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
+                    embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
                 }
 
                 from = -1;
@@ -103,7 +100,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
         }
         
         if(from >= 0) {
-            embeddings.add(snapshot.create(from, len, "text/html")); //NOI18N
+            embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
         }
 
         if (embeddings.isEmpty()) {
