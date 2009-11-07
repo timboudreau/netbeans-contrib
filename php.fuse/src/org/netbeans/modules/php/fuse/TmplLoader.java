@@ -56,7 +56,7 @@ import org.openide.util.NbBundle;
 public class TmplLoader extends UniFileLoader {
 
     /** serialVersionUID */
-    private static final long serialVersionUID = 1549250022027438942L;
+    private static final long serialVersionUID = 1L;
 
     public static final String FUSE_MIME_TYPE  = "text/fuse-template"; // NOI18N
     

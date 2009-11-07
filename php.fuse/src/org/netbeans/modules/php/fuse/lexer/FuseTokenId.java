@@ -50,6 +50,7 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
@@ -181,14 +182,10 @@ public enum FuseTokenId implements TokenId {
         protected LanguageEmbedding<?> embedding(
         Token<FuseTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
             // Test language embedding in the block comment
-//            switch (token.id()) {
-//                case JAVADOC_COMMENT:
-//                    return LanguageEmbedding.create(JavadocTokenId.language(), 3,
-//                            (token.partType() == PartType.COMPLETE) ? 2 : 0);
-//                case STRING_LITERAL:
-//                    return LanguageEmbedding.create(JavaStringTokenId.language(), 1,
-//                            (token.partType() == PartType.COMPLETE) ? 1 : 0);
-//            }
+            switch (token.id()) {
+                case IDENTIFIER:
+                    return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, true);
+            }
             return null; // No embedding
         }
     }.language();
