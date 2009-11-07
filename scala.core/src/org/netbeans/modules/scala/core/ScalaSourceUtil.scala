@@ -546,7 +546,7 @@ object ScalaSourceUtil {
 
     if (clazzName.length == 0) return null
 
-    val out = ScalaGlobal.getOutFileObject(fo).getOrElse(return clazzName)
+    val out = ScalaGlobal.getOutFileObject(fo, true) getOrElse {return clazzName}
 
     def findAllClassFilesWith(prefix: String, dirFo: FileObject, result: ArrayBuffer[FileObject]): Unit = {
       dirFo.getChildren foreach {

@@ -70,7 +70,7 @@ import scala.tools.nsc.util.{Position, SourceFile, NoPosition}
  */
 object ScalaGlobal {
 
-  private val Log = Logger.getLogger(classOf[ScalaGlobal].getName)
+  private val logger = Logger.getLogger(this.getClass.getName)
   
   /** index of globals */
   private val Global = 0
@@ -78,7 +78,7 @@ object ScalaGlobal {
   private val GlobalForDebug = 2
   private val GlobalForTestDebug = 3
 
-  private class Cache {
+  private class DirResource {
     var srcToOut:  Map[FileObject, FileObject] = Map()
     var testToOut: Map[FileObject, FileObject] = Map()
 
@@ -102,11 +102,11 @@ object ScalaGlobal {
   
   private val debug = false
 
-  private val projectToCache = new WeakHashMap[Project, Cache]
+  private val projectToResources = new WeakHashMap[Project, DirResource]
   private val projectToGlobals = new WeakHashMap[Project, Array[ScalaGlobal]]
   private var globalToListeners = Map[ScalaGlobal, List[FileChangeListener]]()
   private var globalForStdLib: Option[ScalaGlobal] = None
-  private var toResetGlobals = Set[ScalaGlobal]()
+  private var toResetGlobals = Map[ScalaGlobal, Project]()
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
 
@@ -116,25 +116,24 @@ object ScalaGlobal {
 
   def resetLate(global: ScalaGlobal, reason: Throwable) = synchronized {
     reason match {
-      case NormalReason(msg) => Log.info("Will reset global late due to: " + msg)
-      case _ => Log.log(Level.WARNING, "Will reset global late due to:", reason)
+      case NormalReason(msg) => logger.info("Will reset global late due to: " + msg)
+      case _ => logger.log(Level.WARNING, "Will reset global late due to:", reason)
     }
 
-    toResetGlobals += global
-    
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
-      projectToGlobals foreach {case (p, globals) =>
+      projectToGlobals foreach {case (project, globals) =>
           var found = false
           var i = 0
           val len = globals.length
           while (i < len && !found) {
             if (globals(i) == global) {
               globals(i) = null
+              toResetGlobals += (global -> project)
               globalToListeners.get(global) foreach {xs =>
                 xs foreach {x =>
-                  p.getProjectDirectory.getFileSystem.removeFileChangeListener(x)
+                  project.getProjectDirectory.getFileSystem.removeFileChangeListener(x)
                 }
               }
               globalToListeners -= global
@@ -152,9 +151,11 @@ object ScalaGlobal {
    * it seems reset operation cannot got a clean global?
    */
   def resetBadGlobals = synchronized {
-    for (global <- toResetGlobals) {
-      Log.info("Reset global: " + global)
+    for ((global, project) <- toResetGlobals) {
+      logger.info("Reset global: " + global)
 
+      projectToResources.remove(project)
+      
       // * this will cause global create a new TypeRun so as to release all unitbuf and filebuf.
       // * But, it seems askReset will only reset current unit, when exception is throw inside
       // * for example, typeCheck, the dependent units may have been damaged, and the symbols in
@@ -170,27 +171,31 @@ object ScalaGlobal {
       global.askShutdown
     }
 
-    toResetGlobals = Set[ScalaGlobal]()
+    toResetGlobals = Map[ScalaGlobal, Project]()
   }
 
-  def getOutFileObject(fo: FileObject): Option[FileObject] = {
+  def getOutFileObject(fo: FileObject, refresh: Boolean): Option[FileObject] = {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // * it may be a standalone file, or file in standard lib
       return None
     }
 
-    val cache = findDirResources(project)
+    val resource = if (refresh ) {
+      findDirResources(project)
+    } else {
+      projectToResources.get(project) getOrElse findDirResources(project)
+    }
 
     // * is this `fo` under test source?
-    val forTest = cache.testToOut exists {case (src, _) =>
+    val forTest = resource.testToOut exists {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
     }
 
     var outPath: FileObject = null
     var srcPaths: List[FileObject] = Nil
-    for ((src, out) <- if (forTest) cache.testToOut else cache.srcToOut) {
-      srcPaths = src :: srcPaths
+    for ((src, out) <- if (forTest) resource.testToOut else resource.srcToOut) {
+      srcPaths ::= src
 
       try {
         val file = FileUtil.toFile(out)
@@ -219,16 +224,14 @@ object ScalaGlobal {
       }
     }
 
-    val cache = findDirResources(project)
-
-    /* val cache = projectToCache.get(project) getOrElse {
-     val cachex = findDirResources(project)
-     projectToCache += (project -> cachex)
-     cachex
-     } */
+    val resource = projectToResources.get(project) getOrElse {
+      val x = findDirResources(project)
+      projectToResources += (project -> x)
+      x
+    }
 
     // * is this `fo` under test source?
-    val forTest = cache.testToOut exists {case (src, _) =>
+    val forTest = resource.testToOut exists {case (src, _) =>
         src.equals(fo) || FileUtil.isParentOf(src, fo)
     }
 
@@ -274,8 +277,8 @@ object ScalaGlobal {
     
     var outPath = ""
     var srcPaths: List[String] = Nil
-    for ((src, out) <- if (forTest) cache.testSrcOutDirsPath else cache.srcOutDirsPath) {
-      srcPaths = src :: srcPaths
+    for ((src, out) <- if (forTest) resource.testSrcOutDirsPath else resource.srcOutDirsPath) {
+      srcPaths ::= src
 
       // * we only need one out path
       if (outPath == "") {
@@ -295,12 +298,12 @@ object ScalaGlobal {
     settings.sourcepath.tryToSet(srcPaths.reverse)
     settings.outputDirs.setSingleOutput(outPath)
 
-    Log.info("project's source paths set for global: " + srcPaths)
-    Log.info("project's output paths set for global: " + outPath)
+    logger.info("project's source paths set for global: " + srcPaths)
+    logger.info("project's output paths set for global: " + outPath)
     if (srcCp != null){
-      Log.info(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
+      logger.info(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
     } else {
-      Log.info("project's srcCp is empty !")
+      logger.info("project's srcCp is empty !")
     }
     
     // * @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why?
@@ -364,36 +367,36 @@ object ScalaGlobal {
     }
   }
 
-  private def findDirResources(project: Project): Cache = {
-    val cache = new Cache
+  private def findDirResources(project: Project): DirResource = {
+    val resource = new DirResource
 
     val sources = ProjectUtils.getSources(project)
     val scalaSgs = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_SCALA)
     val javaSgs  = sources.getSourceGroups(ScalaSourceUtil.SOURCES_TYPE_JAVA)
 
-    Log.info((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
-    Log.info((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
+    logger.info((scalaSgs map (_.getRootFolder)).mkString("project's src group[ScalaType] dir: [", ", ", "]"))
+    logger.info((javaSgs  map (_.getRootFolder)).mkString("project's src group[JavaType]  dir: [", ", ", "]"))
 
     List(scalaSgs, javaSgs) foreach {
       case Array(srcSg) =>
         val src = srcSg.getRootFolder
         val out = findOutDir(project, src)
-        cache.srcToOut += (src -> out)
+        resource.srcToOut += (src -> out)
 
       case Array(srcSg, testSg, _*) =>
         val src = srcSg.getRootFolder
         val out = findOutDir(project, src)
-        cache.srcToOut += (src -> out)
+        resource.srcToOut += (src -> out)
 
         val test = testSg.getRootFolder
         val testOut = findOutDir(project, test)
-        cache.testToOut += (test -> testOut)
+        resource.testToOut += (test -> testOut)
 
       case x =>
         // @todo add other srcs
     }
     
-    cache
+    resource
   }
 
   private def findOutDir(project: Project, srcRoot: FileObject): FileObject = {
@@ -538,14 +541,14 @@ object ScalaGlobal {
     private def isUnderCompCp(fo: FileObject) = {
       // * when there are series of folder/file created, only top created folder can be listener
       val found = compRoots find {x => FileUtil.isParentOf(fo, x) || x == fo}
-      if (found.isDefined) Log.finest("under compCp: fo=" + fo + ", found=" + found)
+      if (found.isDefined) logger.finest("under compCp: fo=" + fo + ", found=" + found)
       found isDefined
     }
 
     override def fileFolderCreated(fe: FileEvent) {
       val fo = fe.getFile
       if (isUnderCompCp(fo) && global != null) {
-        Log.finest("folder created: " + fo)
+        logger.finest("folder created: " + fo)
         resetLate(global, compCpChanged)
       }
     }
@@ -553,7 +556,7 @@ object ScalaGlobal {
     override def fileDataCreated(fe: FileEvent): Unit = {
       val fo = fe.getFile
       if (isUnderCompCp(fo) && global != null) {
-        Log.finest("data created: " + fo)
+        logger.finest("data created: " + fo)
         resetLate(global, compCpChanged)
       }
     }
@@ -561,7 +564,7 @@ object ScalaGlobal {
     override def fileChanged(fe: FileEvent): Unit = {
       val fo = fe.getFile
       if (isUnderCompCp(fo) && global != null) {
-        Log.finest("file changed: " + fo)
+        logger.finest("file changed: " + fo)
         resetLate(global, compCpChanged)
       }
     }
@@ -569,7 +572,7 @@ object ScalaGlobal {
     override def fileRenamed(fe: FileRenameEvent): Unit = {
       val fo = fe.getFile
       if (isUnderCompCp(fo) && global != null) {
-        Log.finest("file renamed: " + fo)
+        logger.finest("file renamed: " + fo)
         resetLate(global, compCpChanged)
       }
     }
@@ -577,7 +580,7 @@ object ScalaGlobal {
     override def fileDeleted(fe: FileEvent): Unit = {
       val fo = fe.getFile
       if (isUnderCompCp(fo) && global != null) {
-        Log.finest("file deleted: " + fo)
+        logger.finest("file deleted: " + fo)
         resetLate(global, compCpChanged)
       }
     }
@@ -807,7 +810,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
         case Select(qualifier, name) => qualifier
         case x =>
           alternatePos match {
-            case NoPosition => Log.warning("Got a suspicious completion tree: " + x.getClass.getSimpleName); x
+            case NoPosition => logger.warning("Got a suspicious completion tree: " + x.getClass.getSimpleName); x
             case _ => completionTypeAt(alternatePos, NoPosition)
           }
       }
