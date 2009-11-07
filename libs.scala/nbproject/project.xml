@@ -47,12 +47,20 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.libs.scala</code-name-base>
             <module-dependencies/>
             <public-packages>
-                <package>actors</package>
+                <package>ch.epfl.lamp.compiler.msil</package>
+                <package>ch.epfl.lamp.compiler.msil.emit</package>
+                <package>ch.epfl.lamp.compiler.msil.util</package>
+                <package>ch.epfl.lamp.fjbg</package>
+                <package>ch.epfl.lamp.util</package>
                 <package>scala</package>
                 <package>scala.actors</package>
                 <package>scala.actors.remote</package>
                 <package>scala.actors.scheduler</package>
+                <package>scala.actors.threadpool</package>
+                <package>scala.actors.threadpool.helpers</package>
+                <package>scala.actors.threadpool.locks</package>
                 <package>scala.annotation</package>
+                <package>scala.annotation.target</package>
                 <package>scala.annotation.unchecked</package>
                 <package>scala.collection</package>
                 <package>scala.collection.generic</package>
@@ -73,6 +81,7 @@ made subject to such option by the copyright holder.
                 <package>scala.dbc.value</package>
                 <package>scala.dbc.vendor</package>
                 <package>scala.io</package>
+                <package>scala.math</package>
                 <package>scala.mobile</package>
                 <package>scala.net</package>
                 <package>scala.ref</package>
@@ -80,6 +89,7 @@ made subject to such option by the copyright holder.
                 <package>scala.runtime</package>
                 <package>scala.swing</package>
                 <package>scala.swing.event</package>
+                <package>scala.swing.model</package>
                 <package>scala.swing.test</package>
                 <package>scala.testing</package>
                 <package>scala.text</package>
