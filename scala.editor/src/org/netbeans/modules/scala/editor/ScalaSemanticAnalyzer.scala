@@ -131,112 +131,135 @@ class ScalaSemanticAnalyzer extends SemanticAnalyzer[ScalaParserResult] {
         case ScalaTokenId.Identifier | ScalaTokenId.This | ScalaTokenId.Super =>
           val hiRange = ScalaLexUtil.getRangeOfToken(th, idToken)
           val coloringSet = new java.util.HashSet[ColoringAttributes]
+          val sym = item.asInstanceOf[ScalaItem].symbol
+          
           item match {
             
             case dfn: ScalaDfn =>
-              dfn.symbol match {
-                case sym if sym.isModule =>
-                  coloringSet.add(ColoringAttributes.CLASS)
-                  coloringSet.add(ColoringAttributes.DECLARATION)
+              
+              if (sym.isModule) {
+
+                coloringSet.add(ColoringAttributes.CLASS)
+                coloringSet.add(ColoringAttributes.DECLARATION)
+                coloringSet.add(ColoringAttributes.GLOBAL)
+
+              } else if (sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter) {
+
+                coloringSet.add(ColoringAttributes.CLASS)
+                coloringSet.add(ColoringAttributes.DECLARATION)
+
+              } else if (sym.isSetter) {
+
+                coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                coloringSet.add(ColoringAttributes.GLOBAL)
+
+              } else if (sym.isGetter) {
+
+                coloringSet.add(ColoringAttributes.FIELD)
+                coloringSet.add(ColoringAttributes.GLOBAL)
+
+              } else if (sym.hasFlag(Flags.LAZY)) {
+
+                coloringSet.add(ColoringAttributes.FIELD)
+                val owner = sym.owner
+                if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
                   coloringSet.add(ColoringAttributes.GLOBAL)
+                }
 
-                case sym if sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter =>
-                  coloringSet.add(ColoringAttributes.CLASS)
-                  coloringSet.add(ColoringAttributes.DECLARATION)
+              } else if (sym.isMethod && sym.hasFlag(Flags.DEFERRED)) {
 
-                case sym if sym.isSetter =>
-                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
+                coloringSet.add(ColoringAttributes.METHOD)
+                coloringSet.add(ColoringAttributes.DECLARATION)
+                coloringSet.add(ColoringAttributes.GLOBAL)
 
-                case sym if sym.isGetter =>
-                  coloringSet.add(ColoringAttributes.FIELD)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
+              } else if (sym.isMethod) {
 
-                case sym if sym.hasFlag(Flags.LAZY) =>
-                  coloringSet.add(ColoringAttributes.FIELD)
-                  val owner = sym.owner
-                  if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
-                    coloringSet.add(ColoringAttributes.GLOBAL)
-                  }
-
-                case sym if sym.isMethod && sym.hasFlag(Flags.DEFERRED) =>
-                  coloringSet.add(ColoringAttributes.METHOD)
-                  coloringSet.add(ColoringAttributes.DECLARATION)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
-
-                case sym if sym.isMethod =>
-                  coloringSet.add(ColoringAttributes.METHOD)
-                  coloringSet.add(ColoringAttributes.DECLARATION)
+                coloringSet.add(ColoringAttributes.METHOD)
+                coloringSet.add(ColoringAttributes.DECLARATION)
                   
-                case sym if sym.hasFlag(Flags.PARAM) =>
-                  coloringSet.add(ColoringAttributes.PARAMETER)
+              } else if (sym.hasFlag(Flags.PARAM)) {
 
-                case sym if sym.hasFlag(Flags.MUTABLE) =>
-                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                coloringSet.add(ColoringAttributes.PARAMETER)
+
+              } else if (sym.hasFlag(Flags.MUTABLE)) {
+
+                coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
                   
-                case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
-                  coloringSet.add(ColoringAttributes.FIELD)
+              } else if (sym.isValue && !sym.hasFlag(Flags.PACKAGE)) {
 
-                case _ => 
-              }
+                coloringSet.add(ColoringAttributes.FIELD)
+                
+              } 
               
             case ref: ScalaRef =>
-              ref.symbol match {
-                case sym if sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter || sym.isConstructor =>
-                  coloringSet.add(ColoringAttributes.CLASS)
+              def isSinletonType = try {
+                sym.tpe.resultType.isInstanceOf[SingletonType]
+              } catch {case _ => false}
+              
+              if (sym.isClass || sym.isType || sym.isTrait || sym.isTypeParameter || sym.isConstructor) {
 
-                case sym if sym.isModule && !sym.hasFlag(Flags.PACKAGE) =>
-                  coloringSet.add(ColoringAttributes.CLASS)
+                coloringSet.add(ColoringAttributes.CLASS)
+
+              } else if (sym.isModule && !sym.hasFlag(Flags.PACKAGE) || isSinletonType) {
+
+                coloringSet.add(ColoringAttributes.CLASS)
+                coloringSet.add(ColoringAttributes.GLOBAL)
+
+              } else if (sym.hasFlag(Flags.LAZY)) { // why it's also setter/getter?
+
+                coloringSet.add(ColoringAttributes.FIELD)
+                val owner = sym.owner
+                if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
                   coloringSet.add(ColoringAttributes.GLOBAL)
+                }
 
-                case sym if sym.hasFlag(Flags.LAZY) => // why it's also setter/getter?
-                  coloringSet.add(ColoringAttributes.FIELD)
-                  val owner = sym.owner
-                  if (owner != null && (owner.isClass || owner.isTrait || owner.isModule)) {
-                    coloringSet.add(ColoringAttributes.GLOBAL)
-                  }
+              } else if (sym.isSetter) {
 
-                case sym if sym.isSetter =>
+                coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+                coloringSet.add(ColoringAttributes.GLOBAL)
+
+              } else if (sym.isGetter) {
+
+                val name = sym.nameString
+                val isVariable = try {
+                  val owntpe = sym.owner.tpe
+                  owntpe.members exists {x => x.isVariable && x.nameString == name}
+                } catch {case _ => false}
+
+                if (isVariable) {
                   coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
-                  coloringSet.add(ColoringAttributes.GLOBAL)
-
-                case sym if sym.isGetter =>
-                  val name = sym.nameString
-                  val isVariable = try {
-                    val owntpe = sym.owner.tpe
-                    owntpe.members exists {x => x.isVariable && x.nameString == name}
-                  } catch {case _ => false}
-
-                  if (isVariable) {
-                    coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
-                  } else {
-                    coloringSet.add(ColoringAttributes.FIELD)
-                  }
-                  coloringSet.add(ColoringAttributes.GLOBAL)
-
-                case sym if sym.hasFlag(Flags.PARAM) || sym.hasFlag(Flags.PARAMACCESSOR) =>
-                  coloringSet.add(ColoringAttributes.PARAMETER)
-
-                case sym if sym.isMethod && ref.getKind == ElementKind.RULE => // implicit call          
-                  coloringSet.add(ColoringAttributes.INTERFACE)
-
-                case sym if sym.isMethod =>
-                  coloringSet.add(ColoringAttributes.METHOD)
-
-                case sym if sym.hasFlag(Flags.IMPLICIT) =>
-                  coloringSet.add(ColoringAttributes.INTERFACE)
-
-                case sym if sym.hasFlag(Flags.MUTABLE) =>
-                  coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
-
-                case sym if sym.isValue && !sym.hasFlag(Flags.PACKAGE) =>
+                } else {
                   coloringSet.add(ColoringAttributes.FIELD)
+                }
+                coloringSet.add(ColoringAttributes.GLOBAL)
 
-                case _ => 
+              } else if (sym.hasFlag(Flags.PARAM) || sym.hasFlag(Flags.PARAMACCESSOR)) {
+
+                coloringSet.add(ColoringAttributes.PARAMETER)
+
+              } else if (sym.isMethod && ref.getKind == ElementKind.RULE) { // implicit call
+
+                coloringSet.add(ColoringAttributes.INTERFACE)
+
+              } else if (sym.isMethod) {
+
+                coloringSet.add(ColoringAttributes.METHOD)
+
+              } else if (sym.hasFlag(Flags.IMPLICIT)) {
+
+                coloringSet.add(ColoringAttributes.INTERFACE)
+
+              } else if (sym.hasFlag(Flags.MUTABLE)) {
+
+                coloringSet.add(ColoringAttributes.LOCAL_VARIABLE)
+
+              } else if (sym.isValue && !sym.hasFlag(Flags.PACKAGE)) {
+                
+                coloringSet.add(ColoringAttributes.FIELD)
+
               }
           }
 
-          val sym = item.asInstanceOf[ScalaItem].symbol
           if (sym.isDeprecated) coloringSet.add(ColoringAttributes.DEPRECATED)
           if (sym.hasFlag(Flags.LAZY)) coloringSet.add(ColoringAttributes.INTERFACE)
           if (sym.hasFlag(Flags.BYNAMEPARAM)) coloringSet.add(ColoringAttributes.INTERFACE)
