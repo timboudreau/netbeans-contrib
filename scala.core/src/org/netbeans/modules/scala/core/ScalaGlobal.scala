@@ -79,8 +79,6 @@ object ScalaGlobal {
   private val GlobalForTestDebug = 3
 
   private class Cache {
-    val globals = new Array[ScalaGlobal](4)
-
     var srcToOut:  Map[FileObject, FileObject] = Map()
     var testToOut: Map[FileObject, FileObject] = Map()
 
@@ -104,10 +102,10 @@ object ScalaGlobal {
   
   private val debug = false
 
-  private var globalForStdLib: Option[ScalaGlobal] = None
-  
   private val projectToCache = new WeakHashMap[Project, Cache]
+  private val projectToGlobals = new WeakHashMap[Project, Array[ScalaGlobal]]
   private var globalToListeners = Map[ScalaGlobal, List[FileChangeListener]]()
+  private var globalForStdLib: Option[ScalaGlobal] = None
   private var toResetGlobals = Set[ScalaGlobal]()
 
   val dummyReporter = new Reporter {def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {}}
@@ -127,13 +125,13 @@ object ScalaGlobal {
     if (globalForStdLib.isDefined && global == globalForStdLib.get) {
       globalForStdLib = None
     } else {
-      projectToCache find {case (p, c) =>
+      projectToGlobals foreach {case (p, globals) =>
           var found = false
           var i = 0
-          val len = c.globals.length
+          val len = globals.length
           while (i < len && !found) {
-            if (c.globals(i) == global) {
-              c.globals(i) = null
+            if (globals(i) == global) {
+              globals(i) = null
               globalToListeners.get(global) foreach {xs =>
                 xs foreach {x =>
                   p.getProjectDirectory.getFileSystem.removeFileChangeListener(x)
@@ -144,7 +142,6 @@ object ScalaGlobal {
             }
             i += 1
           }
-          found
       }
     }
   }
@@ -183,11 +180,7 @@ object ScalaGlobal {
       return None
     }
 
-    val cache = projectToCache.get(project) getOrElse {
-      val cachex = findDirResources(project)
-      projectToCache.put(project, cachex)
-      cachex
-    }
+    val cache = findDirResources(project)
 
     // * is this `fo` under test source?
     val forTest = cache.testToOut exists {case (src, _) =>
@@ -226,11 +219,13 @@ object ScalaGlobal {
       }
     }
 
-    val cache = projectToCache.get(project) getOrElse {
-      val cachex = findDirResources(project)
-      projectToCache += (project -> cachex)
-      cachex
-    }
+    val cache = findDirResources(project)
+
+    /* val cache = projectToCache.get(project) getOrElse {
+     val cachex = findDirResources(project)
+     projectToCache += (project -> cachex)
+     cachex
+     } */
 
     // * is this `fo` under test source?
     val forTest = cache.testToOut exists {case (src, _) =>
@@ -244,9 +239,15 @@ object ScalaGlobal {
       if (forTest) GlobalForTest else Global
     }
 
-    val g = cache.globals(idx)
-    if (g != null) {
-      return g
+    val globals = projectToGlobals.get(project) getOrElse {
+      val x = new Array[ScalaGlobal](4)
+      projectToGlobals += (project -> x)
+      x
+    }
+
+    globals(idx) match {
+      case null =>
+      case g => return g
     }
 
     // ----- need to create a new global:
@@ -322,7 +323,7 @@ object ScalaGlobal {
     // ----- now, the new global
 
     val global = new ScalaGlobal(settings, dummyReporter)
-    cache.globals(idx) = global
+    globals(idx) = global
 
     // * listen to compCp's change
     if (compCp != null) {
