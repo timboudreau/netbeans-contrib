@@ -504,11 +504,12 @@ trait ScalaUtils {self: ScalaGlobal =>
         }
 
         val importantLevel = baseLevel + (if (sym == NoSymbol) 90
-                                          else if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 10
-                                          else if (sym.isGetter)      20
-                                          else if (sym.isConstructor) 30
-                                          else if (!sym.isMethod)     40
-                                          else 50)
+                                          else if (sym.isClass  || sym.isTrait || sym.isType || sym.isModule) 10
+                                          else if (sym.isSetter || sym.hasFlag(Flags.MUTABLE)) 20
+                                          else if (sym.isGetter)      30
+                                          else if (sym.isConstructor) 40
+                                          else if (!sym.isMethod)     50
+                                          else 60)
 
         (importantLevel, item)
       } sortWith {(x1, x2) => x1._1 < x2._1} head match {
