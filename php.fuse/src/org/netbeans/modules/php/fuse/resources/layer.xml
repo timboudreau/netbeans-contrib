@@ -167,6 +167,7 @@
                     <file name="org-netbeans-modules-php-editor-PHPCodeCompletion.instance"/>
                     <file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>
                     <file name="org-netbeans-modules-html-editor-completion-HtmlPaletteCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-php-fuse-editor-TmplCompletionProvider.instance"/>
                 </folder>
                 <file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>
                 <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>
@@ -183,15 +184,6 @@
                 </folder>
             </folder>
             <folder name="fuse">
-               <folder name="CompletionProviders">
-                    <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
-                    <file name="org-netbeans-modules-php-editor-PHPCodeCompletion.instance"/>
-                    <file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>
-                    <file name="org-netbeans-modules-html-editor-completion-HtmlPaletteCompletionProvider.instance"/>
-                </folder>
-                <file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>
-                <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>
-                <file name="org-netbeans-modules-php-fuse-editor-FuseEmbeddingProvider$Factory.instance"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">

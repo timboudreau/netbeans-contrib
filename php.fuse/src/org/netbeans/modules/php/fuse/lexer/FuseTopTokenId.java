@@ -82,6 +82,16 @@ public enum FuseTopTokenId implements TokenId {
     public String primaryCategory() {
         return primaryCategory;
     }
+
+    private enum State {
+        OUTER,
+        AFTER_LB,
+        IN_FUSE_DELIMITER,
+        IN_END_DELIMITER,
+        AFTER_QUESTION_MARK,
+        AFTER_FUSE_DELIMITER,
+        IN_FUSE
+    }
     
     private static final Language<FuseTopTokenId> language =
             new LanguageHierarchy<FuseTopTokenId>() {
@@ -104,7 +114,7 @@ public enum FuseTopTokenId implements TokenId {
 
                 @Override
                 protected String mimeType() {
-                    return "text/fuse";
+                    return "text/fuse-template";
                 }
                 
                 @Override
@@ -112,10 +122,10 @@ public enum FuseTopTokenId implements TokenId {
                     LanguagePath languagePath, InputAttributes inputAttributes) {
                     FuseTopTokenId id = token.id();
                     if (id == T_HTML) {
-                        return LanguageEmbedding.create(PHPTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(PHPTokenId.language(), 0, 0, false);
                     } 
                     else if (id == T_FUSE) {
-                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, false);
                     }
 
                     return null; // No embedding

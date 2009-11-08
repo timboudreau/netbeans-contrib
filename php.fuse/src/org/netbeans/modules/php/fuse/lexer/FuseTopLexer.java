@@ -54,12 +54,9 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
     private TokenFactory<FuseTopTokenId> tokenFactory;
 
     private FuseTopLexer(LexerRestartInfo<FuseTopTokenId> info) {
-        this.tokenFactory = info.tokenFactory();
         State state = null;
-        try {
-            state = (State)info.state();
-        }
-        catch (ClassCastException e) {}
+        state = (info.state() == null || info.state().getClass() != State.class)? State.INIT : (State)info.state();
+        this.tokenFactory = info.tokenFactory();
         scanner = new FuseTopColoringLexer(info, state);
     }
 
@@ -84,11 +81,11 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
     }
 
     private enum State {
+        INIT,
         OUTER,
         AFTER_LB,
         IN_FUSE_DELIMITER,
         IN_END_DELIMITER,
-        AFTER_QUESTION_MARK,
         AFTER_FUSE_DELIMITER,
         IN_FUSE
     }
@@ -100,11 +97,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
 
         public FuseTopColoringLexer(LexerRestartInfo<FuseTopTokenId> info, State state) {
             this.input = info.input();
-            if (state == null) {
-                this.state = State.OUTER;
-            } else {
-                this.state = state;
-            }
+            this.state = state;
         }
 
         public FuseTopTokenId nextToken() {
@@ -119,6 +112,7 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
                 text = input.readText();
                 textLength = text.length();
                 switch (state) {
+                    case INIT:
                     case OUTER:
                         if (cc == '<') {
                             state = State.AFTER_LB;

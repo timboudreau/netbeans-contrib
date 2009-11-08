@@ -99,33 +99,33 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
             } else if (t.id() == FuseTopTokenId.T_FUSE) {
                 TokenHierarchy<CharSequence> th2 = TokenHierarchy.create(t.text(), FuseTokenId.language());
                 TokenSequence<FuseTokenId> sequence2 = th2.tokenSequence(FuseTokenId.language());
+                int lenghtOfIngored = 0;
                 while (sequence2.moveNext()) {
                     t = sequence2.token();
-    //                FuseTokenId t2 = FuseTokenId.valueOf(t.text().toString());
                     if (t.id() == FuseTokenId.IDENTIFIER) {
                         if(from < 0) {
-                            from = sequence.offset();
+                            from = sequence.offset() + lenghtOfIngored;
                         }
                         len += t.length();
                         if (state != 2) {
                             changed = true;
                             state = 2;
                         }
+                    } else {
+                        lenghtOfIngored = t.text().length();
                     }
                 }
             } else if (t.id() == FuseTopTokenId.T_FUSE_OPEN_DELIMITER) {
                 embeddings.add(snapshot.create("<?", "text/x-php5"));
+                embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
             } else if (t.id() == FuseTopTokenId.T_FUSE_CLOSE_DELIMITER) {
                 embeddings.add(snapshot.create("?>", "text/x-php5"));
+                embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
             }
             if (changed) {
                 if(from >= 0) {
-                    if (state == 1) {
-                        embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
-                    }
-                    else {
-                        embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
-                    }
+                    embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
+                    embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
                 }
 
                 from = -1;

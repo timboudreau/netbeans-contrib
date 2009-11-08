@@ -184,7 +184,7 @@ public enum FuseTokenId implements TokenId {
             // Test language embedding in the block comment
             switch (token.id()) {
                 case IDENTIFIER:
-                    return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, true);
+                    return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, false);
             }
             return null; // No embedding
         }
