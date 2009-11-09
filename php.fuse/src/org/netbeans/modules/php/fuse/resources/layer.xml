@@ -6,6 +6,9 @@
         <folder name="text">
             <folder name="fuse-template">
                 <attr name="useCustomEditorKit" boolvalue="false"/>
+                <!--<file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
+                </file>-->
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.gsf.TmplLanguage"/>
                 </file>
@@ -16,20 +19,12 @@
         </folder>
     </folder>
 
-   <!-- --><folder name="Loaders">
+   <folder name="Loaders">
         <folder name="text">
             <folder name="fuse-template">
 
-                 <!--GSF-->
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
                 <attr name="iconBase" stringvalue="org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
-                 <folder name="Factories">
-                     <file name="org-netbeans-modules-php-fuse-TmplLoader.instance">
-                         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.Bundle"/>
-                        <attr name="position" intvalue="3000"/>
-                     </file>
-                 </folder>
-                  <!--eof GSF-->
                 
                 <folder name="Actions">
                     <file name="org-openide-actions-CopyAction.instance">
@@ -151,17 +146,10 @@
     <folder name="Editors">
         <folder name="text">
             <folder name="fuse-template">
-                <folder name="text">
-                    <folder name="html">
-                        <folder name="CodeTemplates">
-                            <folder name="Defaults">
-                                <file name="codetemplates.shadow">
-                                    <attr name="originalFile" stringvalue="Editors/text/html"/>
-                                </file>
-                            </folder>
-                        </folder>
-                    </folder>
-                </folder>
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
                     <file name="org-netbeans-modules-php-editor-PHPCodeCompletion.instance"/>
