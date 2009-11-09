@@ -73,15 +73,17 @@ public class SeleniumProperties {
     public static InstanceProperties getInstanceProperties(){
         if (instanceProps == null){
             InstancePropertiesManager manager = InstancePropertiesManager.getInstance();
-            List<InstanceProperties> allProps = manager.getProperties(NAMESPACE);
-            assert (allProps.size() <= 1);
-            if (!allProps.isEmpty()) {
-                instanceProps = allProps.iterator().next();
-            } else {
-                instanceProps = manager.createProperties(NAMESPACE);
-                instanceProps.putInt(PORT, RemoteControlConfiguration.DEFAULT_PORT);
-                instanceProps.putBoolean(START_ON_STARTUP, true);
-                allProps.add(instanceProps);
+            synchronized (NAMESPACE){
+                List<InstanceProperties> allProps = manager.getProperties(NAMESPACE);
+                assert (allProps.size() <= 1);
+                if (!allProps.isEmpty()) {
+                    instanceProps = allProps.iterator().next();
+                } else {
+                    instanceProps = manager.createProperties(NAMESPACE);
+                    instanceProps.putInt(PORT, RemoteControlConfiguration.DEFAULT_PORT);
+                    instanceProps.putBoolean(START_ON_STARTUP, true);
+                    allProps.add(instanceProps);
+                }
             }
         }
         return instanceProps;
