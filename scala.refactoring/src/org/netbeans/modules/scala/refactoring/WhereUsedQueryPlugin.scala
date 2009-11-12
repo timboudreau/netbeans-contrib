@@ -90,7 +90,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName = searchHandle.symbol.fullNameString
-  private val samePlaceSyms = searchHandle.samePlaceSymbols
+  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
   private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
 
   override def preCheck: Problem = {
@@ -109,7 +109,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
       set.add(fo)
 
       // * is there any symbol in this place not private?
-      val notLocal = handle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      val notLocal = handle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]] find {x => !(x hasFlag Flags.PRIVATE)} isDefined
 
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)

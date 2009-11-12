@@ -101,7 +101,7 @@ trait AstDfn extends AstItem with AstElementHandle {
     } else Nil
   }
 
-  def enclosingDfn: Option[AstDfn] = enclosingScope.get.bindingDfn
+  def enclosingDfn: Option[AstDfn] = enclosingScope.bindingDfn
 
   def bindingScope: AstScope = {
     assert(_bindingScope != null, toString + ": Each definition should set binding scope!")

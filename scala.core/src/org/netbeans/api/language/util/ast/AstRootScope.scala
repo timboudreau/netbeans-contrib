@@ -39,6 +39,7 @@
 package org.netbeans.api.language.util.ast
 
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 
@@ -156,6 +157,62 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
       result = item.asInstanceOf[AstDfn] :: result
     }
     result
+  }
+
+  def findDfnOf(item: AstItem): Option[AstDfn] = {
+    item match {
+      case dfn: AstDfn => Some(dfn)
+      case ref: AstRef => 
+        samePlaceItems(ref) foreach {
+          case refx: AstRef =>
+            _idTokenToItems.valuesIterator foreach {xs => xs foreach {
+                case x: AstDfn if x.isReferredBy(refx) => return Some(x)
+                case _ =>
+              }
+            }
+          case _ =>
+        }
+        None
+    }
+  }
+
+  override def findOccurrences(item: AstItem): Seq[AstItem] = {
+    val occurrences = new ArrayBuffer[AstItem]
+
+    findDfnOf(item) match {
+      case Some(dfn) =>
+        samePlaceItems(dfn) foreach {
+          case dfnx: AstDfn =>
+            occurrences += dfnx
+            _idTokenToItems.valuesIterator foreach {xs => occurrences ++=  xs filter {
+                case x: AstRef => dfnx.isReferredBy(x)
+                case _ => false
+              }
+            }
+          case _ =>
+        }
+      case None =>
+        val ref = item.asInstanceOf[AstRef] // it must be an AstRef
+        samePlaceItems(ref) foreach {
+          case refx: AstRef =>
+            occurrences += refx
+            _idTokenToItems.valuesIterator foreach {xs => occurrences ++= xs filter {
+                case x: AstDfn => x.isReferredBy(refx)
+                case x: AstRef => x.isOccurrence(refx)
+              }
+            }
+          case _ =>
+        }
+    }
+
+    occurrences.toSeq
+  }
+
+  def samePlaceItems(item: AstItem): Seq[AstItem] = {
+    _idTokenToItems.get(item.idToken) match {
+      case Some(x) => x
+      case None => Nil
+    }
   }
 
   def findFirstItemWithName(name: String): Option[AstItem] = {

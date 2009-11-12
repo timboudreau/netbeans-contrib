@@ -290,18 +290,14 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
 
         val sorted = root.findItemsAt(th, caret) sortWith {(x1, x2) =>
           def weight(sym: Symbol) =
-            if (sym.isTrait || sym.isModule || sym.isClass) {
-              0
-            } else if (sym.isValue) {
-              10
-            } else if (sym.isMethod) {
-              20
-            } else 30
+            if (sym.isTrait || sym.isModule || sym.isClass) 0
+          else if (sym.isValue) 10
+          else if (sym.isMethod) 20
+          else 30
           weight(x1.asInstanceOf[ScalaItem].symbol) < weight(x2.asInstanceOf[ScalaItem].symbol)
         }
 
         val handle = sorted.head.asInstanceOf[ScalaItem]
-        handle.samePlaceSymbols = (sorted map (_.symbol.asInstanceOf[Symbol])).toSet
         Log.info("Refactoring handle's token symbols: " + handle.samePlaceSymbols.toString)
         
         // @todo ("FAILURE - can't refactor a reference identifier") ?
