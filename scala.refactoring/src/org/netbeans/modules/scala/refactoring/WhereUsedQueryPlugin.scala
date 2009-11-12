@@ -91,7 +91,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName = searchHandle.symbol.fullNameString
   private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
-  private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
+  private val samePlaceSymToDefString = samePlaceSyms map {x => (x, x.defString)}
 
   override def preCheck: Problem = {
     searchHandle.fo match {
@@ -105,11 +105,11 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
     val targetName = handle.symbol.nameString
     val set = new HashSet[FileObject]
 
-    handle.fo map {fo =>
+    handle.fo foreach {fo =>
       set.add(fo)
 
       // * is there any symbol in this place not private?
-      val notLocal = handle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]] find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      val notLocal = handle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]] exists {x => !(x hasFlag Flags.PRIVATE)}
 
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
@@ -338,19 +338,13 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
       if (isFindUsages) {
         
-        def isUsed(sym: Symbol) = try {
-          val qName = sym.fullNameString
+        def isReferred(sym: Symbol) = try {
           lazy val overriddens = sym.allOverriddenSymbols
-          sym.tpe match {
-            case null => false
-            case tpe =>
-              samePlaceSymToQName exists {
-                case (s, qn) if matchesType(tpe, s.asInstanceOf[Symbol].tpe, false) =>
-                  if (qn == qName) true else {
-                    overriddens exists {o =>
-                      qn == o.fullNameString
-                    }
-                  }
+          samePlaceSymToDefString exists {
+            case (s, defString) if sym.defString == s.defString =>
+              val qName = s.fullNameString
+              if (sym.fullNameString == qName) true else {
+                overriddens exists {o => o.fullNameString == qName}
               }
           }
         } catch {case ex => false}
@@ -360,35 +354,13 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
              item <- items;
              sym = item.asInstanceOf[ScalaItem].symbol;
              // * tokens.add(token) should be the last condition
-             if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
+             if token.text.toString == sym.nameString && isReferred(sym) && tokens.add(token)
         ) {
           logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
         }
       } else if (isFindOverridingMethods) {
-        
-        def isOverridden(sym: Symbol) = try {
-          val qName = sym.fullNameString
-          sym.tpe match {
-            case null => false
-            case tpe => samePlaceSymToQName exists {
-                case (s, qn) if qn == qName => matchesType(tpe, s.asInstanceOf[Symbol].tpe, false)
-                case _ => false
-              }
-          }
-        } catch {case ex => false}
-
-        val tokens = new HashSet[Token[_]]
-        for ((token, items) <- root.idTokenToItems;
-             item <- items;
-             sym = item.asInstanceOf[ScalaItem].symbol;
-             // * tokens.add(token) should be the last condition
-             if token.text.toString == sym.nameString && isOverridden(sym) && tokens.add(token)
-        ) {
-          logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
-          elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
-        }
-
+        // TODO
       } else if (isSearchFromBaseClass) {
         // TODO
       }
