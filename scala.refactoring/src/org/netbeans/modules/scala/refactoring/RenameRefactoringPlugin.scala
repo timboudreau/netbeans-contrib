@@ -500,10 +500,17 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
           def isUsed(sym: Symbol) = try {
             val qName = sym.fullNameString
+            lazy val overriddens = sym.allOverriddenSymbols
             sym.tpe match {
               case null => false
-              case tpe => samePlaceSymToQName exists {
-                  case (s, n) => n == qName && matchesType(tpe, s.asInstanceOf[Symbol].tpe, false)
+              case tpe =>
+                samePlaceSymToQName exists {
+                  case (s, qn) if matchesType(tpe, s.asInstanceOf[Symbol].tpe, false) =>
+                    if (qn == qName) true else {
+                      overriddens exists {o =>
+                        qn == o.fullNameString
+                      }
+                    }
                 }
             }
           } catch {case ex => false}
