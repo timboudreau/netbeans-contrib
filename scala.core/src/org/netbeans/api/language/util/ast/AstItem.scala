@@ -147,8 +147,12 @@ trait AstItem extends ForElementHandle {
 
   final def rootScope: AstRootScope = enclosingScope.root
 
-  lazy val samePlaceSymbols: Seq[AstItem#S] = {
-    rootScope.samePlaceItems(this) map {_.symbol}
+  final def samePlaceSymbols: Seq[AstItem#S] = {
+    samePlaceItems map (_.symbol)
+  }
+  
+  final def samePlaceItems: Seq[AstItem] = {
+    rootScope.samePlaceItems(this)
   }
 
   def property(k: String): Option[Any] = {

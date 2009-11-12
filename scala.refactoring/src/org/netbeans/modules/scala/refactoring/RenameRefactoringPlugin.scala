@@ -105,6 +105,7 @@ import scala.tools.nsc.symtab.Flags
  * @todo Complete this. Most of the prechecks are not implemented - and the refactorings themselves need a lot of work.
  */
 class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactoringPlugin {
+  private val logger = Logger.getLogger(this.getClass.getName)
   
   private val refactoring = rename
   private var searchHandle: ScalaItems#ScalaItem = _
@@ -120,7 +121,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
   
   /** Creates a new instance of RenameRefactoring */
-  private def init = {
+  private def init {
     val item = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
     if (item != null) {
       searchHandle = item
@@ -461,7 +462,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
 
   private def getString(key: String): String = {
-    NbBundle.getMessage(classOf[RenameRefactoringPlugin], key);
+    NbBundle.getMessage(classOf[RenameRefactoringPlugin], key)
   }
 
   /**
@@ -501,7 +502,9 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
             val qName = sym.fullNameString
             sym.tpe match {
               case null => false
-              case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && matchesType(tpe, s.asInstanceOf[Symbol].tpe, true)}
+              case tpe => samePlaceSymToQName exists {
+                  case (s, n) => n == qName && matchesType(tpe, s.asInstanceOf[Symbol].tpe, false)
+                }
             }
           } catch {case ex => false}
 
@@ -512,6 +515,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
                // * tokens.add(token) should be last condition
                if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
           } {
+            logger.info(workingCopyFo + ": find where used element " + sym.fullNameString)
             rename(item.asInstanceOf[ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
           }
 

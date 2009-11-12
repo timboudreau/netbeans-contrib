@@ -209,10 +209,7 @@ class AstRootScope(boundsTokens: Array[Token[TokenId]]) extends AstScope(boundsT
   }
 
   def samePlaceItems(item: AstItem): Seq[AstItem] = {
-    _idTokenToItems.get(item.idToken) match {
-      case Some(x) => x
-      case None => Nil
-    }
+    _idTokenToItems.get(item.idToken) getOrElse Nil
   }
 
   def findFirstItemWithName(name: String): Option[AstItem] = {

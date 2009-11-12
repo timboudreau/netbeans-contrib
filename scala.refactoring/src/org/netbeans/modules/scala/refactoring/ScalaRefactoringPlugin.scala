@@ -116,16 +116,12 @@ abstract class ScalaRefactoringPlugin extends ProgressProviderAdapter with Refac
   }
 
   protected def processFiles(fos: Set[FileObject], task: TransformTask): Seq[ModificationResult] = {
-    val sources = new HashSet[Source]() // 2*files.size()
+    val sources = new java.util.HashSet[Source](2 * fos.size)
     
-    for (fo <- fos if RetoucheUtils.isScalaFile(fo)) {
-      sources.add(Source.create(fo))
-    }
+    for (fo <- fos if RetoucheUtils.isScalaFile(fo)) sources.add(Source.create(fo))
 
     try {
-      for (s <- sources) {
-        ParserManager.parse(java.util.Collections.singletonList(s), task)
-      }
+      ParserManager.parse(sources, task)
       return task.results
     } catch {case ex: ParseException => throw new RuntimeException(ex)}
   }

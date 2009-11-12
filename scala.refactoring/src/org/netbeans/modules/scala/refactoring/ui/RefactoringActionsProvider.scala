@@ -78,8 +78,6 @@ import scala.collection.mutable.HashSet
  * @author Jan Becicka
  */
 object RefactoringActionsProvider {
-  private val Log = Logger.getLogger(classOf[RefactoringActionsProvider].getName)
-
   private var isFindUsages: Boolean = _
 
   def getName(dict: Dictionary[_, _]): String = {
@@ -107,8 +105,10 @@ object RefactoringActionsProvider {
 @org.openide.util.lookup.ServiceProvider(service = classOf[ActionsImplementationProvider], position = 400)
 class RefactoringActionsProvider extends ActionsImplementationProvider {
   import RefactoringActionsProvider._
-  
-  Log.info(this.getClass.getSimpleName + " is created")
+
+  private val logger = Logger.getLogger(classOf[RefactoringActionsProvider].getName)
+
+  logger.info(this.getClass.getSimpleName + " is created")
 
   override def doRename(lookup: Lookup) {
     val ec = lookup.lookup(classOf[EditorCookie])
@@ -288,20 +288,24 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
         val global = pr.global
         import global._
 
-        val sorted = root.findItemsAt(th, caret) sortWith {(x1, x2) =>
-          def weight(sym: Symbol) =
-            if (sym.isTrait || sym.isModule || sym.isClass) 0
-          else if (sym.isValue) 10
-          else if (sym.isMethod) 20
-          else 30
-          weight(x1.asInstanceOf[ScalaItem].symbol) < weight(x2.asInstanceOf[ScalaItem].symbol)
+        /* val sorted = root.findItemsAt(th, caret) sortWith {(x1, x2) =>
+         def weight(sym: Symbol) =
+         if (sym.isTrait || sym.isModule || sym.isClass) 0
+         else if (sym.isValue) 10
+         else if (sym.isMethod) 20
+         else 30
+         weight(x1.asInstanceOf[ScalaItem].symbol) < weight(x2.asInstanceOf[ScalaItem].symbol)
+         } */
+        val inPlaceItem = root.findItemsAt(th, caret) match {
+          case Nil => return
+          case xs => xs find {_.idToken != null} getOrElse {return}
         }
-
-        val handle = sorted.head.asInstanceOf[ScalaItem]
-        Log.info("Refactoring handle's token symbols: " + handle.samePlaceSymbols.toString)
+        
+        val handle = root.findDfnOf(inPlaceItem) getOrElse inPlaceItem
+        logger.info("Refactoring handle's token symbols: " + handle.samePlaceSymbols)
         
         // @todo ("FAILURE - can't refactor a reference identifier") ?
-        ui = createRefactoringUI(handle, start, end, pr)
+        ui = createRefactoringUI(handle.asInstanceOf[ScalaItem], start, end, pr)
       } else {
         val itr = ri.getEmbeddings.iterator
         while (itr.hasNext) {
@@ -312,9 +316,9 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
 
     def run {
       try {
-        val source = Source.create(textC.getDocument);
+        val source = Source.create(textC.getDocument)
         ParserManager.parse(java.util.Collections.singleton(source), this)
-      } catch {case ex: ParseException => Log.log(Level.WARNING, null, ex); return}
+      } catch {case ex: ParseException => logger.log(Level.WARNING, null, ex); return}
 
       val activetc = TopComponent.getRegistry.getActivated
 
@@ -369,7 +373,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
         val o = node.getCookie(classOf[DataObject])
         val source = Source.create(o.getPrimaryFile)
         ParserManager.parse(java.util.Collections.singleton(source), this)
-      } catch {case ex: ParseException => Log.log(Level.WARNING, null, ex); return}
+      } catch {case ex: ParseException => logger.log(Level.WARNING, null, ex); return}
 
       if (ui != null) {
         UI.openRefactoringUI(ui)
@@ -423,7 +427,7 @@ class RefactoringActionsProvider extends ActionsImplementationProvider {
           val source = Source.create(fobs(i))
           try {
             ParserManager.parse(java.util.Collections.singleton(source), this)
-          } catch {case ex: ParseException => Log.log(Level.WARNING, null, ex)}
+          } catch {case ex: ParseException => logger.log(Level.WARNING, null, ex)}
           pkg(i) = node.getLookup.lookup(classOf[NonRecursiveFolder])
           i += 1
         }

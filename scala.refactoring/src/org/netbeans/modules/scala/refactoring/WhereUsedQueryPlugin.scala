@@ -86,7 +86,7 @@ import scala.tools.nsc.symtab.Flags
  * @author Tor Norbye
  */
 class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoringPlugin {
-  private val Log = Logger.getLogger(this.getClass.getName)
+  private val logger = Logger.getLogger(this.getClass.getName)
 
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
   private val targetName = searchHandle.symbol.fullNameString
@@ -340,9 +340,18 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         
         def isUsed(sym: Symbol) = try {
           val qName = sym.fullNameString
+          lazy val overriddens = sym.allOverriddenSymbols
           sym.tpe match {
             case null => false
-            case tpe =>  samePlaceSymToQName exists {case (s, n) => n == qName && matchesType(tpe, s.asInstanceOf[Symbol].tpe, true)}
+            case tpe =>
+              samePlaceSymToQName exists {
+                case (s, qn) if matchesType(tpe, s.asInstanceOf[Symbol].tpe, false) =>
+                  if (qn == qName) true else {
+                    overriddens exists {o =>
+                      qn == o.fullNameString
+                    }
+                  }
+              }
           }
         } catch {case ex => false}
         
@@ -353,11 +362,32 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
              // * tokens.add(token) should be the last condition
              if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
         ) {
-          Log.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + item)
+          logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
         }
       } else if (isFindOverridingMethods) {
-        // TODO
+        
+        def isOverridden(sym: Symbol) = try {
+          val qName = sym.fullNameString
+          sym.tpe match {
+            case null => false
+            case tpe => samePlaceSymToQName exists {
+                case (s, qn) if qn == qName => matchesType(tpe, s.asInstanceOf[Symbol].tpe, false)
+                case _ => false
+              }
+          }
+        } catch {case ex => false}
+
+        val tokens = new HashSet[Token[_]]
+        for ((token, items) <- root.idTokenToItems;
+             item <- items;
+             sym = item.asInstanceOf[ScalaItem].symbol;
+             // * tokens.add(token) should be the last condition
+             if token.text.toString == sym.nameString && isOverridden(sym) && tokens.add(token)
+        ) {
+          logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
+          elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
+        }
 
       } else if (isSearchFromBaseClass) {
         // TODO
