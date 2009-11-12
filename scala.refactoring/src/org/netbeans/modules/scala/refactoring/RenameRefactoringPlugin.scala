@@ -118,7 +118,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
   // should after init, since we need searchHandle is inited
   private val targetName = searchHandle.symbol.fullNameString
   private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
-  private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
+  private val samePlaceSymToDefString = samePlaceSyms map {x => (x, x.defString)}
   
   /** Creates a new instance of RenameRefactoring */
   private def init {
@@ -326,11 +326,11 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
     val targetName = searchHandle.symbol.nameString
     val set = new HashSet[FileObject]
 
-    searchHandle.fo map {fo =>
+    searchHandle.fo foreach {fo =>
       set.add(fo)
 
       // * is there any symbol in this place not private?
-      val notLocal = samePlaceSyms find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      val notLocal = samePlaceSyms exists {x => !(x hasFlag Flags.PRIVATE)}
 
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
@@ -498,19 +498,13 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         try {
           if (doc != null) doc.readLock
 
-          def isUsed(sym: Symbol) = try {
-            val qName = sym.fullNameString
+          def isReferred(sym: Symbol) = try {
             lazy val overriddens = sym.allOverriddenSymbols
-            sym.tpe match {
-              case null => false
-              case tpe =>
-                samePlaceSymToQName exists {
-                  case (s, qn) if matchesType(tpe, s.asInstanceOf[Symbol].tpe, false) =>
-                    if (qn == qName) true else {
-                      overriddens exists {o =>
-                        qn == o.fullNameString
-                      }
-                    }
+            samePlaceSymToDefString exists {
+              case (s, defString) if sym.defString == s.defString =>
+                val qName = s.fullNameString
+                if (sym.fullNameString == qName) true else {
+                  overriddens exists {o => o.fullNameString == qName}
                 }
             }
           } catch {case ex => false}
@@ -520,7 +514,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
                item <- items
                sym = item.asInstanceOf[ScalaItem].symbol
                // * tokens.add(token) should be last condition
-               if token.text.toString == sym.nameString && isUsed(sym) && tokens.add(token)
+               if token.text.toString == sym.nameString && isReferred(sym) && tokens.add(token)
           } {
             logger.info(workingCopyFo + ": find where used element " + sym.fullNameString)
             rename(item.asInstanceOf[ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)

@@ -61,20 +61,6 @@ trait ScalaItems {self: ScalaGlobal =>
       if (symbol.isVariable || symbol.isValue)  return ElementKind.VARIABLE
 
       return ElementKind.OTHER
-    }    
-
-    def typeMatched(sym1: Symbol, sym2: Symbol): Boolean = {
-      val qName1 = sym1.fullNameString
-      val qName2 = sym2.fullNameString
-      if (qName1 == qName2) {
-        try {
-          (sym1.tpe, sym2.tpe) match {
-            case (null, _) => false
-            case (_, null) => false
-            case (tpe1, tpe2) => matchesType(tpe1, tpe2, true)
-          }
-        } catch {case _ => false}
-      } else false
-    } 
+    }
   }
 }
