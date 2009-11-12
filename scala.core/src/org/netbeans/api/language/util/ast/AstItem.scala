@@ -72,7 +72,7 @@ trait AstItem extends ForElementHandle {
   private var _symbol: S = _
   private var _idToken: Token[TokenId] = _
   private var _name: String = _
-  private var _enclosingScope: Option[AstScope] = None
+  private var _enclosingScope: AstScope = _
   private var _properties: Map[String, Any] = Map()
   var kind: ElementKind = ElementKind.OTHER
   var fo: Option[FileObject] = None
@@ -123,7 +123,7 @@ trait AstItem extends ForElementHandle {
   def binaryName = name
 
   def enclosingDfn[A <: AstDfn](clazz: Class[A]): Option[A] = {
-    enclosingScope.get.enclosingDfn(clazz)
+    enclosingScope.enclosingDfn(clazz)
   }
 
   /**
@@ -131,9 +131,8 @@ trait AstItem extends ForElementHandle {
    *   {@link AstScope#addElement(Element)} or {@link AstScope#addMirror(Mirror)}
    */
   def enclosingScope_=(enclosingScope: AstScope): AstItem = {
-    enclosingScope match {
-      case null => this._enclosingScope = None
-      case _ => this._enclosingScope = Some(enclosingScope)
+    if (enclosingScope != null) {
+      this._enclosingScope = enclosingScope
     }
     this
   }
@@ -141,12 +140,16 @@ trait AstItem extends ForElementHandle {
   /**
    * @return the scope that encloses this item
    */
-  def enclosingScope: Option[AstScope] = {
-    assert(_enclosingScope != None, name + ": Each item should set enclosing scope!, except native TypeRef")
+  def enclosingScope: AstScope = {
+    assert(_enclosingScope != null, name + ": Each item should set enclosing scope!, except native TypeRef")
     _enclosingScope
   }
 
-  def rootScope: AstRootScope = enclosingScope.get.root
+  final def rootScope: AstRootScope = enclosingScope.root
+
+  lazy val samePlaceSymbols: Seq[AstItem#S] = {
+    rootScope.samePlaceItems(this) map {_.symbol}
+  }
 
   def property(k: String): Option[Any] = {
     _properties.get(k)

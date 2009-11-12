@@ -218,7 +218,8 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     
     None
   }
-    
+
+  @deprecated("use AstRootScope#findOccurrences")
   def findOccurrences(item: AstItem): Seq[AstItem] = {
     var dfn: Option[AstDfn] = item match {
       case x: AstDfn => Some(x)
@@ -239,7 +240,8 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
     }
   }
 
-  def findDfnOf(item: AstItem): Option[AstDfn] = {
+  @deprecated("For reference only, use AstRootScope#findDfnOf")
+  def findDfnOf_(item: AstItem): Option[AstDfn] = {
     item match {
       case dfn: AstDfn => Some(dfn)
       case ref: AstRef => findDfnOf(ref)
@@ -248,10 +250,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   
 
   private def findDfnOf(ref: AstRef): Option[AstDfn] = {
-    ref.enclosingScope match {
-      case Some(x) => x.findDfnOfUpward(ref)
-      case None => None
-    }
+    ref.enclosingScope.findDfnOfUpward(ref)
   }
 
   private def findDfnOfUpward(ref: AstRef): Option[AstDfn] = {
@@ -270,10 +269,7 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
   def findRefsOf(dfn: AstDfn): Seq[AstRef] = {
     val result = new ArrayBuffer[AstRef]
 
-    val enclosingScope = dfn.enclosingScope match {
-      case Some(x) => x.findRefsOfDownward(dfn, result)
-      case None =>
-    }
+    dfn.enclosingScope.findRefsOfDownward(dfn, result)
 
     result
   }
@@ -324,10 +320,10 @@ class AstScope(var boundsTokens: Array[Token[TokenId]]) {
       //            if (scope.contains(th, offset)) {
       //                return scope;
       //            }
-      return scope
+      return Some(scope)
     }
 
-    val found = _subScopes.find{_.contains(th, offset)} match {
+    val found = _subScopes find {_.contains(th, offset)} match {
       case Some(child) => child.closestScope(th, offset)
       case None => None
     }

@@ -116,7 +116,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
   // should after init, since we need searchHandle is inited
   private val targetName = searchHandle.symbol.fullNameString
-  private val samePlaceSyms = searchHandle.samePlaceSymbols
+  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
   private val samePlaceSymToQName = samePlaceSyms map {x => (x, x.fullNameString)}
   
   /** Creates a new instance of RenameRefactoring */
@@ -329,7 +329,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
       set.add(fo)
 
       // * is there any symbol in this place not private?
-      val notLocal = searchHandle.samePlaceSymbols find {x => !(x hasFlag Flags.PRIVATE)} isDefined
+      val notLocal = samePlaceSyms find {x => !(x hasFlag Flags.PRIVATE)} isDefined
 
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)

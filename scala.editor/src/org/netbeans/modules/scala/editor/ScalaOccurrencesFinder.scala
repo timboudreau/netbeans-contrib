@@ -55,14 +55,14 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
   private var cancelled: Boolean = _
   private var caretPosition: Int = _
-  private var occurrences: java.util.Map[OffsetRange, ColoringAttributes] = _
+  private var _occurrences: java.util.Map[OffsetRange, ColoringAttributes] = _
   private var fo: FileObject = _
 
   override def getPriority: Int = 0
 
   override def getSchedulerClass: Class[_ <: Scheduler] = Scheduler.CURSOR_SENSITIVE_TASK_SCHEDULER
 
-  override def getOccurrences: java.util.Map[OffsetRange, ColoringAttributes] = occurrences
+  override def getOccurrences: java.util.Map[OffsetRange, ColoringAttributes] = _occurrences
 
   override def setCaretPosition(position: Int): Unit = {
     this.caretPosition = position
@@ -90,7 +90,7 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     val currentFo = pResult.getSnapshot.getSource.getFileObject
     if (currentFo != fo) {
       // Ensure that we don't reuse results from a different file
-      occurrences = null
+      _occurrences = null
       fo = currentFo
     }
 
@@ -205,9 +205,9 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
     }
 
     for (item <- items) {
-      val _occurrences = rootScope.findOccurrences(item)
-      for (x <- _occurrences;
-           name = x.getName if !name.equals("this") || !name.equals("super");
+      val occurrences = rootScope.findOccurrences(item)
+      for (x <- occurrences;
+           name = x.getName if name != "this" && name != "super";
            idToken = x.idToken
       ) {
         highlights.put(ScalaLexUtil.getRangeOfToken(th, idToken), ColoringAttributes.MARK_OCCURRENCES)
@@ -231,9 +231,9 @@ class ScalaOccurrencesFinder extends OccurrencesFinder[ScalaParserResult] {
 
       highlights = translated
 
-      this.occurrences = highlights
+      this._occurrences = highlights
     } else {
-      this.occurrences = null
+      this._occurrences = null
     }
   }
   //    @SuppressWarnings("unchecked")

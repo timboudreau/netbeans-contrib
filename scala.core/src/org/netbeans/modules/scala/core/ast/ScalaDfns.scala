@@ -84,6 +84,7 @@ trait ScalaDfns {self: ScalaGlobal =>
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref: AstRef): Boolean = {
+      //typeMatched(symbol, ref.asInstanceOf[ScalaItem].symbol)
       if (ref.getName == getName) {
         //            if ((symbol.value.isClass || getSymbol().isModule()) && ref.isSameNameAsEnclClass()) {
         //                return true;

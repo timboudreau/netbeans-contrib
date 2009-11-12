@@ -79,7 +79,7 @@ class ScalaStructureAnalyzer extends StructureScanner {
       case dfn: ScalaDfns#ScalaDfn => dfn.getKind match {
           case ElementKind.CLASS | ElementKind.MODULE =>
             (dfn.enclosingScope, dfn.enclosingDfn) match {
-              case (Some(x), _) if x.isRoot => items.add(new ScalaStructureItem(dfn, pResult))
+              case (x, _) if x.isRoot => items.add(new ScalaStructureItem(dfn, pResult))
               case (_, Some(x)) if x.getKind == ElementKind.PACKAGE => items.add(new ScalaStructureItem(dfn, pResult))
               case _ =>
             }
