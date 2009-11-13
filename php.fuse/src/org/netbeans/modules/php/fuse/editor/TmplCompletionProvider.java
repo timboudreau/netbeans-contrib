@@ -41,9 +41,11 @@ package org.netbeans.modules.php.fuse.editor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
+import org.netbeans.modules.php.fuse.utils.EditorUtils;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -56,23 +58,43 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
  */
 public class TmplCompletionProvider implements CompletionProvider {
 
-    public CompletionTask createTask(int queryType,
-            final JTextComponent component) {
+    public CompletionTask createTask(int queryType, final JTextComponent component) {
         return new AsyncCompletionTask(new AsyncCompletionQuery() {
 
-            protected void query(final CompletionResultSet resultSet,
-                    Document doc, final int caretOffset) {
+            protected void query(final CompletionResultSet resultSet, Document doc, final int caretOffset) {
                 final StyledDocument bDoc = (StyledDocument) doc;
                 class Operation implements Runnable {
 
+                    String filter = null;
                     int startOffset = caretOffset - 1;
 
                     public void run() {
-                        final Iterator it = keywords.iterator();
-                        while (it.hasNext()) {
-                            final String entry = (String) it.next();
-                            resultSet.addItem(new TmplCompletionItem(
-                                    entry, startOffset, caretOffset));
+                        try {
+                            final int lineStartOffset = EditorUtils.getRowFirstNonWhite(bDoc, caretOffset);
+                            startOffset = lineStartOffset;
+                            if (lineStartOffset > -1 && caretOffset > lineStartOffset) {
+                                final char[] line = bDoc.getText(lineStartOffset, caretOffset - lineStartOffset).toCharArray();
+                                final int whiteOffset = EditorUtils.indexOfWhite(line);
+                                filter = new String(line, whiteOffset + 1, line.length - whiteOffset - 1);
+                            }
+                        } catch (BadLocationException ex) {
+                            ex.printStackTrace();
+                        }
+                        // Here we use the filter, if it's not null:
+                        if (filter != null) {
+                            final Iterator it = keywords.iterator();
+                            while (it.hasNext()) {
+                                final String entry = (String) it.next();
+                                if (entry.startsWith(filter)) {
+                                    resultSet.addItem(new TmplCompletionItem(entry, startOffset, caretOffset));
+                                }
+                            }
+                        } else {
+                            final Iterator it = keywords.iterator();
+                            while (it.hasNext()) {
+                                final String entry = (String) it.next();
+                                resultSet.addItem(new TmplCompletionItem(entry, startOffset, caretOffset));
+                            }
                         }
                         resultSet.setAnchorOffset(caretOffset);
                         resultSet.finish();
