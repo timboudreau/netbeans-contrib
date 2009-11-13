@@ -6,9 +6,6 @@
         <folder name="text">
             <folder name="fuse-template">
                 <attr name="useCustomEditorKit" boolvalue="false"/>
-                <!--<file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.fuse.lexer.FuseTopTokenId.language"/>
-                </file>-->
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.php.fuse.gsf.TmplLanguage"/>
                 </file>
@@ -153,11 +150,11 @@
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
                     <file name="org-netbeans-modules-php-editor-PHPCodeCompletion.instance"/>
-                    <file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>
-                    <file name="org-netbeans-modules-html-editor-completion-HtmlPaletteCompletionProvider.instance"/>
+                    <!--<file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>-->
+                    <!--<file name="org-netbeans-modules-html-editor-completion-HtmlPaletteCompletionProvider.instance"/>-->
                     <file name="org-netbeans-modules-php-fuse-editor-TmplCompletionProvider.instance"/>
                 </folder>
-                <file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>
+                <!--<file name="org-netbeans-modules-csl-editor-semantic-HighlightsLayerFactoryImpl.instance"/>-->
                 <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>
                 <file name="org-netbeans-modules-php-fuse-editor-FuseEmbeddingProvider$Factory.instance"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.fuse.lexer.Bundle"/>

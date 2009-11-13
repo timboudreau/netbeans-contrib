@@ -66,8 +66,7 @@ public class TmplCompletionItem implements CompletionItem {
     private int _dotOffset;
     private String _text;
 
-    public TmplCompletionItem(String text, int dotOffset,
-            int carretOffset) {
+    public TmplCompletionItem(String text, int dotOffset, int carretOffset) {
         _text = text;
         _dotOffset = dotOffset;
         _carretOffset = carretOffset;
@@ -84,27 +83,23 @@ public class TmplCompletionItem implements CompletionItem {
         class AtomicChange implements Runnable {
 
             public void run() {
-                int caretOffset = component.getCaretPosition();
                 String value = getText();
                 if (toAdd != null) {
                     value += toAdd;
                 }
                 try {
-                    doc.remove(_dotOffset + 1, _carretOffset - _dotOffset - 1);
-                    doc.insertString(_dotOffset + 1, value + ": ", null);
-                    component.setCaretPosition(
-                            component.getCaretPosition() - backOffset);
+                    doc.remove(_dotOffset, _carretOffset - _dotOffset);
+                    doc.insertString(_dotOffset, value + "", null);
+                    component.setCaretPosition(component.getCaretPosition() - backOffset);
                 } catch (BadLocationException e) {
-//                    ErrorManager.getDefault().notify(
-//                            ErrorManager.INFORMATIONAL, e);
+                    e.printStackTrace();
                 }
             }
         }
         try {
             NbDocument.runAtomicAsUser(doc, new AtomicChange());
         } catch (BadLocationException ex) {
-//            ErrorManager.getDefault().notify(
-//                    ErrorManager.INFORMATIONAL, ex);
+            ex.printStackTrace();
         }
     }
 

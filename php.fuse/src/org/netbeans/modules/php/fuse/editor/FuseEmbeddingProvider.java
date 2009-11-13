@@ -67,10 +67,10 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
         TokenHierarchy<CharSequence> th = TokenHierarchy.create(snapshot.getText(), FuseTopTokenId.language());
         TokenSequence<FuseTopTokenId> sequence = th.tokenSequence(FuseTopTokenId.language());
 
-        if(sequence == null) {
+        if (sequence == null) {
             Logger.getLogger("FuseEmbeddingProvider").warning(
                     "TokenHierarchy.tokenSequence(FuseTopTokenId.language()) == null " +
-                    "for static immutable Fuse TokenHierarchy!\nFile = '"+
+                    "for static immutable Fuse TokenHierarchy!\nFile = '" +
                     snapshot.getSource().getFileObject().getPath() +
                     "' ;snapshot mimepath='" + snapshot.getMimePath() + "'");
 
@@ -83,12 +83,11 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
         int from = -1;
         int len = 0;
         int state = -1;
-        int addToOffset = 0;
         boolean changed = false;
         while (sequence.moveNext()) {
             Token t = sequence.token();
             if (t.id() == FuseTopTokenId.T_HTML) {
-                if(from < 0) {
+                if (from < 0) {
                     from = sequence.offset();
                 }
                 len += t.length();
@@ -103,7 +102,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                 while (sequence2.moveNext()) {
                     t = sequence2.token();
                     if (t.id() == FuseTokenId.IDENTIFIER) {
-                        if(from < 0) {
+                        if (from < 0) {
                             from = sequence.offset() + lenghtOfIngored;
                         }
                         len += t.length();
@@ -117,15 +116,26 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                 }
             } else if (t.id() == FuseTopTokenId.T_FUSE_OPEN_DELIMITER) {
                 embeddings.add(snapshot.create("<?", "text/x-php5"));
+                embeddings.add(snapshot.create(";", "text/x-php5"));
                 embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
+                state = -1;
+                changed = false;
             } else if (t.id() == FuseTopTokenId.T_FUSE_CLOSE_DELIMITER) {
                 embeddings.add(snapshot.create("?>", "text/x-php5"));
                 embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
+                state = -1;
+                changed = false;
             }
             if (changed) {
-                if(from >= 0) {
-                    embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
-                    embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
+                if (from >= 0) {
+                    if (state == 1) {
+                        embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
+                        embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
+                    } else {
+                        embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
+                        embeddings.add(snapshot.create(";", "text/x-php5"));
+                        embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
+                    }
                 }
 
                 from = -1;
@@ -133,7 +143,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
             }
         }
 
-        if(from >= 0) {
+        if (from >= 0) {
             embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
         }
 
