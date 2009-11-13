@@ -89,7 +89,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
   private val logger = Logger.getLogger(this.getClass.getName)
 
   private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
-  private val targetName = searchHandle.symbol.fullNameString
+  private val targetName = searchHandle.getName
   private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
   private val samePlaceSymToDefString = samePlaceSyms map {x => (x, x.defString)}
 
@@ -102,14 +102,15 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
   private def getRelevantFiles(handle: ScalaItems#ScalaItem): Set[FileObject] = {
     val cpInfo = getClasspathInfo(refactoring)
-    val targetName = handle.symbol.nameString
     val set = new HashSet[FileObject]
 
     handle.fo foreach {fo =>
       set.add(fo)
 
       // * is there any symbol in this place not private?
-      val notLocal = handle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]] exists {x => !(x hasFlag Flags.PRIVATE)}
+      val notLocal = samePlaceSyms exists {x =>
+        !x.hasFlag(Flags.PRIVATE)
+      }
 
       if (notLocal) {
         val srcCp = cpInfo.getClassPath(ClasspathInfo.PathKind.SOURCE)
@@ -338,14 +339,18 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
 
       if (isFindUsages) {
         
-        def isReferred(sym: Symbol) = try {
+        def isRef(sym: Symbol) = try {
           lazy val overriddens = sym.allOverriddenSymbols
+          val myDefString = sym.defString
+          val myQName = sym.fullNameString
           samePlaceSymToDefString exists {
-            case (s, defString) if sym.defString == s.defString =>
-              val qName = s.fullNameString
-              if (sym.fullNameString == qName) true else {
-                overriddens exists {o => o.fullNameString == qName}
-              }
+            case (s, defStringx) =>
+              if (myDefString == defStringx) {
+                val qNamex = s.fullNameString
+                if (myQName == qNamex) true else {
+                  overriddens exists {o => o.fullNameString == qNamex}
+                }
+              } else false
           }
         } catch {case ex => false}
         
@@ -354,7 +359,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
              item <- items;
              sym = item.asInstanceOf[ScalaItem].symbol;
              // * tokens.add(token) should be the last condition
-             if token.text.toString == sym.nameString && isReferred(sym) && tokens.add(token)
+             if token.text.toString == targetName && isRef(sym) && tokens.add(token)
         ) {
           logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
