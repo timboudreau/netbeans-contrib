@@ -73,7 +73,6 @@ object ScalaGlobal {
   private val logger = Logger.getLogger(this.getClass.getName)
 
   private val nbUserPath = System.getProperty("netbeans.user")
-  private val depFileName = ".scala_dependencies"
   
   /** index of globals */
   private val Global = 0
@@ -259,7 +258,6 @@ object ScalaGlobal {
     // ----- need to create a new global:
     
     val settings = new Settings
-    settings.dependenciesFile.value = nbUserPath + File.separator + depFileName
     if (debug) {
       settings.debug.value = true
       settings.verbose.value = true
