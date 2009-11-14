@@ -147,7 +147,7 @@ public class NewProjectConfigurationPanel extends JPanel {
     }
 
     private String validateParams(String paramValue, String param) {
-        if (paramValue.isEmpty())
+        if (paramValue.length() == 0)
             return NbBundle.getMessage(NewProjectConfigurationPanel.class, "MSG_EmptyParamUsed", param);
         else if (paramValue.matches("^.* .*")) {
             return NbBundle.getMessage(NewProjectConfigurationPanel.class, "MSG_SpacedParamUsed", param);

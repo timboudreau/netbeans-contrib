@@ -55,12 +55,12 @@ public class TmplStructureScanner implements StructureScanner {
 
     @Override
     public List<? extends StructureItem> scan(ParserResult info) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public Map<String,List<OffsetRange>> folds(ParserResult info) {
-        return  Collections.EMPTY_MAP;
+        return  Collections.emptyMap();
     }
 
     @Override

@@ -54,7 +54,7 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 
 /**
  *
- * @author cawe
+ * @author Martin Fousek
  */
 public class TmplCompletionProvider implements CompletionProvider {
 
@@ -106,11 +106,10 @@ public class TmplCompletionProvider implements CompletionProvider {
         }, component);
     }
 
-    public int getAutoQueryTypes(JTextComponent component,
-            String typedText) {
+    public int getAutoQueryTypes(JTextComponent component,String typedText) {
         return 0;
     }
-    private final static List keywords = new ArrayList();
+    private final static List<String> keywords = new ArrayList<String>();
 
     static {
         keywords.add("IF");
@@ -124,7 +123,6 @@ public class TmplCompletionProvider implements CompletionProvider {
         keywords.add("/LOOP");
         keywords.add("DB_LOOP");
         keywords.add("/DB_LOOP");
-
     }
 }
 
