@@ -463,7 +463,7 @@ trait ScalaUtils {self: ScalaGlobal =>
         case DeBruijnIndex(level, index) =>
           fm.appendText("DeBruijnIndex")
         case _ =>
-          fm.appendText(tpe.getClass.getSimpleName)
+          fm.appendText(tpe.safeToString)
       }
     }
 
