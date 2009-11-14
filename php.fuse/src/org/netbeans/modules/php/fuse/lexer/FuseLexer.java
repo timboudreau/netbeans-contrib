@@ -73,229 +73,6 @@ public class FuseLexer implements Lexer<FuseTokenId> {
         while (true) {
             int c = input.read();
             switch (c) {
-//                case '"': // string literal
-//                    while (true)
-//                        switch (input.read()) {
-//                            case '"': // NOI18N
-//                                if (afterInclude) {
-//                                    afterInclude = false;
-//                                    return token(FuseTokenId.INCLUDE_LITERAL);
-//                                }
-//                                else {
-//                                    return token(FuseTokenId.STRING_LITERAL);
-//                                }
-//                        }
-//
-//                case '\'': // char literal
-//                    while (true)
-//                        switch (input.read()) {
-//                            case '\'': // NOI18N
-//                                if (afterInclude) {
-//                                    afterInclude = false;
-//                                    return token(FuseTokenId.INCLUDE_LITERAL);
-//                                }
-//                                else {
-//                                    return token(FuseTokenId.STRING_LITERAL);
-//                                }
-//                        }
-//
-//                case '=':
-//                    if (input.read() == '=')
-//                        return token(FuseTokenId.EQEQ);
-//                    input.backup(1);
-//                    return token(FuseTokenId.EQ);
-//
-//                case '>':
-//                    switch (input.read()) {
-//                        case '>': // after >>
-//                            input.backup(1);
-//                            return token(FuseTokenId.GTGT);
-//                        case '=': // >=
-//                            return token(FuseTokenId.GTEQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.GT);
-//
-//                case '<':
-//                    switch (input.read()) {
-//                        case '<': // after <<
-//                            input.backup(1);
-//                            return token(FuseTokenId.LTLT);
-//                        case '=': // <=
-//                            return token(FuseTokenId.LTEQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.LT);
-//
-//                case '+':
-//                    switch (input.read()) {
-//                        case '+':
-//                            return token(FuseTokenId.PLUSPLUS);
-//                        case '=':
-//                            return token(FuseTokenId.PLUSEQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.PLUS);
-//
-//                case '-':
-//                    switch (input.read()) {
-//                        case '-':
-//                            return token(FuseTokenId.MINUSMINUS);
-//                        case '=':
-//                            return token(FuseTokenId.MINUSEQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.MINUS);
-//
-//                case '*':
-//                    switch (input.read()) {
-//                        case '=':
-//                            return token(FuseTokenId.STAREQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.STAR);
-//
-//                case '|':
-//                    switch (input.read()) {
-//                        case '|':
-//                            return token(FuseTokenId.BARBAR);
-//                        case '=':
-//                            return token(FuseTokenId.BAREQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.BAR);
-//
-//                case '&':
-//                    switch (input.read()) {
-//                        case '&':
-//                            return token(FuseTokenId.AMPAMP);
-//                        case '=':
-//                            return token(FuseTokenId.AMPEQ);
-//                    }
-//                    input.backup(1);
-//                    return token(FuseTokenId.AMP);
-//
-//                case '%':
-//                    if (input.read() == '=')
-//                        return token(FuseTokenId.PERCENTEQ);
-//                    input.backup(1);
-//                    return token(FuseTokenId.PERCENT);
-//
-//                case '^':
-//                    if (input.read() == '=')
-//                        return token(FuseTokenId.CARETEQ);
-//                    input.backup(1);
-//                    return token(FuseTokenId.CARET);
-//
-//                case '!':
-//                    if (input.read() == '=')
-//                        return token(FuseTokenId.BANGEQ);
-//                    input.backup(1);
-//                    return token(FuseTokenId.BANG);
-//
-//                case '.':
-//                    c = input.read();
-//                    if ('0' <= c && c <= '9') { // float literal
-//                        return finishNumberLiteral(input.read(), true);
-//                    } else
-//                        input.backup(1);
-//                    return token(FuseTokenId.DOT);
-//
-//                case '~':
-//                    return token(FuseTokenId.TILDE);
-//                case ',':
-//                    return token(FuseTokenId.COMMA);
-//                case ';':
-//                    return token(FuseTokenId.SEMICOLON);
-//                case ':':
-//                    return token(FuseTokenId.COLON);
-//                case '?':
-//                    return token(FuseTokenId.QUESTION);
-//                case '(':
-//                    return token(FuseTokenId.LPAREN);
-//                case ')':
-//                    return token(FuseTokenId.RPAREN);
-//                case '[':
-//                    return token(FuseTokenId.LBRACKET);
-//                case ']':
-//                    return token(FuseTokenId.RBRACKET);
-//                case '{':
-//                    return token(FuseTokenId.LBRACE);
-//                case '}':
-//                    return token(FuseTokenId.RBRACE);
-//
-//                // Numbers lexing
-//                case '0': case '1': case '2': case '3': case '4':
-//                case '5': case '6': case '7': case '8': case '9':
-//                    return finishNumberLiteral(input.read(), false);
-//
-//                // Keywords lexing
-//                case 'f':
-//                   switch (c = input.read()) {
-//                        case 'a':
-//                            if ((c = input.read()) == 'l' && (c = input.read()) == 's' && (c = input.read()) == 'e') {
-//                                return keywordOrIdentifier(FuseTokenId.FALSE);
-//                            }
-//                            break;
-//                    }
-//                    return finishIdentifier(c);
-//
-//                case 'i':
-//                    switch (c = input.read()) {
-//                        case 'n':
-//                            if ((c = input.read()) == 'c' && (c = input.read()) == 'l' && (c = input.read()) == 'u' && (c = input.read()) == 'd' && (c = input.read()) == 'e') {
-//                                if ((c = input.read()) == '_' && (c = input.read()) == 'o' && (c = input.read()) == 'n' && (c = input.read()) == 'c' && (c = input.read()) == 'e') {
-//                                    afterInclude = true;
-//                                    return keywordOrIdentifier(FuseTokenId.INCLUDE_ONCE);
-//                                }
-//                                else if (c == ' '){
-//                                    input.backup(1);
-//                                    afterInclude = true;
-//                                    return keywordOrIdentifier(FuseTokenId.INCLUDE);
-//                                }
-//                            }
-//                            break;
-//                    }
-//                    return finishIdentifier(c);
-//
-//                case 'n':
-//                   switch (c = input.read()) {
-//                        case 'u':
-//                            if ((c = input.read()) == 'l' && (c = input.read()) == 'l') {
-//                                return keywordOrIdentifier(FuseTokenId.NULL);
-//                            }
-//                            break;
-//                    }
-//                    return finishIdentifier(c);
-//
-//                case 't':
-//                   switch (c = input.read()) {
-//                        case 'r':
-//                            if ((c = input.read()) == 'u' && (c = input.read()) == 'e') {
-//                                return keywordOrIdentifier(FuseTokenId.TRUE);
-//                            }
-//                            break;
-//                    }
-//                    return finishIdentifier(c);
-//
-//                case 'r':
-//                    switch (c = input.read()) {
-//                        case 'e':
-//                            if ((c = input.read()) == 'q' && (c = input.read()) == 'u' && (c = input.read()) == 'i' && (c = input.read()) == 'r' && (c = input.read()) == 'e') {
-//                                if ((c = input.read()) == '_' && (c = input.read()) == 'o' && (c = input.read()) == 'n' && (c = input.read()) == 'c' && (c = input.read()) == 'e') {
-//                                    afterInclude = true;
-//                                    return keywordOrIdentifier(FuseTokenId.REQUIRE_ONCE);
-//                                }
-//                                else if (c == ' '){
-//                                    input.backup(1);
-//                                    afterInclude = true;
-//                                    return keywordOrIdentifier(FuseTokenId.REQUIRE);
-//                                }
-//                            }
-//                            break;
-//                    }
-//                    return finishIdentifier(c);
-//
                 case 'I':
                     switch (c = input.read()) {
                         case 'F':
@@ -340,74 +117,9 @@ public class FuseLexer implements Lexer<FuseTokenId> {
                     }
                     return finishIdentifier(c);
 
-                // Rest of letters starting identifiers
-//                case 'a':
-//                case 'b':
-//                case 'c':
-//                case 'd':
-//                case 'e':
-//                case 'g':
-//                case 'h':
-//                case 'j':
-//                case 'k':
-//                case 'l':
-//                case 'm':
-//                case 'o':
-//                case 'p':
-//                case 'q':
-//                case 's':
-//                case 'u':
-//                case 'v':
-//                case 'w':
-//                case 'x':
-//                case 'y':
-//                case 'z':
-//                case 'A':
-//                case 'B':
-//                case 'C':
-//                case 'F':
-//                case 'G':
-//                case 'H':
-//                case 'J':
-//                case 'K':
-//                case 'M':
-//                case 'N':
-//                case 'O':
-//                case 'P':
-//                case 'Q':
-//                case 'R':
-//                case 'S':
-//                case 'T':
-//                case 'U':
-//                case 'V':
-//                case 'X':
-//                case 'Y':
-//                case 'Z':
-//                case '$':
-//                case '_':
-//                case '@':
-//                    return finishIdentifier();
-
                 case '/':
                     endingTag = true;
                     continue;
-//                case '\t':
-//                case '\n':
-//                case 0x0b:
-//                case '\f':
-//                case '\r':
-//                case 0x1c:
-//                case 0x1d:
-//                case 0x1e:
-//                case 0x1f:
-//                    return finishWhitespace();
-//                case ' ':
-//                    c = input.read();
-//                    if (c == EOF || !Character.isWhitespace(c)) { // Return single space as flyweight token
-//                        input.backup(1);
-//                        return tokenFactory.getFlyweightToken(FuseTokenId.WHITESPACE, " ");
-//                    }
-//                    return finishWhitespace();
 
                 case EOF:
                     if (endingTag)
@@ -419,31 +131,6 @@ public class FuseLexer implements Lexer<FuseTokenId> {
                     return finishIdentifier(); //token(FuseTokenId.ERROR);
             } // end of switch (c)
         } // end of while(true)
-    }
-
-    private Token<FuseTokenId> finishWhitespace() {
-        while (true) {
-            int c = input.read();
-            if (c == EOF || !Character.isWhitespace(c)) {
-                input.backup(1);
-                return tokenFactory.createToken(FuseTokenId.WHITESPACE);
-            }
-        }
-    }
-
-    private Token<FuseTokenId> finishNumberLiteral(int c, boolean inFraction) {
-        while (true) {
-            switch (c) {
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                    break;
-                default:
-                    input.backup(1);
-                    return token(inFraction ? FuseTokenId.DOUBLE_LITERAL
-                            : FuseTokenId.INT_LITERAL);
-            }
-            c = input.read();
-        }
     }
 
     private Token<FuseTokenId> finishIdentifier() {
@@ -473,16 +160,15 @@ public class FuseLexer implements Lexer<FuseTokenId> {
         // Check whether the given char is non-ident and if so then return keyword
         if (c == EOF || !(Character.isJavaIdentifierPart(c) || c == '$' || c == '_')) {
             // For surrogate 2 chars must be backed up
-            input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+//            input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
             if (endingTag) {
-                return token(FuseTokenId.valueOf(keywordId.toString()+"_END"));
+                return tokenFactory.createToken(FuseTokenId.valueOf(keywordId.name()+"_END"));
             }
-            else
-            return token(keywordId);
-        } else // c is identifier part
-        {
-            return finishIdentifier();
+            else {
+                return tokenFactory.createToken(FuseTokenId.valueOf(keywordId.name()));
+            }
         }
+        return finishIdentifier();
     }
 
     private Token<FuseTokenId> token(FuseTokenId id) {

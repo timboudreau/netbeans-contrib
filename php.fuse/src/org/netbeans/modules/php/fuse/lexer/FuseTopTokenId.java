@@ -114,7 +114,7 @@ public enum FuseTopTokenId implements TokenId {
 
                 @Override
                 protected String mimeType() {
-                    return "text/fuse-template";
+                    return "text/fuse";
                 }
                 
                 @Override
@@ -122,10 +122,10 @@ public enum FuseTopTokenId implements TokenId {
                     LanguagePath languagePath, InputAttributes inputAttributes) {
                     FuseTopTokenId id = token.id();
                     if (id == T_HTML) {
-                        return LanguageEmbedding.create(PHPTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, false);
                     } 
                     else if (id == T_FUSE) {
-                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, true);
+                        return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, false);
                     }
 
                     return null; // No embedding

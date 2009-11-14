@@ -51,6 +51,7 @@ import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
+import org.netbeans.modules.php.editor.lexer.PHPTopTokenId;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
@@ -83,59 +84,6 @@ public enum FuseTokenId implements TokenId {
     INCLUDE_ONCE("include_once", "include"),
     REQUIRE_ONCE("require_once", "include"),
 
-    TRUE("true", "literal"),
-    FALSE("false", "literal"),
-    NULL("null", "literal"),
-    
-    LPAREN("(", "separator"),
-    RPAREN(")", "separator"),
-    LBRACE("{", "separator"),
-    RBRACE("}", "separator"),
-    LBRACKET("[", "separator"),
-    RBRACKET("]", "separator"),
-    SEMICOLON(";", "separator"),
-    COMMA(",", "separator"),
-    DOT(".", "separator"),
-
-    EQ("=", "operator"),
-    GT(">", "operator"),
-    LT("<", "operator"),
-    BANG("!", "operator"),
-    TILDE("~", "operator"),
-    QUESTION("?", "operator"),
-    COLON(":", "operator"),
-    EQEQ("==", "operator"),
-    LTEQ("<=", "operator"),
-    GTEQ(">=", "operator"),
-    BANGEQ("!=","operator"),
-    AMPAMP("&&", "operator"),
-    BARBAR("||", "operator"),
-    PLUSPLUS("++", "operator"),
-    MINUSMINUS("--","operator"),
-    PLUS("+", "operator"),
-    MINUS("-", "operator"),
-    STAR("*", "operator"),
-    SLASH("/", "operator"),
-    AMP("&", "operator"),
-    BAR("|", "operator"),
-    CARET("^", "operator"),
-    PERCENT("%", "operator"),
-    LTLT("<-", "operator"),
-    GTGT("->", "operator"),
-    PLUSEQ("+=", "operator"),
-    MINUSEQ("-=", "operator"),
-    STAREQ("*=", "operator"),
-    SLASHEQ("/=", "operator"),
-    AMPEQ("&=", "operator"),
-    BAREQ("|=", "operator"),
-    CARETEQ("^=", "operator"),
-    PERCENTEQ("%=", "operator"),
-
-    INT_LITERAL(null, "number"),
-    DOUBLE_LITERAL(null, "number"),
-    STRING_LITERAL(null, "string"),
-    INCLUDE_LITERAL(null, "include_string"),
-    
     WHITESPACE(null, "whitespace");
 
     private final String fixedText;
@@ -181,11 +129,9 @@ public enum FuseTokenId implements TokenId {
         @Override
         protected LanguageEmbedding<?> embedding(
         Token<FuseTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
-            // Test language embedding in the block comment
-            switch (token.id()) {
-                case IDENTIFIER:
-                    return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, true);
-            }
+            if (token.id() == IDENTIFIER)
+                return LanguageEmbedding.create(PHPTokenId.languageInPHP(), 0, 0, true);
+
             return null; // No embedding
         }
     }.language();

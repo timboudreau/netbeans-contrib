@@ -100,20 +100,21 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                 TokenSequence<FuseTokenId> sequence2 = th2.tokenSequence(FuseTokenId.language());
                 int lenghtOfIngored = 0;
                 while (sequence2.moveNext()) {
-                    t = sequence2.token();
-                    if (t.id() == FuseTokenId.IDENTIFIER) {
+                    Token t2 = sequence2.token();
+                    if (t2.id() == FuseTokenId.IDENTIFIER) {
                         if (from < 0) {
                             from = sequence.offset() + lenghtOfIngored;
                         }
-                        len += t.length();
+                        len += t2.length();
                         if (state != 2) {
                             changed = true;
                             state = 2;
                         }
                     } else {
-                        lenghtOfIngored = t.text().length();
+                        lenghtOfIngored = t2.text().length();
                     }
                 }
+                sequence2.moveStart();
             } else if (t.id() == FuseTopTokenId.T_FUSE_OPEN_DELIMITER) {
                 embeddings.add(snapshot.create("<?", "text/x-php5"));
                 embeddings.add(snapshot.create(";", "text/x-php5"));
