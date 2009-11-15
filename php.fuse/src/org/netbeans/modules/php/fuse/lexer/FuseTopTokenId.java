@@ -49,8 +49,6 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
-import org.netbeans.modules.php.editor.lexer.PHPTokenId;
-import org.netbeans.modules.php.editor.lexer.PHPTopTokenId;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
@@ -122,7 +120,7 @@ public enum FuseTopTokenId implements TokenId {
                     LanguagePath languagePath, InputAttributes inputAttributes) {
                     FuseTopTokenId id = token.id();
                     if (id == T_HTML) {
-                        return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, false);
+                        return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, true);
                     } 
                     else if (id == T_FUSE) {
                         return LanguageEmbedding.create(FuseTokenId.language(), 0, 0, false);
