@@ -259,9 +259,11 @@ object ScalaGlobal {
     
     val settings = new Settings
     if (debug) {
+      settings.Yidedebug.value = true
       settings.debug.value = true
       settings.verbose.value = true
     } else {
+      settings.Yidedebug.value = false
       settings.debug.value = false
       settings.verbose.value = false
     }
