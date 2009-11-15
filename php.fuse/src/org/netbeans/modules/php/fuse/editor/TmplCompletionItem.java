@@ -76,10 +76,8 @@ public class TmplCompletionItem implements CompletionItem {
         _icon = fieldIcon;
     }
 
-    private void doSubstitute(final JTextComponent component,
-            final String toAdd, final int backOffset) {
-        final StyledDocument doc =
-                (StyledDocument) component.getDocument();
+    private void doSubstitute(final JTextComponent component, final String toAdd, final int backOffset) {
+        final StyledDocument doc = (StyledDocument) component.getDocument();
         class AtomicChange implements Runnable {
 
             public void run() {
@@ -89,7 +87,7 @@ public class TmplCompletionItem implements CompletionItem {
                 }
                 try {
                     doc.remove(_dotOffset, _carretOffset - _dotOffset);
-                    doc.insertString(_dotOffset, value + "", null);
+                    doc.insertString(_dotOffset, value, null);
                     component.setCaretPosition(component.getCaretPosition() - backOffset);
                 } catch (BadLocationException e) {
                     e.printStackTrace();
@@ -112,14 +110,15 @@ public class TmplCompletionItem implements CompletionItem {
     }
 
     public int getPreferredWidth(Graphics g, Font defaultFont) {
-        return CompletionUtilities.getPreferredWidth(
-                _text, null, g, defaultFont);
+        String htmlText = _text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        return CompletionUtilities.getPreferredWidth(htmlText, null, g, defaultFont);
     }
 
     public void render(Graphics g, Font defaultFont,
             Color defaultColor, Color backgroundColor,
             int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(_icon, _text, null, g,
+        String htmlText = _text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        CompletionUtilities.renderHtml(_icon, htmlText, null, g,
                 defaultFont, (selected ? Color.white : fieldColor), width,
                 height, selected);
     }

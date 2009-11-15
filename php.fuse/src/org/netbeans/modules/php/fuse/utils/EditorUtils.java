@@ -43,7 +43,6 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.php.fuse.lexer.FuseTokenId;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
 
 /**
