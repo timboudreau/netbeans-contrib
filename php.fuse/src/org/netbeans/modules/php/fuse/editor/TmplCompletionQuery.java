@@ -38,16 +38,24 @@
  */
 package org.netbeans.modules.php.fuse.editor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
+import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.php.fuse.utils.EditorUtils;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -63,22 +71,20 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
     public TmplCompletionQuery(JTextComponent component, int type, QueryType queryType) {
         this.type = type;
         this.component = component;
-        this.queryType = queryType;
+        this.queryType = queryType; 
     }
 
     @Override
-    protected void query(final CompletionResultSet resultSet, Document doc, final int caretOffset) {
+    protected void query(final CompletionResultSet resultSet, final Document doc, final int caretOffset) {
         final StyledDocument bDoc = (StyledDocument) doc;
         class Operation implements Runnable {
 
             String filter = null;
-            int startOffset = caretOffset - 1;
+            int startOffset = caretOffset;
 
             public void run() {
                 try {
                     final int lineStartOffset = EditorUtils.getRowFirstNonWhite(bDoc, caretOffset);
-                    if (queryType == QueryType.INNER_QUERY_TASK) startOffset = lineStartOffset;
-                    else startOffset++;
                     if (lineStartOffset > -1 && caretOffset > lineStartOffset) {
                         final char[] line = bDoc.getText(lineStartOffset, caretOffset - lineStartOffset).toCharArray();
                         final int whiteOffset = EditorUtils.indexOfWhite(line);
@@ -90,7 +96,9 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
                 // taking appropriate iterator
                 final Iterator it;
                 if (queryType == QueryType.INNER_QUERY_TASK) {
-                    it = innerKeywords.iterator();
+                    ArrayList<String> variables = EditorUtils.getKeywordsForView(doc);
+                    variables.addAll(innerKeywords);
+                    it = variables.iterator();
                 }
                 else {
                     it = outerKeywords.iterator();

@@ -63,8 +63,7 @@ public class FuseLanguageTest {
         // Check token categories
         Set testTids = language.tokenCategories();
         Collection tids = Arrays.asList(new String[] {
-            "error", "string", "keyword", "whitespace", "include_string", "number", "identifier", "separator",
-            "operator", "include", "literal" });
+            "error", "keyword", "whitespace", "identifier", "include" });
         LexerTestUtilities.assertCollectionsEqual("Invalid token ids", tids, testTids);
     }
 

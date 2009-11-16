@@ -39,6 +39,7 @@
 package org.netbeans.modules.php.fuse;
 
 import junit.framework.TestCase;
+import org.netbeans.modules.csl.core.GsfDataObject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
@@ -55,6 +56,6 @@ public class TmplDataObjectTest extends TestCase {
         assertNotNull("Template file shall be found", template);
 
         DataObject obj = DataObject.find(template);
-        assertEquals("It is our data object", TmplDataObject.class, obj.getClass());
+        assertEquals("It is our data object", GsfDataObject.class, obj.getClass());
     }
 }
