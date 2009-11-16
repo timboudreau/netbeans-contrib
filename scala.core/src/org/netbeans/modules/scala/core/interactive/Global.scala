@@ -574,24 +574,6 @@ extends scala.tools.nsc.Global(settings, reporter)
     }
   }
 
-  /** A traverser that resets all type and symbol attributes in a tree
-   object ResetAttrs extends Transformer {
-   override def transform(t: Tree): Tree = {
-   if (t.hasSymbol) t.symbol = NoSymbol
-   t match {
-   case EmptyTree =>
-   t
-   case tt: TypeTree =>
-   if (tt.original != null) tt.original
-   else t
-   case _ =>
-   t.tpe = null
-   super.transform(t)
-   }
-   }
-   }
-   */
-
   /** The typer run */
   class TyperRun extends Run {
     // units is always empty
