@@ -67,7 +67,7 @@ public class TmplCompletionProvider implements CompletionProvider {
     private boolean isInFuseTemplates(Document doc, int offset){
         TokenHierarchy tokenHierarchy = TokenHierarchy.get(doc);
         TokenSequence tokenSequence = tokenHierarchy.tokenSequence();
-
+        
         tokenSequence.move(offset);
         if (tokenSequence.moveNext() || tokenSequence.movePrevious()) {
             Object tokenID = tokenSequence.token().id();

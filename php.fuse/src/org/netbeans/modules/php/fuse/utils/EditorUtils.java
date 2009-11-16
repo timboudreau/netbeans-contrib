@@ -38,12 +38,22 @@
  */
 package org.netbeans.modules.php.fuse.utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -85,5 +95,75 @@ public class EditorUtils {
             start++;
         }
         return start;
+    }
+
+    public static ArrayList<String> getKeywordsForView(Document doc) {
+        ArrayList<String> results = new ArrayList<String>();
+        Source file = Source.create(doc);
+        FileObject fo = file.getFileObject();
+
+        String nameOfView = fo.getName();
+        int indexOfDash = nameOfView.indexOf("-");
+        if (indexOfDash > 0) {
+            final String nameOfController = nameOfView.substring(0, indexOfDash) + "Controller.class.php";
+            File cf = null;
+            fo = fo.getParent().getParent();
+            for (int i = 0; i < 3; i++) {
+                cf = new File (fo.getPath() + "/controllers");
+                if (cf.exists() && cf.isDirectory()) break;
+                fo = fo.getParent();
+            }
+            if (!cf.exists()) return new ArrayList<String>();
+            File[] adeptsForCompletion = cf.listFiles(new FileFilter() {
+                public boolean accept(File arg0) {
+                    return arg0.getName().equals(nameOfController);
+                }
+            });
+
+            for (File controller : adeptsForCompletion) {
+                try {
+                    BufferedReader bis = new BufferedReader(new FileReader(controller));
+                    String line;
+                    while ((line = bis.readLine()) != null) {
+                        String res = parseLineForVars(line);
+                        if (res != null && !results.contains(res))
+                            results.add(res);
+                    }
+                } catch (IOException ioe) {
+                    Logger.getLogger("TmplCompletionQuery").warning("scanning of unnexisting file " + controller.getAbsolutePath());
+                }
+            }
+        }
+        return results;
+    }
+
+    public static String parseLineForVars(String line) {
+        if (line.contains("template")) {
+            if (line.contains("add_param")) {
+                return parseVariable(line, "add_param");
+            }
+            else if (line.contains("add_iterator")) {
+                return parseVariable(line, "add_iterator");
+            }
+            else if (line.contains("add_assoc_arr")) {
+                return parseVariable(line, "add_assoc_arr");
+            }
+            else if (line.contains("add_assoc_arr_by_ref")) {
+                return parseVariable(line, "add_assoc_arr_by_ref");
+            }
+        }
+        return null;
+    }
+
+    public static String parseVariable(String line, String param) {
+        line = line.replaceAll(" ","");
+        int indexOfAdd = line.indexOf(param +"(");
+        int paramLength = param.length();
+        if ((paramLength + 2) > line.length())
+            return null;
+        String del = line.substring(indexOfAdd + paramLength + 1, indexOfAdd + paramLength + 2);
+        line = line.substring(indexOfAdd + paramLength + 2, line.length());
+        line = line.substring(0, line.indexOf(del));
+        return line;
     }
 }
