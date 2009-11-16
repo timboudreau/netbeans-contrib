@@ -139,17 +139,12 @@ public class EditorUtils {
 
     public static String parseLineForVars(String line) {
         if (line.contains("template")) {
-            if (line.contains("add_param")) {
-                return parseVariable(line, "add_param");
-            }
-            else if (line.contains("add_iterator")) {
-                return parseVariable(line, "add_iterator");
-            }
-            else if (line.contains("add_assoc_arr")) {
-                return parseVariable(line, "add_assoc_arr");
-            }
-            else if (line.contains("add_assoc_arr_by_ref")) {
-                return parseVariable(line, "add_assoc_arr_by_ref");
+            String[] templateProcessing = {"add_param", "add_iterator", "add_by_reference",
+                "add_db_resultset", "add_db_result", "add_resource_map", "add_resource_result_map"};
+            for (String pattern : templateProcessing) {
+                if (line.contains(pattern)) {
+                    return parseVariable(line,pattern);
+                }
             }
         }
         return null;
