@@ -627,7 +627,8 @@ class J2SEActionProvider implements ActionProvider {
                     }
                     dirtyList.append(f);
                 }
-                p.setProperty(ProjectProperties.INCLUDES, dirtyList.toString());
+                // * let scalac's dependencies feature to manage changed and transitive files
+                //p.setProperty(ProjectProperties.INCLUDES, dirtyList.toString());
             }
             dirty.clear();
         }
