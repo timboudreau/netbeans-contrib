@@ -122,7 +122,6 @@ Scala installation directory.
                         <pathelement location="${{scala.library}}"/>
                     </classpath>
                 </taskdef>
-                <chmod dir="${{scala.home}}/bin" perm="u+rx" includes="**/*"/>
             </target>
 
             <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">
