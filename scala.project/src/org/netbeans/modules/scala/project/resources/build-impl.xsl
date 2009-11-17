@@ -53,7 +53,7 @@ made subject to such option by the copyright holder.
     <!-- XXX should use namespaces for NB in-VM tasks from ant/browsetask and debuggerjpda/ant (Ant 1.6.1 and higher only) -->
     <xsl:output method="xml" indent="yes" encoding="UTF-8" xalan:indent-amount="4"/>
     <xsl:template match="/">
-        
+
         <xsl:comment><![CDATA[
 *** GENERATED FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
@@ -75,30 +75,30 @@ is divided into following sections:
 
         ]]>
         </xsl:comment>
-        
+
         <xsl:variable name="name" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:name"/>
         <!-- Synch with build-impl.xsl: -->
         <xsl:variable name="codename" select="translate($name, ' ', '_')"/>
         <project name="{$codename}-impl">
             <xsl:attribute name="default">default</xsl:attribute>
             <xsl:attribute name="basedir">..</xsl:attribute>
-            
+
             <target name="default">
                 <xsl:attribute name="depends">test,jar,javadoc</xsl:attribute>
                 <xsl:attribute name="description">Build and test whole project.</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 ======================
-                INITIALIZATION SECTION 
+                INITIALIZATION SECTION
                 ======================
             </xsl:comment>
-            
+
             <target name="-pre-init">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-init-private">
                 <xsl:attribute name="depends">-pre-init</xsl:attribute>
                 <property file="nbproject/private/config.properties"/>
@@ -109,9 +109,9 @@ is divided into following sections:
                     <isset property="env.SCALA_HOME"/>
                 </condition>
                 <fail unless="scala.home">
-You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
-property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
-Scala installation directory.
+                    You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
+                    property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
+                    Scala installation directory.
                 </fail>
                 <property name="scala.compiler" value="${{scala.home}}/lib/scala-compiler.jar"/>
                 <property name="scala.library"  value="${{scala.home}}/lib/scala-library.jar"/>
@@ -157,13 +157,13 @@ Scala installation directory.
                 <property name="default.javac.source" value="1.4"/>
                 <property name="default.javac.target" value="1.4"/>
             </target>
-            
+
             <target name="-init-project">
                 <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user</xsl:attribute>
                 <property file="nbproject/configs/${{config}}.properties"/>
                 <property file="nbproject/project.properties"/>
             </target>
-            
+
             <target name="-do-init">
                 <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-init-macrodef-property</xsl:attribute>
                 <xsl:if test="/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform">
@@ -197,12 +197,12 @@ Scala installation directory.
                     <fail unless="platform.java">Must set platform.java</fail>
                     <fail unless="platform.javac">Must set platform.javac</fail>
                     <fail if="platform.invalid">
- The J2SE Platform is not correctly set up.
- Your active platform is: ${platform.active}, but the corresponding property "platforms.${platform.active}.home" is not found in the project's properties files. 
- Either open the project in the IDE and setup the Platform with the same name or add it manually.
- For example like this:
-     ant -Duser.properties.file=&lt;path_to_property_file&gt; jar (where you put the property "platforms.${platform.active}.home" in a .properties file)
-  or ant -Dplatforms.${platform.active}.home=&lt;path_to_JDK_home&gt; jar (where no properties file is used) 
+                        The J2SE Platform is not correctly set up.
+                        Your active platform is: ${platform.active}, but the corresponding property "platforms.${platform.active}.home" is not found in the project's properties files.
+                        Either open the project in the IDE and setup the Platform with the same name or add it manually.
+                        For example like this:
+                        ant -Duser.properties.file=&lt;path_to_property_file&gt; jar (where you put the property "platforms.${platform.active}.home" in a .properties file)
+                        or ant -Dplatforms.${platform.active}.home=&lt;path_to_JDK_home&gt; jar (where no properties file is used)
                     </fail>
                 </xsl:if>
                 <available file="${{manifest.file}}" property="manifest.available"/>
@@ -275,12 +275,12 @@ Scala installation directory.
                     </and>
                 </condition>
             </target>
-            
+
             <target name="-post-init">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-init-check">
                 <xsl:attribute name="depends">-pre-init,-init-private<xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init</xsl:attribute>
                 <!-- XXX XSLT 2.0 would make it possible to use a for-each here -->
@@ -301,7 +301,7 @@ Scala installation directory.
                 <fail unless="build.classes.excludes">Must set build.classes.excludes</fail>
                 <fail unless="dist.jar">Must set dist.jar</fail>
             </target>
-            
+
             <target name="-init-macrodef-property">
                 <macrodef>
                     <xsl:attribute name="name">property</xsl:attribute>
@@ -317,7 +317,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-macrodef-javac">
                 <macrodef>
                     <xsl:attribute name="name">javac</xsl:attribute>
@@ -416,7 +416,13 @@ Scala installation directory.
                             <xsl:attribute name="includes">${includes}</xsl:attribute>
                             <xsl:attribute name="excludes">${excludes}</xsl:attribute>
                             <classpath>
-                                <path path="@{{classpath}}"/>
+                                <path>
+                                    <pathelement path="@{{classpath}}"/>
+                                    <fileset dir="${{scala.lib}}">
+                                        <include name="**/*.jar"/>
+                                    </fileset>
+                                    <pathelement location="${{build.classes.dir}}"/>
+                                </path>
                             </classpath>
                         </depend>
                     </sequential>
@@ -493,7 +499,7 @@ Scala installation directory.
                         <xsl:attribute name="optional">true</xsl:attribute>
                     </element>
                     <sequential>
-                        <fsc>
+                        <scalac>
                             <xsl:attribute name="srcdir">@{srcdir}</xsl:attribute>
                             <xsl:attribute name="sourcepath">@{sourcepath}</xsl:attribute>
                             <xsl:attribute name="destdir">@{destdir}</xsl:attribute>
@@ -506,48 +512,20 @@ Scala installation directory.
                             </xsl:if>
                             <xsl:attribute name="includes">@{includes}</xsl:attribute>
                             <xsl:attribute name="excludes">@{excludes}</xsl:attribute>
-                            <xsl:attribute name="addparams">@{addparams}</xsl:attribute>
+                            <xsl:attribute name="force">yes</xsl:attribute>
+                            <xsl:attribute name="addparams">-make:transitive -dependencyfile ${build.dir}/.scala_dependencies @{addparams}</xsl:attribute>
                             <!--<xsl:attribute name="includeantruntime">false</xsl:attribute>-->
                             <classpath>
-                                <path path="@{{classpath}}"/>
-                                <fileset dir="${{scala.lib}}">
-                                    <include name="**/*.jar"/>
-                                </fileset>
+                                <path>
+                                    <pathelement path="@{{classpath}}"/>
+                                    <fileset dir="${{scala.lib}}">
+                                        <include name="**/*.jar"/>
+                                    </fileset>
+                                    <pathelement location="${{build.classes.dir}}"/>
+                                </path>
                             </classpath>
                             <customize/>
-                        </fsc>
-                    </sequential>
-                </macrodef>
-                <macrodef> <!-- #36033, #85707 -->
-                    <xsl:attribute name="name">depend</xsl:attribute>
-                    <xsl:attribute name="uri">http://www.netbeans.org/ns/scala-project/1</xsl:attribute>
-                    <attribute>
-                        <xsl:attribute name="name">srcdir</xsl:attribute>
-                        <xsl:attribute name="default">
-                            <xsl:call-template name="createPath">
-                                <xsl:with-param name="roots" select="/p:project/p:configuration/scalaProject1:data/scalaProject1:source-roots"/>
-                            </xsl:call-template>
-                        </xsl:attribute>
-                    </attribute>
-                    <attribute>
-                        <xsl:attribute name="name">destdir</xsl:attribute>
-                        <xsl:attribute name="default">${build.classes.dir}</xsl:attribute>
-                    </attribute>
-                    <attribute>
-                        <xsl:attribute name="name">classpath</xsl:attribute>
-                        <xsl:attribute name="default">${javac.classpath}</xsl:attribute>
-                    </attribute>
-                    <sequential>
-                        <depend>
-                            <xsl:attribute name="srcdir">@{srcdir}</xsl:attribute>
-                            <xsl:attribute name="destdir">@{destdir}</xsl:attribute>
-                            <xsl:attribute name="cache">${build.dir}/depcache</xsl:attribute>
-                            <xsl:attribute name="includes">${includes}</xsl:attribute>
-                            <xsl:attribute name="excludes">${excludes}</xsl:attribute>
-                            <classpath>
-                                <path path="@{{classpath}}"/>
-                            </classpath>
-                        </depend>
+                        </scalac>
                     </sequential>
                 </macrodef>
                 <macrodef> <!-- #85707 -->
@@ -580,7 +558,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-macrodef-junit">
                 <macrodef>
                     <xsl:attribute name="name">junit</xsl:attribute>
@@ -629,7 +607,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-macrodef-nbjpda">
                 <macrodef>
                     <xsl:attribute name="name">nbjpdastart</xsl:attribute>
@@ -673,7 +651,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-debug-args">
                 <xsl:choose>
                     <xsl:when test="/p:project/p:configuration/scalaProject1:data/scalaProject1:explicit-platform">
@@ -698,7 +676,7 @@ Scala installation directory.
                     <istrue value="${{have-jdk-older-than-1.4}}"/>
                 </condition>
             </target>
-            
+
             <target name="-init-macrodef-debug" depends="-init-debug-args">
                 <macrodef>
                     <xsl:attribute name="name">debug</xsl:attribute>
@@ -739,7 +717,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-macrodef-java">
                 <macrodef>
                     <xsl:attribute name="name">java</xsl:attribute>
@@ -774,7 +752,7 @@ Scala installation directory.
                     </sequential>
                 </macrodef>
             </target>
-            
+
             <target name="-init-presetdef-jar">
                 <presetdef>
                     <xsl:attribute name="name">jar</xsl:attribute>
@@ -785,45 +763,45 @@ Scala installation directory.
                     </jar>
                 </presetdef>
             </target>
-            
+
             <target name="init">
                 <xsl:attribute name="depends">-pre-init,-init-private <xsl:if test="/p:project/p:configuration/libs:libraries/libs:definitions">,-init-libraries</xsl:if>,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-scalac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 ===================
                 COMPILATION SECTION
                 ===================
             </xsl:comment>
-            
+
             <xsl:call-template name="deps.target">
                 <xsl:with-param name="targetname" select="'deps-jar'"/>
                 <xsl:with-param name="type" select="'jar'"/>
             </xsl:call-template>
-            
+
             <xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">
                 <target name="wscompile-init" depends="init">
                     <taskdef name="wscompile" classname="com.sun.xml.rpc.tools.ant.Wscompile"
                              classpath="${{wscompile.classpath}}"/>
                     <taskdef name="wsclientuptodate" classname="org.netbeans.modules.websvc.jaxrpc.ant.WsClientUpToDate"
                              classpath="${{wsclientuptodate.classpath}}"/>
-                    
+
                     <mkdir dir="${{build.classes.dir}}"/>
                     <mkdir dir="${{build.generated.dir}}/wsclient"/>
                     <mkdir dir="${{build.generated.dir}}/wsbinary"/>
-                    
+
                     <xsl:for-each select="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">
                         <xsl:variable name="wsclientname">
                             <xsl:value-of select="jaxrpc:web-service-client-name"/>
                         </xsl:variable>
-                        
+
                         <wsclientuptodate property="wscompile.client.{$wsclientname}.notrequired"
                                           sourcewsdl="${{meta.inf.dir}}/wsdl/{$wsclientname}.wsdl"
                                           targetdir="${{build.generated.dir}}/wsclient"/>
                     </xsl:for-each>
                 </target>
             </xsl:if>
-            
+
             <xsl:for-each select="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">
                 <xsl:variable name="wsclientname">
                     <xsl:value-of select="jaxrpc:web-service-client-name"/>
@@ -844,7 +822,7 @@ Scala installation directory.
                         <xsl:otherwise>false</xsl:otherwise>
                     </xsl:choose>
                 </xsl:variable>
-                
+
                 <target name="{$wsclientname}-client-wscompile" depends="wscompile-init" unless="wscompile.client.{$wsclientname}.notrequired">
                     <property name="config_target" location="${{meta.inf.dir}}/wsdl"/>
                     <copy file="${{meta.inf.dir}}/wsdl/{$wsclientname}-config.xml"
@@ -873,7 +851,7 @@ Scala installation directory.
                     </wscompile>
                 </target>
             </xsl:for-each>
-            
+
             <xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">
                 <target name="web-service-client-generate">
                     <xsl:attribute name="depends">
@@ -896,17 +874,17 @@ Scala installation directory.
                     <scalaProject1:javac srcdir="${{build.generated.dir}}/wsclient" classpath="${{wscompile.classpath}}:${{javac.classpath}}" destdir="${{build.classes.dir}}"/>
                 </target>
             </xsl:if>
-            
+
             <target name="-pre-pre-compile">
                 <xsl:attribute name="depends">init,deps-jar<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-generate</xsl:if></xsl:attribute>
                 <mkdir dir="${{build.classes.dir}}"/>
             </target>
-            
+
             <target name="-pre-compile">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-compile-depend" if="do.depend.true">
                 <scalaProject1:depend/>
             </target>
@@ -923,22 +901,22 @@ Scala installation directory.
                     </xsl:call-template>
                 </copy>
             </target>
-            
+
             <target name="-post-compile">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="compile">
                 <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile,-do-compile,-post-compile</xsl:attribute>
                 <xsl:attribute name="description">Compile project.</xsl:attribute>
             </target>
-            
+
             <target name="-pre-compile-single">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-do-compile-single">
                 <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile<xsl:if test="/p:project/p:configuration/jaxrpc:web-service-clients/jaxrpc:web-service-client">,web-service-client-compile</xsl:if></xsl:attribute>
                 <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
@@ -953,46 +931,46 @@ Scala installation directory.
                     </xsl:attribute>
                 </xsl:element>
             </target>
-            
+
             <target name="-post-compile-single">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="compile-single">
                 <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile-single,-do-compile-single,-post-compile-single</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 ====================
                 JAR BUILDING SECTION
                 ====================
             </xsl:comment>
-            
+
             <target name="-pre-pre-jar">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <dirname property="dist.jar.dir" file="${{dist.jar}}"/>
                 <mkdir dir="${{dist.jar.dir}}"/>
             </target>
-            
+
             <target name="-pre-jar">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-do-jar-without-manifest">
                 <xsl:attribute name="depends">init,compile,-pre-pre-jar,-pre-jar</xsl:attribute>
                 <xsl:attribute name="unless">manifest.available</xsl:attribute>
                 <scalaProject1:jar/>
             </target>
-            
+
             <target name="-do-jar-with-manifest">
                 <xsl:attribute name="depends">init,compile,-pre-pre-jar,-pre-jar</xsl:attribute>
                 <xsl:attribute name="if">manifest.available</xsl:attribute>
                 <xsl:attribute name="unless">manifest.available+main.class</xsl:attribute>
                 <scalaProject1:jar manifest="${{manifest.file}}"/>
             </target>
-            
+
             <target name="-do-jar-with-mainclass">
                 <xsl:attribute name="depends">init,compile,-pre-pre-jar,-pre-jar</xsl:attribute>
                 <xsl:attribute name="if">manifest.available+main.class</xsl:attribute>
@@ -1016,11 +994,11 @@ Scala installation directory.
                     </xsl:choose> -cp "${run.classpath.with.dist.jar}" ${main.class}
                 </echo>
             </target>
-            
+
             <target name="-do-jar-with-libraries">
                 <xsl:attribute name="depends">init,compile,-pre-pre-jar,-pre-jar</xsl:attribute>
                 <xsl:attribute name="if">manifest.available+main.class+mkdist.available</xsl:attribute>
-                
+
                 <property name="build.classes.dir.resolved" location="${{build.classes.dir}}"/>
                 <pathconvert property="run.classpath.without.build.classes.dir">
                     <path path="${{run.classpath}}"/>
@@ -1050,23 +1028,23 @@ Scala installation directory.
                     </xsl:choose> -jar "${dist.jar.resolved}"
                 </echo>
             </target>
-            
+
             <target name="-post-jar">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="jar">
                 <xsl:attribute name="depends">init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,-post-jar</xsl:attribute>
                 <xsl:attribute name="description">Build JAR.</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 =================
                 EXECUTION SECTION
                 =================
             </xsl:comment>
-            
+
             <target name="run">
                 <xsl:attribute name="depends">init,compile</xsl:attribute>
                 <xsl:attribute name="description">Run a main class.</xsl:attribute>
@@ -1076,7 +1054,7 @@ Scala installation directory.
                     </customize>
                 </scalaProject1:java>
             </target>
-            
+
             <target name="-do-not-recompile">
                 <property name="javac.includes.binary" value=""/> <!-- #116230 hack -->
             </target>
@@ -1085,19 +1063,19 @@ Scala installation directory.
                 <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
                 <scalaProject1:java classname="${{run.class}}"/>
             </target>
-            
+
             <xsl:comment>
                 =================
                 DEBUGGING SECTION
                 =================
             </xsl:comment>
-            
+
             <target name="-debug-start-debugger">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <scalaProject1:nbjpdastart name="${{debug.class}}"/>
             </target>
-            
+
             <target name="-debug-start-debuggee">
                 <xsl:attribute name="depends">init,compile</xsl:attribute>
                 <scalaProject1:debug>
@@ -1106,59 +1084,59 @@ Scala installation directory.
                     </customize>
                 </scalaProject1:debug>
             </target>
-            
+
             <target name="debug">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,compile,-debug-start-debugger,-debug-start-debuggee</xsl:attribute>
                 <xsl:attribute name="description">Debug project in IDE.</xsl:attribute>
             </target>
-            
+
             <target name="-debug-start-debugger-stepinto">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <scalaProject1:nbjpdastart stopclassname="${{main.class}}"/>
             </target>
-            
+
             <target name="debug-stepinto">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,compile,-debug-start-debugger-stepinto,-debug-start-debuggee</xsl:attribute>
             </target>
-            
+
             <target name="-debug-start-debuggee-single">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-single</xsl:attribute>
                 <fail unless="debug.class">Must select one file in the IDE or set debug.class</fail>
                 <scalaProject1:debug classname="${{debug.class}}"/>
             </target>
-            
+
             <target name="debug-single">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-do-not-recompile,compile-single,-debug-start-debugger,-debug-start-debuggee-single</xsl:attribute>
             </target>
-            
+
             <target name="-pre-debug-fix">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <fail unless="fix.includes">Must set fix.includes</fail>
                 <property name="javac.includes" value="${{fix.includes}}.java"/>
             </target>
-            
+
             <target name="-do-debug-fix">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-pre-debug-fix,compile-single</xsl:attribute>
                 <scalaProject1:nbjpdareload/>
             </target>
-            
+
             <target name="debug-fix">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-pre-debug-fix,-do-debug-fix</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 ===============
                 JAVADOC SECTION
                 ===============
             </xsl:comment>
-            
+
             <target name="-javadoc-build">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{dist.javadoc.dir}}"/>
@@ -1196,36 +1174,36 @@ Scala installation directory.
                     </xsl:call-template-->
                 </scaladoc>
             </target>
-            
+
             <target name="-javadoc-browse">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="unless">no.javadoc.preview</xsl:attribute>
                 <xsl:attribute name="depends">init,-javadoc-build</xsl:attribute>
                 <nbbrowse file="${{dist.javadoc.dir}}/index.html"/>
             </target>
-            
+
             <target name="javadoc">
                 <xsl:attribute name="depends">init,-javadoc-build,-javadoc-browse</xsl:attribute>
                 <xsl:attribute name="description">Build Javadoc.</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 =========================
                 JUNIT COMPILATION SECTION
                 =========================
             </xsl:comment>
-            
+
             <target name="-pre-pre-compile-test">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile</xsl:attribute>
                 <mkdir dir="${{build.test.classes.dir}}"/>
             </target>
-            
+
             <target name="-pre-compile-test">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-compile-test-depend" if="do.depend.true">
                 <xsl:element name="scalaProject1:depend">
                     <xsl:attribute name="srcdir">
@@ -1256,21 +1234,21 @@ Scala installation directory.
                     </xsl:call-template>
                 </copy>
             </target>
-            
+
             <target name="-post-compile-test">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="compile-test">
                 <xsl:attribute name="depends">init,compile,-pre-pre-compile-test,-pre-compile-test,-do-compile-test,-post-compile-test</xsl:attribute>
             </target>
-            
+
             <target name="-pre-compile-test-single">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="-do-compile-test-single">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile,-pre-pre-compile-test,-pre-compile-test-single</xsl:attribute>
@@ -1301,40 +1279,40 @@ Scala installation directory.
                     </xsl:call-template>
                 </copy>
             </target>
-            
+
             <target name="-post-compile-test-single">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="compile-test-single">
                 <xsl:attribute name="depends">init,compile,-pre-pre-compile-test,-pre-compile-test-single,-do-compile-test-single,-post-compile-test-single</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 =======================
                 JUNIT EXECUTION SECTION
                 =======================
             </xsl:comment>
-            
+
             <target name="-pre-test-run">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{build.test.results.dir}}"/>
             </target>
-            
+
             <target name="-do-test-run">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test,-pre-test-run</xsl:attribute>
                 <scalaProject1:junit testincludes="**/*Test.class"/>
             </target>
-            
+
             <target name="-post-test-run">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test,-pre-test-run,-do-test-run</xsl:attribute>
                 <fail if="tests.failed">Some tests failed; see details above.</fail>
             </target>
-            
+
             <target name="test-report">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
@@ -1347,7 +1325,7 @@ Scala installation directory.
                 </junitreport>
                 -->
             </target>
-            
+
             <target name="-test-browse">
                 <xsl:attribute name="if">netbeans.home+have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
@@ -1355,42 +1333,42 @@ Scala installation directory.
                 <nbbrowse file="${{build.test.results.dir}}/junit-noframes.html"/>
                 -->
             </target>
-            
+
             <target name="test">
                 <xsl:attribute name="depends">init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse</xsl:attribute>
                 <xsl:attribute name="description">Run unit tests.</xsl:attribute>
             </target>
-            
+
             <target name="-pre-test-run-single">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{build.test.results.dir}}"/>
             </target>
-            
+
             <target name="-do-test-run-single">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test-single,-pre-test-run-single</xsl:attribute>
                 <fail unless="test.includes">Must select some files in the IDE or set test.includes</fail>
                 <scalaProject1:junit includes="${{test.includes}}" excludes=""/>
             </target>
-            
+
             <target name="-post-test-run-single">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test-single,-pre-test-run-single,-do-test-run-single</xsl:attribute>
                 <fail if="tests.failed">Some tests failed; see details above.</fail>
             </target>
-            
+
             <target name="test-single">
                 <xsl:attribute name="depends">init,-do-not-recompile,compile-test-single,-pre-test-run-single,-do-test-run-single,-post-test-run-single</xsl:attribute>
                 <xsl:attribute name="description">Run single unit test.</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 =======================
                 JUNIT DEBUGGING SECTION
                 =======================
             </xsl:comment>
-            
+
             <target name="-debug-start-debuggee-test">
                 <xsl:attribute name="if">have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test</xsl:attribute>
@@ -1412,35 +1390,35 @@ Scala installation directory.
                     </customize>
                 </scalaProject1:debug>
             </target>
-            
+
             <target name="-debug-start-debugger-test">
                 <xsl:attribute name="if">netbeans.home+have.tests</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-test</xsl:attribute>
                 <scalaProject1:nbjpdastart name="${{test.class}}" classpath="${{debug.test.classpath}}"/>
             </target>
-            
+
             <target name="debug-test">
                 <xsl:attribute name="depends">init,-do-not-recompile,compile-test-single,-debug-start-debugger-test,-debug-start-debuggee-test</xsl:attribute>
             </target>
-            
+
             <target name="-do-debug-fix-test">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-pre-debug-fix,compile-test-single</xsl:attribute>
                 <scalaProject1:nbjpdareload dir="${{build.test.classes.dir}}"/>
             </target>
-            
+
             <target name="debug-fix-test">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-pre-debug-fix,-do-debug-fix-test</xsl:attribute>
             </target>
-            
-            
+
+
             <xsl:comment>
                 =========================
                 APPLET EXECUTION SECTION
                 =========================
             </xsl:comment>
-            
+
             <target name="run-applet">
                 <xsl:attribute name="depends">init,compile-single</xsl:attribute>
                 <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
@@ -1450,13 +1428,13 @@ Scala installation directory.
                     </customize>
                 </scalaProject1:java>
             </target>
-            
+
             <xsl:comment>
                 =========================
                 APPLET DEBUGGING  SECTION
                 =========================
             </xsl:comment>
-            
+
             <target name="-debug-start-debuggee-applet">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-single</xsl:attribute>
@@ -1467,44 +1445,43 @@ Scala installation directory.
                     </customize>
                 </scalaProject1:debug>
             </target>
-            
+
             <target name="debug-applet">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,compile-single,-debug-start-debugger,-debug-start-debuggee-applet</xsl:attribute>
             </target>
-            
+
             <xsl:comment>
                 ===============
                 CLEANUP SECTION
                 ===============
             </xsl:comment>
-            
+
             <xsl:call-template name="deps.target">
                 <xsl:with-param name="targetname" select="'deps-clean'"/>
             </xsl:call-template>
-            
+
             <target name="-do-clean">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <delete dir="${{build.dir}}"/>
                 <delete dir="${{dist.dir}}"/>
-                <fsc reset="yes" srcdir="${{src.dir}}"/>
                 <!-- XXX explicitly delete all build.* and dist.* dirs in case they are not subdirs -->
             </target>
-            
+
             <target name="-post-clean">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
-            
+
             <target name="clean">
                 <xsl:attribute name="depends">init,deps-clean,-do-clean,-post-clean</xsl:attribute>
                 <xsl:attribute name="description">Clean build products.</xsl:attribute>
             </target>
-            
+
         </project>
-        
+
     </xsl:template>
-    
+
     <!---
     Generic template to build subdependencies of a certain type.
     Feel free to copy into other modules.
@@ -1519,7 +1496,7 @@ Scala installation directory.
         <target name="{$targetname}">
             <xsl:attribute name="depends">init</xsl:attribute>
             <xsl:attribute name="unless">no.deps</xsl:attribute>
-            
+
             <xsl:variable name="references2" select="/p:project/p:configuration/projdeps2:references"/>
             <xsl:for-each select="$references2/projdeps2:reference[not($type) or projdeps2:artifact-type = $type]">
                 <xsl:variable name="subproj" select="projdeps2:foreign-project"/>
@@ -1547,7 +1524,7 @@ Scala installation directory.
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:for-each>
-            
+
             <xsl:variable name="references" select="/p:project/p:configuration/projdeps:references"/>
             <xsl:for-each select="$references/projdeps:reference[not($type) or projdeps:artifact-type = $type]">
                 <xsl:variable name="subproj" select="projdeps:foreign-project"/>
@@ -1564,10 +1541,10 @@ Scala installation directory.
                 <xsl:variable name="script" select="projdeps:script"/>
                 <ant target="{$subtarget}" inheritall="false" antfile="${{project.{$subproj}}}/{$script}"/>
             </xsl:for-each>
-            
+
         </target>
     </xsl:template>
-    
+
     <xsl:template name="createRootAvailableTest">
         <xsl:param name="roots"/>
         <xsl:param name="propName"/>
@@ -1588,7 +1565,7 @@ Scala installation directory.
             </or>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template name="createSourcePathValidityTest">
         <xsl:param name="roots"/>
         <xsl:for-each select="$roots/scalaProject1:root">
@@ -1601,7 +1578,7 @@ Scala installation directory.
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="createFilesets">
         <xsl:param name="roots"/>
         <xsl:param name="includes" select="'${includes}'"/>
@@ -1633,7 +1610,7 @@ Scala installation directory.
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="createPackagesets">
         <xsl:param name="roots"/>
         <xsl:param name="includes" select="'${includes}'"/>
@@ -1661,7 +1638,7 @@ Scala installation directory.
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="createPathElements">
         <xsl:param name="locations"/>
         <xsl:for-each select="$locations/scalaProject1:root">
@@ -1674,7 +1651,7 @@ Scala installation directory.
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="createPath">
         <xsl:param name="roots"/>
         <xsl:for-each select="$roots/scalaProject1:root">
@@ -1686,5 +1663,5 @@ Scala installation directory.
             <xsl:text>}</xsl:text>
         </xsl:for-each>
     </xsl:template>
-    
+
 </xsl:stylesheet>
