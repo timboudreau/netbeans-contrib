@@ -386,12 +386,14 @@ object ScalaSourceUtil {
 
     val clzName = qName + ".class"
 
-    val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
+    val fo = pr.getSnapshot.getSource.getFileObject
+    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+    val cp = getClassPath(fo)
     val clzFo = cp.findResource(clzName)
     val root  = cp.findOwnerRoot(clzFo)
 
     if (srcPath != null && srcPath != "") {
-      findSourceFileObject(cp, root, srcPath) match {
+      findSourceFileObject(srcCp, root, srcPath) match {
         case None =>
         case some => return some
       }
@@ -400,7 +402,7 @@ object ScalaSourceUtil {
     val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
 
     // * see if we can find this class's source file straightforward
-    findSourceFileObject(cp, root, qName + ext) match {
+    findSourceFileObject(srcCp, root, qName + ext) match {
       case None =>
       case some => return some
     }
@@ -418,18 +420,24 @@ object ScalaSourceUtil {
 
       if (srcPath != null) {
         val srcPath1 = if (pkgName != null) pkgName + File.separatorChar + srcPath else srcPath
-        findSourceFileObject(cp, root, srcPath1)
+        findSourceFileObject(srcCp, root, srcPath1)
       } else None
     } catch {case ex: Exception => ex.printStackTrace; None}
   }
 
-  def findSourceFileObject(cp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+  def findSourceFileObject(srcCp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+    // find in own project's srcCp first
+    srcCp.findResource(srcPath) match {
+      case null =>
+      case x => return Some(x)
+    }
+
     if (root == null) return None
     
     val srcRoots = SourceForBinaryQuery.findSourceRoots(root.getURL).getRoots
-    val srcCp = ClassPathSupport.createClassPath(srcRoots: _*)
+    val srcCp1 = ClassPathSupport.createClassPath(srcRoots: _*)
 
-    srcCp.findResource(srcPath) match {
+    srcCp1.findResource(srcPath) match {
       case null => None
       case x => Some(x)
     }
