@@ -306,9 +306,7 @@ object ScalaSourceUtil {
     if (range.getEnd < doc.getLength) {
       try {
         return doc.getText(range.getStart, range.getLength)
-      } catch {
-        case ex:BadLocationException => Exceptions.printStackTrace(ex)
-      }
+      } catch {case ex:BadLocationException => Exceptions.printStackTrace(ex)}
     }
 
     null
@@ -327,9 +325,7 @@ object ScalaSourceUtil {
     if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
       try {
         return doc.getText(range.getStart, range.getLength)
-      } catch {
-        case ex: BadLocationException => Exceptions.printStackTrace(ex)
-      }
+      } catch {case ex: BadLocationException => Exceptions.printStackTrace(ex)}
     }
 
     ""
@@ -390,47 +386,41 @@ object ScalaSourceUtil {
 
     val clzName = qName + ".class"
 
-    try {
-      val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
-      val clzFo = cp.findResource(clzName)
-      val root  = cp.findOwnerRoot(clzFo)
+    val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
+    val clzFo = cp.findResource(clzName)
+    val root  = cp.findOwnerRoot(clzFo)
 
-      if (srcPath != null && srcPath != "") {
-        findSourceFileObject(cp, root, srcPath) match {
-          case None =>
-          case some => return some
-        }
-      }
-
-      val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
-
-      // * see if we can find this class's source file straightforward
-      findSourceFileObject(cp, root, qName + ext) match {
+    if (srcPath != null && srcPath != "") {
+      findSourceFileObject(cp, root, srcPath) match {
         case None =>
-        case some => return some
+        case somex => return somex
       }
+    }
 
+    val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
+
+    // * see if we can find this class's source file straightforward
+    findSourceFileObject(cp, root, qName + ext) match {
+      case None =>
+      case somex => return somex
+    }
+
+    try {
       srcPath = if (clzFo != null) {
         val in = clzFo.getInputStream
         try {
           new ClassFile(in, false) match {
             case null => null
-            case clzFile =>
-              clzFile.getSourceFileName
+            case clzFile => clzFile.getSourceFileName
           }
         } finally {if (in != null) in.close}
       } else null
 
       if (srcPath != null) {
-        if (pkgName != null) {
-          srcPath = pkgName + File.separatorChar + srcPath
-        }
-
-        return findSourceFileObject(cp, root, srcPath)
-      }
-    } catch {case ex: IOException => ex.printStackTrace}
-
-    None
+        val srcPath1 = if (pkgName != null) pkgName + File.separatorChar + srcPath else srcPath
+        findSourceFileObject(cp, root, srcPath1)
+      } else None
+    } catch {case ex: Exception => ex.printStackTrace; None}
   }
 
   def findSourceFileObject(cp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
@@ -441,7 +431,7 @@ object ScalaSourceUtil {
 
     srcCp.findResource(srcPath) match {
       case null => None
-      case x => return Some(x)
+      case x => Some(x)
     }
   }
 
