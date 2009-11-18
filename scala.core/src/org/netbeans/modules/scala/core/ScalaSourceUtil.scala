@@ -27,7 +27,7 @@
  */
 package org.netbeans.modules.scala.core
 
-import java.io.{File, IOException}
+import java.io.{File}
 import java.net.URL
 import java.util.logging.Logger
 import javax.swing.text.BadLocationException
@@ -68,7 +68,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 object ScalaSourceUtil {
 
-  val Log = Logger.getLogger(getClass.getName)
+  val logger = Logger.getLogger(getClass.getName)
 
   /** @see org.netbeans.api.java.project.JavaProjectConstants */
   val SOURCES_TYPE_JAVA = "java" // NOI18N
@@ -381,7 +381,7 @@ object ScalaSourceUtil {
 
     val pkgName = qName.lastIndexOf(File.separatorChar) match {
       case -1 => null
-      case i => qName.substring(0, i)
+      case  i => qName.substring(0, i)
     }
 
     val clzName = qName + ".class"
@@ -393,7 +393,7 @@ object ScalaSourceUtil {
     if (srcPath != null && srcPath != "") {
       findSourceFileObject(cp, root, srcPath) match {
         case None =>
-        case somex => return somex
+        case some => return some
       }
     }
 
@@ -402,7 +402,7 @@ object ScalaSourceUtil {
     // * see if we can find this class's source file straightforward
     findSourceFileObject(cp, root, qName + ext) match {
       case None =>
-      case somex => return somex
+      case some => return some
     }
 
     try {
@@ -548,7 +548,7 @@ object ScalaSourceUtil {
     }
 
     val pathPrefix = clazzName.replace('.', File.separatorChar)
-    Log.info("Class prefix: " + pathPrefix + ", out dir: " + out)
+    logger.info("Class prefix: " + pathPrefix + ", out dir: " + out)
     val potentialClasses = new ArrayBuffer[FileObject]
     findAllClassFilesWith(pathPrefix, out, potentialClasses)
     for (clazzFo <- potentialClasses) {
@@ -566,9 +566,9 @@ object ScalaSourceUtil {
                 clazzName = FileUtil.getRelativePath(out, clazzFo).replace(File.separatorChar, '.')
                 clazzName = clazzName.lastIndexOf(".class") match {
                   case -1 => clazzName
-                  case i => clazzName.substring(0, i)
+                  case  i => clazzName.substring(0, i)
                 }
-                Log.info("Found binary class name: " + clazzName)
+                logger.info("Found binary class name: " + clazzName)
                 return clazzName
               }
             }
@@ -671,11 +671,11 @@ object ScalaSourceUtil {
             }
 
             // * get all dfns will return all visible packages from the root and down
-            getAllDfns(root, ElementKind.PACKAGE, new ArrayBuffer[ScalaDfn]) foreach {
+            getAllDfns(root, ElementKind.PACKAGE, new ArrayBuffer[ScalaDfn]) foreach {packaging => 
               // * only go through the defs for each package scope.
               // * Sub-packages are handled by the fact that
               // * getAllDefs will find them.
-              packaging => packaging.bindingScope.dfns foreach {dfn =>
+              packaging.bindingScope.dfns foreach {dfn =>
                 if (isMainMethodExists(dfn.asInstanceOf[ScalaDfn])) result += dfn.asInstanceOf[ScalaDfn]
               }
             }
@@ -688,9 +688,7 @@ object ScalaSourceUtil {
         })
 
       result
-    } catch {
-      case ex: ParseException => Exceptions.printStackTrace(ex); Nil
-    }
+    } catch {case ex: ParseException => Exceptions.printStackTrace(ex); Nil}
   }
 
   def getMainClassesAsJavaCollection(fo: FileObject): java.util.Collection[AstDfn] = {
@@ -739,10 +737,7 @@ object ScalaSourceUtil {
         //                    }
         //                }, false);
         result
-      } catch {case ioe: Exception =>
-          Exceptions.printStackTrace(ioe)
-          return java.util.Collections.emptySet[AstDfn]
-      }
+      } catch {case ioe: Exception => Exceptions.printStackTrace(ioe); return java.util.Collections.emptySet[AstDfn]}
     }
     result
   }
