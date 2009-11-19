@@ -27,7 +27,7 @@
  */
 package org.netbeans.modules.scala.core
 
-import java.io.{File, IOException}
+import java.io.{File}
 import java.net.URL
 import java.util.logging.Logger
 import javax.swing.text.BadLocationException
@@ -68,7 +68,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 object ScalaSourceUtil {
 
-  val Log = Logger.getLogger(getClass.getName)
+  val logger = Logger.getLogger(getClass.getName)
 
   /** @see org.netbeans.api.java.project.JavaProjectConstants */
   val SOURCES_TYPE_JAVA = "java" // NOI18N
@@ -306,9 +306,7 @@ object ScalaSourceUtil {
     if (range.getEnd < doc.getLength) {
       try {
         return doc.getText(range.getStart, range.getLength)
-      } catch {
-        case ex:BadLocationException => Exceptions.printStackTrace(ex)
-      }
+      } catch {case ex:BadLocationException => Exceptions.printStackTrace(ex)}
     }
 
     null
@@ -327,9 +325,7 @@ object ScalaSourceUtil {
     if (range != OffsetRange.NONE && range.getEnd < doc.getLength) {
       try {
         return doc.getText(range.getStart, range.getLength)
-      } catch {
-        case ex: BadLocationException => Exceptions.printStackTrace(ex)
-      }
+      } catch {case ex: BadLocationException => Exceptions.printStackTrace(ex)}
     }
 
     ""
@@ -385,63 +381,65 @@ object ScalaSourceUtil {
 
     val pkgName = qName.lastIndexOf(File.separatorChar) match {
       case -1 => null
-      case i => qName.substring(0, i)
+      case  i => qName.substring(0, i)
     }
 
     val clzName = qName + ".class"
 
-    try {
-      val cp = getClassPath(pr.getSnapshot.getSource.getFileObject)
-      val clzFo = cp.findResource(clzName)
-      val root  = cp.findOwnerRoot(clzFo)
+    val fo = pr.getSnapshot.getSource.getFileObject
+    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+    val cp = getClassPath(fo)
+    val clzFo = cp.findResource(clzName)
+    val root  = cp.findOwnerRoot(clzFo)
 
-      if (srcPath != null && srcPath != "") {
-        findSourceFileObject(cp, root, srcPath) match {
-          case None =>
-          case some => return some
-        }
-      }
-
-      val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
-
-      // * see if we can find this class's source file straightforward
-      findSourceFileObject(cp, root, qName + ext) match {
+    if (srcPath != null && srcPath != "") {
+      findSourceFileObject(srcCp, root, srcPath) match {
         case None =>
         case some => return some
       }
+    }
 
+    val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
+
+    // * see if we can find this class's source file straightforward
+    findSourceFileObject(srcCp, root, qName + ext) match {
+      case None =>
+      case some => return some
+    }
+
+    try {
       srcPath = if (clzFo != null) {
         val in = clzFo.getInputStream
         try {
           new ClassFile(in, false) match {
             case null => null
-            case clzFile =>
-              clzFile.getSourceFileName
+            case clzFile => clzFile.getSourceFileName
           }
         } finally {if (in != null) in.close}
       } else null
 
       if (srcPath != null) {
-        if (pkgName != null) {
-          srcPath = pkgName + File.separatorChar + srcPath
-        }
-
-        return findSourceFileObject(cp, root, srcPath)
-      }
-    } catch {case ex: IOException => ex.printStackTrace}
-
-    None
+        val srcPath1 = if (pkgName != null) pkgName + File.separatorChar + srcPath else srcPath
+        findSourceFileObject(srcCp, root, srcPath1)
+      } else None
+    } catch {case ex: Exception => ex.printStackTrace; None}
   }
 
-  def findSourceFileObject(cp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+  def findSourceFileObject(srcCp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+    // find in own project's srcCp first
+    srcCp.findResource(srcPath) match {
+      case null =>
+      case x => return Some(x)
+    }
+
     if (root == null) return None
     
     val srcRoots = SourceForBinaryQuery.findSourceRoots(root.getURL).getRoots
-    val srcCp = ClassPathSupport.createClassPath(srcRoots: _*)
+    val srcCp1 = ClassPathSupport.createClassPath(srcRoots: _*)
 
-    srcCp.findResource(srcPath) match {
+    srcCp1.findResource(srcPath) match {
       case null => None
-      case x => return Some(x)
+      case x => Some(x)
     }
   }
 
@@ -558,7 +556,7 @@ object ScalaSourceUtil {
     }
 
     val pathPrefix = clazzName.replace('.', File.separatorChar)
-    Log.info("Class prefix: " + pathPrefix + ", out dir: " + out)
+    logger.info("Class prefix: " + pathPrefix + ", out dir: " + out)
     val potentialClasses = new ArrayBuffer[FileObject]
     findAllClassFilesWith(pathPrefix, out, potentialClasses)
     for (clazzFo <- potentialClasses) {
@@ -576,9 +574,9 @@ object ScalaSourceUtil {
                 clazzName = FileUtil.getRelativePath(out, clazzFo).replace(File.separatorChar, '.')
                 clazzName = clazzName.lastIndexOf(".class") match {
                   case -1 => clazzName
-                  case i => clazzName.substring(0, i)
+                  case  i => clazzName.substring(0, i)
                 }
-                Log.info("Found binary class name: " + clazzName)
+                logger.info("Found binary class name: " + clazzName)
                 return clazzName
               }
             }
@@ -681,11 +679,11 @@ object ScalaSourceUtil {
             }
 
             // * get all dfns will return all visible packages from the root and down
-            getAllDfns(root, ElementKind.PACKAGE, new ArrayBuffer[ScalaDfn]) foreach {
+            getAllDfns(root, ElementKind.PACKAGE, new ArrayBuffer[ScalaDfn]) foreach {packaging => 
               // * only go through the defs for each package scope.
               // * Sub-packages are handled by the fact that
               // * getAllDefs will find them.
-              packaging => packaging.bindingScope.dfns foreach {dfn =>
+              packaging.bindingScope.dfns foreach {dfn =>
                 if (isMainMethodExists(dfn.asInstanceOf[ScalaDfn])) result += dfn.asInstanceOf[ScalaDfn]
               }
             }
@@ -698,9 +696,7 @@ object ScalaSourceUtil {
         })
 
       result
-    } catch {
-      case ex: ParseException => Exceptions.printStackTrace(ex); Nil
-    }
+    } catch {case ex: ParseException => Exceptions.printStackTrace(ex); Nil}
   }
 
   def getMainClassesAsJavaCollection(fo: FileObject): java.util.Collection[AstDfn] = {
@@ -749,10 +745,7 @@ object ScalaSourceUtil {
         //                    }
         //                }, false);
         result
-      } catch {case ioe: Exception =>
-          Exceptions.printStackTrace(ioe)
-          return java.util.Collections.emptySet[AstDfn]
-      }
+      } catch {case ioe: Exception => Exceptions.printStackTrace(ioe); return java.util.Collections.emptySet[AstDfn]}
     }
     result
   }

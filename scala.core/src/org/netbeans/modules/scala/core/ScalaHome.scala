@@ -62,9 +62,7 @@ object ScalaHome {
     val scalaHomeDir: File = try {
       val dir = new File(scalaHome)
       dir.getCanonicalFile
-    } catch {
-      case ioe:IOException => Exceptions.printStackTrace(ioe); null
-    }
+    } catch {case ioe: IOException => Exceptions.printStackTrace(ioe); null}
 
     val scalaLib = new File(scalaHomeDir, "lib") // NOI18N
     assert(scalaLib.exists) //:  '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
@@ -105,15 +103,15 @@ object ScalaHome {
 
   def getJavaHome: String = {
     System.getProperty("scala.java.home") match { // NOI18N
-      case null => System.getProperty("java.home"); // NOI18N
-      case javaHome => javaHome
+      case null => System.getProperty("java.home") // NOI18N
+      case x => x
     } 
   }
 
   def getJavaClassPath: String = {
     System.getProperty("java.class.path") match {
       case null => ""
-      case javacClassPath => javacClassPath
+      case x => x
     }
   }
 
@@ -150,10 +148,7 @@ object ScalaHome {
             } else {
               bin.getFileObject("scala", null)    //NOI18N
             }
-          } catch {
-            case ex: IOException =>
-              Exceptions.printStackTrace(ex); null
-          }
+          } catch {case ex: IOException => Exceptions.printStackTrace(ex); null}
         } else null
     }
     
@@ -198,22 +193,18 @@ object ScalaHome {
           //                    }
           return srcUrls.toList
         }
-      } catch {
-        case e:MalformedURLException => Exceptions.printStackTrace(e)
-      }
+      } catch {case e: MalformedURLException => Exceptions.printStackTrace(e)}
     }
     Nil
   }
 
   def getScaladoc(scalaHome: File): List[URL] = {
     if (scalaHome != null) {
-      val scalaDoc = new File(scalaHome, "doc"); //NOI18N
+      val scalaDoc = new File(scalaHome, "doc") //NOI18N
       if (scalaDoc != null && scalaDoc.isDirectory && scalaDoc.canRead) {
         try {
           return List(scalaDoc.toURI.toURL)
-        } catch {
-          case mue: MalformedURLException => Exceptions.printStackTrace(mue)
-        }
+        } catch {case mue: MalformedURLException => Exceptions.printStackTrace(mue)}
       }
     }
     Nil
@@ -242,20 +233,20 @@ object ScalaHome {
       val p = new StringBuilder
       var pathOffset = 0
       for (i <- 0 until extraCp.length) {
-        val c = extraCp.charAt(i);
-        if (c == ':' && pathOffset != 1) {
-          p.append(File.pathSeparatorChar)
-          pathOffset = 0
-        } else {
-          pathOffset += 1
-          p.append(c)
+        extraCp.charAt(i) match {
+          case ':' if pathOffset != 1 =>
+            p.append(File.pathSeparatorChar)
+            pathOffset = 0
+          case c =>
+            pathOffset += 1
+            p.append(c)
         }
       }
       extraCp = p.toString
     }
 
     if (extraCp == null) {
-      extraCp = System.getenv("SCALA_EXTRA_CLASSPATH"); // NOI18N
+      extraCp = System.getenv("SCALA_EXTRA_CLASSPATH") // NOI18N
     }
 
     if (extraCp != null) {
@@ -268,7 +259,8 @@ object ScalaHome {
       //}
       cp.append(extraCp)
     }
-    return if (Utilities.isWindows) "\"" + cp.toString() + "\"" else cp.toString // NOI18N
+
+    if (Utilities.isWindows) "\"" + cp.toString() + "\"" else cp.toString // NOI18N
   }
 
   private def printProperties(props: Properties): Unit = {
