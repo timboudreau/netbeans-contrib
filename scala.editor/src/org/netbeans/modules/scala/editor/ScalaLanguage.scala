@@ -40,8 +40,12 @@
  */
 package org.netbeans.modules.scala.editor
 
+import org.netbeans.modules.csl.api.OccurrencesFinder
+import org.netbeans.modules.csl.api.SemanticAnalyzer
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig
+import org.netbeans.modules.parsing.spi.Parser
 import org.netbeans.modules.scala.core.ScalaParser
+import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId
 import org.netbeans.modules.scala.hints.ScalaHintsProvider
 
@@ -50,7 +54,7 @@ import org.netbeans.modules.scala.hints.ScalaHintsProvider
  *
  * @author Caoyuan Deng
  */
-class ScalaLanguage extends DefaultLanguageConfig {
+class ScalaLanguage extends ScalaLanguageBridge {
   import ScalaLanguage._
 
   override def getLexerLanguage = ScalaTokenId.language
@@ -69,14 +73,14 @@ class ScalaLanguage extends DefaultLanguageConfig {
     
   override def getParser = new ScalaParser
   
-  override def getSemanticAnalyzer = new ScalaSemanticAnalyzer
+  def getSemanticAnalyzerImpl: SemanticAnalyzer[ScalaParserResult] = new ScalaSemanticAnalyzer
 
-  override def hasStructureScanner = true
-  override def getStructureScanner = new ScalaStructureAnalyzer
-  
+  def getOccurrencesFinderImpl: OccurrencesFinder[ScalaParserResult] = new ScalaOccurrencesFinder
   override def hasOccurrencesFinder = true
-  override def getOccurrencesFinder = new ScalaOccurrencesFinder
-  
+
+  override def getStructureScanner = new ScalaStructureAnalyzer
+  override def hasStructureScanner = true
+    
   override def getDeclarationFinder = new ScalaDeclarationFinder
 
   override def getInstantRenamer = new ScalaInstantRenamer
@@ -85,8 +89,8 @@ class ScalaLanguage extends DefaultLanguageConfig {
   
   override def getKeystrokeHandler = new ScalaKeystrokeHandler
   
-  override def hasFormatter =  true
   override def getFormatter = new ScalaFormatter
+  override def hasFormatter =  true
   
   override def getHintsProvider = new ScalaHintsProvider
   override def hasHintsProvider = true
