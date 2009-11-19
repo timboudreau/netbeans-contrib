@@ -38,24 +38,16 @@
  */
 package org.netbeans.modules.php.fuse.editor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
-import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.php.fuse.utils.EditorUtils;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
-import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -153,6 +145,7 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
         innerKeywords.add("/LOOP");
         innerKeywords.add("DB_LOOP");
         innerKeywords.add("/DB_LOOP");
+        innerKeywords.add("SITE_BASE_URI");
     }
 
     private final static List<String> outerKeywords = new ArrayList<String>();

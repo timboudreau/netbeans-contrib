@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.Action;
+import org.netbeans.modules.php.fuse.ui.actions.GenerateRouteAction;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleActionsExtender;
 import org.netbeans.modules.php.fuse.ui.actions.RunCommandAction;
 import org.openide.util.NbBundle;
@@ -56,6 +57,7 @@ public class FusePhpModuleActionsExtender extends PhpModuleActionsExtender {
     static {
         List<Action> actions = new ArrayList<Action>(1);
         actions.add(RunCommandAction.getInstance());
+        actions.add(GenerateRouteAction.getInstance());
         ACTIONS = Collections.unmodifiableList(actions);
     }
 
