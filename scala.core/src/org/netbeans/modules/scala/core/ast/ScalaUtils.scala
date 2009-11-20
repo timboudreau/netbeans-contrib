@@ -517,6 +517,84 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
     }
 
+    @throws(classOf[Throwable])
+    def symSimpleSig(sym: Symbol) = {
+      val tpe = sym.tpe // may throws exception
+      typeSimpleSig(tpe)
+    }
+
+    def typeSimpleSig(tpe: Type) = {
+      val sb = new StringBuilder
+      typeSimpleSig_(tpe, sb)
+      sb.toString
+    }
+
+    /** use to test if type is the same: when they have same typeSimpleSig true, otherwise false */
+    private def typeSimpleSig_(tpe: Type, sb: StringBuilder): Unit = {
+      if (tpe == null) return
+      tpe match {
+        case ErrorType =>
+          sb.append("<error>")
+          // internal: error
+        case WildcardType => "_"
+          // internal: unknown
+        case NoType => sb.append("<notype>")
+        case NoPrefix => sb.append("<noprefix>")
+        case ThisType(sym) =>
+          sb append (sym.fullNameString)
+        case SingleType(pre, sym) =>
+          sb append (sym.fullNameString)
+        case ConstantType(value) =>
+          // int(2)
+        case TypeRef(pre, sym, args) =>
+          sb append (sym.fullNameString)
+          sb append (args map (x => typeSimpleSig_(x, sb)) mkString ("[", ",", "]"))
+          // pre.sym[targs]
+        case RefinedType(parents, defs) =>
+          sb append (parents map (x => typeSimpleSig_(x, sb)) mkString (" extends ", "with ", ""))
+        case AnnotatedType(annots, tp, selfsym) =>
+          typeSimpleSig_(tp, sb)
+        case TypeBounds(lo, hi) =>
+          sb append (">: ")
+          typeSimpleSig_(lo, sb)
+          sb append (" <: ")
+          typeSimpleSig_(hi, sb)
+          // >: lo <: hi
+        case ClassInfoType(parents, defs, clazz) =>
+          sb append (parents map (x => typeSimpleSig_(x, sb)) mkString (" extends ", " with ", ""))
+        case MethodType(paramtypes, result) => // same as RefinedType except as body of class
+          sb append (paramtypes map (x => typeSimpleSig_(x.tpe, sb)) mkString("(", ",", ")"))
+          sb append (": ")
+          typeSimpleSig_(result, sb)
+          // (paramtypes): result
+        case PolyType(tparams, result) =>
+          sb append (tparams map (x => typeSimpleSig_(x.tpe, sb)) mkString("[", ",", "]"))
+          sb append (": ")
+          typeSimpleSig_(result, sb)
+          // [tparams]: result where result is a MethodType or ClassInfoType
+          // or
+          // []: T  for a eval-by-name type
+        case ExistentialType(tparams, result) =>
+          sb append ("ExistantialType")
+          // exists[tparams]result
+
+          // the last five types are not used after phase `typer'.
+
+          //case OverloadedType(pre, tparams, alts) => "Overlaod"
+          // all alternatives of an overloaded ident
+        case AntiPolyType(pre: Type, targs) =>
+          sb append ("AntiPolyType")
+        case TypeVar(_, _) =>
+          sb append (tpe.safeToString)
+          // a type variable
+        case DeBruijnIndex(level, index) =>
+          sb append ("DeBruijnIndex")
+        case _ =>
+          sb append (tpe.safeToString)
+      }
+    }
+
+
   }
 
 }
