@@ -106,9 +106,11 @@ import scala.tools.nsc.symtab.Flags
  */
 class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactoringPlugin {
   private val logger = Logger.getLogger(this.getClass.getName)
+
+  type SItem = ScalaItems#ScalaItem
   
   private val refactoring = rename
-  private var searchHandle: ScalaItems#ScalaItem = _
+  private var searchHandle: SItem = _
   private var overriddenByMethods: Seq[_] = null // methods that override the method to be renamed
   private var overridesMethods: Seq[_] = null // methods that are overridden by the method to be renamed
   private var doCheckName: Boolean = true
@@ -117,12 +119,12 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
   // should after init, since we need searchHandle is inited
   private val targetName = searchHandle.getName
-  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
-  private val samePlaceSymToDefString = samePlaceSyms map {x => (x, x.defString)}
+  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[SItem#S]]
+  private var samePlaceSymToDSimpleSig: Seq[(SItem#S, String)] = Nil
   
   /** Creates a new instance of RenameRefactoring */
   private def init {
-    val item = rename.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
+    val item = rename.getRefactoringSource.lookup(classOf[SItem])
     if (item != null) {
       searchHandle = item
     } else {
@@ -499,20 +501,23 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
         try {
           if (doc != null) doc.readLock
 
+          if (samePlaceSymToDSimpleSig.isEmpty) {
+            samePlaceSymToDSimpleSig = samePlaceSyms map {case x: Symbol => (x, ScalaUtil.symSimpleSig(x))}
+          }
+
+
           def isRef(sym: Symbol) = try {
             lazy val overriddens = sym.allOverriddenSymbols
-            val myDefString = sym.defString
+            val mySig = ScalaUtil.symSimpleSig(sym)
             val myQName = sym.fullNameString
-            samePlaceSymToDefString exists {
-              case (s, defStringx) =>
-                if (myDefString == defStringx) {
-                  val qNamex = s.fullNameString
-                  if (myQName == qNamex) true else {
-                    overriddens exists {o => o.fullNameString == qNamex}
-                  }
-                } else false
+            samePlaceSymToDSimpleSig exists {
+              case (symx, sigx) if mySig == sigx =>
+                val qNamex = symx.fullNameString
+                if (myQName == qNamex) true
+                else overriddens exists {_.fullNameString == qNamex}
+              case _ => false
             }
-          } catch {case ex => false}
+          } catch {case _ => false}
 
           val tokens = new HashSet[Token[_]]
           for {(token, items) <- root.idTokenToItems

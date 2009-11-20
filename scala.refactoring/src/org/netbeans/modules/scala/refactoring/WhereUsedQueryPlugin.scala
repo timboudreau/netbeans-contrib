@@ -88,10 +88,12 @@ import scala.tools.nsc.symtab.Flags
 class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoringPlugin {
   private val logger = Logger.getLogger(this.getClass.getName)
 
-  private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[ScalaItems#ScalaItem])
+  type SItem = ScalaItems#ScalaItem
+
+  private val searchHandle = refactoring.getRefactoringSource.lookup(classOf[SItem])
   private val targetName = searchHandle.getName
-  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[ScalaItems#ScalaItem#S]]
-  private val samePlaceSymToDefString = samePlaceSyms map {x => (x, x.defString)}
+  private val samePlaceSyms = searchHandle.samePlaceSymbols.asInstanceOf[Seq[SItem#S]]
+  private var samePlaceSymToDSimpleSig: Seq[(SItem#S, String)] = Nil
 
   override def preCheck: Problem = {
     searchHandle.fo match {
@@ -337,22 +339,24 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
        }
        } else*/
 
+      if (samePlaceSymToDSimpleSig.isEmpty) {
+        samePlaceSymToDSimpleSig = samePlaceSyms map {case x: Symbol => (x, ScalaUtil.symSimpleSig(x))}
+      }
+
       if (isFindUsages) {
         
         def isRef(sym: Symbol) = try {
           lazy val overriddens = sym.allOverriddenSymbols
-          val myDefString = sym.defString
+          val mySig = ScalaUtil.symSimpleSig(sym)
           val myQName = sym.fullNameString
-          samePlaceSymToDefString exists {
-            case (s, defStringx) =>
-              if (myDefString == defStringx) {
-                val qNamex = s.fullNameString
-                if (myQName == qNamex) true else {
-                  overriddens exists {o => o.fullNameString == qNamex}
-                }
-              } else false
+          samePlaceSymToDSimpleSig exists {
+            case (symx, sigx) if mySig == sigx =>
+              val qNamex = symx.fullNameString
+              if (myQName == qNamex) true 
+              else overriddens exists {_.fullNameString == qNamex}
+            case _ => false
           }
-        } catch {case ex => false}
+        } catch {case _ => false}
         
         val tokens = new HashSet[Token[_]]
         for ((token, items) <- root.idTokenToItems;
