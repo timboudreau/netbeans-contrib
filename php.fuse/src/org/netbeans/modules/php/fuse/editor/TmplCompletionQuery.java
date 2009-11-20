@@ -145,7 +145,6 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
         innerKeywords.add("/LOOP");
         innerKeywords.add("DB_LOOP");
         innerKeywords.add("/DB_LOOP");
-        innerKeywords.add("SITE_BASE_URI");
     }
 
     private final static List<String> outerKeywords = new ArrayList<String>();

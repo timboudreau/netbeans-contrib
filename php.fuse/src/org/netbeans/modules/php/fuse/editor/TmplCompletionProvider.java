@@ -40,9 +40,11 @@ package org.netbeans.modules.php.fuse.editor;
 
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.php.fuse.lexer.FuseTokenId;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -56,6 +58,13 @@ public class TmplCompletionProvider implements CompletionProvider {
 
     public CompletionTask createTask(int queryType, final JTextComponent component) {
         Document doc = Utilities.getDocument(component);
+
+        // hack - added atributes for tmpl lexer which variables are template variables
+        InputAttributes inputAttributes = new InputAttributes();
+        TmplParseData tmplParseData = new TmplParseData(doc);
+        inputAttributes.setValue(FuseTokenId.language(), TmplParseData.class, tmplParseData, false);
+        doc.putProperty(InputAttributes.class, inputAttributes);
+
         int caretOffset = component.getCaret().getDot();
         if (isInFuseTemplates(doc, caretOffset)) {
             return new AsyncCompletionTask(new TmplCompletionQuery(component, queryType, TmplCompletionQuery.QueryType.INNER_QUERY_TASK), component);

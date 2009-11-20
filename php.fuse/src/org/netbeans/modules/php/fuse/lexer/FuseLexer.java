@@ -40,7 +40,12 @@
  */
 package org.netbeans.modules.php.fuse.lexer;
 
+import java.lang.String;
+import java.util.ArrayList;
+import org.netbeans.api.lexer.InputAttributes;
+import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.php.fuse.editor.TmplParseData;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
@@ -57,11 +62,19 @@ public class FuseLexer implements Lexer<FuseTokenId> {
     private final LexerInput input;
     private boolean afterInclude = false;
     private final TokenFactory<FuseTokenId> tokenFactory;
+    private final InputAttributes inputAttributes;
+    private final TmplParseData tmplParseData;
 
     public FuseLexer(LexerRestartInfo<FuseTokenId> info) {
         this.input = info.input();
+        this.inputAttributes = info.inputAttributes();
         this.tokenFactory = info.tokenFactory();
         assert (info.state() == null); // never set to non-null value in state()
+        if (inputAttributes != null) {
+            tmplParseData = (TmplParseData) inputAttributes.getValue(LanguagePath.get(FuseTokenId.language()), TmplParseData.class);
+        } else {
+            tmplParseData = null;
+        }
     }
 
     public Object state() {
@@ -122,13 +135,14 @@ public class FuseLexer implements Lexer<FuseTokenId> {
                     continue;
 
                 case EOF:
-                    if (endingTag)
-                        return finishIdentifier();
-                    else
+                    if (endingTag) {
+                        return finishIdentifier(c);
+                    } else {
                         return null;
+                    }
 
                 default:
-                    return finishIdentifier(); //token(FuseTokenId.ERROR);
+                    return finishIdentifier(c); //token(FuseTokenId.ERROR);
             } // end of switch (c)
         } // end of while(true)
     }
@@ -138,12 +152,18 @@ public class FuseLexer implements Lexer<FuseTokenId> {
     }
 
     private Token<FuseTokenId> finishIdentifier(int c) {
+        String lexedText = "";
         while (true) {
-            if (c == EOF || !(Character.isJavaIdentifierPart(c) || c == '$' || c == '_')) {
-                // For surrogate 2 chars must be backed up
-                input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+            if (c == EOF || !(Character.isJavaIdentifierPart(c))) {
+                if (tmplParseData != null) {
+                    ArrayList<String> variables = tmplParseData.getVariables();
+                    if (variables.contains(lexedText)) {
+                        return tokenFactory.createToken(FuseTokenId.TEMPLATE_VAR);
+                    }
+                }
                 return tokenFactory.createToken(FuseTokenId.IDENTIFIER);
             }
+            lexedText += (char) c;
             c = input.read();
         }
     }
@@ -158,24 +178,15 @@ public class FuseLexer implements Lexer<FuseTokenId> {
 
     private Token<FuseTokenId> keywordOrIdentifier(FuseTokenId keywordId, int c, boolean endingTag) {
         // Check whether the given char is non-ident and if so then return keyword
-        if (c == EOF || !(Character.isJavaIdentifierPart(c) || c == '$' || c == '_')) {
-            // For surrogate 2 chars must be backed up
-//            input.backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+        if (c == EOF || !(Character.isJavaIdentifierPart(c))) {
             if (endingTag) {
-                return tokenFactory.createToken(FuseTokenId.valueOf(keywordId.name()+"_END"));
-            }
-            else {
+                return tokenFactory.createToken(FuseTokenId.valueOf(keywordId.name() + "_END"));
+            } else {
                 return tokenFactory.createToken(FuseTokenId.valueOf(keywordId.name()));
             }
+
         }
         return finishIdentifier();
-    }
-
-    private Token<FuseTokenId> token(FuseTokenId id) {
-        String fixedText = id.fixedText();
-        return (fixedText != null)
-                ? tokenFactory.getFlyweightToken(id, fixedText)
-                : tokenFactory.createToken(id);
     }
 
     public void release() {
