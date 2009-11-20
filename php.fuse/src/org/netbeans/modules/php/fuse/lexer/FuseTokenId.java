@@ -51,7 +51,6 @@ import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
-import org.netbeans.modules.php.editor.lexer.PHPTopTokenId;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
@@ -67,6 +66,8 @@ public enum FuseTokenId implements TokenId {
     ERROR(null, "error"),
     IDENTIFIER(null, "identifier"),
 
+    TEMPLATE_VAR(null, "template_var"),
+
     DB_LOOP("db_loop", "keyword"),
     LOOP("loop", "keyword"),
     ELSE("else", "keyword"),
@@ -80,9 +81,6 @@ public enum FuseTokenId implements TokenId {
     WHILE_END("/while", "keyword"),
 
     INCLUDE("include", "include"),
-    REQUIRE("require", "include"),
-    INCLUDE_ONCE("include_once", "include"),
-    REQUIRE_ONCE("require_once", "include"),
 
     WHITESPACE(null, "whitespace");
 

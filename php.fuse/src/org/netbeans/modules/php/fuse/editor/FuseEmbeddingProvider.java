@@ -53,6 +53,7 @@ import org.netbeans.modules.parsing.spi.SchedulerTask;
 import org.netbeans.modules.parsing.spi.TaskFactory;
 import org.netbeans.modules.php.fuse.lexer.FuseTokenId;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
+import org.netbeans.modules.php.fuse.utils.EditorUtils;
 
 /**
  * Provides code completion for T_HTML tokens
@@ -96,7 +97,8 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                     state = 1;
                 }
             } else if (t.id() == FuseTopTokenId.T_FUSE) {
-                TokenHierarchy<CharSequence> th2 = TokenHierarchy.create(t.text(), FuseTokenId.language());
+//                TokenHierarchy<CharSequence> th2 = TokenHierarchy.create(t.text(), snapshot);
+                TokenHierarchy<CharSequence> th2 = EditorUtils.createTmplTokenHierarchy(t.text(), snapshot);
                 TokenSequence<FuseTokenId> sequence2 = th2.tokenSequence(FuseTokenId.language());
                 int lenghtOfIngored = 0;
                 while (sequence2.moveNext()) {
@@ -114,7 +116,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                         lenghtOfIngored = t2.text().length();
                     }
                 }
-                sequence2.moveStart();
+//                sequence2.moveStart();
             } else if (t.id() == FuseTopTokenId.T_FUSE_OPEN_DELIMITER) {
                 embeddings.add(snapshot.create("<?php; ", "text/x-php5"));
 //                embeddings.add(snapshot.create("; ", "text/x-php5"));
@@ -157,7 +159,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
 
     @Override
     public int getPriority() {
-        return 110;
+        return 90;
     }
 
     @Override

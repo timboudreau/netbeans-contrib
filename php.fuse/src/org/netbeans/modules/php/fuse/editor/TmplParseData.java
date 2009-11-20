@@ -37,37 +37,26 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.php.fuse;
+package org.netbeans.modules.php.fuse.editor;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.swing.Action;
-import org.netbeans.modules.php.fuse.ui.actions.GenerateRouteAction;
-import org.netbeans.modules.php.spi.phpmodule.PhpModuleActionsExtender;
-import org.netbeans.modules.php.fuse.ui.actions.RunCommandAction;
-import org.openide.util.NbBundle;
+import javax.swing.text.Document;
+import org.netbeans.modules.php.fuse.utils.EditorUtils;
 
 /**
+ *
  * @author Martin Fousek
  */
-public class FusePhpModuleActionsExtender extends PhpModuleActionsExtender {
-    private static final List<Action> ACTIONS;
+public class TmplParseData {
 
-    static {
-        List<Action> actions = new ArrayList<Action>(1);
-        actions.add(RunCommandAction.getInstance());
-        actions.add(GenerateRouteAction.getInstance());
-        ACTIONS = Collections.unmodifiableList(actions);
+    public ArrayList<String> variables = new ArrayList<String>();
+
+    public TmplParseData(Document doc) {
+        variables = EditorUtils.getKeywordsForView(doc);
     }
 
-    @Override
-    public String getMenuName() {
-        return NbBundle.getMessage(FusePhpModuleActionsExtender.class, "LBL_MenuName");
+    public ArrayList<String> getVariables() {
+        return variables;
     }
 
-    @Override
-    public List<? extends Action> getActions() {
-        return ACTIONS;
-    }
 }

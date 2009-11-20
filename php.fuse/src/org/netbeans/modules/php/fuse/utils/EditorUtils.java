@@ -44,15 +44,23 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.modules.editor.NbEditorDocument;
+import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.php.fuse.editor.TmplParseData;
+import org.netbeans.modules.php.fuse.lexer.FuseTokenId;
 import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
+import org.netbeans.spi.lexer.MutableTextInput;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -61,7 +69,7 @@ import org.openide.filesystems.FileObject;
  */
 public class EditorUtils {
 
-     public static int indexOfWhite(char[] line) {
+    public static int indexOfWhite(char[] line) {
         int i = line.length;
         while (--i > -1) {
             final char c = line[i];
@@ -76,7 +84,8 @@ public class EditorUtils {
         TokenHierarchy<?> th = TokenHierarchy.get(doc);
         TokenSequence<FuseTopTokenId> ts = th.tokenSequence(FuseTopTokenId.language());
         int diffStart = ts.move(offset);
-        Token t = null; int lenght = 0;
+        Token t = null;
+        int lenght = 0;
         if (ts.moveNext() || ts.movePrevious()) {
             t = ts.token();
             lenght = t.length();
@@ -109,12 +118,17 @@ public class EditorUtils {
             File cf = null;
             fo = fo.getParent().getParent();
             for (int i = 0; i < 3; i++) {
-                cf = new File (fo.getPath() + "/controllers");
-                if (cf.exists() && cf.isDirectory()) break;
+                cf = new File(fo.getPath() + "/controllers");
+                if (cf.exists() && cf.isDirectory()) {
+                    break;
+                }
                 fo = fo.getParent();
             }
-            if (!cf.exists()) return new ArrayList<String>();
+            if (!cf.exists()) {
+                return new ArrayList<String>();
+            }
             File[] adeptsForCompletion = cf.listFiles(new FileFilter() {
+
                 public boolean accept(File arg0) {
                     return arg0.getName().equals(nameOfController);
                 }
@@ -126,9 +140,11 @@ public class EditorUtils {
                     String line;
                     while ((line = bis.readLine()) != null) {
                         String res = parseLineForVars(line);
-                        if (res != null && !results.contains(res))
+                        if (res != null && !results.contains(res)) {
                             results.add(res);
+                        }
                     }
+                    results.addAll(getGeneralVariables());
                 } catch (IOException ioe) {
                     Logger.getLogger("TmplCompletionQuery").warning("scanning of unnexisting file " + controller.getAbsolutePath());
                 }
@@ -143,7 +159,7 @@ public class EditorUtils {
                 "add_db_resultset", "add_db_result", "add_resource_map", "add_resource_result_map"};
             for (String pattern : templateProcessing) {
                 if (line.contains(pattern)) {
-                    return parseVariable(line,pattern);
+                    return parseVariable(line, pattern);
                 }
             }
         }
@@ -151,14 +167,44 @@ public class EditorUtils {
     }
 
     public static String parseVariable(String line, String param) {
-        line = line.replaceAll(" ","");
-        int indexOfAdd = line.indexOf(param +"(");
+        line = line.replaceAll(" ", "");
+        int indexOfAdd = line.indexOf(param + "(");
         int paramLength = param.length();
-        if ((paramLength + 2) > line.length())
+        if ((paramLength + 2) > line.length()) {
             return null;
+        }
         String del = line.substring(indexOfAdd + paramLength + 1, indexOfAdd + paramLength + 2);
         line = line.substring(indexOfAdd + paramLength + 2, line.length());
         line = line.substring(0, line.indexOf(del));
         return line;
+    }
+
+    private static ArrayList<String> getGeneralVariables() {
+        ArrayList<String> generalVars = new ArrayList<String>();
+        generalVars.add("SITE_BASE_URI");
+        return generalVars;
+    }
+
+    public static TokenHierarchy<CharSequence> createTmplTokenHierarchy(CharSequence inputText, Snapshot tmplSnapshot) {
+        InputAttributes inputAttributes = new InputAttributes();
+
+        FileObject fo = tmplSnapshot.getSource().getFileObject();
+        if (fo != null) {
+            //try to obtain tmpl coloring info for file based snapshots
+            final Document doc = tmplSnapshot.getSource().getDocument(true);
+
+            TmplParseData tmplParseData = new TmplParseData(doc);
+            inputAttributes.setValue(FuseTokenId.language(), TmplParseData.class, tmplParseData, true);
+
+        }
+
+        TokenHierarchy<CharSequence> th = TokenHierarchy.create(
+                inputText,
+                true,
+                FuseTokenId.language(),
+                Collections.EMPTY_SET,
+                inputAttributes);
+
+        return th;
     }
 }
