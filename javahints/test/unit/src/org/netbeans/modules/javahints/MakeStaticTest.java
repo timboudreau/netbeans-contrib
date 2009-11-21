@@ -145,6 +145,23 @@ public class MakeStaticTest extends ErrorHintsTestBase {
                        "}").replaceAll("[ \t\n]+", " "));
     }
 
+    public void testNoNPE() throws Exception {
+        performFixTest("test/Test.java",
+                       "package test;" +
+                       "public class Test {" +
+                       "     private void te|st() {" +
+                       "         if (true) ;" +
+                       "     }" +
+                       "}",
+                       "FixImpl:test:true",
+                       ("package test;" +
+                       "public class Test {" +
+                       "     private static void test() {" +
+                       "         if (true) ;" +
+                       "     }" +
+                       "}").replaceAll("[ \t\n]+", " "));
+    }
+
     @Override
     protected List<Fix> computeFixes(CompilationInfo info, int pos, TreePath path) throws Exception {
         return new MakeStatic().run(info, null, pos, path, null);

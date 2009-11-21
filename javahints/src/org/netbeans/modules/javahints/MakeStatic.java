@@ -101,6 +101,7 @@ public class MakeStatic implements ErrorRule<Void> {
         TreePathScanner<Void, Void> s = new TreePathScanner<Void, Void>() {
             @Override
             public Void scan(Tree tree, Void p) {
+                if (tree == null) return null;
                 Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), tree));
                 
                 if (e != null && KINDS_TO_CHECK.contains(e.getKind())) {
