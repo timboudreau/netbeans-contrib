@@ -43,6 +43,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -65,6 +67,13 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
 
     @Override
     public List<Embedding> getEmbeddings(Snapshot snapshot) {
+        // for sending atributes for FuseLexer (dynamic variables)
+        Document doc = snapshot.getSource().getDocument(true);
+        InputAttributes inputAttributes = new InputAttributes();
+        TmplParseData tmplParseData = new TmplParseData(doc);
+        inputAttributes.setValue(FuseTokenId.language(), TmplParseData.class, tmplParseData, false);
+        doc.putProperty(InputAttributes.class, inputAttributes);
+
         TokenHierarchy<CharSequence> th = TokenHierarchy.create(snapshot.getText(), FuseTopTokenId.language());
         TokenSequence<FuseTopTokenId> sequence = th.tokenSequence(FuseTopTokenId.language());
 

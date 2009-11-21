@@ -92,14 +92,6 @@ public class TmplGSFParser extends Parser {
 
         public TmplFakeParserResult(Snapshot s) {
             super(s);
-
-            // hack - bacause I haven't own editor kit, I'm adding from here
-            // and from completionProvider variables for lexer
-            Document doc = s.getSource().getDocument(true);
-            InputAttributes inputAttributes = new InputAttributes();
-            TmplParseData tmplParseData = new TmplParseData(doc);
-            inputAttributes.setValue(FuseTokenId.language(), TmplParseData.class, tmplParseData, false);
-            doc.putProperty(InputAttributes.class, inputAttributes);
         }
 
         @Override

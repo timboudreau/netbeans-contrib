@@ -80,7 +80,7 @@ public class TmplCompletionProvider implements CompletionProvider {
         tokenSequence.move(offset);
         if (tokenSequence.moveNext() || tokenSequence.movePrevious()) {
             Object tokenID = tokenSequence.token().id();
-            if (tokenID == FuseTopTokenId.T_FUSE)
+            if (tokenID == FuseTopTokenId.T_FUSE || tokenID == FuseTopTokenId.T_FUSE_CLOSE_DELIMITER)
                 return true;
         }
         return false;

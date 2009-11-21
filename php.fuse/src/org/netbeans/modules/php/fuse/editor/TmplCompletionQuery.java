@@ -111,10 +111,7 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
                     while (it.hasNext()) {
                         final String entry = (String) it.next();
                         if (entry.startsWith(filter)) {
-                            if (filter.equals("<"))
-                                resultSet.addItem(new TmplCompletionItem(entry, startOffset - 1, caretOffset));
-                            else
-                                resultSet.addItem(new TmplCompletionItem(entry, startOffset, caretOffset));
+                            resultSet.addItem(new TmplCompletionItem(entry, startOffset - filter.length(), caretOffset));
                         }
                     }
                 } else {
