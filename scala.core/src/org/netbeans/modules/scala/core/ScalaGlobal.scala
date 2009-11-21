@@ -747,7 +747,7 @@ class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(setting
 
     //println("selectTypeErrors:" + selectTypeErrors)
 
-    run.units find {_.source == srcFile} map {unit =>
+    run.units find {_.source eq srcFile} map {unit =>
       if (ScalaGlobal.debug) {
         RequestProcessor.getDefault.post(new Runnable {
             def run {

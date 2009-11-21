@@ -83,18 +83,6 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
   private var _root: ScalaRootScope = _
   @volatile var loaded = false
 
-  def rootScope: ScalaRootScope = {
-    if (loaded) return _root
-
-    val th = snapshot.getTokenHierarchy
-    val doc = snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
-
-    global.reporter = new ErrorReporter(doc)
-    // @Note it's more safe to force reload here, since a partial typed tree may cause unpredicted error :
-    _root = global.askForSemantic(srcFile, true, th)
-    loaded = true
-    _root
-  }
 
   override protected def invalidate: Unit = {
     // XXX: what exactly should we do here?
@@ -124,6 +112,19 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
 
   lazy val global: ScalaGlobal = {
     ScalaGlobal.getGlobal(snapshot.getSource.getFileObject)
+  }
+
+  def rootScope: ScalaRootScope = {
+    if (loaded) return _root
+
+    val th = snapshot.getTokenHierarchy
+    val doc = snapshot.getSource.getDocument(true).asInstanceOf[BaseDocument]
+
+    global.reporter = new ErrorReporter(doc)
+    // @Note it's more safe to force reload here, since a partial typed tree may cause unpredicted error :
+    _root = global.askForSemantic(srcFile, true, th)
+    loaded = true
+    _root
   }
 
   lazy val rootScopeForDebug: ScalaRootScope = {
