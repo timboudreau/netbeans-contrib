@@ -162,13 +162,16 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
 
     override def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {
       if (pos.isDefined) {
+        val offset = pos.startOrPoint
+
         // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
-        val fo = snapshot.getSource.getFileObject
-        if (!fo.getPath.equals(pos.source.file.path)) {
+        if (srcFile ne pos.source) {
+          //println("Error from another source: " + msg + " (" + pos.source + " "  + offset + ")")
           return
         }
 
-        val offset = pos.startOrPoint
+        val fo = snapshot.getSource.getFileObject
+
         val sev = severity.id match {
           case 0 => return
           case 1 => org.netbeans.modules.csl.api.Severity.WARNING
@@ -186,8 +189,8 @@ class ScalaParserResult(snapshot: Snapshot, parser: ScalaParser) extends ParserR
         }
 
         val isLineError = (end == -1)
-        val error = DefaultError.createDefaultError("SYNTAX_ERROR", msg, msg, fo,
-                                                    offset, end, isLineError, sev)
+        val error = DefaultError.createDefaultError("SYNTAX_ERROR", msg, msg, fo, offset, end, isLineError, sev)
+        //println(msg + " (" + offset + ")")
 
         if (errors == null) {
           errors = new java.util.ArrayList
