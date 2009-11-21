@@ -68,6 +68,8 @@ import scala.tools.nsc.util.{Position, SourceFile, BatchSourceFile}
 class ScalaParser extends Parser {
   import ScalaParser._
 
+  private val logger = Logger.getLogger(this.getClass.getName)
+
   private var lastResult: ScalaParserResult = _
 
   @throws(classOf[ParseException])
@@ -85,7 +87,7 @@ class ScalaParser extends Parser {
 
   @throws(classOf[ParseException])
   override def parse(snapshot: Snapshot, task: Task, event: SourceModificationEvent): Unit = {
-    Log.info("Ready to parse " + snapshot.getSource.getFileObject.getNameExt)
+    logger.info("Ready to parse " + snapshot.getSource.getFileObject.getNameExt)
     // * We'll lazily doing true parsing in ScalaParserResult
     lastResult = new ScalaParserResult(snapshot, this)
     //val context = new Context(snapshot, event)
@@ -273,6 +275,7 @@ class ScalaParser extends Parser {
     false
   }
 
+  @deprecated("Will lazily parse in ScalaPaserResult")
   private def sanitize(context: Context, sanitizing: Sanitize): ScalaParserResult = {
 
     sanitizing match {
@@ -333,6 +336,7 @@ class ScalaParser extends Parser {
     createParserResult(context)
   }
 
+  @deprecated("Will lazily parse in ScalaPaserResult")
   protected def parseBuffer(context: Context, sanitizing: Sanitize): ScalaParserResult = {
     var sanitizedSource = false
     var source = context.source
@@ -456,6 +460,7 @@ class ScalaParser extends Parser {
     Sanitize.NONE
   }
 
+  @deprecated("Will lazily parse in ScalaPaserResult")
   protected def notifyError(context: Context, key: String, msg: String,
                             start: Int, end: Int, isLineError: Boolean,
                             sanitizing: Sanitize, severity: Severity,
@@ -477,6 +482,7 @@ class ScalaParser extends Parser {
   }
 
   /** Parsing context */
+  @deprecated("Will lazily parse in ScalaPaserResult")
   class Context(val snapshot: Snapshot, event: SourceModificationEvent) {
 
     val fileObject: FileObject = snapshot.getSource.getFileObject
@@ -506,18 +512,20 @@ class ScalaParser extends Parser {
     }
   }
 
+  @deprecated("Will lazily parse in ScalaPaserResult")
   private class ErrorReporter(context: Context, doc: BaseDocument, sanitizing: Sanitize) extends Reporter {
 
     override def info0(pos: Position, msg: String, severity: Severity, force: Boolean) {
       val ignoreError = context.sanitizedSource != null
       if (!ignoreError) {
         if (pos.isDefined) {
+          val offset = pos.startOrPoint
+
           // * It seems scalac's errors may contain those from other source files that are deep referred, try to filter them here
-          if (!context.fileObject.getPath.equals(pos.source.file.path)) {
+          if (context.srcFile ne pos.source) {
             return
           }
           
-          val offset = pos.startOrPoint
           val sev = severity.id match {
             case 0 => return
             case 1 => org.netbeans.modules.csl.api.Severity.WARNING
@@ -543,7 +551,6 @@ class ScalaParser extends Parser {
 }
 
 object ScalaParser {
-  val Log = Logger.getLogger(classOf[ScalaParser].getName)
 
   private var version: Long = _
   private val profile = Array(0.0f, 0.0f)
