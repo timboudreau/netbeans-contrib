@@ -84,15 +84,15 @@ object ScalaHome {
     sb.append(scalaLib.getAbsolutePath + File.separator + "scala-library.jar")
         
     //System.out.println("boot:" + sb);
-    settings.bootclasspath.tryToSet(List(sb.toString))
+    settings.bootclasspath.value = sb.toString
 
     sb.delete(0, sb.length - 1)
     sb.append(getJavaClassPath)
     sb.append(File.pathSeparator)
-    sb.append(computeScalaClassPath(null, scalaLib))
+    sb.append(toScalaClassPathString(null, scalaLib))
 
     //System.out.println("comp:" + sb);
-    settings.classpath.tryToSet(List(sb.toString))
+    settings.classpath.value = sb.toString
 
     val global = new ScalaGlobal(settings, ScalaGlobal.dummyReporter) {
       override def onlyPresentation = true
@@ -210,7 +210,7 @@ object ScalaHome {
     Nil
   }
 
-  def computeScalaClassPath(aextraCp: String, scalaLib: File): String = {
+  def toScalaClassPathString(aextraCp: String, scalaLib: File): String = {
     var extraCp = aextraCp
     val cp = new StringBuilder
     val libs = scalaLib.listFiles
@@ -260,7 +260,7 @@ object ScalaHome {
       cp.append(extraCp)
     }
 
-    if (Utilities.isWindows) "\"" + cp.toString() + "\"" else cp.toString // NOI18N
+    cp.toString // NOI18N
   }
 
   private def printProperties(props: Properties): Unit = {

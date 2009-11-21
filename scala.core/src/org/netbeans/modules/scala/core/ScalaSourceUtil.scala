@@ -353,7 +353,7 @@ object ScalaSourceUtil {
         var afile = srcFile.file
         var file = if (afile != null) afile.file else null
         if (file == null) {
-          if (srcPath != null && srcPath.startsWith(File.separator)) {
+          if (srcPath != null) {
             file = new File(srcPath)
           }
         }
@@ -366,7 +366,7 @@ object ScalaSourceUtil {
     }
 
     val qName: String = try {
-      sym.enclClass.fullNameString.replace('.', File.separatorChar)
+      sym.enclClass.fullNameString('/')
     } catch {
       case ex: java.lang.Error => null
         // java.lang.Error: no-symbol does not have owner
@@ -379,7 +379,9 @@ object ScalaSourceUtil {
       return None
     }
 
-    val pkgName = qName.lastIndexOf(File.separatorChar) match {
+    //* @Note Always use '/' instead File.SeparatorChar when try to findResource
+
+    val pkgName = qName.lastIndexOf('/') match {
       case -1 => null
       case  i => qName.substring(0, i)
     }
@@ -419,7 +421,7 @@ object ScalaSourceUtil {
       } else null
 
       if (srcPath != null) {
-        val srcPath1 = if (pkgName != null) pkgName + File.separatorChar + srcPath else srcPath
+        val srcPath1 = if (pkgName != null) pkgName + "/" + srcPath else srcPath
         findSourceFileObject(srcCp, root, srcPath1)
       } else None
     } catch {case ex: Exception => ex.printStackTrace; None}

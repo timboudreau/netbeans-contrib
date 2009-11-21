@@ -48,7 +48,7 @@ import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils}
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
 import org.openide.filesystems.{FileChangeAdapter, FileEvent, FileObject, FileRenameEvent,
                                 FileStateInvalidException, FileUtil, JarFileSystem, FileChangeListener}
-import org.openide.util.{Exceptions, RequestProcessor}
+import org.openide.util.{Exceptions, RequestProcessor, Utilities}
 
 import org.netbeans.modules.scala.core.ast.{ScalaItems, ScalaDfns, ScalaRefs, ScalaRootScope, ScalaAstVisitor, ScalaUtils}
 import org.netbeans.modules.scala.core.element.{ScalaElements, JavaElements}
@@ -300,14 +300,14 @@ object ScalaGlobal {
     // * @Note: do not add src path to global for test, since the corresponding build/classes has been added to compCp
 
     settings.sourcepath.tryToSet(srcPaths.reverse)
-    settings.outputDirs.setSingleOutput(outPath)
+    settings.outdir.value = outPath
 
     logger.info("project's source paths set for global: " + srcPaths)
     logger.info("project's output paths set for global: " + outPath)
     if (srcCp != null){
       logger.info(srcCp.getRoots.mkString("project's srcCp: [", ", ", "]"))
     } else {
-      logger.info("project's srcCp is empty !")
+      logger.info("project's srcCp is null !")
     }
     
     // * @Note: settings.outputDirs.add(src, out) seems cannot resolve symbols in other source files, why?
@@ -319,13 +319,13 @@ object ScalaGlobal {
 
     // ----- set bootclasspath, classpath
 
-    val sb = new StringBuilder
-    concatClassPath(project, sb, bootCp)
-    settings.bootclasspath.tryToSet(List(sb.toString))
+    val bootCpStr = toClassPathString(project, bootCp)
+    settings.bootclasspath.value = bootCpStr
+    logger.info("project's bootclasspath: " + settings.bootclasspath.value)
 
-    sb.delete(0, sb.length)
-    concatClassPath(project, sb, compCp)
-    settings.classpath.tryToSet(List(sb.toString))
+    val compCpStr = toClassPathString(project, compCp)
+    settings.classpath.value = compCpStr
+    logger.info("project's classpath: " + settings.classpath.value)
 
     // ----- now, the new global
 
@@ -475,31 +475,30 @@ object ScalaGlobal {
     out
   }
 
-  private def concatClassPath(project: Project, sb: StringBuilder, cp: ClassPath): Unit = {
-    if (cp == null) {
-      return
-    }
+  private def toClassPathString(project: Project, cp: ClassPath): String = {
+    if (cp == null) return ""
 
+    val sb = new StringBuilder
     val itr = cp.entries.iterator
     while (itr.hasNext) {
-      val rootFile = try {
-        val entryRoot = itr.next.getRoot
-        if (entryRoot != null) {
-          entryRoot.getFileSystem match {
-            case jfs: JarFileSystem => jfs.getJarFile
-            case _ => FileUtil.toFile(entryRoot)
+      val rootFile =
+        try {
+          itr.next.getRoot match {
+            case null => null
+            case entryRoot => entryRoot.getFileSystem match {
+                case jfs: JarFileSystem => jfs.getJarFile
+                case _ => FileUtil.toFile(entryRoot)
+              }
           }
-        } else null
-      } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
+        } catch {case ex:FileStateInvalidException => Exceptions.printStackTrace(ex); null}
 
       if (rootFile != null) {
-        val path = rootFile.getAbsolutePath
-        sb.append(path)
-        if (itr.hasNext) {
-          sb.append(File.pathSeparator)
-        }
+        sb.append(rootFile.getAbsolutePath)
+        if (itr.hasNext) sb.append(File.pathSeparator)
       }
     }
+
+    sb.toString
   }
 
   private class SrcCpListener(global: ScalaGlobal, srcCp: ClassPath) extends FileChangeAdapter {
