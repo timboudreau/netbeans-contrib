@@ -389,13 +389,27 @@ object ScalaSourceUtil {
     val clzName = qName + ".class"
 
     val fo = pr.getSnapshot.getSource.getFileObject
-    val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+
+    // * For some reason, the ClassPath.getClassPath(fo, ClassPath.SOURCE) can not get
+    // * "src/main/scala" back for maven project
+    // * The safer way is using ProjectUtils.getSources(project). See ScalaGlobal#findDirResources
+    // *     val srcCp = ClassPath.getClassPath(fo, ClassPath.SOURCE)
+
+    val srcRootsMine = ScalaGlobal.getSrcFileObjects(fo)
+    val srcCpMine = ClassPathSupport.createClassPath(srcRootsMine: _*)
+
     val cp = getClassPath(fo)
     val clzFo = cp.findResource(clzName)
     val root  = cp.findOwnerRoot(clzFo)
 
+    val srcCpTarget = if (root != null) {
+      val srcRoots1 = ScalaGlobal.getSrcFileObjects(root)
+      val srcRoots2 = SourceForBinaryQuery.findSourceRoots(root.getURL).getRoots
+      ClassPathSupport.createClassPath(srcRoots1 ++ srcRoots2: _*)
+    } else null
+
     if (srcPath != null && srcPath != "") {
-      findSourceFileObject(srcCp, root, srcPath) match {
+      findSourceFileObject(srcCpMine, srcCpTarget, srcPath) match {
         case None =>
         case some => return some
       }
@@ -404,7 +418,7 @@ object ScalaSourceUtil {
     val ext = if (sym hasFlag Flags.JAVA) ".java" else ".scala"
 
     // * see if we can find this class's source file straightforward
-    findSourceFileObject(srcCp, root, qName + ext) match {
+    findSourceFileObject(srcCpMine, srcCpTarget, qName + ext) match {
       case None =>
       case some => return some
     }
@@ -422,27 +436,22 @@ object ScalaSourceUtil {
 
       if (srcPath != null) {
         val srcPath1 = if (pkgName != null) pkgName + "/" + srcPath else srcPath
-        findSourceFileObject(srcCp, root, srcPath1)
+        findSourceFileObject(srcCpMine, srcCpTarget, srcPath1)
       } else None
     } catch {case ex: Exception => ex.printStackTrace; None}
   }
 
-  def findSourceFileObject(srcCp: ClassPath, root: FileObject, srcPath: String): Option[FileObject] = {
+  def findSourceFileObject(srcCpMine: ClassPath, srcCpTarget: ClassPath, srcPath: String): Option[FileObject] = {
     // find in own project's srcCp first
-    srcCp.findResource(srcPath) match {
-      case null =>
+    srcCpMine.findResource(srcPath) match {
+      case null if srcCpTarget == null => None
+      case null => srcCpTarget.findResource(srcPath) match {
+          case null => None
+          case x => Some(x)
+        }
       case x => return Some(x)
     }
-
-    if (root == null) return None
     
-    val srcRoots = SourceForBinaryQuery.findSourceRoots(root.getURL).getRoots
-    val srcCp1 = ClassPathSupport.createClassPath(srcRoots: _*)
-
-    srcCp1.findResource(srcPath) match {
-      case null => None
-      case x => Some(x)
-    }
   }
 
   def getScalaJavaSourceGroups(p: Project): Array[SourceGroup] = {
