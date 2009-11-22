@@ -176,6 +176,23 @@ object ScalaGlobal {
     toResetGlobals = Map[ScalaGlobal, Project]()
   }
 
+  def getSrcFileObjects(fo: FileObject): Array[FileObject] = {
+    val project = FileOwnerQuery.getOwner(fo)
+    if (project == null) {
+      // * it may be a standalone file, or file in standard lib
+      return Array()
+    }
+    
+    val resource = projectToResources.get(project) getOrElse findDirResources(project)
+
+    val forTest = isForTest(resource, fo)
+
+    val srcPaths =
+      for ((src, out) <- if (forTest) resource.testToOut else resource.srcToOut) yield src
+
+    srcPaths.toArray
+  }
+
   def getOutFileObject(fo: FileObject, refresh: Boolean): Option[FileObject] = {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
@@ -189,10 +206,7 @@ object ScalaGlobal {
       projectToResources.get(project) getOrElse findDirResources(project)
     }
 
-    // * is this `fo` under test source?
-    val forTest = resource.testToOut exists {case (src, _) =>
-        src.equals(fo) || FileUtil.isParentOf(src, fo)
-    }
+    val forTest = isForTest(resource, fo)
 
     var outPath: FileObject = null
     var srcPaths: List[FileObject] = Nil
@@ -208,6 +222,11 @@ object ScalaGlobal {
     }
 
     None
+  }
+
+  private def isForTest(resource: DirResource, fo: FileObject) = {
+    // * is this `fo` under test source?
+    resource.testToOut exists {case (src, _) => src.equals(fo) || FileUtil.isParentOf(src, fo)}
   }
 
   /**
@@ -232,10 +251,7 @@ object ScalaGlobal {
       x
     }
 
-    // * is this `fo` under test source?
-    val forTest = resource.testToOut exists {case (src, _) =>
-        src.equals(fo) || FileUtil.isParentOf(src, fo)
-    }
+    val forTest = isForTest(resource, fo)
 
     // * Do not use `srcCp` as the key, different `fo` under same src dir seems returning diff instance of srcCp
     val idx = if (forDebug) {
