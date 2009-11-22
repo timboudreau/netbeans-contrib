@@ -176,43 +176,32 @@ object ScalaGlobal {
     toResetGlobals = Map[ScalaGlobal, Project]()
   }
 
-  def getSrcFileObjects(fo: FileObject): Array[FileObject] = {
+  private def getResourceOf(fo: FileObject, refresh: Boolean): Map[FileObject, FileObject] = {
     val project = FileOwnerQuery.getOwner(fo)
     if (project == null) {
       // * it may be a standalone file, or file in standard lib
-      return Array()
+      return Map()
     }
-    
-    val resource = projectToResources.get(project) getOrElse findDirResources(project)
 
-    val forTest = isForTest(resource, fo)
+    val resource = if (refresh ) {
+      findDirResource(project)
+    } else {
+      projectToResources.get(project) getOrElse findDirResource(project)
+    }
 
-    val srcPaths =
-      for ((src, out) <- if (forTest) resource.testToOut else resource.srcToOut) yield src
+    if (isForTest(resource, fo)) resource.testToOut else resource.srcToOut
+  }
+
+  def getSrcFileObjects(fo: FileObject, refresh: Boolean): Array[FileObject] = {
+    val resource = getResourceOf(fo, refresh)
+    val srcPaths = for ((src, out) <- resource) yield src
 
     srcPaths.toArray
   }
 
   def getOutFileObject(fo: FileObject, refresh: Boolean): Option[FileObject] = {
-    val project = FileOwnerQuery.getOwner(fo)
-    if (project == null) {
-      // * it may be a standalone file, or file in standard lib
-      return None
-    }
-
-    val resource = if (refresh ) {
-      findDirResources(project)
-    } else {
-      projectToResources.get(project) getOrElse findDirResources(project)
-    }
-
-    val forTest = isForTest(resource, fo)
-
-    var outPath: FileObject = null
-    var srcPaths: List[FileObject] = Nil
-    for ((src, out) <- if (forTest) resource.testToOut else resource.srcToOut) {
-      srcPaths ::= src
-
+    val resource = getResourceOf(fo, refresh)
+    for ((src, out) <- resource) {
       try {
         val file = FileUtil.toFile(out)
         if (!file.exists) file.mkdirs
@@ -246,7 +235,7 @@ object ScalaGlobal {
     }
 
     val resource = projectToResources.get(project) getOrElse {
-      val x = findDirResources(project)
+      val x = findDirResource(project)
       projectToResources += (project -> x)
       x
     }
@@ -387,7 +376,7 @@ object ScalaGlobal {
     }
   }
 
-  private def findDirResources(project: Project): DirResource = {
+  private def findDirResource(project: Project): DirResource = {
     val resource = new DirResource
 
     val sources = ProjectUtils.getSources(project)
