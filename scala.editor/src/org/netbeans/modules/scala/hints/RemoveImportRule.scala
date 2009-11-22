@@ -171,7 +171,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
       }
 
       val rangeOpt = context.calcOffsetRange(offset, endOffset)
-      new Hint(this, "Remove Unused Import " +  (offset, endOffset, text), context.getFileObject, rangeOpt.get,
+      new Hint(this, "Remove Unused " +  text, context.getFileObject, rangeOpt.get,
                new ju.ArrayList() /**new RemoveImportFix(context, offset, endOffset, text)) */, DEFAULT_PRIORITY)
     } toList
   }
