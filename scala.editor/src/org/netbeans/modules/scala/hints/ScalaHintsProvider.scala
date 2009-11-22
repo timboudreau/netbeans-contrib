@@ -59,7 +59,6 @@ class ScalaHintsProvider() extends HintsProvider {
      * Compute hints applicable to the given compilation info and add to the given result list.
      */
     def computeHints(manager : HintsManager, context : RuleContext, hints : java.util.List[Hint]) : Unit = {
-      println("compute hints")
       val parserResult = context.parserResult;
       if (parserResult != null) {
           val scalaParserResult = parserResult.asInstanceOf[ScalaParserResult]
