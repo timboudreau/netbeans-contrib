@@ -9,49 +9,49 @@
                     <code-name-base>org.netbeans.libs.scala</code-name-base>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>2.7.28</specification-version>
+                        <specification-version>2.8.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.console</code-name-base>
                     <run-dependency>
-                        <specification-version>0.10.2</specification-version>
+                        <specification-version>0.10.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.core</code-name-base>
                     <run-dependency>
-                        <specification-version>0.1</specification-version>
+                        <specification-version>0.1.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.debugger</code-name-base>
                     <run-dependency>
-                        <specification-version>0.12.0</specification-version>
+                        <specification-version>0.12.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.debugger.projects</code-name-base>
                     <run-dependency>
-                        <specification-version>0.14.2</specification-version>
+                        <specification-version>0.14.6</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.editor</code-name-base>
                     <run-dependency>
-                        <specification-version>0.1.17</specification-version>
+                        <specification-version>0.1.19</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.platform</code-name-base>
                     <run-dependency>
-                        <specification-version>0.11.1</specification-version>
+                        <specification-version>0.11.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.project</code-name-base>
                     <run-dependency>
-                        <specification-version>1.3.0</specification-version>
+                        <specification-version>1.3.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -61,7 +61,7 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.stdplatform</code-name-base>
                     <run-dependency>
-                        <specification-version>0.11.2</specification-version>
+                        <specification-version>0.11.4</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
