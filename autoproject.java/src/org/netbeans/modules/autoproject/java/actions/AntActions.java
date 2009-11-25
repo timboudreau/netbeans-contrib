@@ -47,6 +47,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -121,7 +123,7 @@ public class AntActions extends AbstractAction implements ContextAwareAction {
                 try {
                     allTargets = TargetLister.getTargets(apc);
                 } catch (IOException e) {
-                    Exceptions.printStackTrace(e);
+                    Logger.getLogger(AntActions.class.getName()).log(Level.INFO, null, e);
                     allTargets = Collections.emptySet();
                 }
                 String defaultTarget = null;
