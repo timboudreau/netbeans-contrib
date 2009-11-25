@@ -660,7 +660,7 @@ abstract class ScalaAstVisitor {
 
     var endOffset = if (pos.isDefined) pos.endOrPoint else -1
     if (forward != -1) {
-      endOffset = Math.max(endOffset, offset + forward)
+      endOffset = math.max(endOffset, offset + forward)
     }
     
     val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None} 
@@ -692,7 +692,7 @@ abstract class ScalaAstVisitor {
             // * bug in scalac, wrong RangePosition for "list filter {...}", the range only contains "list"
             ts.move(endOffset)
             if (ts.moveNext && ts.movePrevious) {
-              val end = Math.min(endOffset + 100, docLength - 1)
+              val end = math.min(endOffset + 100, docLength - 1)
               findIdTokenForward(ts, name, endOffset, end)
             } else None
           case x => x

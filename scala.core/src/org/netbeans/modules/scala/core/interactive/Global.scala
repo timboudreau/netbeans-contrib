@@ -528,16 +528,16 @@ extends scala.tools.nsc.Global(_settings, _reporter)
 
   final def recoveredType(tree: Tree): Option[Type] = {
     def findViaGet(atree: Tree) = qualToRecoveredType.get(atree) match {
-      case some => some
       case None => qualToRecoveredType find {
           case (Select(qual, _), _) => qual == atree
           case (SelectFromTypeTree(qual, _), _) => qual == atree
           case (Apply(fun, _), _) => fun == atree
           case (x, _) => x == atree // usaully Ident tree
         } match {
-          case Some((_, tpe)) => Some(tpe)
           case None => None
+          case Some((_, tpe)) => Some(tpe)
         }
+      case some => some
     }
     
     def findViaPos(atree: Tree) = qualToRecoveredType find {
@@ -550,8 +550,8 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       case (x, _) =>
         (x.pos sameRange atree.pos) // usaully Ident tree
     } match {
-      case Some((_, tpe)) => Some(tpe)
       case None => None
+      case Some((_, tpe)) => Some(tpe)
     }
 
     def find(op: Tree => Option[Type]) = {
@@ -563,13 +563,13 @@ extends scala.tools.nsc.Global(_settings, _reporter)
             case Apply(fun, _) => op(fun)
             case _ => None
           }
-        case x => x
+        case some => some
       }
     }
 
     find(findViaGet) match {
       case None => find(findViaPos)
-      case x => x
+      case some => some
     }
   }
 

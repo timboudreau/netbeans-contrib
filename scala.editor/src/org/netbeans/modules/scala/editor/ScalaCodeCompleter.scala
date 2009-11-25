@@ -424,11 +424,6 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     false
   }
 
-  def completeImport(qualItem: AstItem, selector: String, proposals: java.util.List[CompletionProposal]): Boolean = {
-    prefix = selector
-    completeSymbolMembers(qualItem, proposals)
-  }
-
   /*
    @Deprecated
    def completeImport(proposals: java.util.List[CompletionProposal]): Boolean = {
@@ -673,45 +668,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     true
   }
 
-  def completeSymbolMembers(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
-    val sym = item.symbol.asInstanceOf[Symbol]
-
-    // * use explict assigned `resultType` first
-    var resultTpe = item.resultType match {
-      case null => getResultType(sym)
-      case x => Some(x.asInstanceOf[Type])
-    }
-
-    resultTpe match {
-      case Some(rtpe) =>
-        try {
-          val offset = item.idOffset(th)
-          val alternatePos = rangePos(pResult.srcFile, offset, offset, offset)
-          var pos = rangePos(pResult.srcFile, lexOffset, lexOffset, lexOffset)
-          val resp = new Response[List[Member]]
-          askTypeCompletion(pos, alternatePos, rtpe, resp)
-          resp.get match {
-            case Left(members) =>
-              for (TypeMember(sym, tpe, accessible, inherited, viaView) <- members
-                   if accessible && startsWith(sym.nameString, prefix) && !sym.isConstructor
-              ) {
-
-                createSymbolProposal(sym) foreach {proposal =>
-                  proposal.getElement.asInstanceOf[ScalaElement].isInherited = inherited
-                  proposal.getElement.asInstanceOf[ScalaElement].isImplicit = (viaView != NoSymbol)
-                  proposals.add(proposal)
-                }
-              }
-            case Right(ex) => {ScalaGlobal.resetLate(global, ex)}
-          }
-        } catch {case ex => ScalaGlobal.resetLate(global, ex)}
-      case None =>
-    }
-
-    // always return true ?
-    true
-  }
-
+  @deprecated("For referrence only")
   def completeScopeImplicits(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
     val sym = item.symbol.asInstanceOf[Symbol]
 
