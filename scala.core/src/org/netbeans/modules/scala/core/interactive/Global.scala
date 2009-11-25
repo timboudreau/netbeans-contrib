@@ -17,8 +17,8 @@ import scala.tools.nsc.ast._
 
 /** The main class of the presentation compiler in an interactive environment such as an IDE
  */
-class Global(settings: Settings, reporter: Reporter) 
-extends scala.tools.nsc.Global(settings, reporter) 
+class Global(_settings: Settings, _reporter: Reporter)
+extends scala.tools.nsc.Global(_settings, _reporter)
    with CompilerControl
    with RangePositions
    with ContextTrees
@@ -231,7 +231,7 @@ extends scala.tools.nsc.Global(settings, reporter)
    */ 
   private def backgroundCompile() {
     if (debugIDE) inform("Starting new presentation compiler type checking pass")
-    reporter.reset
+    _reporter.reset
     firsts = firsts filter (s => unitOfFile contains (s.file))
     val prefix = firsts map unitOf
     val units = prefix ::: (unitOfFile.valuesIterator.toList diff prefix) filter (!_.isUpToDate)
@@ -256,7 +256,7 @@ extends scala.tools.nsc.Global(settings, reporter)
   def parse(unit: RichCompilationUnit): Unit = {
     val start = System.currentTimeMillis
     currentTyperRun.compileLate(unit)
-    if (!reporter.hasErrors) validatePositions(unit.body)
+    if (!_reporter.hasErrors) validatePositions(unit.body)
     GlobalLog.info("Parse took " + (System.currentTimeMillis - start) + "ms")
     //println("parsed: [["+unit.body+"]]")
     unit.status = JustParsed
@@ -348,6 +348,16 @@ extends scala.tools.nsc.Global(settings, reporter)
   def stabilizedType(tree: Tree): Type = tree match {
     case Ident(_) if tree.symbol.isStable => singleType(NoPrefix, tree.symbol)
     case Select(qual, _) if tree.symbol.isStable => singleType(qual.tpe, tree.symbol)
+    case Import(expr, selectors) =>
+      tree.symbol.info match {
+        case analyzer.ImportType(expr) => expr match {
+            case s@Select(qual, name) => singleType(qual.tpe, s.symbol)
+            case i : Ident => i.tpe
+            case _ => tree.tpe
+          }
+        case _ => tree.tpe
+      }
+
     case _ => tree.tpe
   }
 
@@ -518,7 +528,7 @@ extends scala.tools.nsc.Global(settings, reporter)
 
   final def recoveredType(tree: Tree): Option[Type] = {
     def findViaGet(atree: Tree) = qualToRecoveredType.get(atree) match {
-      case Some(tpe) => Some(tpe)
+      case some => some
       case None => qualToRecoveredType find {
           case (Select(qual, _), _) => qual == atree
           case (SelectFromTypeTree(qual, _), _) => qual == atree
@@ -660,12 +670,12 @@ extends scala.tools.nsc.Global(settings, reporter)
      *  @return true iff typechecked correctly
      */
     private def applyPhase(phase: Phase, unit: CompilationUnit) {
-      val oldSource = reporter.getSource          
+      val oldSource = _reporter.getSource
       try {
-        reporter.setSource(unit.source)    
+        _reporter.setSource(unit.source)
         atPhase(phase) { phase.asInstanceOf[GlobalPhase] applyPhase unit }
       } finally {
-        reporter setSource oldSource
+        _reporter setSource oldSource
       }
     }
   }

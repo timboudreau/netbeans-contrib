@@ -595,13 +595,13 @@ object ScalaGlobal {
   }
 }
 
-class ScalaGlobal(settings: Settings, reporter: Reporter) extends Global(settings, reporter)
-                                                             with ScalaItems
-                                                             with ScalaDfns
-                                                             with ScalaRefs
-                                                             with ScalaElements
-                                                             with JavaElements
-                                                             with ScalaUtils {
+class ScalaGlobal(_settings: Settings, _reporter: Reporter) extends Global(_settings, _reporter)
+                                                               with ScalaItems
+                                                               with ScalaDfns
+                                                               with ScalaRefs
+                                                               with ScalaElements
+                                                               with JavaElements
+                                                               with ScalaUtils {
   import ScalaGlobal._
 
   // * Inner object inside a class is not singleton, so it's safe for each instance of ScalaGlobal,
