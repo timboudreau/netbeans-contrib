@@ -154,8 +154,8 @@ is divided into following sections:
                 <property file="${{user.properties.file}}"/>
                 <xsl:comment> The two properties below are usually overridden </xsl:comment>
                 <xsl:comment> by the active platform. Just a fallback. </xsl:comment>
-                <property name="default.javac.source" value="1.4"/>
-                <property name="default.javac.target" value="1.4"/>
+                <property name="default.javac.source" value="1.5"/>
+                <property name="default.javac.target" value="1.5"/>
             </target>
 
             <target name="-init-project">
@@ -264,6 +264,7 @@ is divided into following sections:
                 <property name="javadoc.encoding.used" value="${{source.encoding}}"/>
                 <property name="includes" value="**"/>
                 <property name="excludes" value=""/>
+                <property name="extdirs" value=" "/> <!-- should be " " instead of ""-->
                 <property name="do.depend" value="false"/>
                 <condition property="do.depend.true">
                     <istrue value="${{do.depend}}"/>
@@ -479,6 +480,10 @@ is divided into following sections:
                         <xsl:attribute name="default">${javac.classpath}</xsl:attribute>
                     </attribute>
                     <attribute>
+                        <xsl:attribute name="name">extdirs</xsl:attribute>
+                        <xsl:attribute name="default">${extdirs}</xsl:attribute>
+                    </attribute>
+                    <attribute>
                         <xsl:attribute name="name">includes</xsl:attribute>
                         <xsl:attribute name="default">${includes}</xsl:attribute>
                     </attribute>
@@ -503,6 +508,7 @@ is divided into following sections:
                             <xsl:attribute name="srcdir">@{srcdir}</xsl:attribute>
                             <xsl:attribute name="sourcepath">@{sourcepath}</xsl:attribute>
                             <xsl:attribute name="destdir">@{destdir}</xsl:attribute>
+                            <xsl:attribute name="extdirs">@{extdirs}</xsl:attribute> <!-- Should not be empty, can use " "-->
                             <xsl:attribute name="deprecation">${scalac.deprecation}</xsl:attribute>
                             <xsl:attribute name="unchecked">${scalac.unchecked}</xsl:attribute>
                             <xsl:attribute name="encoding">${source.encoding}</xsl:attribute>
