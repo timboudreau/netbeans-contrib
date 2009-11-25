@@ -42,7 +42,6 @@ import java.io.{File, IOException}
 import java.net.{MalformedURLException, URISyntaxException, URL}
 import java.util.logging.{Logger, Level}
 import org.netbeans.api.java.classpath.ClassPath
-import org.netbeans.api.java.queries.BinaryForSourceQuery
 import org.netbeans.api.lexer.{TokenHierarchy}
 import org.netbeans.api.project.{FileOwnerQuery, Project, ProjectUtils}
 import org.netbeans.spi.java.queries.BinaryForSourceQueryImplementation
@@ -58,11 +57,10 @@ import scala.collection.mutable.{ArrayBuffer, LinkedHashMap, WeakHashMap}
 import scala.tools.nsc.{Settings}
 
 import org.netbeans.modules.scala.core.interactive.Global
-import scala.tools.nsc.symtab.{Flags}
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.{Reporter}
-import scala.tools.nsc.util.{Position, SourceFile, NoPosition}
+import scala.tools.nsc.util.{Position, SourceFile}
 
 /**
  *
@@ -282,6 +280,23 @@ object ScalaGlobal {
         true // * in case of `fo` in standard libaray
       } else false
 
+    logger.info("scala.home: " + System.getProperty("scala.home"))
+
+    // ----- set bootclasspath, classpath
+    
+    val bootCpStr = toClassPathString(project, bootCp)
+    settings.bootclasspath.value = bootCpStr
+    logger.info("project's bootclasspath: " + settings.bootclasspath.value)
+
+    val compCpStr = toClassPathString(project, compCp)
+    settings.classpath.value = compCpStr
+    logger.info("project's classpath: " + settings.classpath.value)
+
+    // * should set extdirs to empty, otherwise all jars under scala.home/lib will be added
+    // * which brings unwanted scala runtime (scala runtime should be set in compCpStr).
+    // * @see scala.tools.nsc.Settings#extdirsDefault
+    settings.extdirs.value = ""
+
     // ----- set sourcepath, outpath
     
     var outPath = ""
@@ -321,16 +336,6 @@ object ScalaGlobal {
      settings.outputDirs.add(src, out)
      }
      */
-
-    // ----- set bootclasspath, classpath
-
-    val bootCpStr = toClassPathString(project, bootCp)
-    settings.bootclasspath.value = bootCpStr
-    logger.info("project's bootclasspath: " + settings.bootclasspath.value)
-
-    val compCpStr = toClassPathString(project, compCp)
-    settings.classpath.value = compCpStr
-    logger.info("project's classpath: " + settings.classpath.value)
 
     // ----- now, the new global
 
