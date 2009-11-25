@@ -160,6 +160,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     protected void initializeCloneableEditor(CloneableEditor editor) {
         try {
             super.initializeCloneableEditor(editor);
+            editor.open();
             TransferHandler handler = ImagePasteSupport.createTransferHandler(
                     editor.getEditorPane(), IMG_TEMPLATE);
             editor.getEditorPane().setTransferHandler(handler);
