@@ -668,7 +668,7 @@ class ScalaCodeCompleter(val global: ScalaGlobal) {
     true
   }
 
-  @deprecated("For referrence only")
+  @deprecated("For reference only")
   def completeScopeImplicits(item: AstItem, proposals: java.util.List[CompletionProposal]): Boolean = {
     val sym = item.symbol.asInstanceOf[Symbol]
 
