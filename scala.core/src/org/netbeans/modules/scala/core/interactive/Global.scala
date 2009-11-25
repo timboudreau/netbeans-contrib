@@ -231,7 +231,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
    */ 
   private def backgroundCompile() {
     if (debugIDE) inform("Starting new presentation compiler type checking pass")
-    _reporter.reset
+    reporter.reset
     firsts = firsts filter (s => unitOfFile contains (s.file))
     val prefix = firsts map unitOf
     val units = prefix ::: (unitOfFile.valuesIterator.toList diff prefix) filter (!_.isUpToDate)
@@ -256,7 +256,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
   def parse(unit: RichCompilationUnit): Unit = {
     val start = System.currentTimeMillis
     currentTyperRun.compileLate(unit)
-    if (!_reporter.hasErrors) validatePositions(unit.body)
+    if (!reporter.hasErrors) validatePositions(unit.body)
     GlobalLog.info("Parse took " + (System.currentTimeMillis - start) + "ms")
     //println("parsed: [["+unit.body+"]]")
     unit.status = JustParsed
@@ -670,12 +670,12 @@ extends scala.tools.nsc.Global(_settings, _reporter)
      *  @return true iff typechecked correctly
      */
     private def applyPhase(phase: Phase, unit: CompilationUnit) {
-      val oldSource = _reporter.getSource
+      val oldSource = reporter.getSource
       try {
-        _reporter.setSource(unit.source)
+        reporter.setSource(unit.source)
         atPhase(phase) { phase.asInstanceOf[GlobalPhase] applyPhase unit }
       } finally {
-        _reporter setSource oldSource
+        reporter setSource oldSource
       }
     }
   }
