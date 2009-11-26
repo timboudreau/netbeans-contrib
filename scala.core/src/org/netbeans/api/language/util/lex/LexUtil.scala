@@ -1195,7 +1195,7 @@ trait LexUtil {
           return lexOffset
         }
       } else {
-        // Make lineStart so small that Math.max won't cause any problems
+        // Make lineStart so small that math.max won't cause any problems
         val firstNonWhite = Utilities.getRowFirstNonWhite(doc, lineStart)
         if (prevLast >= 0 && (lexOffset <= firstNonWhite || firstNonWhite == -1)) {
           return prevLast + 1

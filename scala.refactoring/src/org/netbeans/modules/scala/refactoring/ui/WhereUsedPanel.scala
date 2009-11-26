@@ -448,13 +448,13 @@ class WhereUsedPanel(name: String, @transient element: ScalaItems#ScalaItem, @tr
            .addContainerGap()
            .add(scopeLabel)
            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-           .add(scope, 0, 266, Math.MAX_SHORT)
+           .add(scope, 0, 266, Short.MaxValue)
            .addContainerGap())
     );
     scopePanelLayout.setVerticalGroup(
       scopePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
       .add(scopeLabel)
-      .add(scope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, Math.MAX_SHORT)
+      .add(scope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, Short.MaxValue)
     );
 
     scope.getAccessibleContext().setAccessibleDescription("N/A");

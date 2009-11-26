@@ -99,10 +99,10 @@ class FmtTabsIndents extends javax.swing.JPanel {
                      .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                      .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                           .add(indentSizeField)
-                          .add(continuationIndentSizeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Math.MAX_SHORT)))
+                          .add(continuationIndentSizeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Short.MaxValue)))
                 .add(reformatCommentsCheckBox)
                 .add(indentHtmlCheckBox))
-           .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Math.MAX_SHORT))
+           .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MaxValue))
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -118,7 +118,7 @@ class FmtTabsIndents extends javax.swing.JPanel {
            .add(reformatCommentsCheckBox)
            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
            .add(indentHtmlCheckBox)
-           .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Math.MAX_SHORT))
+           .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MaxValue))
     );
   }// </editor-fold>//GEN-END:initComponents
     
