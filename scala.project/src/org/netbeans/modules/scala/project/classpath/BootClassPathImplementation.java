@@ -59,10 +59,10 @@ import org.openide.util.WeakListeners;
 
 final class BootClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
 
-    private static final String PLATFORM_ACTIVE = "java.platform.active";       //NOI18N
+    private static final String PLATFORM_ACTIVE = "platform.active";       //NOI18N
     private static final String ANT_NAME = "java.platform.ant.name";            //NOI18N
     private static final String J2SE = "j2se";                                  //NOI18N
-    private static final String SCALA_PLATFORM_ACTIVE = "platform.active";      //NOI18N
+    private static final String SCALA_PLATFORM_ACTIVE = "scala.platform.active";      //NOI18N
 
     private final PropertyEvaluator evaluator;
     private JavaPlatformManager platformManager;
