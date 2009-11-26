@@ -48,7 +48,12 @@ import java.util.Properties;
 public class SDKProbe {
     public static void main(String[] args) {
         Properties p = System.getProperties();
-
+        String versionString = scala.util.Properties.versionString();
+        String scalaHome = scala.util.Properties.scalaHome();
+        p.put("scala.version.number", versionString);
+        p.put("scala.class.path", scalaHome + File.separator + "lib/library.jar");
+        p.put("scala.source.path", scalaHome + File.separator + "src");
+        
         File f = new File(args[0]);
         try {
             FileOutputStream fos = new FileOutputStream(f);

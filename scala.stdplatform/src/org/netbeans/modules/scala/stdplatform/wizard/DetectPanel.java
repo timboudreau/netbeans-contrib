@@ -346,10 +346,10 @@ public class DetectPanel extends javax.swing.JPanel {
 
 
     private static String getInitialName (Map<String,String> m) {        
-        String vmVersion = m.get("java.specification.version");        //NOI18N
+        String scalaVersion = m.get("scala.version.number");        //NOI18N
         StringBuilder result = new StringBuilder(NbBundle.getMessage(DetectPanel.class,"TXT_DetectPanel_Java"));        
-        if (vmVersion != null) {
-            result.append (vmVersion);
+        if (scalaVersion != null) {
+            result.append (scalaVersion);
         }
         return result.toString();
     }
