@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
@@ -75,7 +76,7 @@ public class FallbackDefaultScalaPlatform extends ScalaPlatform {
     }
 
     public Map<String,String> getProperties() {
-        return Collections.singletonMap("scala.platform.ant.name", "default_platform");
+        return Collections.singletonMap(ScalaPlatformManager.SCALA_PLATFORM_PROP_ID, "default_platform");
     }
 
     private static ClassPath sysProp2CP(String propname) {

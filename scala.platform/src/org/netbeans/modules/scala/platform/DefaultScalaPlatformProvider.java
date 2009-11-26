@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.openide.util.Lookup;
 
 @org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.scala.platform.ScalaPlatformProvider.class)
@@ -119,7 +120,7 @@ public class DefaultScalaPlatformProvider implements ScalaPlatformProvider, File
         if (this.defaultPlatform == null) {
             ScalaPlatform[] allPlatforms = this.getInstalledPlatforms();
             for (int i=0; i< allPlatforms.length; i++) {
-                if ("default_platform".equals(allPlatforms[i].getProperties().get("scala.platform.ant.name"))) {  //NOI18N
+                if ("default_platform".equals(allPlatforms[i].getProperties().get(ScalaPlatformManager.SCALA_PLATFORM_PROP_ID))) {  //NOI18N
                     defaultPlatform = allPlatforms[i];
                     break;
                 }

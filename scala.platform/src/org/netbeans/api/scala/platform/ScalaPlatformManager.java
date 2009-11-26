@@ -69,6 +69,7 @@ public final class ScalaPlatformManager {
      * Property name of the installedPlatforms property
      */
     public static final String PROP_INSTALLED_PLATFORMS="installedPlatforms";   //NOI18N
+    public static final String SCALA_PLATFORM_PROP_ID = "scala.platform.ant.name"; //NOI18N
 
     private static ScalaPlatformManager instance = null;
 

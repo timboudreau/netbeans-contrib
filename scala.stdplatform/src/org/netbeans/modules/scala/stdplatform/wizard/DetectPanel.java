@@ -349,7 +349,7 @@ public class DetectPanel extends javax.swing.JPanel {
         String scalaVersion = m.get("scala.version.number");        //NOI18N
         StringBuilder result = new StringBuilder(NbBundle.getMessage(DetectPanel.class,"TXT_DetectPanel_Java"));        
         if (scalaVersion != null) {
-            result.append (scalaVersion);
+            result.append(" ").append(scalaVersion);
         }
         return result.toString();
     }

@@ -50,6 +50,7 @@ import java.io.File;
 
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -68,7 +69,7 @@ public class J2SEPlatformImpl extends ScalaPlatform {
     public static final String PROP_ANT_NAME = "antName";                   //NOI18N
     public static final String PLATFORM_J2SE = "std";                      //NOI18N
 
-    protected static final String PLAT_PROP_ANT_NAME="java.platform.ant.name";             //NOI18N
+    protected static final String PLAT_PROP_ANT_NAME = ScalaPlatformManager.SCALA_PLATFORM_PROP_ID;             //NOI18N
     protected static final String PLAT_PROP_ARCH_FOLDER="scala.platform.arch.folder";       //NOI18N
     protected static final String SYSPROP_BOOT_CLASSPATH = "java.boot.class.path";     // NOI18N
     protected static final String SYSPROP_SCALA_CLASS_PATH = "scala.class.path";        // NOI18N
