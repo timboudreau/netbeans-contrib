@@ -106,15 +106,15 @@ public final class NewJ2SEPlatform extends J2SEPlatformImpl implements Runnable 
      */
     public void run() {
         try {
-            FileObject java = findTool("scala");
-            if (java == null)
+            FileObject scala = findTool("scala");
+            if (scala == null)
                 return;
-            File javaFile = FileUtil.toFile (java);
-            if (javaFile == null)
+            File scalaFile = FileUtil.toFile (scala);
+            if (scalaFile == null)
                 return;
-            String javapath = javaFile.getAbsolutePath();
+            String scalapath = scalaFile.getCanonicalPath();
             String filePath = File.createTempFile("nb-platformdetect", "properties").getAbsolutePath();
-            final String probePath = getSDKProperties(javapath, filePath);
+            final String probePath = getSDKProperties(scalapath, filePath);
             File f = new File(filePath);
             Properties p = new Properties();
             InputStream is = new FileInputStream(f);

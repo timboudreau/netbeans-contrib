@@ -44,6 +44,7 @@ import java.io.{File, IOException}
 import java.net.{MalformedURLException, URL}
 import java.util.{Properties}
 
+import org.netbeans.spi.java.classpath.support.ClassPathSupport
 import org.openide.filesystems.{FileObject, FileUtil}
 import org.openide.util.{Exceptions, Utilities}
 import scala.tools.nsc.{Settings}
@@ -263,6 +264,38 @@ object ScalaHome {
     cp.toString // NOI18N
   }
 
+  def getStandardLib(scalaHome: File): Option[File] = {
+    if (scalaHome != null) {
+      try {
+        val scalaLib = new File(scalaHome, "lib")    //NOI18N
+        if (scalaLib != null && scalaLib.exists && scalaLib.canRead) {
+          return scalaLib.listFiles find {jar => jar.getName == "library.jar"}
+        }
+      }
+    }
+    None
+  }
+
+  def versionString(scalaHome: File): String = {
+    val props = new java.util.Properties
+    getStandardLib(scalaHome) foreach {
+      case x =>
+        val cp = ClassPathSupport.createClassPath(Array(FileUtil.toFileObject(x)): _*)
+        cp.findResource("/library.properties") match {
+          case null =>
+          case propFile =>
+            val is = propFile.getInputStream
+            try {
+              props.load(is)
+            } catch {case _ =>} finally {
+              if (is != null) is.close
+            }
+        }
+    }
+
+    props.getProperty("version.number", "<unknown>")
+  }
+  
   private def printProperties(props: Properties): Unit = {
     println("===========================")
     val keys = props.keys
