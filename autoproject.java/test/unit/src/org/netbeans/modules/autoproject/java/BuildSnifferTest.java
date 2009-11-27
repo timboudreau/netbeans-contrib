@@ -362,6 +362,19 @@ public class BuildSnifferTest extends NbTestCase {
         runAnt();
         assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES));
         assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includes='pkg/Version.java'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.INCLUDES)); // #177718
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.EXCLUDES));
         // XXX unless attr, nested <includesfile> w/ if/unless, ...
         // XXX would be nice to also honor <selector>s as used by Apache Ant's build script
     }
