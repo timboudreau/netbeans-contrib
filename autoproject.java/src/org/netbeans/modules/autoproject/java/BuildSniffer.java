@@ -283,6 +283,7 @@ public class BuildSniffer extends AntLogger {
             String includesKey = s + JavaCacheConstants.INCLUDES;
             if (includes.isEmpty()) {
                 state.toWrite.put(includesKey, null);
+                state.writtenKeys.put(includesKey, null);
             } else {
                 writePath(includesKey, includes, state, true, ',');
             }
@@ -402,7 +403,7 @@ public class BuildSniffer extends AntLogger {
         synchronized (state.writtenKeys) {
             writtenPath = state.writtenKeys.get(key);
             if (writtenPath == null) {
-                if (path != null) {
+                if (path != null && /*#177718*/!state.writtenKeys.containsKey(key)) {
                     writtenPath = new LinkedHashSet<String>(path);
                     state.writtenKeys.put(key, writtenPath);
                 }
