@@ -42,14 +42,14 @@ made subject to such option by the copyright holder.
 -->
 <project name="contrib/libs.scala" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
-    
+
     <target name="unziplibs" depends="init">
         <!--delete dir="${cluster}/scala"/-->
-	<!-- do not use name: *.tgz, use *.tar.gz instead. since hg's [encode] recognize *.gz only -->
+        <!-- do not use name: *.tgz, use *.tar.gz instead. since hg's [encode] recognize *.gz only -->
         <!--untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.3.tar.gz"/-->
 
-        <!-- From Aug 2008, scala.editing support can handle jar source files, do not need to unzip them any more --> 
-	<!-- do not unzip these jar files, since Scala's ClassPath needs them to be jar
+        <!-- From Aug 2008, scala.editing support can handle jar source files, do not need to unzip them any more -->
+        <!-- do not unzip these jar files, since Scala's ClassPath needs them to be jar
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/sbaz-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-compiler-src.jar"/>
         <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-dbc-src.jar"/>
@@ -59,7 +59,15 @@ made subject to such option by the copyright holder.
             <fileset dir="${scala.dir}/src" includes="*.jar"/>
         </delete>
         -->
-    </target>    
+    </target>
+
+    <target name="bin-sha1">
+        <checksum algorithm="SHA1" pattern="{0}-{1}" forceOverwrite="yes">
+            <fileset dir="./external">
+                <include name="*.jar"/>
+            </fileset>
+        </checksum>
+    </target>
 
     <target name="netbeans-extra" depends="unziplibs"/>
 
