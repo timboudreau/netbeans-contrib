@@ -131,6 +131,9 @@ public class StaticImport extends AbstractHint {
                 return null;
             }
             Element klass = info.getTrees().getElement(cc);
+            if (klass.getKind() != ElementKind.CLASS) {
+                return null;
+            }
             String fqn = null;
             String fqn1 = getMethodFqn(e);
             if (!isSubTypeOrInnerOfSubType(info, klass, enclosingEl) && !isStaticallyImported(info, fqn1)) {
