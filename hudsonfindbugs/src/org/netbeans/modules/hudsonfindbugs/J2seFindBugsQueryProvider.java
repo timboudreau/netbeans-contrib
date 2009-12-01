@@ -46,9 +46,7 @@ import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
-import org.netbeans.modules.java.j2seproject.J2SEProject;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.modules.java.j2seproject.api.J2SEPropertyEvaluator;
 
 /**
  *
@@ -74,11 +72,10 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
         URL url = null;
         String urlValue = null;
         // TODO when the provider is only in project's lookup this condition is not necessary.
-        if (project instanceof J2SEProject) {
+        J2SEPropertyEvaluator eval = project.getLookup().lookup(J2SEPropertyEvaluator.class);
+        if (eval != null) {
             try {
-                J2SEProject j2sePrj = (J2SEProject) project;
-                EditableProperties ep = j2sePrj.getAntProjectHelper().getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                urlValue = ep.getProperty(FINDBUGS_PROJECT_PROPERTY);
+                urlValue = eval.evaluator().getProperty(FINDBUGS_PROJECT_PROPERTY);
                 if (urlValue != null) {
                     url = new URL(urlValue);
                 }
