@@ -38,8 +38,8 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.erd.wizard;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Connection;
@@ -56,99 +56,97 @@ import org.netbeans.modules.dbschema.jdbcimpl.wizard.ProgressFrame;
 import org.netbeans.modules.erd.io.ERDContext;
 import org.openide.ErrorManager;
 
-
 public class CaptureERD {
-    
+
     private static final String defaultName = NbBundle.getMessage(CaptureERD.class, "DefaultSchemaName"); //NOI18N
     private ERDContext context;
     private boolean isAlreadyConnected;
     private DatabaseConnection dbconn;
-    
-    public CaptureERD(ERDContext context){
-        this.context=context;
+
+    public CaptureERD(ERDContext context) {
+        this.context = context;
     }
-    
+
     public void createSchemaFromConnection() {
         try {
-            
+
             SwingUtilities.invokeAndWait(
                     new Runnable() {
-                public void run(){
-                    createSchemaFromConnectionInAWT();
-                }
-            }
-            ) ;
-            
-        } catch(Exception e){
-            
+
+                        public void run() {
+                            createSchemaFromConnectionInAWT();
+                        }
+                    });
+
+        } catch (Exception e) {
         }
     }
-    
-    
-    private void createSchemaFromConnectionInAWT(){
+
+    private void createSchemaFromConnectionInAWT() {
         try {
             ConnectionProvider cp = createConnectionProvider();
-            
-             getSchema(cp);
-        } catch(Exception exc){
+
+            getSchema(cp);
+        } catch (Exception exc) {
             ErrorManager.getDefault().notify(exc);
         }
-        
+
     }
-    
-    
-    private void getSchema(final ConnectionProvider cp) throws Exception{
+
+    private void getSchema(final ConnectionProvider cp) throws Exception {
         try {
             final ConnectionProvider c = cp;
             if (c == null) {
                 throw new SQLException(NbBundle.getMessage(CaptureERD.class, "EXC_ConnectionNotEstablished"));
             }
-            Runnable mytask=new Runnable() {
+            Runnable mytask = new Runnable() {
+
                 public void run() {
                     try {
                         StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(CaptureERD.class, "CreatingDatabaseSchema")); //NOI18N
-                        
+
                         final ProgressFrame pf = new ProgressFrame();
                         final SchemaElementImpl sei = new SchemaElementImpl(c);
-                        
+
                         PropertyChangeListener listener = new PropertyChangeListener() {
+
                             public void propertyChange(PropertyChangeEvent event) {
                                 String message;
-                                
+
                                 if (event.getPropertyName().equals("totalCount")) { //NOI18N
-                                    pf.setMaximum(((Integer)event.getNewValue()).intValue());
+                                    pf.setMaximum(((Integer) event.getNewValue()).intValue());
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("progress")) { //NOI18N
-                                    pf.setValue(((Integer)event.getNewValue()).intValue());
+                                    pf.setValue(((Integer) event.getNewValue()).intValue());
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("tableName")) { //NOI18N
-                                    message = NbBundle.getMessage(CaptureERD.class, "CapturingTable", ((String)event.getNewValue()).toUpperCase()); //NOI18N
+                                    message = NbBundle.getMessage(CaptureERD.class, "CapturingTable", ((String) event.getNewValue()).toUpperCase()); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("FKt")) { //NOI18N
                                     message = NbBundle.getMessage(CaptureERD.class, "CaptureFK", ((String) event.getNewValue()).toUpperCase(), NbBundle.getMessage(CaptureERD.class, "CaptureFKtable")); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("FKv")) { //NOI18N
                                     message = NbBundle.getMessage(CaptureERD.class, "CaptureFK", ((String) event.getNewValue()).toUpperCase(), NbBundle.getMessage(CaptureERD.class, "CaptureFKview")); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("viewName")) { //NOI18N
                                     message = NbBundle.getMessage(CaptureERD.class, "CapturingView", ((String) event.getNewValue()).toUpperCase()); //NOI18N
                                     pf.setMessage(message);
                                     return;
                                 }
-                                
+
                                 if (event.getPropertyName().equals("cancel")) { //NOI18N
                                     sei.setStop(true);
                                     StatusDisplayer.getDefault().setStatusText(""); //NOI18N
@@ -156,37 +154,35 @@ public class CaptureERD {
                                 }
                             }
                         };
-                        
+
                         pf.propertySupport.addPropertyChangeListener(listener);
                         pf.setVisible(true);
-                        
+
                         sei.propertySupport.addPropertyChangeListener(listener);
-                        
-                        
-                        
-                        SchemaElement schema=new SchemaElement(sei);
+
+
+
+                        SchemaElement schema = new SchemaElement(sei);
                         schema.setName(DBIdentifier.create("Identifier"));
                         sei.initTables(cp);
                         pf.finishProgress();
-                        
-                        if (! sei.isStop()) {
+
+                        if (!sei.isStop()) {
                             pf.setMessage(NbBundle.getMessage(CaptureERD.class, "SchemaSaved")); //NOI18N
                             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(CaptureERD.class, "SchemaSaved")); //NOI18N
-                            
+
                             pf.setVisible(false);
                             pf.dispose();
                         }
-                        
+
                         schema.setSchema(DBIdentifier.create("Identifier"));
                         context.setSchemaElement(schema);
-                        
+
                         //c.closeConnection();
-                       if (isAlreadyConnected)
-                            
-                                ConnectionManager.getDefault().disconnect(dbconn);
-                         else
+                        if (!isAlreadyConnected) {
                             cp.closeConnection();
-                        
+                        }
+
                     } catch (Exception exc) {
                         ErrorManager.getDefault().notify(exc);
                     }
@@ -196,24 +192,20 @@ public class CaptureERD {
         } catch (Exception exc) {
             String message = NbBundle.getMessage(CaptureERD.class, "UnableToCreateSchema", exc.getMessage()); //NOI18N
             StatusDisplayer.getDefault().setStatusText(message);
-            
-            
+
+
             try {
-                if (cp != null)
+                if (cp != null) {
                     cp.closeConnection();
-               
-                if (isAlreadyConnected)
-                    ConnectionManager.getDefault().disconnect(dbconn);
-                
+                }
+
             } catch (Exception exc1) {
-                
             }
         }
     }
-    
-    
-    private ConnectionProvider createConnectionProvider() throws SQLException ,InterruptedException,Exception{
-        
+
+    private ConnectionProvider createConnectionProvider() throws SQLException, InterruptedException, Exception {
+
         dbconn = findDatabaseConnection(context.getDataSourceUrl());
         if (dbconn == null) {
             return null;
@@ -222,13 +214,13 @@ public class CaptureERD {
             ConnectionProvider connectionProvider =
                     new ConnectionProvider(dbconn.getJDBCConnection(), dbconn.getDriverClass());
             connectionProvider.setSchema(dbconn.getSchema());
-            
+
             return connectionProvider;
         }
-        
+
         return null;
     }
-    
+
     private DatabaseConnection findDatabaseConnection(String url) {
         DatabaseConnection dbconns[] = ConnectionManager.getDefault().getConnections();
         for (int i = 0; i < dbconns.length; i++) {
@@ -238,26 +230,21 @@ public class CaptureERD {
         }
         return null;
     }
-    
-    
-    
-    
-    
+
     private boolean ensureDatabaseConnection() {
         try {
             return init(dbconn);
-        } catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
-    
+
     private boolean init(DatabaseConnection dbconn) {
-        
-        if(dbconn.getJDBCConnection()==null){
+
+        if (dbconn.getJDBCConnection() == null) {
             ConnectionManager.getDefault().showConnectionDialog(dbconn);
-        }
-        else {
-            isAlreadyConnected=true;
+        } else {
+            isAlreadyConnected = true;
         }
         Connection conn = dbconn.getJDBCConnection();
         try {
@@ -268,7 +255,4 @@ public class CaptureERD {
         }
         return true;
     }
-    
-    
-    
 }

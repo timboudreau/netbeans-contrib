@@ -47,7 +47,6 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import org.netbeans.modules.erd.*;
 import org.netbeans.modules.erd.graphics.ERDToolBar;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.netbeans.modules.erd.model.ERDController;

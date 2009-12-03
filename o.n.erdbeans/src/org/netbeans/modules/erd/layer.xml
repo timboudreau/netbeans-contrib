@@ -40,101 +40,26 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
-   <!-- <folder name="Actions">
-        <folder name="Build">
-            <file name="org-netbeans-modules-erd-SomeAction.instance"/>
-        </folder>
-        <folder name="Edit">
-            <file name="org-netebans-modules-erd-action-OpenERDAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.erd.action.OpenERDAction"/>
-            </file>
-        </folder>
-    </folder>-->
-    <!--<folder name="Loaders">
-        <folder name="text">
-            <folder name="x-dbschema">
+    <folder name="Databases">
+        <folder name="Explorer">
+            <folder name="Connection">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-erd-SomeAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-SomeAction.instance"/>
+                    <file name="org-netbeans-modules-erd-actions-ViewERD.instance">
+                        <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                        <attr name="displayName" bundlevalue="org.netbeans.modules.erd.actions.Bundle#CTL_ViewERD"/>
+                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewERD"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                        <attr name="noIconInMenu" boolvalue="false"/>
+                        <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                        <attr name="type" stringvalue="org.netbeans.api.db.explorer.DatabaseConnection"/>
+                        <attr name="position" intvalue="251"/> <!-- after Execute Command/before Separator -->
                     </file>
-                    <attr name="org-netbeans-modules-erd-SomeAction.shadow/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
-                </folder>
-            </folder>
-            <folder name="x-erd">
-                <folder name="Actions">
-                    <file name="org-netebans-modules-erd-action-OpenERDAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-netebans-modules-erd-action-OpenERDAction.instance"/>
-                    </file>
-                    <attr name="org-netebans-modules-erd-action-OpenERDAction.shadow/org-openide-actions-OpenAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-OpenAction.instance"/>
-                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-FileSystemAction.instance"/>
-                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
-                    <file name="sep-1.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                    </file>
-                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-CutAction.instance"/>
-                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-CopyAction.instance"/>
-                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
-                    <file name="sep-2.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                    </file>
-                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-DeleteAction.instance"/>
-                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-RenameAction.instance"/>
-                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
-                    <file name="sep-3.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                    </file>
-                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
-                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
-                    <file name="sep-4.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                    </file>
-                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-ToolsAction.instance"/>
-                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-PropertiesAction.instance"/>
                 </folder>
             </folder>
         </folder>
-    </folder>-->
-    <!--<folder name="Actions">
-        <folder name="Build">
-            <file name="org-netbeans-modules-erd-actions-PngAction.instance"/>
-        </folder>
-    </folder>-->
-    <!--<folder name="Editors">
-        <folder name="text">
-            <folder name="x-erd">
-                <folder name="Popup">
-                    <file name="org-netbeans-modules-erd-actions-PngAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-actions-PngAction.instance"/>
-                    </file>
-                    <attr name="org-netbeans-modules-erd-actions-PngAction.shadow/goto" boolvalue="true"/>
-                </folder>
-            </folder>
-        </folder>
-    </folder>-->
-    <!--<folder name="Menu">
-        <folder name="File">
-            <file name="org-netbeans-modules-erd-actions-PngAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-actions-PngAction.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-erd-actions-PngAction.shadow/org-netbeans-modules-project-ui-NewProject.shadow" boolvalue="true"/>
-        </folder>
-        <folder name="Window">
-            <file name="ERDAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erd-action-ERDAction.instance"/>
-            </file>
-        </folder>
-    </folder>-->
+    </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="ERDResolver.xml" url="ERDResolver.xml">
@@ -144,20 +69,6 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>
     <folder name="Templates">
-        <!--<folder name="Other">
-            <file name="ERDTemplate.erd" url="ERDTemplate.erd">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
-                <attr name="template" boolvalue="true"/>
-            </file>
-        </folder>
-        <folder name="Persistence">
-            <file name="eRD">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erd.wizard2.ERDWizardIterator"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erd/wizard2/eRD.html"/>
-            </file>
-        </folder>-->
         <folder name="Persistence">
           <attr name="position" intvalue="1300"/>
 
@@ -171,14 +82,4 @@ made subject to such option by the copyright holder.
           </file>
         </folder>
     </folder>
-   <!-- <folder name="Windows2">
-        <folder name="Components">
-            <file name="ERDTopComponent.settings" url="ERDTopComponentSettings.xml"/>
-        </folder>
-        <folder name="Modes">
-            <folder name="editor">
-                <file name="ERDTopComponent.wstcref" url="ERDTopComponentWstcref.xml"/>
-            </folder>
-        </folder>
-    </folder>-->
 </filesystem>
