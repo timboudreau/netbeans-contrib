@@ -76,6 +76,16 @@ made subject to such option by the copyright holder.
                     </file>
                 </folder>
             </folder>
+            <folder name="x-erd">
+                <folder name="Factories">
+                    <file name="ERDDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erd/resources/erd.png"/>
+                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.erd.io.ERDDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="text/x-erd"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
     </folder>
     <folder name="Services">

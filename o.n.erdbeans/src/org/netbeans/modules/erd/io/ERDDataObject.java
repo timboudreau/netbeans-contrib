@@ -51,28 +51,28 @@ import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 public class ERDDataObject extends MultiDataObject {
     
-
-    
     private ERDEditorSupport editorSupport;
-    private OpenEdit openEdit;
     private DocumentSerializer serializer;
-    private Object lock=new Object();
+    private final Object lock=new Object();
     private FileObject erdFile;
-    public ERDDataObject(FileObject erdfile, ERDDataLoader loader) throws DataObjectExistsException, IOException {
-        super(erdfile, loader);
+
+    public ERDDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+        super(pf, loader);
         CookieSet cookies = getCookieSet();
-        editorSupport=new ERDEditorSupport(this);
-        serializer=new DocumentSerializer(this);
-        erdFile=erdfile; 
-        cookies.add( editorSupport);
+        editorSupport = new ERDEditorSupport(this);
+        serializer = new DocumentSerializer(this);
+        erdFile = pf;
+        cookies.add(editorSupport);
     }
     
+    @Override
     protected Node createNodeDelegate() {
         return new ERDDataNode(this);
     }
@@ -90,6 +90,7 @@ public class ERDDataObject extends MultiDataObject {
         getCookieSet ().remove (save);
     }
 
+    @Override
     public void setModified (boolean modif) {
         super.setModified (modif); // TODO
     }
