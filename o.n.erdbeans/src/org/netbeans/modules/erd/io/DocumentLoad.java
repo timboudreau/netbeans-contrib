@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.erd.io;
 
+import java.io.File;
 import org.netbeans.modules.dbschema.SchemaElement;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
@@ -62,6 +63,7 @@ import org.netbeans.modules.erd.model.ERDComponent;
 import org.netbeans.modules.erd.model.ERDDocument;
 import org.netbeans.modules.erd.model.component.TableDescriptor;
 import org.netbeans.modules.erd.wizard.CaptureERD;
+import org.openide.filesystems.FileUtil;
 
 /**
  * @author David Kaspar
@@ -130,18 +132,22 @@ public class DocumentLoad {
    
     
     private static SchemaElement getSchemaElement(ERDContext context){
-        SchemaElement se=null;
-        if(context.getDataSourceType()==ERDContext.DATASOURCETYPE.SCHEMA){
-         Project project=FileOwnerQuery.getOwner(context.getDataObject().getPrimaryFile());
-         FileObject projectDir=project.getProjectDirectory();
-         FileObject dbschema=projectDir.getFileObject(context.getDataSourceUrl());
-         se=SchemaElementUtil.forName(dbschema);
-        }
-        else {
-          
-            CaptureERD capture=new CaptureERD(context);
+        SchemaElement se = null;
+        if (context.getDataSourceType() == ERDContext.DATASOURCETYPE.SCHEMA) {
+            Project project = FileOwnerQuery.getOwner(context.getDataObject().getPrimaryFile());
+            if (project == null) { // from ViewERD action
+                File f = new File(context.getDataSourceUrl());
+                FileObject schemaFO = FileUtil.toFileObject(f);
+                se = SchemaElementUtil.forName(schemaFO);
+            } else { // old way using wizard
+                FileObject projectDir = project.getProjectDirectory();
+                FileObject dbschema = projectDir.getFileObject(context.getDataSourceUrl());
+                se = SchemaElementUtil.forName(dbschema);
+            }
+        } else {
+            CaptureERD capture = new CaptureERD(context);
             capture.createSchemaFromConnection();
-            se=context.getSchemaElement();
+            se = context.getSchemaElement();
         }
         return se;
     }

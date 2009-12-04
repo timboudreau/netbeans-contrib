@@ -75,8 +75,6 @@ public class ERDContext {
         
     }
     
-    
-    
     public FileObject getFileObject(){
         if(dataObject==null)
             return erdFileObject;
@@ -89,11 +87,11 @@ public class ERDContext {
     }
     
     public SchemaElement getSchemaElement(){
-        return schemaElement;
+        return this.schemaElement;
     }
     
-    public void setSchemaElement(SchemaElement schemaElement){
-        this.schemaElement=schemaElement;
+    public void setSchemaElement(SchemaElement schema){
+        this.schemaElement = schema;
     }
     
     

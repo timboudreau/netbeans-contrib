@@ -43,6 +43,9 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.dbschema.jdbcimpl.DBschemaDataObject;
 import org.netbeans.modules.erd.io.DocumentSave;
 import org.netbeans.modules.erd.io.ERDContext;
 import org.netbeans.modules.erd.io.ERDDataObject;
@@ -57,9 +60,19 @@ import org.openide.util.NbBundle;
 public final class ViewERD implements ActionListener {
 
     private final DatabaseConnection connection;
+    private final DBschemaDataObject dbschema;
+    private final ERDContext.DATASOURCETYPE type;
 
     public ViewERD(DatabaseConnection context) {
         this.connection = context;
+        this.dbschema = null;
+        this.type = ERDContext.DATASOURCETYPE.CONNECTION;
+    }
+
+    public ViewERD(DBschemaDataObject context) {
+        this.connection = null;
+        this.dbschema = context;
+        this.type = ERDContext.DATASOURCETYPE.SCHEMA;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -67,6 +80,10 @@ public final class ViewERD implements ActionListener {
             
             // 1. create document based on given connection
             ERDContext context = createERDContext();
+            // handling possible illegal state
+            if (context == null) {
+                return ;
+            }
             // 3. open saved file
             saveERDContext(context);
             // 3. open saved file
@@ -80,8 +97,27 @@ public final class ViewERD implements ActionListener {
     private ERDContext createERDContext() throws IOException {
         File f = File.createTempFile("diagram", ".erd"); // NOI18N
         FileObject fo = FileUtil.toFileObject(f);
-        String url = connection.getDatabaseURL();
-        return new ERDContext(fo, url, ERDContext.DATASOURCETYPE.CONNECTION);
+        ERDContext context = null;
+        String url = null;
+        switch (type) {
+            case CONNECTION:
+                url = connection.getDatabaseURL();
+                break;
+            case SCHEMA:
+
+                FileObject schemaFO = dbschema.getPrimaryFile();
+                Project p = FileOwnerQuery.getOwner(dbschema.getPrimaryFile());
+                if (p == null) {
+                    return null;
+                }
+                url = schemaFO.getPath().substring(p.getProjectDirectory().getPath().length());
+                url = schemaFO.getPath();
+                break;
+            default:
+                assert false;
+                return null;
+        }
+        return new ERDContext(fo, url, type);
     }
 
     private void saveERDContext(ERDContext context) {
@@ -94,7 +130,18 @@ public final class ViewERD implements ActionListener {
         f.setReadOnly(); // XXX: ERD is read only so far
         DataObject erdDO = ERDDataObject.find(fo);
         assert erdDO != null : "ERDDataObject exists for " + fo;
-        erdDO.getNodeDelegate().setDisplayName(NbBundle.getMessage(ViewERD.class, "ViewERD_DisplayNameInEditor", connection.getDisplayName())); // NOI18N
+        switch (type) {
+            case CONNECTION:
+                erdDO.getNodeDelegate().setDisplayName(
+                        NbBundle.getMessage(ViewERD.class, "ViewERD_DisplayNameInEditor", // NOI18N
+                        connection.getDisplayName()));
+                break;
+            case SCHEMA:
+                erdDO.getNodeDelegate().setDisplayName(
+                        NbBundle.getMessage(ViewERD.class, "ViewERD_DisplayNameInEditor", // NOI18N
+                        dbschema.getNodeDelegate().getDisplayName()));
+                break;
+        }
         OpenCookie open = erdDO.getLookup().lookup(OpenCookie.class);
         open.open();
     }

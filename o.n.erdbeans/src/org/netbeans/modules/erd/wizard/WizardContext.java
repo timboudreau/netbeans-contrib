@@ -24,15 +24,7 @@ made subject to such option by the copyright holder.
 
 package org.netbeans.modules.erd.wizard;
 
-import java.beans.*;
-import java.util.LinkedList;
-import java.util.Vector;
-import org.netbeans.api.db.explorer.DatabaseConnection;
-import org.netbeans.modules.dbschema.SchemaElement;
-import org.openide.WizardDescriptor;
-import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
-import org.netbeans.modules.dbschema.jdbcimpl.ConnectionProvider;
 
 public class WizardContext {
 

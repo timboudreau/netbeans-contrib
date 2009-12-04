@@ -60,6 +60,24 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-dbschema+xml">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-erd-actions-ViewERD.instance">
+                        <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                        <attr name="displayName" bundlevalue="org.netbeans.modules.erd.actions.Bundle#CTL_ViewERD"/>
+                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewERD"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                        <attr name="noIconInMenu" boolvalue="false"/>
+                        <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                        <attr name="type" stringvalue="org.netbeans.modules.dbschema.jdbcimpl.DBschemaDataObject"/>
+                        <attr name="position" intvalue="204"/> <!-- after Recapture Schema from Database/before Separator -->
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="ERDResolver.xml" url="ERDResolver.xml">
