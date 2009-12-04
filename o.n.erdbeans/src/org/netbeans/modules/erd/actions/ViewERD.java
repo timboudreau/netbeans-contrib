@@ -45,7 +45,6 @@ import java.io.IOException;
 import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.netbeans.modules.erd.io.DocumentSave;
 import org.netbeans.modules.erd.io.ERDContext;
-import org.netbeans.modules.erd.io.ERDDataLoader;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
@@ -53,6 +52,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 public final class ViewERD implements ActionListener {
 
@@ -79,6 +79,7 @@ public final class ViewERD implements ActionListener {
 
     private ERDContext createERDContext() throws IOException {
         File f = File.createTempFile("diagram", ".erd"); // NOI18N
+        f.deleteOnExit(); // it's just temporary file
         FileObject fo = FileUtil.toFileObject(f);
         String url = connection.getDatabaseURL();
         return new ERDContext(fo, url, ERDContext.DATASOURCETYPE.CONNECTION);
@@ -90,8 +91,11 @@ public final class ViewERD implements ActionListener {
 
     private void openDiagram(ERDContext context) throws DataObjectExistsException, IOException {
         FileObject fo = context.getFileObject();
+        File f = FileUtil.toFile(fo);
+        f.setReadOnly(); // XXX: ERD is read only so far
         DataObject erdDO = ERDDataObject.find(fo);
         assert erdDO != null : "ERDDataObject exists for " + fo;
+        erdDO.getNodeDelegate().setDisplayName(NbBundle.getMessage(ViewERD.class, "ViewERD_DisplayNameInEditor", connection.getDisplayName())); // NOI18N
         OpenCookie open = erdDO.getLookup().lookup(OpenCookie.class);
         open.open();
     }
