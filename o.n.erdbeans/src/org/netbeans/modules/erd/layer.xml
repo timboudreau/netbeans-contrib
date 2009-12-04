@@ -46,10 +46,10 @@ made subject to such option by the copyright holder.
         <folder name="Explorer">
             <folder name="Connection">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-erd-actions-ViewERD.instance">
+                    <file name="org-netbeans-modules-erd-actions-ViewDiagramOnConnection.instance">
                         <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
                         <attr name="displayName" bundlevalue="org.netbeans.modules.erd.actions.Bundle#CTL_ViewERD"/>
-                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewERD"/>
+                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewDiagramOnConnection"/>
                         <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
                         <attr name="noIconInMenu" boolvalue="false"/>
                         <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
@@ -64,15 +64,16 @@ made subject to such option by the copyright holder.
         <folder name="text">
             <folder name="x-dbschema+xml">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-erd-actions-ViewERD.instance">
+                    <file name="org-netbeans-modules-erd-actions-ViewDiagramOnSchema.instance">
                         <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
                         <attr name="displayName" bundlevalue="org.netbeans.modules.erd.actions.Bundle#CTL_ViewERD"/>
-                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewERD"/>
+                        <attr name="injectable" stringvalue="org.netbeans.modules.erd.actions.ViewDiagramOnSchema"/>
                         <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
                         <attr name="noIconInMenu" boolvalue="false"/>
                         <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                         <attr name="type" stringvalue="org.netbeans.modules.dbschema.jdbcimpl.DBschemaDataObject"/>
                         <attr name="position" intvalue="204"/> <!-- after Recapture Schema from Database/before Separator -->
+                        <attr name="misplaced.action.allowed" boolvalue="true"/>
                     </file>
                 </folder>
             </folder>
