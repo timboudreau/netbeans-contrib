@@ -79,7 +79,6 @@ public final class ViewERD implements ActionListener {
 
     private ERDContext createERDContext() throws IOException {
         File f = File.createTempFile("diagram", ".erd"); // NOI18N
-        f.deleteOnExit(); // it's just temporary file
         FileObject fo = FileUtil.toFileObject(f);
         String url = connection.getDatabaseURL();
         return new ERDContext(fo, url, ERDContext.DATASOURCETYPE.CONNECTION);
