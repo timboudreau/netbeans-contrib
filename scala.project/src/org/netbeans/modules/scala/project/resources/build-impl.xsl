@@ -520,7 +520,7 @@ is divided into following sections:
                             <xsl:attribute name="excludes">@{excludes}</xsl:attribute>
                             <xsl:attribute name="force">yes</xsl:attribute>
                             <xsl:attribute name="fork">true</xsl:attribute>
-                            <xsl:attribute name="addparams">-make:transitive -dependencyfile ${basedir}/${build.dir}/.scala_dependencies @{addparams}</xsl:attribute>
+                            <xsl:attribute name="addparams">-make:transitive -dependencyfile &quot;${basedir}/${build.dir}/.scala_dependencies&quot; @{addparams}</xsl:attribute>
                             <!--<xsl:attribute name="includeantruntime">false</xsl:attribute>-->
                             <classpath>
                                 <path>
@@ -1153,7 +1153,6 @@ is divided into following sections:
                     <xsl:attribute name="srcdir">${src.dir}</xsl:attribute>
                     <xsl:attribute name="deprecation">yes</xsl:attribute>
                     <xsl:attribute name="unchecked">yes</xsl:attribute>
-                    <xsl:attribute name="windowtitle">${javadoc.windowtitle}</xsl:attribute>
                     <xsl:attribute name="doctitle">${javadoc.windowtitle}</xsl:attribute>
                     <xsl:attribute name="addparams">${javadoc.additionalparam}</xsl:attribute>
                     <xsl:attribute name="encoding">${javadoc.encoding.used}</xsl:attribute>
