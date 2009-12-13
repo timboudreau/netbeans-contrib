@@ -76,6 +76,7 @@ public class FuseFramework extends PhpProgram {
     public static final String FUSE_INCLUDE_DIR = "/include/FUSE"; // NOI18N
     public static final String CMD_INIT_PROJECT = "/scripts/install/fuse_scaffold_netbeans.php"; // NOI18N
     public static final String ROUTES_CONF_FILE = "routes.conf.php"; // NOI18N
+    public static final String ROUTES_CONF_FILE_WITH_PATH = "config/routes.conf.php"; // NOI18N
 
 
     public FuseFramework(String command) {

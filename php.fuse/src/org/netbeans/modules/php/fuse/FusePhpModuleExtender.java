@@ -92,8 +92,10 @@ public class FusePhpModuleExtender extends PhpModuleExtender {
         // return files
         Set<FileObject> files = new HashSet<FileObject>();
         FileObject common_conf = phpModule.getSourceDirectory().getFileObject(FuseFramework.COMMON_CONF_FILE); // NOI18N
+        FileObject routes_conf = phpModule.getSourceDirectory().getFileObject(FuseFramework.ROUTES_CONF_FILE_WITH_PATH); // NOI18N
         assert common_conf != null;
         files.add(common_conf);
+        files.add(routes_conf);
         return files;
     }
 
