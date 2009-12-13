@@ -39,17 +39,12 @@
 
 package org.netbeans.modules.php.fuse.ui.wizards;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,8 +56,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
-import org.netbeans.api.options.OptionsDisplayer;
-import org.netbeans.modules.php.fuse.FuseFramework;
 import org.netbeans.modules.php.fuse.utils.InitialFuseSetup;
 import org.openide.awt.Mnemonics;
 import org.openide.util.ChangeSupport;
@@ -251,10 +244,10 @@ public class NewProjectConfigurationPanel extends JPanel {
                     .add(dbPasswordLabel))
                 .addPreferredGap(LayoutStyle.RELATED)
                 .add(databaseTabLayout.createParallelGroup(GroupLayout.LEADING)
-                    .add(GroupLayout.TRAILING, dbPasswordTextField, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .add(GroupLayout.TRAILING, dbUsernameTextField, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .add(dbHostnameTextField, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .add(GroupLayout.TRAILING, dbNameTextField, GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE))
+                    .add(GroupLayout.TRAILING, dbPasswordTextField, GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                    .add(GroupLayout.TRAILING, dbUsernameTextField, GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                    .add(dbHostnameTextField, GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                    .add(GroupLayout.TRAILING, dbNameTextField, GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))
                 .addContainerGap())
         );
         databaseTabLayout.setVerticalGroup(
@@ -284,7 +277,7 @@ public class NewProjectConfigurationPanel extends JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(GroupLayout.LEADING)
-            .add(fuseProjectTabbedPane, GroupLayout.DEFAULT_SIZE, 617, Short.MAX_VALUE)
+            .add(fuseProjectTabbedPane, GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(GroupLayout.LEADING)

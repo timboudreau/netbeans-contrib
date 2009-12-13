@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
 
     <folder name="CslPlugins">
@@ -24,7 +24,7 @@
                 <attr name="iconBase" stringvalue="org/netbeans/modules/php/fuse/resources/iconTmpl.gif"/>
                 
                 <folder name="Actions">
-                    <file name="org-openide-actions-CopyAction.instance">
+                    <file name="org-openide-actions-CopyAction.instance">   
                         <attr name="position" intvalue="400"/>
                     </file>
                     <file name="org-openide-actions-CutAction.instance">

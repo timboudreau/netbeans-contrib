@@ -75,7 +75,7 @@ public final class GenerateRouteAction extends BaseAction {
 
     @Override
     public void actionPerformed(PhpModule phpModule) {
-        final FileObject fObj = FileUtil.toFileObject(new File(phpModule.getSourceDirectory() + "/config/" + FuseFramework.ROUTES_CONF_FILE));
+        final FileObject fObj = FileUtil.toFileObject(new File(phpModule.getSourceDirectory() + "/" + FuseFramework.ROUTES_CONF_FILE_WITH_PATH));
         GsfUtilities.open(fObj, -1, null);
         RoutesGenerationPanel rgp = new RoutesGenerationPanel();
         JButton[] buttons = new JButton[2];

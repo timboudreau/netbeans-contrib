@@ -16,7 +16,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="fuseProjectTabbedPane" alignment="0" pref="617" max="32767" attributes="0"/>
+          <Component id="fuseProjectTabbedPane" alignment="0" pref="372" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -117,10 +117,10 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="dbPasswordTextField" alignment="1" pref="506" max="32767" attributes="1"/>
-                          <Component id="dbUsernameTextField" alignment="1" pref="506" max="32767" attributes="1"/>
-                          <Component id="dbHostnameTextField" alignment="0" pref="506" max="32767" attributes="1"/>
-                          <Component id="dbNameTextField" alignment="1" pref="506" max="32767" attributes="1"/>
+                          <Component id="dbPasswordTextField" alignment="1" pref="261" max="32767" attributes="1"/>
+                          <Component id="dbUsernameTextField" alignment="1" pref="261" max="32767" attributes="1"/>
+                          <Component id="dbHostnameTextField" alignment="0" pref="261" max="32767" attributes="1"/>
+                          <Component id="dbNameTextField" alignment="1" pref="261" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
