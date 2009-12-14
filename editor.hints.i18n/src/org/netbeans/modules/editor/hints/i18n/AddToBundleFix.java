@@ -50,7 +50,6 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +58,14 @@ import java.util.logging.Logger;
 import javax.lang.model.element.Element;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import javax.swing.text.Position.Bias;
+import javax.swing.text.StyleConstants;
+import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.ClasspathInfo.PathKind;
@@ -71,12 +73,13 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
-import org.netbeans.editor.Coloring;
 import org.netbeans.editor.Registry;
-import org.netbeans.modules.editor.highlights.spi.DefaultHighlight;
-import org.netbeans.modules.editor.highlights.spi.Highlighter;
 import org.netbeans.modules.i18n.ResourceHolder;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
+import org.netbeans.spi.editor.highlighting.HighlightsLayer;
+import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
+import org.netbeans.spi.editor.highlighting.ZOrder;
+import org.netbeans.spi.editor.highlighting.support.PositionsBag;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.Fix;
 import org.openide.ErrorManager;
@@ -90,7 +93,7 @@ import org.openide.util.MapFormat;
 /**
  * @author Jan Lahoda
  */
-class AddToBundleFix implements Fix {
+public class AddToBundleFix implements Fix {
     
     private DataObject bundle;
     private DataObject od;
@@ -161,7 +164,7 @@ class AddToBundleFix implements Fix {
             bundleNameDots = js.getClasspathInfo().getClassPath(PathKind.SOURCE).getResourceName( bundle.getPrimaryFile(), '.', false );
         }
         
-        String format = findFormat(od.getPrimaryFile());
+        String _format = findFormat(od.getPrimaryFile());
         
         Map<String, String> table = new HashMap<String, String>();
         
@@ -191,7 +194,7 @@ class AddToBundleFix implements Fix {
         
         MapFormat formatEngine = new MapFormat(table);
         
-        final String text = formatEngine.format(format);
+        final String text = formatEngine.format(_format);
         
         doc = getDocument(comp);
         final Position[] toSearch= new Position[2];
@@ -290,7 +293,8 @@ class AddToBundleFix implements Fix {
         }
     }
     
-    private static final Coloring COLORING = new Coloring(null, null, new Color(138, 191, 236));
+    private static final AttributeSet COLORING = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(138, 191, 236));
+    private static final String HLID = "org.netbeans.modules.editor.hints.i18n.AddToBundleFix-PositionsBag"; //NOI18N
     
     private class TopComponentListener implements KeyListener, CaretListener {
         
@@ -309,8 +313,10 @@ class AddToBundleFix implements Fix {
             target.addCaretListener(this);
             
             target.putClientProperty(TopComponentListener.class, this);
-            
-            Highlighter.getDefault().setHighlights(getFileObject(), "i18nrt", Collections.singletonList(new DefaultHighlight(COLORING, start, end))); // NOI18N
+            PositionsBag bag = (PositionsBag) doc.getProperty(HLID);
+            if (bag != null) {
+                bag.addHighlight(start, end, COLORING);
+            }
             
             target.setSelectionStart(start.getOffset());
             target.setSelectionEnd(end.getOffset());
@@ -354,7 +360,10 @@ class AddToBundleFix implements Fix {
             target.putClientProperty(TopComponentListener.class, null);
             target.removeKeyListener(this);
             target.removeCaretListener(this);
-            Highlighter.getDefault().setHighlights(getFileObject(), "i18nrt", Collections.emptyList()); // NOI18N
+            PositionsBag bag = (PositionsBag) doc.getProperty(HLID);
+            if (bag != null) {
+                bag.clear();
+            }
             
             doc = null;
             target = null;
@@ -387,5 +396,17 @@ class AddToBundleFix implements Fix {
     }
     
     static boolean TESTS;
-    
+
+    public static final class HLFactory implements HighlightsLayerFactory {
+        public HLFactory() {
+            // no-op
+        }
+        
+        public HighlightsLayer[] createLayers(Context context) {
+            Document doc = context.getDocument();
+            PositionsBag bag = new PositionsBag(doc);
+            doc.putProperty(HLID, bag);
+            return new HighlightsLayer[] { HighlightsLayer.create(HLID, ZOrder.SHOW_OFF_RACK.forPosition(1000), true, bag) };
+        }
+    } // End of HLFactory class
 }

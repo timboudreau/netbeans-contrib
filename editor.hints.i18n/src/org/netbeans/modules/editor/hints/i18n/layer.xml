@@ -42,6 +42,15 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <filesystem>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <file name="org-netbeans-modules-editor-hints-i18n-AddToBundleFix$HLFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.spi.editor.highlighting.HighlightsLayerFactory"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
     <folder name="org-netbeans-modules-java-hints">
         <folder name="rules">
             <folder name="hints">
