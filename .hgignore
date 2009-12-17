@@ -136,9 +136,6 @@
 ^contrib/latex/ui/dist$
 ^lexer.editorbridge.calc/src/org/netbeans/modules/lexer/editorbridge/calc/\.xvpics$
 ^performance.insane/parser/dist$
-^j2ee.oc4j/src/org/netbeans/modules/j2ee/oc4j/config/gen$
-^j2ee.oc4j/test/gensrc$
-^j2ee.sun.ws7/src/org/netbeans/modules/j2ee/sun/ws7/serverresources/dd/impl$
 ^spellchecker.dictionary_en/ext$
 ^o.n.tasklistapi/src/\.nbintdb$
 ^tasklist.bugs/Info$
