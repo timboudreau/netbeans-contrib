@@ -16,16 +16,38 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="fuseProjectTabbedPane" alignment="0" pref="372" max="32767" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace pref="273" max="32767" attributes="0"/>
+              <Component id="optionsLabel" min="-2" max="-2" attributes="0"/>
+          </Group>
+          <Component id="fuseProjectTabbedPane" alignment="0" pref="334" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="fuseProjectTabbedPane" min="-2" pref="202" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="optionsLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="fuseProjectTabbedPane" min="-2" pref="184" max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
+    <Component class="javax.swing.JLabel" name="optionsLabel">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="0" id="blue" palette="1" red="0" type="palette"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/php/fuse/ui/wizards/Bundle.properties" key="NewProjectConfigurationPanel.optionsLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="optionsLabelMouseEntered"/>
+        <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="optionsLabelMousePressed"/>
+      </Events>
+    </Component>
     <Container class="javax.swing.JTabbedPane" name="fuseProjectTabbedPane">
       <Properties>
         <Property name="doubleBuffered" type="boolean" value="true"/>
@@ -56,7 +78,7 @@
                           <Component id="copyFuseCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="setupDBCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="364" max="-2" attributes="0"/>
+                      <EmptySpace pref="81" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -67,7 +89,7 @@
                       <Component id="copyFuseCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="setupDBCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="109" max="32767" attributes="0"/>
+                      <EmptySpace pref="91" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -117,10 +139,10 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="dbPasswordTextField" alignment="1" pref="261" max="32767" attributes="1"/>
-                          <Component id="dbUsernameTextField" alignment="1" pref="261" max="32767" attributes="1"/>
-                          <Component id="dbHostnameTextField" alignment="0" pref="261" max="32767" attributes="1"/>
-                          <Component id="dbNameTextField" alignment="1" pref="261" max="32767" attributes="1"/>
+                          <Component id="dbPasswordTextField" alignment="1" pref="223" max="32767" attributes="1"/>
+                          <Component id="dbUsernameTextField" alignment="1" pref="223" max="32767" attributes="1"/>
+                          <Component id="dbHostnameTextField" alignment="0" pref="223" max="32767" attributes="1"/>
+                          <Component id="dbNameTextField" alignment="1" pref="223" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -149,7 +171,7 @@
                           <Component id="dbPasswordTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="dbPasswordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="32" max="32767" attributes="0"/>
+                      <EmptySpace pref="14" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
