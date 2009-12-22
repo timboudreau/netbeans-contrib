@@ -32,6 +32,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * A very simple html project w/ no metadata dir.
@@ -50,7 +51,7 @@ public final class HtmlProjectFactory implements ProjectFactory {
             result = "WWW".equals(nm) ||
                     "PUBLIC-HTML".equals(nm);
             if (!result) {
-                result = fo.getFileObject ("nbweb") != null;
+                result = FileUtil.toFile(fo) != null && fo.getFileObject ("nbweb") != null;
             }
             if (!result) {
                 result = isKnownHtmlProject(fo);
