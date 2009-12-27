@@ -42,7 +42,6 @@ package org.netbeans.modules.php.fuse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.netbeans.junit.NbModuleSuite;
 import org.junit.Test;
 import org.netbeans.junit.NbTestCase;
 import static org.junit.Assert.*;
@@ -125,8 +124,10 @@ public class FuseFrameworkTest extends NbTestCase {
     @Test
     public void testImprovingFuseFramework() {
         // check invalid FUSE framework
-        FuseFramework fuseInvalid = new FuseFramework(getInvalidFuse().getAbsolutePath());
+
+        FuseFramework fuseInvalid = new FuseFramework(getValidUnimprovedFuse().getAbsolutePath());
         assertFalse(fuseInvalid.isImproved());
+        
 
         try {
             // improve it
@@ -138,19 +139,25 @@ public class FuseFrameworkTest extends NbTestCase {
         }
 
         assertTrue(fuseInvalid.isImproved());
-        removeNetBeansScaffoldFile();
+        removeNetBeansScaffoldFile("fuse_fake_unimproved");
         assertFalse(fuseInvalid.isImproved());
     }
 
-    public void removeNetBeansScaffoldFile() {
+    public void removeNetBeansScaffoldFile(String dir) {
         File nbScaffold = null;
-        nbScaffold = new File(getDataDir(), "fuse_fake_wrong_scaffolds" + FuseFramework.CMD_INIT_PROJECT);
+        nbScaffold = new File(getDataDir(), dir + FuseFramework.CMD_INIT_PROJECT);
         nbScaffold.delete();
     }
 
     public File getValidFuse() {
         File fakeFuseFile = null;
         fakeFuseFile = new File(getDataDir(), "fuse_fake");
+        return fakeFuseFile;
+    }
+
+    public File getValidUnimprovedFuse() {
+        File fakeFuseFile = null;
+        fakeFuseFile = new File(getDataDir(), "fuse_fake_unimproved");
         return fakeFuseFile;
     }
 
