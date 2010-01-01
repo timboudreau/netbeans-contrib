@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE module_updates PUBLIC "-//NetBeans//DTD Autoupdate Catalog 2.6//EN" "http://www.netbeans.org/dtds/autoupdate-catalog-2_6.dtd">
+<module_updates timestamp="41/07/14/01/01/2010">
+
+<module codenamebase="org.netbeans.modules.php.fuse" distribution="org-netbeans-modules-php-fuse.nbm" downloadsize="91800" homepage="http://windsurfer.cz/fusesupport/updates.xml" license="AD9FBBC9" moduleauthor="Martin Fousek" needsrestart="false" releasedate="2010/01/01">
+    <manifest AutoUpdate-Show-In-Client="true" OpenIDE-Module="org.netbeans.modules.php.fuse" OpenIDE-Module-Implementation-Version="100101" OpenIDE-Module-Java-Dependencies="Java &gt; 1.5" OpenIDE-Module-Module-Dependencies="org.netbeans.modules.autoupdate.services &gt; 1.8.3" OpenIDE-Module-Name="PHP Fuse Framework" OpenIDE-Module-Requires="org.openide.modules.ModuleFormat1" OpenIDE-Module-Specification-Version="1.0.2"/>
+    
+</module>
+
+<license name="AD9FBBC9" url="licenses/AD9FBBC9.license"/>
+</module_updates>
+
