@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.php.fuse.lexer;
 
-import java.lang.String;
 import java.util.ArrayList;
 import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.LanguagePath;
@@ -65,6 +64,10 @@ public class FuseLexer implements Lexer<FuseTokenId> {
     private final InputAttributes inputAttributes;
     private final TmplParseData tmplParseData;
 
+    /**
+     * Create new FuseLexer.
+     * @param info from which place it should start again.
+     */
     public FuseLexer(LexerRestartInfo<FuseTokenId> info) {
         this.input = info.input();
         this.inputAttributes = info.inputAttributes();

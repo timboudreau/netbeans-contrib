@@ -59,6 +59,10 @@ import org.openide.util.Lookup.Item;
 import org.openide.util.Lookup.Template;
 import org.openide.util.NbBundle;
 
+/**
+ * New generator of source code for routing generation.
+ * @author Martin Fousek
+ */
 public class RoutesGenerator implements CodeGenerator {
 
     private JTextComponent textComp;
@@ -67,6 +71,9 @@ public class RoutesGenerator implements CodeGenerator {
         this.textComp = textComp;
     }
 
+    /**
+     * Factory for creating of code generator.
+     */
     public static class Factory implements CodeGenerator.Factory {
 
         @Override

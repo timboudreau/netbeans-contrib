@@ -45,8 +45,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
- *
- * @author cawe
+ * Renderer for specific table for routing generation.
+ * @author Martin Fousek
  */
 public class OptionsTableRenderer extends DefaultTableCellRenderer {
 

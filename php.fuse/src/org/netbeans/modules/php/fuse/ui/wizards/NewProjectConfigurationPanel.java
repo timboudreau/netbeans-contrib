@@ -76,6 +76,9 @@ public class NewProjectConfigurationPanel extends JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
+    /**
+     * Panel which is shown in the last panel of wizard for creating new PHP projects.
+     */
     public NewProjectConfigurationPanel() {
         initComponents();
 
@@ -100,6 +103,10 @@ public class NewProjectConfigurationPanel extends JPanel {
         changeSupport.addChangeListener(listener);
     }
 
+    /**
+     * Get warning message what is wrong in forms for new project creation.
+     * @return which values are bad
+     */
     public String getWarningMessage() {
         String warnings = null;
         if (setupDBCheckBox.isSelected()) {
@@ -119,7 +126,10 @@ public class NewProjectConfigurationPanel extends JPanel {
         return FuseOptions.getInstance();
     }
 
-    // saving parameters from wizard into help class
+    /**
+     * Save parameters from wizard into help class from which will be data read for inicialization script.
+     * @return class with loaded all data
+     */
     public InitialFuseSetup getSettings() {
         InitialFuseSetup fuseSetup = new InitialFuseSetup();
         if (copyFuseCheckBox.isSelected()) {

@@ -131,7 +131,11 @@ public enum FuseTopTokenId implements TokenId {
                 
             }.language();
 
-    public static Language<FuseTopTokenId> language() {
+            /**
+             *
+             * @return
+             */
+            public static Language<FuseTopTokenId> language() {
         return language;
     }
 

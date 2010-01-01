@@ -52,6 +52,10 @@ import org.openide.filesystems.FileUtil;
 public class FusePhpModuleIgnoredFilesExtender extends PhpModuleIgnoredFilesExtender {
     private final File cache, htaccess;
 
+    /**
+     * Create new FusePhpModuleIgnoredFilesExtender.
+     * @param phpModule for which module
+     */
     public FusePhpModuleIgnoredFilesExtender(PhpModule phpModule) {
         assert phpModule != null;
         cache = new File(FileUtil.toFile(phpModule.getSourceDirectory()), "cache"); // NOI18N

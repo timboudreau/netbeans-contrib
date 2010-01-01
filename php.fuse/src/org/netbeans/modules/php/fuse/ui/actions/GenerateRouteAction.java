@@ -69,10 +69,18 @@ public final class GenerateRouteAction extends BaseAction {
     private GenerateRouteAction() {
     }
 
+    /**
+     * Get intance of GenerateRouteAction.
+     * @return instance
+     */
     public static GenerateRouteAction getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Create dialog in UI for setup parameters and then create the rule in the editor.
+     * @param phpModule module for which will be rule generated
+     */
     @Override
     public void actionPerformed(PhpModule phpModule) {
         final FileObject fObj = FileUtil.toFileObject(new File(phpModule.getSourceDirectory() + "/" + FuseFramework.ROUTES_CONF_FILE_WITH_PATH));
@@ -100,6 +108,10 @@ public final class GenerateRouteAction extends BaseAction {
         }
     }
 
+    /**
+     * Get name of action for UI.
+     * @return name of action
+     */
     @Override
     protected String getPureName() {
         return NbBundle.getMessage(GenerateRouteAction.class, "LBL_GenerateRoute");

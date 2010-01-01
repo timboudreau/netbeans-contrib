@@ -87,6 +87,9 @@ public class FuseOptionsPanel extends JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
 
+    /**
+     * Contructor of new FuseOptionsPanel.
+     */
     public FuseOptionsPanel() {
         initComponents();
 
@@ -110,30 +113,53 @@ public class FuseOptionsPanel extends JPanel {
         });
     }
 
+    /**
+     * Get path to the Fuse.
+     * @return path to the Fuse
+     */
     public String getFuse() {
         return fuseTextField.getText();
     }
 
+    /**
+     * Set path to the Fuse.
+     * @param fuse path to Fuse which should be set
+     */
     public void setFuse(String fuse) {
         fuseTextField.setText(fuse);
     }
 
+    /**
+     * Set error message in the bottom of the window.
+     * @param message which should be shown
+     */
     public void setError(String message) {
         errorLabel.setText(" "); // NOI18N
         errorLabel.setForeground(UIManager.getColor("nb.errorForeground")); // NOI18N
         errorLabel.setText(message);
     }
 
+    /**
+     * Set warning message in the bottom of the window.
+     * @param message which should be shown
+     */
     public void setWarning(String message) {
         errorLabel.setText(" "); // NOI18N
         errorLabel.setForeground(UIManager.getColor("nb.warningForeground")); // NOI18N
         errorLabel.setText(message);
     }
 
+    /**
+     * Set if the button for improving framework should be enabled or not.
+     * @param setStatus should be enabled or not
+     */
     protected void improveSupportTypeButtonEnabled(boolean setStatus) {
         improveSupportTypeButton.setEnabled(setStatus);
     }
 
+    /**
+     * Call improving of Fuse framework. Setup the button for improving as disabled if everything worked well.
+     */
     public void updateSupportType() {
         if (new FuseFramework(getFuse()).isImproved()) {
             supportTypeLabel.setForeground(new Color(24, 114, 24));

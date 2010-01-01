@@ -45,10 +45,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
  * @author Martin Fousek
  */
 public class ArrayHelper {
+    /**
+     * Merge two arrays into one.
+     * @param <T> which type of arrays
+     * @param arrays arrays for merging
+     * @return one merger array
+     */
     public static <T> T[] mergeArrays(T[]... arrays) {
         List<T> list = new LinkedList<T>();
         for (T[] array : arrays) {

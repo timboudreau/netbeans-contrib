@@ -344,6 +344,10 @@ public class RoutesGenerationPanel extends JPanel {
         }
     }
 
+    /**
+     * Get preview of rule for routing.
+     * @return whole rule for preview
+     */
     public String getPreviewText() {
         return previewText;
     }

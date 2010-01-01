@@ -46,6 +46,12 @@ import org.netbeans.modules.php.spi.commands.FrameworkCommand;
  */
 public class FuseCommand extends FrameworkCommand {
 
+    /**
+     * Create new FuseCommand.
+     * @param command to run
+     * @param description description of command
+     * @param displayName display name for UI
+     */
     public FuseCommand(String command, String description, String displayName) {
         super(command, description, displayName);
     }

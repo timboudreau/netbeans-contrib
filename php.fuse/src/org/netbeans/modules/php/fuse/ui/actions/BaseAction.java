@@ -51,6 +51,9 @@ import org.openide.util.NbBundle;
  */
 public abstract class BaseAction extends AbstractAction implements HelpCtx.Provider {
 
+    /**
+     * Default constructor.
+     */
     protected BaseAction() {
         putValue("noIconInMenu", true); // NOI18N
         putValue(NAME, getFullName());
@@ -69,6 +72,10 @@ public abstract class BaseAction extends AbstractAction implements HelpCtx.Provi
         actionPerformed(phpModule);
     }
 
+    /**
+     * Get name for FUSE actions on Fuse project.
+     * @return name for Fuse actions
+     */
     protected String getFullName() {
         return NbBundle.getMessage(BaseAction.class, "LBL_FuseAction", getPureName());
     }

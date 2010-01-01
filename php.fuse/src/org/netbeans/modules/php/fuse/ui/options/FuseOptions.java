@@ -63,6 +63,10 @@ public final class FuseOptions {
         return INSTANCE;
     }
 
+    /**
+     * Get Fuse framework from system paths.
+     * @return path to the found Fuse
+     */
     public synchronized String getFuse() {
         String fuse = getPreferences().get(FUSE, null);
         if (fuse == null && !fuseSearched) {
@@ -76,6 +80,10 @@ public final class FuseOptions {
         return fuse;
     }
 
+    /**
+     * Set Fuse into Options.
+     * @param fuse which should be stored in panel
+     */
     public void setFuse(String fuse) {
         getPreferences().put(FUSE, fuse);
     }

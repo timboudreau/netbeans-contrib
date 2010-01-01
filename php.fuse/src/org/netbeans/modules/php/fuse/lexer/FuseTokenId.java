@@ -65,9 +65,7 @@ public enum FuseTokenId implements TokenId {
 
     ERROR(null, "error"),
     IDENTIFIER(null, "identifier"),
-
     TEMPLATE_VAR(null, "template_var"),
-
     DB_LOOP("db_loop", "keyword"),
     LOOP("loop", "keyword"),
     ELSE("else", "keyword"),
@@ -79,9 +77,7 @@ public enum FuseTokenId implements TokenId {
     ITERATOR_END("/iterator", "keyword"),
     IF_END("/if", "keyword"),
     WHILE_END("/while", "keyword"),
-
     INCLUDE("include", "include"),
-
     WHITESPACE(null, "whitespace");
 
     private final String fixedText;
@@ -93,10 +89,18 @@ public enum FuseTokenId implements TokenId {
         this.primaryCategory = primaryCategory;
     }
 
+    /**
+     * Return fixed text.
+     * @return fixed text of command
+     */
     public String fixedText() {
         return fixedText;
     }
 
+    /**
+     * Return category of command.
+     * @return category of command
+     */
     public String primaryCategory() {
         return primaryCategory;
     }
@@ -134,6 +138,10 @@ public enum FuseTokenId implements TokenId {
         }
     }.language();
 
+    /**
+     * Return new language for FuseTokenId.
+     * @return language
+     */
     public static Language<FuseTokenId> language() {
         return language;
     }

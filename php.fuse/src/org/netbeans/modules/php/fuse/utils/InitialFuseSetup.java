@@ -40,7 +40,7 @@
 package org.netbeans.modules.php.fuse.utils;
 
 /**
- *
+ * Help class for storing data by project creation.
  * @author Martin Fousek
  */
 public class InitialFuseSetup {
@@ -55,6 +55,9 @@ public class InitialFuseSetup {
     private String dbUsername;
     private String dbPassword;
 
+    /**
+     * Default contructor.
+     */
     public InitialFuseSetup() {
     }
 
@@ -86,6 +89,10 @@ public class InitialFuseSetup {
         this.setupDatabase = setupDatabase;
     }
 
+    /**
+     * Get parameters for scaffold script running.
+     * @return all parameters which implied from stored data
+     */
     public String[] getParams() {
         if (setupDatabase) return new String[]{"y", dbHostname, dbUsername, dbPassword, dbName};
         return new String[]{"n"};

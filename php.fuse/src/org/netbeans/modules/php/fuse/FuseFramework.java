@@ -69,16 +69,44 @@ import org.openide.util.NbBundle;
  * @author Martin Fousek
  */
 public class FuseFramework extends PhpProgram {
+    /**
+     * Name of script for creating new FUSE projects.
+     */
     public static final String SCRIPT_NAME = "fuse_scaffold.php"; // NOI18N
+    /**
+     * Directory with FUSE manage scripts.
+     */
     public static final String DIR_WITH_SCRIPTS = "manage"; // NOI18N
+    /**
+     * Path to base configuration file.
+     */
     public static final String COMMON_CONF_FILE = "config/common.conf.php";
+    /**
+     * Name of component for NetBeans Option.
+     */
     public static final String OPTIONS_SUB_PATH = "Fuse"; // NOI18N
+    /**
+     * Path where could be framework copied if user want it.
+     */
     public static final String FUSE_INCLUDE_DIR = "/include/FUSE"; // NOI18N
+    /**
+     * Path to updated script for creating FUSE projects - from NetBeans IDE.
+     */
     public static final String CMD_INIT_PROJECT = "/scripts/install/fuse_scaffold_netbeans.php"; // NOI18N
+    /**
+     * Name of routing configuration file.
+     */
     public static final String ROUTES_CONF_FILE = "routes.conf.php"; // NOI18N
+    /**
+     * Path to routing configuration file.
+     */
     public static final String ROUTES_CONF_FILE_WITH_PATH = "config/routes.conf.php"; // NOI18N
 
 
+    /**
+     * Default contructor of FuseFramework.
+     * @param command path to the framework
+     */
     public FuseFramework(String command) {
         super(command);
     }
@@ -120,14 +148,27 @@ public class FuseFramework extends PhpProgram {
         return new FuseFramework(fuseScripts);
     }
 
+    /**
+     * Get path in Options for FUSE.
+     * @return whole path to the Fuse tab in Options
+     */
     public static String getOptionsPath() {
         return UiUtils.OPTIONS_PATH + "/" + getOptionsSubPath(); // NOI18N
     }
 
+    /**
+     * Get subpath in Options for FUSE.
+     * @return last part of Fuse path in Options (only subtab of Options)
+     */
     public static String getOptionsSubPath() {
         return OPTIONS_SUB_PATH;
     }
 
+    /**
+     * Validate if entered path leads to <b>valid</b> Fuse framework.
+     * @param command path to the directory root of Fuse
+     * @return error message, why the framework isn't valid for using it
+     */
     public static String validate(String command) {
         return new FuseFramework(command).validate();
     }
@@ -162,6 +203,10 @@ public class FuseFramework extends PhpProgram {
         return null;
     }
 
+    /**
+     * Validation of scipt for creating new project from NetBeans IDE.
+     * @return
+     */
     public String validateNetBeansScaffoldFile() {
         File dir = new File(getProgram());
         // check improved scaffold file for NetBeans
@@ -178,6 +223,11 @@ public class FuseFramework extends PhpProgram {
         return null;
     }
 
+    /**
+     * Validate if in the project is used Fuse
+     * @param sourceDir path to the framework
+     * @return error message why the path doesn't lead to valid creation script
+     */
     public static String validateExisting(String sourceDir) {
         // check Fuse managing scripts
         for (String script : FuseCommandSupport.getFuseGeneratingScripts()) {
@@ -187,6 +237,11 @@ public class FuseFramework extends PhpProgram {
         return null;
     }
 
+    /**
+     * Validate manage scripts of created project.
+     * @param fuseScript manage script
+     * @return if the script is readeble, existing and file
+     */
     public static boolean checkValidFuseScript(String fuseScript){
         // check Fuse framework
         File script = new File(fuseScript);
@@ -195,6 +250,13 @@ public class FuseFramework extends PhpProgram {
         return true;
     }
 
+    /**
+     * Initialize new project.
+     * @param phpModule which should be extended
+     * @param params parameters for initialization script
+     * @param copyFrameworkIntoSources possibility if should be Fuse copied into new created project
+     * @return information if whole initialization was successful or not.
+     */
     public boolean initProject(PhpModule phpModule, String[] params, boolean copyFrameworkIntoSources) {
         String projectName = phpModule.getDisplayName();
 
@@ -218,6 +280,10 @@ public class FuseFramework extends PhpProgram {
         return FusePhpFrameworkProvider.getInstance().isInPhpModule(phpModule);
     }
 
+    /**
+     * Copy global setup Fuse into the PhpModule.
+     * @param phpModule into which module should be Fuse copied.
+     */
     public void copyFuseFrameworkIntoProject(PhpModule phpModule) {
         if (!new File(phpModule.getSourceDirectory().getPath() + "/include").exists()) {
             new File(phpModule.getSourceDirectory().getPath() + "/include").mkdir();
@@ -242,10 +308,19 @@ public class FuseFramework extends PhpProgram {
         }
     }
 
+    /**
+     * Check if the actual FuseFramework has enabled full support.
+     * @return the Full support is enabled or not
+     */
     public boolean isImproved() {
         return (validateNetBeansScaffoldFile() == null);
     }
 
+    /**
+     * Turn on Full support on actual framework.
+     * @throws FileNotFoundException intern scaffold script isn't in source package
+     * @throws IOException intern scaffold script isn't readable
+     */
     public void improveFuseSupport() throws FileNotFoundException, IOException {
         byte[] buf = new byte[1024];
         int len;
@@ -258,6 +333,12 @@ public class FuseFramework extends PhpProgram {
         out.close();
     }
 
+    /**
+     * Turn on Full suppost for entered framework.
+     * @param fusePath path to framework which should be improved
+     * @throws FileNotFoundException intern scaffold script isn't in source package
+     * @throws IOException intern scaffold script isn't readable
+     */
     public void improveFuseSupport(String fusePath) throws FileNotFoundException, IOException {
         new FuseFramework(fusePath).improveFuseSupport();
     }

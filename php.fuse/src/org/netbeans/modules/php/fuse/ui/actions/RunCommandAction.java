@@ -53,16 +53,28 @@ public final class RunCommandAction extends BaseAction {
     private RunCommandAction() {
     }
 
+    /**
+     * Get instance of this class.
+     * @return instance of this class
+     */
     public static RunCommandAction getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Call dialog for running commands in appropriate framework.
+     * @param phpModule for which module
+     */
     @Override
     public void actionPerformed(PhpModule phpModule) {
         FusePhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).runCommand();
     }
 
 
+    /**
+     * Get name of button for running commands.
+     * @return name of button
+     */
     @Override
     protected String getPureName() {
         return NbBundle.getMessage(RunCommandAction.class, "LBL_RunCommand");

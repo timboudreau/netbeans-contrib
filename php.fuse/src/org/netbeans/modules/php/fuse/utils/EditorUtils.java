@@ -66,6 +66,11 @@ import org.openide.filesystems.FileObject;
  */
 public class EditorUtils {
 
+    /**
+     * Get index of white character in the line.
+     * @param line which line should be scanned
+     * @return index of first white characted
+     */
     public static int indexOfWhite(char[] line) {
         int i = line.length;
         while (--i > -1) {
@@ -77,6 +82,13 @@ public class EditorUtils {
         return -1;
     }
 
+    /**
+     * Get first non whitespace in file from some offset.
+     * @param doc which document should be scanned
+     * @param offset where the scanning starts
+     * @return index of first non-white character
+     * @throws BadLocationException entered offset is outside of the document
+     */
     public static int getRowFirstNonWhite(StyledDocument doc, int offset) throws BadLocationException {
         TokenHierarchy<?> th = TokenHierarchy.get(doc);
         TokenSequence<FuseTopTokenId> ts = th.tokenSequence(FuseTopTokenId.language());
@@ -103,6 +115,11 @@ public class EditorUtils {
         return start;
     }
 
+    /**
+     * Get context depending variables for Fuse template.
+     * @param doc for whcih template
+     * @return list with variables which were sent from controller
+     */
     public static ArrayList<String> getKeywordsForView(Document doc) {
         ArrayList<String> results = new ArrayList<String>();
         Source file = Source.create(doc);
@@ -150,6 +167,11 @@ public class EditorUtils {
         return results;
     }
 
+    /**
+     * Get information if the line contains parameter sent into template.
+     * @param line scanned line
+     * @return whole line if there is sent variable or nothing
+     */
     public static String parseLineForVars(String line) {
         if (line.contains("template")) {
             String[] templateProcessing = {"add_param", "add_iterator", "add_by_reference",
@@ -163,6 +185,12 @@ public class EditorUtils {
         return null;
     }
 
+    /**
+     * Get variable from the line.
+     * @param line line which will be used
+     * @param param which keyword for sending variables is there
+     * @return name of the variable
+     */
     public static String parseVariable(String line, String param) {
         line = line.replaceAll(" ", "");
         int indexOfAdd = line.indexOf(param + "(");

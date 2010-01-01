@@ -56,8 +56,17 @@ import org.openide.util.Exceptions;
  */
 public class TmplCompletionQuery extends AsyncCompletionQuery {
 
+    /**
+     * intern type for code completion query
+     */
     protected int type;
+    /**
+     * in which component is query created
+     */
     protected JTextComponent component;
+    /**
+     * if the query is for inner or outer code of Fuse delimiters
+     */
     protected QueryType queryType;
 
     public TmplCompletionQuery(JTextComponent component, int type, QueryType queryType) {
@@ -150,8 +159,17 @@ public class TmplCompletionQuery extends AsyncCompletionQuery {
         outerKeywords.add("<{");
     }
 
+    /**
+     * Types of queries. 
+     */
     public static enum QueryType  {
+        /**
+         * Query for code in Fuse delimiters.
+         */
         INNER_QUERY_TASK,
+        /**
+         * Query for code within Fuse delimiters.
+         */
         OUTER_QUERY_TASK
     }
 }

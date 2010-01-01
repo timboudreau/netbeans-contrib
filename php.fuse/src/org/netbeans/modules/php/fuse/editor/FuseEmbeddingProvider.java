@@ -63,6 +63,9 @@ import org.netbeans.modules.php.fuse.utils.EditorUtils;
  */
 public class FuseEmbeddingProvider extends EmbeddingProvider {
 
+    /**
+     * Virtual code for entering between two commands of the same language.
+     */
     public static final String GENERATED_CODE = "@@@"; //NOI18N
 
     @Override
@@ -176,6 +179,9 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
         //do nothing
     }
 
+    /**
+     * Factory for creating new FuseEmbeddingProvider.
+     */
     public static final class Factory extends TaskFactory {
 
         @Override

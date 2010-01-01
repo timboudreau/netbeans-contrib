@@ -61,6 +61,9 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
     static final Pattern COMMAND_PATTERN = Pattern.compile("^\\:(\\S+)\\s+(.+)$"); // NOI18N
     static final Pattern PREFIX_PATTERN = Pattern.compile("^(\\w+)$"); // NOI18N
 
+    /**
+     * Commands with their name, display name, command and help for command support.
+     */
     public static String[][] FUSE_GENERATING_COMMANDS = {
         {NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateControllerDisplayName"),
          NbBundle.getMessage(FuseCommandSupport.class, "CMD_GenerateControllerDescription"),
@@ -85,6 +88,10 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
     };
 
 
+    /**
+     * Get manage scripts of Fuse.
+     * @return list of scripts
+     */
     public static String[] getFuseGeneratingScripts() {
         ArrayList<String> listOfScripts = new ArrayList<String>();
         for (int i = 0; i < FUSE_GENERATING_COMMANDS.length; i++) {
@@ -93,6 +100,11 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
         return listOfScripts.toArray(new String[]{});
     }
 
+    /**
+     * Get help for manage script
+     * @param command manage script
+     * @return help
+     */
     public static String getHelp(String command) {
         String help = "";
         for (int i = 0; i < FUSE_GENERATING_COMMANDS.length; i++) {

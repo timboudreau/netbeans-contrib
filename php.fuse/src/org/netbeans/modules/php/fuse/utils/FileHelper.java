@@ -8,8 +8,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import org.openide.util.Exceptions;
 
+/**
+ * Helper for easier work with files.
+ * @author Martin Fousek
+ */
 public class FileHelper {
 
+    /**
+     * Copy directory from some location to another one.
+     * @param srcDir source directory
+     * @param dstDir destination directory
+     */
     public static void copyDirectory(File srcDir, File dstDir) {
         if (srcDir.isDirectory()) {
             if (!dstDir.exists()) {
@@ -30,6 +39,12 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Copy file from one location to another one.
+     * @param src source file
+     * @param dst destination file
+     * @throws IOException the source file can be read or the destination file is read-only
+     */
     public static void copyFile(File src, File dst) throws IOException {
         InputStream in = new FileInputStream(src);
         OutputStream out = new FileOutputStream(dst);

@@ -59,6 +59,11 @@ public class FuseTopLexer implements Lexer<FuseTopTokenId> {
         scanner = new FuseTopColoringLexer(info, state);
     }
 
+    /**
+     * Create new top lexer.
+     * @param info where was the parsing started
+     * @return new lexer for additional parsing
+     */
     public static synchronized FuseTopLexer create(LexerRestartInfo<FuseTopTokenId> info) {
         return new FuseTopLexer(info);
     }

@@ -51,6 +51,9 @@ import org.netbeans.modules.php.fuse.lexer.FuseTopTokenId;
  */
 public class TmplLanguage extends DefaultLanguageConfig {
     
+    /**
+     * Default constructor.
+     */
     public TmplLanguage() {
     }
 

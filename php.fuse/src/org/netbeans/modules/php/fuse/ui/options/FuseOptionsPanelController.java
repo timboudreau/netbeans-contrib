@@ -134,6 +134,10 @@ public class FuseOptionsPanelController extends OptionsPanelController implement
         propertyChangeSupport.removePropertyChangeListener(l);
     }
 
+    /**
+     * Catch if the status of the panel was changed or not.
+     * @param e after which event
+     */
     public void stateChanged(ChangeEvent e) {
         if (!changed) {
             changed = true;

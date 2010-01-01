@@ -70,6 +70,10 @@ public final class FusePhpFrameworkProvider extends PhpFrameworkProvider {
             "static",   // NOI18N
             "views");  // NOI18N
 
+    /**
+     * Get instance of FusePhpFrameworkProvider.
+     * @return instance
+     */
     public static FusePhpFrameworkProvider getInstance() {
         return INSTANCE;
     }
@@ -114,10 +118,20 @@ public final class FusePhpFrameworkProvider extends PhpFrameworkProvider {
         return properties;
     }
 
+    /**
+     * Get extender for actions.
+     * @param phpModule for which PHP module
+     * @return extender for actions
+     */
     public PhpModuleActionsExtender createActionsExtender(PhpModule phpModule) {
         return new FusePhpModuleActionsExtender();
     }
 
+    /**
+     * Get extender for ignored files.
+     * @param phpModule for which PHP module
+     * @return extender for ignored files
+     */
     public PhpModuleIgnoredFilesExtender getIgnoredFilesExtender(PhpModule phpModule) {
         return new FusePhpModuleIgnoredFilesExtender(phpModule);
     }

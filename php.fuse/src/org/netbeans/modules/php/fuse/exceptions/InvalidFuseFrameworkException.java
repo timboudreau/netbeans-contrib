@@ -46,6 +46,10 @@ public final class InvalidFuseFrameworkException extends Exception {
 
     private static final long serialVersionUID = 1;
 
+    /**
+     * Exception that choosed framework ins't valid.
+     * @param message why isn't Fuse framework valid in that case.
+     */
     public InvalidFuseFrameworkException(String message) {
         super(message);
     }
