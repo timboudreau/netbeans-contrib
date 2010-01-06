@@ -45,330 +45,137 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.UnsupportedCharsetException;
-import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.gsf.testrunner.api.Manager;
+import org.netbeans.modules.gsf.testrunner.api.OutputLine;
+import org.netbeans.modules.gsf.testrunner.api.Report;
+import org.netbeans.modules.gsf.testrunner.api.Status;
+import org.netbeans.modules.gsf.testrunner.api.TestSession;
+import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
+import org.netbeans.modules.gsf.testrunner.api.TestSuite;
+import org.netbeans.modules.gsf.testrunner.api.Testcase;
+import org.netbeans.modules.gsf.testrunner.api.Trouble;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
+import org.openide.util.Exceptions;
 import org.xml.sax.SAXException;
 import static java.util.Calendar.MILLISECOND;
 import static java.util.logging.Level.FINER;
-import static java.util.logging.Level.FINEST;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.ADD_ERROR_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.ADD_FAILURE_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.END_OF_TEST_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.OUTPUT_DELIMITER_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.START_OF_TEST_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTCASE_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TEST_LISTENER_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTS_COUNT_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTSUITE_PREFIX;
 import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTSUITE_STATS_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.XML_DECL_PREFIX;
 
 /**
  * Obtains events from a single session of an Ant <code>junit</code> task
  * and builds a {@link Report}.
- * The events are delivered by the {@link JUnitAntLogger}.
+ * The events are delivered by the {@link TestNGAntLogger}.
  *
- * @see  JUnitAntLogger
+ * @see  TestNGAntLogger
  * @see  Report
  * @author  Marian Petras
+ * @author  Lukas Jungmann
  */
 final class TestNGOutputReader {
 
     private static final int MAX_REPORT_FILE_SIZE = 1 << 22;    //2 MiB
-    /** number of progress bar workunits */
-    private static final int PROGRESS_WORKUNITS = (1 << 15) / 100 * 100;    //sqrt(Integer.MAX), rounded down to hundreds
-    /** */
-    private static final int INITIAL_PROGRESS = PROGRESS_WORKUNITS / 100;
-
-    /** */
-    private static final String XML_FORMATTER_CLASS_NAME
-            = "org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter";//NOI18N
-
     /** */
     private final NumberFormat numberFormat = NumberFormat.getInstance();
-
-    /**
-     * Does Ant provide detailed information about the currently running test
-     * and its output?
-     */
-    private boolean testListenerInfoAvailable = false;
-    /**
-     * number of tests to be executed in the current test suite
-     *
-     * @see  #executedOneSuiteTests
-     */
-    private int expectedOneSuiteTests = 0;
-    /**
-     * number of tests executed within the current suite so far
-     *
-     * @see  #expectedOneSuiteTests
-     */
-    private int executedOneSuiteTests = 0;
-    /**
-     * number of test suites that are going to be executed
-     *
-     * @see  #executedSuitesCount
-     */
-    private int expectedSuitesCount = 0;
-    /**
-     * number of test suites executed so far
-     *
-     * @see  #expectedSuitesCount
-     */
-    private int executedSuitesCount = 0;
-    /**
-     * did we already get statistics of tests/failures/skips for the current
-     * report?
-     */
-    private boolean testsuiteStatsKnown = false;   //see issue #74979
-
     /** */
-    private final AntSession session;
-    /** */
-    private final TaskType sessionType;
-    /**
-     * handle to the progress indicator
-     */
-    private ProgressHandle progressHandle;
-    /**
-     * whether the progress handle is in determinate mode
-     *
-     * @see  #progressHandle
-     */
-    private boolean isDeterminateProgress;
-    /**
-     * stores progress currently displayed in the progress bar
-     */
-    private int lastProgress = 0;
-    /** */
-    private MessageFormat progressStepFormatSuiteName;
-    /** */
-    private MessageFormat progressStepFormatAnonymous;
+    private final SessionType sessionType;
     /** whether XML report is expected */
     private boolean expectXmlReport;
     /** */
     private final File antScript;
     /** */
     private final long timeOfSessionStart;
-
+    private long lastSuiteTime = 0;
     private final Logger LOG;
     private final Logger progressLogger;
-
     /** */
     private RegexpUtils regexp = RegexpUtils.getInstance();
-
-    ///** */
-    //private Report topReport;
-    /** */
-    private Report report;
-    /** */
-    private Report.Testcase testcase;
-    /** */
-    private Report.Trouble trouble;
-    /** */
-    private TroubleParser troubleParser;
-    /** */
-    private String suiteName;
-
-    /** */
-    private StringBuilder xmlOutputBuffer;
-
-    /**
-     * Are we reading standard output or standard error output?
-     * This variable is used only when reading output from the test cases
-     * (when {@link #outputBuffer} is non-<code>null</code>).
-     */
-    private boolean readingSuiteOutputSummary;
     /** */
     private boolean lastHeaderBrief;
     /** */
-    private boolean waitingForIssueStatus;
-    /** */
     private final Manager manager = Manager.getInstance();
     /** */
-    private String classpath;
-    /** */
     private ClassPath platformSources;
+    private TestSession testSession;
+    private Project project;
+    private File resultsDir;
+    private TestNGTestcase testcase;
+    private Report report;
 
-    private File testReportDirectory = null;
+    enum State {
 
+        DEFAULT, SUITE_STARTED, TESTCASE_STARTED, SUITE_FINISHED, TESTCASE_ISSUE
+    };
+    private State state = State.DEFAULT;
 
     /** Creates a new instance of TestNGOutputReader */
     TestNGOutputReader(final AntSession session,
-                      final TaskType sessionType,
-                      final long timeOfSessionStart) {
-        this.session = session;
-        this.sessionType = sessionType;
-        this.antScript = session.getOriginatingScript();
-        this.timeOfSessionStart = timeOfSessionStart;
-
+            final AntSessionInfo sessionInfo,
+            final Project project,
+            final Properties props) {
+        this.project = project;
+        this.sessionType = sessionInfo.getSessionType();
+        this.antScript = FileUtil.normalizeFile(session.getOriginatingScript());
+        this.timeOfSessionStart = sessionInfo.getTimeOfTestTaskStart();
+        if (project == null) {
+            FileObject fileObj = FileUtil.toFileObject(antScript);
+            this.project = FileOwnerQuery.getOwner(fileObj);
+        }
+        this.testSession = new TestNGTestSession("", this.project, sessionType, new TestNGTestNodeFactory()); //NOI18N
+        testSession.setRerunHandler(new TestNGExecutionManager(session, testSession, props));
         this.progressLogger = Logger.getLogger(
                 "org.netbeans.modules.contrib.testng.outputreader.progress");    //NOI18N
         this.LOG = Logger.getLogger(TestNGOutputReader.class.getName());
     }
 
-    /**
-     */
+    Project getProject() {
+        return project;
+    }
+
+    TestSession getTestSession() {
+        return testSession;
+    }
+
     void verboseMessageLogged(final AntEvent event) {
         final String msg = event.getMessage();
         if (msg == null) {
-            LOG.finer("VERBOSE MSG: <null>");                           //NOI18N
             return;
         }
+        verboseMessageLogged(msg);
+        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+    }
 
-        if (LOG.isLoggable(FINER)) {
-            LOG.finer("VERBOSE MSG: \"" + msg + '"');                   //NOI18N
-        }
-        if (progressLogger.isLoggable(FINEST)) {
-            progressLogger.finest("VERBOSE: " + msg);                   //NOI18N
-        }
-        if (msg.startsWith(TEST_LISTENER_PREFIX)) {
-            if (report == null) {
-                return;
-            }
-            testListenerInfoAvailable = true;
-            String testListenerMsg = msg.substring(TEST_LISTENER_PREFIX.length());
-            if (testListenerMsg.startsWith(TESTS_COUNT_PREFIX)) {
-                String countStr = testListenerMsg.substring(TESTS_COUNT_PREFIX.length());
-                try {
-                    int count = parseNonNegativeInteger(countStr);
-                    if (count > 0) {
-                        expectedOneSuiteTests = count;
-                        if (progressLogger.isLoggable(FINER)) {
-                            progressLogger.finer("expected # of tests in a suite: " + expectedOneSuiteTests);
-                        }
-                    }
-                } catch (NumberFormatException ex) {
-                    assert expectedOneSuiteTests == 0;
-                }
-                return;
-            }
-
-            int leftBracketIndex = testListenerMsg.indexOf('(');
-            if (leftBracketIndex == -1) {
-                return;
-            }
-
-            final String shortMsg = testListenerMsg.substring(0, leftBracketIndex);
-            if (shortMsg.equals(START_OF_TEST_PREFIX)) {
-                boolean testStarted = false;
-                String restOfMsg = testListenerMsg.substring(START_OF_TEST_PREFIX.length());
-                if (restOfMsg.length() == 0) {
-                    testStarted = true;
-                } else {
-                    char firstChar = restOfMsg.charAt(0);
-                    char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
-                    if ((firstChar == '(') && (lastChar == ')')) {
-                        testcase = new Report.Testcase();
-                        testcase.name = restOfMsg.substring(1, restOfMsg.length() - 1);
-                        testcase.timeMillis = Report.Testcase.NOT_FINISHED_YET;
-                        testStarted = true;
-                    } else if (!Character.isLetterOrDigit(firstChar)) {
-                        testStarted = true;
-                    }
-                }
-                if (testStarted) {
-                    progressLogger.finest("test started");              //NOI18N
-                }
-                return;
-            }
-            if (shortMsg.equals(END_OF_TEST_PREFIX)) {
-                boolean testFinished = false;
-                String restOfMsg = testListenerMsg.substring(END_OF_TEST_PREFIX.length());
-                if (restOfMsg.length() == 0) {
-                    testFinished = true;
-                } else {
-                    char firstChar = restOfMsg.charAt(0);
-                    char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
-                    if ((firstChar == '(') && (lastChar == ')')) {
-                        String name = restOfMsg.substring(1, restOfMsg.length() - 1);
-                        if (name.equals(testcase.name)) {
-                            testFinished = true;
-                        }
-                    } else if (!Character.isLetterOrDigit(firstChar)) {
-                        testFinished = true;
-                    }
-                }
-                if (testFinished) {
-                    if (testcase != null) {
-                        testcase.timeMillis = Report.Testcase.TIME_UNKNOWN;
-                        report.reportTest(testcase, Report.InfoSource.VERBOSE_MSG);
-                        testcase = null;
-                    }
-                    executedOneSuiteTests++;
-                    if (expectedOneSuiteTests < executedOneSuiteTests) {
-                        expectedOneSuiteTests = executedOneSuiteTests;
-                    }
-                    progressLogger.finest("test finished");             //NOI18N
-                    updateProgress();
-                }
-                return;
-            }
-            if (shortMsg.equals(ADD_FAILURE_PREFIX)
-                    || shortMsg.equals(ADD_ERROR_PREFIX)) {
-                if (testcase == null) {
-                    return;
-                }
-                int lastCharIndex = testListenerMsg.length() - 1;
-                if (testListenerMsg.charAt(lastCharIndex) != ')') {
-                    return;
-                }
-                String insideBrackets = testListenerMsg.substring(
-                                                        shortMsg.length() + 1,
-                                                        lastCharIndex);
-                int commaIndex = insideBrackets.indexOf(',');
-                String testName = (commaIndex == -1)
-                                  ? insideBrackets
-                                  : insideBrackets.substring(0, commaIndex);
-                if (!testName.equals(testcase.name)) {
-                    return;
-                }
-                testcase.trouble = new Report.Trouble(shortMsg.equals(ADD_ERROR_PREFIX));
-                if (commaIndex != -1) {
-                    int errMsgStart;
-                    if (Character.isSpaceChar(insideBrackets.charAt(commaIndex + 1))) {
-                        errMsgStart = commaIndex + 2;
-                    } else {
-                        errMsgStart = commaIndex + 1;
-                    }
-                    String troubleMsg = insideBrackets.substring(errMsgStart);
-                    if (!troubleMsg.equals("null")) {                   //NOI18N
-                        testcase.trouble.message = troubleMsg;
-                    }
-                }
-            }
-            return;
-        }
-
-        /* Look for classpaths: */
-
-        /* Code copied from JavaAntLogger */
-
-        Matcher matcher;
-
-        matcher = RegexpUtils.CLASSPATH_ARGS.matcher(msg);
-        if (matcher.find()) {
-            this.classpath = matcher.group(1);
-        }
-        // XXX should also probably clear classpath when taskFinished called
-        matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
+    /**
+     */
+    synchronized void verboseMessageLogged(String msg) {
+        Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
         if (matcher.find()) {
             String executable = matcher.group(1);
             ClassPath platformSrcs = findPlatformSources(executable);
@@ -376,181 +183,173 @@ final class TestNGOutputReader {
                 this.platformSources = platformSrcs;
             }
         }
+//        switch (state) {
+//            case SUITE_STARTED: {
+//                if (msg.startsWith(TEST_LISTENER_PREFIX)) {
+//                    String testListenerMsg = msg.substring(TEST_LISTENER_PREFIX.length());
+//                    if (testListenerMsg.startsWith(TESTS_COUNT_PREFIX)) {
+////                        String countStr = testListenerMsg.substring(TESTS_COUNT_PREFIX.length());
+//                        return;
+//                    }
+//
+//                    int leftBracketIndex = testListenerMsg.indexOf('(');
+//                    if (leftBracketIndex == -1) {
+//                        return;
+//                    }
+//
+//                    final String shortMsg = testListenerMsg.substring(0, leftBracketIndex);
+//                    if (shortMsg.equals(START_OF_TEST_PREFIX)) {
+//                        String restOfMsg = testListenerMsg.substring(START_OF_TEST_PREFIX.length());
+//                        if (restOfMsg.length() != 0) {
+//                            char firstChar = restOfMsg.charAt(0);
+//                            char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
+//                            if ((firstChar == '(') && (lastChar == ')')) {
+//                                testCaseStarted(restOfMsg.substring(1, restOfMsg.length() - 1));
+//                            }
+//                        }
+//                        return;
+//                    }
+//                }
+//                break;
+//            }
+//            case TESTCASE_STARTED: {
+//                if (msg.startsWith(TEST_LISTENER_PREFIX)) {
+//                    String testListenerMsg = msg.substring(TEST_LISTENER_PREFIX.length());
+//                    int leftBracketIndex = testListenerMsg.indexOf('(');
+//                    if (leftBracketIndex == -1) {
+//                        return;
+//                    }
+//                    final String shortMsg = testListenerMsg.substring(0, leftBracketIndex);
+//
+//                    if (shortMsg.equals(END_OF_TEST_PREFIX)) {
+//                        String restOfMsg = testListenerMsg.substring(END_OF_TEST_PREFIX.length());
+//                        if (restOfMsg.length() != 0) {
+//                            char firstChar = restOfMsg.charAt(0);
+//                            char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
+//                            if ((firstChar == '(') && (lastChar == ')')) {
+//                                String name = restOfMsg.substring(1, restOfMsg.length() - 1);
+//                                if (name.equals(testSession.getCurrentTestCase().getName())) {
+//                                    testCaseFinished();
+//                                }
+//                            }
+//                        }
+//                        return;
+//                    } else if (shortMsg.equals(ADD_FAILURE_PREFIX)
+//                            || shortMsg.equals(ADD_ERROR_PREFIX)) {
+//                        int lastCharIndex = testListenerMsg.length() - 1;
+//
+//                        String insideBrackets = testListenerMsg.substring(
+//                                shortMsg.length() + 1,
+//                                lastCharIndex);
+//                        int commaIndex = insideBrackets.indexOf(',');
+//                        String testName = (commaIndex == -1)
+//                                ? insideBrackets
+//                                : insideBrackets.substring(0, commaIndex);
+//                        if (!testName.equals(testSession.getCurrentTestCase().getName())) {
+//                            return;
+//                        }
+//                        testSession.getCurrentTestCase().setTrouble(new Trouble(shortMsg.equals(ADD_ERROR_PREFIX)));
+//                        boolean hasErrMsg = (commaIndex != -1)
+//                                && ((commaIndex + 2) <= insideBrackets.length()); // #166912
+//                        if (hasErrMsg) {
+//                            int errMsgStart;
+//                            if (Character.isSpaceChar(insideBrackets.charAt(commaIndex + 1))) {
+//                                errMsgStart = commaIndex + 2;
+//                            } else {
+//                                errMsgStart = commaIndex + 1;
+//                            }
+//                            String troubleMsg = insideBrackets.substring(errMsgStart);
+//                            if (!troubleMsg.equals("null")) {                   //NOI18N
+//                                addStackTraceLine(testSession.getCurrentTestCase(), troubleMsg, false);
+//                            }
+//                        }
+//                        return;
+//                    }
+//                }
+//                break;
+//            }
+//            case DEFAULT:
+//            case SUITE_FINISHED:
+//            case TESTCASE_ISSUE: {
+//                Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
+//                if (matcher.find()) {
+//                    String executable = matcher.group(1);
+//                    ClassPath platformSrcs = findPlatformSources(executable);
+//                    if (platformSrcs != null) {
+//                        this.platformSources = platformSrcs;
+//                    }
+//                }
+//                break;
+//            }
+//        }
     }
 
-    /**
-     */
-    void messageLogged(final AntEvent event) {
+    synchronized void messageLogged(final AntEvent event) {
         final String msg = event.getMessage();
         if (msg == null) {
-            LOG.finer("NORMAL: <null>");                                //NOI18N
             return;
         }
-
-        if (LOG.isLoggable(FINER)) {
-            LOG.finer("NORMAL: \"" + msg + '"');                        //NOI18N
-        }
-        if (progressLogger.isLoggable(FINEST)) {
-            progressLogger.finest("NORMAL:  " + msg);                   //NOI18N
-        }
-
-        if (testListenerInfoAvailable
-                && (report != null) && !report.isSuiteFinished()
-                && (testcase != null)) {
-            displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
-            return;
-        }
-
-        //<editor-fold defaultstate="collapsed" desc="if (waitingForIssueStatus) ...">
-        if (waitingForIssueStatus) {
-            assert testcase != null;
-
-            Matcher matcher = regexp.getTestcaseIssuePattern().matcher(msg);
-            if (matcher.matches()) {
-                boolean error = (matcher.group(1) == null);
-
-                trouble = (testcase.trouble = new Report.Trouble(error));
-                waitingForIssueStatus = false;
-                return;
-            } else {
-                report.reportTest(testcase);
-                waitingForIssueStatus = false;
-            }
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="if (xmlOutputBuffer != null) ...">
-        if (xmlOutputBuffer != null) {
-            xmlOutputBuffer.append(msg).append('\n');
-            if (msg.equals("</testsuite>")) {                           //NOI18N
-                closePreviousReport();
-            }
-            return;
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="if (readingSuiteOutputSummary) ...">
-        if (readingSuiteOutputSummary) {
-            if (msg.startsWith(OUTPUT_DELIMITER_PREFIX)) {
-                Matcher matcher = regexp.getOutputDelimPattern().matcher(msg);
-                if (matcher.matches() && (matcher.group(1) == null)) {
-                    readingSuiteOutputSummary = false;
-                }
-            }
-            return;
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="if (trouble != null) ...">
-        if (trouble != null) {
-            if (troubleParser == null) {
-                troubleParser = new TroubleParser(trouble, regexp);
-            }
-            if (troubleParser.processMessage(msg)) {
-                troubleParser = null;
-
-                if ((trouble.stackTrace != null) && (trouble.stackTrace.length != 0)) {
-                    report.setClasspathSourceRoots();
-                }
-
-                if (trouble.isFakeError()) {
-                    trouble.failure = false;
-
-                    /* fix also the statistics: */
-                    report.skips--;
-                    report.failures++;
-                }
-
-                report.reportTest(testcase);
-
-                trouble = null;
-                testcase = null;
-            }
-            return;
-        }//</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="TESTCASE_PREFIX">
-        if (msg.startsWith(TESTCASE_PREFIX)) {
-
-            if (report == null) {
-                return;
-            }
-
-            String header = msg.substring(TESTCASE_PREFIX.length());
-
-            boolean success =
-                lastHeaderBrief
-                ? tryParseBriefHeader(header)
-                    || !(lastHeaderBrief = !tryParsePlainHeader(header))
-                : tryParsePlainHeader(header)
-                    || (lastHeaderBrief = tryParseBriefHeader(header));
-            if (success) {
-                waitingForIssueStatus = !lastHeaderBrief;
-            }
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="OUTPUT_DELIMITER_PREFIX">
-        else if (msg.startsWith(OUTPUT_DELIMITER_PREFIX)
-                && regexp.getOutputDelimPattern().matcher(msg).matches()) {
-            if (report == null) {
-                return;
-            }
-            readingSuiteOutputSummary = true;
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="XML_DECL_PREFIX">
-        else if (expectXmlReport && msg.startsWith(XML_DECL_PREFIX)) {
-            Matcher matcher = regexp.getXmlDeclPattern().matcher(msg.trim());
-            if (matcher.matches()) {
-                suiteStarted(null);
-
-                xmlOutputBuffer = new StringBuilder(4096);
-                xmlOutputBuffer.append(msg);
-            }
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="TESTSUITE_PREFIX">
-        else if (msg.startsWith(TESTSUITE_PREFIX)) {
-            suiteName = msg.substring(TESTSUITE_PREFIX.length());
-            if (regexp.getFullJavaIdPattern().matcher(suiteName).matches()){
-                suiteStarted(suiteName);
-                report.resultsDir = determineResultsDir(event);
-            }
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="TESTSUITE_STATS_PREFIX">
-        else if (msg.startsWith(TESTSUITE_STATS_PREFIX)) {
-
-            if (report == null) {
-                return;
-            }
-            if (testsuiteStatsKnown) {
-                return;                     //see issue #74979
-            }
-
-            Matcher matcher = regexp.getSuiteStatsPattern().matcher(msg);
-            if (matcher.matches()) {
-                assert report != null;
-
-                report.markSuiteFinished();
-                try {
-                    report.totalTests = Integer.parseInt(matcher.group(1));
-                    report.failures = Integer.parseInt(matcher.group(2));
-                    report.skips = Integer.parseInt(matcher.group(3));
-                } catch (NumberFormatException ex) {
-                    //if the string matches the pattern, this should not happen
-                    assert false;
-                }
-                report.elapsedTimeMillis = parseTime(matcher.group(4));
-            }
-            testsuiteStatsKnown = true;
-        }//</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="Test ... FAILED">
-        else if ((suiteName != null)
-                && msg.startsWith("Test ")                              //NOI18N
-                && msg.endsWith(" FAILED")                              //NOI18N
-                && msg.equals("Test " + suiteName + " FAILED")) {       //NOI18N
-            suiteName = null;
-            //PENDING - stop the timer (if any)?
-            //PENDING - perform immediate update (if necessary)?
-        }
-        //</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="output">
-        else if (!testListenerInfoAvailable) {
-            displayOutput(msg,
-                          event.getLogLevel() == AntEvent.LOG_WARN);
-        }
-        //</editor-fold>
+        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+//        switch (state) {
+//            case TESTCASE_ISSUE:
+//            case SUITE_FINISHED: {
+//                if (msg.startsWith(TESTCASE_PREFIX)) {
+//                    String header = msg.substring(TESTCASE_PREFIX.length());
+//                    boolean success =
+//                            lastHeaderBrief
+//                            ? tryParseBriefHeader(header)
+//                            || !(lastHeaderBrief = !tryParsePlainHeader(header))
+//                            : tryParsePlainHeader(header)
+//                            || (lastHeaderBrief = tryParseBriefHeader(header));
+//                    if (success) {
+//                        state = State.TESTCASE_ISSUE;
+//                    }
+//                    break;
+//                }
+//            }
+//            case DEFAULT: {
+//                if (msg.contains(TESTSUITE_PREFIX)) {
+//                    String suiteName = msg.substring(TESTSUITE_PREFIX.length());
+//                    if (regexp.getFullJavaIdPattern().matcher(suiteName).matches()) {
+//                        suiteStarted(suiteName);
+//                        resultsDir = determineResultsDir(event);
+//                    }
+//                }
+//
+//                if (state.equals(State.TESTCASE_ISSUE) && !msg.equals("")) {
+//                    addStackTraceLine(testcase, msg, true);
+//                }
+//                break;
+//            }
+//            case SUITE_STARTED: {
+//                if (msg.startsWith(TESTSUITE_STATS_PREFIX)) {
+//                    Matcher matcher = regexp.getSuiteStatsPattern().matcher(msg);
+//                    if (matcher.matches()) {
+//                        try {
+//                            suiteFinished(Integer.parseInt(matcher.group(1)),
+//                                    Integer.parseInt(matcher.group(2)),
+//                                    Integer.parseInt(matcher.group(3)),
+//                                    parseTime(matcher.group(4)));
+//                        } catch (NumberFormatException ex) {
+//                            assert false;
+//                        }
+//                    } else {
+//                        assert false;
+//                    }
+//                    break;
+//                }
+//            }
+//            case TESTCASE_STARTED: {
+//                int posTestListener = msg.indexOf(TEST_LISTENER_PREFIX);
+//                if (posTestListener != -1) {
+//                    displayOutput(msg.substring(0, posTestListener), event.getLogLevel() == AntEvent.LOG_WARN);
+//                    verboseMessageLogged(msg.substring(posTestListener));
+//                } else {
+//                    displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+//                }
+//                break;
+//            }
+//        }
     }
 
     /**
@@ -561,7 +360,7 @@ final class TestNGOutputReader {
             double seconds = numberFormat.parse(timeString).doubleValue();
             timeMillis = Math.round((float) (seconds * 1000.0));
         } catch (ParseException ex) {
-            timeMillis = Report.Testcase.TIME_UNKNOWN;
+            timeMillis = -1;
         }
         return timeMillis;
     }
@@ -601,7 +400,7 @@ final class TestNGOutputReader {
             return null;
         }
         String todirAttr = (taskStruct.getAttribute("outputdir") != null) //NOI18N
-            ? taskStruct.getAttribute("outputdir") : "test-output"; //NOI18N
+                ? taskStruct.getAttribute("outputdir") : "test-output"; //NOI18N
         File resultsDir = getFile(todirAttr, event);
         return findAbsolutePath(resultsDir, taskStruct, event);
     }
@@ -639,8 +438,8 @@ final class TestNGOutputReader {
             }
         }
 
-        File resultsDir = (todirPath != ".") ? new File(todirPath)      //NOI18N
-                                             : null;
+        File resultsDir = (todirPath != ".") ? new File(todirPath) //NOI18N
+                : null;
         return findAbsolutePath(resultsDir, taskStruct, event);
     }
 
@@ -653,7 +452,7 @@ final class TestNGOutputReader {
 
     private static File combine(File parentPath, File path) {
         return (path != null) ? new File(parentPath, path.getPath())
-                              : parentPath;
+                : parentPath;
     }
 
     private static boolean isAbsolute(File path) {
@@ -670,20 +469,6 @@ final class TestNGOutputReader {
 
     /**
      */
-    private Report createReport(final String suiteName) {
-        Report newReport = new Report(suiteName);
-
-        newReport.classpath = classpath;
-        newReport.platformSources = platformSources;
-
-        this.classpath = null;
-        this.platformSources = null;
-
-        return newReport;
-    }
-
-    /**
-     */
     private ClassPath findPlatformSources(final String javaExecutable) {
 
         /* Copied from JavaAntLogger */
@@ -695,8 +480,8 @@ final class TestNGOutputReader {
                 File f = FileUtil.toFile(fo);
                 //XXX - look for a "subpath" in case of forked JRE; is there a better way?
                 String path = f.getAbsolutePath();
-                if (path.startsWith(javaExecutable) ||
-                        javaExecutable.startsWith(path.substring(0, path.length() - 8))) {
+                if (path.startsWith(javaExecutable)
+                        || javaExecutable.startsWith(path.substring(0, path.length() - 8))) {
                     return platforms[i].getSourceFolders();
                 }
             }
@@ -710,271 +495,41 @@ final class TestNGOutputReader {
      * @param  expectedSuitesCount  expected number of test suites going to be
      *                              executed by this task
      */
-    void testTaskStarted(int expectedSuitesCount, boolean expectXmlOutput) {
-        if (progressLogger.isLoggable(FINER)) {
-            progressLogger.finer("EXPECTED # OF SUITES: "
-                                 + expectedSuitesCount);
-        }
-
+    void testTaskStarted(int expectedSuitesCount, boolean expectXmlOutput, AntEvent event) {
         this.expectXmlReport = expectXmlOutput;
-
-        final boolean willBeDeterminateProgress = (expectedSuitesCount > 0);
-        if (progressHandle == null) {
-            progressHandle = ProgressHandleFactory.createHandle(
-                NbBundle.getMessage(TestNGOutputReader.class, "MSG_ProgressMessage"));//NOI18N
-
-            if (willBeDeterminateProgress) {
-                this.expectedSuitesCount = expectedSuitesCount;
-                progressHandle.start(PROGRESS_WORKUNITS);
-                progressHandle.progress(INITIAL_PROGRESS);      // 1 %
-                lastProgress = INITIAL_PROGRESS;
-            } else {
-                progressHandle.start();
-            }
-        } else if (willBeDeterminateProgress) {
-            if (!isDeterminateProgress) {
-                progressHandle.switchToDeterminate(PROGRESS_WORKUNITS);
-            }
-            if (progressLogger.isLoggable(FINER)) {
-                progressLogger.finer("                    - total # of suites: "
-                                     + (this.expectedSuitesCount + expectedSuitesCount));
-            }
-            this.expectedSuitesCount += expectedSuitesCount;
-
-            /*
-             * This is necessary in order to ensure that the subsequent
-             * progress update computes the correct value:
-             */
-            expectedOneSuiteTests = 0;
-            executedOneSuiteTests = 0;
-
-            updateProgress();
-        } else if (isDeterminateProgress /* and will be indeterminate */ ) {
-            progressHandle.switchToIndeterminate();
-            lastProgress = 0;
-        }//else
-            //is indeterminate and will be indeterminate - no change
-         //
-        isDeterminateProgress = willBeDeterminateProgress;
-
-        manager.testStarted(session, sessionType);
+        manager.testStarted(testSession);
+//        manager.displaySuiteRunning(testSession, TestSuite.ANONYMOUS_TEST_SUITE);
+        resultsDir = determineResultsDir(event);
     }
 
     /**
      */
-    void testTaskFinished(AntEvent event) {
-        closePreviousReport();
-
-        progressLogger.finer("ACTUAL # OF SUITES: " + executedSuitesCount);
-
-        expectedSuitesCount = executedSuitesCount;
-        if (isDeterminateProgress) {
-            /*
-             * The above assignment statement might set expectedSuitesCount
-             * to zero which would cause a "division by zero" exception
-             * if method updateProgress() was called. That's why we bypass
-             * the method and set the progress bar to 100% directly.
-             */
-            progressHandle.progress(PROGRESS_WORKUNITS);
-        }
-        for (Report r : parseReportFile(new File(determineResultsDir(event), "testng-results.xml"))) {
-            assert r != null;
-            r.classpath = classpath;
-            r.platformSources = platformSources;
-            r.setClasspathSourceRoots();
-            r.markSuiteFinished();
-            manager.displayReport(session, sessionType, r);
-        }
-        classpath = null;
-        platformSources = null;
+    void testTaskFinished() {
+        state = State.SUITE_FINISHED;
+        closePreviousReport(); // #171050
     }
 
-    /**
-     * Updates the progress bar according to the current values of
-     * {@link #executedSuitesCount} and {@link #expectedSuitesCount}.
-     */
-    private void updateProgress() {
-        updateProgress(null);
-    }
-
-    private void updateProgress(String message) {
-        assert progressHandle != null;
-
-        if (isDeterminateProgress) {
-            int progress = getProcessedWorkunits();
-            if (progressLogger.isLoggable(FINER)) {
-                progressLogger.finer(
-                    "------ Progress: "                                     //NOI18N
-                    + String.format("%3d%%",
-                                    100 * progress / PROGRESS_WORKUNITS));  //NOI18N
-            }
-            if (progress < INITIAL_PROGRESS) {
-                progress = INITIAL_PROGRESS;
-            }
-            if (progress != lastProgress) {
-                if (progress < lastProgress) {
-                    /* hack to allow decrease of progress: */
-                    progressHandle.switchToIndeterminate();
-                    progressHandle.switchToDeterminate(PROGRESS_WORKUNITS);
+    private void closePreviousReport() {
+        //get results from report xml file
+        if (resultsDir != null) {
+            File reportFile = findReportFile();
+            if ((reportFile != null) && isValidReportFile(reportFile)) {
+                TestNGSuite reportSuite = parseReportFile(reportFile, testSession);
+                for (TestNGTestSuite ts : reportSuite.getTestSuites()) {
+                    manager.displaySuiteRunning(testSession, ts);
+                    testSession.addSuite(ts);
+                    report = testSession.getReport(ts.getElapsedTime());
+                    manager.displayReport(testSession, report, true);
                 }
-                lastProgress = progress;
-                if (message != null) {
-                    progressHandle.progress(message, progress);
-                } else {
-                    progressHandle.progress(progress);
-                }
-            } else if (message != null) {
-                progressHandle.progress(message);
             }
-        } else if (message != null) {
-            progressHandle.progress(message);
-        }
-    }
-
-    /**
-     * Updates the progress message - displays name of the running suite.
-     *
-     * @param  suiteName  name of the running suite, or {@code null}
-     */
-    private String getProgressStepMessage(String suiteName) {
-        String msg;
-
-        if (isDeterminateProgress) {
-            MessageFormat messageFormat;
-            Object[] messageParams;
-            if (suiteName != null) {
-                if (progressStepFormatSuiteName == null) {
-                    progressStepFormatSuiteName = new MessageFormat(
-                            NbBundle.getMessage(
-                                  TestNGOutputReader.class,
-                                  "MSG_ProgressStepMessage"));          //NOI18N
-                }
-                messageFormat = progressStepFormatSuiteName;
-                messageParams = new Object[] {suiteName,
-                                              executedSuitesCount + 1,
-                                              expectedSuitesCount};
-            } else {
-                if (progressStepFormatAnonymous == null) {
-                    progressStepFormatAnonymous = new MessageFormat(
-                            NbBundle.getMessage(
-                                  TestNGOutputReader.class,
-                                  "MSG_ProgressStepMessageAnonymous")); //NOI18N
-                }
-                messageFormat = progressStepFormatAnonymous;
-                messageParams = new Object[] {executedSuitesCount + 1,
-                                              expectedSuitesCount};
-            }
-            msg = messageFormat.format(messageParams, new StringBuffer(), null)
-                  .toString();
-        } else {
-            msg = (suiteName != null) ? suiteName : "";                 //NOI18N
-        }
-        return msg;
-    }
-
-    /**
-     *
-     */
-    private int getProcessedWorkunits() {
-        try {
-            if (progressLogger.isLoggable(FINEST)) {
-                progressLogger.finest("--- Suites: " + executedSuitesCount + " / " + expectedSuitesCount);
-                progressLogger.finest("--- Tests:  " + executedOneSuiteTests + " / " + expectedOneSuiteTests);
-            }
-            int units = executedSuitesCount * PROGRESS_WORKUNITS
-                        / expectedSuitesCount;
-            if (expectedOneSuiteTests > 0) {
-                units += (executedOneSuiteTests * PROGRESS_WORKUNITS)
-                         / (expectedSuitesCount * expectedOneSuiteTests);
-            }
-            return units;
-        } catch (Exception ex) {
-            return 0;
+            report = null;
         }
     }
 
     /**
      */
     void buildFinished(final AntEvent event) {
-        try {
-            buildFinished(event.getException());
-
-            if (report != null) {
-                closePreviousReport(true);  //true ... interrupted
-            }
-
-            manager.sessionFinished(session, sessionType);
-        } finally {
-            progressHandle.finish();
-        }
-    }
-
-    /**
-     * Notifies that a test suite was just started.
-     *
-     * @param  suiteName  name of the suite; or {@code null}
-     *                    if the suite name is unknown
-     */
-    private Report suiteStarted(final String suiteName) {
-        closePreviousReport();
-        report = createReport(suiteName);
-
-        String stepMessage = getProgressStepMessage(suiteName);
-        expectedOneSuiteTests = 0;
-        executedOneSuiteTests = 0;
-        if (expectedSuitesCount <= executedSuitesCount) {
-            expectedSuitesCount = executedSuitesCount + 1;
-        }
-        if (executedSuitesCount != 0) {
-            updateProgress(stepMessage);
-        } else {
-            progressHandle.progress(stepMessage);
-        }
-
-        manager.displaySuiteRunning(session, sessionType, suiteName);
-        return report;
-    }
-
-    /**
-     */
-    private void suiteFinished(final Report report, boolean interrupted) {
-        if (progressLogger.isLoggable(FINER)) {
-            progressLogger.finer("actual # of tests in a suite: " + executedOneSuiteTests);
-        }
-        executedSuitesCount++;
-
-        manager.displayReport(session, sessionType, report);
-    }
-
-    private void buildFinished(final Throwable exception) {
-        //<editor-fold defaultstate="collapsed" desc="disabled code">
-        //PENDING:
-        /*
-        int errStatus = ResultWindow.ERR_STATUS_OK;
-        if (exception != null) {
-            if (exception instanceof java.lang.ThreadDeath) {
-                errStatus = ResultWindow.ERR_STATUS_INTERRUPTED;
-            } else {
-                errStatus = ResultWindow.ERR_STATUS_EXCEPTION;
-            }
-        }
-         */
-
-        /*
-        //PENDING: final int status = errStatus;
-        Mutex.EVENT.postWriteRequest(new Runnable() {
-            public void run() {
-                //PENDING:
-                //ResultWindow resultView = ResultWindow.getInstance();
-                //resultView.displayReport(topReport, status, antScript);
-
-                final TopComponent resultWindow = ResultWindow.getDefault();
-                resultWindow.open();
-                resultWindow.requestActive();
-            }
-        });
-         */
-        //</editor-fold>
+        manager.sessionFinished(testSession);
     }
 
     //------------------ UPDATE OF DISPLAY -------------------
@@ -982,27 +537,28 @@ final class TestNGOutputReader {
     /**
      */
     private void displayOutput(final String text, final boolean error) {
-        manager.displayOutput(session, sessionType, text, error);
+        manager.displayOutput(testSession, text, error);
+        if (state == State.TESTCASE_STARTED) {
+            List<String> addedLines = new ArrayList<String>();
+            addedLines.add(text);
+            Testcase tc = testSession.getCurrentTestCase();
+            if (tc != null) {
+                tc.addOutputLines(addedLines);
+            }
+        }
     }
 
     //--------------------------------------------------------
-
     /**
      */
     private boolean tryParsePlainHeader(String testcaseHeader) {
-        assert report != null;
-        final Matcher matcher = regexp.getTestcaseHeaderPlainPattern()
-                                .matcher(testcaseHeader);
+        final Matcher matcher = regexp.getTestcaseHeaderPlainPattern().matcher(testcaseHeader);
         if (matcher.matches()) {
             String methodName = matcher.group(1);
             String timeString = matcher.group(2);
 
-            testcase = report.findTest(methodName);
-            testcase.className = null;
-            testcase.timeMillis = parseTime(timeString);
-
-            trouble = null;
-            troubleParser = null;
+            testcase = findTest(testSession.getCurrentSuite(), methodName);
+            testcase.setTimeMillis(parseTime(timeString));
 
             return true;
         } else {
@@ -1010,84 +566,19 @@ final class TestNGOutputReader {
         }
     }
 
-    /**
-     */
-    private boolean tryParseBriefHeader(String testcaseHeader) {
-        assert report != null;
-        final Matcher matcher = regexp.getTestcaseHeaderBriefPattern()
-                                .matcher(testcaseHeader);
-        if (matcher.matches()) {
-            String methodName = matcher.group(1);
-            String clsName = matcher.group(2);
-            boolean error = (matcher.group(3) == null);
-
-            testcase = report.findTest(methodName);
-            testcase.className = clsName;
-            testcase.timeMillis = -1;
-
-            trouble = (testcase.trouble = new Report.Trouble(error));
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void closePreviousReport() {
-        closePreviousReport(false);
-    }
-
-    private void closePreviousReport(boolean interrupted) {
-        if (xmlOutputBuffer != null) {
-            throw new UnsupportedOperationException("to be reimplemented");
-//            try {
-//                String xmlOutput = xmlOutputBuffer.toString();
-//                xmlOutputBuffer = null;     //allow GC before parsing XML
-//                Report xmlReport;
-//                xmlReport = XmlOutputParser.parseXmlOutput(
-//                                                new StringReader(xmlOutput));
-//                report.update(xmlReport);
-//            } catch (SAXException ex) {
-//                /* initialization of the parser failed, ignore the output */
-//            } catch (IOException ex) {
-//                assert false;           //should not happen (StringReader)
-//            }
-        } else if (report != null) {
-            if (interrupted) {
-                if (testcase != null) {
-                    report.reportTest(testcase, Report.InfoSource.VERBOSE_MSG);
-                    testcase = null;
-                }
-            } else {
-                if (waitingForIssueStatus) {
-                    assert testcase != null;
-                    report.reportTest(testcase);
-                }
-                if (report.resultsDir != null) {
-                    File reportFile = findReportFile();
-                    if ((reportFile != null) && isValidReportFile(reportFile)) {
-                        throw new UnsupportedOperationException("to be reimplemented");
-//                        Report fileReport = parseReportFile(reportFile);
-//                        if (fileReport != null) {
-//                            report.update(fileReport);
-//                        }
-                    }
-                }
+    private TestNGTestcase findTest(TestSuite suite, String methodName) {
+        TestNGTestcase ret = null;
+        for (Testcase tcase : suite.getTestcases()) {
+            if (tcase.getName().equals(methodName)) {
+                ret = (TestNGTestcase) tcase;
+                break;
             }
-            suiteFinished(report, interrupted);
         }
-
-        xmlOutputBuffer = null;
-        readingSuiteOutputSummary = false;
-        testcase = null;
-        trouble = null;
-        troubleParser = null;
-        report = null;
-        testsuiteStatsKnown = false;
+        return ret;
     }
 
     private File findReportFile() {
-        File file = new File(report.resultsDir, "testng-results.xml"); //NOI18N
+        File file = new File(resultsDir, "testng-results.xml"); //NOI18N
         return (file.isFile() ? file : null);
     }
 
@@ -1161,13 +652,13 @@ final class TestNGOutputReader {
 //        return lastModified >= (timeOfSessionStart - sessStartMillis);
     }
 
-    private static List<Report> parseReportFile(File reportFile) {
-        List<Report> reports = null;
+    private static TestNGSuite parseReportFile(File reportFile, TestSession session) {
+        TestNGSuite reports = null;
         try {
             reports = XmlOutputParser.parseXmlOutput(
                     new InputStreamReader(
-                            new FileInputStream(reportFile),
-                            "UTF-8"));                                  //NOI18N
+                    new FileInputStream(reportFile),
+                    "UTF-8"), session);                                  //NOI18N
         } catch (UnsupportedCharsetException ex) {
             assert false;
         } catch (SAXException ex) {
@@ -1177,37 +668,8 @@ final class TestNGOutputReader {
              * Failed to read the report file - but we still have
              * the report built from the Ant output.
              */
-            Logger.getLogger(TestNGOutputReader.class.getName())
-                    .log(Level.INFO, "I/O exception while reading JUnit XML report file from JUnit: ", ex);//NOI18N
+            Logger.getLogger(TestNGOutputReader.class.getName()).log(Level.INFO, "I/O exception while reading JUnit XML report file from JUnit: ", ex);//NOI18N
         }
         return reports;
     }
-
-    /**
-     */
-    private static int parseNonNegativeInteger(String str)
-            throws NumberFormatException {
-        final int len = str.length();
-        if ((len == 0) || (len > 8)) {
-            throw new NumberFormatException();
-        }
-
-        char c = str.charAt(0);
-        if ((c < '0') || (c > '9')) {
-            throw new NumberFormatException();
-        }
-        int result = c - '0';
-
-        if (len > 1) {
-            for (char d : str.substring(1).toCharArray()) {
-                if ((d < '0') || (d > '9')) {
-                    throw new NumberFormatException();
-                }
-                result = 10 * result + (d - '0');
-            }
-        }
-
-        return result;
-    }
-
 }

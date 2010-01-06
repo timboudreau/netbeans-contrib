@@ -152,7 +152,7 @@ public final class RunTestMethodAction extends NodeAction {
 
     @Override
     protected boolean asynchronous() {
-            return false;
+        return false;
     }
 }
 
