@@ -95,7 +95,7 @@ public abstract class TestNGSupportImplementation {
         FileObject ng = cp.findResource("org.testng.annotations.Test"); //NOI18N
         if (ng == null) {
             // add library to the project
-            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.8"); //NOI18N
+            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.11"); //NOI18N
             if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
                 LOGGER.fine("TestNG library not added to project " + p); //NOI18N
                 return false;

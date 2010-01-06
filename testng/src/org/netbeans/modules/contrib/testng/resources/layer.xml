@@ -137,7 +137,7 @@ made subject to such option by the copyright holder.
     </folder>
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-            <file name="TestNG-5.8.xml" url="TestNG-5.8.xml"/>
+            <file name="TestNG-lib.xml" url="TestNG-lib.xml"/>
         </folder>
     </folder>
 </filesystem>
