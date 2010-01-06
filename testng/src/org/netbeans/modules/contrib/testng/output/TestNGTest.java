@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 2008 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,22 +31,42 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.contrib.testng.output;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Enumeration of Ant task types - used for marking JUnit task types.
  *
- * @author  Marian Petras
+ * @author lukas
  */
-enum TaskType {
+//test
+public final class TestNGTest {
 
-    /** denotes a JUnit test task */
-    TEST_TASK,
-    /** denotes a JUnit test task running in debugging mode */
-    DEBUGGING_TEST_TASK,
-    /** denotes other task type */
-    OTHER_TASK
+    private String name;
+    //test-method
+    private List<TestNGTestSuite> testCases;
 
+    public TestNGTest(String name) {
+        this.name = name;
+        testCases = new ArrayList<TestNGTestSuite>();
+    }
+
+    public void addTestsuite(TestNGTestSuite tc) {
+        testCases.add(tc);
+    }
+
+    public List<TestNGTestSuite> getTestcases() {
+        return testCases;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

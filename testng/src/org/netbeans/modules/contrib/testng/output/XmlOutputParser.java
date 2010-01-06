@@ -40,9 +40,12 @@ package org.netbeans.modules.contrib.testng.output;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
+import org.netbeans.modules.gsf.testrunner.api.Status;
+import org.netbeans.modules.gsf.testrunner.api.TestSession;
+import org.netbeans.modules.gsf.testrunner.api.Trouble;
+import org.netbeans.modules.gsf.testrunner.api.Trouble.ComparisonFailure;
+import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -82,23 +85,26 @@ public class XmlOutputParser extends DefaultHandler {
     private static final int STATE_FULL_STACKTRACE = 15;
     private int state = STATE_OUT_OF_SCOPE;
     /** */
-    private List<Report> reports;
-    private Report suiteResult;
-    private Report.Testcase testcase;
-    private Report.Trouble trouble;
+    private TestNGSuite reports;
+    private TestNGTest test;
+    private TestNGTestSuite testsuite;
+    private TestNGTestcase testcase;
+    private Trouble trouble;
     private String tcClassName;
     private StringBuffer text;
     private final XMLReader xmlReader;
+    private TestSession testSession;
 
     /** Creates a new instance of XMLOutputParser */
-    private XmlOutputParser() throws SAXException {
+    private XmlOutputParser(TestSession session) throws SAXException {
+        this.testSession = session;
         xmlReader = XMLUtil.createXMLReader();
         xmlReader.setContentHandler(this);
     }
 
-    static List<Report> parseXmlOutput(Reader reader) throws SAXException, IOException {
+    static TestNGSuite parseXmlOutput(Reader reader, TestSession session) throws SAXException, IOException {
         assert reader != null;
-        XmlOutputParser parser = new XmlOutputParser();
+        XmlOutputParser parser = new XmlOutputParser(session);
         try {
             parser.xmlReader.parse(new InputSource(reader));
         } catch (SAXException ex) {
@@ -120,7 +126,8 @@ public class XmlOutputParser extends DefaultHandler {
                     //XXX - not handled yet, shoould perhaps create ie. "group" view
                     state = STATE_GROUPS;
                 } else if ("test".equals(qName)) { //NOI18N
-                    //test[@name] not handled for now, only change state
+                    String name = attributes.getValue("name"); //NOI18N
+                    test = name != null ? new TestNGTest(name) : new TestNGTest(""); //NOI18N
                     state = STATE_TEST;
                 }
                 break;
@@ -140,7 +147,7 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_TEST:
                 if ("class".equals(qName)) { //NOI18N
                     tcClassName = attributes.getValue("name"); //NOI18N
-                    suiteResult = new Report(tcClassName); //NOI18N
+                    testsuite = new TestNGTestSuite(tcClassName, testSession);
                     state = STATE_CLASS;
                 }
                 break;
@@ -149,23 +156,26 @@ public class XmlOutputParser extends DefaultHandler {
                     int duration = Integer.valueOf(attributes.getValue("duration-ms")); //NOI18N
                     testcase = createTestcaseReport(tcClassName, attributes.getValue("name"), duration); //NOI18N
                     suiteTime += duration;
-                    testcase.confMethod = Boolean.valueOf(attributes.getValue("is-config")); //NOI18N
+                    testcase.setConfigMethod(Boolean.valueOf(attributes.getValue("is-config"))); //NOI18N
                     status = attributes.getValue("status"); //NOI18N
-                    if (!testcase.confMethod) {
+                    if (!testcase.isConfigMethod()) {
                         allTestsCount++;
                     }
                     if ("FAIL".equals(status)) { //NOI18N
-                        if (testcase.confMethod) {
+                        testcase.setStatus(Status.FAILED);
+                        if (testcase.isConfigMethod()) {
                             failedConfCount++;
                         } else {
                             failedTestsCount++;
                         }
-                        trouble = new Report.Trouble(true);
-                    } else if ("PASS".equals(status) && !testcase.confMethod) { //NOI18N
+                        trouble = new Trouble(true);
+                    } else if ("PASS".equals(status)) { //NOI18N
+                        testcase.setStatus(Status.PASSED);
                         passedTestsCount++;
                     } else if ("SKIP".equals(status)) { //NOI18N
-                        trouble = new Report.Trouble(false);
-                        if (testcase.confMethod) {
+                        testcase.setStatus(Status.SKIPPED);
+                        trouble = new Trouble(false);
+                        if (testcase.isConfigMethod()) {
                             skippedConfCount++;
                         } else {
                             skippedTestsCount++;
@@ -180,7 +190,8 @@ public class XmlOutputParser extends DefaultHandler {
                 } else if ("exception".equals(qName)) { //NOI18N
                     assert testcase != null && status != null;
                     if (!"PASS".equals(status)) {
-                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
+
+//TODO:                        trouble.exceptionClsName = attributes.getValue("class"); //NOI18N
                     }
                     //if test passes, skip possible exception element
                     state = (trouble != null) ? STATE_EXCEPTION : STATE_TEST_METHOD;
@@ -197,7 +208,11 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             default:
                 if (qName.equals("suite")) { //NOI18N
-                    reports = new ArrayList<Report>();
+                    String name = attributes.getValue("name");
+                    if (name == null || "".equals(name.trim())) {
+                        name = NbBundle.getMessage(XmlOutputParser.class, "UNKNOWN_NAME");
+                    }
+                    reports = new TestNGSuite(name);
                     state = STATE_SUITE;
                 }
         }
@@ -224,25 +239,23 @@ public class XmlOutputParser extends DefaultHandler {
                 break;
             case STATE_TEST:
                 assert "test".equals(qName); //NOI18N
+                reports.addTestNGTest(test);
+                test = null;
                 state = STATE_SUITE;
                 break;
             case STATE_CLASS:
                 assert "class".equals(qName); //NOI18N
-                suiteResult.elapsedTimeMillis = suiteTime;
-                suiteResult.skips = skippedTestsCount;
-                suiteResult.failures = failedTestsCount;
-                suiteResult.totalTests = allTestsCount;
-                suiteResult.detectedPassedTests = passedTestsCount;
-                suiteResult.confFailures = failedConfCount;
-                suiteResult.confSkips = skippedConfCount;
-                reports.add(suiteResult);
+                testsuite.setElapsedTime(suiteTime);
+                test.addTestsuite(testsuite);
+                testsuite = null;
+                suiteTime = 0;
                 skippedTestsCount = 0;
                 failedTestsCount = 0;
                 allTestsCount = 0;
                 passedTestsCount = 0;
                 failedConfCount = skippedConfCount = 0;
                 tcClassName = null;
-                suiteResult = null;
+                testcase = null;
                 state = STATE_TEST;
                 break;
             case STATE_TEST_METHOD:
@@ -252,8 +265,9 @@ public class XmlOutputParser extends DefaultHandler {
                 }
                 assert "test-method".equals(qName) : "was " + qName; //NOI18N
                 assert testcase != null;
-                testcase.trouble = trouble;
-                suiteResult.reportTest(testcase, Report.InfoSource.XML_FILE);
+                testcase.setTrouble(trouble);
+                //assing all methods including config ones
+                testsuite.getTestcases().add(testcase);
                 trouble = null;
                 testcase = null;
                 state = STATE_CLASS;
@@ -275,7 +289,17 @@ public class XmlOutputParser extends DefaultHandler {
                 assert testcase != null;
                 assert trouble != null;
                 if (text != null) {
-                    trouble.message = text.toString().trim();
+                    //there should be better way to do this
+                    String s = text.toString().trim();
+                    if (s.startsWith("expected:")) {  //NOI18N
+                        int index = s.indexOf("<"); //NOI18N
+                        if (index > -1) {
+                            int ie = s.indexOf(">", index + 1); //NOI18N
+                            String expected = s.substring(index + 1, ie);
+                            String actual = s.substring(s.indexOf("<", ie + 1) + 1, s.indexOf(">", ie + 1)); //NOI18N
+                            trouble.setComparisonFailure(new ComparisonFailure(expected, actual));
+                        }
+                    }
                     text = null;
                 }
                 state = STATE_EXCEPTION;
@@ -283,7 +307,8 @@ public class XmlOutputParser extends DefaultHandler {
             case STATE_FULL_STACKTRACE:
                 assert "full-stacktrace".equals(qName); //NOI18N
                 if (text != null) {
-                    parseTroubleReport(text.toString().trim(), trouble); //NOI18N
+                    String[] lines = text.toString().trim().split("[\\r\\n]+"); //NOI18N
+                    trouble.setStackTrace(lines);
                     text = null;
                 }
                 state = STATE_EXCEPTION;
@@ -304,24 +329,10 @@ public class XmlOutputParser extends DefaultHandler {
         }
     }
 
-    private static Report.Testcase createTestcaseReport(String className, String name, int time) {
-        Report.Testcase tc = new Report.Testcase();
-        tc.className = className;
-        tc.name = name;
-        tc.timeMillis = time;
+    private TestNGTestcase createTestcaseReport(String className, String name, int time) {
+        TestNGTestcase tc = new TestNGTestcase(name, "TestNG Test", testSession);
+        tc.setTimeMillis(time);
+        tc.setClassName(className);
         return tc;
     }
-
-    private void parseTroubleReport(String report, Report.Trouble trouble) {
-        final String[] lines = report.split("[\\r\\n]+");               //NOI18N
-
-        TroubleParser troubleParser = new TroubleParser(trouble, RegexpUtils.getInstance());
-        for (String line : lines) {
-            if (troubleParser.processMessage(line)) {
-                return;
-            }
-        }
-        troubleParser.finishProcessing();
-    }
-
 }

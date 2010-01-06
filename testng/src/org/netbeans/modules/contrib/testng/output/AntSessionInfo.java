@@ -40,33 +40,54 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
+import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
+
 /**
  * Holds information about an <code>AntSession</code>.
  *
  * @author  Marian Petras
- * @see  JUnitAntLogger
- * @see  AntSession
+ * @see  TestNGAntLogger
  */
 final class AntSessionInfo {
 
     TestNGOutputReader outputReader = null;
     /** */
-    long timeOfTestTaskStart;
+    private long timeOfTestTaskStart;
     /** */
-    TaskType currentTaskType;
+    private SessionType currentSessionType;
     /**
      * type of the session - one of the <code>SESSION_TYPE_xxx</code> constants
      */
-    TaskType sessionType;
+    private SessionType sessionType;
 
     /**
      */
-    AntSessionInfo() { }
+    AntSessionInfo() {
+    }
 
     /**
      */
     long getTimeOfTestTaskStart() {
         return timeOfTestTaskStart;
     }
-    
+
+    void setTimeOfTestTaskStart(long time) {
+        timeOfTestTaskStart = time;
+    }
+
+    SessionType getCurrentSessionType() {
+        return currentSessionType;
+    }
+
+    void setCurrentSessionType(SessionType currentTaskType) {
+        this.currentSessionType = currentTaskType;
+    }
+
+    SessionType getSessionType() {
+        return sessionType;
+    }
+
+    void setSessionType(SessionType sessionType) {
+        this.sessionType = sessionType;
+    }
 }

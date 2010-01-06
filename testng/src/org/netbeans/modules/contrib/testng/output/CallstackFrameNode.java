@@ -40,74 +40,36 @@
  */
 
 package org.netbeans.modules.contrib.testng.output;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Action;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
  * @author Marian Petras
  */
-final class CallstackFrameNode extends AbstractNode {
+final class CallstackFrameNode extends org.netbeans.modules.gsf.testrunner.api.CallstackFrameNode {
 
-    /** */
-    private Report.Trouble trouble;
-    /** */
-    private String frameInfo;
-    
     /**
      * Creates a node for a call stack frame.
      * @param  frameInfo  string specifying the call stack frame
      */
-    CallstackFrameNode(String frameInfo) {
-        this(null, frameInfo, "at " + frameInfo);                       //NOI18N
-    }
-    
-    /**
-     * Creates a node representing a failure/error or its message.
-     * @param  trouble  the failure or error
-     * @param  displayName  requested display name of this node
-     */
-    CallstackFrameNode(Report.Trouble trouble,
-                       String displayName) {
-        this(trouble, null, displayName);
+    CallstackFrameNode(String frameInfo, String displayName) {
+        super(frameInfo, displayName);
     }
 
-    /**
-     * Creates a new instance of CallstackFrameNode
-     *
-     * @param  frameInfo  line of a callstack, e.g. <code>foo.bar.Baz:314</code>
-     * @param  displayName  display name for the node, or <code>null</code>
-     *                      to use the default display name for the given
-     *                      callstack frame info
-     */
-    private CallstackFrameNode(final Report.Trouble trouble,
-                               final String frameInfo,
-                               final String displayName) {
-        super(Children.LEAF);
-        setDisplayName(displayName);
-        setIconBaseWithExtension(
-                "org/netbeans/modules/contrib/testng/resources/empty.gif");     //NOI18N
-
-        this.trouble = trouble;
-        this.frameInfo = frameInfo;
+    @Override
+    public Action[] getActions(boolean context) {
+        List<Action> actions = new ArrayList<Action>();
+        Action preferred = getPreferredAction();
+        if (preferred != null){
+            actions.add(preferred);
+        }
+        return actions.toArray(new Action[actions.size()]);
     }
 
-    /**
-     */
     @Override
     public Action getPreferredAction() {
-        if (frameInfo != null) {
-            return new JumpAction(this, frameInfo);
-        } else {
-            assert trouble != null;
-            return new JumpAction(this, trouble);
-        }
-    }
-    
-    @Override
-    public SystemAction[] getActions(boolean context) {
-        return new SystemAction[0];
+        return new JumpAction(this, frameInfo);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,58 +31,46 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.contrib.testng.output;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.Action;
-import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
-import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
-import org.openide.util.actions.SystemAction;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
+import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
+import org.netbeans.modules.gsf.testrunner.api.TestSession;
+import org.netbeans.modules.gsf.testrunner.api.Testcase;
+import org.openide.filesystems.FileObject;
 
 /**
  *
- * @author Marian Petras
+ * @author answer
  */
-public final class TestsuiteNode extends org.netbeans.modules.gsf.testrunner.api.TestsuiteNode {
+//suite/test/class/test-method
+public final class TestNGTestcase extends Testcase {
 
-    private InstanceContent ic;
+    private FileObject classFO = null;
+    private boolean confMethod = false;
 
-    /**
-     *
-     * @param  suiteName  name of the test suite, or {@code ANONYMOUS_SUITE}
-     *                    in the case of anonymous suite
-     * @see  ResultDisplayHandler#ANONYMOUS_SUITE
-     */
-    public TestsuiteNode(final String suiteName, final boolean filtered) {
-        this(suiteName, filtered, new InstanceContent());
+
+    public TestNGTestcase(String name, String type, TestSession session) {
+        super(name, type, session);
     }
 
-    private TestsuiteNode(String suiteName, boolean filtered, InstanceContent ic) {
-        super(null, suiteName, filtered, new AbstractLookup(ic));
-        this.ic = ic;
-    }
-
-    @Override
-    public Action[] getActions(boolean context) {
-        ic.add(((TestNGTestSuite) getSuite()).getSuiteFO());
-        List<Action> actions = new ArrayList<Action>();
-        Action preferred = getPreferredAction();
-        if (preferred != null) {
-            actions.add(preferred);
+    public FileObject getClassFileObject() {
+        FileLocator fileLocator = getSession().getFileLocator();
+        if ((classFO == null) && (fileLocator != null) && (getClassName() != null)) {
+            classFO = fileLocator.find(getClassName().replace('.', '/') + ".java"); //NOI18N
         }
-        actions.add(SystemAction.get(RunTestClassAction.class));
-        actions.add(SystemAction.get(DebugTestClassAction.class));
-        return actions.toArray(new Action[actions.size()]);
+        return classFO;
     }
 
-    @Override
-    public Action getPreferredAction() {
-        return new JumpAction(this, null);
+    public boolean isConfigMethod() {
+        return confMethod;
     }
 
+    public void setConfigMethod(boolean isConfigMethod) {
+        confMethod = isConfigMethod;
+    }
 }

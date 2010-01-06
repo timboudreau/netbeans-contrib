@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
 final class RegexpUtils {
 
     /** */
-    static final String TESTSUITE_PREFIX = "Testsuite: ";               //NOI18N
+    static final String TESTSUITE_PREFIX = "[TestNGAntTask]";//"Testsuite: ";               //NOI18N
     /** */
     static final String TESTSUITE_STATS_PREFIX = "Tests run: ";         //NOI18N
     /** */
@@ -140,7 +140,7 @@ final class RegexpUtils {
                     + XML_EQ_REGEX + "(['\"])(?:yes|no)\\2"             //NOI18N
               + ")?"                                                    //NOI18N
                   + XML_SPACE_REGEX + '*' + "\\?>";                     //NOI18N
-    
+
     /** */
     static final String TEST_LISTENER_PREFIX
             = "junit.framework.TestListener: ";                         //NOI18N
@@ -152,7 +152,10 @@ final class RegexpUtils {
     static final String END_OF_TEST_PREFIX = "endTest";                 //NOI18N
     static final String ADD_FAILURE_PREFIX = "addFailure";      //NOI18N
     static final String ADD_ERROR_PREFIX = "addError";          //NOI18N
-    
+
+    static final String COMPARISON_REGEX = ".*expected:<(.*)\\[(.*)\\](.*)> but was:<(.*)\\[(.*)\\](.*)>$"; //NOI18N
+    static final String COMPARISON_HIDDEN_REGEX = ".*expected:<(.*)> but was:<(.*)>$"; //NOI18N
+
     /**
      * Regexp matching part of a Java task's invocation debug message
      * that specificies the classpath.
@@ -178,7 +181,7 @@ final class RegexpUtils {
 
     /** */
     private static Reference<RegexpUtils> instRef;
-    
+
     /**
      */
     static synchronized RegexpUtils getInstance() {
@@ -189,19 +192,20 @@ final class RegexpUtils {
         }
         return instance;
     }
-    
+
     /** Creates a new instance of RegexpUtils */
     private RegexpUtils() { }
-    
-    private volatile Pattern fullJavaIdPattern, suiteStatsPattern, 
+
+    private volatile Pattern fullJavaIdPattern, suiteStatsPattern,
                              outputDelimPattern, testcaseIssuePattern,
                              testcaseExceptPattern, callstackLinePattern,
                              nestedExceptPattern,
                              locationInFilePattern,
                              testcaseHeaderBriefPattern,
                              testcaseHeaderPlainPattern,
-                             xmlDeclPattern, floatNumPattern;
-    
+                             xmlDeclPattern, floatNumPattern,
+                             comparisonPattern, comparisonHiddenPattern;
+
     //<editor-fold defaultstate="collapsed" desc=" Note about synchronization ">
     /*
      * If-blocks in the following methods should be synchronized to ensure that
@@ -225,7 +229,7 @@ final class RegexpUtils {
         }
         return fullJavaIdPattern;
     }
-    
+
     /** */
     Pattern getSuiteStatsPattern() {
         if (suiteStatsPattern == null) {
@@ -233,7 +237,7 @@ final class RegexpUtils {
         }
         return suiteStatsPattern;
     }
-    
+
     /** */
     Pattern getOutputDelimPattern() {
         if (outputDelimPattern == null) {
@@ -241,7 +245,7 @@ final class RegexpUtils {
         }
         return outputDelimPattern;
     }
-    
+
     /** */
     Pattern getTestcaseHeaderBriefPattern() {
         if (testcaseHeaderBriefPattern == null) {
@@ -249,7 +253,7 @@ final class RegexpUtils {
         }
         return testcaseHeaderBriefPattern;
     }
-    
+
     /** */
     Pattern getTestcaseHeaderPlainPattern() {
         if (testcaseHeaderPlainPattern == null) {
@@ -257,7 +261,7 @@ final class RegexpUtils {
         }
         return testcaseHeaderPlainPattern;
     }
-    
+
     /** */
     Pattern getTestcaseIssuePattern() {
         if (testcaseIssuePattern == null) {
@@ -265,7 +269,7 @@ final class RegexpUtils {
         }
         return testcaseIssuePattern;
     }
-    
+
     /** */
     Pattern getTestcaseExceptionPattern() {
         if (testcaseExceptPattern == null) {
@@ -273,7 +277,7 @@ final class RegexpUtils {
         }
         return testcaseExceptPattern;
     }
-    
+
     /**
      */
     Pattern getNestedExceptionPattern() {
@@ -282,7 +286,7 @@ final class RegexpUtils {
         }
         return nestedExceptPattern;
     }
-    
+
     /** */
     Pattern getCallstackLinePattern() {
         if (callstackLinePattern == null) {
@@ -290,7 +294,7 @@ final class RegexpUtils {
         }
         return callstackLinePattern;
     }
-    
+
     /** */
     Pattern getLocationInFilePattern() {
         if (locationInFilePattern == null) {
@@ -298,7 +302,7 @@ final class RegexpUtils {
         }
         return locationInFilePattern;
     }
-    
+
     /** */
     Pattern getXmlDeclPattern() {
         if (xmlDeclPattern == null) {
@@ -306,7 +310,7 @@ final class RegexpUtils {
         }
         return xmlDeclPattern;
     }
-    
+
     /** */
     Pattern getFloatNumPattern() {
         if (floatNumPattern == null) {
@@ -314,6 +318,23 @@ final class RegexpUtils {
         }
         return floatNumPattern;
     }
+
+    /** */
+    Pattern getComparisonPattern() {
+        if (comparisonPattern == null) {
+            comparisonPattern = Pattern.compile(COMPARISON_REGEX);
+        }
+        return comparisonPattern;
+    }
+
+    /** */
+    Pattern getComparisonHiddenPattern() {
+        if (comparisonHiddenPattern == null) {
+            comparisonHiddenPattern = Pattern.compile(COMPARISON_HIDDEN_REGEX);
+        }
+        return comparisonHiddenPattern;
+    }
+
 
     /**
      * Parses a floating-point number describing elapsed time.
@@ -393,13 +414,13 @@ final class RegexpUtils {
      *          was necessary
      */
     static String specialTrim(String string) {
-        
+
         /* Handle the trivial case: */
         final int len = string.length();
         if (len == 0) {
             return string;
         }
-        
+
         final char[] chars = string.toCharArray();
         char c;
 
@@ -411,22 +432,22 @@ final class RegexpUtils {
             }
             lead++;
         }
-        
+
         /* Handle a corner case: */
         if (lead == len) {
-            return string.substring(len);                                              
+            return string.substring(len);
         }
-        
+
         int trail = len;
         do {
             c = chars[--trail];
         } while ((c == ' ') || (c == '\t'));
-        
+
         if ((lead == 0) && (trail == len - 1)) {
             return string;
         } else {
             return string.substring(lead, trail + 1);
         }
     }
-    
+
 }

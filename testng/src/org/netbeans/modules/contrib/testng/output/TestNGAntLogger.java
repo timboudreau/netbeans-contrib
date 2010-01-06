@@ -44,14 +44,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
-import org.netbeans.modules.contrib.testng.output.antutils.AntProject;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.contrib.testng.output.antutils.TestCounter;
+import org.netbeans.modules.gsf.testrunner.api.Report;
+import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * Ant logger interested in task &quot;junit&quot;,
@@ -64,9 +70,9 @@ import org.netbeans.modules.contrib.testng.output.antutils.TestCounter;
  * @author  Marian Petras
  * @author  Lukas Jungmann
  */
-@org.openide.util.lookup.ServiceProvider(service=org.apache.tools.ant.module.spi.AntLogger.class)
-public final class TestNGAntLogger extends AntLogger {
-    
+@ServiceProvider(service = AntLogger.class)
+public final class TestNGAntLogger extends AntLogger {// implements ITestListener {
+
     /** levels of interest for logging (info, warning, error, ...) */
     private static final int[] LEVELS_OF_INTEREST = {
         AntEvent.LOG_INFO,
@@ -74,34 +80,33 @@ public final class TestNGAntLogger extends AntLogger {
         AntEvent.LOG_VERBOSE,
         AntEvent.LOG_ERR
     };
-    
     public static final String TASK_JAVA = "java";                      //NOI18N
     public static final String TASK_TESTNG = "testng";                    //NOI18N
     private static final String[] INTERESTING_TASKS = {TASK_JAVA, TASK_TESTNG};
     private static final String ANT_TEST_RUNNER_CLASS_NAME =
             "org.testng.TestNG";//NOI18N
-    
+
     /**
      * Default constructor for lookup
      */
     public TestNGAntLogger() {
     }
-    
+
     @Override
     public boolean interestedInSession(AntSession session) {
         return true;
     }
-    
+
     @Override
     public String[] interestedInTargets(AntSession session) {
         return AntLogger.ALL_TARGETS;
     }
-    
+
     @Override
     public String[] interestedInTasks(AntSession session) {
         return INTERESTING_TASKS;
     }
-    
+
     /**
      * Detects type of the Ant task currently running.
      *
@@ -113,25 +118,25 @@ public final class TestNGAntLogger extends AntLogger {
      *             task;
      *          or {@code null} if no Ant task is currently running
      */
-    private static TaskType detectTaskType(AntEvent event) {
+    private static SessionType detectSessionType(AntEvent event) {
         final String taskName = event.getTaskName();
-        
+
         if (taskName == null) {
             return null;
         }
-        
+
         if (taskName.equals(TASK_TESTNG)) {
-            return TaskType.TEST_TASK;
+            return SessionType.TEST;
         }
-        
+
         if (taskName.equals(TASK_JAVA)) {
             TaskStructure taskStructure = event.getTaskStructure();
 
             String className = taskStructure.getAttribute("classname"); //NOI18N
             if (className == null) {
-                return TaskType.OTHER_TASK;
+                return null;
             }
-            
+
             className = event.evaluate(className);
             if (className.equals("org.testng.TestNG")) { //NOI18N
                 TaskStructure[] nestedElems = taskStructure.getChildren();
@@ -140,25 +145,23 @@ public final class TestNGAntLogger extends AntLogger {
                         String a;
                         if ((a = ts.getAttribute("value")) != null) {   //NOI18N
                             if (event.evaluate(a).equals("-Xdebug")) {  //NOI18N
-                                return TaskType.DEBUGGING_TEST_TASK;
+                                return SessionType.DEBUG;
                             }
                         } else if ((a = ts.getAttribute("line")) != null) {//NOI18N
                             for (String part : parseCmdLine(event.evaluate(a))) {
                                 if (part.equals("-Xdebug")) {           //NOI18N
-                                    return TaskType.DEBUGGING_TEST_TASK;
+                                    return SessionType.DEBUG;
                                 }
                             }
                         }
                     }
                 }
-                return TaskType.TEST_TASK;
+                return SessionType.TEST;
             }
-            
-            return TaskType.OTHER_TASK;
+            return null;
         }
-        
         assert false : "Unhandled task name";                           //NOI18N
-        return TaskType.OTHER_TASK;
+        return null;
     }
 
     /**
@@ -246,7 +249,7 @@ public final class TestNGAntLogger extends AntLogger {
 
         return result;
     }
-    
+
     /**
      * Tells whether the given task type is a test task type or not.
      *
@@ -254,20 +257,20 @@ public final class TestNGAntLogger extends AntLogger {
      * @return  {@code true} if the given task type marks a test task;
      *          {@code false} otherwise
      */
-    private static boolean isTestTaskType(TaskType taskType) {
-        return (taskType != null) && (taskType != TaskType.OTHER_TASK);
+    private static boolean isTestSessionType(SessionType sessionType) {
+        return sessionType != null;
     }
-    
+
     @Override
     public boolean interestedInScript(File script, AntSession session) {
         return true;
     }
-    
+
     @Override
     public int[] interestedInLogLevels(AntSession session) {
         return LEVELS_OF_INTEREST;
     }
-    
+
     /**
      */
     @Override
@@ -281,28 +284,27 @@ public final class TestNGAntLogger extends AntLogger {
             }
         }
     }
-    
+
     /**
      */
     private boolean isTestTaskRunning(AntEvent event) {
-        return isTestTaskType(
-                getSessionInfo(event.getSession()).currentTaskType);
+        return isTestSessionType(getSessionInfo(event.getSession()).getCurrentSessionType());
     }
-    
+
     /**
      */
     @Override
     public void taskStarted(final AntEvent event) {
-        TaskType taskType = detectTaskType(event);
-        if (isTestTaskType(taskType)) {
+        SessionType sessionType = detectSessionType(event);
+        if (isTestSessionType(sessionType)) {
             AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
-            assert !isTestTaskType(sessionInfo.currentTaskType);
-            sessionInfo.timeOfTestTaskStart = System.currentTimeMillis();
-            sessionInfo.currentTaskType = taskType;
-            if (sessionInfo.sessionType == null) {
-                sessionInfo.sessionType = taskType;
+            assert !isTestSessionType(sessionInfo.getCurrentSessionType());
+            sessionInfo.setTimeOfTestTaskStart(System.currentTimeMillis());
+            sessionInfo.setCurrentSessionType(sessionType);
+            if (sessionInfo.getSessionType() == null) {
+                sessionInfo.setSessionType(sessionType);
             }
-            
+
             /*
              * Count the test classes in the try-catch block so that
              * 'testTaskStarted(...)' is called even if counting fails
@@ -315,24 +317,23 @@ public final class TestNGAntLogger extends AntLogger {
                 testClassCount = 0;
                 Logger.getLogger(TestNGAntLogger.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             final boolean hasXmlOutput = hasXmlOutput(event);
-            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput);
+            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput, event);
         }
     }
-    
+
     /**
      */
     @Override
     public void taskFinished(final AntEvent event) {
         AntSessionInfo sessionInfo = getSessionInfo(event.getSession());
-        if (isTestTaskType(sessionInfo.currentTaskType)) {
-            getOutputReader(event).testTaskFinished(event);
-            sessionInfo.currentTaskType = null;
+        if (isTestSessionType(sessionInfo.getCurrentSessionType())) {
+            getOutputReader(event).testTaskFinished();
+            sessionInfo.setCurrentSessionType(null);
         }
-        
     }
-    
+
     /**
      */
     @Override
@@ -340,13 +341,13 @@ public final class TestNGAntLogger extends AntLogger {
         AntSession session = event.getSession();
         AntSessionInfo sessionInfo = getSessionInfo(session);
 
-        if (isTestTaskType(sessionInfo.sessionType)) {
+        if (isTestSessionType(sessionInfo.getSessionType())) {
             getOutputReader(event).buildFinished(event);
         }
-        
+
         session.putCustomData(this, null);          //forget AntSessionInfo
     }
-    
+
     /**
      * Retrieve existing or creates a new reader for the given session.
      *
@@ -354,27 +355,47 @@ public final class TestNGAntLogger extends AntLogger {
      * @return  output reader for the session
      */
     private TestNGOutputReader getOutputReader(final AntEvent event) {
-        assert isTestTaskType(getSessionInfo(event.getSession()).sessionType);
-        
+        assert isTestSessionType(getSessionInfo(event.getSession()).getSessionType());
+
         final AntSession session = event.getSession();
         final AntSessionInfo sessionInfo = getSessionInfo(session);
         TestNGOutputReader outputReader = sessionInfo.outputReader;
         if (outputReader == null) {
+            String projectDir = null;
+            Project project = null;
+            try {
+                projectDir = event.getProperty("work.dir"); //NOI18N
+            } catch (Exception e) {
+            }// Maven throws exception for this property
+            try {
+                if (projectDir == null) {
+                    projectDir = event.getProperty("basedir"); // NOI18N
+                }
+                if ((projectDir != null) && (projectDir.length() != 0)) {
+                    project = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(projectDir))); //NOI18N
+                }
+            } catch (Exception e) {
+            }
+            Properties props = new Properties();
+            for (String propName : event.getPropertyNames()) {
+                props.setProperty(propName, event.getProperty(propName));
+            }
             outputReader = new TestNGOutputReader(
-                                        session,
-                                        sessionInfo.sessionType,
-                                        sessionInfo.getTimeOfTestTaskStart());
+                    session,
+                    sessionInfo,
+                    project,
+                    props);
             sessionInfo.outputReader = outputReader;
         }
         return outputReader;
     }
-    
+
     /**
      */
     private AntSessionInfo getSessionInfo(final AntSession session) {
         Object o = session.getCustomData(this);
         assert (o == null) || (o instanceof AntSessionInfo);
-        
+
         AntSessionInfo sessionInfo;
         if (o != null) {
             sessionInfo = (AntSessionInfo) o;
@@ -384,81 +405,48 @@ public final class TestNGAntLogger extends AntLogger {
         }
         return sessionInfo;
     }
-    
+
     /**
      * Finds whether the test report will be generated in XML format.
      */
     private static boolean hasXmlOutput(AntEvent event) {
         final String taskName = event.getTaskName();
-        if (taskName.equals(TASK_TESTNG)) {
-            return hasXmlOutputJunit(event);
-        } else if (taskName.equals(TASK_JAVA)) {
-            return hasXmlOutputJava(event);
+        if (TASK_TESTNG.equals(taskName) || TASK_JAVA.equals(taskName)) {
+            return true;
         } else {
             assert false;
             return false;
         }
     }
-    
-    /**
-     * Finds whether the test report will be generated in XML format.
-     */
-    private static boolean hasXmlOutputJunit(AntEvent event) {
-        TaskStructure taskStruct = event.getTaskStructure();
-        for (TaskStructure child : taskStruct.getChildren()) {
-            String childName = child.getName();
-            if (childName.equals("formatter")) {                        //NOI18N
-                String type = child.getAttribute("type");               //NOI18N
-                type = (type != null) ? event.evaluate(type) : null;
-                String usefile = child.getAttribute("usefile");         //NOI18N
-                usefile = (usefile != null) ? event.evaluate(usefile) : null;
-                if ((type != null) && type.equals("xml")                //NOI18N
-                       && (usefile != null) && !AntProject.toBoolean(usefile)) {
-                    String ifPropName = child.getAttribute("if");       //NOI18N
-                    String unlessPropName =child.getAttribute("unless");//NOI18N
 
-                    if ((ifPropName == null
-                                || event.getProperty(ifPropName) != null)
-                        && (unlessPropName == null
-                                || event.getProperty(unlessPropName) == null)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Finds whether the test report will be generated in XML format.
-     */
-    private static boolean hasXmlOutputJava(AntEvent event) {
-        return true;
-//        TaskStructure taskStruct = event.getTaskStructure();
+//    public void onTestStart(ITestResult itr) {
+//        System.out.println("Starting: " + itr.getName());
+//        System.err.println("Starting: " + itr.getName());
+//    }
 //
-//        String classname = taskStruct.getAttribute("classname");        //NOI18N
-//        if ((classname == null) ||
-//                !event.evaluate(classname).equals(ANT_TEST_RUNNER_CLASS_NAME)) {
-//            return false;
-//        }
+//    public void onTestSuccess(ITestResult itr) {
+//        System.out.println("succ: " + itr.getName());
+//        System.err.println("succ: " + itr.getName());
+//    }
 //
-//        for (TaskStructure child : taskStruct.getChildren()) {
-//            String childName = child.getName();
-//            if (childName.equals("arg")) {                              //NOI18N
-//                String argValue = child.getAttribute("value");          //NOI18N
-//                if (argValue == null) {
-//                    argValue = child.getAttribute("line");              //NOI18N
-//                }
-//                if (argValue == null) {
-//                    continue;
-//                }
-//                argValue = event.evaluate(argValue);
-//                if (argValue.equals("formatter=" + XML_FORMATTER_CLASS_NAME)) { //NOI18N
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-    }
-    
+//    public void onTestFailure(ITestResult itr) {
+//
+//    }
+//
+//    public void onTestSkipped(ITestResult itr) {
+//
+//    }
+//
+//    public void onTestFailedButWithinSuccessPercentage(ITestResult itr) {
+//
+//    }
+//
+//    public void onStart(ITestContext itc) {
+//
+//    }
+//
+//    public void onFinish(ITestContext itc) {
+//
+//    }
+//
 }
