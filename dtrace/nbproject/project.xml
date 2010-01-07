@@ -139,12 +139,12 @@
                 <binary-origin>external/chime-resources.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/chimeutil-1.0.jar</runtime-relative-path>
-                <binary-origin>external/chimeutil-1.0.jar</binary-origin>
+                <runtime-relative-path>ext/chime-util-1.0.jar</runtime-relative-path>
+                <binary-origin>external/chime-util-1.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/chimeutil-resources-1.0.jar</runtime-relative-path>
-                <binary-origin>external/chimeutil-resources-1.0.jar</binary-origin>
+                <runtime-relative-path>ext/chime-swingx-1.0.jar</runtime-relative-path>
+                <binary-origin>external/chime-swingx-1.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/cnv.jar</runtime-relative-path>
@@ -157,14 +157,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/dtrace.jar</runtime-relative-path>
                 <binary-origin>external/dtrace.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/dvmti.jar</runtime-relative-path>
-                <binary-origin>external/dvmti.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gnu.getopt.jar</runtime-relative-path>
-                <binary-origin>external/gnu.getopt.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jcommon-1.0.5.jar</runtime-relative-path>
