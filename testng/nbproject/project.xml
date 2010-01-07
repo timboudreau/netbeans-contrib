@@ -350,8 +350,8 @@ made subject to such option by the copyright holder.
                 <package>org.netbeans.modules.contrib.testng.spi</package>
             </friend-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/testng/testng-5.8-jdk15.jar</runtime-relative-path>
-                <binary-origin>external/testng-5.8-jdk15.jar</binary-origin>
+                <runtime-relative-path>ext/testng/testng-5.11-jdk15.jar</runtime-relative-path>
+                <binary-origin>external/testng-5.11-jdk15.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
