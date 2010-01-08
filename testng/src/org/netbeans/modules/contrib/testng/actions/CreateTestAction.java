@@ -103,7 +103,18 @@ public final class CreateTestAction extends CookieAction {
                     : null;
             String name = n.substring(n.lastIndexOf('.') + 1);
             URL[] test = UnitTestForSourceQuery.findUnitTests(cpRoot);
-            FileObject testFolder = URLMapper.findFileObject(test[0]);
+            FileObject testFolder = null;
+            if (test.length > 0) {
+                testFolder = URLMapper.findFileObject(test[0]);
+            }
+            if (testFolder == null) {
+                try {
+                    FileObject pRoot = FileOwnerQuery.getOwner(pFile).getProjectDirectory();
+                    testFolder = pRoot.createFolder("test"); //NOI18N
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, null, ex);
+                }
+            }
             FileObject targetFolder = testFolder;
             if (pkg != null) {
                 try {
