@@ -160,19 +160,14 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                 FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
                 props.put("testng.config", FileUtil.getRelativePath(projectHome, failedTestsConfig));
             } else {
-                try {
-                    FileObject fo = FileUtil.createFolder(projectHome, "build/generated/testng"); //NOI18N
-                    File f = XMLSuiteSupport.createSuiteforMethod(
-                            FileUtil.toFile(fo),
-                            ProjectUtils.getInformation(p).getDisplayName(),
-                            config.getPackageName(),
-                            config.getClassName(),
-                            config.getMethodName());
-                    f = FileUtil.normalizeFile(f);
-                    props.put("testng.config", FileUtil.getRelativePath(projectHome, FileUtil.toFileObject(f)));
-                } catch (IOException ex) {
-                    LOGGER.log(Level.WARNING, null, ex);
-                }
+                File f = XMLSuiteSupport.createSuiteforMethod(
+                        FileUtil.normalizeFile(new File(System.getProperty("java.io.tmpdir"))), //NOI18N
+                        ProjectUtils.getInformation(p).getDisplayName(),
+                        config.getPackageName(),
+                        config.getClassName(),
+                        config.getMethodName());
+                f = FileUtil.normalizeFile(f);
+                props.put("testng.config", f.getAbsolutePath());
             }
             try {
                 String target = "run-testng"; //NOI18N
@@ -181,7 +176,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                     FileObject test = config.getTest();
                     FileObject[] testRoots = ClassPath.getClassPath(test, ClassPath.SOURCE).getRoots();
                     FileObject testRoot = null;
-                    for (FileObject root: testRoots) {
+                    for (FileObject root : testRoots) {
                         if (FileUtil.isParentOf(root, test)) {
                             testRoot = root;
                             break;
@@ -189,7 +184,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                     }
                     assert testRoot != null;
                     props.put("javac.includes", //NOI18N
-                            ActionUtils.antIncludesList(new FileObject[] {test}, testRoot));
+                            ActionUtils.antIncludesList(new FileObject[]{test}, testRoot));
                 }
                 ActionUtils.runTarget(projectHome.getFileObject("build.xml"), new String[]{target}, props); //NOI18N
             } catch (IOException ex) {
