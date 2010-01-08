@@ -168,6 +168,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                             config.getPackageName(),
                             config.getClassName(),
                             config.getMethodName());
+                    f = FileUtil.normalizeFile(f);
                     props.put("testng.config", FileUtil.getRelativePath(projectHome, FileUtil.toFileObject(f)));
                 } catch (IOException ex) {
                     LOGGER.log(Level.WARNING, null, ex);

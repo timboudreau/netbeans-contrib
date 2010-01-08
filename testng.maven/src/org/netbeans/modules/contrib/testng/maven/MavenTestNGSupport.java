@@ -128,6 +128,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
                         config.getPackageName(),
                         config.getClassName(),
                         config.getMethodName());
+                f = FileUtil.normalizeFile(f);
                 copy(FileUtil.toFileObject(f));
 //                mp.addPlugin(createPluginDef(FileUtil.getRelativePath(p.getProjectDirectory(), FileUtil.toFileObject(f))));
             }

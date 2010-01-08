@@ -372,7 +372,8 @@ public final class TestNGAntLogger extends AntLogger {// implements ITestListene
                     projectDir = event.getProperty("basedir"); // NOI18N
                 }
                 if ((projectDir != null) && (projectDir.length() != 0)) {
-                    project = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(projectDir))); //NOI18N
+                    File f = FileUtil.normalizeFile(new File(projectDir));
+                    project = FileOwnerQuery.getOwner(FileUtil.toFileObject(f)); //NOI18N
                 }
             } catch (Exception e) {
             }
