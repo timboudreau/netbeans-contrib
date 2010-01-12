@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,21 +34,18 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008-2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints.batch;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.sendopts.CommandException;
-import org.netbeans.modules.java.hints.infrastructure.RulesManager;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.java.hints.spi.TreeRule;
+import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
@@ -76,8 +73,8 @@ public class OptionProcessorImpl extends OptionProcessor {
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
         if (optionValues.containsKey(LIST)) {
             env.getOutputStream().println("Supported Hints:");
-            for (TreeRule r : BatchApply.listHints()) {
-                env.getOutputStream().println(r.getDisplayName() + " - " + r.getId());
+            for (HintMetadata r : BatchApply.listHints()) {
+                env.getOutputStream().println(r.displayName + " - " + r.id);
             }
         }
 

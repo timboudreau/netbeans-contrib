@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008-2010 Sun Microsystems, Inc.
  */
 
 /*
@@ -46,7 +46,7 @@
 package org.netbeans.modules.javahints.batch;
 
 import javax.swing.DefaultComboBoxModel;
-import org.netbeans.modules.java.hints.spi.TreeRule;
+import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
 
 /**
  *
@@ -58,8 +58,8 @@ public class SelectHint extends javax.swing.JPanel {
     public SelectHint() {
         initComponents();
         DefaultComboBoxModel model = new DefaultComboBoxModel();
-        for (TreeRule r : BatchApply.listHints()) {
-            model.addElement(new HintDescriptor(r.getId(), r.getDisplayName()));
+        for (HintMetadata hm : BatchApply.listHints()) {
+            model.addElement(new HintDescriptor(hm.id, hm.displayName));
         }
         jComboBox1.setModel(model);
     }

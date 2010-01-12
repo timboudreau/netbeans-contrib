@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008-2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints.batch;
@@ -58,8 +58,6 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -79,13 +77,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.modules.java.hints.errors.SuppressWarningsFixer;
-import org.netbeans.modules.java.hints.infrastructure.HintsTask;
-import org.netbeans.modules.java.hints.infrastructure.RulesManager;
+import org.netbeans.modules.java.hints.jackpot.impl.RulesManager;
+import org.netbeans.modules.java.hints.jackpot.impl.hints.HintsInvoker;
+import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
 import org.netbeans.modules.java.hints.options.HintsSettings;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.modules.java.hints.spi.AbstractHint.HintSeverity;
-import org.netbeans.modules.java.hints.spi.TreeRule;
 import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.Fix;
@@ -251,27 +247,16 @@ public class BatchApply {
         return null;
     }
 
-    public static List<TreeRule> listHints() {
-        List<TreeRule> hints = new LinkedList<TreeRule>();
+    public static List<HintMetadata> listHints() {
+        List<HintMetadata> hints = new LinkedList<HintMetadata>();
 
-        for (List<TreeRule> rules : RulesManager.getInstance().getHints().values()) {
-            for (TreeRule r : rules) {
-                if (r instanceof AbstractHint) {
-                    try {
-                        r.getId();
-                        r.getDisplayName();
-                        
-                        hints.add(r);
-                    } catch (Exception e) {
-                        Logger.getLogger(BatchApply.class.getName()).log(Level.FINE, null, e);
-                    }
-                }
-            }
+        for (HintMetadata hm : RulesManager.getInstance().allHints.keySet()) {
+            hints.add(hm);
         }
 
-        Collections.sort(hints, new Comparator<TreeRule>() {
-            public int compare(TreeRule o1, TreeRule o2) {
-                return o1.getDisplayName().compareTo(o2.getDisplayName());
+        Collections.sort(hints, new Comparator<HintMetadata>() {
+            public int compare(HintMetadata o1, HintMetadata o2) {
+                return o1.displayName.compareTo(o2.displayName);
             }
         });
         
@@ -298,7 +283,7 @@ public class BatchApply {
                             return;
                         }
 
-                        eds.addAll(new HintsTask().computeHints(cc));
+                        eds.addAll(new HintsInvoker(cc, new AtomicBoolean()).computeHints(cc));
                     } finally {
                         HintsSettings.setPreferencesOverride(null);
                     }
@@ -389,17 +374,15 @@ public class BatchApply {
 
     private static Map<String, Preferences> prepareOverlay(Set<String> enabledHints) {
         Map<String, Preferences> preferencesOverlay = new HashMap<String, Preferences>();
-        for (List<TreeRule> rules : RulesManager.getInstance().getHints().values()) {
-            for (TreeRule r : rules) {
-                String id = r.getId();
+        for (HintMetadata hm : RulesManager.getInstance().allHints.keySet()) {
+            String id = hm.id;
 
-                if (r instanceof AbstractHint && !preferencesOverlay.containsKey(id)) {
-                    OverridePreferences prefs = new OverridePreferences(((AbstractHint) r).getPreferences(null));
+            if (!preferencesOverlay.containsKey(id)) {
+                OverridePreferences prefs = new OverridePreferences(RulesManager.getPreferences(id, HintsSettings.getCurrentProfileId()));
 
-                    preferencesOverlay.put(r.getId(), prefs);
-                    HintsSettings.setEnabled(prefs, enabledHints.contains(id));
-                    HintsSettings.setSeverity(prefs, HintSeverity.WARNING);
-                }
+                preferencesOverlay.put(id, prefs);
+                HintsSettings.setEnabled(prefs, enabledHints.contains(id));
+                HintsSettings.setSeverity(prefs, HintSeverity.WARNING);
             }
         }
 

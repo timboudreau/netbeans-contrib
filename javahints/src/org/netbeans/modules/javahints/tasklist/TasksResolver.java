@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -23,7 +23,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007-2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints.tasklist;
@@ -128,7 +128,9 @@ public class TasksResolver {
                         return ;
                     }
                     
-                    List<? extends org.netbeans.spi.tasklist.Task> tasks = ComputeTasks.computeTasks(parameter);
+                    List<? extends org.netbeans.spi.tasklist.Task> tasks = ComputeTasks.computeTasks(parameter, cancel);
+
+                    if (cancel.get()) return ;
                     
                     callback.setTasks(parameter.getFileObject(), tasks);
                     
