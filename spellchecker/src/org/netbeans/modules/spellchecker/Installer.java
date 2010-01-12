@@ -44,11 +44,11 @@ import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JTextArea;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
-import org.netbeans.editor.Registry;
+import org.netbeans.api.editor.EditorRegistry;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -57,9 +57,9 @@ import org.openide.modules.ModuleInstall;
  */
 public class Installer extends ModuleInstall {
 
-    private static ChangeListener l = new ChangeListener() {
-        public void stateChanged(ChangeEvent e) {
-            JTextComponent c = Registry.getMostActiveComponent();
+    private static PropertyChangeListener l = new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent evt) {
+            JTextComponent c = EditorRegistry.focusedComponent();
 
             if (c != null) {
                 ComponentPeer.assureInstalled(c);
@@ -67,8 +67,8 @@ public class Installer extends ModuleInstall {
         }
     };
 
-    public void restored() {
-        Registry.addChangeListener(l);
+    public @Override void restored() {
+        EditorRegistry.addPropertyChangeListener(l);
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
             public void eventDispatched(AWTEvent event) {
                 if (event instanceof FocusEvent) {
