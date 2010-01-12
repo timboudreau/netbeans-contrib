@@ -59,6 +59,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
+import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
 import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateListCellRenderer;
 import org.openide.cookies.EditorCookie;
@@ -67,7 +68,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.CookieAction;
-import org.netbeans.editor.Registry;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateListModel;
@@ -86,7 +86,7 @@ public final class SurroundWithAction extends CookieAction {
 
     @Override
     protected void performAction(Node[] activatedNodes) {
-        final JTextComponent textComponent = Registry.getMostActiveComponent();
+        final JTextComponent textComponent = EditorRegistry.focusedComponent();
         if (textComponent != null) {
             Document document = textComponent.getDocument();
             CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(document);

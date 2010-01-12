@@ -65,6 +65,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import javax.swing.text.Position.Bias;
 import javax.swing.text.StyleConstants;
+import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.CancellableTask;
@@ -73,7 +74,6 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
-import org.netbeans.editor.Registry;
 import org.netbeans.modules.i18n.ResourceHolder;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
@@ -132,7 +132,7 @@ public class AddToBundleFix implements Fix {
     }
     
     public ChangeInfo implement() throws IOException {
-        final JTextComponent comp = Registry.getMostActiveComponent();
+        final JTextComponent comp = EditorRegistry.focusedComponent();
         
         if (!TESTS && !od.equals(comp.getDocument().getProperty(Document.StreamDescriptionProperty)))
             return null;

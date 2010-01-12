@@ -47,10 +47,10 @@ import java.lang.ref.WeakReference;
 import javax.swing.AbstractAction;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.editor.AnnotationDesc;
 import org.netbeans.editor.Annotations;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Registry;
 import org.netbeans.editor.Utilities;
 
 import org.openide.ErrorManager;
@@ -72,7 +72,7 @@ public class ScanAnnotationsAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        JTextComponent comp = Registry.getMostActiveComponent();
+        JTextComponent comp = EditorRegistry.focusedComponent();
         
         if (comp == null) {
             lastComponent = null;
