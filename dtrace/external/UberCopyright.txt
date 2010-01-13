@@ -1,0 +1,102 @@
+
+Please review the complete list of open-source licenses
+governing software included in the Product. 
+
+License #1: NetBeans Dynamic Tracing(DTrace) GUI Module License
+License #2: DTrace Toolkit License v.96
+License #3: jfreechart v 1.0.2
+
+------------------------------------------------------------
+
+License #1: NetBeans Dynamic Tracing(DTrace) GUI Module License
+
+Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
+Use is subject to license terms.
+
+This module is part of NetBeans and is open-source.
+
+The Common Development and Distribution License
+(CDDL), Version 1.0 or the GNU General Public License
+(GPL) with "CLASSPATH" EXCEPTION govern your use of:
+NetBeans software. NetBeans software also makes use of
+additional libraries made available for use and distribution
+by other parties, including open-source projects.
+For complete information on NetBeans licensing, see : 
+http://netbeans.org/about/legal/product-licences.html
+
+The contents of this file are subject to the terms of the
+Common Development and Distribution License (the "License").
+You may not use this file except in compliance with the License.
+
+You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+or http://www.opensolaris.org/os/licensing.
+See the License for the specific language governing permissions
+and limitations under the License.
+
+When distributing Covered Code, include this CDDL HEADER in each
+file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+If applicable, add the following below this CDDL HEADER, with the
+fields enclosed by brackets "[]" replaced with your own identifying
+information: Portions Copyright [yyyy] [name of copyright owner]
+
+For the avoidance of doubt, except that if any license choice other
+than GPL or LGPL is available it will apply instead, Sun elects to
+use only the General Public License version 2 (GPLv2) at this time
+for any software where a choice of GPL license versions is made
+available with the language indicating that GPLv2 or any later
+version may be used, or where a choice of which version of the GPL
+is applied is otherwise unspecified.
+
+------------------------------------------------------------
+
+License #2: DTrace Toolkit License v.96
+
+Copyright (c) 2007 Brendan Gregg.
+Copyright (c) 2005, 2006 Brendan Gregg.
+Copyright (c) 2006 Richard McDougall.
+Copyright (c) 2006 Jonathan Adams
+Copyright 2009 Sun Microsystems, Inc.  All rights reserved.
+
+Use is subject to license terms.
+
+The contents of this file are subject to the terms of the
+Common Development and Distribution License (the "License").
+You may not use this file except in compliance with the License.
+
+You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+or http://www.opensolaris.org/os/licensing.
+See the License for the specific language governing permissions
+and limitations under the License.
+
+When distributing Covered Code, include this CDDL HEADER in each
+file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+If applicable, add the following below this CDDL HEADER, with the
+fields enclosed by brackets "[]" replaced with your own identifying
+information: Portions Copyright [yyyy] [name of copyright owner]
+
+------------------------------------------------------------
+
+License #3: JFreeChart v 1.0.2
+
+For the avoidance of doubt, except that if any license choice other 
+than GPL or LGPL is available it will apply instead, Sun elects to 
+use only the Lesser General Public License version 2.1 (LGPLv2) at 
+this time for any software where a choice of LGPL license versions 
+is made available with the language indicating that LGPLv2.1 or any 
+later version may be used, or where a choice of which version of the 
+LGPL is applied is otherwise unspecified.
+
+		  GNU LESSER GENERAL PUBLIC LICENSE
+		       Version 2.1, February 1999
+
+Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program so you can know your rights and responsibilities.
+It should be in a file named doc/COPYING. If not, visit : 
+http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
