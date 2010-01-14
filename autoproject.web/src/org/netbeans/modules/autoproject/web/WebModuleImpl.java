@@ -103,8 +103,7 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
     }
 
     public FileObject[] getJavaSources() {
-        // is deprecated in base class so perhaps not needed
-        throw new UnsupportedOperationException(); // XXX
+        return new FileObject[0];
     }
 
     public MetadataModel<WebAppMetadata> getMetadataModel() {
