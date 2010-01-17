@@ -37,14 +37,11 @@
  */
 package org.netbeans.modules.autosave;
 
-import java.awt.EventQueue;
 import java.lang.ref.WeakReference;
-import java.util.Map;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import org.netbeans.modules.autosave.command.AutoSaveController;
 import org.openide.modules.ModuleInstall;
-import org.openide.util.RequestProcessor;
 
 public class Installer extends ModuleInstall {
    public @Override void restored() {
@@ -56,46 +53,9 @@ public class Installer extends ModuleInstall {
                   AutoSaveController.getInstance().synchronize();
                }
             }).get());
-        new TrackEQ(1000*60);
    }
 
    public @Override void uninstalled() {
       AutoSaveController.getInstance().stop();
    }
-
-    private static class TrackEQ implements Runnable {
-        private final int timeout;
-        private boolean stuck = false;
-        final RequestProcessor.Task task;
-        private Thread eq;
-        TrackEQ(int timeout) {
-            this.timeout = timeout;
-            task = RequestProcessor.getDefault().post(this);
-        }
-        @SuppressWarnings("deprecation")
-        public synchronized void run() {
-            if (EventQueue.isDispatchThread()) {
-                stuck = false;
-                eq = Thread.currentThread();
-            } else {
-                if (stuck) {
-                    System.err.println("UI is stuck!");
-                    Map<Thread,StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
-                    StackTraceElement[] stack = stackTraces.get(eq);
-                    if (stack != null) {
-                        for (StackTraceElement el : stack) {
-                            System.err.println("stuck at " + el);
-                        }
-                        eq.stop();
-                    } else {
-                        System.err.println("no stack trace for " + eq + "; listed threads: " + stackTraces.keySet());
-                    }
-                } else {
-                    stuck = true;
-                }
-                task.schedule(timeout);
-                EventQueue.invokeLater(this);
-            }
-        }
-    }
 }
