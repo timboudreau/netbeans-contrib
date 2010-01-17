@@ -40,18 +40,13 @@ package org.netbeans.modules.autosave;
 import java.lang.ref.WeakReference;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
 import org.netbeans.modules.autosave.command.AutoSaveController;
 import org.openide.modules.ModuleInstall;
 
-/**
- * Manages a module's lifecycle. Remember that an installer is optional and
- * often not needed at all.
- */
 public class Installer extends ModuleInstall {
-   public void restored() {
+   public @Override void restored() {
       AutoSaveController.getInstance().synchronize();
-      Preferences.userNodeForPackage(AutoSaveAdvancedOption.class).
+      AutoSaveController.prefs().
             addPreferenceChangeListener(new WeakReference<PreferenceChangeListener>(
             new PreferenceChangeListener() {
                public void preferenceChange(PreferenceChangeEvent evt) {
@@ -60,7 +55,7 @@ public class Installer extends ModuleInstall {
             }).get());
    }
 
-   public void uninstalled() {
+   public @Override void uninstalled() {
       AutoSaveController.getInstance().stop();
    }
 }

@@ -44,7 +44,6 @@ import java.awt.event.ItemListener;
 import java.lang.ref.WeakReference;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -52,24 +51,18 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
+import org.netbeans.modules.autosave.command.AutoSaveController;
 import org.openide.awt.Mnemonics;
 import org.openide.util.NbBundle;
 
 final class AutoSavePanel extends javax.swing.JPanel {
-   private final AutoSaveOptionsPanelController controller;
 
    AutoSavePanel(final AutoSaveOptionsPanelController controller) {
-      this.controller = controller;
-
-      Integer value = new Integer(10);
-      Integer min = new Integer(0);
-      Integer max = new Integer(999);
-      Integer step = new Integer(1);
-      spnModel = new SpinnerNumberModel(value, min, max, step);
+      spnModel = new SpinnerNumberModel(10, 0, 999, 1);
 
       initComponents();
 
-      Preferences.userNodeForPackage(AutoSavePanel.class).
+      AutoSaveController.prefs().
             addPreferenceChangeListener(new WeakReference<PreferenceChangeListener>(
             new PreferenceChangeListener() {
                public void preferenceChange(PreferenceChangeEvent evt) {
@@ -157,26 +150,15 @@ final class AutoSavePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_chkUseFeatureItemStateChanged
 
    void load() {
-      this.chkUseFeature.setSelected(Preferences.userNodeForPackage(
-            AutoSavePanel.class).getBoolean(AutoSaveAdvancedOption.KEY_ACTIVE,
-            false));
-      this.chkSaveOnFocusLost.setSelected(Preferences.userNodeForPackage(
-            AutoSavePanel.class).getBoolean(
-            AutoSaveAdvancedOption.KEY_SAVE_ON_FOCUS_LOST, false));
-      this.spnModel.setValue(
-            Integer.valueOf(Preferences.userNodeForPackage(AutoSavePanel.class).
-            getInt(AutoSaveAdvancedOption.KEY_INTERVAL, 10)));
+      chkUseFeature.setSelected(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
+      chkSaveOnFocusLost.setSelected(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_SAVE_ON_FOCUS_LOST, false));
+      spnModel.setValue(AutoSaveController.prefs().getInt(AutoSaveController.KEY_INTERVAL, 10));
    }
 
    void store() {
-      Preferences.userNodeForPackage(AutoSavePanel.class).putBoolean(
-            AutoSaveAdvancedOption.KEY_ACTIVE, this.chkUseFeature.isSelected());
-      Preferences.userNodeForPackage(AutoSavePanel.class).putBoolean(
-            AutoSaveAdvancedOption.KEY_SAVE_ON_FOCUS_LOST,
-            this.chkSaveOnFocusLost.isSelected());
-      Preferences.userNodeForPackage(AutoSavePanel.class).putInt(
-            AutoSaveAdvancedOption.KEY_INTERVAL, this.spnModel.getNumber().
-            intValue());
+      AutoSaveController.prefs().putBoolean(AutoSaveController.KEY_ACTIVE, chkUseFeature.isSelected());
+      AutoSaveController.prefs().putBoolean(AutoSaveController.KEY_SAVE_ON_FOCUS_LOST, chkSaveOnFocusLost.isSelected());
+      AutoSaveController.prefs().putInt(AutoSaveController.KEY_INTERVAL, spnModel.getNumber().intValue());
    }
 
    boolean valid() {

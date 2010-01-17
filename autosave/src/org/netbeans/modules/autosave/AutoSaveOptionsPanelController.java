@@ -44,7 +44,8 @@ import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
-final class AutoSaveOptionsPanelController extends OptionsPanelController {
+@OptionsPanelController.SubRegistration(displayName="#AdvancedOption_DisplayName")
+public final class AutoSaveOptionsPanelController extends OptionsPanelController {
     
     private AutoSavePanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);

@@ -42,7 +42,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
+import org.netbeans.modules.autosave.command.AutoSaveController;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -53,35 +53,28 @@ public final class ToggleAutoSaveAction extends BooleanStateAction {
       return NbBundle.getMessage(ToggleAutoSaveAction.class, "CTL_AutoSave");
    }
 
-   protected void initialize() {
+   protected @Override void initialize() {
       super.initialize();
 
-      Preferences.userNodeForPackage(AutoSavePanel.class).
+      AutoSaveController.prefs().
             addPreferenceChangeListener(new WeakReference<PreferenceChangeListener>(
             new PreferenceChangeListener() {
                public void preferenceChange(PreferenceChangeEvent evt) {
-                  setBooleanState(Preferences.userNodeForPackage(
-                        AutoSavePanel.class).
-                        getBoolean(AutoSaveAdvancedOption.KEY_ACTIVE, false));
+                  setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
                }
             }).get());
       this.addPropertyChangeListener(new PropertyChangeListener() {
          public void propertyChange(PropertyChangeEvent evt) {
             if (BooleanStateAction.PROP_BOOLEAN_STATE.equals(
                   evt.getPropertyName())) {
-               Preferences.userNodeForPackage(AutoSavePanel.class).putBoolean(
-                     AutoSaveAdvancedOption.KEY_ACTIVE, getBooleanState());
+               AutoSaveController.prefs().putBoolean(AutoSaveController.KEY_ACTIVE, getBooleanState());
             }
          }
       });
-      this.setBooleanState(Preferences.userNodeForPackage(AutoSavePanel.class).
-            getBoolean(AutoSaveAdvancedOption.KEY_ACTIVE, false));
+      this.setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   protected String iconResource() {
+   protected @Override String iconResource() {
       return "org/netbeans/modules/autosave/auto_save.png";
    }
 

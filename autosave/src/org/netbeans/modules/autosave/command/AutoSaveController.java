@@ -47,23 +47,32 @@ import javax.swing.Timer;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
-import org.netbeans.modules.autosave.AutoSaveAdvancedOption;
+import org.netbeans.modules.autosave.AutoSaveOptionsPanelController;
 import org.openide.cookies.SaveCookie;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
 
 /**
  *
  * @author Michel Graciano
  */
 public final class AutoSaveController {
+    
+    public static final String KEY_ACTIVE = "autoSaveActive";
+    public static final String KEY_INTERVAL = "autoSaveInterval";
+    public static final String KEY_SAVE_ON_FOCUS_LOST = "autoSaveOnLostFocus";
+
+    public static Preferences prefs() {
+        return NbPreferences.forModule(AutoSaveOptionsPanelController.class);
+    }
+
    private static AutoSaveController controller;
    private Timer timer;
    private PropertyChangeListener listener;
 
    private void startTimerSave() {
-      int delay = Preferences.userNodeForPackage(AutoSaveAdvancedOption.class).
-            getInt(AutoSaveAdvancedOption.KEY_INTERVAL, 10);
+      int delay = prefs().getInt(KEY_INTERVAL, 10);
 
       if (delay == 0 && timer != null) {
          timer.stop();
@@ -74,8 +83,7 @@ public final class AutoSaveController {
       if (timer == null) {
          timer = new Timer(delay, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-               if (Preferences.userNodeForPackage(AutoSaveAdvancedOption.class).
-                     getBoolean(AutoSaveAdvancedOption.KEY_ACTIVE, false)) {
+               if (prefs().getBoolean(KEY_ACTIVE, false)) {
                   AutoSaveCommand.saveAll();
                }
             }
@@ -136,12 +144,9 @@ public final class AutoSaveController {
    }
 
    public void synchronize() {
-      if (Preferences.userNodeForPackage(AutoSaveAdvancedOption.class).
-            getBoolean(AutoSaveAdvancedOption.KEY_ACTIVE, false)) {
+      if (prefs().getBoolean(KEY_ACTIVE, false)) {
          startTimerSave();
-
-         if (Preferences.userNodeForPackage(AutoSaveAdvancedOption.class).
-               getBoolean(AutoSaveAdvancedOption.KEY_SAVE_ON_FOCUS_LOST, false)) {
+         if (prefs().getBoolean(KEY_SAVE_ON_FOCUS_LOST, false)) {
             startFocusSave();
          } else {
             stopFocusSave();
