@@ -47,7 +47,6 @@ import javax.swing.Timer;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
-import org.netbeans.modules.autosave.AutoSaveOptionsPanelController;
 import org.openide.cookies.SaveCookie;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -64,7 +63,7 @@ public final class AutoSaveController {
     public static final String KEY_SAVE_ON_FOCUS_LOST = "autoSaveOnLostFocus";
 
     public static Preferences prefs() {
-        return NbPreferences.forModule(AutoSaveOptionsPanelController.class);
+        return NbPreferences.forModule(AutoSaveController.class);
     }
 
    private static AutoSaveController controller;
