@@ -42,14 +42,6 @@ made subject to such option by the copyright holder.
 -->
 <project basedir="." default="netbeans" name="contrib/j2ee.blueprints">
 
-    <presetdef name="nb-javac"><!-- custom-javac seems to be having problems with stale class files -->
-        <javac>
-            <bootclasspath>
-                <path path="${bootclasspath.mac}"/>
-                <path path="${nbjdk.bootclasspath}"/>
-            </bootclasspath>
-        </javac>
-    </presetdef>
     <property file="./nbproject/project.properties"/>
     <import file="../../nbbuild/templates/projectized.xml"/>
 
