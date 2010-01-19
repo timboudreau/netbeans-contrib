@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.ucla.netbeans.module.bpel.setconsistency
-OpenIDE-Module-Layer: org/ucla/netbeans/module/bpel/setconsistency/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/ucla/netbeans/module/bpel/setconsistency/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
