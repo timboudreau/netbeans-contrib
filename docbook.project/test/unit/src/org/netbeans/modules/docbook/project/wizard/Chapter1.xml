@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+
+<chapter id="chapter1">
+    <title>Chapter 1</title>
+    <section id="section1">
+        <title>Section 1</title>
+        <section id="subsection1a">
+            <title>SubSection 1a</title>
+            <para>
+            [TODO: Content here]
+            </para>
+        </section>
+    </section>
+    <section id="section2">
+        <title>Section 2</title>
+        <para>
+        [TODO: Content here]
+        </para>
+    </section>
+</chapter>
+

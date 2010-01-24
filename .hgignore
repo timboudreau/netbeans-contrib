@@ -240,3 +240,4 @@
 ^licensechanger/release/modules/ext/wizard\.jar$
 ^licensechanger/src/org/netbeans/modules/licensechanger/licenses\.txt$
 ^licensechanger/src/org/netbeans/modules/licensechanger/licenses/*$
+^docbook.project/release/modules/ext/ValidationAPI.jar$

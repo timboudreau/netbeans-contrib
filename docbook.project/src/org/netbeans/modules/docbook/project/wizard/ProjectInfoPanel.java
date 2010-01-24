@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -44,82 +44,63 @@ import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
-import javax.swing.JFileChooser;
-import javax.swing.event.ChangeEvent;
+import javax.swing.AbstractButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
+import org.netbeans.validation.api.Problem;
+import org.netbeans.validation.api.builtin.Validators;
+import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.ui.ValidationListener;
+import org.netbeans.validation.api.ui.ValidationUI;
 import org.openide.WizardDescriptor;
+import org.openide.awt.Mnemonics;
+import org.openide.filesystems.FileChooserBuilder;
+import org.openide.util.NbBundle;
 
 /**
  *
  * @author  Tim Boudreau
  */
-public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentListener, FocusListener {
-
-    /** Creates new form ProjectInfoPanel */
+public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListener, ValidationUI {
+    private final ValidationGroup group = ValidationGroup.create(this);
     public ProjectInfoPanel() {
         initComponents();
-        problem.setText (" ");
+        articleButton.putClientProperty ("kind", ProjectKind.Article); //NOI18N
+        slidesButton.putClientProperty ("kind", ProjectKind.Slides); //NOI18N
+        bookButton.putClientProperty ("kind", ProjectKind.Book); //NOI18N
         Component[] c = getComponents();
         for (int i = 0; i < c.length; i++) {
             if (c[i] instanceof JTextComponent) {
-                ((JTextComponent) c[i]).getDocument().addDocumentListener(this);
                 c[i].addFocusListener(this);
             }
-        }
-    }
-
-    public String getProblem() {
-        String s = problem.getText().trim();
-        return s;
-    }
-
-    public boolean hasProblem() {
-        return getProblem().length() != 0;
-    }
-
-    void check() {
-        if (containsBadCharacter(name.getText())) {
-            setProblem (name.getText() + " contains illegal filename " +
-                    "characters");
-        }
-        File file = new File(location.getText());
-        if (!file.exists() || !file.isDirectory()) {
-            setProblem ("Folder does not exist");
-            return;
-        }
-        if (!check (title, "Enter a title")) return;
-        if (!check (author, "Enter your name")) return;
-    }
-
-    private boolean containsBadCharacter (String txt) {
-        char[] c = txt.toCharArray();
-        for (int i = 0; i < c.length; i++) {
-            switch (c[i]) {
-                case '\\' :
-                case '/' :
-                case ';' :
-                case ':' :
-                case '.' :
-                    return true;
-                default :
-                    continue;
+            String nm = c[i].getName();
+            if (nm != null) {
+                ValidationListener.setComponentName((JComponent) c[i],
+                        NbBundle.getMessage(ProjectInfoPanel.class, nm));
+            }
+            if (c[i] instanceof JLabel) {
+                JLabel l = (JLabel) c[i];
+                Mnemonics.setLocalizedText(l, l.getText());
+            } else if (c[i] instanceof AbstractButton) {
+                AbstractButton ab = (AbstractButton) c[i];
+                Mnemonics.setLocalizedText(ab, ab.getText());
             }
         }
-        return false;
-    }
-
-    private boolean check (JTextComponent jtc, String err) {
-        String txt = jtc.getText();
-        boolean result = txt.length() == 0 ? false : true;
-        if (!result) {
-            setProblem (err);
-        } else {
-            setProblem ("");
-        }
-        return result;
+        group.add(new AbstractButton[] { bookButton, slidesButton, articleButton },
+                Validators.oneButtonMustBeSelected(
+                NbBundle.getMessage(ProjectInfoPanel.class, "ERR_SELECT_KIND"))); //NOI18N
+        
+        group.add(name, Validators.REQUIRE_NON_EMPTY_STRING, 
+                Validators.REQUIRE_VALID_FILENAME,
+                Validators.FILE_MUST_NOT_EXIST);
+        group.add(location, Validators.REQUIRE_NON_EMPTY_STRING,
+                Validators.FILE_MUST_EXIST,
+                Validators.FILE_MUST_BE_DIRECTORY);
+        group.add(title, Validators.REQUIRE_NON_EMPTY_STRING);
+        group.add(subtitle, Validators.REQUIRE_NON_EMPTY_STRING);
+        group.add(author, Validators.REQUIRE_NON_EMPTY_STRING);
     }
 
     void save (WizardDescriptor wiz) {
@@ -133,43 +114,57 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentList
                 }
             }
         }
-        wiz.putProperty("kind", kind.getSelectedItem());
-        wiz.setValid(!hasProblem());
+        wiz.putProperty("kind", getKind()); //NOI18N
+        wiz.setValid(group.validateAll() == null);
     }
 
-    boolean updating;
-    void load (WizardDescriptor wiz) {
-        updating = true;
-        try {
-            Component[] c = getComponents();
-            for (int i = 0; i < c.length; i++) {
-                if (c[i] instanceof JTextComponent) {
-                    JTextComponent jtc = (JTextComponent) c[i];
-                    String key = jtc.getName();
-                    if (key != null) {
-                        String val = (String) wiz.getProperty(key);
-                        if (val != null) {
-                            jtc.setText(val);
+    private ProjectKind getKind() {
+        if (bookButton.isSelected()) {
+            return ProjectKind.Book;
+        } else if (slidesButton.isSelected()) {
+            return ProjectKind.Slides;
+        } else if (articleButton.isSelected()) {
+            return ProjectKind.Article;
+        } else {
+            return null;
+        }
+    }
+
+    WizardDescriptorAdapter delegate;
+    void load (final WizardDescriptor wiz) {
+        delegate = new WizardDescriptorAdapter(wiz);
+        group.modifyComponents(new Runnable() {
+            public void run() {
+                Component[] c = getComponents();
+                for (int i = 0; i < c.length; i++) {
+                    if (c[i] instanceof JTextComponent) {
+                        JTextComponent jtc = (JTextComponent) c[i];
+                        String key = jtc.getName();
+                        if (key != null) {
+                            String val = (String) wiz.getProperty(key);
+                            if (val != null) {
+                                jtc.setText(val);
+                            }
+                        }
+                    }
+                }
+                ProjectKind kind = (ProjectKind) wiz.getProperty("kind"); //NOI18N
+                if (kind != null) {
+                    for (AbstractButton b : new AbstractButton[] { articleButton, bookButton, slidesButton }) {
+                        if (kind.equals(b.getClientProperty("kind"))) { //NOI18N
+                            b.setSelected(true);
+                            break;
                         }
                     }
                 }
             }
-            String s = (String) wiz.getProperty("kind");
-            if (s != null) {
-                kind.setSelectedItem(s);
-            }
-        } finally {
-            updating = false;
-        }
+        });
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
+        buttonGroup1 = new javax.swing.ButtonGroup();
         namelbl = new javax.swing.JLabel();
         name = new javax.swing.JTextField();
         loclbl = new javax.swing.JLabel();
@@ -181,10 +176,12 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentList
         subtitle = new javax.swing.JTextField();
         authorLabel = new javax.swing.JLabel();
         author = new javax.swing.JTextField();
-        kindLabel = new javax.swing.JLabel();
-        kind = new javax.swing.JComboBox();
         jSeparator1 = new javax.swing.JSeparator();
-        problem = new javax.swing.JLabel();
+        kindLabel = new javax.swing.JLabel();
+        kindsPanel = new javax.swing.JPanel();
+        bookButton = new javax.swing.JRadioButton();
+        slidesButton = new javax.swing.JRadioButton();
+        articleButton = new javax.swing.JRadioButton();
 
         namelbl.setLabelFor(name);
         namelbl.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.namelbl.text")); // NOI18N
@@ -223,14 +220,24 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentList
         author.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.author.text")); // NOI18N
         author.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.author.name")); // NOI18N
 
-        kindLabel.setLabelFor(kind);
+        kindLabel.setLabelFor(bookButton);
         kindLabel.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.kindLabel.text")); // NOI18N
 
-        kind.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Article", "Slides", "Book" }));
-        kind.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.kind.name")); // NOI18N
+        kindsPanel.setLayout(new java.awt.GridLayout());
 
-        problem.setForeground(new java.awt.Color(255, 0, 0));
-        problem.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.problem.text")); // NOI18N
+        buttonGroup1.add(bookButton);
+        bookButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.bookButton.text")); // NOI18N
+        kindsPanel.add(bookButton);
+
+        buttonGroup1.add(slidesButton);
+        slidesButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.slidesButton.text")); // NOI18N
+        slidesButton.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        kindsPanel.add(slidesButton);
+
+        buttonGroup1.add(articleButton);
+        articleButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.articleButton.text")); // NOI18N
+        articleButton.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        kindsPanel.add(articleButton);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -239,43 +246,44 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentList
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(problem, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 652, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(namelbl)
                             .add(titleLabel)
                             .add(subtitleLabel)
                             .add(authorLabel)
-                            .add(kindLabel)
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(loclbl)))
+                            .add(loclbl)
+                            .add(kindLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(name, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-                            .add(layout.createSequentialGroup()
-                                .add(location, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 235, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 12, Short.MAX_VALUE)
+                            .add(kindsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .add(name, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(location, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(browse))
-                            .add(title, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-                            .add(subtitle, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-                            .add(author, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-                            .add(kind, 0, 314, Short.MAX_VALUE))))
+                            .add(title, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .add(subtitle, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .add(author, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(kindLabel)
+                    .add(kindsPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(namelbl)
                     .add(name, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(loclbl)
                     .add(location, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(browse))
+                    .add(browse)
+                    .add(loclbl))
                 .add(20, 20, 20)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -290,85 +298,73 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements DocumentList
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(authorLabel)
                     .add(author, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(32, 32, 32)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(kindLabel)
-                    .add(kind, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 23, Short.MAX_VALUE)
-                .add(problem)
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        layout.linkSize(new java.awt.Component[] {kindLabel, kindsPanel}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void browseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseActionPerformed
-        // TODO add your handling code here:
-        JFileChooser ch = jfc == null ? (jfc = createFileChooser()) : jfc;
-        int val = ch.showDialog(this, "Select");
-        if (val == ch.APPROVE_OPTION) {
-            location.setText (ch.getSelectedFile().getPath());
-            change();
+        File file = new FileChooserBuilder(ProjectInfoPanel.class).setDirectoriesOnly(true).setApproveText("Select").showOpenDialog();
+        if (file != null) {
+            location.setText(file.getAbsolutePath());
         }
     }//GEN-LAST:event_browseActionPerformed
-
-    private JFileChooser jfc;
-    private JFileChooser createFileChooser() {
-        JFileChooser result = new JFileChooser();
-        result.setMultiSelectionEnabled(false);
-        result.setFileSelectionMode(result.DIRECTORIES_ONLY);
-        result.setApproveButtonText("Select");
-        return result;
-    }
-
-    private void change() {
-        if (updating) return;
-        if (cl!=null) {
-            cl.stateChanged (new ChangeEvent(this));
-        }
-    }
-
-    public void setProblem (String s) {
-        problem.setText (s);
-        change();
-    }
-
-    public void insertUpdate(DocumentEvent e) {
-        check();
-    }
-
-    public void removeUpdate(DocumentEvent e) {
-        check();
-    }
-
-    public void changedUpdate(DocumentEvent e) {
-        check();
-    }
 
     public void focusGained(FocusEvent e) {
         JTextComponent c = (JTextComponent) e.getComponent();
         c.selectAll();
     }
 
+    public Problem check() {
+        return group.validateAll();
+    }
+
     public void focusLost(FocusEvent e) {
     }
 
-    ChangeListener cl;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton articleButton;
     private javax.swing.JTextField author;
     private javax.swing.JLabel authorLabel;
+    private javax.swing.JRadioButton bookButton;
     private javax.swing.JButton browse;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JComboBox kind;
     private javax.swing.JLabel kindLabel;
+    private javax.swing.JPanel kindsPanel;
     private javax.swing.JTextField location;
     private javax.swing.JLabel loclbl;
     private javax.swing.JTextField name;
     private javax.swing.JLabel namelbl;
-    private javax.swing.JLabel problem;
+    private javax.swing.JRadioButton slidesButton;
     private javax.swing.JTextField subtitle;
     private javax.swing.JLabel subtitleLabel;
     private javax.swing.JTextField title;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
+    public void clearProblem() {
+        if (delegate != null) {
+            delegate.clearProblem();
+        }
+        if (cl != null) {
+            cl.stateChanged(null);
+        }
+    }
+
+    public void setProblem(Problem prblm) {
+        if (delegate != null) {
+            delegate.setProblem(prblm);
+        }
+        if (cl != null) {
+            cl.stateChanged(null);
+        }
+    }
+
+    private ChangeListener cl;
+    void addChangeListener(ChangeListener aThis) {
+        cl = aThis;
+    }
 }

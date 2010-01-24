@@ -51,14 +51,14 @@ import org.openide.util.HelpCtx;
  *
  * @author Tim Boudreau
  */
-public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescriptor>,
+public class ProjectOutlinePanelPanel implements WizardDescriptor.Panel<WizardDescriptor>,
         WizardDescriptor.FinishablePanel<WizardDescriptor>, ChangeListener {
 
     private final ChangeSupport supp = new ChangeSupport(this);
-    private ProjectInfoPanel panel;
+    private ProjectOutlinePanel panel;
     public Component getComponent() {
         boolean wasNull = panel == null;
-        Component result = wasNull ? (panel = new ProjectInfoPanel()) : panel;
+        Component result = wasNull ? (panel = new ProjectOutlinePanel()) : panel;
         if (wasNull) {
             panel.addChangeListener(this);
         }
@@ -82,7 +82,7 @@ public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescr
     }
 
     public boolean isValid() {
-        return panel != null && panel.check() == null;
+        return panel != null && panel.check();
     }
 
     public void addChangeListener(ChangeListener l) {

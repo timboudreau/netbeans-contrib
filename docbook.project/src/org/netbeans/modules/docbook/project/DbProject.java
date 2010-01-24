@@ -78,8 +78,9 @@ import org.openide.util.lookup.Lookups;
 public class DbProject extends Renderer.JobStatus implements Project, ProjectInformation, ActionProvider, MainFileProvider {
     private final FileObject dir;
     private final Lookup lkp;
-    private static final String MAIN_FILE_KEY = "main.file";
-    private static final String PROJECT_DIR = "dbproject";
+    public static final String MAIN_FILE_KEY = "main.file"; //NOI18N
+    public static final String PROJECT_DIR = "dbproject"; //NOI18N
+    public static final String PROPS_FILE = "project.properties"; //NOI18N
     final RequestProcessor rp;
     final Properties props = new Properties();
     public DbProject(FileObject dir, ProjectState state) {

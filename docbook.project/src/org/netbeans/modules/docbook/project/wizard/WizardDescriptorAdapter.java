@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2009 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -40,64 +40,40 @@
  */
 package org.netbeans.modules.docbook.project.wizard;
 
-import java.awt.Component;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import org.netbeans.validation.api.Problem;
+import org.netbeans.validation.api.ui.ValidationUI;
 import org.openide.WizardDescriptor;
-import org.openide.util.ChangeSupport;
-import org.openide.util.HelpCtx;
 
 /**
  *
  * @author Tim Boudreau
  */
-public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescriptor>,
-        WizardDescriptor.FinishablePanel<WizardDescriptor>, ChangeListener {
+public class WizardDescriptorAdapter implements ValidationUI {
+    private final WizardDescriptor wiz;
 
-    private final ChangeSupport supp = new ChangeSupport(this);
-    private ProjectInfoPanel panel;
-    public Component getComponent() {
-        boolean wasNull = panel == null;
-        Component result = wasNull ? (panel = new ProjectInfoPanel()) : panel;
-        if (wasNull) {
-            panel.addChangeListener(this);
+    public WizardDescriptorAdapter(WizardDescriptor d) {
+        this.wiz = d;
+    }
+
+    public void clearProblem() {
+        wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);
+        wiz.setValid(true);
+    }
+
+    public void setProblem(Problem p) {
+        switch (p.severity()) {
+            case INFO :
+                wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, p.getMessage());
+                wiz.setValid(true);
+                break;
+            case WARNING :
+                wiz.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE, p.getMessage());
+                wiz.setValid(true);
+                break;
+            case FATAL :
+                wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, p.getMessage());
+                wiz.setValid(false);
+                break;
         }
-        return result;
-    }
-
-    public HelpCtx getHelp() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-
-    public void readSettings(WizardDescriptor d) {
-        if (panel != null) {
-            panel.load (d);
-        }
-    }
-
-    public void storeSettings(WizardDescriptor d) {
-        if (panel != null) {
-            panel.save (d);
-        }
-    }
-
-    public boolean isValid() {
-        return panel != null && panel.check() == null;
-    }
-
-    public void addChangeListener(ChangeListener l) {
-        supp.addChangeListener(l);
-    }
-
-    public void removeChangeListener(ChangeListener l) {
-        supp.removeChangeListener(l);
-    }
-
-    public boolean isFinishPanel() {
-        return true;
-    }
-
-    public void stateChanged(ChangeEvent e) {
-        supp.fireChange();
     }
 }
