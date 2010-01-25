@@ -58,7 +58,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.err.println("Usage: java -jar jfaqsuck.jar url baseurl [outputfile]");
+            System.err.println("Usage: java -jar faqsuck.jar url baseurl [outputfile]");
             System.exit(1);
         }
         String faqUrl = args[0];
