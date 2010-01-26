@@ -223,10 +223,6 @@
                         <compile-dependency/>
                     </test-dependency>
                     <test-dependency>
-                        <code-name-base>org.netbeans.modules.templates</code-name-base>
-                        <compile-dependency/>
-                    </test-dependency>
-                    <test-dependency>
                         <code-name-base>org.openide.dialogs</code-name-base>
                     </test-dependency>
                     <test-dependency>
@@ -272,10 +268,6 @@
                     </test-dependency>
                     <test-dependency>
                         <code-name-base>org.netbeans.modules.tasklist.ui</code-name-base>
-                        <compile-dependency/>
-                    </test-dependency>
-                    <test-dependency>
-                        <code-name-base>org.netbeans.modules.templates</code-name-base>
                         <compile-dependency/>
                     </test-dependency>
                     <test-dependency>
