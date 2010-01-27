@@ -214,7 +214,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
           GlobalLog.info("ShutdownReq processed")
           Thread.currentThread.interrupt
         case ex => 
-          GlobalLog.info(ex.getClass.getSimpleName + " processed, will start a newRunnerThread")
+          GlobalLog.info(ex.getClass.getSimpleName + " processed, will start a newRunnerThread: " + ex.getMessage)
           outOfDate = false
           compileRunner = newRunnerThread
           ex match {
