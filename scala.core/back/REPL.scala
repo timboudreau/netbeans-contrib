@@ -35,7 +35,7 @@ object REPL {
       try {
         object compiler extends Global(command.settings, reporter) {
 //          printTypings = true
-        } 
+        }
         if (reporter.hasErrors) {
           reporter.flush()
           return
@@ -97,7 +97,7 @@ object REPL {
     }
     loop { line =>
       (line split " ").toList match {
-        case "reload" :: args => 
+        case "reload" :: args =>
           comp.askReload(args map toSourceFile, reloadResult)
           show(reloadResult)
         case List("typeat", file, off1, off2) =>

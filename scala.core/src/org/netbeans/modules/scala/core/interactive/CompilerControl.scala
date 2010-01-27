@@ -4,7 +4,7 @@ import scala.tools.nsc._
 import scala.concurrent.SyncVar
 import scala.util.control.ControlException
 import scala.tools.nsc.io.AbstractFile
-import scala.tools.nsc.util.{SourceFile, Position}
+import scala.tools.nsc.util.{SourceFile, Position, WorkScheduler}
 import scala.tools.nsc.symtab._
 import scala.tools.nsc.ast._
 
