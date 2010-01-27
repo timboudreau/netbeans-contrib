@@ -18,7 +18,7 @@ trait ContextTrees { self: Global =>
    *     position is transparent. In that case, `pos` equals the position of
    *     one of the solid descendants of `context.tree`.
    *  4. Children of a context have non-overlapping increasining positions.
-   *  5. No context in the tree has a transparent position. 
+   *  5. No context in the tree has a transparent position.
    */
   class ContextTree(val pos: Position, val context: Context, val children: ArrayBuffer[ContextTree]) {
     def this(pos: Position, context: Context) = this(pos, context, new ArrayBuffer[ContextTree])
@@ -117,7 +117,7 @@ trait ContextTrees { self: Global =>
               val midpos = contexts(mid).pos
               if (cpos precedes midpos)
                 loop(lo, mid)
-              else if (midpos precedes cpos) 
+              else if (midpos precedes cpos)
                 loop(mid, hi)
               else
                 addContext(contexts(mid).children, context, cpos)
@@ -126,7 +126,7 @@ trait ContextTrees { self: Global =>
               val hipos = contexts(hi).pos
               if ((lopos precedes cpos) && (cpos precedes hipos))
                 contexts.insert(hi, new ContextTree(cpos, context))
-              else 
+              else
                 inform("internal error? skewed positions: "+lopos+" !< "+cpos+" !< "+hipos)
             }
           }
@@ -143,4 +143,4 @@ trait ContextTrees { self: Global =>
     }
   }
 }
-        
+

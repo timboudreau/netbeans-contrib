@@ -24,14 +24,21 @@ trait BuildManager {
 
   /** Notification that the supplied set of files is being built */
   def buildingFiles(included: Set[AbstractFile]) {}
-  
+
   /** Load saved dependency information. */
   def loadFrom(file: AbstractFile, toFile: String => AbstractFile) : Boolean
-  
+
   /** Save dependency information to `file'. */
   def saveTo(file: AbstractFile, fromFile: AbstractFile => String)
 
   def compiler: scala.tools.nsc.Global
+
+  /** Delete classfiles derived from the supplied set of sources */
+  def deleteClassfiles(sources : Set[AbstractFile]) {
+    val targets = compiler.dependencyAnalysis.dependencies.targets
+    for(source <- sources; cf <- targets(source))
+      cf.delete
+  }
 }
 
 
@@ -49,10 +56,19 @@ object BuildManagerTest extends EvalLoop {
   }
 
   def main(args: Array[String]) {
-    implicit def filesToSet(fs: List[String]): Set[AbstractFile] =
-      Set.empty ++ (fs map AbstractFile.getFile)
+    implicit def filesToSet(fs: List[String]): Set[AbstractFile] = {
+      def partition(s: String, r: Tuple2[List[AbstractFile], List[String]])= {
+	    val v = AbstractFile.getFile(s)
+        if (v == null) (r._1, s::r._2) else (v::r._1, r._2)
+      }
+      val result =  fs.foldRight((List[AbstractFile](), List[String]()))(partition)
+      if (!result._2.isEmpty)
+        Console.err.println("No such file(s): " + result._2.mkString(","))
+      Set.empty ++ result._1
+    }
 
     val settings = new Settings(error)
+    settings.Ybuildmanagerdebug.value = true
     val command = new CompilerCommand(args.toList, settings, error, false)
 //    settings.make.value = "off"
 //    val buildManager: BuildManager = new SimpleBuildManager(settings)
@@ -62,8 +78,8 @@ object BuildManagerTest extends EvalLoop {
 
     // enter resident mode
     loop { line =>
-      val args = line.split(" ").toList
-      val command = new CompilerCommand(args, new Settings(error), error, true)
+      val args = line.split(' ').toList
+      val command = new CompilerCommand(args, settings, error, true)
       buildManager.update(command.files, Set.empty)
     }
 

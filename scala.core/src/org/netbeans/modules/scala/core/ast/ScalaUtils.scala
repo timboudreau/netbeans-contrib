@@ -62,7 +62,7 @@ trait ScalaUtils {self: ScalaGlobal =>
       }
 
       if (symbol hasFlag Flags.MUTABLE)    modifiers.add(Modifier.STATIC) // to use STATIC icon only
-      if (symbol hasFlag Flags.DEPRECATED) modifiers.add(Modifier.DEPRECATED)
+      if (symbol.isDeprecated) modifiers.add(Modifier.DEPRECATED)
 
       modifiers
     }
