@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class Main {
     private static final Pattern TOC_CONTENT = Pattern.compile (
-        "^<hr\\s?/>(.*?)^<div.*Attachments", Pattern.DOTALL | Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+        "^<hr\\s?/>(.*?)^<p.*\\{\\{attachments", Pattern.DOTALL | Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private static final Pattern CATEGORY_CONTENT = Pattern.compile (
         "<a name=\\\"(.*?)\".*?>.*?<span class=\"mw-headline\">(.*?)</span></h3>(.*?)(?:<a name)",
