@@ -40,18 +40,17 @@
  */
 package org.netbeans.modules.scala.editor.overridden
 
-import org.netbeans.modules.csl.core.AbstractTaskFactory
-import org.netbeans.modules.csl.core.Language
 import org.netbeans.modules.parsing.api.Snapshot
 import org.netbeans.modules.parsing.spi.SchedulerTask
+import org.netbeans.modules.parsing.spi.TaskFactory
 
 /**
  * 
  * @author Caoyuan Deng
  */
-class IsOverriddenAnnotationHandlerFactory extends AbstractTaskFactory(true) { // XXX: Phase.RESOLVED, Priority.BELOW_NORMAL
+class IsOverriddenAnnotationHandlerFactory extends TaskFactory() { // XXX: Phase.RESOLVED, Priority.BELOW_NORMAL
 
-  override def createTasks(l: Language, snapshot: Snapshot): java.util.Collection[_ <: SchedulerTask] = {
+  override def create(snapshot: Snapshot): java.util.Collection[_ <: SchedulerTask] = {
     java.util.Collections.singleton(new IsOverriddenAnnotationHandler(snapshot.getSource.getFileObject))
   }
 

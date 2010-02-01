@@ -46,7 +46,7 @@ import javax.swing.text.BadLocationException
 import org.netbeans.api.lexer.TokenHierarchy
 import org.netbeans.editor.BaseDocument
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, OffsetRange, HtmlFormatter}
-import org.netbeans.modules.csl.core.UiUtils
+import org.netbeans.modules.csl.api.UiUtils
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.openide.filesystems.{FileObject}
 import org.openide.util.Exceptions
