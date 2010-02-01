@@ -57,7 +57,7 @@ import javax.swing.ListModel;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.ui.ElementOpen;
-import org.netbeans.modules.csl.core.UiUtils
+import org.netbeans.modules.csl.api.UiUtils
 import org.openide.filesystems.FileObject;
 
 /**

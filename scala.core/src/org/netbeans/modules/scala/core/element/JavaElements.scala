@@ -39,7 +39,7 @@
 package org.netbeans.modules.scala.core.element
 
 import org.netbeans.modules.csl.api.{ElementHandle, ElementKind, Modifier, HtmlFormatter, OffsetRange}
-import org.netbeans.modules.csl.core.UiUtils
+import org.netbeans.modules.csl.api.UiUtils
 import org.netbeans.modules.csl.spi.ParserResult
 import org.openide.filesystems.FileObject
 

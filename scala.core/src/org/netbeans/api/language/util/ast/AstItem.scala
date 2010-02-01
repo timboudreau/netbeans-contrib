@@ -41,7 +41,7 @@ package org.netbeans.api.language.util.ast
 import javax.swing.Icon
 import org.netbeans.api.lexer.{Token, TokenId, TokenHierarchy}
 import org.netbeans.modules.csl.api.{ElementKind, ElementHandle, Modifier, OffsetRange}
-import org.netbeans.modules.csl.core.UiUtils
+import org.netbeans.modules.csl.api.UiUtils
 import org.netbeans.modules.csl.spi.{ParserResult}
 import org.openide.filesystems.{FileObject}
 
