@@ -6,7 +6,6 @@
             <folder name="x-java"> <!--XXX-->
                 <folder name="FoldManager">
                     <file name="org-netbeans-modules-editor-fold-support-FoldMaintainerImpl$MaintainerFactory.instance">
-                        <attr name="position" intvalue="200" />
                     </file>
                 </folder>
             </folder>
