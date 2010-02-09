@@ -229,13 +229,6 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
     private void jAdminUserTxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jAdminUserTxtKeyReleased
     }//GEN-LAST:event_jAdminUserTxtKeyReleased
     
-    public boolean isValid(){
-        if(jAdminUserTxt.getText()==null || jAdminUserTxt.getText().trim().length()==0){
-            return false;
-            //LOG ERROR
-        }
-        return true;
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jAdminUrlLbl;
     private javax.swing.JTextField jAdminUrlTxt;
