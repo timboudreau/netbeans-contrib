@@ -85,6 +85,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     private static final String JAXRPC_IMPL_JAR =  "lib/jaxrpc-impl.jar"; //NOI18N
     private static final String JAXRPC_SPI_JAR =  "lib/jaxrpc-spi.jar"; //NOI18N
     private static final String ACTIVATION =  "lib/activation.jar"; //NOI18N
+    private static final String JSF_IMPL =  "lib/jsf-impl.jar"; //NOI18N
+    private static final String JSF_API =  "lib/jsf-api.jar"; //NOI18N
     
     private List libraries  = new ArrayList();
     private boolean isJwsdp16enabled =false;
@@ -141,6 +143,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
                 isJwsdp16enabled = true;
             }
             l.add(fileToUrl(new File(root, ACTIVATION)));
+            l.add(fileToUrl(new File(root, JSF_IMPL)));
+            l.add(fileToUrl(new File(root, JSF_API)));
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
             
             File doc = InstalledFileLocator.getDefault().locate("docs/j2eeri-1_4-doc-api.zip", null, false); // NOI18N
@@ -226,7 +230,9 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             new File(root, JAXRPC_IMPL_JAR),
             new File(root, JAXRPC_SPI_JAR),
             new File(root, MAIL_JAR),
-            new File(root, ACTIVATION)
+            new File(root, ACTIVATION),
+            new File(root, JSF_IMPL),
+            new File(root, JSF_API)
             
         };
     }
