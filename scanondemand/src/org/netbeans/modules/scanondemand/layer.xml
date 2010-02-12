@@ -10,7 +10,16 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
-            <file name="org-netbeans-modules-scanondemand-RefreshFolderAction.instance"/>
+            <file name="org-netbeans-modules-scanondemand-RefreshFolderAction.instance">
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                <attr name="displayName" bundlevalue="org.netbeans.modules.scanondemand.Bundle#CTL_RefreshFolderAction"/>
+                <attr name="injectable" stringvalue="org.netbeans.modules.scanondemand.RefreshFolderAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+                <attr name="selectionType" stringvalue="ANY"/>
+                <attr name="type" stringvalue="org.openide.loaders.DataFolder"/>
+                <attr name="asynchronous" boolvalue="true"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">

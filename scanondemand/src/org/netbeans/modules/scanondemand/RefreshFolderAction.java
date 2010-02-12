@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,96 +34,51 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.scanondemand;
 
+import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.Collection;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
+import java.util.List;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
-import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
-import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.openide.util.actions.Presenter;
 
-/**
- *
- * @author Pavel Flaska
- */
-public class RefreshFolderAction extends AbstractAction implements ContextAwareAction {
+public final class RefreshFolderAction implements ActionListener {
 
-    public void actionPerformed(ActionEvent e) {
-        assert false;
+    private final List<DataFolder> context;
+
+    public RefreshFolderAction(List<DataFolder> context) {
+        this.context = context;
     }
 
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new ContextAction(actionContext);
-    }
-
-    private final class ContextAction extends AbstractAction implements Presenter.Popup {
-
-        private final Collection<? extends DataFolder> folders;
-        
-        public ContextAction(Lookup context) {
-            // Collect projects corresponding to selected folders.
-            folders = context.lookupAll(DataFolder.class);
-            putValue(Action.NAME, NbBundle.getMessage(RefreshFolderAction.class, "refreshFolder"));
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            // Run asynch so that UI is not blocked; might show progress dialog (?).
-            RequestProcessor.getDefault().post(new Runnable() {
-
-                public void run() {
-                    for (DataFolder dataFolder : folders) {
-                        FileObject fileFolder = dataFolder.getPrimaryFile();
-                        File file = FileUtil.toFile(fileFolder);
-
-                        // filesystem
-                        FileUtil.refreshFor(file);
-                        // versioning
-                        Runnable runnable = (Runnable) fileFolder.getAttribute("ProvidedExtensions.Refresh");
-                        if (runnable != null) runnable.run();
-                        
-                        // indexes
-                        try {
-                            IndexingManager.getDefault().refreshIndex(file.toURI().toURL(), null);
-                        } catch (MalformedURLException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-                    }
-                }
-            });
-        }
-
-        public JMenuItem getPopupPresenter() {
-            class Presenter extends JMenuItem implements DynamicMenuContent {
-
-                public Presenter() {
-                    super(ContextAction.this);
-                }
-
-                public JComponent[] getMenuPresenters() {
-                    return new JComponent[] {this, null};
-                }
-
-                public JComponent[] synchMenuPresenters(JComponent[] items) {
-                    return getMenuPresenters();
-                }
+    public void actionPerformed(ActionEvent ev) {
+        for (DataFolder dataFolder : context) {
+            FileObject fileFolder = dataFolder.getPrimaryFile();
+            File file = FileUtil.toFile(fileFolder);
+            if (file == null) {
+                continue;
             }
-            return new Presenter();
+
+            // filesystem
+            FileUtil.refreshFor(file);
+            // versioning
+            Runnable runnable = (Runnable) fileFolder.getAttribute("ProvidedExtensions.Refresh");
+            if (runnable != null) {
+                runnable.run();
+            }
+
+            // indexes
+            try {
+                IndexingManager.getDefault().refreshIndex(file.toURI().toURL(), null);
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 }

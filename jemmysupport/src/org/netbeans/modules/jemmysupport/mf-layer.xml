@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -120,8 +120,12 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
     </folder>
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-            <file name="jemmy.xml" url="jemmy.xml"/>
-            <file name="jellytools.xml" url="jellytools.xml"/>
+            <file name="jemmy.xml" url="jemmy.xml">
+                <attr name="displayName" bundlevalue="org.netbeans.modules.jemmysupport.Bundle#jemmy"/>
+            </file>
+            <file name="jellytools.xml" url="jellytools.xml">
+                <attr name="displayName" bundlevalue="org.netbeans.modules.jemmysupport.Bundle#jellytools"/>
+            </file>
         </folder>
     </folder>
     <folder name="Templates">
