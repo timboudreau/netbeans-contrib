@@ -107,6 +107,9 @@ final class MountList {
     private void load() {
         mountURLs = new ArrayList<URL>();
         for (String u : prefs().get(MOUNT_LIST, "").split(" ")) {
+            if (u.isEmpty()) {
+                continue;
+            }
             try {
                 mountURLs.add(new URL(u));
             } catch (MalformedURLException x) {
