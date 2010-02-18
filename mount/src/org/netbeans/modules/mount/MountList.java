@@ -41,27 +41,22 @@
 
 package org.netbeans.modules.mount;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import javax.swing.event.ChangeEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.event.ChangeListener;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.ChangeSupport;
+import org.openide.util.NbPreferences;
 
 // XXX listen to roots; if one is deleted, remove it from the list
 
@@ -72,103 +67,75 @@ import org.openide.filesystems.URLMapper;
 final class MountList {
     
     public static final MountList DEFAULT = new MountList();
+    private static final Logger LOG = Logger.getLogger(MountList.class.getName());
     
-    private List/*<URL>*/ mountURLs = null;
+    private List<URL> mountURLs = null;
     private FileObject[] mounts = null;
-    private final List/*<ChangeListener>*/ listeners = new ArrayList();
+    private final ChangeSupport cs = new ChangeSupport(this);
     
     private MountList() {}
     
     private synchronized void maybeLoad() {
         if (mountURLs == null) {
-            try {
-                load();
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
-                mountURLs = new ArrayList();
-            }
+            load();
         }
     }
     
     public synchronized FileObject[] getMounts() {
         maybeLoad();
         if (mounts == null) {
-            List/*<FileObject>*/ _mounts = new ArrayList(mountURLs.size());
-            Iterator it = mountURLs.iterator();
-            while (it.hasNext()) {
-                URL u = (URL) it.next();
+            List<FileObject> _mounts = new ArrayList(mountURLs.size());
+            for (URL u : mountURLs) {
                 FileObject fo = URLMapper.findFileObject(u);
                 if (fo != null) {
                     _mounts.add(fo);
                 }
             }
-            mounts = (FileObject[]) _mounts.toArray(new FileObject[_mounts.size()]);
+            mounts = _mounts.toArray(new FileObject[_mounts.size()]);
         }
         assert mounts != null;
         assert !Arrays.asList(mounts).contains(null) : Arrays.asList(mounts);
         return mounts;
     }
+
+    private Preferences prefs() {
+        return NbPreferences.forModule(MountList.class);
+    }
+
+    private static final String MOUNT_LIST = "mountList";
     
-    private void load() throws IOException {
-        mountURLs = new ArrayList();
-        FileObject list = WorkDir.get().getFileObject(WorkDir.RELPATH_MOUNT_LIST);
-        if (list != null) {
-            InputStream is = list.getInputStream();
+    private void load() {
+        mountURLs = new ArrayList<URL>();
+        for (String u : prefs().get(MOUNT_LIST, "").split(" ")) {
             try {
-                BufferedReader r = new BufferedReader(new InputStreamReader(is, "UTF-8")); // NOI18N
-                String url;
-                while ((url = r.readLine()) != null) {
-                    mountURLs.add(new URL(url));
-                }
-            } finally {
-                is.close();
+                mountURLs.add(new URL(u));
+            } catch (MalformedURLException x) {
+                LOG.log(Level.INFO, null, x);
             }
         }
     }
     
-    private void store() throws IOException {
+    private void store() {
         assert mountURLs != null;
-        FileObject list = WorkDir.get().getFileObject(WorkDir.RELPATH_MOUNT_LIST);
-        if (list == null) {
-            list = FileUtil.createData(WorkDir.get(), WorkDir.RELPATH_MOUNT_LIST);
-        }
-        FileLock lock = list.lock();
-        try {
-            OutputStream os = list.getOutputStream(lock);
-            try {
-                PrintStream ps = new PrintStream(os, false, "UTF-8"); // NOI18N
-                Iterator it = mountURLs.iterator();
-                while (it.hasNext()) {
-                    URL url = (URL) it.next();
-                    ps.println(url);
-                }
-                ps.flush();
-            } finally {
-                os.close();
+        StringBuilder b = new StringBuilder();
+        for (URL u : mountURLs) {
+            if (b.length() > 0) {
+                b.append(' ');
             }
-        } finally {
-            lock.releaseLock();
+            b.append(u);
         }
+        prefs().put(MOUNT_LIST, b.toString());
     }
     
-    public void addArchive(File f) {
-        maybeLoad();
-        try {
-            mountURLs.add(FileUtil.getArchiveRoot(f.toURI().toURL()));
-            mountURLsChanged();
-        } catch (MalformedURLException e) {
-            ErrorManager.getDefault().notify(e);
+    public void addArchiveOrFolder(File f) {
+        URL u = FileUtil.urlForArchiveOrDir(f);
+        if (u == null) {
+            LOG.log(Level.WARNING, "No URL for {0}", f);
+            return;
         }
-    }
-    
-    public void addFolder(File f) {
         maybeLoad();
-        try {
-            mountURLs.add(f.toURI().toURL());
-            mountURLsChanged();
-        } catch (MalformedURLException e) {
-            ErrorManager.getDefault().notify(e);
-        }
+        mountURLs.add(u);
+        mountURLsChanged();
     }
     
     public void remove(FileObject f) {
@@ -177,42 +144,24 @@ final class MountList {
             mountURLs.remove(f.getURL());
             mountURLsChanged();
         } catch (FileStateInvalidException e) {
-            ErrorManager.getDefault().notify(e);
+            LOG.log(Level.INFO, null, e);
         }
     }
     
     private void mountURLsChanged() {
         synchronized (this) {
-            try {
-                store();
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
-            }
+            store();
             mounts = null;
         }
-        fireChange();
+        cs.fireChange();
     }
     
     public synchronized void addChangeListener(ChangeListener l) {
-        listeners.add(l);
+        cs.addChangeListener(l);
     }
     
     public synchronized void removeChangeListener(ChangeListener l) {
-        listeners.remove(l);
-    }
-    
-    private void fireChange() {
-        ChangeListener[] ls;
-        synchronized (this) {
-            if (listeners.isEmpty()) {
-                return;
-            }
-            ls = (ChangeListener[]) listeners.toArray(new ChangeListener[listeners.size()]);
-        }
-        ChangeEvent ev = new ChangeEvent(this);
-        for (int i = 0; i < ls.length; i++) {
-            ls[i].stateChanged(ev);
-        }
+        cs.removeChangeListener(l);
     }
     
 }

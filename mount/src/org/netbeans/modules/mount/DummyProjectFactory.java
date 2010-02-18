@@ -45,31 +45,26 @@ import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * Loads DummyProject.
  * @author Jesse Glick
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.project.ProjectFactory.class)
+@ServiceProvider(service=ProjectFactory.class)
 public final class DummyProjectFactory implements ProjectFactory {
 
-    /** Default instance for lookup. */
-    public DummyProjectFactory() {}
+    static final FileObject PROJECT_DIR = FileUtil.getConfigFile("org-netbeans-modules-mount-dummy");
 
     public boolean isProject(FileObject projectDirectory) {
-        try {
-           return projectDirectory == WorkDir.get();
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
-            return false;
-        }
+        return projectDirectory == PROJECT_DIR;
     }
 
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
-        if (projectDirectory == WorkDir.get()) {
-            return new DummyProject(projectDirectory);
+        if (projectDirectory == PROJECT_DIR) {
+            return new DummyProject();
         } else {
             return null;
         }

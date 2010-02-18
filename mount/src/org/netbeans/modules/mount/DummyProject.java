@@ -47,7 +47,6 @@ import javax.swing.Icon;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -61,22 +60,20 @@ final class DummyProject implements Project {
     /** Hold it permanently so that it is not collected; singleton. */
     private static Project INSTANCE;
     
-    public static Project getInstance() {
+    public static synchronized Project getInstance() {
         if (INSTANCE == null) {
             try {
-                INSTANCE = ProjectManager.getDefault().findProject(WorkDir.get());
+                INSTANCE = ProjectManager.getDefault().findProject(DummyProjectFactory.PROJECT_DIR);
             } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
+                assert false : e;
             }
         }
         return INSTANCE;
     }
     
     private final Lookup lookup;
-    private final FileObject dir;
 
-    DummyProject(FileObject dir) {
-        this.dir = dir;
+    DummyProject() {
         final Classpaths classpaths = new Classpaths();
         lookup = Lookups.fixed(new Object[] {
             this,
@@ -99,7 +96,7 @@ final class DummyProject implements Project {
     }
 
     public FileObject getProjectDirectory() {
-        return dir;
+        return DummyProjectFactory.PROJECT_DIR;
     }
     
     private final class Info implements ProjectInformation {

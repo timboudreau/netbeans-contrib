@@ -69,13 +69,8 @@ final class AddMountAction extends AbstractAction {
         if (chooser.showDialog(WindowManager.getDefault().getMainWindow(), "Add") != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        if (archives) {
-            File[] files = chooser.getSelectedFiles();
-            for (int i = 0; i < files.length; i++) {
-                MountList.DEFAULT.addArchive(files[i]);
-            }
-        } else {
-            MountList.DEFAULT.addFolder(chooser.getSelectedFile());
+        for (File file : chooser.getSelectedFiles()) {
+            MountList.DEFAULT.addArchiveOrFolder(file);
         }
     }
     
