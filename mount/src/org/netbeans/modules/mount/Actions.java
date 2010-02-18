@@ -63,7 +63,7 @@ final class Actions implements ActionProvider {
     }
     
     public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-        // XXX use JavaRunner
+        // XXX use JavaRunner; see e.g. org.netbeans.modules.autoproject.java.actions.ActionProviderImpl
         throw new IllegalArgumentException(command);
     }
 
