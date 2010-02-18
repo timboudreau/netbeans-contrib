@@ -190,6 +190,17 @@ final class MountRootNode extends AbstractNode {
         }
         
         public @Override String getDisplayName() {
+            FileObject fo = root();
+            if (fo.isRoot()) {
+                FileObject archive = FileUtil.getArchiveFile(fo);
+                if (archive != null) {
+                    return archive.getNameExt();
+                }
+            }
+            return FileUtil.getFileDisplayName(fo);
+        }
+
+        public @Override String getShortDescription() {
             return FileUtil.getFileDisplayName(root());
         }
 
