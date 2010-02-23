@@ -16,6 +16,21 @@
   <codetemplate abbreviation="ov">
     <code>override </code>
   </codetemplate>
+  <codetemplate abbreviation="sy">
+    <code>synchronized </code>
+  </codetemplate>
+
+    <codetemplate abbreviation="th">
+        <code>
+<![CDATA[@throws(classOf[${cursor}]]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="ca">
+        <code>
+<![CDATA[case ${cursor} =>]]>
+        </code>
+    </codetemplate>
 
     <codetemplate abbreviation="bcom">
         <code>
