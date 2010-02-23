@@ -35,8 +35,8 @@ public final class GraphicViewAction extends CookieAction {
         return NbBundle.getMessage(GraphicViewAction.class, "CTL_GraphicViewAction");
     }
 
-    protected Class[] cookieClasses() {
-        return (new Class[]{
+    protected Class<?>[] cookieClasses() {
+        return (new Class<?>[]{
             DataObject.class
         });
     }

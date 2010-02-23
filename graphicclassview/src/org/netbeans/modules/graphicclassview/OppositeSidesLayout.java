@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import org.netbeans.api.visual.layout.Layout;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.modules.graphicclassview.JavaScene.Conn;
 
 public class OppositeSidesLayout
         implements Layout  {
