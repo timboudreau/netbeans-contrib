@@ -17,6 +17,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import org.netbeans.api.visual.graph.layout.GraphLayout;
+import org.netbeans.modules.graphicclassview.JavaScene.Conn;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
@@ -126,10 +128,10 @@ public class JavaViewComponent extends TopComponent {
                 if (scene == null) {
                     return;
                 } else {
-                    scene.replaceLayout(layoutBox.getSelectedItem() != 
-                            LayoutKinds.TOPOLOGICAL_LAYOUT ? 
-                            new JavaSceneLayout() : new TopologicalLayout());
-                    return;
+                    LayoutKinds k = (LayoutKinds) layoutBox.getSelectedItem();
+                    GraphLayout<SceneElement, Conn> l = k.createLayout();
+                    System.err.println("New layout: " + l);
+                    scene.replaceLayout(l);
                 }
             }
         });
@@ -221,7 +223,10 @@ public class JavaViewComponent extends TopComponent {
         @Override
         public void propertyChange(PropertyChangeEvent ev) {
             if ("displayName".equals(ev.getPropertyName())) {
-                setDisplayName(ev.getNewValue().toString());
+                String s = (String) ev.getNewValue();
+                if (s != null) {
+                    setDisplayName(ev.getNewValue().toString());
+                }
             }
         }
     }
@@ -249,7 +254,22 @@ public class JavaViewComponent extends TopComponent {
     }
 
     public enum LayoutKinds  {
-        TOPOLOGICAL_LAYOUT, CONNECTED_CENTER;
+        TOPOLOGICAL_LAYOUT,
+        GRID_FOLD,
+        CONNECTED_CENTER;
+
+        GraphLayout<SceneElement, Conn> createLayout() {
+            switch (this) {
+                case TOPOLOGICAL_LAYOUT :
+                    return new TopologicalLayout();
+                case GRID_FOLD :
+                    return new GridFoldLayout();
+                case CONNECTED_CENTER :
+                    return new TopologicalLayout();
+                default :
+                    throw new AssertionError();
+            }
+        }
 
         @Override
         public String toString() {
