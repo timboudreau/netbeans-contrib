@@ -60,8 +60,8 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.guards.GuardedSectionManager;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.java.hints.jackpot.spi.JavaFix;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
@@ -125,7 +125,7 @@ public class OrganizeImports extends AbstractHint {
         }
 
         @Override
-        protected void performRewrite(WorkingCopy wc, TreePath tp) {
+        protected void performRewrite(WorkingCopy wc, TreePath tp, UpgradeUICallback callback) {
             organizeImports(wc);
         }
     }

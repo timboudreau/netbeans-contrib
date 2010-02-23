@@ -43,6 +43,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -50,10 +51,11 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.support.CaretAwareJavaSourceTaskFactory;
+import org.netbeans.modules.java.hints.jackpot.spi.JavaFix;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.javahints.epi.JavaFix;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
@@ -124,8 +126,16 @@ public class ImageUtilitiesDeprecation extends AbstractHint {
             }
 
             String fixDN = NbBundle.getMessage(ImageUtilitiesDeprecation.class, "FIX_ImageUtilities");
-            List<Fix> fix = Collections.<Fix>singletonList(JavaFix.rewriteFix(info, fixDN, ms, "org.openide.util.ImageUtilities." + e.getSimpleName().toString()));
-            ErrorDescription w = ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), "Use of Utilities." + e.getSimpleName().toString(), fix, info.getFileObject(), span[0], span[1]);
+            Fix fix = JavaFix.rewriteFix(info,
+                                         fixDN,
+                                         ms,
+                                         "org.openide.util.ImageUtilities." + e.getSimpleName().toString(),
+                                         Collections.<String, TreePath>emptyMap(),
+                                         Collections.<String, Collection<? extends TreePath>>emptyMap(),
+                                         Collections.<String, String>emptyMap(),
+                                         Collections.<String, TypeMirror>emptyMap());
+            List<Fix> fixes = Collections.<Fix>singletonList(fix);
+            ErrorDescription w = ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), "Use of Utilities." + e.getSimpleName().toString(), fixes, info.getFileObject(), span[0], span[1]);
             return Collections.singletonList(w);
         }
         return null;
