@@ -60,11 +60,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.editor.Registry;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -109,7 +109,7 @@ public final class CopyFQNAction extends CookieAction {
                     JavaSource javaSource = JavaSource.forFileObject(fileObject);
                     if (javaSource == null) {
                         // may be a class file? Can we handle it?
-                        Logger.getLogger(CopyFQNAction.class.getName()).log(Level.WARNING, "Not a java file " + fileObject.getPath());
+                        Logger.getLogger(CopyFQNAction.class.getName()).log(Level.WARNING, "Not a java file {0}", fileObject.getPath());
                     } else {
                         try {
                             javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
@@ -123,7 +123,7 @@ public final class CopyFQNAction extends CookieAction {
                                     if (document != null) {
                                         
                                         // Is the current editor fod this document
-                                        JTextComponent editor = Registry.getMostActiveComponent();
+                                        JTextComponent editor = EditorRegistry.lastFocusedComponent();
                                         if (editor.getDocument() == document) {
                                             
                                             // Get Caret position
@@ -224,7 +224,7 @@ public final class CopyFQNAction extends CookieAction {
         };
     }
     
-    protected String iconResource() {
+    protected @Override String iconResource() {
         return "org/netbeans/module/copyfqn/actions/fqn.gif";
     }
     
@@ -232,7 +232,7 @@ public final class CopyFQNAction extends CookieAction {
         return HelpCtx.DEFAULT_HELP;
     }
     
-    protected boolean asynchronous() {
+    protected @Override boolean asynchronous() {
         return false;
     }
 }
