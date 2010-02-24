@@ -70,9 +70,10 @@ extends scala.tools.nsc.Global(_settings, _reporter)
     def integrateNew() {
       context.unit.body = new TreeReplacer(old, result) transform context.unit.body
     }
-    if (activeLocks == 0) {
-      if (context.unit != null && 
-          result.pos.isOpaqueRange && 
+    // per scala's complier code changes during 2010, Symbols#activeLocks seems do not equals 0 anymore
+    //if (activeLocks == 0) {
+      if (context.unit != null &&
+          result.pos.isOpaqueRange &&
           (result.pos includes context.unit.targetPos)) {
         integrateNew()
         var located = new Locator(context.unit.targetPos) locateIn result
@@ -83,8 +84,8 @@ extends scala.tools.nsc.Global(_settings, _reporter)
         throw new TyperResult(located)
       }
       val typerRun = currentTyperRun
-      
-      while(true) 
+
+      while(true)
         try {
           pollForWork()
           if (typerRun == currentTyperRun)
@@ -102,7 +103,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
           case ex : ValidateError => // Ignore, this will have been reported elsewhere
           case t : Throwable => throw t
         }
-    }
+    //}
   }
 
   /** Called from typechecker every time a context is created.
@@ -122,10 +123,10 @@ extends scala.tools.nsc.Global(_settings, _reporter)
   def pollForWork() {
     scheduler.pollException() match {
       case Some(ex: CancelActionReq) => if (acting) throw ex
-      case Some(ex: FreshRunReq) => 
-        currentTyperRun = new TyperRun()
+      case Some(ex: FreshRunReq) =>
+        currentTyperRun = newTyperRun
         minRunId = currentRunId
-        if (outOfDate) throw ex 
+        if (outOfDate) throw ex
         else outOfDate = true
       case Some(ex: Throwable) => throw ex
       case _ =>
@@ -158,7 +159,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
     val tree = locateTree(pos)
     val sw = new StringWriter
     val pw = new PrintWriter(sw)
-    treePrinters.create(pw).print(tree)
+    newTreePrinter(pw).print(tree)
     pw.flush
     
     val typed = new Response[Tree]
@@ -167,7 +168,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       case Some(tree) =>
         val sw = new StringWriter
         val pw = new PrintWriter(sw)
-        treePrinters.create(pw).print(tree)
+        newTreePrinter(pw).print(tree)
         pw.flush
         sw.toString
       case None => "<None>"      
@@ -300,7 +301,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
 
   /** Make sure a set of compilation units is loaded and parsed */
   def reloadSources(sources: List[SourceFile]) {
-    currentTyperRun = new TyperRun()
+    currentTyperRun = newTyperRun
     for (source <- sources) {
       val unit = new RichCompilationUnit(source)
       unitOfFile(source.file) = unit
@@ -347,7 +348,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
 
   def stabilizedType(tree: Tree): Type = tree match {
     case Ident(_) if tree.symbol.isStable => singleType(NoPrefix, tree.symbol)
-    case Select(qual, _) if tree.symbol.isStable => singleType(qual.tpe, tree.symbol)
+    case Select(qual, _) if  qual.tpe != null && tree.symbol.isStable => singleType(qual.tpe, tree.symbol)
     case Import(expr, selectors) =>
       tree.symbol.info match {
         case analyzer.ImportType(expr) => expr match {
@@ -426,8 +427,23 @@ extends scala.tools.nsc.Global(_settings, _reporter)
   }
 
   def typeMembers(pos: Position, forceReload: Boolean): List[TypeMember] = {
-    val tree = typedTreeAt(pos, forceReload: Boolean)
-    GlobalLog.info("Get typeMembers at treeType=" + tree.getClass.getSimpleName + ", tree=" + tree + ", tpe=" + tree.tpe)
+    var tree = typedTreeAt(pos, forceReload)
+    tree match {
+      case tt : TypeTree => tree = tt.original
+      case _ =>
+    }
+
+    tree match {
+      case Select(qual, name) if tree.tpe == ErrorType => tree = qual
+      case _ =>
+    }
+
+    val context = try {
+      doLocateContext(pos)
+    } catch {case ex => println(ex.getMessage); NoContext}
+
+    if (tree.tpe == null)
+      tree = analyzer.newTyper(context).typedQualifier(tree)
 
     val tpe = tree.tpe match {
       case x@(null | ErrorType | NoType) =>
@@ -440,11 +456,10 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       case x => x.resultType
     }
 
+    GlobalLog.info("Get typeMembers at treeType=" + tree.getClass.getSimpleName + ", tree=" + tree + ", tpe=" + tpe)
+
     val isPackage = tpe.typeSymbol hasFlag Flags.PACKAGE
 
-    val context = try {
-      doLocateContext(pos)
-    } catch {case ex => println(ex.getMessage); NoContext}
     val superAccess = tree.isInstanceOf[Super]
     val scope = new Scope
     val members = new LinkedHashMap[Symbol, TypeMember]
@@ -587,48 +602,20 @@ extends scala.tools.nsc.Global(_settings, _reporter)
   /** The typer run */
   class TyperRun extends Run {
     // units is always empty
-    // symSource, symData are ignored
-    override def compiles(sym: Symbol) = false
 
-    // * added by Caoyuan
-    // phaseName = "lambdalift"
-    /* object lambdaLiftInteractive extends {
-     val global: Global.this.type = Global.this
-     val runsAfter = List[String]("lazyvals")
-     val runsRightAfter = None
-     } with LambdaLift */
+    /** canRedefine is used to detect double declarations in multiple source files.
+     *  Since the IDE rechecks units several times in the same run, these tests
+     *  are disabled by always returning true here.
+     */
+    override def canRedefine(sym: Symbol) = true
 
-    def lambdaLiftedTree(unit: RichCompilationUnit): Tree = {
-      assert(unit.status >= JustParsed)
-      unit.targetPos = NoPosition
-      enterSuperAccessors(unit)
-      enterPickler(unit)
-      enterRefChecks(unit)
-      enterUncurry(unit)
-      enterExplicitOuter(unit)
-      enterLambdaLift(unit)
-      unit.body
+    def typeCheck(unit: CompilationUnit): Unit = {
+      applyPhase(typerPhase, unit)
     }
 
-    val superAccessorsPhaseInter = superAccessors.newPhase(typerPhase)
-    val picklerPhaseInter = pickler.newPhase(superAccessorsPhaseInter)
-    val refchecksPhaseInter = refchecks.newPhase(picklerPhaseInter)
-    val uncurryPhaseInter = uncurry.newPhase(refchecksPhaseInter)
-    val explicitOuterPhaseInter = explicitOuter.newPhase(uncurryPhaseInter)
-    val lambdaLiftPhaseInter = lambdaLift.newPhase(explicitOuterPhaseInter)
-
-    def enterSuperAccessors(unit: CompilationUnit): Unit = applyPhase(superAccessorsPhaseInter, unit)
-    def enterPickler(unit: CompilationUnit): Unit = applyPhase(picklerPhaseInter, unit)
-    def enterRefChecks(unit: CompilationUnit): Unit = applyPhase(refchecksPhaseInter, unit)
-    def enterUncurry(unit: CompilationUnit): Unit = applyPhase(uncurryPhaseInter, unit)
-    def enterExplicitOuter(unit: CompilationUnit): Unit = applyPhase(explicitOuterPhaseInter, unit)
-    def enterLambdaLift(unit: CompilationUnit): Unit = applyPhase(lambdaLiftPhaseInter, unit)
- 
-    // * end added by Caoyuan
-
-    def typeCheck(unit: CompilationUnit): Unit = applyPhase(typerPhase, unit)
-
-    def enterNames(unit: CompilationUnit): Unit = applyPhase(namerPhase, unit)
+    def enterNames(unit: CompilationUnit): Unit = {
+      applyPhase(namerPhase, unit)
+    }
 
     /** Return fully attributed tree at given position
      *  (i.e. largest tree that's contained by position)
@@ -637,7 +624,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       println("starting typedTreeAt")
       val tree = locateTree(pos)
       println("at pos "+pos+" was found: "+tree+tree.pos.show)
-      if (tree.tpe ne null) {
+      if (stabilizedType(tree) ne null) {
         println("already attributed")
         tree
       } else {
@@ -649,13 +636,13 @@ extends scala.tools.nsc.Global(_settings, _reporter)
           typeCheck(unit)
           throw new FatalError("tree not found")
         } catch {
-          case ex: TyperResult => 
+          case ex: TyperResult =>
             ex.tree
         } finally {
           unit.targetPos = NoPosition
         }
       }
-    } 
+    }
 
     def typedTree(unit: RichCompilationUnit): Tree = {
       assert(unit.status >= JustParsed)
@@ -664,24 +651,23 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       typeCheck(unit)
       GlobalLog.info("Typer took " + (System.currentTimeMillis - start) + "ms")
       unit.body
-    } 
+    }
 
     /** Apply a phase to a compilation unit
      *  @return true iff typechecked correctly
      */
     private def applyPhase(phase: Phase, unit: CompilationUnit) {
       val oldSource = reporter.getSource
-      try {
-        reporter.setSource(unit.source)
+      reporter.withSource(unit.source) {
         atPhase(phase) { phase.asInstanceOf[GlobalPhase] applyPhase unit }
-      } finally {
-        reporter setSource oldSource
       }
     }
   }
 
+  def newTyperRun = new TyperRun
+
   class TyperResult(val tree: Tree) extends Exception with ControlException
-  
+
   assert(globalPhase.id == 0)
 }
 

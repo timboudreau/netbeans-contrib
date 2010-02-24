@@ -348,12 +348,12 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
         def isRef(sym: Symbol) = try {
           lazy val overriddens = sym.allOverriddenSymbols
           val mySig = ScalaUtil.symSimpleSig(sym)
-          val myQName = sym.fullNameString
+          val myQName = sym.fullName
           samePlaceSymToDSimpleSig exists {
             case (symx, sigx) if mySig == sigx =>
-              val qNamex = symx.fullNameString
+              val qNamex = symx.fullName
               if (myQName == qNamex) true 
-              else overriddens exists {_.fullNameString == qNamex}
+              else overriddens exists {_.fullName == qNamex}
             case _ => false
           }
         } catch {case _ => false}
@@ -365,7 +365,7 @@ class WhereUsedQueryPlugin(refactoring: WhereUsedQuery) extends ScalaRefactoring
              // * tokens.add(token) should be the last condition
              if token.text.toString == targetName && isRef(sym) && tokens.add(token)
         ) {
-          logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullNameString)
+          logger.info(pr.getSnapshot.getSource.getFileObject + ": find where used element " + sym.fullName)
           elements.add(refactoring, WhereUsedElement(pr, item.asInstanceOf[ScalaItem]))
         }
       } else if (isFindOverridingMethods) {

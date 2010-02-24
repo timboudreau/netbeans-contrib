@@ -147,13 +147,13 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
         false
       } else {
         if (imp.idToken.id == ScalaTokenId.Wild) { // qual._, symbol is pointed to qual
-          val qual = impSym.fullNameString
+          val qual = impSym.fullName
           //println("wild import: " + qual)
           // @todo
           //added.add(qual) && !(usages exists {qualName(_) == qual})
           false
         } else {
-          val qName = impSym.fullNameString
+          val qName = impSym.fullName
           added.add(qName) && !(usages contains qName)
         }
       }
@@ -181,7 +181,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
     (for ((idToken, items) <- scope.idTokenToItems;
           item <- items if !imported.contains(item);
           sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
-      ) yield sym.fullNameString) toSet
+      ) yield sym.fullName) toSet
   }
 
   /* def createHints(context : ScalaRuleContext, scope : ScalaRootScope) : List[Hint] = {
@@ -233,7 +233,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
    (for ((idToken, items) <- scope.idTokenToItems;
    item <- items if !imported.contains(item);
    sym = item.asInstanceOf[ScalaItems#ScalaItem].symbol if sym.isClass || sym.isTrait || sym.isModuleClass || sym.isModule
-   ) yield sym.fullNameString) toSet
+   ) yield sym.fullName) toSet
    }
    
    private def findDefinitions(scope : AstScope) : List[String] = {
@@ -306,7 +306,7 @@ class RemoveImportRule() extends ScalaAstRule with NbBundler {
   //debug method
   private def printSymbolDetails(prefix : String, s : scala.tools.nsc.symtab.Symbols#Symbol) : Unit = {
     println(prefix + "=" + s)
-    println("    fullname=" + s.fullNameString)
+    println("    fullname=" + s.fullName)
   }
 
 }

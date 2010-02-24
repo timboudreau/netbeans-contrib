@@ -704,30 +704,6 @@ class ScalaGlobal(_settings: Settings, _reporter: Reporter) extends Global(_sett
     }
   }
 
-  // ----- @lambdaLift Some test code to detect if lambdaLift can apply just after typer, but no success:
-
-  def askLambdaLift(source: SourceFile, forceReload: Boolean, result: Response[Tree]) =
-    scheduler postWorkItem new WorkItem(List(source)) {
-      def apply() = getLambdaLiftedTree(source, forceReload, result)
-      override def toString = "lambdaLift"
-    }
-
-  /** Set sync var `result` to a fully attributed tree corresponding to the entire compilation unit  */
-  def getLambdaLiftedTree(source : SourceFile, forceReload: Boolean, result: Response[Tree]) {
-    respond(result)(lambdaLiftedTree(source, forceReload))
-  }
-
-  /** A fully lambdaLifted tree corresponding to the entire compilation unit  */
-  def lambdaLiftedTree(source: SourceFile, forceReload: Boolean): Tree = {
-    val unit = unitOf(source)
-    val sources = List(source)
-    if (unit.status == NotLoaded || forceReload) reloadSources(sources)
-    moveToFront(sources)
-    currentTyperRun.typedTree(unitOf(source))
-    currentTyperRun.lambdaLiftedTree(unitOf(source))
-  }
-
-
   // ----- Code that has been deprecated, for reference only
   
   /** batch complie */

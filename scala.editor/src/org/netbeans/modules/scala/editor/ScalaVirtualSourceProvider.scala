@@ -61,9 +61,9 @@ import org.netbeans.modules.scala.core.ScalaParserResult
 import org.netbeans.modules.scala.core.ast.ScalaDfns
 import scala.collection.mutable.ArrayBuffer
 
-import scala.util.NameTransformer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
+import scala.reflect.NameTransformer
 import scala.tools.nsc.symtab.Flags
 
 
@@ -219,7 +219,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                     val pkgQName = syms find (_ != null) match {
                       case Some(sym) => sym.enclosingPackage match {
                           case null => ""
-                          case packaging => packaging.fullNameString match {
+                          case packaging => packaging.fullName match {
                               case "<empty>" => ""
                               case x => x
                             }
@@ -301,12 +301,12 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           case None =>
         }
 
-        val qName = sym.fullNameString
+        val qName = sym.fullName
 
         val superClass = sym.superClass
         val superQName = superClass match {
           case null => ""
-          case x => x.fullNameString
+          case x => x.fullName
         }
 
         var extended = false
@@ -326,7 +326,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
           var implemented = false
           while (itr.hasNext) {
             val base = itr.next
-            base.fullNameString  match {
+            base.fullName  match {
               case `superQName` =>
               case `qName` =>
               case "java.lang.Object" =>
@@ -457,7 +457,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
 
                 val mResQName = javaSig(mResSym, mResTpe) match {
                   case Some(sig) => sig
-                  case None => encodeType(mResSym.fullNameString)
+                  case None => encodeType(mResSym.fullName)
                 }
 
                 javaSig(m, mTpe) match {
@@ -495,7 +495,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 val mResSym = mResTpe.typeSymbol
                 val mResQName = javaSig(mResSym, mResTpe) match {
                   case Some(sig) => sig
-                  case None => encodeType(mResSym.fullNameString)
+                  case None => encodeType(mResSym.fullName)
                 }
                 pw.print(mResQName)
                 pw.print(" ")
@@ -552,7 +552,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
         } catch {case ex => ScalaGlobal.resetLate(global, ex); null}
         
         if (tpe != null) {
-          sb.append(encodeQName(tpe.typeSymbol.fullNameString))
+          sb.append(encodeQName(tpe.typeSymbol.fullName))
         } else {
           sb.append("Object")
         }
@@ -617,8 +617,8 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
                 }
               }
             def argsSig(args: List[Type]) = (if (args.isEmpty) "" else (args map argSig).mkString("<", ", ", ">"))
-            def classSig: String = "L" + sym.fullNameString + global.genJVM.moduleSuffix(sym)
-            //"L" + (sym.fullNameString + global.genJVM.moduleSuffix(sym)).replace('.', '/')
+            def classSig: String = "L" + sym.fullName + global.genJVM.moduleSuffix(sym)
+            //"L" + (sym.fullName + global.genJVM.moduleSuffix(sym)).replace('.', '/')
             def classSigSuffix: String = "." + sym.name
 
             sym match {
@@ -639,7 +639,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
               case _ if isValueClass(sym) =>
                 tagOfClass(sym)
               case _ if sym.isClass =>
-                sym.fullNameString match {
+                sym.fullName match {
                   case "scala.<byname>" =>
                     "scala.Function0" + argsSig(args)
                   case "scala.<repeated>" =>
@@ -735,7 +735,7 @@ class ScalaVirtualSourceProvider extends VirtualSourceProvider {
               traverse(st.supertype)
             case TypeRef(pre, sym, args) =>
               if (sym == ArrayClass) args foreach traverse
-              else if (sym.isTypeParameterOrSkolem || sym.isExistential || !args.isEmpty) result = true
+              else if (sym.isTypeParameterOrSkolem || sym.isExistentiallyBound || !args.isEmpty) result = true
               else if (!sym.owner.isPackageClass) traverse(pre)
             case PolyType(_, _) | ExistentialType(_, _) =>
               result = true
