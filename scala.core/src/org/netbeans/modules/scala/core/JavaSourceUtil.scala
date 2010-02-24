@@ -283,7 +283,7 @@ object JavaSourceUtil {
   def getJavaElement(info: CompilationInfo, sym: Symbols#Symbol): Option[Element] = {
     val theElements = info.getElements
     val sName = sym.nameString
-    val typeQName = sym.enclClass.fullNameString
+    val typeQName = sym.enclClass.fullName
     val te: TypeElement = theElements.getTypeElement(typeQName) match {
       case null => null
       case namedTe =>

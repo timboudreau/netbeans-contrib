@@ -143,7 +143,7 @@ trait ScalaElements {self: ScalaGlobal =>
 
     override def getName: String = symbol.nameString
 
-    override def qualifiedName: String = symbol.fullNameString
+    override def qualifiedName: String = symbol.fullName
 
     override def signatureEquals(handle: ElementHandle): Boolean = {
       false
@@ -298,7 +298,7 @@ trait ScalaElements {self: ScalaGlobal =>
     def sigFormat(fm: HtmlFormatter) : Unit = {
       try {
         fm.appendHtml("<i>")
-        fm.appendText(symbol.enclClass.fullNameString)
+        fm.appendText(symbol.enclClass.fullName)
         fm.appendHtml("</i><p>")
         ScalaUtil.htmlDef(symbol, fm)
       } catch {case ex => ScalaGlobal.resetLate(self, ex)}

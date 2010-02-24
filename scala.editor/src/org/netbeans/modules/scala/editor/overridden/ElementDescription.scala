@@ -55,7 +55,7 @@ import org.netbeans.modules.scala.core.element.ScalaElements
  */
 class ElementDescription(val handle: ScalaElements#ScalaElement) {
  
-  private val displayName = handle.symbol.nameString + " of " + handle.symbol.owner.fullNameString
+  private val displayName = handle.symbol.nameString + " of " + handle.symbol.owner.fullName
 
   def getSourceFile: FileObject = handle.getFileObject
 
