@@ -90,7 +90,7 @@ class ScalaLanguage extends ScalaLanguageBridge {
   override def getKeystrokeHandler = new ScalaKeystrokeHandler
   
   override def getFormatter = new ScalaFormatter
-  override def hasFormatter =  true
+  override def hasFormatter = true
   
   override def getHintsProvider = new ScalaHintsProvider
   override def hasHintsProvider = true

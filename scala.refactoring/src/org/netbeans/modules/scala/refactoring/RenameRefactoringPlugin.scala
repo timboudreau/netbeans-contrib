@@ -158,7 +158,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
 
     val kind = searchHandle.kind
     val newName = refactoring.getNewName
-    val oldName = searchHandle.symbol.fullNameString
+    val oldName = searchHandle.symbol.fullName
     if (oldName == null) {
       return new Problem(true, "Cannot determine target name. Please file a bug with detailed information on how to reproduce (preferably including the current source file and the cursor position)");
     }
@@ -509,12 +509,12 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
           def isRef(sym: Symbol) = try {
             lazy val overriddens = sym.allOverriddenSymbols
             val mySig = ScalaUtil.symSimpleSig(sym)
-            val myQName = sym.fullNameString
+            val myQName = sym.fullName
             samePlaceSymToDSimpleSig exists {
               case (symx, sigx) if mySig == sigx =>
-                val qNamex = symx.fullNameString
+                val qNamex = symx.fullName
                 if (myQName == qNamex) true
-                else overriddens exists {_.fullNameString == qNamex}
+                else overriddens exists {_.fullName == qNamex}
               case _ => false
             }
           } catch {case _ => false}
@@ -526,7 +526,7 @@ class RenameRefactoringPlugin(rename: RenameRefactoring) extends ScalaRefactorin
                // * tokens.add(token) should be last condition
                if token.text.toString == sym.nameString && isRef(sym) && tokens.add(token)
           } {
-            logger.info(workingCopyFo + ": find where used element " + sym.fullNameString)
+            logger.info(workingCopyFo + ": find where used element " + sym.fullName)
             rename(item.asInstanceOf[ScalaItem], sym.nameString, null, getString("UpdateLocalvar"), th)
           }
 

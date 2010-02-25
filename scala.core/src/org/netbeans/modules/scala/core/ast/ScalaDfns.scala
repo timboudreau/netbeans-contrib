@@ -80,7 +80,7 @@ trait ScalaDfns {self: ScalaGlobal =>
       modifiers.get
     }
 
-    override def qualifiedName: String = symbol.fullNameString
+    override def qualifiedName: String = symbol.fullName
 
     /** @Note: do not call ref.getKind here, which will recursively call this function, use ref.kind ! */
     def isReferredBy(ref: AstRef): Boolean = {
@@ -107,7 +107,7 @@ trait ScalaDfns {self: ScalaGlobal =>
     def sigFormat(fm: HtmlFormatter) : Unit = {
       try {
         fm.appendHtml("<i>")
-        fm.appendText(symbol.enclClass.fullNameString)
+        fm.appendText(symbol.enclClass.fullName)
         fm.appendHtml("</i><p>")
         ScalaUtil.htmlDef(symbol, fm)
       } catch {case ex => ScalaGlobal.resetLate(self, ex)}

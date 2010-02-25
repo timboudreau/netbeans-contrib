@@ -109,7 +109,7 @@ trait ScalaUtils {self: ScalaGlobal =>
     }
 
     /**
-     * Due to the ugly implementation of scala's Symbols.scala, Symbol#fullNameString()
+     * Due to the ugly implementation of scala's Symbols.scala, Symbol#fullName()
      * may cause:
      * java.lang.Error: no-symbol does not have owner
      *        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
@@ -363,7 +363,7 @@ trait ScalaUtils {self: ScalaGlobal =>
 
           // int(2)
         case TypeRef(pre, sym, args) =>
-          fm.appendText(sym.fullNameString)
+          fm.appendText(sym.fullName)
           if (!args.isEmpty) {
             fm.appendText("[")
             val itr = args.iterator
@@ -541,13 +541,13 @@ trait ScalaUtils {self: ScalaGlobal =>
         case NoType => sb.append("<notype>")
         case NoPrefix => sb.append("<noprefix>")
         case ThisType(sym) =>
-          sb append (sym.fullNameString)
+          sb append (sym.fullName)
         case SingleType(pre, sym) =>
-          sb append (sym.fullNameString)
+          sb append (sym.fullName)
         case ConstantType(value) =>
           // int(2)
         case TypeRef(pre, sym, args) =>
-          sb append (sym.fullNameString)
+          sb append (sym.fullName)
           sb append (args map (x => typeSimpleSig_(x, sb)) mkString ("[", ",", "]"))
           // pre.sym[targs]
         case RefinedType(parents, defs) =>

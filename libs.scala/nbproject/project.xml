@@ -83,9 +83,9 @@ made subject to such option by the copyright holder.
                 <package>scala.io</package>
                 <package>scala.math</package>
                 <package>scala.mobile</package>
-                <package>scala.net</package>
                 <package>scala.ref</package>
                 <package>scala.reflect</package>
+                <package>scala.reflect.generic</package>
                 <package>scala.runtime</package>
                 <package>scala.swing</package>
                 <package>scala.swing.event</package>

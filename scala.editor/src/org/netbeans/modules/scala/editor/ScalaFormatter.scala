@@ -43,6 +43,7 @@ import javax.swing.text.{BadLocationException, Document}
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.Formatter
+import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.netbeans.modules.editor.indent.spi.Context
 import org.openide.filesystems.FileUtil
@@ -76,33 +77,58 @@ object ScalaFormatter {
 
 }
 
-class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
-  import ScalaFormatter._
+import ScalaFormatter._
+class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
   
-  import org.netbeans.modules.csl.api.OffsetRange
 
   def this() = this(null, -1)
   
-  private var codeStyle = if (acodeStyle != null) acodeStyle else CodeStyle.getDefault(null)
-
   def needsParserResult: Boolean = {
     false
   }
 
   override def reindent(context: Context): Unit = {
-    reindent(context, context.document, context.startOffset, context.endOffset, null, true)
+    val document = context.document
+    val startOffset = context.startOffset
+    val endOffset = context.endOffset
+
+    if (codeStyle != null) {
+      // Make sure we're not reindenting HTML content
+      reindent(context, document, startOffset, endOffset, null, true);
+    } else {
+      val f = new ScalaFormatter(CodeStyle.get(document), -1)
+      f.reindent(context, document, startOffset, endOffset, null, true)
+    }
   }
 
   override def reformat(context: Context, info: ParserResult): Unit =  {
-    reindent(context, context.document, context.startOffset, context.endOffset, info, false)
+    val document = context.document
+    val startOffset = context.startOffset
+    val endOffset = context.endOffset
+
+    if (codeStyle != null) {
+      // Make sure we're not reindenting HTML content
+      reindent(context, document, startOffset, endOffset, info, true)
+    } else {
+      val f = new ScalaFormatter(CodeStyle.get(document), -1)
+      f.reindent(context, document, startOffset, endOffset, info, true)
+    }
   }
 
   def indentSize: Int = {
-    codeStyle.getIndentSize
+    if (codeStyle != null) {
+      codeStyle.getIndentSize
+    } else {
+      CodeStyle.get(null.asInstanceOf[Document]).getIndentSize
+    }
   }
 
   def hangingIndentSize: Int = {
-    codeStyle.getContinuationIndentSize
+    if (codeStyle != null) {
+      codeStyle.getContinuationIndentSize
+    } else {
+      CodeStyle.get(null.asInstanceOf[Document]).getContinuationIndentSize
+    }
   }
 
   /** Compute the initial balance of brackets at the given offset. */
