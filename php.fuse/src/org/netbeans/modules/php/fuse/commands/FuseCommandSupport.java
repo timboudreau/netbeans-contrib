@@ -146,7 +146,7 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
     protected List<FrameworkCommand> getFrameworkCommandsInternal() {
         ArrayList<FrameworkCommand> commandList = new ArrayList<FrameworkCommand>();
         for (int i = 0; i < FUSE_GENERATING_COMMANDS.length; i++) {
-            commandList.add(new FuseCommand(FUSE_GENERATING_COMMANDS[i][2], FUSE_GENERATING_COMMANDS[i][1], FUSE_GENERATING_COMMANDS[i][0]));
+            commandList.add(new FuseCommand(phpModule, FUSE_GENERATING_COMMANDS[i][2], FUSE_GENERATING_COMMANDS[i][1], FUSE_GENERATING_COMMANDS[i][0]));
         }
 
         return commandList;
@@ -154,7 +154,7 @@ public final class FuseCommandSupport extends FrameworkCommandSupport {
 
     @Override
     public void runCommand(CommandDescriptor commandDescriptor) {
-        Callable<Process> callable = createCommand(commandDescriptor.getFrameworkCommand().getCommand(), commandDescriptor.getCommandParams());
+        Callable<Process> callable = createCommand(commandDescriptor.getFrameworkCommand().getCommands(), commandDescriptor.getCommandParams());
         ExecutionDescriptor descriptor = getDescriptor();
         String displayName = getOutputTitle(commandDescriptor);
         ExecutionService service = ExecutionService.newService(callable, descriptor, displayName);

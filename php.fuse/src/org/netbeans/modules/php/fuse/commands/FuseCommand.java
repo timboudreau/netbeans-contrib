@@ -39,12 +39,16 @@
 
 package org.netbeans.modules.php.fuse.commands;
 
+import java.lang.ref.WeakReference;
+import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.fuse.FuseFramework;
 import org.netbeans.modules.php.spi.commands.FrameworkCommand;
 
 /**
  * @author Martin Fousek
  */
 public class FuseCommand extends FrameworkCommand {
+    private final WeakReference<PhpModule> phpModule;
 
     /**
      * Create new FuseCommand.
@@ -52,17 +56,24 @@ public class FuseCommand extends FrameworkCommand {
      * @param description description of command
      * @param displayName display name for UI
      */
-    public FuseCommand(String command, String description, String displayName) {
+    public FuseCommand(PhpModule phpModule, String command, String description, String displayName) {
         super(command, description, displayName);
+        assert phpModule != null;
+
+        this.phpModule = new WeakReference<PhpModule>(phpModule);
     }
 
     @Override
     protected String getHelpInternal() {
-        return FuseCommandSupport.getHelp(getCommand());
+        PhpModule module = phpModule.get();
+        if (module == null) {
+            return ""; // NOI18N
+        }
+        return FuseFramework.getHelp(module, this);
     }
 
     @Override
     public String getPreview() {
-        return "php " + getCommand();
+        return super.getPreview();
     }
 }
