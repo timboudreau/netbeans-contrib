@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.semicolon
 OpenIDE-Module-Layer: org/netbeans/modules/semicolon/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/semicolon/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.2
+OpenIDE-Module-Specification-Version: 1.3
 
