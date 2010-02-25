@@ -130,7 +130,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                 }
 //                sequence2.moveStart();
             } else if (t.id() == FuseTopTokenId.T_FUSE_OPEN_DELIMITER) {
-                embeddings.add(snapshot.create("<?php; ", "text/x-php5"));
+                embeddings.add(snapshot.create("<?", "text/x-php5"));
 //                embeddings.add(snapshot.create("; ", "text/x-php5"));
 //                embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
                 state = -1;
@@ -148,7 +148,7 @@ public class FuseEmbeddingProvider extends EmbeddingProvider {
                     } else {
 //                        embeddings.add(snapshot.create(";?><?php; ", "text/x-php5"));
                         embeddings.add(snapshot.create(from, len, "text/x-php5")); //NOI18N
-                        embeddings.add(snapshot.create("; ", "text/x-php5"));
+//                        embeddings.add(snapshot.create("; ", "text/x-php5"));
 //                        embeddings.add(snapshot.create(GENERATED_CODE, "text/x-php5"));
                     }
                 }
