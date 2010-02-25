@@ -40,6 +40,7 @@
 package org.netbeans.modules.php.fuse;
 
 import java.io.FileNotFoundException;
+import org.netbeans.modules.php.fuse.commands.FuseCommand;
 import org.netbeans.modules.php.fuse.utils.FileHelper;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,6 +60,7 @@ import org.netbeans.modules.php.fuse.commands.FuseCommandSupport;
 import org.netbeans.modules.php.fuse.exceptions.InvalidFuseFrameworkException;
 import org.netbeans.modules.php.fuse.ui.options.FuseOptions;
 import org.netbeans.modules.php.fuse.utils.ArrayHelper;
+import org.netbeans.modules.php.spi.commands.FrameworkCommandSupport;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -101,6 +103,19 @@ public class FuseFramework extends PhpProgram {
      * Path to routing configuration file.
      */
     public static final String ROUTES_CONF_FILE_WITH_PATH = "config/routes.conf.php"; // NOI18N
+
+    public static String getHelp(PhpModule phpModule, FuseCommand command) {
+        assert phpModule != null;
+        assert command != null;
+
+        String help = null;
+        for (int i = 0; i < FuseCommandSupport.FUSE_GENERATING_COMMANDS.length; i++) {
+            if (FuseCommandSupport.FUSE_GENERATING_COMMANDS[i][2].equals(command.getPreview())) {
+                help = FuseCommandSupport.FUSE_GENERATING_COMMANDS[i][3];
+            }
+        }
+        return help;
+    }
 
 
     /**
