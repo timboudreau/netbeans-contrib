@@ -366,13 +366,13 @@ object ScalaSourceUtil {
     }
 
     val qName: String = try {
-      sym.enclClass.fullNameString('/')
+      sym.enclClass.fullName('/')
     } catch {
       case ex: java.lang.Error => null
         // java.lang.Error: no-symbol does not have owner
         //        at scala.tools.nsc.symtab.Symbols$NoSymbol$.owner(Symbols.scala:1565)
-        //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1156)
-        //        at scala.tools.nsc.symtab.Symbols$Symbol.fullNameString(Symbols.scala:1166)
+        //        at scala.tools.nsc.symtab.Symbols$Symbol.fullName(Symbols.scala:1156)
+        //        at scala.tools.nsc.symtab.Symbols$Symbol.fullName(Symbols.scala:1166)
     }
 
     if (qName == null) {
@@ -534,11 +534,11 @@ object ScalaSourceUtil {
     root.enclosingDfn(TMPL_KINDS, th, offset) foreach {case enclDfn: ScalaDfn =>
         val sym = enclDfn.symbol
         // "scalarun.Dog.$talk$1"
-        val fqn = new StringBuilder(sym.fullNameString('.'))
+        val fqn = new StringBuilder(sym.fullName('.'))
 
         // * getTopLevelClassName "scalarun.Dog"
         val topSym = sym.toplevelClass
-        val topClzName = topSym.fullNameString('.')
+        val topClzName = topSym.fullName('.')
 
         // "scalarun.Dog$$talk$1"
         for (i <- topClzName.length until fqn.length if fqn.charAt(i) == '.') {
@@ -609,11 +609,11 @@ object ScalaSourceUtil {
       val sym = enclDfn.asInstanceOf[ScalaDfns#ScalaDfn].symbol
       if (sym != null) {
         // "scalarun.Dog.$talk$1"
-        val fqn = new StringBuilder(sym.fullNameString('.'))
+        val fqn = new StringBuilder(sym.fullName('.'))
 
         // * getTopLevelClassName "scalarun.Dog"
         val topSym = sym.toplevelClass
-        val topClzName = topSym.fullNameString('.')
+        val topClzName = topSym.fullName('.')
 
         // "scalarun.Dog$$talk$1"
         for (i <- topClzName.length until fqn.length) {

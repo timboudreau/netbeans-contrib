@@ -491,7 +491,7 @@ abstract class ScalaAstVisitor {
               if (!isTupleClass(sym)) {
                 tree.tpe match {
                   // special case for `classOf[.....]` etc
-                  case TypeRef(pre, sym, argTpes) if sym.fullNameString == "java.lang.Class" =>
+                  case TypeRef(pre, sym, argTpes) if sym.fullName == "java.lang.Class" =>
                     argTpes foreach {addRefForTypeDirectly(tree, _)}
                   case _ =>
                     withIdToken(getIdToken(tree)) {token =>
@@ -551,7 +551,7 @@ abstract class ScalaAstVisitor {
           traverse(qualifier)
         case Parens(ts) =>
           traverseTrees(ts)
-        case tree: StubTree =>
+        case _ =>
       }
     }
 
