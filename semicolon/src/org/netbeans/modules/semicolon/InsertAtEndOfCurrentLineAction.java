@@ -119,15 +119,7 @@ public class InsertAtEndOfCurrentLineAction extends AbstractAction {
         return NbBundle.getMessage(InsertAtEndOfCurrentLineAction.class, 
                 bundleKey);
     }
-    
-    public static InsertAtEndOfCurrentLineAction createSemicolonAction() {
-        return new InsertAtEndOfCurrentLineAction (";", false, "CTL_LineCompletionAction"); //NOI18N
-    }
-    
-    public static InsertAtEndOfCurrentLineAction createSemicolonNewlineAction() {
-        return new InsertAtEndOfCurrentLineAction (";", true, "CTL_LineCompletionActionNL"); //NOI18N
-    }
-    
+
     public static InsertAtEndOfCurrentLineAction createOpenBraceAction() {
         return new InsertAtEndOfCurrentLineAction ("{", true, "CTL_OpenBraceAction"); //NOI18N
     }

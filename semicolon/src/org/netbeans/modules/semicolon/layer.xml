@@ -59,16 +59,6 @@ Contributor(s):
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createAddI18nAction"/>
             </file>
             
-            <file name="LineCompletionAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonAction"/>
-            </file>
-            
-            <file name="LineCompletionActionNL.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonNewlineAction"/>
-            </file>
-            
             <file name="DeletePreviousLineAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeletePreviousLineAction"/>
             </file>
@@ -87,12 +77,6 @@ Contributor(s):
     <folder name="Shortcuts">
         <file name="ODS-OPEN_BRACKET.shadow">;
             <attr name="originalFile" stringvalue="Actions/Edit/OpenBraceAction.instance"/>
-        </file>
-        <file name="D-SEMICOLON.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionAction.instance"/>
-        </file>
-        <file name="DS-SEMICOLON.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionActionNL.instance"/>
         </file>
         <file name="OS-J.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/DeleteNextLineAction.instance"/>
