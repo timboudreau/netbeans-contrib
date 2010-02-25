@@ -42,7 +42,9 @@
 package org.netbeans.modules.scala.editor.options;
 
 import java.util.prefs.Preferences
+import javax.swing.text.Document
 import org.netbeans.api.project.Project
+import org.netbeans.modules.editor.indent.spi.CodeStylePreferences
 
 
 /** 
@@ -65,7 +67,13 @@ object CodeStyle {
   FmtOptions.codeStyleProducer = new Producer
 
   /** For testing purposes only */
-  def get(prefs: Preferences): CodeStyle = new CodeStyle(prefs)
+  def get(prefs: Preferences): CodeStyle = {
+    new CodeStyle(prefs)
+  }
+  
+  def get(doc: Document): CodeStyle = {
+    new CodeStyle(CodeStylePreferences.get(doc).getPreferences)
+  }
 
   // Communication with non public packages ----------------------------------
 
