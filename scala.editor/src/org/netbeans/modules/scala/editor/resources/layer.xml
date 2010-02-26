@@ -177,23 +177,6 @@
             </folder>
         </folder>
     </folder>
-
-
-    <folder name="CslPlugins">
-        <folder name="text">
-            <folder name="x-scala">
-                <file name="language.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.ScalaLanguage"/>
-                </file>
-                <file name="structure.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editor.ScalaStructureAnalyzer"/>
-                </file>
-                <!--file name="hints.instance">
-                   <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.hints.ScalaHintsProvider"/>
-                </file-->
-            </folder>
-        </folder>
-    </folder>
     
     <folder name="csl-hints">
         <folder name="text">

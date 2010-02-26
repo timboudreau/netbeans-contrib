@@ -22,15 +22,16 @@ Microsystems, Inc. All Rights Reserved.
     <import file="scala-build.xml"/>
 
     <!-- special jar target for csl -->
-    <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
+    <!--target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
         <taskdef name="csljar" classname="org.netbeans.modules.csl.CslJar" classpath="${nb_all}/csl.api/anttask/build/cslanttask.jar:${nb_all}/nbbuild/nbantext.jar"/>
         <csljar jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}" stamp="${cluster}/.lastModified">
             <fileset dir="${build.classes.dir}"/>
         </csljar>
-    </target>
-
-    <target name="clean" depends="init,projectized-common.clean,scala-clean"/>
-    <target name="compile" depends="init,projectized-common.compile,scala-compile"/>
+    </target-->
+    <target name="clean" depends="init,scala-clean,projectized-common.clean"/>
+    <!-- should call projectized-common.compile after scala-compile, since the later may do sth. about classe files -->
+    <target name="compile" depends="init,scala-compile,projectized-common.compile"/>
+    <target name="jar" depends="init,scala-compile,projectized-common.jar"/>
     <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build"/>
 
     <target name="fixcrlf">
