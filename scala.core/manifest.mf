@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: false
 OpenIDE-Module: org.netbeans.modules.scala.core
-OpenIDE-Module-Layer: org/netbeans/modules/scala/core/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/core/Bundle.properties
 OpenIDE-Module-Public-Packages: org.netbeans.api.language.util.lex.*, org.netbeans.api.language.util.ast.*, org.netbeans.api.language.util.text.*, org.netbeans.modules.scala.core.*, org.netbeans.modules.scala.core.ast.*, org.netbeans.modules.scala.core.lexer.*, org.netbeans.modules.scala.core.element.*, org.netbeans.modules.scala.core.interactive.*, org.netbeans.modules.scala.core.rats.*
