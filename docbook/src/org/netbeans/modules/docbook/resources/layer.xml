@@ -50,21 +50,13 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>
     <folder name="Services">
-        <!--
-        <folder name="Hidden">
-            <file name="org-netbeans-modules-docbook-catalog.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.docbook.DocBookCatalog"/>
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.xml.catalog.spi.CatalogProvider"/>
-            </file>
-        </folder>
-        -->
-    <folder name="MIMEResolver">
+        <folder name="MIMEResolver">
             <file name="org-netbeans-modules-docbook-resolver.xml" url="resolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
                 <attr name="position" intvalue="404"/>
             </file>
-    </folder>
+        </folder>
     </folder>
     <folder name="Plugins">
         <folder name="XML">
@@ -111,35 +103,18 @@ made subject to such option by the copyright holder.
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-chapter-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
-            <!-- No Longer Supported
-            <file name="solbook-course.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-course-template.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-course-template-desc.html"/>
-                <attr name="template" boolvalue="true"/>
-            </file>
-            -->
-             <file name="solbook-article.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-article-template.xml">
+            <file name="solbook-article.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-article-template.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-article-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
-             <file name="solbook-helpset.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-helpset-template.xml">
+            <file name="solbook-helpset.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-helpset-template.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-helpset-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
-<!-- No Longer Supports
-            <file name="solbook-slideset.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-slideset-template.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-slideset-template-desc.html"/>
-                <attr name="template" boolvalue="true"/>
-            </file>
--->            
-            
         </folder>
     </folder>
     <folder name="Navigator">
@@ -178,6 +153,13 @@ made subject to such option by the copyright holder.
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-docbook+xml">
+                <folder name="Factories">
+                    <file name="DocBookDataLoader.instance">
+                        <attr name="dataObjectClass" stringvalue="org.netbeans.modules.docbook.DocBookDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="text/x-docbook+xml"/>
+                    </file>
+                </folder>
                 <folder name="Actions">
                     <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
@@ -243,9 +225,14 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1400"/>
                     </file>
-                    </folder>
+                </folder>
             </folder>
             <folder name="x-solbook+xml">
+                <file name="SolBookDataLoader.instance">
+                    <attr name="dataObjectClass" stringvalue="org.netbeans.modules.docbook.DocBookDataObject"/>
+                    <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                    <attr name="mimeType" stringvalue="text/x-solbook+xml"/>
+                </file>
                 <folder name="Actions">
                     <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
@@ -311,17 +298,31 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1400"/>
                     </file>
-                    </folder>
-            </folder>            
+                </folder>
+            </folder>
         </folder>
     </folder>
-
     <folder name="Editors">
         <folder name="text">
             <folder name="xml">
+                <!-- XXX not sure why these must be in text/xml rather than real MIME type -->
                 <file name="abbreviations.xml" url="abbreviations.xml"/>
-                <file name="keybindings.xml" url="keybindings.xml"/>
                 <file name="macros.xml" url="macros.xml"/>
+            </folder>
+            <folder name="x-docbook+xml">
+                <folder name="popup">
+                    <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-ToHtmlAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-ValidationAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ValidationAction.instance"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="x-solbook+xml">
                 <folder name="popup">
                     <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>

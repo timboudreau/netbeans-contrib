@@ -41,21 +41,32 @@
 
 package org.netbeans.modules.docbook;
 
+import java.io.IOException;
+import org.netbeans.spi.xml.cookies.DataObjectAdapters;
+import org.netbeans.spi.xml.cookies.TransformableSupport;
+import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
-import org.openide.loaders.UniFileLoader;
+import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 
 public class DocBookDataObject extends MultiDataObject {
+    public static final String MIME_SOLBOOK = "text/x-solbook+xml";
+    public static final String MIME_SLIDES = "text/x-docbook-slides+xml";
+    public static final String MIME_DOCBOOK = "text/x-docbook+xml";
 
-    public DocBookDataObject(FileObject pf, UniFileLoader loader) throws DataObjectExistsException {
+    @SuppressWarnings("LeakingThisInConstructor")
+    public DocBookDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         getCookieSet().add(new DocBookEditorSupport(this));
+        getCookieSet().add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
+        getCookieSet().add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
+        getCookieSet().add(new TransformableSupport(DataObjectAdapters.source(this)));
     }
 
     @Override

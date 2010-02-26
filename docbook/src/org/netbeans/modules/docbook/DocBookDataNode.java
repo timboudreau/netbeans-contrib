@@ -146,11 +146,11 @@ public class DocBookDataNode extends DataNode {
 
     public String getShortDescription() {
         String mime = getDataObject().getPrimaryFile().getMIMEType();
-        if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
+        if (mime.equals(DocBookDataObject.MIME_DOCBOOK)) {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_docbook_xml"); //NOI18N
-        } else if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
+        } else if (mime.equals(DocBookDataObject.MIME_SLIDES)) {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides"); //NOI18N
-        } else if (mime.equals(SolBookDataLoader.MIME_SOLBOOK)) {
+        } else if (mime.equals(DocBookDataObject.MIME_SOLBOOK)) {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_solbook_xml"); //NOI18N
         } else {
             //Mime type can be wrong if the document is malformed
