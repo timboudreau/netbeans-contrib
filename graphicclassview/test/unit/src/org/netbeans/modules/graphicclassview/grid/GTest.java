@@ -60,8 +60,8 @@ public class GTest extends TestCase {
     List<ND> l;
     ND[][] n;
     G<ND> g;
+    @Override
     protected void setUp() throws Exception {
-        System.err.println("HEY!");
         int w = 20;
         int h = 20;
         n = new ND[w][h];
