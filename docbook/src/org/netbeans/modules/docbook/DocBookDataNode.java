@@ -45,7 +45,9 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import javax.swing.Action;
 import org.netbeans.api.docbook.MainFileProvider;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -62,6 +64,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.Lookups;
 
 public class DocBookDataNode extends DataNode {
     private final InstanceContent content;
@@ -122,6 +125,17 @@ public class DocBookDataNode extends DataNode {
             return result;
         }
     }
+
+//    @Override
+//    public Action[] getActions(boolean ignored) {
+//        if (getDataObject() instanceof DocBookDataObject) {
+//            return super.getActions(ignored);
+//        } else {
+//            Collection<? extends Action> result = Lookups.forPath("Loaders/text/x-docbook+xml/Actions").lookupAll(Action.class);
+//            Action[] actions = (Action[]) result.toArray(new Action[result.size()]);
+//            return actions;
+//        }
+//    }
 
 //    public Image getIcon(int type) {
 //        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {

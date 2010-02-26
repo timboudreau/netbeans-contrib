@@ -65,8 +65,9 @@ public class DocBookDataObject extends MultiDataObject {
         super(pf, loader);
         getCookieSet().add(new DocBookEditorSupport(this));
         getCookieSet().add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
-        getCookieSet().add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
         getCookieSet().add(new TransformableSupport(DataObjectAdapters.source(this)));
+        getCookieSet().add(new SavableImpl());
+        
     }
 
     @Override
@@ -90,5 +91,16 @@ public class DocBookDataObject extends MultiDataObject {
     @Override
     public Lookup getLookup() {
         return getCookieSet().getLookup();
+    }
+
+    private final class SavableImpl implements Savable, Node.Cookie {
+        public void addSaveCookie(SaveCookie save) {
+            DocBookDataObject.this.addSaveCookie(save);
+        }
+
+        public void removeSaveCookie(SaveCookie save) {
+            DocBookDataObject.this.removeSaveCookie(save);
+        }
+
     }
 }

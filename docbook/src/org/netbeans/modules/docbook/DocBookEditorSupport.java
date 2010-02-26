@@ -87,7 +87,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class DocBookEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie {
+public class DocBookEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie, EditorCookie.Observable {
+    Save save = new Save();
     private static final String IMG_TEMPLATE =
             "\n <figure id=\"$ID\">\n" + //NOI18N
             "     <title>$TITLE</title>\n" + //NOI18N
@@ -104,25 +105,28 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         setMIMEType("text/xml");
     }
 
+    @Override
     protected boolean notifyModified() {
         if (!super.notifyModified()) {
             return false;
         }
-        DocBookDataObject obj = (DocBookDataObject)getDataObject();
-        if (obj.getCookie(SaveCookie.class) == null) {
-            obj.setModified(true);
-            obj.addSaveCookie(new Save());
+        DataObject dob = getDataObject();
+        Savable s = dob.getLookup().lookup(Savable.class);
+        if (s != null) {
+            s.addSaveCookie(save);
         }
+        getDataObject().setModified(true);
         return true;
     }
 
+    @Override
     protected void notifyUnmodified() {
-        DocBookDataObject obj = (DocBookDataObject)getDataObject();
-        SaveCookie save = obj.getCookie(SaveCookie.class);
-        if (save != null) {
-            obj.removeSaveCookie(save);
-            obj.setModified(false);
+        DataObject dob = getDataObject();
+        Savable s = dob.getLookup().lookup(Savable.class);
+        if (s != null) {
+            s.removeSaveCookie(save);
         }
+        dob.setModified(false);
         super.notifyUnmodified();
     }
 
@@ -137,8 +141,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     private void refreshAnnotations() {
         ParsingService serv = getDataObject().getNodeDelegate().getLookup().lookup(ParsingService.class);
         if (serv != null) {
-            serv.enqueue(new AnnotationCallback(this,
-                    (DocBookDataObject) getDataObject()));
+            serv.enqueue(new AnnotationCallback(this, getDataObject()));
         }
     }
 
@@ -164,6 +167,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     }
 
     private void addTransferHandlerOnceEditorAvailable(final CloneableEditor editor) {
+        FallbackDataLoader.mark(getDataObject().getPrimaryFile());
         JEditorPane p = editor.getEditorPane();
         if (p != null) {
             TransferHandler handler = ImagePasteSupport.createTransferHandler(

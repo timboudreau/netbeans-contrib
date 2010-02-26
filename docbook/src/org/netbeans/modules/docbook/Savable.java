@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,51 +31,21 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.docbook;
 
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.openide.util.actions.CookieAction;
-import org.openide.util.actions.SystemAction;
+import org.openide.cookies.SaveCookie;
 
 /**
- * Converts a DocBook XML file (currently, Slides only) to HTML.
+ *
+ * @author Tim Boudreau
  */
-public class ToHtmlAction extends CookieAction {
-
-    protected Class[] cookieClasses() {
-        return new Class[] {DataObject.class};
-    }
-
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
-    }
-    
-    public static ToHtmlAction getDefault() {
-        return (ToHtmlAction) SystemAction.get(ToHtmlAction.class);
-    }
-
-    protected void performAction(Node[] nodes) {
-        final DataObject o = nodes[0].getLookup().lookup(DataObject.class);
-        RequestProcessor.getDefault().post(new Processor (o));
-    }
-
-    @Override
-    protected boolean asynchronous() {
-        return false;
-    }
-
-    public String getName() {
-        return NbBundle.getMessage(ToHtmlAction.class, "LBL_action");
-    }
-
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-
+interface Savable {
+    void addSaveCookie(SaveCookie save);
+    void removeSaveCookie(SaveCookie save);
 }

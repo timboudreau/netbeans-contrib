@@ -1,7 +1,12 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.docbook
 OpenIDE-Module-Java-Dependencies: Java > 1.5
-OpenIDE-Module-Specification-Version: 1.27
+OpenIDE-Module-Specification-Version: 1.28
 OpenIDE-Module-Layer: org/netbeans/modules/docbook/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/docbook/Bundle.properties
+
+
+Name: org/netbeans/modules/docbook/FallbackDataLoader.class
+OpenIDE-Module-Class: Loader
+Install-Before: org.netbeans.modules.xml.XMLDataObject
 
