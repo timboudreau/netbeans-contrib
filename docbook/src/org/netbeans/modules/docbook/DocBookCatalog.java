@@ -100,7 +100,7 @@ public class DocBookCatalog implements CatalogProvider {
         }
 
         public String getSystemID(String publicId) {
-            return (String)PUBLIC_2_SYSTEM.get(publicId);
+            return PUBLIC_2_SYSTEM.get(publicId);
         }
 
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
@@ -149,10 +149,12 @@ public class DocBookCatalog implements CatalogProvider {
         public void removePropertyChangeListener(PropertyChangeListener l) {}
 
         public String resolveURI(String name) {
+            System.err.println("RESOLVE URI: " + name);
             return null;
         }
 
         public String resolvePublic(String publicId) {
+            System.err.println("RESOLVE PUBLIC: " + publicId);
             return null;
         }
         

@@ -91,6 +91,15 @@ made subject to such option by the copyright holder.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.xml.core</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>1.20</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.spi.navigator</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -200,7 +209,19 @@ made subject to such option by the copyright holder.
                         <compile-dependency/>
                     </test-dependency>
                     <test-dependency>
+                        <code-name-base>org.netbeans.modules.masterfs</code-name-base>
+                        <compile-dependency/>
+                    </test-dependency>
+                    <test-dependency>
                         <code-name-base>org.netbeans.modules.nbjunit</code-name-base>
+                        <compile-dependency/>
+                    </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.xml.core</code-name-base>
+                        <compile-dependency/>
+                    </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.xml.text</code-name-base>
                         <compile-dependency/>
                     </test-dependency>
                 </test-type>
