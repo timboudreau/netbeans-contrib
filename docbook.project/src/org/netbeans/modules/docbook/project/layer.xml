@@ -68,6 +68,7 @@ made subject to such option by the copyright holder.
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.project.Bundle"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.docbook.project.wizard.WizardIt.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/project/newDocbookProjectDescription.html"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
                     <attr name="template" boolvalue="true"/>
                 </file>
             </folder>

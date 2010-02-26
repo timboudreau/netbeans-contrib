@@ -40,22 +40,23 @@
  */
 package org.netbeans.modules.docbook.project.wizard;
 
-import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.swing.UIManager;
+import javax.swing.AbstractButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
+import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.Validator;
-import org.netbeans.validation.api.builtin.Validators;
 import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.ui.ValidationListener;
 import org.netbeans.validation.api.ui.ValidationUI;
 import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -63,13 +64,24 @@ import org.openide.WizardDescriptor;
  */
 public class ProjectOutlinePanel extends javax.swing.JPanel implements ValidationUI, Validator<String> {
     private ValidationGroup grp = ValidationGroup.create(this);
+    public static final String PROP_GENERATION_STYLE = "generationStyle";
     public ProjectOutlinePanel() {
         initComponents();
-        Font f = UIManager.getFont ("controlFont");
-        if (f != null) {
-            instructions.setFont (f);
+        inline.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.INLINE);
+        files.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.FILE_PER_CHAPTER);
+        dirs.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.DIRECTORY_PER_CHAPTER);
+        ValidationListener.setComponentName(outline, NbBundle.getMessage(ProjectOutlinePanel.class, "NAME_OUTLINE"));
+        grp.add(outline, new OLValidator());
+    }
+
+    private static class OLValidator implements Validator<String> {
+        public boolean validate(Problems prblms, String string, String t) {
+            if (t == null || t.trim().length() == 0) {
+                prblms.add(NbBundle.getMessage(ProjectOutlinePanel.class, "MSG_OUTLINE_EMPTY"), Severity.INFO); //NOI18N
+                return false;
+            }
+            return true;
         }
-        grp.add(outline, Validators.REQUIRE_NON_EMPTY_STRING.forString(true), this);
     }
     
     /** This method is called from within the constructor to
@@ -79,65 +91,125 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        instructions = new javax.swing.JTextArea();
+        btns = new javax.swing.ButtonGroup();
         jScrollPane2 = new javax.swing.JScrollPane();
         outline = new javax.swing.JTextArea();
-        splitBox = new javax.swing.JCheckBox();
-
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        jScrollPane1.setViewportBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        instructions.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
-        instructions.setColumns(20);
-        instructions.setFont(getFont());
-        instructions.setLineWrap(true);
-        instructions.setRows(5);
-        instructions.setText(org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.instructions.text")); // NOI18N
-        instructions.setWrapStyleWord(true);
-        jScrollPane1.setViewportView(instructions);
+        jPanel1 = new javax.swing.JPanel();
+        inline = new javax.swing.JRadioButton();
+        dirs = new javax.swing.JRadioButton();
+        files = new javax.swing.JRadioButton();
+        jLabel1 = new javax.swing.JLabel();
 
         outline.setColumns(20);
         outline.setRows(5);
         jScrollPane2.setViewportView(outline);
 
-        splitBox.setText(org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.splitBox.text")); // NOI18N
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        btns.add(inline);
+        org.openide.awt.Mnemonics.setLocalizedText(inline, org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.inline.text")); // NOI18N
+        inline.setToolTipText(org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.inline.toolTipText")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
+        jPanel1.add(inline, gridBagConstraints);
+
+        btns.add(dirs);
+        dirs.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(dirs, org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.dirs.text")); // NOI18N
+        dirs.setToolTipText(org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.dirs.toolTipText")); // NOI18N
+        dirs.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel1.add(dirs, gridBagConstraints);
+
+        btns.add(files);
+        org.openide.awt.Mnemonics.setLocalizedText(files, org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.files.text")); // NOI18N
+        files.setToolTipText(org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.files.toolTipText")); // NOI18N
+        files.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 5);
+        jPanel1.add(files, gridBagConstraints);
+
+        jLabel1.setLabelFor(outline);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ProjectOutlinePanel.class, "ProjectOutlinePanel.jLabel1.text")); // NOI18N
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 645, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
-                    .add(splitBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE))
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 35, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 253, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(splitBox)
-                .addContainerGap())
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        grp.validateAll();
+    }
+
     WizardDescriptorAdapter adap;
     public void load (final WizardDescriptor wiz) {
+        if (adap != null) {
+            grp.removeUI(adap);
+        }
         adap = new WizardDescriptorAdapter(wiz);
+        grp.addUI(adap);
         grp.modifyComponents(new Runnable() {
             public void run() {
-                boolean split = Boolean.TRUE.equals(wiz.getProperty("split")); //NOI18N
-                splitBox.setSelected(split);
+                ChapterGenerationStyle style = (ChapterGenerationStyle) wiz.getProperty(PROP_GENERATION_STYLE);
+                ProjectKind kind = (ProjectKind) wiz.getProperty("kind");
+                if (kind == ProjectKind.Book) {
+                    if (style != null) {
+                        inline.setEnabled(true);
+                        files.setEnabled(true);
+                        dirs.setEnabled(true);
+                        for (AbstractButton b : new AbstractButton[] { files, dirs, inline}) {
+                            if (style.equals(b.getClientProperty(PROP_GENERATION_STYLE))) {
+                                b.setSelected(true);
+                            }
+                        }
+                    }
+                } else {
+                    inline.setSelected(true);
+                    inline.setEnabled(false);
+                    files.setEnabled(false);
+                    dirs.setEnabled(false);
+                }
                 String outl = (String) wiz.getProperty("outline"); //NOI18N
                 if (outl != null) {
                     outline.setText(outl);
@@ -147,20 +219,26 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
     }
 
     public void save (WizardDescriptor wiz) {
-        wiz.putProperty("split", splitBox.isSelected()); //NOI18N
+        wiz.putProperty(PROP_GENERATION_STYLE, getGenerationStyle());
         wiz.putProperty ("outline", outline.getText()); //NOI18N
+        grp.removeUI(adap);
     }
+
+
 
     public boolean check() {
         return grp.validateAll() == null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea instructions;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.ButtonGroup btns;
+    private javax.swing.JRadioButton dirs;
+    private javax.swing.JRadioButton files;
+    private javax.swing.JRadioButton inline;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea outline;
-    private javax.swing.JCheckBox splitBox;
     // End of variables declaration//GEN-END:variables
 
     public void clearProblem() {
@@ -199,6 +277,15 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
             return false;
         }
         return true;
+    }
+
+    private ChapterGenerationStyle getGenerationStyle() {
+        for (AbstractButton b : new AbstractButton[] { files, dirs, inline}) {
+            if (b.isSelected()) {
+                return (ChapterGenerationStyle) b.getClientProperty(PROP_GENERATION_STYLE);
+            }
+        }
+        return null;
     }
     
 }

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"[
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+
 <!ENTITY Chapter1 SYSTEM "Chapter1/Chapter1.xml">
 <!ENTITY Chapter2 SYSTEM "Chapter2/Chapter2.xml">
-
-]>
 
 <book>
 

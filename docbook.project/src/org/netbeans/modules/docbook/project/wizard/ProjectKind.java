@@ -106,12 +106,12 @@ enum ProjectKind {
         }
     }
 
-    TagProvider createTagProvider() {
+    TagProvider createTagProvider(final boolean separate) {
         switch (this) {
             case Article :
                 return new SectionTagProvider();
             case Book :
-                return new BookTagProvider();
+                return new BookTagProvider(separate);
             case Slides :
                 return new TagProvider() {
 
@@ -134,6 +134,10 @@ enum ProjectKind {
     }
     
     private static final class BookTagProvider implements TagProvider {
+        private final boolean separate;
+        BookTagProvider(boolean separate) {
+            this.separate = separate;
+        }
         public String getTag(int depth) {
             return depth < 1 ? "chapter" : "section"; //NOI18N
         }
@@ -143,6 +147,7 @@ enum ProjectKind {
         }
 
         public boolean skip(Item item, int depth) {
+            if (!separate) return false;
             boolean result = depth < 1 ? true : false;
             return result;
         }
@@ -173,43 +178,63 @@ enum ProjectKind {
         return NbBundle.getMessage(ProjectKind.class, "CONTENT_PLACEHOLDER"); //NOI18N
     }
 
-    List<FileObject> createProject (String projectName, FileObject projectDir, Info info, Outline content, boolean useChapterDirs) throws IOException {
+    List<FileObject> createProject (String projectName, FileObject projectDir, Info info, Outline content, ChapterGenerationStyle style) throws IOException {
+        if (style == null) {
+            style = ChapterGenerationStyle.DIRECTORY_PER_CHAPTER;
+        }
         assert projectDir != null;
         assert projectName != null;
         content = content == null ? defaultOutline() : content;
         StringBuilder bodyContent = new StringBuilder();
         StringBuilder headerContent = new StringBuilder();
         String fileName = toFilename(projectName);
-        List<Item> separateFiles = content.toXml(bodyContent, createTagProvider(), 1);
+        List<Item> separateFiles = content.toXml(bodyContent, createTagProvider(style.isSeparateFiles()), 1);
         List<FileObject> result = new LinkedList<FileObject>();
         for (Item chapter : separateFiles) {
 //            System.err.println("CHAPTER " + chapter.title);
             String chapterFileName = toFilename(chapter.title);
-            headerContent.append ("<!ENTITY " + chapterFileName + " SYSTEM \"" + //NOI18N
-                    chapterFileName + '/' + chapterFileName + ".xml\">\n"); //NOI18N
+            headerContent.append("<!ENTITY ").append(chapterFileName).append(" SYSTEM \"").append(chapterFileName).append('/').append(chapterFileName).append (".xml\">\n"); //NOI18N
             StringBuilder chapterBody = new StringBuilder();
             chapterBody.append (WizardIt.CHAPTER_HEADER);
             chapterBody.append('\n');
             chapter.toXml(chapterBody, 0, new NoSkipChapterTagProvider(), 0);
-            String fname = FileUtil.findFreeFolderName(projectDir, chapterFileName);
-            FileObject chapterFolder = useChapterDirs ? projectDir.createFolder(fname) : projectDir;
-            FileObject chapterFile = chapterFolder.createData(fname, "xml"); //NOI18N
-            OutputStream out = new BufferedOutputStream(chapterFile.getOutputStream());
-            PrintWriter w = new PrintWriter(out);
-            try {
-                w.println(chapterBody);
-            } finally {
-                w.flush();
-                w.close();
-                out.close();
+            System.err.println("Chapter Body: " + chapterBody);
+            if (style.isSeparateFiles()) {
+                FileObject chapterFile;
+                if (style == ChapterGenerationStyle.DIRECTORY_PER_CHAPTER) {
+                    String fname = FileUtil.findFreeFolderName(projectDir, chapterFileName);
+                    FileObject chapterFolder = projectDir.createFolder(fname);
+                    chapterFile = chapterFolder.createData(fname, "xml"); //NOI18N
+                } else {
+                    String fname = FileUtil.findFreeFileName(projectDir, chapterFileName, "xml");
+                    chapterFile = projectDir.createData(fname, "xml");
+                }
+                OutputStream out = new BufferedOutputStream(chapterFile.getOutputStream());
+                PrintWriter w = new PrintWriter(out);
+                try {
+                    w.println(chapterBody);
+                } finally {
+                    w.flush();
+                    w.close();
+                    out.close();
+                }
+                result.add (chapterFile);
             }
-            result.add (chapterFile);
 //            System.err.println("WROTE TO " + chapterFile.getPath() + "\n" + chapterBody);
         }
         StringBuilder mainFileContent = new StringBuilder();
-        mainFileContent.append (header);
-        mainFileContent.append('\n'); //NOI18N
-        mainFileContent.append (headerContent);
+        String hdr = header;
+        if (this == Book && headerContent.length() > 0) {
+            hdr = header.replace("$ENTITIES", "[\n" + headerContent.toString() + "\n]").toString();
+            mainFileContent.append(hdr);
+        } else if (this == Book) {
+            hdr = header.replace("$ENTITIES", "").toString();
+            mainFileContent.append(hdr);
+        }
+        if (this != Book) {
+            mainFileContent.append('\n'); //NOI18N
+            mainFileContent.append (headerContent);
+        }
         mainFileContent.append('\n'); //NOI18N
         mainFileContent.append (contentHead);
         mainFileContent.append('\n'); //NOI18N
