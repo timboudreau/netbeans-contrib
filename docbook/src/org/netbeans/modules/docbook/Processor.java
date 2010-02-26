@@ -109,7 +109,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
             return;
         }
         String mime = fo.getMIMEType();
-        if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
+        if (mime.equals(DocBookDataObject.MIME_SLIDES)) {
             String name = fo.getName();
             try {
                 // XXX #45604: throws an NPE later: out.reset();
@@ -173,7 +173,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
             }  catch (Exception e) {
                 status.failed (e);
             }
-        }  else if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
+        }  else if (mime.equals(DocBookDataObject.MIME_DOCBOOK)) {
                 String name = fo.getName();
                 try {
                     status.started("Initializing...");

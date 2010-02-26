@@ -71,6 +71,42 @@ made subject to such option by the copyright holder.
     </file>
     <file>
         <ext name="xml"/>
+        <resolver mime="text/x-docbook+xml">
+            <xml-rule>
+           <doctype public-id="-//OASIS//DTD DocBook XML V4.3//EN"/>
+                <element name="article"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-docbook+xml">
+            <xml-rule>
+           <doctype public-id="-//OASIS//DTD DocBook XML V4.3//EN"/>
+                <element name="book"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-docbook+xml">
+            <xml-rule>
+           <doctype public-id="-//OASIS//DTD DocBook XML V4.4//EN"/>
+                <element name="article"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-docbook+xml">
+            <xml-rule>
+           <doctype public-id="-//OASIS//DTD DocBook XML V4.4//EN"/>
+                <element name="book"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
         <resolver mime="text/x-solbook+xml">
             <xml-rule>
            <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>

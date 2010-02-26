@@ -47,14 +47,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.regex.MatchResult;
@@ -63,12 +60,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
 import org.netbeans.api.docbook.PatternCallback;
-import org.netbeans.modules.docbook.parsing.ParseJobFactory;
 import org.netbeans.modules.docbook.parsing.ParsingServiceImpl;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -79,9 +76,9 @@ import org.openide.filesystems.XMLFileSystem;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.UniFileLoader;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
@@ -135,8 +132,6 @@ public class ParseJobFactoryTest extends TestCase {
     FileObject xml;
     ParsingService service;
     protected void setUp() throws Exception {
-        System.err.println("SYSTEM PROPS: " + System.getProperties());
-        System.err.println("RESOURCE XMP: " + ParseJobFactory.class.getResource("DocBookCatalog.class"));
 
         File tmp = new File (System.getProperty ("java.io.tmpdir"));
         dataDir = new File (tmp, "docbooktestdata" + System.currentTimeMillis());
@@ -169,27 +164,19 @@ public class ParseJobFactoryTest extends TestCase {
     }
 
     public void testSanity() throws Exception {
-        System.out.println("testSanity");
 
         PCallbackImpl pcallback = new PCallbackImpl();
         assertFalse (pcallback.isCancelled());
-        System.err.println("enqueuing pjob");
         ParseJob pjob = service.enqueue(pcallback);
-        System.err.println("pjob enqueued");
-//        assertTrue (pjob.isEnqueued());
 
         CHCallbackImpl ccallback = new CHCallbackImpl();
         assertFalse (ccallback.isCancelled());
-        System.err.println("enqueueing cjob");
         ParseJob cjob = service.enqueue(ccallback);
-        System.err.println("cjob enqueued");
-//        assertTrue (cjob.isEnqueued());
 
-        Thread.currentThread().sleep (12000);
-        System.err.println("Start wait ");
+        pcallback.latch.await();
+        ccallback.waitFor();
         pjob.waitFinished();
         cjob.waitFinished();
-        System.err.println("end wait");
 
         pcallback.assertMatched();
         ccallback.assertNotEmpty();
@@ -198,108 +185,33 @@ public class ParseJobFactoryTest extends TestCase {
     }
 
     public void testOldCallbackIsNotRerunEternally() throws Exception {
-        System.out.println("testOldCallbackIsNotRerunEternally");
 
         PCallbackImpl pcallback = new PCallbackImpl();
         assertFalse (pcallback.isCancelled());
-        System.err.println("enqueuing pjob");
         ParseJob pjob = service.enqueue(pcallback);
-        System.err.println("pjob enqueued");
-//        assertTrue (pjob.isEnqueued());
-
         CHCallbackImpl ccallback = new CHCallbackImpl();
         assertFalse (ccallback.isCancelled());
-        System.err.println("enqueueing cjob");
         ParseJob cjob = service.enqueue(ccallback);
-        System.err.println("cjob enqueued");
-//        assertTrue (cjob.isEnqueued());
-
-        Thread.currentThread().sleep (12000);
-        System.err.println("Start wait ");
+        ccallback.waitFor();
+        pcallback.latch.await();
         pjob.waitFinished();
         cjob.waitFinished();
-        System.err.println("end wait");
 
         ccallback.clear();
         pcallback.clear();
 
         PCallbackImpl pcallback2 = new PCallbackImpl();
         CHCallbackImpl ccallback2 = new CHCallbackImpl();
-        ParseJob pjob2 = service.enqueue(pcallback);
-        ParseJob cjob2 = service.enqueue(ccallback);
+        ParseJob pjob2 = service.enqueue(pcallback2);
+        ParseJob cjob2 = service.enqueue(ccallback2);
+        ccallback2.waitFor();
+        pcallback2.latch.await();
         pjob2.waitFinished();
         cjob2.waitFinished();
-        Thread.currentThread().sleep (12000);
 
         ccallback.assertEmpty();
         pcallback.assertNotMatched();
     }
-
-
-//    public void testEnqueue() {
-//        System.out.println("enqueue");
-//
-//        ParseJob parseJob = null;
-//
-//        ParseJobFactory.enqueue(parseJob);
-//
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    public void testCreateJob() {
-//        System.out.println("createJob");
-//
-//        FileObject file = null;
-//        Callback callback = null;
-//
-//        ParseJob expResult = null;
-//        ParseJob result = ParseJobFactory.createJob(file, callback);
-//        assertEquals(expResult, result);
-//
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of createJobs method, of class org.netbeans.modules.docbook.ParseJobFactory.
-//     */
-//    public void testCreateJobs() {
-//        System.out.println("createJobs");
-//
-//        FileObject file = null;
-//        Collection<Callback> callbacks = null;
-//
-//        Collection<ParseJob> expResult = null;
-//        Collection<ParseJob> result = ParseJobFactory.createJobs(file, callbacks);
-//        assertEquals(expResult, result);
-//
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    public void testDoEnqueue() {
-//        System.out.println("doEnqueue");
-//
-//        Collection<ParseJob> jobs = null;
-//        ParseJobFactory instance = new ParseJobFactory();
-//
-//        instance.doEnqueue(jobs);
-//
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
-//
-//    public void testCancelled() {
-//        System.out.println("cancelled");
-//
-//        ParseJob parseJob = null;
-//
-//        ParseJobFactory.cancelled(parseJob);
-//
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
 
     private static final Pattern TITLE_PATTERN =
             Pattern.compile("<title>\\s*(.*)\\s*</title>"); //NOI18N
@@ -309,6 +221,7 @@ public class ParseJobFactoryTest extends TestCase {
             ".*<\\?xml.*?\\s*encoding=\\s*\\\"(.*?)\\\".*?>"; //NOI18N
 
     private class PCallbackImpl extends PatternCallback {
+        private final CountDownLatch latch = new CountDownLatch(1);
         public PCallbackImpl() {
             super (TITLE_PATTERN);
         }
@@ -324,7 +237,6 @@ public class ParseJobFactoryTest extends TestCase {
 
         public boolean process(FileObject f, MatchResult match, CharSequence content) {
             count++;
-            System.out.println("  Process " + f.getName() + " match " + match);
             try {
                 //Make sure the test method will return from enqueue before the job
                 //has finished - it theoretically return earlier than that
@@ -333,6 +245,7 @@ public class ParseJobFactoryTest extends TestCase {
 
             }
             l.add (new W (f, match, content));
+            latch.countDown();
             return processReturnValue;
         }
 
@@ -392,10 +305,15 @@ public class ParseJobFactoryTest extends TestCase {
         public void clear() {
             h.clear();
         }
+
+        void waitFor() throws InterruptedException {
+            h.latch.await();
+        }
     }
 
     private static class H implements ContentHandler, DTDHandler, ErrorHandler {
         final Map <String, Object[]> m = new HashMap <String, Object[]> ();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         public Object assertCalled (String method) {
             Object o = m.remove (method);
@@ -438,9 +356,8 @@ public class ParseJobFactoryTest extends TestCase {
             StackTraceElement[] ste = e.getStackTrace();
             StackTraceElement caller = ste[1];
             String method = caller.getMethodName();
-            System.err.println("CALLED: " + method);
             m.put (method, args);
-            System.out.println("CALLED: " + method + " with " + Arrays.asList (args));
+            latch.countDown();
         }
 
         public void setDocumentLocator(Locator locator) {
@@ -532,6 +449,17 @@ public class ParseJobFactoryTest extends TestCase {
                 return "x-docbook+xml";
             }
             return null;
+        }
+    }
+
+    public static final class DocBookDataLoader extends UniFileLoader {
+        public DocBookDataLoader() {
+            super (DocBookDataObject.class);
+        }
+
+        @Override
+        protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
+            return new DocBookDataObject (primaryFile, this);
         }
     }
 
