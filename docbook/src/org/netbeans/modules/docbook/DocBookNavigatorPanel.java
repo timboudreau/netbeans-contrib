@@ -48,8 +48,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,7 +66,6 @@ import javax.swing.ListSelectionModel;
 import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
-import org.netbeans.api.xml.services.UserCatalog;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.awt.MouseUtils;
 import org.openide.cookies.LineCookie;
@@ -79,7 +76,6 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -370,12 +366,13 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                 Toolkit.getDefaultToolkit().beep();
                 return;
             }
-            l.show(Line.SHOW_TOFRONT);
+            l.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FRONT);
         }
     }
     
     private static final class ItemCellRenderer extends DefaultListCellRenderer {
         
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Item item = (Item) value;
             // XXX could also display element and/or header in a different color (use HTMLRenderer)

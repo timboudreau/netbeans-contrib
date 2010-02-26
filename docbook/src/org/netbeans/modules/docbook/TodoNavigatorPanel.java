@@ -267,16 +267,20 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
             }
         }
         if (content == null) {
+            //XXX what is this stuff?
             File f = FileUtil.toFile (d.getPrimaryFile());
             if (f == null || f.length() > Integer.MAX_VALUE) {
                 return new Item[0];
             }
             FileChannel channel = new FileInputStream (f).getChannel();
             ByteBuffer buf = ByteBuffer.allocate ((int)f.length());
+            channel.read(buf);
             try {
                 content = Charset.forName("UTF-8").decode(buf);
             } catch (Exception e) {
                 content = buf.asCharBuffer();
+            } finally {
+                channel.close();
             }
         }
         Matcher titleMatcher = TITLE_PATTERN.matcher(content);
@@ -486,19 +490,19 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
             switch (item.getType()) {
                 //XXX silly
                 case 0 :
-                    c = Color.BLUE;
+                    c = new Color (0, 0, 128);
                     break;
                 case 1 :
-                    c = Color.GREEN;
+                    c = new Color (0, 128, 0);
                     break;
                 case 2 :
-                    c = Color.RED;
+                    c = new Color (128, 0, 0);
                     break;
                 case 3 :
-                    c = Color.CYAN;
+                    c = new Color (0, 128, 128);
                     break;
                 case 4 :
-                    c = Color.RED;
+                    c = new Color (128, 0, 128);
                     break;
                 case 5 :
                     c = new Color (85, 128, 23);

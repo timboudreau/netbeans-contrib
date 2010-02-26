@@ -231,7 +231,7 @@ public final class OutlineTest {
         System.err.println("PROJECT IN " + projDir.getPath());
         String bookOutline = "Chapter 1\n  Section 1\n    SubSection 1a\n  Section 2\nChapter 2\n";
         Info info = new Info ("Test Project", "A test of a project", "First Last");
-        ProjectKind.Book.createProject("Test Project", projDir, info, new Outline(bookOutline), true);
+        ProjectKind.Book.createProject("Test Project", projDir, info, new Outline(bookOutline), ChapterGenerationStyle.DIRECTORY_PER_CHAPTER);
         DbProjectFactory f = Lookup.getDefault().lookup(DbProjectFactory.class);
         assertNotNull (f);
         assertTrue (f.isProject(projDir));
@@ -256,13 +256,78 @@ public final class OutlineTest {
         projDir.delete();
     }
 
+    @Test
+    public void testCreateProjectFiles() throws IOException {
+        File tmp = new File (System.getProperty("java.io.tmpdir"));
+        assertTrue (tmp.exists());
+        assertTrue (tmp.isDirectory());
+        FileObject tmpDir = FileUtil.toFileObject(FileUtil.normalizeFile(tmp));
+        assertNotNull (tmpDir);
+        String pDirName = FileUtil.findFreeFolderName(tmpDir, "dbprj" + System.currentTimeMillis());
+        FileObject projDir = tmpDir.createFolder(pDirName);
+        System.err.println("PROJECT IN " + projDir.getPath());
+        String bookOutline = "Chapter 1\n  Section 1\n    SubSection 1a\n  Section 2\nChapter 2\n";
+        Info info = new Info ("Test Project", "A test of a project", "First Last");
+        ProjectKind.Book.createProject("Test Project", projDir, info, new Outline(bookOutline), ChapterGenerationStyle.FILE_PER_CHAPTER);
+        DbProjectFactory f = Lookup.getDefault().lookup(DbProjectFactory.class);
+        assertNotNull (f);
+        assertTrue (f.isProject(projDir));
+        FileObject fo = projDir.getFileObject("Chapter1.xml");
+        assertNotNull(fo);
+        fo = projDir.getFileObject("Chapter2.xml");
+        assertNotNull(fo);
+        fo = projDir.getFileObject("TestProject.xml");
+        assertNotNull(fo);
+        fo = projDir.getFileObject(DbProject.PROJECT_DIR);
+        assertNotNull(fo);
+        fo = projDir.getFileObject(DbProject.PROJECT_DIR +  '/' + DbProject.PROPS_FILE);
+        assertNotNull(fo);
+
+        String chap1 = loadGoldenFile ("Chapter1.xml");
+        String chap2 = loadGoldenFile ("Chapter2.xml");
+        String project = loadGoldenFile ("TestProject.xml");
+
+        assertEqualss (chap1, loadFile(projDir.getFileObject("Chapter1.xml")));
+        assertEqualss (chap2, loadFile(projDir.getFileObject("Chapter2.xml")));
+        assertEqualss (project, loadFile(projDir.getFileObject("TestProject.xml")));
+        projDir.delete();
+    }
+
+    @Test
+    public void testCreateProjectInline() throws IOException {
+        File tmp = new File (System.getProperty("java.io.tmpdir"));
+        assertTrue (tmp.exists());
+        assertTrue (tmp.isDirectory());
+        FileObject tmpDir = FileUtil.toFileObject(FileUtil.normalizeFile(tmp));
+        assertNotNull (tmpDir);
+        String pDirName = FileUtil.findFreeFolderName(tmpDir, "dbprj" + System.currentTimeMillis());
+        FileObject projDir = tmpDir.createFolder(pDirName);
+        System.err.println("PROJECT IN " + projDir.getPath());
+        String bookOutline = "Chapter 1\n  Section 1\n    SubSection 1a\n  Section 2\nChapter 2\n";
+        Info info = new Info ("Test Project", "A test of a project", "First Last");
+        ProjectKind.Book.createProject("Test Project", projDir, info, new Outline(bookOutline), ChapterGenerationStyle.INLINE);
+        DbProjectFactory f = Lookup.getDefault().lookup(DbProjectFactory.class);
+        assertNotNull (f);
+        assertTrue (f.isProject(projDir));
+        FileObject fo = projDir.getFileObject("TestProject.xml");
+        assertNotNull(fo);
+        fo = projDir.getFileObject(DbProject.PROJECT_DIR);
+        assertNotNull(fo);
+        fo = projDir.getFileObject(DbProject.PROJECT_DIR +  '/' + DbProject.PROPS_FILE);
+        assertNotNull(fo);
+        String project = loadGoldenFile ("TestProjectInline.xml");
+        assertEqualss (project, loadFile(projDir.getFileObject("TestProject.xml")));
+        projDir.delete();
+    }
+
     void assertEqualss (String a, String b) {
         String[] l1 = a.split("\n");
         String[] l2 = b.split("\n");
         for (int i=0; i < Math.min (l1.length, l2.length); i++) {
-            System.err.println("exp:" + l1[i]);
-            System.err.println("got:" + l2[i]);
-            assertEquals (l1[i], l2[i]);
+            //Trim to avoid CRLF issues on Windows
+            String one = l1[i].trim();
+            String two = l2[i].trim();
+            assertEquals ("At line " + i + " expected '" + one + "' but got '" + two + "' Full text: '" + a + "'\n GOT: '" + b, one, two);
         }
     }
 
@@ -279,4 +344,4 @@ public final class OutlineTest {
         return new String (out.toByteArray(), "UTF-8");
     }
 
-}
+}

@@ -41,10 +41,12 @@
 package org.netbeans.modules.docbook.project.wizard;
 
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import javax.swing.AbstractButton;
+import javax.swing.ButtonModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
@@ -63,7 +65,7 @@ import org.openide.util.NbBundle;
  *
  * @author  Tim Boudreau
  */
-public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListener, ValidationUI {
+public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListener, ValidationUI, ActionListener {
     private final ValidationGroup group = ValidationGroup.create(this);
     public ProjectInfoPanel() {
         initComponents();
@@ -71,7 +73,14 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         slidesButton.putClientProperty ("kind", ProjectKind.Slides); //NOI18N
         bookButton.putClientProperty ("kind", ProjectKind.Book); //NOI18N
         Component[] c = getComponents();
+        File f = new FileChooserBuilder(ProjectInfoPanel.class).createFileChooser().getCurrentDirectory();
+        String s = System.getProperty ("user.name");
+        if (s != null) {
+            author.setText(s);
+        }
+        location.setText (f.getAbsolutePath());
         for (int i = 0; i < c.length; i++) {
+            setupMnemonics(c[i]);
             if (c[i] instanceof JTextComponent) {
                 c[i].addFocusListener(this);
             }
@@ -80,15 +89,8 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
                 ValidationListener.setComponentName((JComponent) c[i],
                         NbBundle.getMessage(ProjectInfoPanel.class, nm));
             }
-            if (c[i] instanceof JLabel) {
-                JLabel l = (JLabel) c[i];
-                Mnemonics.setLocalizedText(l, l.getText());
-            } else if (c[i] instanceof AbstractButton) {
-                AbstractButton ab = (AbstractButton) c[i];
-                Mnemonics.setLocalizedText(ab, ab.getText());
-            }
         }
-        group.add(new AbstractButton[] { bookButton, slidesButton, articleButton },
+        group.add(new ButtonModel[] { bookButton.getModel(), slidesButton.getModel(), articleButton.getModel() },
                 Validators.oneButtonMustBeSelected(
                 NbBundle.getMessage(ProjectInfoPanel.class, "ERR_SELECT_KIND"))); //NOI18N
         
@@ -101,6 +103,16 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         group.add(title, Validators.REQUIRE_NON_EMPTY_STRING);
         group.add(subtitle, Validators.REQUIRE_NON_EMPTY_STRING);
         group.add(author, Validators.REQUIRE_NON_EMPTY_STRING);
+    }
+
+    private void setupMnemonics (Component c) {
+        if (c instanceof JLabel) {
+            JLabel l = (JLabel) c;
+            Mnemonics.setLocalizedText(l, l.getText());
+        } else if (c instanceof AbstractButton) {
+            AbstractButton ab = (AbstractButton) c;
+            Mnemonics.setLocalizedText(ab, ab.getText());
+        }
     }
 
     void save (WizardDescriptor wiz) {
@@ -116,6 +128,9 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         }
         wiz.putProperty("kind", getKind()); //NOI18N
         wiz.setValid(group.validateAll() == null);
+        if (delegate != null) {
+            group.removeUI(delegate);
+        }
     }
 
     private ProjectKind getKind() {
@@ -159,6 +174,7 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
                 }
             }
         });
+        group.addUI(delegate);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -184,125 +200,129 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         articleButton = new javax.swing.JRadioButton();
 
         namelbl.setLabelFor(name);
-        namelbl.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.namelbl.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(namelbl, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.namelbl.text")); // NOI18N
 
         name.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.name.text")); // NOI18N
         name.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.name.name")); // NOI18N
 
         loclbl.setLabelFor(location);
-        loclbl.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.loclbl.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(loclbl, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.loclbl.text")); // NOI18N
 
         location.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.location.text")); // NOI18N
         location.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.location.name")); // NOI18N
 
-        browse.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.browse.text")); // NOI18N
-        browse.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseActionPerformed(evt);
-            }
-        });
+        org.openide.awt.Mnemonics.setLocalizedText(browse, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.browse.text")); // NOI18N
+        browse.addActionListener(this);
 
         titleLabel.setLabelFor(title);
-        titleLabel.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.titleLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.titleLabel.text")); // NOI18N
 
         title.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.title.text")); // NOI18N
         title.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.title.name")); // NOI18N
 
         subtitleLabel.setLabelFor(subtitle);
-        subtitleLabel.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.subtitleLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(subtitleLabel, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.subtitleLabel.text")); // NOI18N
 
         subtitle.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.subtitle.text")); // NOI18N
         subtitle.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.subtitle.name")); // NOI18N
 
         authorLabel.setLabelFor(author);
-        authorLabel.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.authorLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(authorLabel, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.authorLabel.text")); // NOI18N
 
         author.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.author.text")); // NOI18N
         author.setName(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.author.name")); // NOI18N
 
         kindLabel.setLabelFor(bookButton);
-        kindLabel.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.kindLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(kindLabel, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.kindLabel.text")); // NOI18N
 
-        kindsPanel.setLayout(new java.awt.GridLayout());
+        kindsPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         buttonGroup1.add(bookButton);
-        bookButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.bookButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(bookButton, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.bookButton.text")); // NOI18N
         kindsPanel.add(bookButton);
 
         buttonGroup1.add(slidesButton);
-        slidesButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.slidesButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(slidesButton, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.slidesButton.text")); // NOI18N
         slidesButton.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         kindsPanel.add(slidesButton);
 
         buttonGroup1.add(articleButton);
-        articleButton.setText(org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.articleButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(articleButton, org.openide.util.NbBundle.getMessage(ProjectInfoPanel.class, "ProjectInfoPanel.articleButton.text")); // NOI18N
         articleButton.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         kindsPanel.add(articleButton);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 652, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(namelbl)
-                            .add(titleLabel)
-                            .add(subtitleLabel)
-                            .add(authorLabel)
-                            .add(loclbl)
-                            .add(kindLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(kindsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
-                            .add(name, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(location, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(browse))
-                            .add(title, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
-                            .add(subtitle, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
-                            .add(author, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 652, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(namelbl)
+                            .addComponent(titleLabel)
+                            .addComponent(subtitleLabel)
+                            .addComponent(authorLabel)
+                            .addComponent(loclbl)
+                            .addComponent(kindLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(kindsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .addComponent(name, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(location, javax.swing.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(browse))
+                            .addComponent(title, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .addComponent(subtitle, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+                            .addComponent(author, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(kindLabel)
-                    .add(kindsPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(namelbl)
-                    .add(name, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(location, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(browse)
-                    .add(loclbl))
-                .add(20, 20, 20)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(titleLabel)
-                    .add(title, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(subtitleLabel)
-                    .add(subtitle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(authorLabel)
-                    .add(author, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(kindLabel)
+                    .addComponent(kindsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(namelbl)
+                    .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(location, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(browse)
+                    .addComponent(loclbl))
+                .addGap(20, 20, 20)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(titleLabel)
+                    .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(subtitleLabel)
+                    .addComponent(subtitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(authorLabel)
+                    .addComponent(author, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        layout.linkSize(new java.awt.Component[] {kindLabel, kindsPanel}, org.jdesktop.layout.GroupLayout.VERTICAL);
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {kindLabel, kindsPanel});
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        if (evt.getSource() == browse) {
+            ProjectInfoPanel.this.browseActionPerformed(evt);
+        }
     }// </editor-fold>//GEN-END:initComponents
 
     private void browseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseActionPerformed
@@ -317,8 +337,9 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         c.selectAll();
     }
 
-    public Problem check() {
-        return group.validateAll();
+    public boolean check() {
+        Problem p = group.validateAll();
+        return p == null || !p.isFatal();
     }
 
     public void focusLost(FocusEvent e) {

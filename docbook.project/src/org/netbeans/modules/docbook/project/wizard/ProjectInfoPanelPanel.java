@@ -56,6 +56,7 @@ public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescr
 
     private final ChangeSupport supp = new ChangeSupport(this);
     private ProjectInfoPanel panel;
+    private WizardDescriptor d;
     public Component getComponent() {
         boolean wasNull = panel == null;
         Component result = wasNull ? (panel = new ProjectInfoPanel()) : panel;
@@ -70,19 +71,30 @@ public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescr
     }
 
     public void readSettings(WizardDescriptor d) {
+        this.d = d;
         if (panel != null) {
             panel.load (d);
         }
     }
 
+    boolean inStoreSettings;
     public void storeSettings(WizardDescriptor d) {
-        if (panel != null) {
-            panel.save (d);
+        if (inStoreSettings) {
+            return;
+        }
+        inStoreSettings = true;
+        try {
+            this.d = d;
+            if (panel != null) {
+                panel.save (d);
+            }
+        } finally {
+            inStoreSettings = false;
         }
     }
 
     public boolean isValid() {
-        return panel != null && panel.check() == null;
+        return panel != null && panel.check();
     }
 
     public void addChangeListener(ChangeListener l) {
@@ -97,7 +109,14 @@ public class ProjectInfoPanelPanel implements WizardDescriptor.Panel<WizardDescr
         return true;
     }
 
+    boolean inStateChanged;
     public void stateChanged(ChangeEvent e) {
-        supp.fireChange();
+        if (inStateChanged) return;
+        inStateChanged = true;
+        try {
+            supp.fireChange();
+        } finally {
+            inStateChanged = false;
+        }
     }
 }

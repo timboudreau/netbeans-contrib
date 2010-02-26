@@ -51,6 +51,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.docbook.Versions;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -60,20 +61,36 @@ import org.openide.util.NbBundle;
 public class WizardIt implements WizardDescriptor.InstantiatingIterator<Set<FileObject>>, ChangeListener {
     static final String BOOK_HEADER =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //NOI18N
-        "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" " + //NOI18N
-        "\"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n"; //NOI18N
+        "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V" +
+        Versions.DOCBOOK_XML_VERSION +
+        "//EN\" " + //NOI18N
+        "\"http://www.oasis-open.org/docbook/xml/" +
+        Versions.DOCBOOK_XML_VERSION +
+        "/docbookx.dtd\"$ENTITIES>\n"; //NOI18N
     static final String SLIDES_HEADER =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //NOI18N
-        "<!DOCTYPE slides PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" " + //NOI18N
-        "\"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n"; //NOI18N
+        "<!DOCTYPE slides PUBLIC \"-//OASIS//DTD DocBook XML V" +
+        Versions.SLIDES_VERSION +
+        "//EN\" " + //NOI18N
+        "\"http://www.oasis-open.org/docbook/xml/" +
+        Versions.DOCBOOK_XML_VERSION +
+        "/docbookx.dtd\">\n"; //NOI18N
     static final String ARTICLE_HEADER =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //NOI18N
-        "<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" " + //NOI18N
-        "\"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n"; //NOI18N
+        "<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook XML V" +
+        Versions.DOCBOOK_XML_VERSION +
+        "//EN\" " + //NOI18N
+        "\"http://www.oasis-open.org/docbook/xml/" +
+        Versions.DOCBOOK_XML_VERSION +
+        "/docbookx.dtd\">\n"; //NOI18N
     static final String CHAPTER_HEADER =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //NOI18N
-        "<!DOCTYPE chapter PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" " + //NOI18N
-        "\"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n"; //NOI18N
+        "<!DOCTYPE chapter PUBLIC \"-//OASIS//DTD DocBook XML V" +
+        Versions.DOCBOOK_XML_VERSION +
+        "//EN\" " + //NOI18N
+        "\"http://www.oasis-open.org/docbook/xml/" +
+        Versions.DOCBOOK_XML_VERSION +
+        "/docbookx.dtd\">\n"; //NOI18N
     static final String BOOK_HEAD =
         "<book>\n"; //NOI18N
 
@@ -120,6 +137,7 @@ public class WizardIt implements WizardDescriptor.InstantiatingIterator<Set<File
         ProjectKind projKind = (ProjectKind) wiz.getProperty("kind"); //NOI18N
         String title = (String) wiz.getProperty("title"); //NOI18N
         String author = (String) wiz.getProperty("author"); //NOI18N
+        ChapterGenerationStyle style = (ChapterGenerationStyle) wiz.getProperty(ProjectOutlinePanel.PROP_GENERATION_STYLE);
         if (projName == null || projName.trim().length() == 0) {
             throw new IOException ("Name not specified"); //NOI18N
         }
@@ -137,13 +155,12 @@ public class WizardIt implements WizardDescriptor.InstantiatingIterator<Set<File
             throw new IOException (dirName + " does not exist"); //NOI18N
         }
         String out = (String) wiz.getProperty("outline"); //NOI18N
-        boolean split = Boolean.TRUE.equals(wiz.getProperty("split")); //NOI18N
-        Outline outline = out == null ? projKind.defaultOutline() : new Outline(out);
+        Outline outline = out == null || out.trim().length() == 0 ? projKind.defaultOutline() : new Outline(out);
         String subtitle = (String) wiz.getProperty("subtitle"); //NOI18N
         Info info = new Info (projName, subtitle, author);
         String projDirName = FileUtil.findFreeFolderName(dirF, ProjectKind.toFilename(projName));
         FileObject projDir = dirF.createFolder (projDirName);
-        List<FileObject> fos = projKind.createProject(projName, projDir, info, outline, split);
+        List<FileObject> fos = projKind.createProject(projName, projDir, info, outline, style);
         fos.add(projDir);
         return new LinkedHashSet<FileObject>(fos);
     }

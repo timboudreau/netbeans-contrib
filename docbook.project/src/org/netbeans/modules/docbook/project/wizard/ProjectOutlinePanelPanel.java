@@ -82,7 +82,7 @@ public class ProjectOutlinePanelPanel implements WizardDescriptor.Panel<WizardDe
     }
 
     public boolean isValid() {
-        return panel != null && panel.check();
+        return true;
     }
 
     public void addChangeListener(ChangeListener l) {
@@ -97,7 +97,16 @@ public class ProjectOutlinePanelPanel implements WizardDescriptor.Panel<WizardDe
         return true;
     }
 
+    boolean inStateChanged;
     public void stateChanged(ChangeEvent e) {
-        supp.fireChange();
+        if (inStateChanged) {
+            return;
+        }
+        inStateChanged = true;
+        try {
+            supp.fireChange();
+        } finally {
+            inStateChanged = false;
+        }
     }
 }
