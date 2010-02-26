@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="ScalaMimeResolver.xml" url="ScalaMimeResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editor.Bundle"/>
+                <attr name="position" intvalue="288"/>
+            </file>
+        </folder>
+    </folder>
+
     <folder name="Editors">
       <!-- Reference binding color themes are under module: main/defaults/src/org/netbeans/modules/defaults -->
       <!-- color theme for nbeditor-settings-ColoringType -->
