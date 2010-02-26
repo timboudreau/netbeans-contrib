@@ -69,9 +69,9 @@ import org.xml.sax.SAXException;
  * @author Tim Boudreau
  */
 public final class DocbookGrammarQuery extends GrammarQueryManager {
-    private static final String FAKE_BOOK = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">"
-            + "<book><chapter id=\"one\"><para>abc</para><section id=\"foo\"><title>Foo</title><para>foo</para></section></chapter></book>";
+    private static final String FAKE_BOOK = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" //NOI18N
+            + "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">" //NOI18N
+            + "<book><chapter id=\"one\"><para>abc</para><section id=\"foo\"><title>Foo</title><para>foo</para></section></chapter></book>"; //NOI18N
 
     @Override
     public Enumeration enabled(GrammarEnvironment ctx) {
@@ -81,17 +81,6 @@ public final class DocbookGrammarQuery extends GrammarQueryManager {
         if (usable) {
             try {
                 return en(ctx);
-                //        GrammarQueryManager real = getDtdManager();
-                //        if (real == null) {
-                //            return null;
-                //        }
-                //        FileObject fo = ctx.getFileObject();
-                //        String mime = fo == null ? null : fo.getMIMEType();
-                //        boolean usable = DocBookDataObject.MIME_DOCBOOK.equals(mime) || DocBookDataObject.MIME_SLIDES.equals(mime) || DocBookDataObject.MIME_SOLBOOK.equals(mime);
-                //        if (usable) {
-                //            return ctx.getDocumentChildren();
-                //        return null;
-                //        return null;
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (SAXException ex) {
