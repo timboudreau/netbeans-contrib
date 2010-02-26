@@ -79,7 +79,6 @@ object ScalaFormatter {
 
 import ScalaFormatter._
 class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
-  
 
   def this() = this(null, -1)
   
@@ -117,17 +116,17 @@ class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends For
 
   def indentSize: Int = {
     if (codeStyle != null) {
-      codeStyle.getIndentSize
+      codeStyle.indentSize
     } else {
-      CodeStyle.get(null.asInstanceOf[Document]).getIndentSize
+      CodeStyle.get(null.asInstanceOf[Document]).indentSize
     }
   }
 
   def hangingIndentSize: Int = {
     if (codeStyle != null) {
-      codeStyle.getContinuationIndentSize
+      codeStyle.continuationIndentSize
     } else {
-      CodeStyle.get(null.asInstanceOf[Document]).getContinuationIndentSize
+      CodeStyle.get(null.asInstanceOf[Document]).continuationIndentSize
     }
   }
 
@@ -669,10 +668,11 @@ class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends For
         }
       }
 
-    } catch {case e: AssertionError =>
-        doc.getProperty(Document.StreamDescriptionProperty).asInstanceOf[DataObject] match {
-          case null =>
-          case dobj =>  Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+    } catch {
+      case e: AssertionError =>
+        doc.getProperty(Document.StreamDescriptionProperty) match {
+          case dobj: DataObject => Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+          case _ =>
         }
         
         throw e
@@ -788,8 +788,8 @@ class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends For
    */
   private def syncOptions(doc: BaseDocument, style: CodeStyle) {
     val formatter = doc.getFormatter
-    if (formatter.getSpacesPerTab != style.getIndentSize) {
-      formatter.setSpacesPerTab(style.getIndentSize)
+    if (formatter.getSpacesPerTab != style.indentSize) {
+      formatter.setSpacesPerTab(style.indentSize)
     }
   }
   

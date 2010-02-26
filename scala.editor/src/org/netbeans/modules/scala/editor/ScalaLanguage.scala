@@ -54,8 +54,15 @@ import org.netbeans.modules.scala.hints.ScalaHintsProvider
  *
  * @author Caoyuan Deng
  */
+object ScalaLanguage {
+  val BOOT    = "scala/classpath/boot"
+  val COMPILE = "scala/classpath/compile"
+  val EXECUTE = "scala/classpath/execute"
+  val SOURCE  = "scala/classpath/source"
+}
+
+import ScalaLanguage._
 class ScalaLanguage extends ScalaLanguageBridge {
-  import ScalaLanguage._
 
   override def getLexerLanguage = ScalaTokenId.language
 
@@ -98,9 +105,3 @@ class ScalaLanguage extends ScalaLanguageBridge {
   //override def getIndexerFactory = new ScalaIndexer.Factory
 }
 
-object ScalaLanguage {
-  val BOOT    = "scala/classpath/boot"
-  val COMPILE = "scala/classpath/compile"
-  val EXECUTE = "scala/classpath/execute"
-  val SOURCE  = "scala/classpath/source"
-}
