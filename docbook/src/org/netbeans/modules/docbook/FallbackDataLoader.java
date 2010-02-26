@@ -81,7 +81,8 @@ public final class FallbackDataLoader extends DataLoader {
                 DataObject.Factory factory = DataLoaderPool.factory(
                         DocBookDataObject.class,
                         "Loaders/text/x-docbook+xml", //NOI18N
-                        ImageUtilities.loadImage("org/netbeans/modules/docbook/resources/docbook.png")); //NOI18N
+                        ImageUtilities.loadImage(
+                        "org/netbeans/modules/docbook/resources/docbook.png")); //NOI18N
                 DataObject result = factory.findDataObject(fo, fos);
                 for (FileObject f : fos) {
                     recognized.markRecognized(f);

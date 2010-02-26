@@ -312,13 +312,19 @@ made subject to such option by the copyright holder.
             <folder name="x-docbook+xml">
                 <folder name="popup">
                     <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
+                        <attr name="position" intvalue="100"/>
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
                     </file>
                     <file name="org-netbeans-modules-docbook-ToHtmlAction.shadow">
+                        <attr name="position" intvalue="200"/>
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ToHtmlAction.instance"/>
                     </file>
                     <file name="org-netbeans-modules-docbook-ValidationAction.shadow">
+                        <attr name="position" intvalue="300"/>
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ValidationAction.instance"/>
+                    </file>
+                    <file name="org-netbeans-modules-xml-actions-XMLViewActions.instance">
+                        <attr name="position" intvalue="400"/>
                     </file>
                 </folder>
             </folder>
@@ -326,12 +332,18 @@ made subject to such option by the copyright holder.
                 <folder name="popup">
                     <file name="org-netbeans-modules-docbook-AddChapterAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-AddChapterAction.instance"/>
+                        <attr name="position" intvalue="100"/>
                     </file>
                     <file name="org-netbeans-modules-docbook-ToHtmlAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                        <attr name="position" intvalue="200"/>
                     </file>
                     <file name="org-netbeans-modules-docbook-ValidationAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-docbook-ValidationAction.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-netbeans-modules-xml-actions-XMLViewActions.instance">
+                        <attr name="position" intvalue="400"/>
                     </file>
                 </folder>
             </folder>

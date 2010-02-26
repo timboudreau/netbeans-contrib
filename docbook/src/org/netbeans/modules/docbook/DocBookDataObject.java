@@ -42,6 +42,7 @@
 package org.netbeans.modules.docbook;
 
 import java.io.IOException;
+import org.netbeans.spi.xml.cookies.CheckXMLSupport;
 import org.netbeans.spi.xml.cookies.DataObjectAdapters;
 import org.netbeans.spi.xml.cookies.TransformableSupport;
 import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
@@ -54,6 +55,7 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
+import org.xml.sax.InputSource;
 
 public class DocBookDataObject extends MultiDataObject {
     public static final String MIME_SOLBOOK = "text/x-solbook+xml";
@@ -64,10 +66,11 @@ public class DocBookDataObject extends MultiDataObject {
     public DocBookDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         getCookieSet().add(new DocBookEditorSupport(this));
-        getCookieSet().add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
+        InputSource src = DataObjectAdapters.inputSource(this);
+        getCookieSet().add(new CheckXMLSupport(src));
+        getCookieSet().add(new ValidateXMLSupport(src));
         getCookieSet().add(new TransformableSupport(DataObjectAdapters.source(this)));
         getCookieSet().add(new SavableImpl());
-        
     }
 
     @Override
