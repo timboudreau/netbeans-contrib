@@ -39,10 +39,73 @@
 
 package org.netbeans.modules.docbook;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.docbook.Renderer;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.spi.actions.Single;
+import org.openide.awt.HtmlBrowser.URLDisplayer;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+
 /**
  *
  * @author Tim Boudreau
  */
-public class RenderHtmlAction {
+public final class RenderHtmlAction extends Single<Renderer> {
+    private AtomicBoolean running = new AtomicBoolean();
+    public RenderHtmlAction() {
+        super (Renderer.class, NbBundle.getMessage(RenderHtmlAction.class, "RenderHtmlAction"), null);
+    }
 
+    @Override
+    protected void actionPerformed(Renderer target) {
+        File tmpDir = new File (System.getProperty("java.io.tmpdir"));
+        S s = new S();
+        target.render(tmpDir, s);
+    }
+
+    @Override
+    protected boolean isEnabled(Renderer target) {
+        return !running.get();
+    }
+
+    private final class S extends Renderer.JobStatus {
+        ProgressHandle h = ProgressHandleFactory.createHandle("");
+
+        @Override
+        public void finished(String msg, File result) {
+            running.set(false);
+            h.finish();
+            if (result != null) {
+                try {
+                    URL url = result.toURI().toURL();
+                    URLDisplayer.getDefault().showURLExternal(url);
+                } catch (MalformedURLException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+
+        @Override
+        public void progress(String msg) {
+            h.progress(msg);
+        }
+
+        @Override
+        public void started(String msg) {
+            running.set(true);
+            h.start();
+        }
+
+        @Override
+        public void failed(Throwable t) {
+            running.set(false);
+            h.finish();
+        }
+
+    }
 }
