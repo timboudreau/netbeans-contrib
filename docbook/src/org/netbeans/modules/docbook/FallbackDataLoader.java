@@ -80,7 +80,7 @@ public final class FallbackDataLoader extends DataLoader {
                 Set<FileObject> fos = new HashSet<FileObject>();
                 DataObject.Factory factory = DataLoaderPool.factory(
                         DocBookDataObject.class,
-                        "Loaders/text/x-docbook+xml", //NOI18N
+                        "text/x-docbook+xml", //NOI18N
                         ImageUtilities.loadImage(
                         "org/netbeans/modules/docbook/resources/docbook.png")); //NOI18N
                 DataObject result = factory.findDataObject(fo, fos);

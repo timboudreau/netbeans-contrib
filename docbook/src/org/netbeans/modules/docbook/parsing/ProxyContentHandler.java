@@ -42,7 +42,6 @@ package org.netbeans.modules.docbook.parsing;
 
 import java.util.Collection;
 import org.netbeans.api.docbook.Callback;
-import org.netbeans.modules.docbook.*;
 import org.netbeans.modules.docbook.parsing.ParseJobFactory.ParseJobImpl;
 import org.openide.filesystems.FileObject;
 import org.xml.sax.Attributes;

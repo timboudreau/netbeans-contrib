@@ -42,6 +42,10 @@
 package org.netbeans.modules.docbook;
 
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import org.netbeans.api.docbook.MainFileProvider;
+import org.netbeans.modules.docbook.parsing.ParsingServiceImpl;
 import org.netbeans.spi.xml.cookies.CheckXMLSupport;
 import org.netbeans.spi.xml.cookies.DataObjectAdapters;
 import org.netbeans.spi.xml.cookies.TransformableSupport;
@@ -54,13 +58,16 @@ import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 import org.xml.sax.InputSource;
 
 public class DocBookDataObject extends MultiDataObject {
-    public static final String MIME_SOLBOOK = "text/x-solbook+xml";
-    public static final String MIME_SLIDES = "text/x-docbook-slides+xml";
-    public static final String MIME_DOCBOOK = "text/x-docbook+xml";
+    public static final String MIME_SOLBOOK = "text/x-solbook+xml"; //NOI18N
+    public static final String MIME_SLIDES = "text/x-docbook-slides+xml"; //NOI18N
+    public static final String MIME_DOCBOOK = "text/x-docbook+xml"; //NOI18N
+    private Reference<DocBookDataNode> nodeRef;
+    protected final Lookup lkp;
 
     @SuppressWarnings("LeakingThisInConstructor")
     public DocBookDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
@@ -70,7 +77,9 @@ public class DocBookDataObject extends MultiDataObject {
         getCookieSet().add(new CheckXMLSupport(src));
         getCookieSet().add(new ValidateXMLSupport(src));
         getCookieSet().add(new TransformableSupport(DataObjectAdapters.source(this)));
-        getCookieSet().add(new SavableImpl());
+        lkp = new ProxyLookup(getCookieSet().getLookup(), Lookups.fixed(
+                new RendererImpl(this), new SavableImpl(), new ParsingServiceImpl(this),
+                new Notifier()));
     }
 
     @Override
@@ -80,29 +89,42 @@ public class DocBookDataObject extends MultiDataObject {
     
     @Override
     protected Node createNodeDelegate() {
-        return new DocBookDataNode(this, new InstanceContent());
+        return node(true);
     }
     
-    final void addSaveCookie(SaveCookie save) {
-        getCookieSet().add(save);
-    }
-     
-    final void removeSaveCookie(SaveCookie save) {
-        getCookieSet().remove(save);
-    }
-
     @Override
     public Lookup getLookup() {
-        return getCookieSet().getLookup();
+        return lkp;
+    }
+
+    private DocBookDataNode node(boolean create) {
+        DocBookDataNode result;
+        synchronized (lkp) {
+            result = nodeRef == null ? null : nodeRef.get();
+            if (result == null && create) {
+                result = new DocBookDataNode(this);
+                nodeRef = new WeakReference<DocBookDataNode>(result);
+            }
+        }
+        return result;
+    }
+
+    private final class Notifier implements MainFileProvider.Notifier {
+        public void change() {
+            DocBookDataNode n = node(false);
+            if (n != null) {
+                n.change();
+            }
+        }
     }
 
     private final class SavableImpl implements Savable, Node.Cookie {
         public void addSaveCookie(SaveCookie save) {
-            DocBookDataObject.this.addSaveCookie(save);
+            getCookieSet().add(save);
         }
 
         public void removeSaveCookie(SaveCookie save) {
-            DocBookDataObject.this.removeSaveCookie(save);
+            getCookieSet().remove(save);
         }
 
     }

@@ -50,15 +50,12 @@
 package org.netbeans.modules.docbook.parsing;
 
 import java.awt.EventQueue;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -84,12 +81,12 @@ import org.netbeans.api.workqueues.Dispatcher;
 import org.netbeans.api.workqueues.Drainable;
 import org.netbeans.api.workqueues.QueueWorkProcessor;
 import org.netbeans.modules.docbook.DocBookCatalog;
-import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -287,7 +284,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                     p.doDone (p.callback, file);
                     p.notifyFinished();
                 } catch (RuntimeException e) {
-                    ErrorManager.getDefault().notify (e);
+                    Exceptions.printStackTrace(e);
                 }
             }
         }
@@ -310,7 +307,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
             reader.setErrorHandler(handler);
             reader.setDTDHandler(handler);
             EntityResolver resolver = new DocBookCatalog.Reader();
-            reader.setEntityResolver(new ER(resolver, file));
+            reader.setEntityResolver(new ProxyEntityResolver(resolver, file));
 
             if (reader instanceof Locator) {
                 System.err.println("GOT A LOCATOR");
@@ -321,6 +318,12 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
             try {
                 reader.parse(new InputSource (new StringReader(seq.toString())));
                 System.err.println("PARSE Succeeded");
+            } catch (MalformedURLException e) {
+                System.err.println(e.getMessage());
+                System.err.println(e.getLocalizedMessage());
+                Exceptions.printStackTrace(e);
+                Logger.getLogger(ParseJobFactory.class.getName()).log(Level.INFO,
+                        "MUE resolving entities?", e);
             } catch (FileNotFoundException e) {
                 Logger.getLogger(ParseJobFactory.class.getName()).log(Level.INFO,
                         "FNFE resolving entities?", e);
@@ -347,7 +350,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
             }
             return result;
         } catch (DataObjectNotFoundException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Exceptions.printStackTrace(ex);
             return null;
         }
     }
@@ -472,7 +475,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
             try {
                 string = doc.getText(0, doc.getLength());
             } catch (BadLocationException ble) {
-                ErrorManager.getDefault().notify (ble);
+                Exceptions.printStackTrace(ble);
             }
         }
 
@@ -506,7 +509,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                 channel.close();
             }
         } catch (IOException ioe) {
-            ErrorManager.getDefault().notify (ioe);
+            Exceptions.printStackTrace(ioe);
             return null;
         }
     }
@@ -633,50 +636,6 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
 
         public int hashCode() {
             return callback.hashCode() * 31;
-        }
-    }
-
-    private static final class ER implements EntityResolver {
-        private final EntityResolver proxy;
-        private final FileObject file;
-        public ER (EntityResolver proxy, FileObject file) {
-            this.proxy = proxy;
-            this.file = file;
-        }
-
-        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            System.err.println("RESOLVE ENTITY " + publicId + " " + systemId);
-            if (systemId.startsWith("file:///")) {
-                System.err.println("Got a file: " + systemId);
-                try {
-                    File f = new File (new URL(systemId).toURI());
-                    if (!f.exists()) {
-                        //The SAX parser will resolve relative files in
-                        //entity definitions as relative to the working
-                        //directory.  Here we remap them relative to the
-                        //file they came from.
-                        String userdir = System.getProperty("user.dir");
-                        if (f.getPath().startsWith(userdir)) {
-                            String relativePath =
-                                    f.getPath().substring (userdir.length());
-                            File nue = new File (
-                                    FileUtil.toFile(file.getParent()), relativePath);
-                            System.err.println("SUBSTITUTE " + nue.getPath());
-                            InputSource result = new InputSource (
-                                    new BufferedInputStream(new FileInputStream(nue)));
-
-                            return result;
-                        }
-                    }
-                } catch (URISyntaxException e) {
-                    Logger.getLogger(ParseJobFactory.class.getName()).log(Level.WARNING, null, e);
-                } catch (MalformedURLException mue) {
-                    Logger.getLogger(ParseJobFactory.class.getName()).log(Level.WARNING, null, mue);
-                }
-            }
-            InputSource result = proxy.resolveEntity(publicId, systemId);
-            System.err.println("RESOLVED: " + result);
-            return result;
         }
     }
 

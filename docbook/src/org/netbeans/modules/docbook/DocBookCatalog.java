@@ -74,6 +74,8 @@ public class DocBookCatalog implements CatalogProvider {
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
         PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V4.4//EN",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
+        PUBLIC_2_SYSTEM.put("-//Sun Microsystems//DTD XML-SolBook 3.5 //EN",
+                            "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/solbookx.dtd--public2system");
         // XXX slides-full.dtd
     }
     
@@ -85,6 +87,8 @@ public class DocBookCatalog implements CatalogProvider {
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/");
         SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl",
                             "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/");
+        SYSTEM_2_SYSTEM.put("http://www.sun.com/solbook/xml/" + Config.SOLBOOK_XML_VERSION + "/",
+                            "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/--system2system");
     }
     
     public Class provideClass() throws IOException, ClassNotFoundException {
@@ -149,12 +153,10 @@ public class DocBookCatalog implements CatalogProvider {
         public void removePropertyChangeListener(PropertyChangeListener l) {}
 
         public String resolveURI(String name) {
-            System.err.println("RESOLVE URI: " + name);
             return null;
         }
 
         public String resolvePublic(String publicId) {
-            System.err.println("RESOLVE PUBLIC: " + publicId);
             return null;
         }
         

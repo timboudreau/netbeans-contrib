@@ -42,122 +42,31 @@
 package org.netbeans.modules.docbook;
 
 import java.awt.Image;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import javax.swing.Action;
 import org.netbeans.api.docbook.MainFileProvider;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.docbook.parsing.ParsingServiceImpl;
-import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.Lookups;
 
 public class DocBookDataNode extends DataNode {
-    private final InstanceContent content;
-    public DocBookDataNode(DataObject obj, InstanceContent content) {
-        super(obj, Children.LEAF, new AbstractLookup (content));
-        OpenCookie oc = obj.getCookie(OpenCookie.class);
-        assert oc != null : obj + " has no OpenCookie; DBES=" + obj.getCookie(DocBookEditorSupport.class);
-        this.content = content;
-        content.set(Arrays.asList(
-                obj, new RendererImpl (obj),
-                oc,
-                new Notifier (obj),
-                new ParsingServiceImpl (obj)
-                ), null);
-        SaveCookie ck = obj.getCookie(SaveCookie.class);
-        if (ck != null) {
-            content.add (ck);
-        }
-        pcl = new PCL();
-        obj.addPropertyChangeListener(WeakListeners.propertyChange(pcl, obj));
+    public DocBookDataNode(DataObject obj) {
+        super(obj, Children.LEAF, obj.getLookup());
+        assert obj.getLookup().lookup(OpenCookie.class) != null : obj + " has no OpenCookie; DBES=" + obj.getCookie(DocBookEditorSupport.class);
         setIconBaseWithExtension(obj instanceof DocBookDataObject ?
             "org/netbeans/modules/docbook/resources/docbook.png" : //NOI18N
             "org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"); //NOI18N
     }
 
-    private PropertyChangeListener pcl;
-
-    private class PCL implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent evt) {
-            boolean ck = DataObject.PROP_COOKIE.equals(evt.getPropertyName());
-            if (ck) {
-                SaveCookie save = getDataObject().getCookie(SaveCookie.class);
-                if (save == null) {
-                    SaveCookie old = getLookup().lookup(SaveCookie.class);
-                    if (old != null) {
-                        content.remove(old);
-                    }
-                } else {
-                    SaveCookie old = getLookup().lookup(SaveCookie.class);
-                    if (old != save && old != null) {
-                        content.remove(old);
-                    }
-                    content.add(save);
-                }
-            }
-        }
-    }
-
-    public String getDisplayName() {
-        String result = super.getDisplayName();
-        FileObject ob = getDataObject().getPrimaryFile();
-        try {
-            String name = ob.getFileSystem().getStatus().annotateName(
-                result, Collections.singleton(ob));
-            return name;
-        } catch (FileStateInvalidException e) {
-            ErrorManager.getDefault().notify (e);
-            return result;
-        }
-    }
-
-//    @Override
-//    public Action[] getActions(boolean ignored) {
-//        if (getDataObject() instanceof DocBookDataObject) {
-//            return super.getActions(ignored);
-//        } else {
-//            Collection<? extends Action> result = Lookups.forPath("Loaders/text/x-docbook+xml/Actions").lookupAll(Action.class);
-//            Action[] actions = (Action[]) result.toArray(new Action[result.size()]);
-//            return actions;
-//        }
-//    }
-
-//    public Image getIcon(int type) {
-//        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-//            Image result = Utilities.loadImage(
-//                    "org/netbeans/modules/docbook/docbook.png", true); //NOI18N
-//            FileObject ob = getDataObject().getPrimaryFile();
-//            try {
-//                result = ob.getFileSystem().getStatus().annotateIcon(result, type,
-//                        Collections.singleton(ob));
-//            } catch (FileStateInvalidException ex) {
-//                ErrorManager.getDefault().notify (ex);
-//            }
-//            return result;
-//        } else {
-//            return null;
-//        }
-//    }
-//
+    @Override
     public Image getOpenedIcon(int type) {
         return getIcon(type);
     }
 
+    @Override
     public String getShortDescription() {
         String mime = getDataObject().getPrimaryFile().getMIMEType();
         if (mime.equals(DocBookDataObject.MIME_DOCBOOK)) {
@@ -190,6 +99,7 @@ public class DocBookDataNode extends DataNode {
         fireDisplayNameChange(null, getDisplayName());
     }
 
+    @Override
     public String getHtmlDisplayName() {
         String result = super.getHtmlDisplayName();
         boolean main = isMainFile();
@@ -200,16 +110,5 @@ public class DocBookDataNode extends DataNode {
         }
     }
 
-    private static final class Notifier implements MainFileProvider.Notifier {
-        private DataObject obj;
-        Notifier (DataObject obj) {
-            this.obj = obj;
-        }
 
-        public void change() {
-            DocBookDataNode n =
-                    (DocBookDataNode) obj.getNodeDelegate();
-            n.change();
-        }
-    }
 }

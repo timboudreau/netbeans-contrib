@@ -61,6 +61,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.docbook.OutputWindowStatus;
 import org.netbeans.api.docbook.Renderer;
+import org.netbeans.modules.docbook.parsing.ProxyEntityResolver;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -133,12 +134,14 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                 XMLReader reader = saxpf.newSAXParser().getXMLReader();
                 reader.setErrorHandler(this);
                 EntityResolver resolver = new DocBookCatalog.Reader();
-                reader.setEntityResolver(resolver);
-                InputSource styleSource = resolver.resolveEntity(null, XSL_SLIDES);
+                ProxyEntityResolver per = new ProxyEntityResolver(resolver, fo);
+                per.log = true;
+                reader.setEntityResolver(per);
+                InputSource styleSource = per.resolveEntity(null, XSL_SLIDES);
                 assert styleSource != null;
                 Source style = new SAXSource(reader, styleSource);
                 TransformerFactory tf = createSaxonTransformerFactory();
-                tf.setURIResolver(new EntityResolver2URIResolver(resolver));
+                tf.setURIResolver(new EntityResolver2URIResolver(per));
                 status.progress("Loading stylesheet...");
                 Transformer t = tf.newTransformer(style);
                 t.setParameter("output.indent", "yes");
@@ -151,7 +154,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                 saxpf.setValidating(true);
                 reader = saxpf.newSAXParser().getXMLReader();
                 reader.setErrorHandler(this);
-                reader.setEntityResolver(resolver); // XXX include EntityCatalog.default too?
+                reader.setEntityResolver(per); // XXX include EntityCatalog.default too?
                 Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
                 Result result = new StreamResult(dummyF);
                 t.setErrorListener(this);
@@ -198,18 +201,19 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                     XMLReader reader = saxpf.newSAXParser().getXMLReader();
                     reader.setErrorHandler(this);
                     EntityResolver resolver = new DocBookCatalog.Reader();
-                    reader.setEntityResolver(resolver);
-                    InputSource styleSource = resolver.resolveEntity(null, XSL_ARTICLE);
+                    ProxyEntityResolver per = new ProxyEntityResolver(resolver, fo);
+                    reader.setEntityResolver(per);
+                    InputSource styleSource = per.resolveEntity(null, XSL_ARTICLE);
                     assert styleSource != null;
                     Source style = new SAXSource(reader, styleSource);
                     TransformerFactory tf = createSaxonTransformerFactory();
-                    tf.setURIResolver(new EntityResolver2URIResolver(resolver));
+                    tf.setURIResolver(new EntityResolver2URIResolver(per));
                     Transformer t = tf.newTransformer(style);
                     t.setParameter("output.indent", "yes");
                     saxpf.setValidating(true);
                     reader = saxpf.newSAXParser().getXMLReader();
                     reader.setErrorHandler(this);
-                    reader.setEntityResolver(resolver);
+                    reader.setEntityResolver(per);
                     InputSource docbook = new InputSource(fo.getURL().toExternalForm());
                     Source source = new SAXSource(reader, docbook);
 
@@ -366,7 +370,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                 OutputStream os = fo.getOutputStream(l);
                 try {
                     String res = resourcePrefix + files[i];
-                    InputStream is = ToHtmlAction.class.getClassLoader().getResourceAsStream(res);
+                    InputStream is = Processor.class.getClassLoader().getResourceAsStream(res);
                     assert is != null : res;
                     try {
                         FileUtil.copy(is, os);
