@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.java.editor.ext.fold;
 
+import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ExpressionTree;
@@ -49,14 +50,23 @@ import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.ParameterizedTypeTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.annotations.common.NonNull;
@@ -114,7 +124,7 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
         return v.folds;
     }
 
-    private static final class Visitor extends CancellableTreePathScanner<Void, Void> {
+    private static final class Visitor extends CancellableTreePathScanner<Void, TypeMirror> {
 
         private final @NonNull CompilationInfo info;
         private final @NonNull Document doc;
@@ -128,19 +138,45 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
         }
 
         @Override
-        public Void visitNewClass(NewClassTree node, Void p) {
+        public Void scan(Tree tree, TypeMirror p) {
+            return super.scan(tree, null);
+        }
+
+        public Void doScan(Tree tree, TypeMirror p) {
+            return super.scan(tree, p);
+        }
+
+        @Override
+        public Void visitNewClass(NewClassTree node, TypeMirror designedType) {
             try {
                 if (!shortened.contains(node) && node.getIdentifier().getKind() == Kind.PARAMETERIZED_TYPE) {
-                    diamondShortening(((ParameterizedTypeTree) node.getIdentifier()).getTypeArguments());
+                    diamondShortening(((ParameterizedTypeTree) node.getIdentifier()).getTypeArguments(), designedType);
                 }
             } catch (BadLocationException ex) {
                 Exceptions.printStackTrace(ex);
             }
-            return super.visitNewClass(node, p);
+
+            scan(node.getEnclosingExpression(), null);
+            scan(node.getIdentifier(), null);
+            scan(node.getTypeArguments(), null);
+
+            TypeMirror type = info.getTrees().getTypeMirror(getCurrentPath());
+            Element constr = info.getTrees().getElement(getCurrentPath());
+
+            if (type != null && type.getKind() == TypeKind.DECLARED && constr != null && constr.getKind() == ElementKind.CONSTRUCTOR) {
+                //XXX: will not handle constructor's own type parameters and type params of the enclosing class:
+                handleExecutable(info.getTypes().asMemberOf((DeclaredType) type, constr), node.getArguments());;
+            } else {
+                handleExecutable(null, node.getArguments());
+            }
+            
+            scan(node.getClassBody(), null);
+
+            return null;
         }
 
         @Override
-        public Void visitMethodInvocation(MethodInvocationTree node, Void p) {
+        public Void visitMethodInvocation(MethodInvocationTree node, TypeMirror designedType) {
             try {
                 for (ExpressionTree param : node.getArguments()) {
                     if (param.getKind() != Kind.NEW_CLASS)
@@ -153,7 +189,7 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
                         }
                 }
 
-                diamondShortening(node.getTypeArguments());
+                diamondShortening(node.getTypeArguments(), designedType);
 
                 if (FoldTypes.I18N.enabled()) {
                     Call m = Messages.resolvePossibleMessageCall(info, getCurrentPath());
@@ -174,7 +210,52 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
                 Exceptions.printStackTrace(ex);
             }
             
-            return super.visitMethodInvocation(node, p);
+            scan(node.getTypeArguments(), null);
+            scan(node.getMethodSelect(), null);
+
+            handleExecutable(info.getTrees().getTypeMirror(new TreePath(getCurrentPath(), node.getMethodSelect())), node.getArguments());
+
+            return null;
+        }
+
+        private void handleExecutable(TypeMirror method, List<? extends ExpressionTree> args) {
+            if (method == null || method.getKind() != TypeKind.EXECUTABLE) {
+                scan(args, null);
+                return;
+            }
+
+            TypeMirror lastParamType = null;
+            Iterator<? extends TypeMirror> designedTypes = ((ExecutableType) method).getParameterTypes().iterator();
+            Iterator<? extends ExpressionTree> argsIt = args.iterator();
+
+            while (argsIt.hasNext()) {
+                lastParamType = designedTypes.hasNext() ? designedTypes.next() : lastParamType;
+
+                doScan(argsIt.next(), lastParamType);
+            }
+        }
+
+        @Override
+        public Void visitAssignment(AssignmentTree node, TypeMirror p) {
+            scan(node.getVariable(), null);
+
+            TypeMirror designedType = info.getTrees().getTypeMirror(new TreePath(getCurrentPath(), node.getVariable()));
+
+            doScan(node.getExpression(), designedType);
+
+            return null;
+        }
+
+        @Override
+        public Void visitVariable(VariableTree node, TypeMirror p) {
+            scan(node.getModifiers(), null);
+            scan(node.getType(), null);
+
+            TypeMirror designedType = info.getTrees().getTypeMirror(new TreePath(getCurrentPath(), node.getType()));
+            
+            doScan(node.getInitializer(), designedType);
+
+            return null;
         }
 
         private boolean anonymousParamShortening(NewClassTree nct) throws BadLocationException {
@@ -245,10 +326,16 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
             return true;
         }
 
-        private void diamondShortening(List<? extends Tree> targs) throws BadLocationException {
+        private void diamondShortening(List<? extends Tree> targs, TypeMirror designedType) throws BadLocationException {
             if (!FoldTypes.TYPE_PARAMETERS.enabled())
                 return ;
             
+            TypeMirror actual = info.getTrees().getTypeMirror(getCurrentPath());
+
+            if (actual == null || designedType == null || actual.getKind() == TypeKind.ERROR || !info.getTypes().isAssignable(actual, designedType)) {
+                return ;
+            }
+
             SourcePositions sp = info.getTrees().getSourcePositions();
 
             if (!targs.isEmpty()) {

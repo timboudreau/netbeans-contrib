@@ -266,6 +266,111 @@ public class ShorteningFoldTest extends NbTestCase {
                     "}");
     }
 
+    public void testDiamondForMethodParam() throws Exception {
+        performTest("package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, List<Class<?>>> l) {" +
+                    "        main(new HashMap<String, List<Class<?>>>());" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, List<Class<?>>> l) {" +
+                    "        main(new HashMap<~>());" +
+                    "    }" +
+                    "}");
+    }
+
+    public void testDiamondForConstrParam() throws Exception {
+        performTest("package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public Test(Map<String, List<Class<?>>> l) {" +
+                    "        new Test(new HashMap<String, List<Class<?>>>());" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public Test(Map<String, List<Class<?>>> l) {" +
+                    "        new Test(new HashMap<~>());" +
+                    "    }" +
+                    "}");
+    }
+
+    public void testDiamondNoShorteningForIncorrectParams1() throws Exception {
+        performTest("package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main() {" +
+                    "        Map<String, List<Class<?>>> l = new HashMap<Integer, List<Class<?>>>();" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main() {" +
+                    "        Map<String, List<Class<?>>> l = new HashMap<Integer, List<Class<?>>>();" +
+                    "    }" +
+                    "}");
+    }
+
+    public void testDiamondNoShorteningForIncorrectParams2() throws Exception {
+        performTest("package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, List<Class<?>>> l) {" +
+                    "        main(new HashMap<Integer, List<Class<?>>>());" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, List<Class<?>>> l) {" +
+                    "        main(new HashMap<Integer, List<Class<?>>>());" +
+                    "    }" +
+                    "}");
+    }
+
+    public void testDiamondNoShorteningForIncorrectParams3() throws Exception {
+        performTest("package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public Test(Map<String, List<Class<?>>> l) {" +
+                    "        new Test(new HashMap<Integer, List<Class<?>>>());" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "import java.util.HashMap;" +
+                    "import java.util.List;" +
+                    "import java.util.Map;" +
+                    "public class Test {" +
+                    "    public Test(Map<String, List<Class<?>>> l) {" +
+                    "        new Test(new HashMap<Integer, List<Class<?>>>());" +
+                    "    }" +
+                    "}");
+    }
+
     public void testNbBundle() throws Exception {
         performTest("package test;" +
                     "import org.openide.util.NbBundle;" +
