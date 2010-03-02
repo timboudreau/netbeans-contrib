@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.JavaClassPathConstants;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
@@ -109,6 +110,25 @@ public class ClassPathProviderImplTest extends NbTestCase {
         assertTrue(entry.includes("com/domestic/Class.java"));
         assertFalse(entry.includes("com/foreign1/Class.java"));
         assertTrue(entry.includes("com/foreign2/Class.java"));
+    }
+
+    public void testProcessorPath() throws Exception {
+        File r = getWorkDir();
+        File s = new File(r, "src");
+        if (!s.mkdir()) {
+            throw new Exception();
+        }
+        File lib1 = new File(r, "lib1.jar");
+        File lib2 = new File(r, "lib2.jar");
+        FileObject fo = FileUtil.toFileObject(s);
+        Cache.put(s + JavaCacheConstants.SOURCE, s.getAbsolutePath());
+        Cache.put(s + JavaCacheConstants.CLASSPATH, lib1.getAbsolutePath());
+        ClassPathProvider cpp = new ClassPathProviderImpl(null);
+        assertEquals(lib1.getAbsolutePath(), cpp.findClassPath(fo, ClassPath.COMPILE).toString());
+        assertEquals(lib1.getAbsolutePath(), cpp.findClassPath(fo, JavaClassPathConstants.PROCESSOR_PATH).toString());
+        Cache.put(s + JavaCacheConstants.PROCESSORPATH, lib2.getAbsolutePath());
+        assertEquals(lib1.getAbsolutePath(), cpp.findClassPath(fo, ClassPath.COMPILE).toString());
+        assertEquals(lib2.getAbsolutePath(), cpp.findClassPath(fo, JavaClassPathConstants.PROCESSOR_PATH).toString());
     }
 
 }

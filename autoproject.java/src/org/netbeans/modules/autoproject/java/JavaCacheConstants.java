@@ -45,11 +45,13 @@ public class JavaCacheConstants {
 
     public static final String SOURCE = "#source";
     public static final String CLASSPATH = "#classpath";
+    public static final String PROCESSORPATH = "#processorpath";
     public static final String BOOTCLASSPATH = "#bootclasspath";
     public static final String BINARY = "#binary";
     public static final String SOURCE_LEVEL = "#sourcelevel";
     public static final String INCLUDES = "#includes";
     public static final String EXCLUDES = "#excludes";
+    public static final String PROCESSOR_OPTIONS = "#processoropts";
     /**
      * Original location of classes packed into a JAR. Key is JAR, value is dir or path of dirs.
      */

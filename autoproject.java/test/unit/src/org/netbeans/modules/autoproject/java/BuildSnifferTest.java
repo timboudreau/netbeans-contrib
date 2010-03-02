@@ -408,6 +408,70 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "x.jar", Cache.get(prefix + "s" + JavaCacheConstants.BOOTCLASSPATH));
     }
 
+    public void testAnnotationProcessing() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includeantruntime='false'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.PROCESSORPATH));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.PROCESSOR_OPTIONS));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='gensrc'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <mkdir dir='proclib'/>\n" +
+                "  <javac srcdir='s' destdir='c' includeantruntime='false'>\n" +
+                "   <compilerarg value='-s'/>\n" +
+                "   <compilerarg file='gensrc'/>\n" +
+                "   <compilerarg value='-processorpath'/>\n" +
+                "   <compilerarg path='proclib'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(prefix + "proclib", Cache.get(prefix + "s" + JavaCacheConstants.PROCESSORPATH));
+        assertEquals("-s " + prefix + "gensrc", Cache.get(prefix + "s" + JavaCacheConstants.PROCESSOR_OPTIONS));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <property name='gensrc' location='gensrc'/>\n" +
+                "  <mkdir dir='${gensrc}'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includeantruntime='false'>\n" +
+                "   <compilerarg line='-s ${gensrc} -implicit:class -Arun.stuff=true'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.PROCESSORPATH));
+        assertEquals("-s " + prefix + "gensrc -Arun.stuff=true", Cache.get(prefix + "s" + JavaCacheConstants.PROCESSOR_OPTIONS));
+        Cache.clear();
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <mkdir dir='c'/>\n" +
+                "  <javac srcdir='s' destdir='c' includeantruntime='false'>\n" +
+                "   <compilerarg value='-proc:none'/>\n" +
+                "  </javac>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.PROCESSORPATH));
+        assertEquals("-proc:none", Cache.get(prefix + "s" + JavaCacheConstants.PROCESSOR_OPTIONS));
+        // XXX how to test -processor? need to actually write one for the build to succeed
+    }
+
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
     }

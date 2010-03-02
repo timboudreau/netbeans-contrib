@@ -62,6 +62,7 @@ public class LookupProviderImpl implements LookupProvider {
         return Lookups.fixed(
                 LookupMergerSupport.createClassPathProviderMerger(cpp),
                 new SourceForBinaryImpl(p),
+                new AnnotationProcessingQueryImpl(),
                 new ProjectInformationImpl(p),
                 new SourcesImpl(p),
                 new SourceLevelQueryImpl(p),

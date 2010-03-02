@@ -47,7 +47,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -277,6 +279,35 @@ public class BuildSniffer extends AntLogger {
                 state.sourceForBinary.put(destdir, otherSourceRoots);
             }
         }
+        String processorPath = null;
+        StringBuilder processorOptions = null;
+        List<String> compilerargs = new ArrayList<String>();
+        for (TaskStructure child : task.getChildren()) {
+            if (child.getName().equals("compilerarg")) {
+                compilerargs.addAll(parseCLI(child, event));
+            }
+        }
+        Iterator<String> compilerargsIt = compilerargs.iterator();
+        while (compilerargsIt.hasNext()) {
+            String arg = compilerargsIt.next();
+            if (arg.matches("-proc:.+|-A.+")) {
+                if (processorOptions == null) {
+                    processorOptions = new StringBuilder();
+                } else {
+                    processorOptions.append(' ');
+                }
+                processorOptions.append(arg);
+            } else if (arg.matches("-s|-processor")) {
+                if (processorOptions == null) {
+                    processorOptions = new StringBuilder();
+                } else {
+                    processorOptions.append(' ');
+                }
+                processorOptions.append(arg).append(' ').append(compilerargsIt.next());
+            } else if (arg.equals("-processorpath")) {
+                processorPath = compilerargsIt.next();
+            }
+        }
         List<String> includes = findInclExclProp(event, task, "includes", "includesfile", "include", true);
         List<String> excludes = findInclExclProp(event, task, "excludes", "excludesfile", "exclude", false);
         for (String s : sources) {
@@ -307,8 +338,59 @@ public class BuildSniffer extends AntLogger {
             if (encoding != null) {
                 state.toWrite.put(s + Cache.ENCODING, event.evaluate(encoding));
             }
+            if (processorPath != null) {
+                state.toWrite.put(s + JavaCacheConstants.PROCESSORPATH, processorPath);
+            }
+            if (processorOptions != null) {
+                state.toWrite.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, processorOptions.toString());
+            }
             writePath(s + JavaCacheConstants.SOURCE, sources, state, true, File.pathSeparatorChar);
         }
+    }
+
+    /** Parses a command-line-arguments element. */
+    private List<String> parseCLI(TaskStructure cli, AntEvent event) {
+        List<String> r = new ArrayList<String>();
+        if (cli.getAttribute("value") != null) {
+            r.add(event.evaluate(cli.getAttribute("value")));
+        } else if (cli.getAttribute("file") != null) {
+            r.add(resolve(event, event.evaluate(cli.getAttribute("file"))).getAbsolutePath());
+        } else if (cli.getAttribute("path") != null) {
+            StringBuilder b = new StringBuilder();
+            for (String piece : event.evaluate(cli.getAttribute("path")).split(File.pathSeparator)) {
+                if (!piece.isEmpty()) {
+                    if (b.length() > 0) {
+                        b.append(File.pathSeparatorChar);
+                    }
+                    b.append(resolve(event, piece));
+                }
+            }
+            r.add(b.toString());
+        } else if (cli.getAttribute("pathref") != null) {
+            StringBuilder b = new StringBuilder();
+            for (String piece : event.getProperty(cli.getAttribute("pathref")).split(File.pathSeparator)) {
+                if (!piece.isEmpty()) {
+                    if (b.length() > 0) {
+                        b.append(File.pathSeparatorChar);
+                    }
+                    b.append(resolve(event, piece));
+                }
+            }
+            r.add(b.toString());
+        } else if (cli.getAttribute("line") != null) {
+            r.addAll(Arrays.asList(event.evaluate(cli.getAttribute("line")).split(" ")));
+        } else {
+            LOG.warning("strange CLI object had no expected attributes");
+        }
+        String prefix = cli.getAttribute("prefix");
+        String suffix = cli.getAttribute("suffix");
+        if (prefix != null || suffix != null) {
+            ListIterator<String> it = r.listIterator();
+            while (it.hasNext()) {
+                it.set((prefix != null ? prefix : "") + it.next() + (suffix != null ? suffix : ""));
+            }
+        }
+        return r;
     }
 
     private List<String> findInclExclProp(AntEvent event, TaskStructure task, String prop, String fileprop, String nested, boolean includesMode) {

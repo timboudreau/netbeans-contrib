@@ -55,6 +55,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.classpath.JavaClassPathConstants;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
@@ -163,6 +164,11 @@ class ClassPathProviderImpl implements ClassPathProvider {
                     path = classpath != null ?
                         (binary != null ? classpath + File.pathSeparator + binary : classpath) :
                             (binary != null ? binary : null);
+                } else if (type.equals(JavaClassPathConstants.PROCESSOR_PATH)) {
+                    path = Cache.get(root + JavaCacheConstants.PROCESSORPATH);
+                    if (path == null) {
+                        path = Cache.get(root + JavaCacheConstants.CLASSPATH);
+                    }
                 } else if (type.equals(ClassPath.BOOT)) {
                     path = Cache.get(root + JavaCacheConstants.BOOTCLASSPATH);
                 }
