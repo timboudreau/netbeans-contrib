@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+
+    <!-- CSL plugins -->
+    <folder name="CslPlugins">
+        <folder name="text">
+            <folder name="x-tpl">
+                <attr name="useCustomEditorKit" boolvalue="false"/>
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.smarty.editor.gsf.TplLanguage"/>
+                </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.smarty.editor.gsf.TplStructureScanner"/>
+                </file>
+            </folder>
+            <folder name="x-tpl-inner">
+                <attr name="useCustomEditorKit" boolvalue="false"/>
+                <file name="language.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.smarty.editor.gsf.TplLanguage"/>
+                </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.php.smarty.editor.gsf.TplStructureScanner"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <!-- Editor registrations -->
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-tpl">
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.smarty.editor.lexer.TplTopTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-html-editor-completion-HtmlCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-csl-editor-completion-GsfCompletionProvider.instance"/>
+                </folder>
+                <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.spi.editor.highlighting.HighlightsLayerFactory"/>
+                </file>
+                <file name="org-netbeans-modules-csl-core-GsfParserFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.ParserFactory"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.csl.core.GsfParserFactory.create"/>
+                </file>
+                <file name="org-netbeans-modules-html-editor-coloring-EmbeddingHighlightsLayerFactory.instance"/>
+                <file name="org-netbeans-modules-php-smarty-editor-embedding-TplEmbeddingProvider$Factory.instance"/>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-php-smarty-resources-tpl-fonts-colors.xml" url="tpl-fonts-colors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.smarty.resources.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="x-tpl-inner">
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.php.smarty.editor.lexer.TplTopTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <!-- Loaders registrations -->
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-tpl">
+                <!-- GSF -->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/smarty/resources/tpl-icon.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/php/smarty/resources/tpl-icon.png"/>
+                <!-- eof GSF -->
+            </folder>
+        </folder>
+    </folder>
+
+    <!-- Services registrations -->
+    <folder name="Services">
+        <!-- Recognize text/x-tpl -->
+        <folder name="MIMEResolver">
+            <file name="tpl-mime-resolver.xml" url="tpl-mime-resolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.smarty.editor.resources.Bundle"/>
+                <attr name="position" intvalue="269"/>
+            </file>
+        </folder>
+    </folder>
+
+    <!-- Templates registrations -->
+    <folder name="Templates">
+        <folder name="Scripting">
+            <file name="SMARTY Template" url="nbresloc:/org/netbeans/modules/php/smarty/resources/TplTemplate.tpl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="PHP"/>
+                <attr name="position" intvalue="450"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/php/smarty/resources/TplDescription.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/php/smarty/resources/tpl-icon.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.php.smarty.resources.Bundle"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>
