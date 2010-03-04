@@ -86,7 +86,7 @@ public final class SurroundWithAction extends CookieAction {
 
     @Override
     protected void performAction(Node[] activatedNodes) {
-        final JTextComponent textComponent = EditorRegistry.focusedComponent();
+        final JTextComponent textComponent = EditorRegistry.lastFocusedComponent();
         if (textComponent != null) {
             Document document = textComponent.getDocument();
             CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(document);

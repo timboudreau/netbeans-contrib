@@ -72,7 +72,7 @@ public class ScanAnnotationsAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        JTextComponent comp = EditorRegistry.focusedComponent();
+        JTextComponent comp = EditorRegistry.lastFocusedComponent();
         
         if (comp == null) {
             lastComponent = null;

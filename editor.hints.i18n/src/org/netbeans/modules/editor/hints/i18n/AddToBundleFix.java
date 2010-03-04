@@ -132,7 +132,7 @@ public class AddToBundleFix implements Fix {
     }
     
     public ChangeInfo implement() throws IOException {
-        final JTextComponent comp = EditorRegistry.focusedComponent();
+        final JTextComponent comp = EditorRegistry.lastFocusedComponent();
         
         if (!TESTS && !od.equals(comp.getDocument().getProperty(Document.StreamDescriptionProperty)))
             return null;
