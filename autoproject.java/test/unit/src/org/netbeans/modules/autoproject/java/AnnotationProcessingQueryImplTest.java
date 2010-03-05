@@ -41,6 +41,9 @@ package org.netbeans.modules.autoproject.java;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.netbeans.api.java.queries.AnnotationProcessingQuery;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
@@ -75,6 +78,7 @@ public class AnnotationProcessingQueryImplTest extends NbTestCase {
         assertTrue(apqr.annotationProcessingEnabled());
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(null, apqr.sourceOutputDirectory());
+        assertEquals(Collections.emptyMap(), apqr.processorOptions());
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "");
         assertTrue(apqr.annotationProcessingEnabled());
         assertEquals(null, apqr.annotationProcessorsToRun());
@@ -95,6 +99,11 @@ public class AnnotationProcessingQueryImplTest extends NbTestCase {
         assertTrue(apqr.annotationProcessingEnabled());
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(gensrc.toURI().toURL(), apqr.sourceOutputDirectory());
+        Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "-Aenabled=true -Adebug");
+        Map<String,String> expected = new HashMap<String,String>();
+        expected.put("enabled", "true");
+        expected.put("debug", null);
+        assertEquals(expected, apqr.processorOptions());
     }
 
 }

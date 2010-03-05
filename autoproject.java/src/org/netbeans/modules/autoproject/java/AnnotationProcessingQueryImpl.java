@@ -45,6 +45,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.event.ChangeListener;
@@ -123,7 +124,19 @@ class AnnotationProcessingQueryImpl implements AnnotationProcessingQueryImplemen
         }
 
         public Map<? extends String, ? extends String> processorOptions() {
-            return Collections.emptyMap();
+            List<String> opts = opts();
+            Map<String,String> r = new HashMap<String,String>();
+            for (String opt : opts) {
+                if (opt.startsWith("-A")) {
+                    int i = opt.indexOf('=');
+                    if (i == -1) {
+                        r.put(opt.substring(2), null);
+                    } else {
+                        r.put(opt.substring(2, i), opt.substring(i + 1));
+                    }
+                }
+            }
+            return r;
         }
 
         public void addChangeListener(ChangeListener l) {
