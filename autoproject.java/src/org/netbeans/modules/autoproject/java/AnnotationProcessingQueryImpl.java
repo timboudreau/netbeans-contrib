@@ -46,6 +46,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.queries.AnnotationProcessingQuery.Result;
 import org.netbeans.modules.autoproject.spi.Cache;
@@ -119,6 +120,10 @@ class AnnotationProcessingQueryImpl implements AnnotationProcessingQueryImplemen
             } else {
                 return null;
             }
+        }
+
+        public Map<? extends String, ? extends String> processorOptions() {
+            return Collections.emptyMap();
         }
 
         public void addChangeListener(ChangeListener l) {
