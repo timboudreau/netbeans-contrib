@@ -473,9 +473,9 @@ trait ScalaUtils {self: ScalaGlobal =>
       if (topClazz.nameString.indexOf('$') != -1) return // avoid assertion error @see
       
       val (clazz, staticModule) = if (topClazz.isModule) {
-        (topClazz.linkedClassOfModule, topClazz)
+        (topClazz.companionClass, topClazz)
       } else {
-        (topClazz, topClazz.linkedModuleOfClass)
+        (topClazz, topClazz.companionModule)
       }
 
       if (clazz != NoSymbol && staticModule != NoSymbol) { // avoid Error: NoSymbol does not have owner
