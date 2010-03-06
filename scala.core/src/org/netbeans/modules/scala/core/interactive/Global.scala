@@ -6,7 +6,7 @@ import java.io.{ PrintWriter, StringWriter }
 import java.util.logging.Logger
 import scala.collection.mutable.{LinkedHashMap, SynchronizedMap}
 import scala.concurrent.SyncVar
-import scala.util.control.ControlException
+import scala.util.control.ControlThrowable
 import scala.tools.nsc.io.AbstractFile
 import scala.tools.nsc.util.{SourceFile, Position, RangePosition, OffsetPosition, NoPosition}
 import scala.tools.nsc.reporters._
@@ -72,37 +72,37 @@ extends scala.tools.nsc.Global(_settings, _reporter)
     }
     // per scala's complier code changes during 2010, Symbols#activeLocks seems do not equals 0 anymore
     //if (activeLocks == 0) {
-      if (context.unit != null &&
-          result.pos.isOpaqueRange &&
-          (result.pos includes context.unit.targetPos)) {
-        integrateNew()
-        var located = new Locator(context.unit.targetPos) locateIn result
-        if (located == EmptyTree) {
-          println("something's wrong: no "+context.unit+" in "+result+result.pos)
-          located = result
-        }
-        throw new TyperResult(located)
+    if (context.unit != null &&
+        result.pos.isOpaqueRange &&
+        (result.pos includes context.unit.targetPos)) {
+      integrateNew()
+      var located = new Locator(context.unit.targetPos) locateIn result
+      if (located == EmptyTree) {
+        println("something's wrong: no "+context.unit+" in "+result+result.pos)
+        located = result
       }
-      val typerRun = currentTyperRun
+      throw new TyperResult(located)
+    }
+    val typerRun = currentTyperRun
 
-      while(true)
-        try {
-          pollForWork()
-          if (typerRun == currentTyperRun)
-            return
+    while(true)
+      try {
+        pollForWork()
+        if (typerRun == currentTyperRun)
+          return
 
-          // @Martin
-          // Guard against NPEs in integrateNew if context.unit == null here.
-          // But why are we doing this at all? If it was non-null previously
-          // integrateNew will already have been called. If it was null previously
-          // it will still be null now?
-          if (context.unit != null)
-            integrateNew()
-          throw new FreshRunReq
-        } catch {
-          case ex : ValidateError => // Ignore, this will have been reported elsewhere
-          case t : Throwable => throw t
-        }
+        // @Martin
+        // Guard against NPEs in integrateNew if context.unit == null here.
+        // But why are we doing this at all? If it was non-null previously
+        // integrateNew will already have been called. If it was null previously
+        // it will still be null now?
+        if (context.unit != null)
+          integrateNew()
+        throw FreshRunReq
+      } catch {
+        case ex : ValidateException => // Ignore, this will have been reported elsewhere
+        case t : Throwable => throw t
+      }
     //}
   }
 
@@ -121,9 +121,9 @@ extends scala.tools.nsc.Global(_settings, _reporter)
    *  Poll for work reload/typedTreeAt/doFirst commands during background checking.
    */
   def pollForWork() {
-    scheduler.pollException() match {
-      case Some(ex: CancelActionReq) => if (acting) throw ex
-      case Some(ex: FreshRunReq) =>
+    scheduler.pollThrowable() match {
+      case Some(ex @ CancelActionReq) => if (acting) throw ex
+      case Some(ex @ FreshRunReq) =>
         currentTyperRun = newTyperRun
         minRunId = currentRunId
         if (outOfDate) throw ex
@@ -140,7 +140,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
           action()
           if (debugIDE) println("done with work item: "+action)
         } catch {
-          case ex: CancelActionReq =>
+          case CancelActionReq =>
             if (debugIDE) println("cancelled work item: "+action)
         } finally {
           if (debugIDE) println("quitting work item: "+action)
@@ -204,14 +204,14 @@ extends scala.tools.nsc.Global(_settings, _reporter)
               backgroundCompile()
               outOfDate = false
             } catch {
-              case ex: FreshRunReq =>
+              case FreshRunReq =>
             }
           }
         }
       } catch {
         case ex: InterruptedException =>
           Thread.currentThread.interrupt // interrupt again to avoid posible out-loop issue
-        case ex: ShutdownReq =>
+        case ShutdownReq =>
           GlobalLog.info("ShutdownReq processed")
           Thread.currentThread.interrupt
         case ex => 
@@ -219,8 +219,8 @@ extends scala.tools.nsc.Global(_settings, _reporter)
           outOfDate = false
           compileRunner = newRunnerThread
           ex match {
-            case _ : FreshRunReq =>   // This shouldn't be reported
-            case _ : ValidateError => // This will have been reported elsewhere
+            case FreshRunReq =>   // This shouldn't be reported
+            case _ : ValidateException => // This will have been reported elsewhere
             case _ => ex.printStackTrace(); inform("Fatal Error: "+ex)
           }
       }
@@ -291,7 +291,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       result set Left(op)
       return
     } catch {
-      case ex : FreshRunReq =>
+      case ex @ FreshRunReq =>
  	scheduler.postWorkItem(() => respond(result)(op))
  	throw ex
       case ex =>
@@ -313,7 +313,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
   /** Make sure a set of compilation units is loaded and parsed */
   def reload(sources: List[SourceFile], result: Response[Unit]) {
     respond(result)(reloadSources(sources))
-    if (outOfDate) throw new FreshRunReq
+    if (outOfDate) throw FreshRunReq
     else outOfDate = true
   }
 
@@ -447,6 +447,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
 
     val tpe = tree.tpe match {
       case x@(null | ErrorType | NoType) =>
+        GlobalLog.warning("try to recover type of tree: " + tree)
         recoveredType(tree) match {
           case Some(x) => x.resultType
           case None =>
@@ -456,9 +457,6 @@ extends scala.tools.nsc.Global(_settings, _reporter)
       case x => x.resultType
     }
 
-    GlobalLog.info("Get typeMembers at treeType=" + tree.getClass.getSimpleName + ", tree=" + tree + ", tpe=" + tpe)
-
-    val isPackage = tpe.typeSymbol hasFlag Flags.PACKAGE
 
     val superAccess = tree.isInstanceOf[Super]
     val scope = new Scope
@@ -496,36 +494,43 @@ extends scala.tools.nsc.Global(_settings, _reporter)
     }
 
     // ----- begin adding members
-
-    if (isPackage) {
-      val pre = tpe
-      for (sym <- tpe.members if !sym.isError && sym.nameString.indexOf('$') == -1) {
-        addPackageMember(sym, pre, false, NoSymbol)
+    val pre = try {
+      stabilizedType(tree) match {
+        case null => tpe
+        case x => x
       }
-    } else {
+    } catch {case ex => println(ex.getMessage); tpe}
 
-      val pre = try {
-        stabilizedType(tree) match {
-          case null => tpe
-          case x => x
-        }
-      } catch {case ex => println(ex.getMessage); tpe}
+    val ownerTpe = tpe match {
+      case analyzer.ImportType(expr) => pre
+      case _ => tpe
+    }
 
+    val isPackage = ownerTpe.typeSymbol hasFlag Flags.PACKAGE
+    if (isPackage) {
+      GlobalLog.info("Get typeMembers of package=" + ownerTpe)
       try {
-        for (sym <- tpe.decls) {
+        for (sym <- ownerTpe.members if !sym.isError && sym.nameString.indexOf('$') == -1) {
+          addPackageMember(sym, pre, false, NoSymbol)
+        }
+      } catch {case ex => ex.printStackTrace}
+    } else {
+      GlobalLog.info("Get typeMembers at tree.class=" + tree.getClass.getSimpleName + ", tree.tpe=" + tree.tpe + ", tpe=" + tpe + ", pre=" + pre)
+      try {
+        for (sym <- ownerTpe.decls) {
           addTypeMember(sym, pre, false, NoSymbol)
         }
       } catch {case ex => ex.printStackTrace}
 
       try {
-        for (sym <- tpe.members) {
+        for (sym <- ownerTpe.members) {
           addTypeMember(sym, pre, true, NoSymbol)
         }
       } catch {case ex => ex.printStackTrace}
 
       try {
         val applicableViews: List[SearchResult] =
-          new ImplicitSearch(tree, definitions.functionType(List(tpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
+          new ImplicitSearch(tree, definitions.functionType(List(ownerTpe), definitions.AnyClass.tpe), true, context.makeImplicit(false)).allImplicits
 
         for (view <- applicableViews) {
           val vtree = viewApply(view)
@@ -666,7 +671,7 @@ extends scala.tools.nsc.Global(_settings, _reporter)
 
   def newTyperRun = new TyperRun
 
-  class TyperResult(val tree: Tree) extends Exception with ControlException
+  class TyperResult(val tree: Tree) extends ControlThrowable
 
   assert(globalPhase.id == 0)
 }
