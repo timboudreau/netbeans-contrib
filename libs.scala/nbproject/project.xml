@@ -114,6 +114,7 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.nsc.models</package>
                 <package>scala.tools.nsc.plugins</package>
                 <package>scala.tools.nsc.reporters</package>
+                <package>scala.tools.nsc.settings</package>
                 <package>scala.tools.nsc.symtab</package>
                 <package>scala.tools.nsc.symtab.classfile</package>
                 <package>scala.tools.nsc.symtab.clr</package>
