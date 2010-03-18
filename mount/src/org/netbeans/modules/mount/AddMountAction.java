@@ -56,7 +56,7 @@ final class AddMountAction extends AbstractAction {
     private final boolean archives;
 
     public AddMountAction(boolean archives) {
-        super(archives ? "Add ZIP/JAR(s)..." : "Add Folder..."/* XXX icon */);
+        super(archives ? "Add ZIP/JAR(s)..." : "Add Folder...");
         this.archives = archives;
     }
 
