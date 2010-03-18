@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2007-2009 Michel Graciano. All rights reserved.
+ * Copyright 2007-2010 Michel Graciano. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,13 +37,13 @@
  */
 package org.netbeans.modules.autosave;
 
-import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.lang.ref.WeakReference;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -79,28 +79,25 @@ final class AutoSavePanel extends javax.swing.JPanel {
    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
    private void initComponents() {
 
-
       chkUseFeature = new JCheckBox();
       chkSaveOnFocusLost = new JCheckBox();
       jLabel1 = new JLabel();
       spnMinutes = new JSpinner();
       jLabel2 = new JLabel();
-
-      setBackground(Color.white);
-      Mnemonics.setLocalizedText(chkUseFeature, NbBundle.getMessage(AutoSavePanel.class, "AutoSavePanel.chkUseFeature.text")); // NOI18N
+      Mnemonics.setLocalizedText(chkUseFeature,NbBundle.getMessage(AutoSavePanel.class, "AutoSavePanel.chkUseFeature.text"));
       chkUseFeature.setActionCommand(NbBundle.getMessage(AutoSavePanel.class, "AutoSavePanel.chkUseFeature.actionCommand")); // NOI18N
       chkUseFeature.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+      chkUseFeature.setOpaque(false);
       chkUseFeature.addItemListener(new ItemListener() {
          public void itemStateChanged(ItemEvent evt) {
             chkUseFeatureItemStateChanged(evt);
          }
       });
-      Mnemonics.setLocalizedText(chkSaveOnFocusLost,
-            NbBundle.getMessage(AutoSavePanel.class,
-            "AutoSavePanel.chkSaveOnFocusLost.text"));
-      Mnemonics.setLocalizedText(jLabel1,
-            NbBundle.getMessage(AutoSavePanel.class,
-            "AutoSavePanel.jLabel1.text"));
+
+      Mnemonics.setLocalizedText(chkSaveOnFocusLost, NbBundle.getMessage(AutoSavePanel.class,"AutoSavePanel.chkSaveOnFocusLost.text")); // NOI18N
+      chkSaveOnFocusLost.setOpaque(false);
+
+      Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(AutoSavePanel.class, "AutoSavePanel.jLabel1.text")); // NOI18N
 
       spnMinutes.setModel(this.spnModel);
 
@@ -109,7 +106,7 @@ final class AutoSavePanel extends javax.swing.JPanel {
       Mnemonics.setLocalizedText(jLabel2,
             NbBundle.getMessage(AutoSavePanel.class,
             "AutoSavePanel.jLabel2.text"));
-      javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+      GroupLayout layout = new GroupLayout(this);
       this.setLayout(layout);
       layout.setHorizontalGroup(
          layout.createParallelGroup(Alignment.LEADING)
@@ -122,7 +119,7 @@ final class AutoSavePanel extends javax.swing.JPanel {
                      .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(spnMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(spnMinutes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(ComponentPlacement.RELATED)
                         .addComponent(jLabel2))
                      .addComponent(chkSaveOnFocusLost))))
@@ -137,7 +134,7 @@ final class AutoSavePanel extends javax.swing.JPanel {
             .addPreferredGap(ComponentPlacement.RELATED)
             .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                .addComponent(jLabel1)
-               .addComponent(spnMinutes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(spnMinutes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                .addComponent(jLabel2)))
       );
    }// </editor-fold>//GEN-END:initComponents
@@ -148,7 +145,7 @@ final class AutoSavePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_chkUseFeatureItemStateChanged
 
    void load() {
-      chkUseFeature.setSelected(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
+      chkUseFeature.setSelected(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, AutoSaveController.KEY_ACTIVE_DEFAULT));
       chkSaveOnFocusLost.setSelected(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_SAVE_ON_FOCUS_LOST, false));
       spnModel.setValue(AutoSaveController.prefs().getInt(AutoSaveController.KEY_INTERVAL, 10));
    }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2007-2009 Michel Graciano. All rights reserved.
+ * Copyright 2007-2010 Michel Graciano. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -60,7 +60,7 @@ public final class ToggleAutoSaveAction extends BooleanStateAction {
             addPreferenceChangeListener(new WeakReference<PreferenceChangeListener>(
             new PreferenceChangeListener() {
                public void preferenceChange(PreferenceChangeEvent evt) {
-                  setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
+                  setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, AutoSaveController.KEY_ACTIVE_DEFAULT));
                }
             }).get());
       this.addPropertyChangeListener(new PropertyChangeListener() {
@@ -71,7 +71,7 @@ public final class ToggleAutoSaveAction extends BooleanStateAction {
             }
          }
       });
-      this.setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, false));
+      this.setBooleanState(AutoSaveController.prefs().getBoolean(AutoSaveController.KEY_ACTIVE, AutoSaveController.KEY_ACTIVE_DEFAULT));
    }
 
    protected @Override String iconResource() {

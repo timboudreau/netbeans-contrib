@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2007-2009 Michel Graciano. All rights reserved.
+ * Copyright 2007-2010 Michel Graciano. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -62,6 +62,8 @@ public final class AutoSaveController {
     public static final String KEY_INTERVAL = "autoSaveInterval";
     public static final String KEY_SAVE_ON_FOCUS_LOST = "autoSaveOnLostFocus";
 
+    public static final boolean KEY_ACTIVE_DEFAULT = true;
+
     public static Preferences prefs() {
         return NbPreferences.forModule(AutoSaveController.class);
     }
@@ -82,7 +84,7 @@ public final class AutoSaveController {
       if (timer == null) {
          timer = new Timer(delay, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-               if (prefs().getBoolean(KEY_ACTIVE, false)) {
+               if (prefs().getBoolean(KEY_ACTIVE, KEY_ACTIVE_DEFAULT)) {
                   AutoSaveCommand.saveAll();
                }
             }
@@ -143,7 +145,7 @@ public final class AutoSaveController {
    }
 
    public void synchronize() {
-      if (prefs().getBoolean(KEY_ACTIVE, false)) {
+      if (prefs().getBoolean(KEY_ACTIVE, KEY_ACTIVE_DEFAULT)) {
          startTimerSave();
          if (prefs().getBoolean(KEY_SAVE_ON_FOCUS_LOST, false)) {
             startFocusSave();
