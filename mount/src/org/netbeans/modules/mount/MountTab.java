@@ -136,7 +136,6 @@ public class MountTab extends TopComponent
             } 
             else {
                 //This should not happen when settings file is correctly defined in module layer.
-                //TestComponent00 cannot be deserialized
                 //Fallback to accessor reserved for window system.
                 tab = MountTab.getDefault();
             }
@@ -144,9 +143,6 @@ public class MountTab extends TopComponent
         return tab;
     }
     
-    /* Singleton accessor reserved for window system ONLY. Used by window system to create
-     * ProjectTab instance from settings file when method is given. Use <code>findDefault</code>
-     * to get correctly deserialized instance of ProjectTab */
     public static synchronized MountTab getDefault() {
         if ( DEFAULT == null ) {
             DEFAULT = new MountTab();            
