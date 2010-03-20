@@ -1,7 +1,7 @@
-Index: compiler/scala/tools/nsc/Global.scala
+Index: src/compiler/scala/tools/nsc/Global.scala
 ===================================================================
---- compiler/scala/tools/nsc/Global.scala	(revision 20977)
-+++ compiler/scala/tools/nsc/Global.scala	(working copy)
+--- src/compiler/scala/tools/nsc/Global.scala	(revision 21224)
++++ src/compiler/scala/tools/nsc/Global.scala	(working copy)
 @@ -57,6 +57,7 @@
    def rootLoader: LazyType = platform.rootLoader
  
@@ -10,30 +10,32 @@ Index: compiler/scala/tools/nsc/Global.scala
  
    /** Print tree in detailed form */
    object nodePrinters extends {
-Index: compiler/scala/tools/nsc/typechecker/Namers.scala
+Index: src/compiler/scala/tools/nsc/typechecker/Namers.scala
 ===================================================================
---- compiler/scala/tools/nsc/typechecker/Namers.scala	(revision 20977)
-+++ compiler/scala/tools/nsc/typechecker/Namers.scala	(working copy)
-@@ -1188,11 +1188,13 @@
-               }
-               def checkSelectors(selectors: List[ImportSelector]): Unit = selectors match {
-                 case ImportSelector(from, _, to, _) :: rest =>
--                  if (from != nme.WILDCARD && base != ErrorType) {                    
-+                  if (from != nme.WILDCARD && base != ErrorType) {
-                     if (base.nonLocalMember(from) == NoSymbol && 
-                         base.nonLocalMember(from.toTypeName) == NoSymbol) {
-                       if (currentRun.compileSourceFor(expr, from))
-                         return typeSig(tree)  
-+                      global.qualToRecoveredType += (tree -> base)
-+                      global.qualToRecoveredType += (expr -> base)
-                       context.error(tree.pos, from.decode + " is not a member of " + expr)
+--- src/compiler/scala/tools/nsc/typechecker/Namers.scala	(revision 21224)
++++ src/compiler/scala/tools/nsc/typechecker/Namers.scala	(working copy)
+@@ -1216,10 +1216,15 @@
+                       // for Java code importing Scala objects
+                       if (from.endsWith(nme.DOLLARraw))
+                         isValidSelector(from.subName(0, from.length -1)) {
++                          global.qualToRecoveredType += (tree -> base)
++                          global.qualToRecoveredType += (expr -> base)
+                           context.error(tree.pos, from.decode + " is not a member of " + expr)
+                         }
+-                      else
++                      else {
++                        global.qualToRecoveredType += (tree -> base)
++                        global.qualToRecoveredType += (expr -> base)
+                         context.error(tree.pos, from.decode + " is not a member of " + expr)
++                      }
                      }
  
-Index: compiler/scala/tools/nsc/typechecker/Typers.scala
+                     if (checkNotRedundant(tree.pos, from, to))
+Index: src/compiler/scala/tools/nsc/typechecker/Typers.scala
 ===================================================================
---- compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 20977)
-+++ compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
-@@ -3517,11 +3517,16 @@
+--- src/compiler/scala/tools/nsc/typechecker/Typers.scala	(revision 21224)
++++ src/compiler/scala/tools/nsc/typechecker/Typers.scala	(working copy)
+@@ -3529,11 +3529,16 @@
            if (settings.debug.value) Console.err.println("qual = "+qual+":"+qual.tpe+"\nSymbol="+qual.tpe.termSymbol+"\nsymbol-info = "+qual.tpe.termSymbol.info+"\nscope-id = "+qual.tpe.termSymbol.info.decls.hashCode()+"\nmembers = "+qual.tpe.members+"\nname = "+name+"\nfound = "+sym+"\nowner = "+context.enclClass.owner)
            
            def makeErrorTree = {
@@ -51,7 +53,7 @@ Index: compiler/scala/tools/nsc/typechecker/Typers.scala
            }
            
            if (name == nme.ERROR && onlyPresentation)
-@@ -3540,7 +3545,7 @@
+@@ -3552,7 +3557,7 @@
                    "\npossible cause: maybe a semicolon is missing before `"+decode(name)+"'?"
                   else ""))
            }
@@ -60,11 +62,11 @@ Index: compiler/scala/tools/nsc/typechecker/Typers.scala
          } else {
            val tree1 = tree match {
              case Select(_, _) => treeCopy.Select(tree, qual, name)
-Index: compiler/scala/tools/nsc/ast/parser/Parsers.scala
+Index: src/compiler/scala/tools/nsc/ast/parser/Parsers.scala
 ===================================================================
---- compiler/scala/tools/nsc/ast/parser/Parsers.scala	(revision 20977)
-+++ compiler/scala/tools/nsc/ast/parser/Parsers.scala	(working copy)
-@@ -425,7 +425,7 @@
+--- src/compiler/scala/tools/nsc/ast/parser/Parsers.scala	(revision 21224)
++++ src/compiler/scala/tools/nsc/ast/parser/Parsers.scala	(working copy)
+@@ -428,7 +428,7 @@
            t =>
              val dd = DocDef(doc, t)
              val defnPos = t.pos
