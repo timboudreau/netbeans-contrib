@@ -106,10 +106,13 @@ final class HtmlLogicalView extends AbstractNode implements PropertyChangeListen
     static class Locator {
         HtmlLogicalView view;
         public Node locate (Node root, Object o) {
+            if (o == null) {
+                return null;
+            }
             if (o instanceof FileObject) {
                 o = FileUtil.toFile((FileObject)o);
             }
-            return traverse (root, o.getClass(), o);
+            return traverse (root, o == null ? null : o.getClass(), o);
         }
 
         private Node traverse (Node n, Class clazz, Object o) {
