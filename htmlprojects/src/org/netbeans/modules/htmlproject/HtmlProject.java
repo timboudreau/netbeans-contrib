@@ -195,10 +195,9 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
     }
 
     public Node findPath(Node node, Object object) {
-        HtmlLogicalView.Locator loc = (HtmlLogicalView.Locator) 
+        HtmlLogicalView.Locator loc = 
             node.getLookup().lookup (HtmlLogicalView.Locator.class);
         if (loc == null) {
-            System.err.println("Bad.");
             return null;
         } else {
             return loc.locate(node, object);
