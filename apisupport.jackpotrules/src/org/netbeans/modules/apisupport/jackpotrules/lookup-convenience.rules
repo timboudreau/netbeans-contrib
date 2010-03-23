@@ -1,6 +1,0 @@
-$lkp.lookup(new org.openide.util.Lookup.Template($clazz)).allInstances() => $lkp.lookupAll($clazz)
-        :: $lkp instanceof org.openide.util.Lookup,
-        $clazz instanceof java.lang.Class;
-$lkp.lookup(new org.openide.util.Lookup.Template($clazz)) => $lkp.lookupResult($clazz)
-        :: $lkp instanceof org.openide.util.Lookup,
-        $clazz instanceof java.lang.Class;

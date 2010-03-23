@@ -1,2 +1,0 @@
-java.util.ResourceBundle.getBundle($bundle) => org.openide.util.NbBundle.getBundle($bundle);
-// see #77345 for more

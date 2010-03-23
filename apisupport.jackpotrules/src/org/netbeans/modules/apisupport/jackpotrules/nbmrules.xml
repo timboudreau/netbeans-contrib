@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<queryset>
-    <inspection file="ErrorManagerJackpot.rules"/>
-    <inspection file="annotate-to-initcause.rules"/>
-    <inspection file="jdk5.rules"/>
-    <inspection file="lookup-convenience.rules"/>
-    <inspection file="resourcebundle2nbbundle.rules"/>
-    <inspection file="filesystems.rules"/>
-</queryset>

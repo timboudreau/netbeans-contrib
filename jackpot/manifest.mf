@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.jackpot/2
-OpenIDE-Module-Implementation-Version: 3
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jackpot/Bundle.properties
-OpenIDE-Module-Requires: org.openide.windows.IOProvider,org.netbeans.api.javahelp.Help
-OpenIDE-Module-Layer: org/netbeans/modules/jackpot/layer.xml
-OpenIDE-Module-Install: org/netbeans/modules/jackpot/JackpotModule.class
-OpenIDE-Module-Java-Dependencies: Java > 1.5

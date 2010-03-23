@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="ISO8859_1"?>
-<queryset>
-   <inspection file="EnhancedFor.rules"/>
-   <inspection file="StringBufferToStringBuilder.rules"/>
-</queryset>

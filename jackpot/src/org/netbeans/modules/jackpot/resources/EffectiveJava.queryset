@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ISO8859_1"?>
-<queryset>
-   <inspection file="BadFinallyBlocks.settings"/>
-   <inspection file="ConstructorsCallingPublicMethods.settings"/>
-   <!-- inspection file="MinimizeFieldAccess.settings"/ -->
-   <!-- inspection file="MinimizeMethodAccess.settings"/ -->
-</queryset>
