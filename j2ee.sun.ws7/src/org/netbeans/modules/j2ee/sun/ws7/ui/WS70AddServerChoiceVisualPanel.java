@@ -181,34 +181,19 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     }
     
     private boolean isValidServer(File dir){        
-        FileFilter filter = new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() && pathname.getName().equals("admin-server"); //NO I18N
-            }
-        };
-        File[] adminFolders = dir.listFiles( filter );
-        if ( adminFolders == null || adminFolders.length == 0 ){
+        File libDir = new File(dir + File.separator + "lib");
+        File binDir = new File(dir + File.separator + "bin");
+        File libFile = new File(libDir + File.separator + "webserv-rt.jar");
+        if(!libDir.exists() || !binDir.exists() || !libFile.exists() ) {
             return false;
         }
-        
-        File[] configFolders = adminFolders[0].listFiles( new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() && pathname.getName().equals("config");//NO I18N
-            }
-        } );
 
-        if ( configFolders == null || configFolders.length == 0 ){
+        File binFile = new File(binDir + File.separator + "wadm");
+        File binWinFile = new File(binDir + File.separator + "wadm.bat");
+        if(!binFile.exists() && !binWinFile.exists()) {
             return false;
         }
-        
-        File[] serverFiles = configFolders[0].listFiles( new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.getName().equals("server.xml");//NO I18N
-            }
-        } );
-        if ( serverFiles == null || serverFiles.length == 0 ){
-            return false;
-        }        
+
         return true;
     }
     public void addChangeListener(ChangeListener l) {

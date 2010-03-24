@@ -169,7 +169,7 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
         }
     }
     public void invokeLogViewer(){
-        String location = manager.getServerLocation();
+        String location = manager.getInstanceLocation();
         location = location+File.separator+"https-"+configName+
                 File.separator+"logs"+File.separator+"errors";
         String logName = NbBundle.getMessage(WS70TargetNode.class, "LBL_WS70_MANAGER_NODE_NAME")+
@@ -184,7 +184,7 @@ public class WS70TargetNode extends AbstractNode implements Node.Cookie{
         
     }
     public void showServerXml(){
-        String location = manager.getServerLocation()+File.separator+
+        String location = manager.getInstanceLocation()+File.separator+
                           "admin-server"+File.separator+"config-store"+ //NOI18N
                           File.separator+configName+ File.separator+//NOI18N
                           "config";//NOI18N

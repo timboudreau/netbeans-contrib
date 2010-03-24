@@ -65,8 +65,9 @@ public class WS70J2eePlatformFactory extends J2eePlatformFactory{
     public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager dm) {
         WS70SunDeploymentManager manager = (WS70SunDeploymentManager)dm;
         
-        String location = manager.getServerLocation();
-        return new WS70J2eePlatformImpl(location, 
+        String serverLocation = manager.getServerLocation();
+        String instanceLocation = manager.getInstanceLocation();
+        return new WS70J2eePlatformImpl(serverLocation, instanceLocation,
                 NbBundle.getMessage(WS70J2eePlatformFactory.class, "LBL_WS70J2eePlatformDisplayName"));
     }
 }

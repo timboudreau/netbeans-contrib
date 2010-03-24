@@ -229,6 +229,15 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
             f = new File(libsLocation+"/s1as-jsr160-client.jar");//NO I118N
             ws7Loader.addURL(f);          
             f = new File(libsLocation+"/jmxremote_optional.jar"); //NO I118N            
+            if(!f.exists()) {
+                f = new File("/opt/SUNWjdmk/5.1/lib/jmxremote_optional.jar");
+            }
+            if(!f.exists()) {
+                f = new File("/opt/sun/jdmk/5.1/lib/jmxremote_optional.jar");
+            }
+            if(!f.exists()) {
+                f = new File(location+"/../share/lib/jmxremote_optional.jar");
+            } 
             ws7Loader.addURL(f);            
             f = new File(libsLocation+"/webserv-admin-shared.jar"); //NO I118N
             ws7Loader.addURL(f);            

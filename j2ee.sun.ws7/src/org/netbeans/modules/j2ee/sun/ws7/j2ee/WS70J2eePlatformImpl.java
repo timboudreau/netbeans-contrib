@@ -50,9 +50,14 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,23 +82,22 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     private static final Set SPEC_VERSIONS = new HashSet();
     
     
-    private static final String WS70_JAR =  "lib/pwc.jar"; //NOI18N
-    private static final String JWSDP20_JAR =  "lib/webserv-jwsdp.jar"; //NOI18N
-    private static final String JSTL_JAR =  "lib/webserv-jstl.jar"; //NOI18N
-    private static final String MAIL_JAR =  "lib/mail.jar"; //NOI18N
-    private static final String JAXRPC_API_JAR =  "lib/jaxrpc-api.jar"; //NOI18N
-    private static final String JAXRPC_IMPL_JAR =  "lib/jaxrpc-impl.jar"; //NOI18N
-    private static final String JAXRPC_SPI_JAR =  "lib/jaxrpc-spi.jar"; //NOI18N
-    private static final String ACTIVATION =  "lib/activation.jar"; //NOI18N
-    private static final String JSF_IMPL =  "lib/jsf-impl.jar"; //NOI18N
-    private static final String JSF_API =  "lib/jsf-api.jar"; //NOI18N
-    
+    private static final String WS70_JAR =  "pwc.jar"; //NOI18N
+    private static final String JWSDP20_JAR =  "webserv-jwsdp.jar"; //NOI18N
+    private static final String JSTL_JAR =  "webserv-jstl.jar"; //NOI18N
+    private static final String MAIL_JAR =  "mail.jar"; //NOI18N
+    private static final String JAXRPC_API_JAR =  "jaxrpc-api.jar"; //NOI18N
+    private static final String JAXRPC_IMPL_JAR =  "jaxrpc-impl.jar"; //NOI18N
+    private static final String JAXRPC_SPI_JAR =  "jaxrpc-spi.jar"; //NOI18N
+    private static final String ACTIVATION =  "activation.jar"; //NOI18N
+    private static final String JSF_IMPL =  "jsf-impl.jar"; //NOI18N
+    private static final String JSF_API =  "jsf-api.jar"; //NOI18N
+
     private List libraries  = new ArrayList();
+    private List classPathEntries = new ArrayList();
     private boolean isJwsdp16enabled =false;
     private boolean isJwsdp20enabled =false;
           
-    
-    
     static {
         MODULE_TYPES.add(J2eeModule.WAR);
 
@@ -103,20 +107,22 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     }
     
     private File root;
+    private File instance;
     private String displayName;
     
     /**
      * Creates a new instance of WS70J2eePlatformImpl 
      */
-    public WS70J2eePlatformImpl(String rootLocation, String displayName) {
-        if(rootLocation!=null){
-            root = new File(rootLocation);
-            init(root);
+    public WS70J2eePlatformImpl(String serverLocation, String instanceLocation, String displayName) {
+        if(serverLocation!=null && instanceLocation!=null){
+            root = new File(serverLocation);
+            instance = new File(instanceLocation);
+            init(root, instance);
         }
         this.displayName = displayName;
     }
     
-    private void init(File location){
+    private void init(File server, File instance){
         try {
             J2eeLibraryTypeProvider lp = new J2eeLibraryTypeProvider();
             lp.createLibrary().setName ("a");
@@ -125,26 +131,45 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             lib.setName("webserver70 library"); // NOI18N
 
             List l = new ArrayList();            
-
-            l.add(fileToUrl(new File(root, WS70_JAR)));
-            if(new File(root, JWSDP20_JAR).exists()){
-                l.add(fileToUrl(new File(root, JWSDP20_JAR)));
-                isJwsdp20enabled = true;
-            }
-            l.add(fileToUrl(new File(root, MAIL_JAR)));
-            l.add(fileToUrl(new File(root, JSTL_JAR)));
-            if(new File(root, JAXRPC_API_JAR).exists() &&
-                 new File(root, JAXRPC_IMPL_JAR).exists() &&
-                 new File(root, JAXRPC_IMPL_JAR).exists() ){
+            if (server.equals(instance)) {
+                l.add(fileToUrl(new File(root, libJar(WS70_JAR))));
+                if(new File(root, libJar(JWSDP20_JAR)).exists()){
+                    l.add(fileToUrl(new File(root, libJar(JWSDP20_JAR))));
+                    isJwsdp20enabled = true;
+                }
+                l.add(fileToUrl(new File(root, libJar(MAIL_JAR))));
+                l.add(fileToUrl(new File(root, libJar(JSTL_JAR))));
+                if(new File(root, libJar(JAXRPC_API_JAR)).exists() &&
+                     new File(root, libJar(JAXRPC_IMPL_JAR)).exists() &&
+                     new File(root, libJar(JAXRPC_IMPL_JAR)).exists() ){
                 
-                l.add(fileToUrl(new File(root, JAXRPC_API_JAR)));
-                l.add(fileToUrl(new File(root, JAXRPC_IMPL_JAR)));
-                l.add(fileToUrl(new File(root, JAXRPC_SPI_JAR)));
-                isJwsdp16enabled = true;
+                    l.add(fileToUrl(new File(root, libJar(JAXRPC_API_JAR))));
+                    l.add(fileToUrl(new File(root, libJar(JAXRPC_IMPL_JAR))));
+                    l.add(fileToUrl(new File(root, libJar(JAXRPC_SPI_JAR))));
+                    isJwsdp16enabled = true;
+                }
+                l.add(fileToUrl(new File(root, libJar(ACTIVATION))));
+                l.add(fileToUrl(new File(root, libJar(JSF_IMPL))));
+                l.add(fileToUrl(new File(root, libJar(JSF_API))));
+            } else { 
+                // In case of JES installation, parse the serverxml file to get the classpath jars
+                // Check these jars against listed jars (listJars()) before adding them to the library
+                String instanceName = getInstanceName(instance);
+                String serverXml = instanceName + File.separator +  "config" + File.separator + "server.xml";
+                String[] classPathJars = getServerClassPath(serverXml);
+                String[] jars = listJars();
+                for(String cjar:classPathJars) {
+                    String[] tokens = cjar.split(File.separator);
+                    for(String jar:jars) {
+                        if(jar.equals(tokens[tokens.length-1])) {
+                            //classPathEntries will hold all these jars to pass them to getToolClasspathEntries
+                            classPathEntries.add(new File(cjar));
+                            l.add(fileToUrl(new File(cjar)));
+                        }
+                    }
+                }
             }
-            l.add(fileToUrl(new File(root, ACTIVATION)));
-            l.add(fileToUrl(new File(root, JSF_IMPL)));
-            l.add(fileToUrl(new File(root, JSF_API)));
+
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
             
             File doc = InstalledFileLocator.getDefault().locate("docs/j2eeri-1_4-doc-api.zip", null, false); // NOI18N
@@ -160,6 +185,48 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             e.printStackTrace();
         }        
     }
+
+    // for JES installation
+    private String[] listJars() {
+        String[] jars = { "jaxws-api.jar", "jaxws-rt.jar", "jaxws-tools.jar", "jsr181-api.jar", "jsr250-api.jar", "jaxb-api.jar", "jaxb-impl.jar", "jaxb-xjc.jar", "sjsxp.jar", "jsr173_api.jar", "saaj-api.jar", "saaj-impl.jar", "xmldsig.jar", "xmlsec.jar", "xws-security.jar", "xws-security_jaxrpc.jar", "wss-provider-update.jar", "security-plugin.jar", "FastInfoset.jar", "relaxngDatatype.jar", "resolver.jar", WS70_JAR, JSTL_JAR, MAIL_JAR, JAXRPC_API_JAR, JAXRPC_IMPL_JAR, JAXRPC_SPI_JAR, ACTIVATION, JSF_IMPL, JSF_API };
+
+        return jars;
+    }
+
+    private static String getInstanceName(File instanceLocation) {
+        FileFilter filter = new FileFilter() {
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() && pathname.getName().startsWith("https-"); //NO I18N
+            }
+        };
+
+        return instanceLocation.listFiles( filter )[0].toString();
+    }
+
+    private static String[] getServerClassPath(String fileLocation) {
+        String line = new String();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileLocation));
+            boolean flag = true;
+            Pattern p = Pattern.compile("<server-class-path>(.*)</server-class-path>");
+            while(flag) {
+                Matcher m = p.matcher(br.readLine());
+                if (m.find()) {
+                    flag = false;
+                    line = m.group(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return line.split(File.pathSeparator);
+    }
+
+    private String libJar(String jar) {
+        return "lib" + File.separator + jar;
+    }
+
     /**
      * Return a list of supported J2EE specification versions. Use J2EE specification 
      * versions defined in the {@link org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule}
@@ -224,18 +291,21 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     }
     
     public File[] getToolClasspathEntries(String toolName) {
-        return new File[] {
-            new File(root, JWSDP20_JAR),
-            new File(root, JAXRPC_API_JAR),
-            new File(root, JAXRPC_IMPL_JAR),
-            new File(root, JAXRPC_SPI_JAR),
-            new File(root, MAIL_JAR),
-            new File(root, ACTIVATION),
-            new File(root, JSF_IMPL),
-            new File(root, JSF_API)
-            
-        };
-    }
+        if (root.equals(instance)) {
+            return new File[] {
+                new File(root, libJar(JWSDP20_JAR)),
+                new File(root, libJar(JAXRPC_API_JAR)),
+                new File(root, libJar(JAXRPC_IMPL_JAR)),
+                new File(root, libJar(JAXRPC_SPI_JAR)),
+                new File(root, libJar(MAIL_JAR)),
+                new File(root, libJar(ACTIVATION)),
+                new File(root, libJar(JSF_IMPL)),
+                new File(root, libJar(JSF_API))
+            };
+        } else {
+            return (File[])classPathEntries.toArray();
+        }
+    } 
     
     /**
      * Return platform's display name.

@@ -123,7 +123,7 @@ public class WS70ManagerNode extends AbstractNode implements Node.Cookie{
     }
     public void invokeLogViewer(){
         String uri = manager.getUri();
-        String location = manager.getServerLocation();
+        String location = manager.getInstanceLocation();
         location = location+File.separator+"admin-server"+
                 File.separator+"logs"+File.separator+"errors";
 

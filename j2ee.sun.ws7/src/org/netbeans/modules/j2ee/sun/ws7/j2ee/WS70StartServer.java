@@ -73,6 +73,8 @@ import org.netbeans.modules.j2ee.sun.ws7.Constants;
 import org.openide.util.RequestProcessor;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
@@ -535,23 +537,46 @@ public class WS70StartServer extends StartServer implements ProgressObject, Runn
     }        
   
     private int runProcess(String str, boolean wait) throws Exception {
-        Process child = Runtime.getRuntime().exec(str);
+        ProcessBuilder pb = null;
+        if (org.openide.util.Utilities.isWindows()){
+            pb = new ProcessBuilder(str.split(" "));
+        } else {
+            pb = new ProcessBuilder(str);
+        }
+        pb.redirectErrorStream(true);
+        Process child = pb.start();
+        InputStream is = child.getInputStream();
+        // drain the inputstream as it is creating the problem when server log level 
+        // is fine or finest
+        drain(is);
         if (wait)
             child.waitFor();
         return child.exitValue();
+    }
+
+    private void drain(InputStream is) {
+        byte[] buf = new byte[8192];
+        int result = 0;
+        do {
+            try {   
+                result = is.read(buf);
+            } catch(IOException ex) {
+                result = -1;
+            }
+        } while(result != -1);
     }
     private String makeProcessString(String str) {
         if (org.openide.util.Utilities.isWindows()){
             return "net " + str + " " + "https-admserv70"; // NOI18N
         }else{
             String process = str+"serv";
-            return ((WS70SunDeploymentManager)dm).getServerLocation()+File.separator +
+            return ((WS70SunDeploymentManager)dm).getInstanceLocation()+File.separator +
                     "admin-server" + File.separator+"bin" + File.separator + process; //NO I18N
         }
     }
     private void viewAdminLogs(){
         String uri = dm.getUri();
-        String location = dm.getServerLocation();
+        String location = dm.getInstanceLocation();
         location = location+File.separator+"admin-server"+
                 File.separator+"logs"+File.separator+"errors";
 

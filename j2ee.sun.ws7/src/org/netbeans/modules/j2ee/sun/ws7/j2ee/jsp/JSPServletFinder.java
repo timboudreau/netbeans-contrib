@@ -86,7 +86,7 @@ public class JSPServletFinder implements FindJSPServlet {
             return null;
         }
                    
-        String location = manager.getServerLocation()+File.separator+"https-"+configName+
+        String location = manager.getInstanceLocation()+File.separator+"https-"+configName+
                            File.separator+"ClassCache"+File.separator+vsName+File.separator;
         File workDir = new File(location, getContextRootString(moduleContextPath));
         return workDir;
