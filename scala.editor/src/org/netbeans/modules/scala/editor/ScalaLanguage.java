@@ -43,6 +43,7 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.Formatter;
+import org.netbeans.modules.csl.api.HintsProvider;
 import org.netbeans.modules.csl.api.InstantRenamer;
 import org.netbeans.modules.csl.api.KeystrokeHandler;
 import org.netbeans.modules.csl.api.OccurrencesFinder;
@@ -52,6 +53,7 @@ import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.scala.core.ScalaParser;
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.hints.ScalaHintsProvider;
 
 /**
  * Language/lexing configuration for Scala
@@ -178,11 +180,9 @@ public class ScalaLanguage extends DefaultLanguageConfig {
   }
 
   // hintsProvider is registered in layer.xml under "csl-hints" folder
-//  @Override
-//  public HintsProvider getHintsProvider() {
-//    return new ScalaHintsProvider();
-//  }
+  @Override
+  public HintsProvider getHintsProvider() {
+    return new ScalaHintsProvider();
+  }
   //@Override def getIndexerFactory = new ScalaIndexer.Factory
 }
-
-
