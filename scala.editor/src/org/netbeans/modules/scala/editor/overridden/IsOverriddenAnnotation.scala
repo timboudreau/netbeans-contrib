@@ -92,7 +92,7 @@ class IsOverriddenAnnotation(document: StyledDocument,
                              tpe: AnnotationType,
                              shortDescription: String,
                              declarations: List[ElementDescription]
-)  extends Annotation {
+) extends Annotation {
   import IsOverriddenAnnotation._
   import AnnotationType._
 
@@ -102,10 +102,10 @@ class IsOverriddenAnnotation(document: StyledDocument,
 
   def getAnnotationType: String = {
     tpe match {
-      case IS_OVERRIDDEN      => "org-netbeans-modules-editor-java-is_overridden" //NOI18N
-      case HAS_IMPLEMENTATION => "org-netbeans-modules-editor-java-has_implementations" //NOI18N
-      case IMPLEMENTS         => "org-netbeans-modules-editor-java-implements" //NOI18N
-      case OVERRIDES          => "org-netbeans-modules-editor-java-overrides" //NOI18N
+      case IS_OVERRIDDEN      => "org-netbeans-modules-editor-annotations-is_overridden" //NOI18N
+      case HAS_IMPLEMENTATION => "org-netbeans-modules-editor-annotations-has_implementations" //NOI18N
+      case IMPLEMENTS         => "org-netbeans-modules-editor-annotations-implements" //NOI18N
+      case OVERRIDES          => "org-netbeans-modules-editor-annotations-overrides" //NOI18N
       case _ =>  throw new IllegalStateException("Currently not implemented: " + tpe) //NOI18N
     }
   }
