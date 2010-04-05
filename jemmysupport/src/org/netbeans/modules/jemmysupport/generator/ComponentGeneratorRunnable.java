@@ -57,9 +57,6 @@ import javax.swing.border.Border;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.jemmy.util.PNGEncoder;
-import org.netbeans.modules.project.ui.ProjectTab;
-//import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
-//import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
 import org.netbeans.spi.diff.DiffProvider;
 import org.netbeans.spi.diff.MergeVisualizer;
 import org.openide.ErrorManager;
@@ -217,12 +214,6 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     private void openInEditor(final FileObject fo) {
         try {
             DataObject dob = DataObject.find(fo);
-            // selects node in projects view (must be called from AWT event queue)
-            Mutex.EVENT.writeAccess(new Runnable() {
-                public void run () {
-                    ProjectTab.findDefault(ProjectTab.ID_LOGICAL).selectNodeAsync(fo);
-                }
-            });
             // open in editor
             ((EditorCookie)dob.getCookie(EditorCookie.class)).open();
         } catch (Exception e) {
