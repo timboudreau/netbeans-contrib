@@ -112,8 +112,7 @@ public final class ContentPanel extends JPanel {
                 }
             }
         }
-        pCentral.revalidate ();
-        revalidate ();
+        revalidate();
     }
     
     public void replaceComponents (final JComponent... comps) {
@@ -186,9 +185,9 @@ public final class ContentPanel extends JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(pCentral, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .add(pCentral, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(25, 25, 25)
-                .add(spTable, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 247, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(spTable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
