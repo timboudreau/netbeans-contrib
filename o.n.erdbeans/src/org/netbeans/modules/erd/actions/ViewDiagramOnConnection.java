@@ -83,7 +83,7 @@ public final class ViewDiagramOnConnection implements ActionListener {
 
     private ERDContext createERDContext() throws IOException {
         File f = File.createTempFile("diagram", ".erd"); // NOI18N
-        FileObject fo = FileUtil.toFileObject(f);
+        FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(f));
         String url = connection.getDatabaseURL();
         return new ERDContext(fo, url, ERDContext.DATASOURCETYPE.CONNECTION);
     }
