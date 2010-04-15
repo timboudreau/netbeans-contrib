@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.api.java.queries.AnnotationProcessingQuery;
+import org.netbeans.api.java.queries.AnnotationProcessingQuery.Trigger;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.queries.AnnotationProcessingQueryImplementation;
@@ -75,20 +76,20 @@ public class AnnotationProcessingQueryImplTest extends NbTestCase {
         AnnotationProcessingQuery.Result apqr = apq.getAnnotationProcessingOptions(fo);
         assertNotNull(apqr);
         // Defaults:
-        assertTrue(apqr.annotationProcessingEnabled());
+        assertTrue(apqr.annotationProcessingEnabled().contains(Trigger.ON_SCAN));
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(null, apqr.sourceOutputDirectory());
         assertEquals(Collections.emptyMap(), apqr.processorOptions());
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "");
-        assertTrue(apqr.annotationProcessingEnabled());
+        assertTrue(apqr.annotationProcessingEnabled().contains(Trigger.ON_SCAN));
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(null, apqr.sourceOutputDirectory());
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "-proc:none");
-        assertFalse(apqr.annotationProcessingEnabled());
+        assertFalse(apqr.annotationProcessingEnabled().contains(Trigger.ON_SCAN));
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(null, apqr.sourceOutputDirectory());
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "-processor proc.One,proc.Two");
-        assertTrue(apqr.annotationProcessingEnabled());
+        assertTrue(apqr.annotationProcessingEnabled().contains(Trigger.ON_SCAN));
         assertEquals(Arrays.asList("proc.One", "proc.Two"), apqr.annotationProcessorsToRun());
         assertEquals(null, apqr.sourceOutputDirectory());
         File gensrc = new File(r, "gensrc");
@@ -96,7 +97,7 @@ public class AnnotationProcessingQueryImplTest extends NbTestCase {
             throw new Exception();
         }
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "-s " + gensrc);
-        assertTrue(apqr.annotationProcessingEnabled());
+        assertTrue(apqr.annotationProcessingEnabled().contains(Trigger.ON_SCAN));
         assertEquals(null, apqr.annotationProcessorsToRun());
         assertEquals(gensrc.toURI().toURL(), apqr.sourceOutputDirectory());
         Cache.put(s + JavaCacheConstants.PROCESSOR_OPTIONS, "-Aenabled=true -Adebug");

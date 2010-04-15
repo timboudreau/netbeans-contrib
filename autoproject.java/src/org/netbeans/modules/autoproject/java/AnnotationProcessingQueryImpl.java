@@ -45,11 +45,14 @@ import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.queries.AnnotationProcessingQuery.Result;
+import org.netbeans.api.java.queries.AnnotationProcessingQuery.Trigger;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.queries.AnnotationProcessingQueryImplementation;
 import org.openide.filesystems.FileObject;
@@ -99,8 +102,9 @@ class AnnotationProcessingQueryImpl implements AnnotationProcessingQueryImplemen
             return Arrays.asList(v.split(" "));
         }
 
-        public boolean annotationProcessingEnabled() {
-            return !opts().contains("-proc:none");
+        public Set<? extends Trigger> annotationProcessingEnabled() {
+            return opts().contains("-proc:none")
+                    ? EnumSet.noneOf(Trigger.class) : EnumSet.allOf(Trigger.class);
         }
 
         public Iterable<? extends String> annotationProcessorsToRun() {
