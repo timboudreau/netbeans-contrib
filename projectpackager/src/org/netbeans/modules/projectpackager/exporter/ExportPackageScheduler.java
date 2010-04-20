@@ -144,6 +144,7 @@ public class ExportPackageScheduler {
                 et.schedule(script, new String[] {"zip-project"}, props);
             }
         }
+        // XXX this results in one Ant process and ZIP per project; should not use Ant for this
     }
 
     /**
