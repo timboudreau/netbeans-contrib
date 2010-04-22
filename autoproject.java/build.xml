@@ -7,12 +7,16 @@
             <property name="rebuild.cluster.name" value="nb.cluster.enterprise"/>
         </ant>
     </target>
-    <target name="debug" description="Build related modules and debug them.">
-        <ant dir="../autoproject.core" target="netbeans"/>
+    <target name="-build-autoproject-web" if="${build.autoproject.web}">
         <available property="enterprise.cluster.exists" file="../../nbbuild/netbeans/nb.cluster.enterprise.built"/>
         <antcall target="-build-enterprise-cluster"/>
         <ant dir="../autoproject.web" target="netbeans"/>
+    </target>
+    <target name="debug" description="Build related modules and debug them.">
+        <ant dir="../autoproject.core" target="netbeans"/>
         <ant dir="../autoproject.profiler" target="netbeans"/>
+        <input message="Build Java EE support?" validargs="true,false" defaultvalue="false" addproperty="build.autoproject.web"/>
+        <antcall target="-build-autoproject-web"/>
         <path id="clusters">
             <dirset dir="../../nbbuild/netbeans">
                 <include name="extra"/>
@@ -26,10 +30,7 @@
             </dirset>
         </path>
         <property name="clusters.toString" refid="clusters"/>
-        <input message="Clean user directory?" defaultvalue="no" validargs="yes,no" addproperty="clean.userdir.yesno"/>
-        <condition property="clean.userdir">
-            <istrue value="${clean.userdir.yesno}"/>
-        </condition>
+        <input message="Clean user directory?" validargs="true,false" defaultvalue="false" addproperty="clean.userdir"/>
         <antcall target="-testuserdir-delete"/>
         <antcall target="projectized.debug">
             <param name="tryme.args" value="
@@ -40,7 +41,7 @@
                 "/>
         </antcall>
     </target>
-    <target name="-testuserdir-delete" if="clean.userdir">
+    <target name="-testuserdir-delete" if="${clean.userdir}">
         <ant dir="../../nbbuild" target="testuserdir-delete"/>
     </target>
 </project>
