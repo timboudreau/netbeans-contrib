@@ -52,6 +52,7 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
+import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -104,6 +105,7 @@ public class AutoProjectWizardIterator implements WizardDescriptor.Instantiating
                 }
             })./* otherwise will not recognize dir as AP */waitFinished();
         }
+        Templates.setDefinesMainProject(wiz, false);
         return Collections.singleton(d);
     }
 
