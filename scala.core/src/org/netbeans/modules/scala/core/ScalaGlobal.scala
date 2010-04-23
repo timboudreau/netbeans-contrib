@@ -361,8 +361,8 @@ object ScalaGlobal {
         srcCp.getRoots foreach {x => findAllSourcesOf("text/x-java", x, javaSrcs)}
 
         val scalaSrcs = new ArrayBuffer[FileObject]
-        // * it seems only java src files need to be pushed explicitly ?
-        //srcCp.getRoots foreach {x => findAllSourcesOf("text/x-scala", x, scalaSrcs)}
+        // * push scala src files to get classes that with different name from file name to be recognized properly
+        srcCp.getRoots foreach {x => findAllSourcesOf("text/x-scala", x, scalaSrcs)}
 
         // * the reporter should be set, otherwise, no java source is resolved, maybe throws exception already.
         global.reporter = dummyReporter
