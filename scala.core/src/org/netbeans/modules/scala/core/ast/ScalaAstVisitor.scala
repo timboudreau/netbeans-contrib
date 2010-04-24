@@ -468,7 +468,7 @@ abstract class ScalaAstVisitor {
 
         case Literal(value) =>
           value.value match {
-            case tpe: Type => addRefForTypeDirectly(tree, tpe)
+            case tpe: Type => addRefForTypeDirectly(tree)(tpe)
             case _ =>
           }
 
@@ -492,7 +492,7 @@ abstract class ScalaAstVisitor {
                 tree.tpe match {
                   // special case for `classOf[.....]` etc
                   case TypeRef(pre, sym, argTpes) if sym.fullName == "java.lang.Class" =>
-                    argTpes foreach {addRefForTypeDirectly(tree, _)}
+                    argTpes foreach addRefForTypeDirectly(tree)
                   case _ =>
                     withIdToken(getIdToken(tree)) {token =>
                       val ref = ScalaRef(sym, token, ElementKind.CLASS, fo)
@@ -573,7 +573,8 @@ abstract class ScalaAstVisitor {
     }
 
     private def traverseAnnots(sym: Symbol) {
-      for (AnnotationInfo(atp, args, _) <- sym.annotations) {
+      for (me@AnnotationInfo(atp, args, assocs) <- sym.annotations) {
+        addRefForTypeDirectly(me.pos)(atp)
         traverseTrees(args)
       }
     }
@@ -595,7 +596,7 @@ abstract class ScalaAstVisitor {
       } else false
     }
 
-    private def addRefForTypeDirectly(onTree: Tree, tpe: Type): Unit = {
+    private def addRefForTypeDirectly(onTree: Tree)(tpe: Type): Unit = {
       val sym = tpe.typeSymbol
 
       val idToken = onTree.pos match {
@@ -612,7 +613,29 @@ abstract class ScalaAstVisitor {
 
       // if tpe is TypeRef, we need to add args type
       tpe match {
-        case TypeRef(_, _, argTpes) => argTpes foreach {addRefForTypeDirectly(onTree, _)}
+        case TypeRef(_, _, argTpes) => argTpes foreach addRefForTypeDirectly(onTree)
+        case _ =>
+      }
+    }
+
+    private def addRefForTypeDirectly(pos: Position)(tpe: Type): Unit = {
+      val sym = tpe.typeSymbol
+
+      val idToken = pos match {
+        // tree.pos in case of `classOf[...]` may be set as an OffsetPosition instead of RangePosition,
+        // I have to add forward looking char length. @todo get range between "[..., [..],.]"
+        case _: OffsetPosition => getIdTokenViaPos(pos, sym.name.decode, 20, sym)
+        case _ => getIdTokenViaPos(pos, sym.name.decode, -1, sym)
+      }
+
+      withIdToken(idToken) {token =>
+        val ref = ScalaRef(sym, token, ElementKind.CLASS, fo)
+        if (scopes.top.addRef(ref)) info("\tAdded: ", ref)
+      }
+
+      // if tpe is TypeRef, we need to add args type
+      tpe match {
+        case TypeRef(_, _, argTpes) => argTpes foreach addRefForTypeDirectly(pos)
         case _ =>
       }
     }
@@ -636,6 +659,43 @@ abstract class ScalaAstVisitor {
 
   private def withIdToken(idToken: Option[Token[TokenId]])(op: Token[TokenId] => Unit) {
     if (idToken.isDefined) op(idToken.get)
+  }
+
+  /**
+   * @Note: nameNode may contains preceding void productions, and may also contains
+   * following void productions, but nameString has stripped the void productions,
+   * so we should adjust nameRange according to name and its length.
+   */
+  private def getIdTokenViaPos(pos: Position, knownName: String = "", forward: Int = -1, sym: Symbol): Option[Token[TokenId]] = {
+    if (sym == null) return None
+
+    if (sym.hasFlag(Flags.SYNTHETIC)) {
+      // @todo
+    }
+
+    /** Do not use symbol.nameString or idString) here, for example, a constructor Dog()'s nameString maybe "this" */
+    val name = if (knownName.length > 0) knownName else (if (sym != NoSymbol) sym.rawname.decode else "")
+    if (name.length == 0) return None
+
+    val offset = if (pos.isDefined) pos.startOrPoint else return None
+
+    var endOffset = if (pos.isDefined) pos.endOrPoint else -1
+    if (forward != -1) {
+      endOffset = math.max(endOffset, offset + forward)
+    }
+
+    val ts = ScalaLexUtil.getTokenSequence(th, offset) getOrElse {return None}
+    ts.move(offset)
+    if (!ts.moveNext && !ts.movePrevious) {
+      assert(false, "Should not happen!")
+    }
+
+    var token = findIdTokenForward(ts, name, offset, endOffset)
+
+    token match {
+      case Some(x) if x.isFlyweight => Some(ts.offsetToken)
+      case x => x
+    }
   }
 
   /**
