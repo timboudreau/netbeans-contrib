@@ -566,7 +566,8 @@ object ScalaSourceUtil {
       }
     }
 
-    val pathPrefix = clazzName.replace('.', File.separatorChar)
+    // @Note FileUtil.getRelativePath always use '/'
+    val pathPrefix = clazzName.replace('.', '/')
     logger.info("Class prefix: " + pathPrefix + ", out dir: " + out)
     val potentialClasses = new ArrayBuffer[FileObject]
     findAllClassFilesWith(pathPrefix, out, potentialClasses)
@@ -582,7 +583,7 @@ object ScalaSourceUtil {
             if (code != null) {
               //Log.info("LineNumbers: " + code.getLineNumberTable.mkString("[", ",", "]"))
               if (code.getLineNumberTable exists {_ == lineNumber}) {
-                clazzName = FileUtil.getRelativePath(out, clazzFo).replace(File.separatorChar, '.')
+                clazzName = FileUtil.getRelativePath(out, clazzFo).replace('/', '.')
                 clazzName = clazzName.lastIndexOf(".class") match {
                   case -1 => clazzName
                   case  i => clazzName.substring(0, i)
