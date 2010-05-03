@@ -66,6 +66,7 @@ import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.spi.editor.hints.Severity;
 
 import static com.sun.source.tree.Tree.Kind.*;
+import org.netbeans.spi.editor.hints.EnhancedFix;
 import org.openide.util.NbBundle;
 
 /**
@@ -123,7 +124,7 @@ public class NegateCondition extends AbstractHint {
     public void cancel() {
     }
 
-    static final class FixImpl implements Fix {
+    static final class FixImpl implements EnhancedFix {
 
         private JavaSource js;
         private TreePathHandle condition;
@@ -207,6 +208,10 @@ public class NegateCondition extends AbstractHint {
         }
         
         private static final Set<Kind> NO_PARETHESIS = EnumSet.of(CONDITIONAL_OR, CONDITIONAL_AND, EQUAL_TO, NOT_EQUAL_TO, METHOD_INVOCATION, PARENTHESIZED, LOGICAL_COMPLEMENT);
+
+        public CharSequence getSortText() {
+            return "\uFFFFo";
+        }
         
     }
 }
