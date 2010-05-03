@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007-2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints;
@@ -83,8 +83,7 @@ public class NegateConditionTest extends TreeRuleTestBase {
                        "package test; public class Test { private void test(Object o) { if (o != null) {} } } ");
     }
     
-    /*codegen bug*/
-    public void DISABLE_testSimple3() throws Exception {
+    public void testSimple3() throws Exception {
         performFixTest("test/Test.java",
                        "package test;\n" +
                        "public class Test {\n" +
@@ -97,8 +96,7 @@ public class NegateConditionTest extends TreeRuleTestBase {
                        "package test; public class Test { private void test(Object o) { if (o != null || !(o instanceof String)) {} } } ");
     }
     
-    /*codegen bug*/
-    public void DISABLE_testSimple4() throws Exception {
+    public void testSimple4() throws Exception {
         String code = "package test;\n" +
                       "public class Test {\n" +
                       "    private void test(Object o) {\n" +
