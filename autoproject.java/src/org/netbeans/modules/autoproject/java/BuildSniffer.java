@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -209,18 +208,6 @@ public class BuildSniffer extends AntLogger {
                 buildSysclasspath = "ignore";
             } else {
                 buildSysclasspath = "last";
-            }
-        }
-        if (!buildSysclasspath.equals("ignore")) { // warn that this is a bad idea
-            File script = event.getScriptLocation();
-            if (script != null) {
-                String message = "set includeantruntime=\"false\" on <javac> for repeatable builds";
-                try {
-                    event.getSession().println(script + ":" + event.getLine() + ": warning: " + message, true,
-                            event.getSession().createStandardHyperlink(script.toURI().toURL(), message, event.getLine(), -1, -1, -1));
-                } catch (MalformedURLException x) {
-                    LOG.log(Level.WARNING, null, x);
-                }
             }
         }
         List<String> classpath = new ArrayList<String>();
