@@ -75,7 +75,6 @@ public class SeleniumProperties {
             InstancePropertiesManager manager = InstancePropertiesManager.getInstance();
             synchronized (NAMESPACE){
                 List<InstanceProperties> allProps = manager.getProperties(NAMESPACE);
-                assert (allProps.size() <= 1);
                 if (!allProps.isEmpty()) {
                     instanceProps = allProps.iterator().next();
                 } else {
