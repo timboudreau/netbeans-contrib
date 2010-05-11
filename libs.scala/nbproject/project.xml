@@ -71,15 +71,6 @@ made subject to such option by the copyright holder.
                 <package>scala.compat</package>
                 <package>scala.concurrent</package>
                 <package>scala.concurrent.forkjoin</package>
-                <package>scala.dbc</package>
-                <package>scala.dbc.datatype</package>
-                <package>scala.dbc.exception</package>
-                <package>scala.dbc.result</package>
-                <package>scala.dbc.statement</package>
-                <package>scala.dbc.statement.expression</package>
-                <package>scala.dbc.syntax</package>
-                <package>scala.dbc.value</package>
-                <package>scala.dbc.vendor</package>
                 <package>scala.io</package>
                 <package>scala.math</package>
                 <package>scala.mobile</package>
@@ -127,7 +118,6 @@ made subject to such option by the copyright holder.
                 <package>scala.tools.util</package>
                 <package>scala.util</package>
                 <package>scala.util.automata</package>
-                <package>scala.util.continuations</package>
                 <package>scala.util.control</package>
                 <package>scala.util.grammar</package>
                 <package>scala.util.logging</package>
@@ -137,7 +127,6 @@ made subject to such option by the copyright holder.
                 <package>scala.util.parsing.combinator.lexical</package>
                 <package>scala.util.parsing.combinator.syntactical</package>
                 <package>scala.util.parsing.combinator.testing</package>
-                <package>scala.util.parsing.combinator.token</package>
                 <package>scala.util.parsing.input</package>
                 <package>scala.util.parsing.json</package>
                 <package>scala.util.parsing.syntax</package>
@@ -155,10 +144,6 @@ made subject to such option by the copyright holder.
             <class-path-extension>
                 <runtime-relative-path>ext/scala-compiler-2.8.0.jar</runtime-relative-path>
                 <binary-origin>external/scala-compiler-2.8.0.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.8.0.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.8.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/scala-library-2.8.0.jar</runtime-relative-path>
