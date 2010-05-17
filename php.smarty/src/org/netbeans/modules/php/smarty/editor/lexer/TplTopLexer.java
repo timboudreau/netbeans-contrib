@@ -336,6 +336,9 @@ public class TplTopLexer implements Lexer<TplTopTokenId> {
                     if (isSmartyOpenDelimiter(text)) {
                         state = State.OPEN_DELIMITER;
                         input.backup(openDelimiterLength);
+                        if (input.readLength() > 0) {
+                            return TplTopTokenId.T_HTML;
+                        }
                     }
                     if (LexerUtils.isWS(c)) {
                         return TplTopTokenId.T_HTML;
@@ -361,12 +364,12 @@ public class TplTopLexer implements Lexer<TplTopTokenId> {
                            return TplTopTokenId.T_SMARTY;
                         case LexerInput.EOF:
                            return TplTopTokenId.T_SMARTY;
-                        case '<':
-                           state = State.OUTER;
-                           input.backup(1);
-                           if (input.readLength() > 1) {
-                                return TplTopTokenId.T_SMARTY;
-                           }
+//                        case '<':
+//                           state = State.OUTER;
+//                           input.backup(1);
+//                           if (input.readLength() > 1) {
+//                                return TplTopTokenId.T_SMARTY;
+//                           }
                     }
                     break;
                 }
