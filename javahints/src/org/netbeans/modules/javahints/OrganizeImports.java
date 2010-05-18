@@ -89,7 +89,8 @@ public class OrganizeImports extends AbstractHint {
 
     public List<ErrorDescription> run(CompilationInfo info, TreePath treePath) {
         try {
-            if (GuardedSectionManager.getInstance((StyledDocument) info.getDocument()) != null) {
+            StyledDocument doc = (StyledDocument) info.getDocument();
+            if (doc == null || GuardedSectionManager.getInstance(doc) != null) {
                 return null;
             }
         } catch (IOException ex) {
