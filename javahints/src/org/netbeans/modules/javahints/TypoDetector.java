@@ -159,6 +159,8 @@ public class TypoDetector implements ErrorRule<Void> {
         
         List<Fix> foundProposals = new ArrayList<Fix>();
         Document adoc = (Document) info.getDocument();
+
+        if (adoc == null) return null;
         
         Set<Element> elements = new HashSet<Element>();
         
