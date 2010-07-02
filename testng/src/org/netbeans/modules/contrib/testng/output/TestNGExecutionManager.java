@@ -40,11 +40,14 @@ package org.netbeans.modules.contrib.testng.output;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.Set;
 import javax.swing.event.ChangeListener;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.gsf.testrunner.api.RerunHandler;
+import org.netbeans.modules.gsf.testrunner.api.RerunType;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
+import org.netbeans.modules.gsf.testrunner.api.Testcase;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.SingleMethod;
 import org.openide.filesystems.FileObject;
@@ -119,6 +122,18 @@ public class TestNGExecutionManager implements RerunHandler {
         Project project = testSession.getProject();
         ActionProvider actionProvider = project.getLookup().lookup(ActionProvider.class);
         actionProvider.invokeAction(targets[0], lookup);
+    }
+
+    public void rerun(Set<Testcase> tests) {
+        //not implemented yet
+    }
+
+    public boolean enabled(RerunType type) {
+        switch (type){
+            case ALL: return true;
+            case CUSTOM: return false;
+            default: return false;
+        }
     }
 
     public boolean enabled() {
