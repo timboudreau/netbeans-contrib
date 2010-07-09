@@ -125,6 +125,7 @@
                         </arity>
                     </context>
                 </action>
+                <!-- XXX support also run.single.method, debug.single.method -->
                 <action name="debug.fix">
                     <script>nbproject/netbeans-targets.xml</script>
                     <target>debug-fix</target>
