@@ -10,14 +10,14 @@ and open the template in the editor.
     <localizing-bundle>org.netbeans.modules.selenium.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/selenium/selenium-java-client-driver-1.0.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-1.0.1.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
-        <resource>jar:nbinst:///modules/ext/selenium/selenium-java-client-driver-sources-1.0.1.jar!</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-sources-1.0.1.jar!</resource>
     </volume>
     <volume>
         <type>javadoc</type>
-        <resource>jar:nbinst:///modules/ext/selenium/selenium-java-client-driver-javadoc-1.0.1.zip!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-javadoc-1.0.1.zip!/</resource>
     </volume>
 </library>

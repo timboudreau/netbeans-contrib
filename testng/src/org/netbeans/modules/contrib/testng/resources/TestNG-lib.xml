@@ -47,14 +47,14 @@ made subject to such option by the copyright holder.
     <localizing-bundle>org.netbeans.modules.contrib.testng.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/testng/testng-5.11-jdk15.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.testng/modules/ext/testng/testng-5.11-jdk15.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
     </volume>
     <volume>
         <type>javadoc</type>
-        <resource>jar:nbinst:///modules/ext/testng/TestNG-5.11.zip!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.testng/modules/ext/testng/TestNG-5.11.zip!/</resource>
     </volume>
     <volume>
         <type>maven-pom</type>
