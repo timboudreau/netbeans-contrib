@@ -41,7 +41,7 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <project basedir="." default="all">
-    <property name="nbbpath" value="../../../../../../../../../../../../nbbuild/"/>
+    <property name="nbbpath" value="../../../../../../../../../../../nbbuild/"/>
     <import file="${nbbpath}/default.xml"/>
     <target name="init">
         <mkdir dir="out"/>
