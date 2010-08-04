@@ -292,6 +292,15 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                 }
             }
         }
+        SourceGroup[] rsrcGroups = s.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_RESOURCES);
+        if (rsrcGroups.length > 0) {
+            pw.println();
+            pw.println("Java resource roots:");
+            for (SourceGroup g : rsrcGroups) {
+                FileObject r = g.getRootFolder();
+                pw.println("  \"" + g.getDisplayName() + "\" (" + g.getName() + "): " + FileUtil.getFileDisplayName(r));
+            }
+        }
         ActionProvider ap = l.lookup(ActionProvider.class);
         if (ap != null) {
             pw.println();
