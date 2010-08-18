@@ -8,7 +8,7 @@
                        "http://java.sun.com/products/javahelp/index_2_0.dtd">
 
 <index version="2.0">
-	<indexitem text="Sun Java System Web Server" target="wsplugin_webserver7_plugin_help" />
-	<indexitem text="registering Sun Java System Web Server" target="wsplugin_webserver7_plugin_help" />
-	<indexitem text="registering resources with the Sun Java System Web Server" target="wsplugin_res_register" />
+	<indexitem text="Oracle iPlanet Web Server" target="wsplugin_webserver7_plugin_help" />
+	<indexitem text="registering Oracle iPlanet Web Server" target="wsplugin_webserver7_plugin_help" />
+	<indexitem text="registering resources with the Oracle iPlanet Web Server" target="wsplugin_res_register" />
 </index>

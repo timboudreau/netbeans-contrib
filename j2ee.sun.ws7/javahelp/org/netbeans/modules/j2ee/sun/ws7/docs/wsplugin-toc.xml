@@ -10,15 +10,15 @@
 <toc version="2.0">
 	<tocitem text="Servers and Databases">
 		<tocitem text="Servers">
-			<tocitem text="Sun Java System Web Server">
-				<tocitem text="Registering a Sun Java System Web Server" target="wsplugin_webserver7_plugin_help"/>
-				<tocitem text="Hierarchy of Sun Java System Web Server Instance Nodes" target="wsplugin_hierarchyofserverinstancenodes"/>
-				<tocitem text="Configuration Files for Web Applications Targeted for Sun Java System Web Server" target="wsplugin_configfiles"/>
-				<tocitem text="Setting Up a Custom Resource on the Sun Java System Web Server" target="wsplugin_res_custom"/>
-				<tocitem text="Setting Up an External JNDI Resource on the Sun Java System Web Server" target="wsplugin_res_extjndi"/>
-				<tocitem text="Setting Up a JavaMail Resource on the Sun Java System Web Server" target="wsplugin_res_javamail"/>
-				<tocitem text="Setting Up a JDBC Resource on the Sun Java System Web Server" target="wsplugin_res_jdbc"/>
-				<tocitem text="Registering a Resource with the Sun Java System Web Server" target="wsplugin_res_register" />
+			<tocitem text="Oracle iPlanet Web Server">
+				<tocitem text="Registering a Oracle iPlanet Web Server" target="wsplugin_webserver7_plugin_help"/>
+				<tocitem text="Hierarchy of Oracle iPlanet Web Server Instance Nodes" target="wsplugin_hierarchyofserverinstancenodes"/>
+				<tocitem text="Configuration Files for Web Applications Targeted for Oracle iPlanet Web Server" target="wsplugin_configfiles"/>
+				<tocitem text="Setting Up a Custom Resource on the Oracle iPlanet Web Server" target="wsplugin_res_custom"/>
+				<tocitem text="Setting Up an External JNDI Resource on the Oracle iPlanet Web Server" target="wsplugin_res_extjndi"/>
+				<tocitem text="Setting Up a JavaMail Resource on the Oracle iPlanet Web Server" target="wsplugin_res_javamail"/>
+				<tocitem text="Setting Up a JDBC Resource on the Oracle iPlanet Web Server" target="wsplugin_res_jdbc"/>
+				<tocitem text="Registering a Resource with the Oracle iPlanet Web Server" target="wsplugin_res_register" />
 			</tocitem>
 		</tocitem>
 	</tocitem>

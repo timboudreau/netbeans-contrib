@@ -40,7 +40,7 @@ public class PropBean {
         setAdminSSLPort(properties.getProperty("admin.ssl.port","28989"));
         setAdminPort(properties.getProperty("admin.port","28800"));
         setBogusAdminPort(properties.getProperty("bogus.admin.port","65536"));
-        setSjsString(properties.getProperty("sjs.string","Sun Java System Web Server 7.0"));
+        setSjsString(properties.getProperty("sjs.string","Oracle iPlanet Web Server 7.0"));
         setLocalHost(properties.getProperty("local.host","localhost"));
         setRemoteHost(properties.getProperty("remote.host","saint"));
         setBogusAdminUser(properties.getProperty("bogus.admin.user","bogus"));
@@ -67,7 +67,7 @@ public class PropBean {
 //admin.port="28800"
 //bogus.admin.port="65536"
 //bogus.admin.user="bogus"
-//sjs.string="Sun Java System Web Server 7.0"
+//sjs.string="Oracle iPlanet Web Server 7.0"
 //result.dir="c:/"
 //log.file="c:\log.file"
 

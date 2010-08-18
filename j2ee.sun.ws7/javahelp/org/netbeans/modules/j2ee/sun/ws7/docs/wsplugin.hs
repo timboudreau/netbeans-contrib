@@ -8,7 +8,7 @@
 
 
 <helpset version="2.0">
-	<title>Sun Java System Web Server Plugin Help</title>
+	<title>Oracle iPlanet Web Server Plugin Help</title>
 	<maps>
 		<homeID>wsplugin_webserver7_plugin_help</homeID>
 		<mapref location="wsplugin-map.jhm"/>

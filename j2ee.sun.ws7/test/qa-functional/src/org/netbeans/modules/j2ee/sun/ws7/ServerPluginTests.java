@@ -198,7 +198,7 @@ public class ServerPluginTests extends JellyTestCase {
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
         JListOperator jco = new JListOperator(jdo, 1);
-        jco.selectItem("Sun Java System Web Server 7.0");
+        jco.selectItem("Oracle iPlanet Web Server 7.0");
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
 
@@ -660,16 +660,16 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
         errLabel = new JLabelOperator(jdo,10);
 
-        if((errLabel.getText().equals("Please choose a Valid Sun Java System Web Server 7.0 installation."))) {
+        if((errLabel.getText().equals("Please choose a Valid Oracle iPlanet Web Server 7.0 installation."))) {
             isFail = false;
-            String msg = "Expected message was \"Please choose a Valid Sun Java System Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
+            String msg = "Expected message was \"Please choose a Valid Oracle iPlanet Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
             logger.info(msg);
-            assertEquals(msg, "Please choose a Valid Sun Java System Web Server 7.0 installation.",errLabel.getText());
+            assertEquals(msg, "Please choose a Valid Oracle iPlanet Web Server 7.0 installation.",errLabel.getText());
         } else {
             isFail = true;
-            String msg = "Expected message was \"Please choose a Valid Sun Java System Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
+            String msg = "Expected message was \"Please choose a Valid Oracle iPlanet Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
             logger.severe(msg);
-            assertEquals(msg, "Please choose a Valid Sun Java System Web Server 7.0 installation.",errLabel.getText());
+            assertEquals(msg, "Please choose a Valid Oracle iPlanet Web Server 7.0 installation.",errLabel.getText());
 
         }
         isRemoveServer = false;
@@ -753,16 +753,16 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
         errLabel = new JLabelOperator(jdo,10);
 
-        if((errLabel.getText().equals("Please choose a Valid Sun Java System Web Server 7.0 installation."))) {
+        if((errLabel.getText().equals("Please choose a Valid Oracle iPlanet Web Server 7.0 installation."))) {
             isFail = false;
-            String msg = "Expected message was \"Please choose a Valid Sun Java System Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
+            String msg = "Expected message was \"Please choose a Valid Oracle iPlanet Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
             logger.info(msg);
-            assertEquals(msg, "Please choose a Valid Sun Java System Web Server 7.0 installation.",errLabel.getText());
+            assertEquals(msg, "Please choose a Valid Oracle iPlanet Web Server 7.0 installation.",errLabel.getText());
         } else {
             isFail = true;
-            String msg = "Expected message was \"Please choose a Valid Sun Java System Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
+            String msg = "Expected message was \"Please choose a Valid Oracle iPlanet Web Server 7.0 installation.\" Actual was \"" + errLabel.getText()+ "\"";
             logger.severe(msg);
-            assertEquals(msg, "Please choose a Valid Sun Java System Web Server 7.0 installation.",errLabel.getText());
+            assertEquals(msg, "Please choose a Valid Oracle iPlanet Web Server 7.0 installation.",errLabel.getText());
         }
         isRemoveServer = false;
 
