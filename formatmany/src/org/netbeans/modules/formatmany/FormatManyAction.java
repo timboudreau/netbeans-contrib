@@ -51,6 +51,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.indent.api.Reformat;
 import org.openide.LifecycleManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
@@ -182,27 +183,24 @@ public final class FormatManyAction extends CookieAction {
             StyledDocument document = ec.openDocument();
             if (document instanceof BaseDocument) {
                 final BaseDocument doc = (BaseDocument) document;
-                final org.netbeans.editor.Formatter f = doc.getFormatter();
-                doc.runAtomic(new Runnable() {
-
-                    public void run() {
-                        boolean locked = false;
-                        try {
-                            f.reformatLock();
-                            locked = true;
-                            f.reformat(doc, 0, doc.getLength());
-                            count++;
-                        } catch (BadLocationException ex) {
-                            Exceptions.attachMessage(ex, "Failure while formatting " + FileUtil.getFileDisplayName(fo));
-                            Exceptions.printStackTrace(ex);
-                        } finally {
-                            if (locked) {
-                                f.reformatUnlock();
+                final Reformat f = Reformat.get(doc);
+                f.lock();
+                try {
+                    doc.runAtomic(new Runnable() {
+                        public void run() {
+                            try {
+                                f.reformat(0, doc.getLength());
+                                count++;
+                            } catch (BadLocationException ex) {
+                                Exceptions.attachMessage(ex, "Failure while formatting " + FileUtil.getFileDisplayName(fo));
+                                Exceptions.printStackTrace(ex);
                             }
-                        }
 
-                    }
-                });
+                        }
+                    });
+                } finally {
+                    f.unlock();
+                }
             }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.attachMessage(ex, "Failure while formatting " + FileUtil.getFileDisplayName(fo));
