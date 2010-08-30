@@ -92,6 +92,7 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     private static final String ACTIVATION =  "activation.jar"; //NOI18N
     private static final String JSF_IMPL =  "jsf-impl.jar"; //NOI18N
     private static final String JSF_API =  "jsf-api.jar"; //NOI18N
+    private static final String WEBSERV_RT_JAR =  "webserv-rt.jar"; //NOI18N
 
     private List libraries  = new ArrayList();
     private List classPathEntries = new ArrayList();
@@ -151,6 +152,7 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
                 l.add(fileToUrl(new File(root, libJar(ACTIVATION))));
                 l.add(fileToUrl(new File(root, libJar(JSF_IMPL))));
                 l.add(fileToUrl(new File(root, libJar(JSF_API))));
+                l.add(fileToUrl(new File(root, libJar(WEBSERV_RT_JAR))));
             } else { 
                 // In case of JES installation, parse the serverxml file to get the classpath jars
                 // Check these jars against listed jars (listJars()) before adding them to the library
@@ -188,7 +190,7 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
 
     // for JES installation
     private String[] listJars() {
-        String[] jars = { "jaxws-api.jar", "jaxws-rt.jar", "jaxws-tools.jar", "jsr181-api.jar", "jsr250-api.jar", "jaxb-api.jar", "jaxb-impl.jar", "jaxb-xjc.jar", "sjsxp.jar", "jsr173_api.jar", "saaj-api.jar", "saaj-impl.jar", "xmldsig.jar", "xmlsec.jar", "xws-security.jar", "xws-security_jaxrpc.jar", "wss-provider-update.jar", "security-plugin.jar", "FastInfoset.jar", "relaxngDatatype.jar", "resolver.jar", WS70_JAR, JSTL_JAR, MAIL_JAR, JAXRPC_API_JAR, JAXRPC_IMPL_JAR, JAXRPC_SPI_JAR, ACTIVATION, JSF_IMPL, JSF_API };
+        String[] jars = { "jaxws-api.jar", "jaxws-rt.jar", "jaxws-tools.jar", "jsr181-api.jar", "jsr250-api.jar", "jaxb-api.jar", "jaxb-impl.jar", "jaxb-xjc.jar", "sjsxp.jar", "jsr173_api.jar", "saaj-api.jar", "saaj-impl.jar", "xmldsig.jar", "xmlsec.jar", "xws-security.jar", "xws-security_jaxrpc.jar", "wss-provider-update.jar", "security-plugin.jar", "FastInfoset.jar", "relaxngDatatype.jar", "resolver.jar", WS70_JAR, JSTL_JAR, MAIL_JAR, JAXRPC_API_JAR, JAXRPC_IMPL_JAR, JAXRPC_SPI_JAR, ACTIVATION, JSF_IMPL, JSF_API, WEBSERV_RT_JAR };
 
         return jars;
     }
@@ -300,7 +302,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
                 new File(root, libJar(MAIL_JAR)),
                 new File(root, libJar(ACTIVATION)),
                 new File(root, libJar(JSF_IMPL)),
-                new File(root, libJar(JSF_API))
+                new File(root, libJar(JSF_API)),
+                new File(root, libJar(WEBSERV_RT_JAR))
             };
         } else {
             return (File[])classPathEntries.toArray();

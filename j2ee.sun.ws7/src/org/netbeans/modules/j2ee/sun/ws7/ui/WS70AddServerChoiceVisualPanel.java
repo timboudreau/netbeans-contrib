@@ -54,23 +54,28 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.lang.reflect.*;
 
 import org.openide.util.NbBundle;
 import org.openide.WizardDescriptor;
+import org.netbeans.modules.j2ee.sun.ws7.WS7LibsClassLoader;
+
 /**
  *
  * @author  Administrator
  */
 public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     private static final String LOCALHOST="localhost";//NOI18N
-    private static final String SSL_PORT="8989";//NOI18N
-    private static final String NON_SSL_PORT="8800";//NOI18N
+    private static final String DEFAULT_SSL_PORT = "8989";
+    private static final String DEFAULT_NON_SSL_PORT = "8800";
     private String installDirName;    
     private String hostName=LOCALHOST;
-    private String portNumber = SSL_PORT;
+    private String portNumber= DEFAULT_SSL_PORT;
     private String userName;
     private String password;
     private final List listeners = new ArrayList();
+    private List<String> ssl_ports = new ArrayList<String>();
+    private List<String> non_ssl_ports = new ArrayList<String>();
     
     /**
      * Creates new form WS70AddServerChoiceVisualPanel
@@ -92,7 +97,6 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     public String getAdminPort(){
         return jAdminPortTxt.getText().trim();        
     }
-    
 
     public String getServerLocation(){
         return jLocationTxt.getText().trim();
@@ -103,8 +107,96 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     public boolean isAdminOnSSL(){
         return jCBSSLPort.isSelected();
     }    
+
+    public void updatePortField() {
+        String location = jLocationTxt.getText().trim();
+        // To take care of JES installation also, get the instance location from wsenv file
+        String instanceLocation = org.netbeans.modules.j2ee.sun.ws7.util.Util.getInstanceLocation(location);
+        parseServerXml(instanceLocation);
+    }
+
+    // Use the java Reflexion to access the admin generated schema2beans classes especially Server class (which are  part of webserv-rt.jar) 
+    // and then parse the server.xml to get the http-listeners 
+    public void parseServerXml(String location) {
+        File serverXml = new File(location+File.separator+"admin-server"+File.separator+"config"+File.separator+"server.xml");
+        try {
+            WS7LibsClassLoader wscl = new WS7LibsClassLoader();
+            wscl.addURL(new File(location + File.separator + "lib" + File.separator + "webserv-rt.jar"));
+            Class serverCls = wscl.loadClass("com.sun.webserver.config.serverbeans.Server");
+
+            // Call create graph method (on serverXml file)  and getHttpListener method from the server class
+            Method cgMth = serverCls.getMethod("createGraph", new Class[] {serverXml.getClass()});
+            Method hlMth = serverCls.getMethod("getHttpListener", null);
+
+            // Load HttpListenerType class and get the required methods
+            Class hlCls = wscl.loadClass("com.sun.webserver.config.serverbeans.HttpListenerType");
+            Method getPortMth = hlCls.getMethod("getPort", null);
+            Method getSslMth =  hlCls.getMethod("getSsl", null);
+            Method isHLEnabledMth = hlCls.getMethod("isEnabled", null);
+
+            // Load SslType class as getSsl method returns a SslType class, which will be used to invoke the getEnabled method
+            Class sslTypeCls = wscl.loadClass("com.sun.webserver.config.serverbeans.SslType");
+            Method isSSLEnabledMth = sslTypeCls.getMethod("getEnabled", new Class[] {Integer.TYPE});
+
+            // Make sure that no previous ports exist
+            ssl_ports.clear();
+            non_ssl_ports.clear();
+
+            Object createGraph = cgMth.invoke(serverCls, new Object[]{serverXml});
+            Object[] httpListeners = (Object[]) hlMth.invoke(createGraph, null); 
+
+            // Iterate through all the http-listeners to separte ssl and non-ssl ports
+            for(Object hl : httpListeners) {
+                Object isHLEnabled = isHLEnabledMth.invoke(hl, null);
+                if (!((Boolean)isHLEnabled))
+                    continue;
+
+                Object port = getPortMth.invoke(hl, null);
+                Object ssl = getSslMth.invoke(hl, null);
+                Object isSSLEnabled = isSSLEnabledMth.invoke(ssl, new Object[] {new Integer(0)});
+                if ((Boolean)isSSLEnabled) {
+                    ssl_ports.add(port.toString());
+                } else {
+                    non_ssl_ports.add(port.toString());
+                }
+            }
+ 
+            // Set the initial display based on the http-listener ports detected
+            if (ssl_ports.size() > 0 || non_ssl_ports.size() > 0)
+                setInitialDisplay();
+            else
+                setDefaultDisplay();
+
+        } catch(Exception e) {
+            System.out.println("Warning: HttpListener's port detection is failed, so setting the defaults");
+            setDefaultDisplay();
+            e.printStackTrace();
+        }
+
+    }
+
+    // If only 1 port type is detected then SSL checkbox is disabled, while appropriately checked
+    // If only 1 SSL, 1 non SSL, or 1 of both ssl and non SSL ports are detected then port field is disabled
+    // If both port types (SSL and non SSL) are detected then SSL checkbox is enabled
+    // If more than 1 port of the selected type (SSL or non SSL) is found then port field is enabled for that type
+    private void setInitialDisplay() {
+        List<String> ports = (ssl_ports.size() != 0) ? ssl_ports : non_ssl_ports;
+        jAdminPortTxt.setText(ports.get(0));
+        jAdminPortTxt.setEditable((ports.size() > 1));
+        jCBSSLPort.setSelected((ssl_ports.size() != 0));
+        jCBSSLPort.setEnabled((ssl_ports.size() > 0 && non_ssl_ports.size() > 0));
+    }
+
+   // In case of any failures just use this as a default display
+   private void setDefaultDisplay() {
+       jAdminPortTxt.setText(DEFAULT_SSL_PORT);
+       jAdminPortTxt.setEditable(false);
+       jCBSSLPort.setEnabled(false);
+       jCBSSLPort.setSelected(true);
+   }
+
     public boolean isValid(WizardDescriptor wizard){        
-        if(!validateDirctory()){
+        if (!validateDirectory()){
             jLocationTxt.setFocusable(true);
             wizard.putProperty(WS70ServerUIWizardIterator.PROP_ERROR_MESSAGE
                     , NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_INVALID_SERVER_DIRECTORY"));
@@ -128,6 +220,13 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                     , NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_ENTER_USERNAME"));
             return false;
         }
+        // Remote host validation needs to be done only after validating admin host and admin port
+        // Just show a warning message and proceed further even if validation fails
+        if (!validateRemoteHost()) {
+           wizard.putProperty(WS70ServerUIWizardIterator.PROP_ERROR_MESSAGE 
+                    , NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_ADMIN_CONNECT_ERROR")); 
+           return true;
+        }
         wizard.putProperty(WS70ServerUIWizardIterator.PROP_ERROR_MESSAGE, null);
         return true;
     }
@@ -150,6 +249,10 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         if(port<=0 || port>65535){            
             return false;
         }
+
+        if (!jCBRemote.isSelected()) 
+            return (jCBSSLPort.isSelected()) ? ssl_ports.contains(portNumber) 
+                                             : non_ssl_ports.contains(portNumber);
         return true;
     }
     private boolean validateUserName(){
@@ -158,7 +261,15 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         }
         return true;
     }        
-    private boolean validateDirctory() {
+    private boolean validateRemoteHost() {
+        if (jCBRemote.isSelected()) {
+            String host = jAdminHostTxt.getText().trim();
+            String port = jAdminPortTxt.getText().trim();
+            return org.netbeans.modules.j2ee.sun.ws7.util.Util.isRunning(host, Integer.parseInt(port));
+        }
+        return true;
+    }
+    private boolean validateDirectory() {
         if(installDirName==null){
             return false;
         }
@@ -281,6 +392,7 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
 
         jAdminHostTxt.setEditable(false);
         jAdminHostTxt.setText(LOCALHOST);
+
         jAdminHostTxt.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jAdminHostTxtCaretUpdate(evt);
@@ -291,7 +403,9 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jAdminPortLbl.setLabelFor(jAdminPortTxt);
         jAdminPortLbl.setText(bundle.getString("LBL_AddServerVisualPanelPort")); // NOI18N
 
-        jAdminPortTxt.setText("8989");
+        jAdminPortTxt.setEditable(false);
+        jAdminPortTxt.setText(DEFAULT_SSL_PORT);
+
         jAdminPortTxt.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jAdminPortTxtCaretUpdate(evt);
@@ -341,6 +455,7 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
 
         jCBSSLPort.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_SSL_Mnem").charAt(0));
         jCBSSLPort.setSelected(true);
+        jCBSSLPort.setEnabled(false);
         jCBSSLPort.setText(bundle.getString("LBL_AddServerVisualPanelSSLPort")); // NOI18N
         jCBSSLPort.setToolTipText(bundle.getString("Tooltip_AddServerVisualPanelSSLPort")); // NOI18N
         jCBSSLPort.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -464,23 +579,32 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jCBSSLPortItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBSSLPortItemStateChanged
-        if (jCBSSLPort.isSelected()){
-            if (jAdminPortTxt.getText().equals(NON_SSL_PORT))
-                jAdminPortTxt.setText(SSL_PORT);
-        }else {
-            if (jAdminPortTxt.getText().equals (SSL_PORT))
-                jAdminPortTxt.setText(NON_SSL_PORT);
+        if (jCBRemote.isSelected()) {
+            if (jCBSSLPort.isSelected()) 
+                jAdminPortTxt.setText(DEFAULT_SSL_PORT);
+            else
+                jAdminPortTxt.setText(DEFAULT_NON_SSL_PORT);
+        } else {
+            List<String> ports = (jCBSSLPort.isSelected()) ? ssl_ports : non_ssl_ports;
+            jAdminPortTxt.setEditable((ports.size() > 1));
+            jAdminPortTxt.setText(ports.get(0));
         }
     }//GEN-LAST:event_jCBSSLPortItemStateChanged
 
     private void jCBRemoteStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCBRemoteStateChanged
-        if(!jCBRemote.isSelected()){
+        if (!jCBRemote.isSelected()) {
             jAdminHostTxt.setText(LOCALHOST);
-            jAdminHostTxt.setEditable(false);            
-        }else{
-            if(!jAdminHostTxt.isEditable()){
-                jAdminHostTxt.setEditable(true);                
-            }
+            jAdminHostTxt.setEditable(false);
+            if (validateDirectory())
+                setInitialDisplay();
+            else
+                setDefaultDisplay();
+        } else {
+            jAdminHostTxt.setEditable(true);                
+            jAdminPortTxt.setText(DEFAULT_SSL_PORT);
+            jAdminPortTxt.setEditable(true);
+            jCBSSLPort.setEnabled(true);
+            jCBSSLPort.setSelected(true);
         }
     }//GEN-LAST:event_jCBRemoteStateChanged
 
@@ -494,6 +618,13 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
             return;
         }
         installDirName = dirName;        
+
+        // If a valid webserver installation is detected then call the updatePortField method to parse the server.xml file
+        // and then to update the admin port value, else fall back to the default display
+        if (validateDirectory())
+            updatePortField();
+        else
+            setDefaultDisplay();
         fireChange();        
     }//GEN-LAST:event_jLocationTxtFocusLost
 
@@ -573,6 +704,13 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                 }
             }
         }
+
+        // If a valid webserver installation is detected then call the updatePortField method to parse the server.xml file
+        // and then to update the admin port value, else fall back to the default display
+        if (validateDirectory())
+            updatePortField();
+        else
+            setDefaultDisplay();
     }//GEN-LAST:event_jBrowseBtnActionPerformed
     
     

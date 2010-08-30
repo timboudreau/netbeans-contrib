@@ -185,38 +185,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
     // Get the instance location from wsenv file
     public String getInstanceLocation(){
-        String instanceLocation = new String();
-        if(serverLocation!=null && serverLocation.length()!=0) {
-            String wsenv = serverLocation + File.separator + "lib" + File.separator + "wsenv";
-            boolean isWindows = false;
-            File wsenvFile = new File(wsenv);
-            if(!wsenvFile.exists()) {
-                wsenv = serverLocation + File.separator + "lib" + File.separator + "wsenv.bat";
-                isWindows = true;
-            }
-            instanceLocation = getInstanceRoot(wsenv, isWindows);   
-        }
-        return instanceLocation;
-    }
-
-    public String getInstanceRoot(String wsenv, boolean isWindows){
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(wsenv));
-            String line = null; 
-            do {
-                    line = br.readLine();
-                    if(line.contains("WS_INSTANCEROOT=")) {
-                        if(isWindows) {
-                            return line.split("=")[1];
-                        } else {
-                            return line.substring(line.indexOf("=")+2, line.indexOf(";")-1);
-                        }
-                    }
-            } while(line!=null);
-        }catch(Exception e) {
-                e.printStackTrace();
-        }
-        return "";
+        return org.netbeans.modules.j2ee.sun.ws7.util.Util.getInstanceLocation(serverLocation);
     }
 
     public boolean isLocalServer(){
@@ -781,16 +750,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
     
     public boolean isRunning(){        
-       try {
-             java.net.InetSocketAddress isa = new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port);
-             java.net.Socket socket = new java.net.Socket();
-             socket.connect(isa);
-             socket.close();             
-             return true;
-        } catch (IOException e) {            
-            return false;
-        }        
-
+        return org.netbeans.modules.j2ee.sun.ws7.util.Util.isRunning(host, port);
     }
     
     public boolean isRunning(String configName){
