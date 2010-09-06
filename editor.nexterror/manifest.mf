@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.editor.nexterror
 OpenIDE-Module-Layer: org/netbeans/modules/editor/nexterror/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/editor/nexterror/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.3
+OpenIDE-Module-Specification-Version: 1.4
 

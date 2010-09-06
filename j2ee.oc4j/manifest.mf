@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.j2ee.oc4j
 OpenIDE-Module-Layer: org/netbeans/modules/j2ee/oc4j/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/j2ee/oc4j/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.10.6
+OpenIDE-Module-Specification-Version: 0.11
 
