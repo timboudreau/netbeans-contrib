@@ -54,6 +54,7 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.HashMap;
 import java.lang.reflect.*;
 
 import org.openide.util.NbBundle;
@@ -118,49 +119,11 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     // Use the java Reflexion to access the admin generated schema2beans classes especially Server class (which are  part of webserv-rt.jar) 
     // and then parse the server.xml to get the http-listeners 
     public void parseServerXml(String location) {
-        File serverXml = new File(location+File.separator+"admin-server"+File.separator+"config"+File.separator+"server.xml");
         try {
-            WS7LibsClassLoader wscl = new WS7LibsClassLoader();
-            wscl.addURL(new File(location + File.separator + "lib" + File.separator + "webserv-rt.jar"));
-            Class serverCls = wscl.loadClass("com.sun.webserver.config.serverbeans.Server");
+            HashMap ports = org.netbeans.modules.j2ee.sun.ws7.util.Util.getPorts(location);
+            ssl_ports = (ArrayList<String>)ports.get("ssl_ports");
+            non_ssl_ports = (ArrayList<String>)ports.get("non_ssl_ports");
 
-            // Call create graph method (on serverXml file)  and getHttpListener method from the server class
-            Method cgMth = serverCls.getMethod("createGraph", new Class[] {serverXml.getClass()});
-            Method hlMth = serverCls.getMethod("getHttpListener", null);
-
-            // Load HttpListenerType class and get the required methods
-            Class hlCls = wscl.loadClass("com.sun.webserver.config.serverbeans.HttpListenerType");
-            Method getPortMth = hlCls.getMethod("getPort", null);
-            Method getSslMth =  hlCls.getMethod("getSsl", null);
-            Method isHLEnabledMth = hlCls.getMethod("isEnabled", null);
-
-            // Load SslType class as getSsl method returns a SslType class, which will be used to invoke the getEnabled method
-            Class sslTypeCls = wscl.loadClass("com.sun.webserver.config.serverbeans.SslType");
-            Method isSSLEnabledMth = sslTypeCls.getMethod("getEnabled", new Class[] {Integer.TYPE});
-
-            // Make sure that no previous ports exist
-            ssl_ports.clear();
-            non_ssl_ports.clear();
-
-            Object createGraph = cgMth.invoke(serverCls, new Object[]{serverXml});
-            Object[] httpListeners = (Object[]) hlMth.invoke(createGraph, null); 
-
-            // Iterate through all the http-listeners to separte ssl and non-ssl ports
-            for(Object hl : httpListeners) {
-                Object isHLEnabled = isHLEnabledMth.invoke(hl, null);
-                if (!((Boolean)isHLEnabled))
-                    continue;
-
-                Object port = getPortMth.invoke(hl, null);
-                Object ssl = getSslMth.invoke(hl, null);
-                Object isSSLEnabled = isSSLEnabledMth.invoke(ssl, new Object[] {new Integer(0)});
-                if ((Boolean)isSSLEnabled) {
-                    ssl_ports.add(port.toString());
-                } else {
-                    non_ssl_ports.add(port.toString());
-                }
-            }
- 
             // Set the initial display based on the http-listener ports detected
             if (ssl_ports.size() > 0 || non_ssl_ports.size() > 0)
                 setInitialDisplay();

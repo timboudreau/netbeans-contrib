@@ -155,11 +155,35 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     }
     
     // Called from Manager Node Customizer only
-    public void refreshInnerDM(String uname, String pword) {
-        if(uname.equals(userName) && pword.equals(password)){            
+    public void refreshInnerDM(String uname, String pword, String pport) {
+        if (uname.equals(userName) && pword.equals(password) && Integer.parseInt(pport) == port) {            
             // Nothing is changed, take no action
             return;
         }
+        // If any changes to the jmx-connector url, like port is changed, then create a new instance and delete the old one
+        if (Integer.parseInt(pport) != port) {
+            try {
+                // Get the old instance properties and reset them again for the new instance
+                InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+                String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+                String isLocal = ip.getProperty(WS70ServerUIWizardIterator.PROP_LOCAL_SERVER);
+
+                // Remove the old instance
+                ip.removeInstance(uri);
+                // Remove the uri from the connected managers list
+                WS70SunDeploymentFactory.removeConnectedManager(uri);
+
+                // Get the new uri with the updated port
+                uri = WS70URIManager.getUpdatedUri(uri, pport);
+                InstanceProperties nip = InstanceProperties.createInstanceProperties(uri, uname, pword, WS70ServerUIWizardIterator.displayName); 
+                nip.setProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT, isSSL);
+                nip.setProperty(WS70ServerUIWizardIterator.PROP_LOCAL_SERVER, isLocal);
+                nip.setProperty(InstanceProperties.HTTP_PORT_NUMBER, pport);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();
         try{
             String ws70url = WS70URIManager.getURIWithoutLocation(uri);

@@ -44,9 +44,12 @@
  */
 
 package org.netbeans.modules.j2ee.sun.ws7.ui;
+import org.openide.util.NbBundle;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
+import org.netbeans.modules.j2ee.sun.ws7.util.Util;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.*;
 /**
  *
  * @author  Mukesh Garg
@@ -54,16 +57,20 @@ import java.awt.event.*;
 public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
 
     private WS70SunDeploymentManager manager;
+    private ArrayList ports;
     /** Creates new form WS70ConnectionTabVisualPanel */
     public WS70ConnectionTabVisualPanel(WS70SunDeploymentManager dm) {
         manager = dm;
         initComponents();
 
-        jAdminUrlTxt.setText(manager.getHost()+":"+manager.getPort());
+        jAdminHostTxt.setText(manager.getHost());
+        jAdminPortTxt.setText(Integer.toString(manager.getPort()));
         jAdminUserTxt.setText(manager.getUserName());
         jPasswordTxt.setText(manager.getPassword());
         jLocationTxt.setText(manager.getServerLocation());       
-
+        if (manager.isRunning()) {
+            jAdminPortTxt.setEditable(false);
+        }
     }
     
     /** This method is called from within the constructor to
@@ -73,8 +80,10 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jAdminUrlLbl = new javax.swing.JLabel();
-        jAdminUrlTxt = new javax.swing.JTextField();
+        jAdminHostLbl = new javax.swing.JLabel();
+        jAdminHostTxt = new javax.swing.JTextField();
+        jAdminPortLbl = new javax.swing.JLabel();
+        jAdminPortTxt = new javax.swing.JTextField();
         jLocationLbl = new javax.swing.JLabel();
         jLocationTxt = new javax.swing.JTextField();
         jAdminUserLbl = new javax.swing.JLabel();
@@ -93,14 +102,29 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
             }
         });
 
-        jAdminUrlLbl.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_Connection_Url_Mnem").charAt(0));
-        jAdminUrlLbl.setLabelFor(jAdminUrlTxt);
-        jAdminUrlLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_ConnectionAdminUrl"));
-        jAdminUrlLbl.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_NAME_ConnectionAdminUrl"));
-        jAdminUrlLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_ConnectionAdminUrl"));
-        jAdminUrlLbl.getAccessibleContext().setAccessibleParent(this);
+        jAdminHostLbl.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_Connection_Host_Mnem").charAt(0));
+        jAdminHostLbl.setLabelFor(jAdminHostTxt);
+        jAdminHostLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_ConnectionAdminHost"));
+        jAdminHostLbl.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_NAME_ConnectionAdminHost"));
+        jAdminHostLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_ConnectionAdminHost"));
+        jAdminHostLbl.getAccessibleContext().setAccessibleParent(this);
 
-        jAdminUrlTxt.setEditable(false);
+        jAdminHostTxt.setEditable(false);
+
+        jAdminPortLbl.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_Connection_Port_Mnem").charAt(0));
+        jAdminPortLbl.setLabelFor(jAdminPortTxt);
+        jAdminPortLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_ConnectionAdminPort"));
+        jAdminPortLbl.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_NAME_ConnectionAdminPort"));
+        jAdminPortLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_ConnectionAdminPort"));
+        jAdminPortLbl.getAccessibleContext().setAccessibleParent(this);
+
+        jAdminPortTxt.setEditable(true);
+        jAdminPortTxt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jAdminPortTxtFocusLost(evt);
+            }
+        });
+
 
         jLocationLbl.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_Connection_Location_Mnem").charAt(0));
         jLocationLbl.setLabelFor(jLocationTxt);
@@ -149,7 +173,8 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .add(22, 22, 22)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jAdminUrlLbl)
+                    .add(jAdminHostLbl)
+                    .add(jAdminPortLbl)
                     .add(jLocationLbl)
                     .add(jAdminUserLbl)
                     .add(jPasswordLbl))
@@ -161,7 +186,8 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                         .add(layout.createSequentialGroup()
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(jAdminUrlTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                                .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                                .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
                                 .add(jLocationTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
                             .add(96, 96, 96))
                         .add(layout.createSequentialGroup()
@@ -169,15 +195,19 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
                             .addContainerGap()))))
         );
 
-        layout.linkSize(new java.awt.Component[] {jAdminUrlTxt, jAdminUserTxt, jLocationTxt, jPasswordTxt}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(new java.awt.Component[] {jAdminHostTxt, jAdminPortTxt, jAdminUserTxt, jLocationTxt, jPasswordTxt}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(28, 28, 28)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jAdminUrlLbl)
-                    .add(jAdminUrlTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jAdminHostLbl)
+                    .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(18, 18, 18)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jAdminPortLbl)
+                    .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLocationLbl)
@@ -193,9 +223,9 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
                 .addContainerGap(138, Short.MAX_VALUE))
         );
 
-        layout.linkSize(new java.awt.Component[] {jAdminUrlTxt, jAdminUserTxt, jLocationTxt, jPasswordTxt}, org.jdesktop.layout.GroupLayout.VERTICAL);
+        layout.linkSize(new java.awt.Component[] {jAdminHostTxt, jAdminPortTxt, jAdminUserTxt, jLocationTxt, jPasswordTxt}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
-        layout.linkSize(new java.awt.Component[] {jAdminUrlLbl, jAdminUserLbl, jLocationLbl, jPasswordLbl}, org.jdesktop.layout.GroupLayout.VERTICAL);
+        layout.linkSize(new java.awt.Component[] {jAdminHostLbl, jAdminPortLbl, jAdminUserLbl, jLocationLbl, jPasswordLbl}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -210,15 +240,36 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
         if(propertyname!=null && propertyname.equals("ancestor")){
             if(oldValue!=null && newValue==null){
                 String uname = jAdminUserTxt.getText();                              
+                String port = jAdminPortTxt.getText().trim();
                 char[] passWd = jPasswordTxt.getPassword();
                 String password = new String(passWd);
-                manager.refreshInnerDM(uname, password);
+                manager.refreshInnerDM(uname, password, port);
             }
         }        
     }//GEN-LAST:event_formPropertyChange
 
     private void formFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusLost
     }//GEN-LAST:event_formFocusLost
+
+    private void jAdminPortTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jAdminPortTxtFocusLost
+        String host = jAdminHostTxt.getText().trim();
+        String port = jAdminPortTxt.getText().trim();
+        if(WS70ServerUIWizardIterator.localserver) {
+            String location = jLocationTxt.getText().trim();
+            HashMap hm = org.netbeans.modules.j2ee.sun.ws7.util.Util.getPorts(location);
+            ports = (WS70ServerUIWizardIterator.sslport) ? (ArrayList<String>)hm.get("ssl_ports") : (ArrayList<String>)hm.get("non_ssl_ports");
+            if (ports.size() != 0 && !ports.contains(port)) {
+                JOptionPane.showMessageDialog(null, NbBundle.getBundle(WS70ConnectionTabVisualPanel.class).getString("MSG_ENTER_VALID_PORT") 
+                                                  , NbBundle.getBundle(WS70ConnectionTabVisualPanel.class).getString("MSG_INVALID_PORT") 
+                                                  , JOptionPane.ERROR_MESSAGE);
+                jAdminPortTxt.requestFocusInWindow();
+            }
+        } else if (!Util.isRunning(host, Integer.parseInt(port))) {
+            JOptionPane.showMessageDialog(null, NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_ADMIN_CONNECT_ERROR")
+                                              , NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_CONNECT_WARNING") 
+                                              , JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jAdminPortTxtFocusLost
 
     private void jPasswordTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jPasswordTxtFocusLost
     }//GEN-LAST:event_jPasswordTxtFocusLost
@@ -230,8 +281,10 @@ public class WS70ConnectionTabVisualPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jAdminUserTxtKeyReleased
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jAdminUrlLbl;
-    private javax.swing.JTextField jAdminUrlTxt;
+    private javax.swing.JLabel jAdminHostLbl;
+    private javax.swing.JTextField jAdminHostTxt;
+    private javax.swing.JLabel jAdminPortLbl;
+    private javax.swing.JTextField jAdminPortTxt;
     private javax.swing.JLabel jAdminUserLbl;
     private javax.swing.JTextField jAdminUserTxt;
     private javax.swing.JLabel jLocationLbl;

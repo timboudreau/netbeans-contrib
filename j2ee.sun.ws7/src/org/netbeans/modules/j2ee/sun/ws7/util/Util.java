@@ -45,6 +45,10 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.*;
+import java.lang.reflect.*;
+
+import org.netbeans.modules.j2ee.sun.ws7.WS7LibsClassLoader;
 
 public class Util {
     // Get the instance location from wsenv file
@@ -98,5 +102,60 @@ public class Util {
 
     }
 
+    public static HashMap getPorts(String serverXmlLocation) {
+        List<String> ssl_ports = new ArrayList<String>();
+        List<String> non_ssl_ports = new ArrayList<String>();
+        File serverXml = new File(serverXmlLocation+File.separator+"admin-server"+File.separator+"config"+File.separator+"server.xml");
+        try {
+            WS7LibsClassLoader wscl = new WS7LibsClassLoader();
+            wscl.addURL(new File(serverXmlLocation + File.separator + "lib" + File.separator + "webserv-rt.jar"));
+            Class serverCls = wscl.loadClass("com.sun.webserver.config.serverbeans.Server");
+
+            // Call create graph method (on serverXml file)  and getHttpListener method from the server class
+            Method cgMth = serverCls.getMethod("createGraph", new Class[] {serverXml.getClass()});
+            Method hlMth = serverCls.getMethod("getHttpListener", null);
+
+            // Load HttpListenerType class and get the required methods
+            Class hlCls = wscl.loadClass("com.sun.webserver.config.serverbeans.HttpListenerType");
+            Method getPortMth = hlCls.getMethod("getPort", null);
+            Method getSslMth =  hlCls.getMethod("getSsl", null);
+            Method isHLEnabledMth = hlCls.getMethod("isEnabled", null);
+
+            // Load SslType class as getSsl method returns a SslType class, which will be used to invoke the getEnabled method
+            Class sslTypeCls = wscl.loadClass("com.sun.webserver.config.serverbeans.SslType");
+            Method isSSLEnabledMth = sslTypeCls.getMethod("getEnabled", new Class[] {Integer.TYPE});
+
+            // Make sure that no previous ports exist
+            ssl_ports.clear();
+            non_ssl_ports.clear();
+
+            Object createGraph = cgMth.invoke(serverCls, new Object[]{serverXml});
+            Object[] httpListeners = (Object[]) hlMth.invoke(createGraph, null);
+
+            // Iterate through all the http-listeners to separte ssl and non-ssl ports
+            for(Object hl : httpListeners) {
+                Object isHLEnabled = isHLEnabledMth.invoke(hl, null);
+                if (!((Boolean)isHLEnabled))
+                    continue;
+
+                Object port = getPortMth.invoke(hl, null);
+                Object ssl = getSslMth.invoke(hl, null);
+                Object isSSLEnabled = isSSLEnabledMth.invoke(ssl, new Object[] {new Integer(0)});
+                if ((Boolean)isSSLEnabled) {
+                    ssl_ports.add(port.toString());
+                } else {
+                    non_ssl_ports.add(port.toString());
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        HashMap ports = new HashMap();
+        ports.put("ssl_ports", ssl_ports);
+        ports.put("non_ssl_ports", non_ssl_ports);
+        return ports;
+
+    }
 }
 

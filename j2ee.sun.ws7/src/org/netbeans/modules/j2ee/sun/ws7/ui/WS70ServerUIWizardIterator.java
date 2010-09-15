@@ -74,6 +74,9 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
     private final static String PROP_DISPLAY_NAME = "ServInstWizard_displayName"; // NOI18N
     public final static String PROP_LOCAL_SERVER = "LocalServer"; // NOI18N
     public final static String PROP_SSL_PORT = "SSLAdminPort"; // NOI18N
+    public static String displayName;
+    public static boolean sslport;
+    public static boolean localserver;
     private WS70AddServerChoicePanel panel;
     private WizardDescriptor wizard;
     /**
@@ -96,9 +99,9 @@ public class WS70ServerUIWizardIterator implements WizardDescriptor.Instantiatin
             String user = visualPanel.getAdminUserName();
             String password = visualPanel.getAdminPassword();
             String location  = visualPanel.getServerLocation();
-            String displayName = (String)wizard.getProperty(PROP_DISPLAY_NAME);
-            boolean localserver = visualPanel.isLocalServer();
-            boolean sslport = visualPanel.isAdminOnSSL();
+            displayName = (String)wizard.getProperty(PROP_DISPLAY_NAME);
+            localserver = visualPanel.isLocalServer();
+            sslport = visualPanel.isAdminOnSSL();
             InstanceProperties ip = WS70URIManager.createInstanceProperties(location, host, port, user, password, displayName);
             ip.setProperty(PROP_LOCAL_SERVER, Boolean.toString(localserver));
             ip.setProperty(PROP_SSL_PORT, Boolean.toString(sslport));

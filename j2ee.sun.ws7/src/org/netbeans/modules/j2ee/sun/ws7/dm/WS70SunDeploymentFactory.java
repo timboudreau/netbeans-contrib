@@ -265,4 +265,9 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
     // Dummy class for WS70Deployment Factory to get classloader of this class
     public static class Dummy{
     }
+
+    // Remove the specified uri from the connected managers' list
+    public static void removeConnectedManager(String uri) {
+        connectedManagers.remove(uri);
+    }
 }

@@ -18,7 +18,8 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jAdminUrlLbl" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jAdminHostLbl" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jAdminPortLbl" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLocationLbl" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jAdminUserLbl" min="-2" max="-2" attributes="0"/>
                   <Component id="jPasswordLbl" min="-2" max="-2" attributes="0"/>
@@ -32,7 +33,8 @@
                   <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jAdminUrlTxt" linkSize="1" alignment="0" pref="248" max="32767" attributes="1"/>
+                              <Component id="jAdminHostTxt" linkSize="1" alignment="0" pref="248" max="32767" attributes="1"/>
+                              <Component id="jAdminPortTxt" linkSize="1" alignment="0" pref="248" max="32767" attributes="1"/>
                               <Component id="jLocationTxt" linkSize="1" alignment="0" pref="248" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace min="-2" pref="96" max="-2" attributes="0"/>
@@ -51,8 +53,13 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jAdminUrlLbl" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jAdminUrlTxt" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jAdminHostLbl" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jAdminHostTxt" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jAdminPortLbl" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jAdminPortTxt" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -75,33 +82,62 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jAdminUrlLbl">
+    <Component class="javax.swing.JLabel" name="jAdminHostLbl">
       <Properties>
         <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
-          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_Connection_Url_Mnem" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_Connection_Host_Mnem" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="jAdminUrlTxt"/>
+          <ComponentRef name="jAdminHostTxt"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="LBL_ConnectionAdminUrl" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="LBL_ConnectionAdminHost" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AccessibilityProperties>
         <Property name="AccessibleContext.accessibleName" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_NAME_ConnectionAdminUrl" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_NAME_ConnectionAdminHost" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_DESC_ConnectionAdminUrl" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_DESC_ConnectionAdminHost" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.RADVisualComponent$AccessibleParentEditor">
           <ComponentRef name="Form"/>
         </Property>
       </AccessibilityProperties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jAdminUrlTxt">
+    <Component class="javax.swing.JTextField" name="jAdminHostTxt">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jAdminPortLbl">
+      <Properties>
+        <Property name="displayedMnemonic" type="int" editor="org.netbeans.modules.i18n.form.FormI18nMnemonicEditor">
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_Connection_Port_Mnem" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="jAdminPortTxt"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="LBL_ConnectionAdminPort" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_NAME_ConnectionAdminPort" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/j2ee/sun/ws7/ui/Bundle.properties" key="A11Y_DESC_ConnectionAdminPort" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.RADVisualComponent$AccessibleParentEditor">
+          <ComponentRef name="Form"/>
+        </Property>
+      </AccessibilityProperties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jAdminPortTxt">
+      <Properties>
+        <Property name="editable" type="boolean" value="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLocationLbl">

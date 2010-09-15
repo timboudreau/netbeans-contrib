@@ -140,5 +140,14 @@ public class WS70URIManager {
         String[] vals = newUrl.split(":");      
         return vals[1];                
     }
+
+    public static String getUpdatedUri(String uri, String port){
+        // uri is a complete connector url
+        // prefix is [<serverlocation>]+WS70SERVERURI and suffix is <host>:<port>
+        int index = uri.lastIndexOf("::");
+        String prefix = (index!=-1) ? uri.substring(0, index+2) : "";
+        String suffix = (index!=-1) ? uri.substring(index+2) : uri;
+        return prefix + suffix.split(":")[0] + ":" + port;
+    }
     
 }
