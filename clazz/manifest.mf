@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module-Layer: org/netbeans/modules/clazz/resources/mf-layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/clazz/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.20
-OpenIDE-Module: org.netbeans.modules.clazz/1
-
-Name: org/netbeans/modules/clazz/ClassDataLoader.class
-OpenIDE-Module-Class: Loader
-

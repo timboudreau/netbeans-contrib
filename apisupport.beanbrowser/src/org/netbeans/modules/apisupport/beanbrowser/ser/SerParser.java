@@ -39,45 +39,11 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.clazz;
+package org.netbeans.modules.apisupport.beanbrowser.ser;
 
 import java.io.*;
 import java.util.*;
 import org.openide.util.NotImplementedException;
-
-/* The following may be useful to Emacs users:
-
-(defun comma-sep-decimal-encode ()
-  (interactive)
-  (while
-      (let ((p (point)))
-        (and (re-search-forward "\\(-?[0-9][0-9]?[0-9]?\\),?" nil t)
-             (= p (match-beginning 0))))
-    (replace-match (char-to-string
-                    (let ((x (string-to-int (match-string 1))))
-                      (when (< x 0) (setq x (+ x 256)))
-                      x))
-                   t t)))
-
-After evaluating this, go into an old cpanel.xml or similar
-(M-x find-file-literally, by the way) and type
-M-x comma-sep-decimal-encode right after the opening quote
-of the value. The contents will be converted to raw binary and
-may be saved as a .ser file parsable by this class.
-
-(defun hex-encode ()
-  (interactive)
-  (while
-      (let ((p (point)))
-        (and (re-search-forward "\\s-*\\([a-fA-F0-9][a-fA-F0-9]\\)" nil t)
-             (= p (match-beginning 0))))
-    (replace-match (char-to-string
-                    (string-to-int (match-string 1) 16))
-                   t t)))
-
-Same for hexadecimal serialized data. For .settings files, it is
-easier to select Customize Bean... in the IDE and save as *.ser.
-*/
 
 /** Parser for Java serialization files.
  * Does no classloading or per-class semantics, simply parses the
@@ -112,8 +78,8 @@ public final class SerParser implements ObjectStreamConstants {
         return o;
     }
     
-    public Stream parse() throws IOException, CorruptException {
-        Stream s = new Stream();
+    public Stream parse(String label) throws IOException, CorruptException {
+        Stream s = new Stream(label);
         s.magic = readShort();
         s.version = readShort();
         if (s.magic != STREAM_MAGIC || s.version != STREAM_VERSION) {
@@ -270,11 +236,16 @@ public final class SerParser implements ObjectStreamConstants {
     // for explanation of all these objects.
     
     public static final class Stream /*extends Thing*/ {
+        final String label;
+        public Stream(String label) {
+            this.label = label;
+        }
         public short magic;
         public short version;
         public List contents; // List<Object>
+
         public String toString() {
-            return "Stream[contents=" + contents + "]"; // NOI18N
+            return "Stream[" + label + ":" + contents + "]"; // NOI18N
         }
     }
     
