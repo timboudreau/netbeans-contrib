@@ -50,6 +50,7 @@
         <folder name="Window">
             <file name="DataFlowAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-java-editor-ext-refactoring-dataflow-DataFlowAction.instance"/>
+                <attr name="position" intvalue="1075"/>
             </file>
         </folder>
     </folder>
@@ -60,6 +61,7 @@
         <folder name="Modes">
             <folder name="output">
                 <file name="DataFlowTopComponent.wstcref" url="DataFlowTopComponentWstcref.xml"/>
+                <attr name="position" intvalue="1075"/>
             </folder>
         </folder>
     </folder>
