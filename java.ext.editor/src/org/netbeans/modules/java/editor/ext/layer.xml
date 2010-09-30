@@ -60,8 +60,9 @@
         </folder>
         <folder name="Modes">
             <folder name="output">
-                <file name="DataFlowTopComponent.wstcref" url="DataFlowTopComponentWstcref.xml"/>
-                <attr name="position" intvalue="1075"/>
+                <file name="DataFlowTopComponent.wstcref" url="DataFlowTopComponentWstcref.xml">
+                    <attr name="position" intvalue="1075"/>
+                </file>
             </folder>
         </folder>
     </folder>
