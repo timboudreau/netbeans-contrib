@@ -100,8 +100,6 @@
 ^encoder.ui.tester/catalog\.xml$
 ^bluej-suite/dist$
 ^bluej-suite/launcher/windows/netbeans\.res$
-^ide.servicestab/\.diff_file\.swp$
-^ide.servicestab/\.manifest\.mf\.swp$
 ^jnlpmodules/dist$
 ^javafx.graphicssample/resources/JavaFXDemos/dist$
 ^javafx.graphicssample/src/org/netbeans/modules/javafx/graphicssample/resources$
