@@ -46,7 +46,9 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.JavaClassPathConstants;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.AnnotationProcessingQuery;
 import org.netbeans.api.java.queries.BinaryForSourceQuery;
 import org.netbeans.api.java.queries.JavadocForBinaryQuery;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
@@ -263,7 +265,8 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                     pw.println();
                 }
                 for (String kind : new String[] {ClassPath.COMPILE, ClassPath.EXECUTE, ClassPath.BOOT,
-                        /*org.netbeans.modules.java.api.common.classpath.ClassPathSupport.ENDORSED*/"classpath/endorsed"}) {
+                        /*org.netbeans.modules.java.api.common.classpath.ClassPathSupport.ENDORSED*/"classpath/endorsed",
+                        JavaClassPathConstants.PROCESSOR_PATH}) {
                     cp = ClassPath.getClassPath(r, kind);
                     if (cp != null) {
                         pw.println("    " + kind + ":");
@@ -290,6 +293,19 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                             }
                         }
                     }
+                }
+                AnnotationProcessingQuery.Result ann = AnnotationProcessingQuery.getAnnotationProcessingOptions(r);
+                if (!ann.annotationProcessingEnabled().isEmpty()) {
+                    pw.println("    annotation processing on " + ann.annotationProcessingEnabled() + ":");
+                    if (ann.annotationProcessorsToRun() != null) {
+                        pw.println("      processors: " + ann.annotationProcessorsToRun());
+                    }
+                    URL sU = ann.sourceOutputDirectory();
+                    if (sU != null) {
+                        FileObject sF = URLMapper.findFileObject(sU);
+                        pw.println("      source output: " + (sF != null ? FileUtil.getFileDisplayName(sF) : sU));
+                    }
+                    pw.println("      options: " + ann.processorOptions());
                 }
             }
         }
