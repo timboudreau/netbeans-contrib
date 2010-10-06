@@ -23,6 +23,10 @@
         </folder>
     </folder>
     <folder name="Actions">
+        <folder name="Refactoring">
+            <file name="org-netbeans-modules-java-editor-ext-refactoring-inline-InlineAction.instance">
+            </file>
+        </folder>
         <folder name="Source">
             <file name="org-netbeans-modules-java-editor-ext-refactoring-dataflow-DataFlowToThisAction.instance">
                 <attr name="delegate" newvalue="org.netbeans.modules.java.editor.ext.refactoring.dataflow.DataFlowToThisAction"/>
@@ -45,6 +49,12 @@
             <file name="org-netbeans-modules-java-editor-ext-refactoring-dataflow-DataFlowToThisAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-java-editor-ext-refactoring-dataflow-DataFlowToThisAction.instance"/>
                 <attr name="position" intvalue="1075"/>
+            </file>
+        </folder>
+        <folder name="Refactoring">
+            <file name="org-netbeans-modules-java-editor-ext-refactoring-inline-InlineAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-java-editor-ext-refactoring-inline-InlineAction.instance"/>
+                <attr name="position" intvalue="1078"/>
             </file>
         </folder>
         <folder name="Window">
