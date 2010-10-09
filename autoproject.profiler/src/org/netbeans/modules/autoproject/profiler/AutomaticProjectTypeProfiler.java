@@ -50,8 +50,9 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
 import org.netbeans.modules.profiler.AbstractProjectTypeProfiler;
+import org.netbeans.modules.profiler.spi.ProjectTypeProfiler;
+import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
@@ -59,15 +60,12 @@ import org.openide.modules.InstalledFileLocator;
 /**
  * Configures profiler to accept automatic projects.
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.profiler.spi.ProjectTypeProfiler.class)
+@ProjectServiceProvider(service=ProjectTypeProfiler.class, projectType="org-netbeans-modules-autoproject")
 public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
-
-    /** public for lookup */
-    public AutomaticProjectTypeProfiler() {}
 
     @Override
     public boolean isProfilingSupported(Project project) {
-        return project.getLookup().lookup(AutomaticProjectMarker.class) != null;
+        return true;
     }
 
     @Override
