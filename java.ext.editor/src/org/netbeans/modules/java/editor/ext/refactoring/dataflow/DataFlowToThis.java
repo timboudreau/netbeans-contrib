@@ -81,6 +81,7 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.api.java.source.TreeUtilities;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -357,7 +358,7 @@ public class DataFlowToThis {
 
         @Override
         public Void visitBlock(BlockTree node, Void p) {
-            if (getCurrentPath().getParentPath().getLeaf().getKind() == Kind.CLASS) {
+            if (TreeUtilities.CLASS_TREE_KINDS.contains(getCurrentPath().getParentPath().getLeaf().getKind())) {
                 if (node.isStatic()) {
                     //static initializer:
                     methods.add(getCurrentPath());

@@ -145,7 +145,10 @@ public class SwapOperations {
                         if (kindSet.contains(kind)) {
                             List<? extends Tree> trees = null;
                             switch(kind) {
+                                case ANNOTATION_TYPE:
                                 case CLASS:
+                                case ENUM:
+                                case INTERFACE:
                                     ClassTree classTree = (ClassTree) tree;
                                     trees = classTree.getImplementsClause();                                    
                                     break;

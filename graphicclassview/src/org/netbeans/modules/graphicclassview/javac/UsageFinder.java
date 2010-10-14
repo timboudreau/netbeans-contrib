@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.TreeUtilities;
 import org.netbeans.modules.graphicclassview.SceneElement;
 
 public final class UsageFinder extends TreeScanner<Void, Void> {
@@ -45,7 +46,7 @@ public final class UsageFinder extends TreeScanner<Void, Void> {
         Element selectedElement = el;
         do {
             path = path.getParentPath();
-        } while (path != null && path.getLeaf().getKind() != com.sun.source.tree.Tree.Kind.METHOD && path.getLeaf().getKind() != com.sun.source.tree.Tree.Kind.CLASS);
+        } while (path != null && path.getLeaf().getKind() != com.sun.source.tree.Tree.Kind.METHOD && !TreeUtilities.CLASS_TREE_KINDS.contains(path.getLeaf().getKind()));
         if (path != null && path.getLeaf().getKind() == com.sun.source.tree.Tree.Kind.METHOD) {
             Element enclosingElement = cc.getTrees().getElement(path);
             SceneElement enclosing = (SceneElement) map.get(enclosingElement);

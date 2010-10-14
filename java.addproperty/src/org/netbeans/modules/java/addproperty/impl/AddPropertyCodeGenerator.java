@@ -56,6 +56,7 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.api.java.source.TreeUtilities;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
 import org.netbeans.modules.java.addproperty.ui.AddPropertyPanel;
@@ -192,7 +193,7 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
     public static final class Factory implements CodeGenerator.Factory {
 
         public Iterable<? extends CodeGenerator> create(CompilationController cc, TreePath path) throws IOException {
-            while (path != null && path.getLeaf().getKind() != Kind.CLASS) {
+            while (path != null && !TreeUtilities.CLASS_TREE_KINDS.contains(path.getLeaf().getKind())) {
                 path = path.getParentPath();
             }
 
