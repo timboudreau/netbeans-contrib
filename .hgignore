@@ -238,3 +238,4 @@
 ^licensechanger/release/modules/ext/wizard\.jar$
 ^licensechanger/src/org/netbeans/modules/licensechanger/licenses\.txt$
 ^licensechanger/src/org/netbeans/modules/licensechanger/licenses/*$
+^python.editor/external/pythonstubs-.*\.egg$
