@@ -14,11 +14,16 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
-                <subpackages>org.python</subpackages>
-                <subpackages>com.sun.jna</subpackages>
-                <subpackages>org.antlr.runtime</subpackages>
-            </public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.python.editor</friend>
+                <package>org.python.antlr</package>
+                <package>org.python.antlr.ast</package>
+                <package>org.python.antlr.base</package>
+                <package>org.python.antlr.runtime</package>
+                <package>org.python.antlr.runtime.tree</package>
+                <package>org.python.core</package>
+                <package>org.python.expose</package>
+            </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/jython-parser.jar</runtime-relative-path>
                 <binary-origin>external/jython-parser.jar</binary-origin>
