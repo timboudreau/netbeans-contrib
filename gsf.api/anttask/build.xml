@@ -45,7 +45,7 @@ made subject to such option by the copyright holder.
 -->
 
 <project name="gsf_anttask" default="jars" basedir=".">
-  <import file="../../nbbuild/default-properties.xml"/>
+  <import file="../../../nbbuild/default-properties.xml"/>
 
   <target name="jars" depends="compile">
 	<jar jarfile="gsfanttask.jar"
