@@ -44,7 +44,6 @@ package org.netbeans.modules.python.editor.codecoverage;
 import java.util.concurrent.Future;
 import org.netbeans.api.project.Project;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.codecoverage.CodeCoverageTestHelper;
 import org.netbeans.modules.python.api.PythonExecution;
 import org.netbeans.modules.python.api.PythonPlatform;
 import org.netbeans.modules.python.api.PythonPlatformManager;
