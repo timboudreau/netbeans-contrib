@@ -76,6 +76,7 @@
 ^eview/Info$
 ^eview/eview\.nbm$
 ^eview/netbeans$
+^gsf.api/anttask/gsfanttask\.jar$
 ^hibernate/src/org/netbeans/modules/hibernate/cfg/model$
 ^hibernate/src/org/netbeans/modules/hibernate/mapping/model$
 ^hibernate/src/org/netbeans/modules/hibernate/reveng/model$
