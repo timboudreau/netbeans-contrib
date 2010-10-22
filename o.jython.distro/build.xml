@@ -4,7 +4,7 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="contrib/o.jython.distro" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.jython.distro</description>
-    <import file="../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="files-init" depends="projectized-common.files-init">
         <!-- Override module.files definition performed by parent, used for NBMs etc. -->
