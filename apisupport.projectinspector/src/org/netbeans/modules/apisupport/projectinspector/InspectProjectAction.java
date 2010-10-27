@@ -75,6 +75,9 @@ import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.awt.Actions;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
@@ -93,6 +96,9 @@ import org.openide.windows.OutputWriter;
 /**
  * Displays information about the selected project.
  */
+@ActionID(id = "org.netbeans.modules.apisupport.projectinspector.InspectProjectAction", category = "Tools")
+@ActionRegistration(displayName = "Inspect Project Metadata")
+@ActionReference(path = "Projects/Actions", position = 2000)
 public class InspectProjectAction extends AbstractAction implements ContextAwareAction {
 
     /** Default constructor for layer. */

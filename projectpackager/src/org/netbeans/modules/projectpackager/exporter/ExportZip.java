@@ -40,46 +40,27 @@
  */
 
 package org.netbeans.modules.projectpackager.exporter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.util.HelpCtx;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 
 /**
  * Export zip - main class called by the action from layer.xml
  * @author Roman "Roumen" Strobl
  */
-public class ExportZip extends CallableSystemAction {
+@ActionID(id = "org.netbeans.modules.projectpackager.exporter.ExportZip", category = "Tools")
+@ActionRegistration(displayName = "org.netbeans.modules.projectpackager.resources.Bundle#NetBeans_Project(s)_as_Zip...", iconInMenu=false)
+@ActionReference(path = "Menu/File/Export", position = 1000)
+public class ExportZip implements ActionListener {
     private static ExportZipDialog zpd;
 
-    /**
-     * Empty constructor
-     */
-    public ExportZip() {
-    }
-    
-    /**
-     * Returns action name
-     * @return action name
-     */
-    public String getName() {
-        return NbBundle.getBundle(Constants.BUNDLE).getString("NetBeans_Project(s)_as_Zip...");
-    }
-    
-    /**
-     * Returns help context
-     * @return helpctx
-     */
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
-    /**
-     * Performs the action
-     */
-    public void performAction() {        
+    public @Override void actionPerformed(ActionEvent evt) {        
         if (ExportPackageInfo.isProcessed()) {
             if (zpd.isShowing()) { 
                 zpd.requestFocus();
@@ -103,17 +84,4 @@ public class ExportZip extends CallableSystemAction {
         }
     }
         
-    /**
-     * The action is synchronous
-     * @return synchronous
-     */
-    protected boolean asynchronous() {
-        return false;
-    }
-
-    protected void initialize() {
-        super.initialize();
-        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
-    }
-    
 }

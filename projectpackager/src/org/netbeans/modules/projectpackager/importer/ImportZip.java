@@ -41,46 +41,27 @@
 
 package org.netbeans.modules.projectpackager.importer;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import org.netbeans.modules.projectpackager.tools.Constants;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.util.HelpCtx;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 
 /**
  * Main class of the import zip part, executed by an action registered in layer.xml
  * @author roman
  */
-public class ImportZip extends CallableSystemAction {
+@ActionID(id = "org.netbeans.modules.projectpackager.importer.ImportZip", category = "Tools")
+@ActionRegistration(displayName = "org.netbeans.modules.projectpackager.resources.Bundle#NetBeans_Project_from_Zip...", iconInMenu=false)
+@ActionReference(path = "Menu/File/Import", position = 1000)
+public class ImportZip implements ActionListener {
     private static ImportZipDialog izd;
 
-    /**
-     * Constructs new ImportZip
-     */
-    public ImportZip() {
-    }
-    
-    /**
-     * Return action name
-     * @return action name
-     */
-    public String getName() {
-        return NbBundle.getBundle(Constants.BUNDLE).getString("NetBeans_Project_from_Zip...");
-    }
-    
-    /**
-     * Return action help context
-     * @return help context
-     */
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
-    /**
-     * Perform the action - open the main dialog
-     */
-    public void performAction() {
+    public @Override void actionPerformed(ActionEvent evt) {        
         if (ImportPackageInfo.isProcessed()) {
             if (izd.isShowing()) { 
                 izd.requestFocus();
@@ -99,17 +80,4 @@ public class ImportZip extends CallableSystemAction {
         izd.setVisible(true);
     }
         
-    /**
-     * Sychronous
-     * @return false as synchronous
-     */
-    protected boolean asynchronous() {
-        return false;
-    }
-
-    protected void initialize() {
-        super.initialize();
-        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
-    }
-    
 }
