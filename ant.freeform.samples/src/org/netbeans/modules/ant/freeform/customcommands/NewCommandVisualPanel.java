@@ -220,8 +220,9 @@ public final class NewCommandVisualPanel extends JPanel {
         return position.getSelectedIndex();
     }
     
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         commandLabel = new javax.swing.JLabel();
         command = new javax.swing.JComboBox();
         displayNameLabel = new javax.swing.JLabel();
@@ -234,17 +235,17 @@ public final class NewCommandVisualPanel extends JPanel {
         messageLabel = new javax.swing.JLabel();
 
         commandLabel.setLabelFor(command);
-        org.openide.awt.Mnemonics.setLocalizedText(commandLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "commandLabel"));
+        org.openide.awt.Mnemonics.setLocalizedText(commandLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "commandLabel")); // NOI18N
 
         command.setEditable(true);
 
         displayNameLabel.setLabelFor(displayName);
-        org.openide.awt.Mnemonics.setLocalizedText(displayNameLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "displayNameLabel"));
+        org.openide.awt.Mnemonics.setLocalizedText(displayNameLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "displayNameLabel")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(displayNameLabelSuffix, NbBundle.getMessage(NewCommandVisualPanel.class, "displayNameLabelSuffix"));
+        org.openide.awt.Mnemonics.setLocalizedText(displayNameLabelSuffix, NbBundle.getMessage(NewCommandVisualPanel.class, "displayNameLabelSuffix")); // NOI18N
 
         menuLabel.setLabelFor(menu);
-        org.openide.awt.Mnemonics.setLocalizedText(menuLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "menuLabel"));
+        org.openide.awt.Mnemonics.setLocalizedText(menuLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "menuLabel")); // NOI18N
 
         menu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -253,56 +254,56 @@ public final class NewCommandVisualPanel extends JPanel {
         });
 
         positionLabel.setLabelFor(position);
-        org.openide.awt.Mnemonics.setLocalizedText(positionLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "positionLabel"));
+        org.openide.awt.Mnemonics.setLocalizedText(positionLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "positionLabel")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(messageLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "messageLabel"));
+        org.openide.awt.Mnemonics.setLocalizedText(messageLabel, NbBundle.getMessage(NewCommandVisualPanel.class, "messageLabel")); // NOI18N
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(displayNameLabel)
-                            .add(commandLabel)
-                            .add(menuLabel)
-                            .add(positionLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(position, 0, 230, Short.MAX_VALUE)
-                            .add(menu, 0, 230, Short.MAX_VALUE)
-                            .add(command, 0, 230, Short.MAX_VALUE)
-                            .add(displayName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(displayNameLabelSuffix))
-                    .add(messageLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(displayNameLabel)
+                            .addComponent(commandLabel)
+                            .addComponent(menuLabel)
+                            .addComponent(positionLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(position, 0, 230, Short.MAX_VALUE)
+                            .addComponent(menu, 0, 230, Short.MAX_VALUE)
+                            .addComponent(command, 0, 230, Short.MAX_VALUE)
+                            .addComponent(displayName, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(displayNameLabelSuffix))
+                    .addComponent(messageLabel))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commandLabel)
-                    .add(command, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(displayNameLabel)
-                    .add(displayNameLabelSuffix)
-                    .add(displayName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(menuLabel)
-                    .add(menu, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(positionLabel)
-                    .add(position, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(messageLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(commandLabel)
+                    .addComponent(command, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(displayNameLabel)
+                    .addComponent(displayNameLabelSuffix)
+                    .addComponent(displayName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(menuLabel)
+                    .addComponent(menu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(positionLabel)
+                    .addComponent(position, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(messageLabel)
                 .addContainerGap(158, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
