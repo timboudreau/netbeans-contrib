@@ -59,4 +59,4 @@ lukas.jungmann@sun.com=testng/*,testng.maven/*
 nbbuild-commits@ide.netbeans.org=.hg*
 hmichel@netbeans.org=autosave/*
 tboudreau@netbeans.org=docbook/*,docbook.project/*
-nbpython-commits@netbeans.org=o.jython*/*,python*.*
+nbpython-commits@netbeans.org=o.jython*/*,python*/*
