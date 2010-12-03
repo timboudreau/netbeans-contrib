@@ -79,7 +79,7 @@
 
   <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
     <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}" extdirs=" "
-            encoding="UTF-8" target="jvm-${javac.target}" fork="true" jvmargs="-Xmx150m"
+            encoding="UTF-8" target="jvm-${javac.target}" fork="true" jvmargs="-Xmx200m"
             deprecation="yes" unchecked="yes" addparams="">
     </scalac>
   </target>
