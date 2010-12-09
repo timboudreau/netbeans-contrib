@@ -63,7 +63,7 @@ import org.netbeans.spi.editor.hints.ErrorDescription;
  *
  * @author lahvac
  */
-@Hint(category="netbeans")
+@Hint(category="apisupport") // XXX move to apisupport.refactoring once the required packages are at least available to friends
 public class RPD {
 
     @TriggerPattern(value="org.openide.util.RequestProcessor.getDefault()")
@@ -93,7 +93,7 @@ public class RPD {
 
                 ClassTree ct = (ClassTree) topLevel.getLeaf();
                 fieldName = "DEFAULT_WORKER";
-                Tree field = Utilities.parseAndAttribute(wc, "private static final org.openide.util.RequestProcessor " + fieldName + " = new org.openide.util.RequestProcessor(" + topLevel.getCompilationUnit().getPackageName().toString() + ct.getSimpleName() + ".class.getName(), 50, false, false);", s);
+                Tree field = Utilities.parseAndAttribute(wc, "private static final org.openide.util.RequestProcessor " + fieldName + " = new org.openide.util.RequestProcessor(" + topLevel.getCompilationUnit().getPackageName() + "." + ct.getSimpleName() + ".class.getName(), 50, false, false);", s);
 
                 wc.rewrite(ct, GeneratorUtilities.get(wc).insertClassMember(ct, GeneratorUtilities.get(wc).importFQNs(field)));
                 fieldCache.put(wc, fieldName);
