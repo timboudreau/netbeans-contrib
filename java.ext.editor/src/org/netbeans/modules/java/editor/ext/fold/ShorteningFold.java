@@ -288,6 +288,10 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
                 return false;
             }
 
+            if (decl.getBody() == null) {
+                return true; //something is broken inside the anonymous class - do not try to shorten the NCT's type params
+            }
+
             boolean collapsed = FoldTypes.CLOSURE.collapsed();
             SourcePositions sp = info.getTrees().getSourcePositions();
             int nctStart = (int) sp.getStartPosition(info.getCompilationUnit(), nct);

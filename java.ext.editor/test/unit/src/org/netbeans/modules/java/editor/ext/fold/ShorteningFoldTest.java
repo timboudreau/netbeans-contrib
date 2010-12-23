@@ -165,6 +165,52 @@ public class ShorteningFoldTest extends NbTestCase {
                     "}");
     }
 
+    public void test193583a() throws Exception {
+        performTest("package test;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, String> m) {" +
+                    "        main(new Map<String, String>() {" +
+                    "            public String map(String p)" +
+                    "        });" +
+                    "    }" +
+                    "    public static interface Map<R, P> {" +
+                    "        public R map(P p);" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, String> m) {" +
+                    "        main(new Map<String, String>() {" +
+                    "            public String map(String p)" +
+                    "        });" +
+                    "    }" +
+                    "    public static interface Map<R, P> {" +
+                    "        public R map(P p);" +
+                    "    }" +
+                    "}");
+    }
+
+    public void test193583b() throws Exception {
+        performTest("package test;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, String> m) {" +
+                    "        main(new Map<String, String>());" +
+                    "    }" +
+                    "    public static interface Map<R, P> {" +
+                    "        public R map(P p);" +
+                    "    }" +
+                    "}",
+                    "package test;" +
+                    "public class Test {" +
+                    "    public static void main(Map<String, String> m) {" +
+                    "        main(new Map<String, String>());" +
+                    "    }" +
+                    "    public static interface Map<R, P> {" +
+                    "        public R map(P p);" +
+                    "    }" +
+                    "}");
+    }
+
     public void testDiamondNCT() throws Exception {
         performTest("package test;" +
                     "import java.util.LinkedList;" +
