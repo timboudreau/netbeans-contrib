@@ -76,7 +76,19 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
                 List <T> nue = new ArrayList <T> (contents);
                 if (comparator != null) {
                     Collections.sort (nue, comparator);
-                    Diff <T> diff = Diff.<T>create(contents, nue);
+                    Diff <T> diff;
+                    try {
+                        //Try first with the fast algorithm - this
+                        //does not tolerated duplicates, but neither does a
+                        //Java source file - except when you have two overloaded
+                        //methods with, for example, one argument, and the
+                        //argument type cannot be resolved by the compiler,
+                        //so they both end up as <any>
+                        diff = Diff.<T>create(contents, nue, Diff.Algorithm.ITERATIVE);
+                    } catch (IllegalStateException e) {
+                        //Use the slower algorithm which tolerates duplicates
+                        diff = Diff.<T>create(contents, nue, Diff.Algorithm.LONGEST_COMMON_SEQUENCE);
+                    }
                     updateOnEventQueue (diff);
                 }
             }
