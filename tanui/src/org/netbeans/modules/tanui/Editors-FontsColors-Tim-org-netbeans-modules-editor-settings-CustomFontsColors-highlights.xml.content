@@ -5,11 +5,13 @@
     <fontcolor foreColor="black" name="caret-color-insert-mode"/>
     <fontcolor bgColor="ffe0e8f1" foreColor="black" name="block-search"/>
     <fontcolor bgColor="white" foreColor="fff5f2e0" name="text-limit-line-color"/>
+    <fontcolor bgColor="ffdfdfdf" name="readonly-files"/>
     <fontcolor bgColor="white" foreColor="black" name="nbeditor-bracesMatching-match-multichar"/>
-    <fontcolor bgColor="ffe9e8e2" foreColor="black" name="line-number"/>
+    <fontcolor bgColor="ffe6e3cd" foreColor="ffaa6e6e" name="line-number"/>
     <fontcolor foreColor="blue" name="hyperlinks" underline="blue"/>
-    <fontcolor bgColor="ffd4d1c2" name="highlight-caret-row"/>
+    <fontcolor bgColor="ffe0dcb8" name="highlight-caret-row"/>
     <fontcolor bgColor="ffc48080" foreColor="white" name="status-bar-bold"/>
+    <fontcolor foreColor="black" name="caret-color-overwrite-mode"/>
     <fontcolor bgColor="ffb4b4b4" foreColor="white" name="selection"/>
     <fontcolor name="status-bar"/>
     <fontcolor bgColor="ffece9d8" foreColor="black" name="inc-search"/>
