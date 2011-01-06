@@ -15,7 +15,7 @@
     <fontcolor name="static">
         <font style="italic"/>
     </fontcolor>
-    <fontcolor bgColor="pink" foreColor="black" name="error"/>
+    <fontcolor bgColor="pink" foreColor="black" name="error" waveUnderlined="ffcc0000"/>
     <fontcolor foreColor="ffa06001" name="method-parameter"/>
     <fontcolor foreColor="ff000099" name="keyword">
         <font style="bold"/>
@@ -26,12 +26,11 @@
     <fontcolor foreColor="black" name="enum"/>
     <fontcolor name="interface"/>
     <fontcolor name="operator"/>
+    <fontcolor name="url" underline="blue"/>
     <fontcolor foreColor="ff098618" name="field">
         <font style="bold"/>
     </fontcolor>
-    <fontcolor bgColor="ffc7c5b5" foreColor="black" name="default">
-        <font name="Monospaced" size="12" style="plain"/>
-    </fontcolor>
+    <fontcolor bgColor="ffd6d1af" foreColor="black" name="default"/>
     <fontcolor foreColor="ff99006b" name="string"/>
     <fontcolor foreColor="ffb20000" name="entity-reference"/>
     <fontcolor name="method">
@@ -41,6 +40,7 @@
     <fontcolor foreColor="ff2765c2" name="local-variable"/>
     <fontcolor name="public"/>
     <fontcolor name="identifier"/>
+    <fontcolor name="warning" waveUnderlined="yellow"/>
     <fontcolor name="separator"/>
     <fontcolor foreColor="ff007c00" name="markup-attribute"/>
 </fontscolors>
