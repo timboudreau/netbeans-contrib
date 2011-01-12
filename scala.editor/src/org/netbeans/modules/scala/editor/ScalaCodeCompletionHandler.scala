@@ -1181,7 +1181,7 @@ class ScalaCodeCompletionHandler extends CodeCompletionHandler with ScalaHtmlFor
     html.toString
   }
 
-  override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): java.util.Set[String] = {
+  override def getApplicableTemplates(info: javax.swing.text.Document, selectionBegin: Int, selectionEnd: Int): java.util.Set[String] = {
     java.util.Collections.emptySet[String]
   }
 
