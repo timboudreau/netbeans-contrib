@@ -103,6 +103,8 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
                 }
             }
         });
+        
+        updateNodes();
     }
 
     /** This method is called from within the constructor to
@@ -115,7 +117,7 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
 
         showValues = new javax.swing.JToggleButton();
         result = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        refresh = new javax.swing.JButton();
         jToggleButton1 = new javax.swing.JToggleButton();
 
         showValues.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/java/editor/ext/refactoring/resources/sort_by_values.png"))); // NOI18N
@@ -137,11 +139,11 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
             .addGap(0, 276, Short.MAX_VALUE)
         );
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/java/editor/ext/refactoring/resources/refresh.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(DataFlowTopComponent.class, "DataFlowTopComponent.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        refresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/java/editor/ext/refactoring/resources/refresh.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(refresh, org.openide.util.NbBundle.getMessage(DataFlowTopComponent.class, "DataFlowTopComponent.refresh.text")); // NOI18N
+        refresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                refreshActionPerformed(evt);
             }
         });
 
@@ -157,7 +159,7 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jToggleButton1, 0, 0, Short.MAX_VALUE)
                     .addComponent(showValues, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(refresh, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(result, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -169,7 +171,7 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(result, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(refresh)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(showValues)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -182,13 +184,13 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
         updateNodes();
     }//GEN-LAST:event_showValuesActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
         updateNodes();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_refreshActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JButton refresh;
     private javax.swing.JPanel result;
     private javax.swing.JToggleButton showValues;
     // End of variables declaration//GEN-END:variables
@@ -273,6 +275,18 @@ public final class DataFlowTopComponent extends TopComponent implements Explorer
     }
 
     private void updateNodes() {
+        if (this.currentRoot == null) {
+            refresh.setEnabled(false);
+            showValues.setEnabled(false);
+            jToggleButton1.setEnabled(false);
+            beanTreeView.setRootVisible(false);
+            return;
+        }
+        
+        refresh.setEnabled(true);
+        showValues.setEnabled(true);
+        jToggleButton1.setEnabled(true);
+            
         if (showValues.isSelected()) {
             manager.setRootContext(new ValuesNode(this.currentRoot));
             beanTreeView.setRootVisible(false);
