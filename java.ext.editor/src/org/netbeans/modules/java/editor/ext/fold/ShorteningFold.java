@@ -336,7 +336,11 @@ public class ShorteningFold implements CancellableTask<CompilationInfo> {
             
             TypeMirror actual = info.getTrees().getTypeMirror(getCurrentPath());
 
-            if (actual == null || designedType == null || actual.getKind() == TypeKind.ERROR || !info.getTypes().isAssignable(actual, designedType)) {
+            if (   actual == null
+                || actual.getKind() == TypeKind.ERROR
+                || designedType == null
+                || designedType.getKind() == TypeKind.EXECUTABLE
+                || !info.getTypes().isAssignable(actual, designedType)) {
                 return ;
             }
 
