@@ -72,10 +72,8 @@ public class DocBookCatalog implements CatalogProvider {
                             "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/schema/dtd/slides.dtd");
         PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V" + Config.DOCBOOK_XML_VERSION + "//EN",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
-        PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V4.4//EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
-        PUBLIC_2_SYSTEM.put("-//Sun Microsystems//DTD XML-SolBook 3.5 //EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/solbookx.dtd--public2system");
+//        PUBLIC_2_SYSTEM.put("-//Sun Microsystems//DTD XML-SolBook 3.5//EN",
+//                            "nbres:/org/netbeans/modules/docbook/lib/solbook-xml-" + Config.SOLBOOK_XML_VERSION + "/solbookx.dtd--public2system");
         // XXX slides-full.dtd
     }
     
