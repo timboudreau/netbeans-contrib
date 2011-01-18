@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: true
-OpenIDE-Module: glassfish.v3enable/1
-OpenIDE-Module-Implementation-Version: 1
-OpenIDE-Module-Layer: glassfish/v3enable/layer.xml
-OpenIDE-Module-Localizing-Bundle: glassfish/v3enable/Bundle.properties
-
