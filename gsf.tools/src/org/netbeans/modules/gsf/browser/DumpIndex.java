@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
@@ -174,11 +175,7 @@ public final class DumpIndex extends CallableSystemAction {
                 List<Match> data;
                 data = new ArrayList<Match>();
 
-                @SuppressWarnings("unchecked")
-                Enumeration<Field> en = luceneDoc.fields();
-
-                while (en.hasMoreElements()) {
-                    Field f = en.nextElement();
+                for (Fieldable f : (List<Fieldable>)luceneDoc.getFields()) {    //Remove cast in Lucene 3.0
                     String key = f.name();
                     // Skip timestamps?
                     //if (key.equals("timestamp")) {

@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -63,12 +64,15 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.lucene.document.FieldSelectorResult;
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Scorer;
 import org.apache.lucene.store.NoLockFactory;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
@@ -76,11 +80,11 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Hit;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -149,7 +153,7 @@ class LuceneIndex extends Index {
         super(language);
         assert refCacheRoot != null;
         this.refCacheRoot = refCacheRoot;
-        this.directory = FSDirectory.getDirectory(refCacheRoot, NoLockFactory.getNoLockFactory());      //Locking controlled by rwlock
+        this.directory = FSDirectory.open(refCacheRoot, NoLockFactory.getNoLockFactory());      //Locking controlled by rwlock
     }
 
     private void regExpSearch (final Pattern pattern, Term startTerm, final IndexReader in, final Set<Term> toSearch/*, final AtomicBoolean cancel*/, boolean caseSensitive) throws IOException/*, InterruptedException*/ {        
@@ -224,28 +228,29 @@ class LuceneIndex extends Index {
             return false;
         }
         try {
-            Searcher searcher = new IndexSearcher (this.getReader());
+            final IndexReader in = this.getReader();
+            final Searcher searcher = new IndexSearcher (in);
             try {
-                Hits hits;
+                TopDocs topDocs;
                 if (resourceName == null) {
                     synchronized (this) {
                         if (this.rootTimeStamp != null) {
                             return rootTimeStamp.longValue() >= timeStamp;
                         }
                     }
-                    hits = searcher.search(new TermQuery(DocumentUtil.rootDocumentTerm()));
+                    topDocs = searcher.search(new TermQuery(DocumentUtil.rootDocumentTerm()), 2);
                 }
                 else {
-                    hits = searcher.search(DocumentUtil.binaryNameQuery(resourceName));
+                    topDocs = searcher.search(DocumentUtil.binaryNameQuery(resourceName), 2);
                 }
 
-                if (hits.length() != 1) {   //0 = not present, 1 = present and has timestamp, >1 means broken index, probably killed IDE, treat it as not up to date and store will fix it.
+                if (topDocs.totalHits != 1) {   //0 = not present, 1 = present and has timestamp, >1 means broken index, probably killed IDE, treat it as not up to date and store will fix it.
                     return false;
                 }
                 else {
                     try {
-                        Hit hit = (Hit) hits.iterator().next();
-                        long cacheTime = DocumentUtil.getTimeStamp(hit.getDocument());
+                        ScoreDoc hit = topDocs.scoreDocs[0];
+                        long cacheTime = DocumentUtil.getTimeStamp(in.document(hit.doc));
                         if (resourceName == null) {
                             synchronized (this) {
                                 this.rootTimeStamp = new Long (cacheTime);
@@ -340,7 +345,7 @@ class LuceneIndex extends Index {
         checkPreconditions();
         this.close ();
         try {
-            final String[] content = this.directory.list();
+            final String[] content = this.directory.listAll();
             boolean dirty = false;
             for (String file : content) {
                 try {
@@ -381,7 +386,7 @@ class LuceneIndex extends Index {
             }
         } finally {
             //Need to recreate directory, see issue: #148374
-            this.directory = FSDirectory.getDirectory(refCacheRoot, NoLockFactory.getNoLockFactory());      //Locking controlled by rwlock
+            this.directory = FSDirectory.open(refCacheRoot, NoLockFactory.getNoLockFactory());      //Locking controlled by rwlock
             closed = false;
         }
     }
@@ -424,7 +429,7 @@ class LuceneIndex extends Index {
         }
         //Issue #149757 - logging
         try {
-            IndexWriter writer = new IndexWriter (this.directory,new KeywordAnalyzer(), create);
+            IndexWriter writer = new IndexWriter (this.directory,new KeywordAnalyzer(), create, IndexWriter.MaxFieldLength.LIMITED);
             return writer;
         } catch (IOException ioe) {
             throw annotateException (ioe);
@@ -500,9 +505,11 @@ class LuceneIndex extends Index {
                         BooleanQuery query = new BooleanQuery ();
                         query.add (new TermQuery (new Term (DocumentUtil.FIELD_FILENAME, fileUrl)),BooleanClause.Occur.MUST);
 
-                        Hits hits = searcher.search(query);
-                        for (int i=0; i<hits.length(); i++) {
-                            in.deleteDocument (hits.id(i));
+                        final BitSet bs  = new BitSet();
+                        final BitSetCollector bsCollector = new BitSetCollector(bs);
+                        searcher.search(query,bsCollector);
+                        for (int i=bs.nextSetBit(0); i>=0; i=bs.nextSetBit(i+1)) {
+                            in.deleteDocument (i);
                         }
                     }
                     in.deleteDocuments (DocumentUtil.rootDocumentTerm());
@@ -517,13 +524,7 @@ class LuceneIndex extends Index {
         try {
             if (debugIndexMerging) {
                 out.setInfoStream (System.err);
-            }
-            final LuceneIndexMBean indexSettings = LuceneIndexMBeanImpl.getDefault();
-            if (indexSettings != null) {
-                out.setMergeFactor(indexSettings.getMergeFactor());
-                out.setMaxMergeDocs(indexSettings.getMaxMergeDocs());
-                out.setMaxBufferedDocs(indexSettings.getMaxBufferedDocs());
-            }        
+            }            
             LowMemoryNotifier lm = LowMemoryNotifier.getDefault();
             LMListener lmListener = new LMListener ();
             lm.addLowMemoryListener (lmListener);        
@@ -534,7 +535,7 @@ class LuceneIndex extends Index {
             }
             else {
                 memDir = new RAMDirectory ();
-                activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true);
+                activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
             }        
             try {
                 activeOut.addDocument (DocumentUtil.createRootTimeStampDocument (timeStamp));
@@ -547,17 +548,17 @@ class LuceneIndex extends Index {
                             Document newDoc = new Document();
                             newDoc.add(new Field (DocumentUtil.FIELD_TIME_STAMP,DateTools.timeToString(timeStamp,DateTools.Resolution.MILLISECOND),Field.Store.YES,Field.Index.NO));
                             if (document.overrideUrl != null) {
-                                newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, document.overrideUrl, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                                newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, document.overrideUrl, Field.Store.YES, Field.Index.NOT_ANALYZED));
                                 createEmptyUrl = filename;
                             } else if (filename != null) {
-                                newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                                newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.NOT_ANALYZED));
                             }
 
                             for (int i = 0, n = document.indexedKeys.size(); i < n; i++) {
                                 String key = document.indexedKeys.get(i);
                                 String value = document.indexedValues.get(i);
                                 assert key != null && value != null : "key=" + key + ", value=" + value;
-                                Field field = new Field(key, value, Field.Store.YES, Field.Index.UN_TOKENIZED);
+                                Field field = new Field(key, value, Field.Store.YES, Field.Index.NOT_ANALYZED);
                                 newDoc.add(field);
                             }
 
@@ -577,26 +578,26 @@ class LuceneIndex extends Index {
 
                             Document newDoc = new Document();
                             newDoc.add(new Field (DocumentUtil.FIELD_TIME_STAMP,DateTools.timeToString(timeStamp,DateTools.Resolution.MILLISECOND),Field.Store.YES,Field.Index.NO));
-                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, createEmptyUrl, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, createEmptyUrl, Field.Store.YES, Field.Index.NOT_ANALYZED));
                             activeOut.addDocument(newDoc);
                         }
                     } else if (filename != null && documents != null) { // documents == null: delete
                         Document newDoc = new Document();
                         newDoc.add(new Field (DocumentUtil.FIELD_TIME_STAMP,DateTools.timeToString(timeStamp,DateTools.Resolution.MILLISECOND),Field.Store.YES,Field.Index.NO));
-                        newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                        newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.NOT_ANALYZED));
                         activeOut.addDocument(newDoc);
                     }
                 }
 
                 if (memDir != null && lmListener.lowMemory.getAndSet(false)) {                       
                     activeOut.close();
-                    out.addIndexes(new Directory[] {memDir});                        
+                    out.addIndexesNoOptimize(new Directory[] {memDir});                        
                     memDir = new RAMDirectory ();        
-                    activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true);
+                    activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
                 }
                 if (memDir != null) {
                     activeOut.close();
-                    out.addIndexes(new Directory[] {memDir});   
+                    out.addIndexesNoOptimize(new Directory[] {memDir});   
                     activeOut = null;
                     memDir = null;
                 }
@@ -625,9 +626,11 @@ class LuceneIndex extends Index {
                     BooleanQuery query = new BooleanQuery ();
                     query.add (new TermQuery (new Term (DocumentUtil.FIELD_FILENAME, fileUrl)),BooleanClause.Occur.MUST);
 
-                    Hits hits = searcher.search(query);
-                    for (int i=0; i<hits.length(); i++) {
-                        in.deleteDocument (hits.id(i));
+                    final BitSet bs = new BitSet();
+                    final BitSetCollector bsCollector = new BitSetCollector(bs);
+                    searcher.search(query, bsCollector);
+                    for (int i=bs.nextSetBit(0); i>=0; i=bs.nextSetBit(i+1)) {
+                        in.deleteDocument (i);
                     }
                 }
                 in.deleteDocuments (DocumentUtil.rootDocumentTerm());
@@ -649,12 +652,6 @@ class LuceneIndex extends Index {
             if (debugIndexMerging) {
                 out.setInfoStream (System.err);
             }
-            final LuceneIndexMBean indexSettings = LuceneIndexMBeanImpl.getDefault();
-            if (indexSettings != null) {
-                out.setMergeFactor(indexSettings.getMergeFactor());
-                out.setMaxMergeDocs(indexSettings.getMaxMergeDocs());
-                out.setMaxBufferedDocs(indexSettings.getMaxBufferedDocs());
-            }        
             LowMemoryNotifier lm = LowMemoryNotifier.getDefault();
             LMListener lmListener = new LMListener ();
             lm.addLowMemoryListener (lmListener);        
@@ -665,7 +662,7 @@ class LuceneIndex extends Index {
             }
             else {
                 memDir = new RAMDirectory ();
-                activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true);
+                activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
             }        
             try {
                 activeOut.addDocument (DocumentUtil.createRootTimeStampDocument (timeStamp));
@@ -674,16 +671,16 @@ class LuceneIndex extends Index {
                         Document newDoc = new Document();
                         newDoc.add(new Field (DocumentUtil.FIELD_TIME_STAMP,DateTools.timeToString(timeStamp,DateTools.Resolution.MILLISECOND),Field.Store.YES,Field.Index.NO));
                         if (document.overrideUrl != null) {
-                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, document.overrideUrl, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, document.overrideUrl, Field.Store.YES, Field.Index.NOT_ANALYZED));
                         } else if (filename != null) {
-                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                            newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.NOT_ANALYZED));
                         }
 
                         for (int i = 0, n = document.indexedKeys.size(); i < n; i++) {
                             String key = document.indexedKeys.get(i);
                             String value = document.indexedValues.get(i);
                             assert key != null && value != null : "key=" + key + ", value=" + value;
-                            Field field = new Field(key, value, Field.Store.YES, Field.Index.UN_TOKENIZED);
+                            Field field = new Field(key, value, Field.Store.YES, Field.Index.NOT_ANALYZED);
                             newDoc.add(field);
                         }
 
@@ -700,19 +697,19 @@ class LuceneIndex extends Index {
                 } else if (filename != null) {
                     Document newDoc = new Document();
                     newDoc.add(new Field (DocumentUtil.FIELD_TIME_STAMP,DateTools.timeToString(timeStamp,DateTools.Resolution.MILLISECOND),Field.Store.YES,Field.Index.NO));
-                    newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.UN_TOKENIZED));
+                    newDoc.add(new Field (DocumentUtil.FIELD_FILENAME, filename, Field.Store.YES, Field.Index.NOT_ANALYZED));
                     activeOut.addDocument(newDoc);
                 }
 
                 if (memDir != null && lmListener.lowMemory.getAndSet(false)) {                       
                     activeOut.close();
-                    out.addIndexes(new Directory[] {memDir});                        
+                    out.addIndexesNoOptimize(new Directory[] {memDir});                        
                     memDir = new RAMDirectory ();        
-                    activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true);
+                    activeOut = new IndexWriter (memDir,new KeywordAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
                 }
                 if (memDir != null) {
                     activeOut.close();
-                    out.addIndexes(new Directory[] {memDir});   
+                    out.addIndexesNoOptimize(new Directory[] {memDir});   
                     activeOut = null;
                     memDir = null;
                 }
@@ -903,9 +900,7 @@ class LuceneIndex extends Index {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            Enumeration en = doc.fields();
-            while (en.hasMoreElements()) {
-                Field f = (Field)en.nextElement();
+            for (Fieldable f : (List<Fieldable>)doc.getFields()) {    //Remove cast in Lucene 3.x            
                 sb.append(f.name());
                 sb.append(":");
                 sb.append(f.stringValue());
@@ -983,9 +978,7 @@ class LuceneIndex extends Index {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            Enumeration en = doc.fields();
-            while (en.hasMoreElements()) {
-                Field f = (Field)en.nextElement();
+            for (Fieldable f : (List<Fieldable>)doc.getFields()) {        //Remove cast in Lucene 3.x
                 if (f.name().equals(primaryKey)) {
                     sb.append(primaryKey);
                     sb.append(":");
@@ -1025,6 +1018,40 @@ class LuceneIndex extends Index {
         public File getSegment() {
             return LuceneIndex.this.cacheRoot;
         }
+    }
+    
+    
+    private static class BitSetCollector extends Collector {
+
+        private int docBase;
+        public final BitSet bits;
+
+        BitSetCollector(final BitSet bitSet) {
+            assert bitSet != null;
+            bits = bitSet;
+        }
+
+        // ignore scorer
+        @Override
+        public void setScorer(Scorer scorer) {
+        }
+
+        // accept docs out of order (for a BitSet it doesn't matter)
+        @Override
+        public boolean acceptsDocsOutOfOrder() {
+          return true;
+        }
+
+        @Override
+        public void collect(int doc) {
+          bits.set(doc + docBase);
+        }
+
+        @Override
+        public void setNextReader(IndexReader reader, int docBase) {
+          this.docBase = docBase;
+        }
+
     }
     
     private <T> void gsfEmptyPrefixSearch (final IndexReader in, final Set<SearchResult> result, 

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
@@ -958,10 +957,7 @@ private IndexReader indexReader;
         }
         
         private void initFromLuceneDoc(Document luceneDoc) {
-            @SuppressWarnings("unchecked")
-            Enumeration<Field> en = luceneDoc.fields();
-            while (en.hasMoreElements()) {
-                Field f = en.nextElement();
+            for (Fieldable f : (List<Fieldable>)luceneDoc.getFields()) {        //Remove cast in Lucene 3.x
                 String key = f.name();
                 String value = f.stringValue();
                 data.add(new Match(key, value));
