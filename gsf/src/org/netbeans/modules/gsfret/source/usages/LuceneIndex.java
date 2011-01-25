@@ -900,7 +900,7 @@ class LuceneIndex extends Index {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            for (Fieldable f : (List<Fieldable>)doc.getFields()) {    //Remove cast in Lucene 3.x            
+            for (Fieldable f : doc.getFields()) {            
                 sb.append(f.name());
                 sb.append(":");
                 sb.append(f.stringValue());
@@ -978,7 +978,7 @@ class LuceneIndex extends Index {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            for (Fieldable f : (List<Fieldable>)doc.getFields()) {        //Remove cast in Lucene 3.x
+            for (Fieldable f : doc.getFields()) {
                 if (f.name().equals(primaryKey)) {
                     sb.append(primaryKey);
                     sb.append(":");

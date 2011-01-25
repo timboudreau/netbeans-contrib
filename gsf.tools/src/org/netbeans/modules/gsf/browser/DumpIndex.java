@@ -175,7 +175,7 @@ public final class DumpIndex extends CallableSystemAction {
                 List<Match> data;
                 data = new ArrayList<Match>();
 
-                for (Fieldable f : (List<Fieldable>)luceneDoc.getFields()) {    //Remove cast in Lucene 3.0
+                for (Fieldable f : luceneDoc.getFields()) {
                     String key = f.name();
                     // Skip timestamps?
                     //if (key.equals("timestamp")) {

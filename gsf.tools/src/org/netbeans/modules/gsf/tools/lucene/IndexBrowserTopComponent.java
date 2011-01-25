@@ -957,7 +957,7 @@ private IndexReader indexReader;
         }
         
         private void initFromLuceneDoc(Document luceneDoc) {
-            for (Fieldable f : (List<Fieldable>)luceneDoc.getFields()) {        //Remove cast in Lucene 3.x
+            for (Fieldable f : luceneDoc.getFields()) {
                 String key = f.name();
                 String value = f.stringValue();
                 data.add(new Match(key, value));
