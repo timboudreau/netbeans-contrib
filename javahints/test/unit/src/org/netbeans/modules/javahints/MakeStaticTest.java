@@ -162,6 +162,36 @@ public class MakeStaticTest extends ErrorHintsTestBase {
                        "}").replaceAll("[ \t\n]+", " "));
     }
 
+    public void testNoNPE194745a() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test;" +
+                            "public class Test {" +
+                            "     abstract void test();" +
+                            "     private static void testStatic() {" +
+                            "         te|st();" +
+                            "     }" +
+                            "}");
+    }
+    
+    public void testNoNPE194745b() throws Exception {
+        performFixTest("test/Test.java",
+                       "package test;" +
+                       "public class Test {" +
+                       "     void test();" +
+                       "     private static void testStatic() {" +
+                       "         te|st();" +
+                       "     }" +
+                       "}",
+                       "FixImpl:test:true",
+                       ("package test;" +
+                       "public class Test {" +
+                       "     static void test();" +
+                       "     private static void testStatic() {" +
+                       "         test();" +
+                       "     }" +
+                       "}").replaceAll("[ \t\n]+", " "));
+    }
+    
     @Override
     protected List<Fix> computeFixes(CompilationInfo info, int pos, TreePath path) throws Exception {
         return new MakeStatic().run(info, null, pos, path, null);

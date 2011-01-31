@@ -88,6 +88,11 @@ public class MakeStatic implements ErrorRule<Void> {
             //strange, but:
             return null;
         }
+        
+        if (el.getModifiers().contains(Modifier.ABSTRACT)) {
+            //strange, but:
+            return null;
+        }
 
         TreePath source = info.getTrees().getPath(el);
 
@@ -121,9 +126,15 @@ public class MakeStatic implements ErrorRule<Void> {
         boolean safe;
 
         try {
+            safe = true;
             switch (source.getLeaf().getKind()) {
                 case METHOD:
-                    s.scan(new TreePath(treePath, ((MethodTree) source.getLeaf()).getBody()), null);
+                    MethodTree method = (MethodTree) source.getLeaf();
+                    
+                    if (method.getBody() != null) {
+                        s.scan(new TreePath(treePath, method.getBody()), null);
+                    }
+                    
                     break;
                 case VARIABLE:
                     ExpressionTree initializer = ((VariableTree) source.getLeaf()).getInitializer();
@@ -132,7 +143,6 @@ public class MakeStatic implements ErrorRule<Void> {
                         s.scan(new TreePath(treePath,initializer), null);
                     break;
             }
-            safe = true;
         } catch (FoundInstanceReference e) {
             safe = false;
         }
