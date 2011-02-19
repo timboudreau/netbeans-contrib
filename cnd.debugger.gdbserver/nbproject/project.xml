@@ -4,7 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.cnd.debugger.gdbserver</code-name-base>
-            <standalone/>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.cnd.debugger.common2</code-name-base>
