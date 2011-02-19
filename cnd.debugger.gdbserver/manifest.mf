@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.cnd.debugger.gdbserver
-OpenIDE-Module-Layer: org/netbeans/modules/cnd/debugger/gdbserver/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/cnd/debugger/gdbserver/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 
