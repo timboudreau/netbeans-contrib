@@ -49,12 +49,14 @@
 package org.netbeans.modules.cnd.debugger.gdbserver;
 
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.cnd.debugger.common2.debugger.DebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel.ProjectCBItem;
+import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
+import org.netbeans.modules.cnd.debugger.gdb2.GdbDebuggerInfo;
+import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupport;
+import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration;
 import org.netbeans.spi.debugger.ui.Controller;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
 /**
@@ -171,7 +173,20 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
 
             ProjectCBItem pi = (ProjectCBItem) projectCB.getSelectedItem();
             if (pi != null) {
-                String target = hostValue + ':' + portValue;
+                MakeConfiguration conf = ConfigurationSupport.getProjectActiveConfiguration(pi.getProject()).clone();
+                DebugTarget dt = new DebugTarget(conf);
+                String path = conf.getAbsoluteOutputValue().replace("\\", "/"); // NOI18N
+                dt.setExecutable(path);
+
+                // always use gdb
+                GdbDebuggerInfo gdi = GdbDebuggerInfo.create();
+                gdi.setDebugTarget(dt);
+                gdi.setHostName("localhost"); //NOI18N
+                gdi.setConfiguration(conf);
+                gdi.setAction(DebuggerManager.ATTACH);
+                gdi.setRemoteTarget(hostValue + ':' + portValue);
+                
+                DebuggerManager.get().debugNoAsk(gdi);
 //                try {
 //                    GdbDebugger.attachGdbServer(target, pi.getProjectInformation());
 //                } catch (DebuggerStartException dse) {
