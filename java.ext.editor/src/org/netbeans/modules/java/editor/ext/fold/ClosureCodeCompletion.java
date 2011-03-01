@@ -116,9 +116,11 @@ public class ClosureCodeCompletion extends AsyncCompletionQuery {
 
     @Override
     protected void query(final CompletionResultSet resultSet, Document doc, final int caretOffset) {
-        JavaSource js = JavaSource.forDocument(doc);
-
         try {
+            JavaSource js = JavaSource.forDocument(doc);
+
+            if (js == null) return;
+            
             js.runUserActionTask(new Task<CompilationController>() {
                 public void run(CompilationController cc) throws Exception {
                     cc.toPhase(Phase.RESOLVED);
