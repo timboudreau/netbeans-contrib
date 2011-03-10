@@ -50,7 +50,6 @@ import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 import org.netbeans.modules.parsing.impl.indexing.friendapi.IndexingActivityInterceptor;
 import org.openide.filesystems.FileEvent;
-import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -60,7 +59,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Pavel Flaska
  */
 @ServiceProvider(service=IndexingActivityInterceptor.class)
-public class NoIndexingActivity implements IndexingActivityInterceptor, PreferenceChangeListener {
+public final class NoIndexingActivity implements IndexingActivityInterceptor, PreferenceChangeListener {
     static final Logger LOG = Logger.getLogger(NoIndexingActivity.class.getPackage().getName());
 
     private final Preferences includeExclude = NbPreferences.forModule(NoIndexingActivity.class);

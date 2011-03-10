@@ -46,18 +46,19 @@ import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.RequestProcessor;
 
-public final class RefreshAllAction implements ActionListener, Runnable {
 
-    private static Logger TIMER = Logger.getLogger("TIMER.RefreshAllAction");
+@ActionID(id = "org.netbeans.modules.scanondemand.RefreshAllAction", category = "System")
+@ActionRegistration(iconInMenu = true, displayName = "#CTL_RefreshAction", asynchronous=true)
+@ActionReference(path = "Menu/File", name = "org-netbeans-modules-scanondemand-RefreshAction", position = 1850, separatorAfter=1875)
+public final class RefreshAllAction implements ActionListener {
+    private static final Logger TIMER = Logger.getLogger("TIMER.RefreshAllAction");
 
     public void actionPerformed(ActionEvent e) {
-        RequestProcessor.getDefault().post(this);
-    }
-
-    public void run() {
         long start = System.currentTimeMillis();
         FileUtil.refreshAll();
         for (Project p : OpenProjects.getDefault().getOpenProjects()) {

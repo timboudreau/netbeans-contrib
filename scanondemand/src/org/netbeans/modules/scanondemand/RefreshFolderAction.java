@@ -44,13 +44,18 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.List;
 import org.netbeans.modules.parsing.api.indexing.IndexingManager;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.util.Exceptions;
 
+@ActionID(category="System", id="org.netbeans.modules.scanondemand.RefreshFolderAction")
+@ActionRegistration(displayName="#CTL_RefreshFolderAction", asynchronous=true)
+@ActionReference(path="Loaders/folder/any/Actions/", position=1525)
 public final class RefreshFolderAction implements ActionListener {
-
     private final List<DataFolder> context;
 
     public RefreshFolderAction(List<DataFolder> context) {
