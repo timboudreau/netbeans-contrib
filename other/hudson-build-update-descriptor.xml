@@ -1,0 +1,13 @@
+<project name="build-update-descriptor" basedir="../../.." default="descriptor">
+    <target name="descriptor">
+        <taskdef classpath="netbeans/harness/tasks.jar" resource="org/netbeans/nbbuild/taskdefs.properties"/>
+        <makeupdatedesc desc="updates.xml" distbase="." automaticgrouping="true" uselicenseurl="true">
+            <fileset dir=".">
+                <include name="*/build/*.nbm"/>
+            </fileset>
+            <updaterjar>
+                <fileset dir="netbeans" includes="platform*/modules/ext/updater.jar"/>
+            </updaterjar>
+        </makeupdatedesc>
+    </target>
+</project>
