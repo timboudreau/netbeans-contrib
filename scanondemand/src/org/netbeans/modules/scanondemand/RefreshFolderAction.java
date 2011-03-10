@@ -54,7 +54,7 @@ import org.openide.util.Exceptions;
 
 @ActionID(category="System", id="org.netbeans.modules.scanondemand.RefreshFolderAction")
 @ActionRegistration(displayName="#CTL_RefreshFolderAction", asynchronous=true)
-@ActionReference(path="Loaders/folder/any/Actions/", position=1525)
+@ActionReference(path="Loaders/folder/any/Actions", position=1525)
 public final class RefreshFolderAction implements ActionListener {
     private final List<DataFolder> context;
 
