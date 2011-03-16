@@ -121,10 +121,12 @@ final class LibrariesNode extends AbstractNode {
 
         private static final Icon ARCHIVE_ICON =
                 ImageUtilities.image2Icon(ImageUtilities.loadImage("org/netbeans/modules/autoproject/java/jar.gif"));
+        private final Project prj;
         private final Sources sources;
         private final PropertyChangeListener cpListener = WeakListeners.propertyChange(this, null);
 
         private LibrariesChildren(Project prj) {
+            this.prj = prj;
             sources = ProjectUtils.getSources(prj);
             sources.addChangeListener(WeakListeners.change(this, sources));
         }
@@ -186,7 +188,7 @@ final class LibrariesNode extends AbstractNode {
             File jar = FileUtil.archiveOrDirForURL(u);
             String label = jar != null && jar.isFile() ? jar.getName() : FileUtil.getFileDisplayName(root);
             return new Node[] {PackageView.createPackageView(GenericSources.group(
-                    null, root, root.toString(), label, ARCHIVE_ICON,ARCHIVE_ICON))};
+                    prj, root, root.toString(), label, ARCHIVE_ICON,ARCHIVE_ICON))};
         }
 
     }
