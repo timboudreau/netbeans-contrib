@@ -102,7 +102,7 @@ public class BuildSniffer extends AntLogger {
         return AntLogger.ALL_TARGETS;
     }
 
-    private final String[] INTERESTING_TASKS = {"javac", "fileset", "jar"};
+    private final String[] INTERESTING_TASKS = {"javac", "ivy:compile", "fileset", "jar"};
     @Override
     public String[] interestedInTasks(AntSession session) {
         return INTERESTING_TASKS;
@@ -167,7 +167,7 @@ public class BuildSniffer extends AntLogger {
         String taskName = event.getTaskName();
         if (taskName.equals("fileset")) {
             handleFileset(event, state);
-        } else if (taskName.equals("javac")) {
+        } else if (taskName.matches("javac|ivy:compile")) {
             handleJavac(event, state);
         } else if (taskName.equals("jar")) {
             handleJar(event, state);
