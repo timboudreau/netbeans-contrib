@@ -158,14 +158,6 @@
                 <runtime-relative-path>ext/dtrace.jar</runtime-relative-path>
                 <binary-origin>external/dtrace.jar</binary-origin>
             </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jcommon-1.0.5.jar</runtime-relative-path>
-                <binary-origin>external/jcommon-1.0.5.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jfreechart-1.0.2.jar</runtime-relative-path>
-                <binary-origin>external/jfreechart-1.0.2.jar</binary-origin>
-            </class-path-extension>
         </data>
     </configuration>
 </project>
