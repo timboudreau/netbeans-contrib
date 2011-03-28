@@ -22,42 +22,8 @@
 
   <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
 
-  <!-- scala-clean -->
-
-  <target name="-do-scala-clean">
-    <condition property="condition-scala-fsc-clean">
-      <isset property="scala.fsc"/>
-    </condition>
-    <antcall target="-do-fast-scala-clean"/>  <!--then-->
-    <antcall target="-do-norm-scala-clean"/>  <!--else-->
-  </target>
-
-  <target name="-do-fast-scala-clean" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc-clean">
-    <fsc reset="yes" srcdir="${src.dir}">
-    </fsc>
-  </target>
-
-  <target name="-do-norm-scala-clean" depends="init,up-to-date" unless="condition-scala-fsc">
-  </target>
-
-  <target name="scala-clean" depends="files-init,testuserdir-delete,test-clean">
-    <delete failonerror="false" includeemptydirs="true">
-      <fileset dir="${build.classes.dir}" />
-      <fileset dir="build">
-        <exclude name="testuserdir/"/>
-      </fileset>
-    </delete>
-    <delete dir="${netbeans.javadoc.dir}/${code.name.base.dashes}"/>
-    <delete file="${netbeans.javadoc.dir}/${code.name.base.dashes}.zip"/>
-    <delete includeemptydirs="true" failonerror="false"> <!-- #59457: OK if cluster does not exist currently -->
-      <fileset dir="${cluster}">
-        <patternset refid="module.files"/>
-      </fileset>
-    </delete>
-    <delete file="${cluster}/update_tracking/${code.name.base.dashes}.xml"/>
-    <delete file="${netbeans.dest.dir}/${module.cluster.name}.built" failonerror="false"/>
-
-    <antcall target="-do-scala-clean"/>
+  <target name="scala-clean" if="scala.fsc">
+    <fsc reset="yes" srcdir="${src.dir}"/>
   </target>
 
   <!-- scalac -->

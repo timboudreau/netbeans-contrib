@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../nbbuild/templates/projectized.xml"/>
     <import file="scala-build.xml"/>
 
-    <target name="clean" depends="init,projectized-common.clean,scala-clean"/>
+    <target name="clean" depends="init,projectized.clean,scala-clean"/>
     <target name="compile" depends="init,projectized-common.compile,scala-compile"/>
     <target name="do-test-build" depends="init,test-init,projectized-common.do-test-build"/>
 

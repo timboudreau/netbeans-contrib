@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="${build.classes.dir}"/>
         </csljar>
     </target-->
-    <target name="clean" depends="init,scala-clean,projectized-common.clean"/>
+    <target name="clean" depends="init,projectized.clean,scala-clean"/>
     <!-- should call projectized-common.compile after scala-compile, since the later may do sth. about classe files -->
     <target name="compile" depends="init,scala-compile,projectized-common.compile"/>
     <target name="jar" depends="init,scala-compile,projectized-common.jar"/>
