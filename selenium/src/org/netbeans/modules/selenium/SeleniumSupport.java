@@ -45,7 +45,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
@@ -53,19 +56,27 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
+import org.netbeans.modules.selenium.templates.SeleneseTestWizardOperator;
+import org.netbeans.spi.java.project.support.ui.BrokenReferencesSupport.LibraryDefiner;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 /**
  *
+ * @author Martin Fousek
  * @author Jindrich Sedek
  */
 public class SeleniumSupport {
 
     private static final String SELENIUM_FOLDER_NAME = "selenium";          //NOI18N
     private static final String SELENIUM_LIBRARY_NAME = "Selenium";         //NOI18N
+    public static final String JUNIT_LIBRARY_NAME = "junit_4";             //NOI18N
     private static final String SELENIUM_DIR_PROPERTY = "test.selenium.dir";//NOI18N
 
     private SeleniumSupport() {
@@ -101,7 +112,7 @@ public class SeleniumSupport {
     private static FileObject prepareProject(Project project) throws IOException {
         FileObject projectDir = project.getProjectDirectory();
         FileObject seleniumDir = addTestSourceRoot(project);
-        addLibrary(seleniumDir);
+        addLibrary(seleniumDir, SELENIUM_LIBRARY_NAME);
         FileObject srcs = projectDir.getFileObject("src/java"); //NOI18N
         if (srcs == null) {
             srcs = projectDir.getFileObject("src");         //NOI18N
@@ -117,14 +128,14 @@ public class SeleniumSupport {
         ProjectClassPathModifier.removeLibraries(new Library[]{library}, fo, ClassPath.COMPILE);
     }
 
-    private static void addLibrary(FileObject fo) throws IOException {
+    public static void addLibrary(FileObject fo, String libraryName) throws IOException {
         assert fo != null;
         Project p = FileOwnerQuery.getOwner(fo);
-        Library library = LibraryManager.getDefault().getLibrary(SELENIUM_LIBRARY_NAME); //NOI18N
+        Library library = LibraryManager.getDefault().getLibrary(libraryName); //NOI18N
         if (!ProjectClassPathModifier.addLibraries(new Library[]{library}, fo, ClassPath.COMPILE)) {
-            Logger.getLogger(SeleniumSupport.class.getName()).fine("Selenium library was not added to project " + p); //NOI18N
+            Logger.getLogger(SeleniumSupport.class.getName()).log(Level.FINE, "''{0}'' library was not added to project {1}", new Object[]{libraryName, p}); //NOI18N
         } else {
-            Logger.getLogger(SeleniumSupport.class.getName()).fine("Selenium library was added to project " + p); //NOI18N
+            Logger.getLogger(SeleniumSupport.class.getName()).log(Level.FINE, "''{0}'' library was added to project {1}", new Object[]{libraryName, p}); //NOI18N
         }
     }
 
@@ -176,6 +187,31 @@ public class SeleniumSupport {
         propertiesIS.close();
         return props;
     }
-}
 
+
+    public static void downloadJUnitLibraryIfNeeded() {
+        if (LibraryManager.getDefault().getLibrary("junit_4") == null) {
+            for (LibraryDefiner definer : Lookup.getDefault().lookupAll(LibraryDefiner.class)) {
+                Callable<Library> download = definer.missingLibrary("junit_4");
+                if (download != null) {
+                    NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
+                            NbBundle.getMessage(SeleneseTestWizardOperator.class, "MSG_JUNIT_CONFIRM_TEXT"),
+                            NbBundle.getMessage(SeleneseTestWizardOperator.class, "MSG_JUNIT_CONFIRM_TITLE"));
+                    JButton accept = new JButton(
+                            NbBundle.getMessage(SeleneseTestWizardOperator.class, "MSG_JUNIT_CONFIRM_ACCEPT"));
+                    accept.setDefaultCapable(true);
+                    nd.setOptions(new Object[]{accept, NotifyDescriptor.CANCEL_OPTION});
+                    if (DialogDisplayer.getDefault().notify(nd) == accept) {
+                        try {
+                            download.call();
+                        } catch (Exception x) {
+                            Logger.getLogger(SeleneseTestWizardOperator.class.getName()).log(Level.INFO, null, x);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
 

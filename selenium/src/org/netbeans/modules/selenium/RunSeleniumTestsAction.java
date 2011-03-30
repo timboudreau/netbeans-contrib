@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.selenium;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.tools.ant.module.api.support.ActionUtils;
@@ -49,13 +50,14 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
  *
- * @author Jindrich Sedek
+ * @author Jindrich Sedek, Martin Fousek
  */
 public final class RunSeleniumTestsAction extends ExtendedAction {
 
@@ -71,6 +73,16 @@ public final class RunSeleniumTestsAction extends ExtendedAction {
                 DialogDisplayer.getDefault().notifyLater(desc);
                 return;
             }
+            // if project dir doesn't contain test dir, create it
+            File testFolder = new File(project.getProjectDirectory().getPath(), "test");  // NOI18N
+            if (FileUtil.toFileObject(testFolder) == null) {
+                try {
+                    FileUtil.createFolder(testFolder);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+
             try {
                 ExecutorTask task = ActionUtils.runTarget(buildXML, new String[]{"run-deploy"}, p);
                 //wait deployment finished
