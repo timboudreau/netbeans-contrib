@@ -45,9 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
+import org.netbeans.modules.php.project.api.PhpSeleniumProvider;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
@@ -80,6 +79,9 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
 
         FileObject createdFile = null;
         DataObject dTemplate = DataObject.find(template);
+
+//        Project project = Templates.getProject(wiz);
+//        PhpSeleniumProvider lookup = project.getLookup().lookup(PhpSeleniumProvider.class);
 
 //      TODO server ULR & server port
 //        Object serverPort = null;
