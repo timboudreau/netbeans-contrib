@@ -7,17 +7,17 @@ and open the template in the editor.
 <library version="1.0">
     <name>Selenium</name>
     <type>j2se</type>
-    <localizing-bundle>org.netbeans.modules.selenium.Bundle</localizing-bundle>
+    <localizing-bundle>org/netbeans/modules/selenium/Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-1.0.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-2.0.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
-        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-sources-1.0.1.jar!</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-sources-2.0.jar!</resource>
     </volume>
-    <volume>
-        <type>javadoc</type>
-        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-javadoc-1.0.1.zip!/</resource>
-    </volume>
+<!--    <volume>
+        <type>maven-pom</type>
+        <resource>http://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-control/2.0b3/selenium-remote-control-2.0b3.pom</resource>
+    </volume>-->
 </library>

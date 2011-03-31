@@ -65,16 +65,17 @@ import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
+ * @author Martin Fousek
  * @author Jindrich Sedek
  */
-public class SeleneseTestWizardOperator implements WizardDescriptor.InstantiatingIterator {
+public class SeleneseTestWizardOperator implements WizardDescriptor.AsynchronousInstantiatingIterator {
 
     private ChangeSupport changeSupport = new ChangeSupport(this);
     private static final String DEFAULT_SERVER_PORT = "80";         // NOI18N
     private transient WizardDescriptor.Panel panel;
     private transient WizardDescriptor wiz;
 
-    public static WizardDescriptor.InstantiatingIterator create(){
+    public static WizardDescriptor.InstantiatingIterator create() {
         return new SeleneseTestWizardOperator();
     }
 
@@ -88,7 +89,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         FileObject createdFile = null;
         DataObject dTemplate = DataObject.find(template);
         Object serverPort = getServerPort();
-        if (serverPort == null){
+        if (serverPort == null) {
             serverPort = DEFAULT_SERVER_PORT;
         }
         Map<String, Object> params = new HashMap<String, Object>();
@@ -101,26 +102,30 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         DataObject dobj = dTemplate.createFromTemplate(df, targetName, params);
         createdFile = dobj.getPrimaryFile();
 
+        // handle JUnit libraries
+        SeleniumSupport.downloadJUnitLibraryIfNeeded();
+        SeleniumSupport.addLibrary(createdFile, SeleniumSupport.JUNIT_LIBRARY_NAME);
+
         return Collections.singleton(createdFile);
     }
 
-    private String getServerPort(){
+    private String getServerPort() {
         Project project = Templates.getProject(wiz);
         J2eeModuleProvider provider = project.getLookup().lookup(J2eeModuleProvider.class);
         if (provider != null) {
             org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties ip = provider.getInstanceProperties();
-            if (ip != null){
+            if (ip != null) {
                 String port = ip.getProperty(org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties.HTTP_PORT_NUMBER);
                 return port;
             }
         }
         return null;
     }
-    
+
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
         Project proj = Templates.getProject(wiz);
-        if (isAntProject(proj)){
+        if (isAntProject(proj)) {
             FileObject seleniumDir = SeleniumSupport.getSeleniumDir(proj);
             assert (seleniumDir != null);
             panel = createPanel(wiz);
@@ -149,11 +154,11 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     }
 
     public void nextPanel() {
-          assert(false);
+        assert (false);
     }
 
     public void previousPanel() {
-          assert(false);
+        assert (false);
     }
 
     public WizardDescriptor.Panel current() {
@@ -172,7 +177,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         } else {
             FileObject seleniumDir = SeleniumSupport.getSeleniumDir(project);
             for (SourceGroup selGroup : groups) {
-                if (selGroup.getRootFolder().equals(seleniumDir)){
+                if (selGroup.getRootFolder().equals(seleniumDir)) {
                     return JavaTemplates.createPackageChooser(project, new SourceGroup[]{selGroup});
                 }
             }

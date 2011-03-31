@@ -44,25 +44,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.namespace.QName;
 import org.apache.maven.project.MavenProject;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.maven.api.ModelUtils;
 import org.netbeans.modules.maven.api.NbMavenProject;
 import org.netbeans.modules.maven.model.ModelOperation;
 import org.netbeans.modules.maven.model.Utilities;
+import org.netbeans.modules.maven.model.pom.Build;
+import org.netbeans.modules.maven.model.pom.Configuration;
 import org.netbeans.modules.maven.model.pom.Dependency;
+import org.netbeans.modules.maven.model.pom.POMExtensibilityElement;
 import org.netbeans.modules.maven.model.pom.POMModel;
 import org.netbeans.modules.maven.model.pom.POMModelFactory;
-import org.netbeans.modules.maven.model.pom.Repository;
+import org.netbeans.modules.maven.model.pom.Plugin;
+import org.netbeans.modules.maven.model.pom.PluginManagement;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 /**
  *
- * @author Jindrich Sedek
+ * @author Jindrich Sedek, Martin Fousek
  */
 final class SeleniumMavenSupport {
+
+    private final static String SUREFIRE_GROUP_ID = "org.apache.maven.plugins";     //NOI18N
+    private final static String SUREFIRE_ARTIFACT_ID = "maven-surefire-plugin";     //NOI18N
+    private final static String SELENIUM_GROUP_ID = "org.seleniumhq.selenium";      //NOI18N
+    private final static String SELENIUM_ARTIFACT_ID = "selenium-remote-control";   //NOI18N
 
     static FileObject getTestRoot(Project project) {
         NbMavenProject nbProject = project.getLookup().lookup(NbMavenProject.class);
@@ -77,7 +87,7 @@ final class SeleniumMavenSupport {
         try {
             result = FileUtil.createData(testRoot);
         } catch (IOException ex) {
-            Logger.getLogger(SeleniumMavenSupport.class.getName()).log(Level.SEVERE, "Impossible to create test root file object", ex);
+            Logger.getLogger(SeleniumMavenSupport.class.getName()).log(Level.SEVERE, "Impossible to create test root file object", ex); //NOI18N
         }
         return result;
     }
@@ -91,36 +101,56 @@ final class SeleniumMavenSupport {
         NbMavenProject nbProject = project.getLookup().lookup(NbMavenProject.class);
         MavenProject mvp = nbProject.getMavenProject();
 
-        ModelOperation<POMModel> operation = new SeleniumOperation(mvp);
+        ModelOperation<POMModel> operation = new SeleniumOperation();
         org.netbeans.modules.maven.model.Utilities.performPOMModelOperations(getPomFile(project), Collections.singletonList(operation));
 
     }
 
     private static class SeleniumOperation implements ModelOperation<POMModel> {
 
-        private final MavenProject mvp;
-
-        public SeleniumOperation(MavenProject mvp) {
-            this.mvp = mvp;
-        }
-
         public void performOperation(POMModel model) {
-            Repository rep = ModelUtils.addModelRepository(mvp, model, "http://nexus.openqa.org/content/repositories/releases");
-            rep.setId("openqa-releases");
-            rep.setLayout("default");
-            rep.setName("Openqa Release Repository");
-            rep.setReleases(model.getFactory().createReleaseRepositoryPolicy());
-
-            Dependency dep = ModelUtils.checkModelDependency(model,
-                    "org.seleniumhq.selenium.client-drivers", "selenium-java-client-driver", true);
+            Dependency dep = ModelUtils.checkModelDependency(model, SELENIUM_GROUP_ID, SELENIUM_ARTIFACT_ID, true);
             dep.setScope("test");
-            dep.setVersion("1.0.1");
+            dep.setVersion("2.0b3");
+
+            org.netbeans.modules.maven.model.pom.Project p = model.getProject();
+            Build bld = p.getBuild();
+            if (bld == null) {
+                bld = model.getFactory().createBuild();
+                p.setBuild(bld);
+            }
+
+            Plugin plg = bld.findPluginById(SUREFIRE_GROUP_ID, SUREFIRE_ARTIFACT_ID);
+            if (plg == null) {
+                //how come the plugin is not there? maybe using on wrong project?
+                //check plugin management first.
+                PluginManagement pm = bld.getPluginManagement();
+                if (pm != null) {
+                    plg = pm.findPluginById(SUREFIRE_GROUP_ID, SUREFIRE_ARTIFACT_ID);
+                }
+                if (plg == null) { // should not happen to begin with
+                    plg = model.getFactory().createPlugin();
+                    bld.addPlugin(plg);
+                    plg.setGroupId(SUREFIRE_GROUP_ID);
+                    plg.setArtifactId(SUREFIRE_ARTIFACT_ID);
+                }
+            }
+            Configuration cnf = plg.getConfiguration();
+            if (cnf == null) {
+                cnf = model.getFactory().createConfiguration();
+                plg.setConfiguration(cnf);
+            }
+            POMExtensibilityElement excludes = model.getFactory().createPOMExtensibilityElement(new QName("excludes")); //NOI18N
+            POMExtensibilityElement exclude = model.getFactory().createPOMExtensibilityElement(new QName("exclude"));   //NOI18N
+            excludes.addExtensibilityElement(exclude);
+            exclude.setElementText("**/*Selenese*.java");    //NOI18N
+            cnf.addExtensibilityElement(excludes);
         }
     }
 
     public static boolean isProjectReady(Project project) {
         POMModel model = getPOMModel(project);
-        return ModelUtils.hasModelDependency(model, "org.seleniumhq.selenium.client-drivers", "selenium-java-client-driver");
+        return ModelUtils.hasModelDependency(model, SELENIUM_GROUP_ID, SELENIUM_ARTIFACT_ID);
     }
 
     public static boolean isMavenProject(Project project) {
@@ -134,6 +164,6 @@ final class SeleniumMavenSupport {
     }
 
     private static FileObject getPomFile(Project project) {
-        return project.getProjectDirectory().getFileObject("pom.xml");
+        return project.getProjectDirectory().getFileObject("pom.xml"); //NOI18N
     }
 }

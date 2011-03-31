@@ -57,7 +57,7 @@ class PomConfigurationPanel implements WizardDescriptor.Panel<WizardDescriptor> 
     public Component getComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        String text = NbBundle.getMessage(PomConfigurationPanel.class, "CheckBox_Title");
+        String text = NbBundle.getMessage(PomConfigurationPanel.class, "CheckBox_Title"); //NOI18N
         modifyPom = new JCheckBox(text);
         modifyPom.setSelected(true);
         panel.add(modifyPom);

@@ -110,7 +110,8 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
             panel = createPanel(wiz);
             panel.getComponent();
         } else {
-            wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(SeleneseTestWizardOperator.class, "NON_MAVEN_PROJECT"));
+            wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, 
+                    NbBundle.getMessage(SeleneseTestWizardOperator.class, "NON_MAVEN_PROJECT")); //NOI18N
             panel = Templates.createSimpleTargetChooser(project, new SourceGroup[0]);
         }
     }
@@ -121,7 +122,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
     }
 
     public String name() {
-        return NbBundle.getMessage(SeleneseTestWizardOperator.class, "SELENESE_TEMPLATE_WIZARD_TITLE");
+        return NbBundle.getMessage(SeleneseTestWizardOperator.class, "SELENESE_TEMPLATE_WIZARD_TITLE"); //NOI18N
     }
 
     public boolean hasNext() {
@@ -149,7 +150,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Instantiatin
         Project project = Templates.getProject(wizardDescriptor);
         Sources sources = ProjectUtils.getSources(project);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        assert groups != null : "Cannot return null from Sources.getSourceGroups: " + sources;
+        assert groups != null : "Cannot return null from Sources.getSourceGroups: " + sources; //NOI18N
         if (!SeleniumMavenSupport.isProjectReady(project)){
             pcp = new PomConfigurationPanel();
         }

@@ -15,12 +15,12 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 class ${name} extends PHPUnit_Extensions_SeleniumTestCase {
     
     function setUp() {
-        $this->setBrowser("*chrome");
-        $this->setBrowserUrl("http://change-this-to-the-site-you-are-testing/");
+        $this->setBrowser("*firefox");
+        $this->setBrowserUrl("http://localhost/");
     }
 
     function testMyTestCase() {
-        
+        $this->open("/");
     }
 }
 ?>

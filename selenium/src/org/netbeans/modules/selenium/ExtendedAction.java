@@ -49,7 +49,7 @@ import org.openide.util.actions.NodeAction;
 
 /**
  *
- * @author Jindrich Sedek
+ * @author Jindrich Sedek, Martin Fousek
  */
 public abstract class ExtendedAction extends NodeAction {
 
@@ -91,8 +91,20 @@ public abstract class ExtendedAction extends NodeAction {
     }
 
     static String listAllTestIncludes(FileObject file) {
-        Enumeration<? extends FileObject> en = file.getFolders(true);
         String result = null;
+        // add files without any package if any
+        if (file.getChildren().length > 0) {
+            for (FileObject fileObject : file.getChildren()) {
+                if ("java".equals(fileObject.getExt())) {
+                    result = file.getPath() + "/*Test.java";
+                    break;
+                }
+            }
+        }
+
+        // add all packages
+        Enumeration<? extends FileObject> en = file.getFolders(true);
+
         while (en.hasMoreElements()) {
             FileObject next = en.nextElement();
             assert (next.isFolder());
@@ -110,6 +122,7 @@ public abstract class ExtendedAction extends NodeAction {
                     result = result + INCLUDES_DELIMITER + FileUtil.getRelativePath(file, next) + "/*Test.java";
                 }
             }
+
         }
         return result;
     }
