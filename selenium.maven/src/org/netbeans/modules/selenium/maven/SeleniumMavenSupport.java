@@ -69,10 +69,10 @@ import org.openide.filesystems.FileUtil;
  */
 final class SeleniumMavenSupport {
 
-    private final static String SUREFIRE_GROUP_ID = "org.apache.maven.plugins";
-    private final static String SUREFIRE_ARTIFACT_ID = "maven-surefire-plugin";
-    private final static String SELENIUM_GROUP_ID = "org.seleniumhq.selenium";
-    private final static String SELENIUM_ARTIFACT_ID = "selenium-remote-control";
+    private final static String SUREFIRE_GROUP_ID = "org.apache.maven.plugins";     //NOI18N
+    private final static String SUREFIRE_ARTIFACT_ID = "maven-surefire-plugin";     //NOI18N
+    private final static String SELENIUM_GROUP_ID = "org.seleniumhq.selenium";      //NOI18N
+    private final static String SELENIUM_ARTIFACT_ID = "selenium-remote-control";   //NOI18N
 
     static FileObject getTestRoot(Project project) {
         NbMavenProject nbProject = project.getLookup().lookup(NbMavenProject.class);
