@@ -39,72 +39,44 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.issuekicker.ui;
+package org.netbeans.modules.issuekicker.actions;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import org.openide.DialogDescriptor;
-import org.openide.util.NbBundle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+import org.netbeans.modules.issuekicker.ActiveReports;
+import org.netbeans.modules.issuekicker.ReportTask;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.ActionRegistration;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionID;
+import org.openide.util.NbBundle.Messages;
 
-/**
- *
- * @author Martin Fousek
- */
-public class ReportSelectorPanelController implements ChangeListener {
-    
-    private ReportSelectorPanel panel = null;
-    private DialogDescriptor dialogDescriptor = null;
-    
-    public void setDialogDescriptor(DialogDescriptor dialogDescriptor) {
-        this.dialogDescriptor = dialogDescriptor;
-    }
-    
-    public ReportSelectorPanel getPanel() {
-        if (panel == null) {
-            panel = new ReportSelectorPanel();
-            panel.addChangeListener(this);
-        }
-        return panel;
-    }
-    
-    public boolean isValid() {
-        // empty text fields
-        if (panel.getReportNumber().length() == 0 && panel.getExceptionNumber().length() == 0) {
-            panel.setError(NbBundle.getMessage(
-                    ReportSelectorPanelController.class, "ERR_EMPTY_FIELDS")); // NOI18N
-            return false;
-        }
-        
-        // not valid number entered
-        if (!isNumber(panel.getExceptionNumber()) && !isNumber(panel.getReportNumber())) { 
-            panel.setError(NbBundle.getMessage(
-                    ReportSelectorPanelController.class, "ERR_NOT_NUMBER_ENTERED")); // NOI18N
-            return false;
-        }
-
-        // everything ok
-        panel.setError(" "); // NOI18N
-        return true;
-    }
-    
-    public static boolean isNumber(String number) {
-        int parsedNumber = 0;
-        try {
-            parsedNumber = Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        
-        if (String.valueOf(parsedNumber).length() != number.length()
-                || parsedNumber <= 0) {
-            return false;
-        }
-        return true;
-    }
+@ActionID(category = "Tools",
+id = "org.netbeans.modules.issuekicker.actions.ShowReportAnalyzerTasksAction")
+@ActionRegistration(iconBase = "org/netbeans/modules/issuekicker/resources/toolbar-icon.png",
+displayName = "#CTL_ShowReportAnalyzerTasksAction")
+@ActionReferences({
+    @ActionReference(path = "Menu/Tools", position = 150),
+    @ActionReference(path = "Toolbars/IssueKicker", position = 1100),
+    @ActionReference(path = "Shortcuts", name = "DS-L")
+})
+@Messages("CTL_ShowReportAnalyzerTasksAction=Show Report Analyzer Tasks")
+public final class ShowReportAnalyzerTasksAction implements ActionListener {
 
     @Override
-    public void stateChanged(ChangeEvent e) {
-        dialogDescriptor.setValid(isValid());
+    public void actionPerformed(ActionEvent e) {
+        String activeReports = "";
+        synchronized(ActiveReports.getDefault().getReportTasks()) {
+            Iterator<ReportTask> iterator = ActiveReports.getDefault().getReportTasks().iterator();
+            while (iterator.hasNext()) {
+                ReportTask next = iterator.next();
+                activeReports += next.toString() + "\n";
+            }
+        }
+        NotifyDescriptor nd = new NotifyDescriptor.Message(activeReports, NotifyDescriptor.INFORMATION_MESSAGE);
+        DialogDisplayer.getDefault().notify(nd);
     }
-
 }

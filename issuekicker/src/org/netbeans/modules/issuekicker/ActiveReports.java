@@ -41,52 +41,36 @@
  */
 package org.netbeans.modules.issuekicker;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import org.netbeans.modules.issuekicker.ui.ReportSelectorPanelController;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.awt.ActionRegistration;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
-import org.openide.util.NbBundle;
-import org.openide.util.NbBundle.Messages;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-
-@ActionID(category = "Tools",
-id = "org.netbeans.modules.issuekicker.ReportAnalyzerAction")
-@ActionRegistration(iconBase = "org/netbeans/modules/issuekicker/resources/toolbar-icon.png",
-displayName = "#CTL_ReportAnalyzerAction")
-@ActionReferences({
-    @ActionReference(path = "Menu/Tools", position = 140, separatorAfter = 160),
-    @ActionReference(path = "Toolbars/IssueKicker", position = 1000),
-    @ActionReference(path = "Shortcuts", name = "DO-I")
-})
-@Messages("CTL_ReportAnalyzerAction=Analyze Exception Report")
 /**
+ *
  * @author Martin Fousek
  */
-public final class ReportAnalyzerAction implements ActionListener {
+public class ActiveReports {
+    
+    private static ActiveReports activeReports = null;
+    private final List<ReportTask> activeList;
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        ReportSelectorPanelController controller = new ReportSelectorPanelController();
-        DialogDescriptor descriptor = new DialogDescriptor(controller.getPanel(), "Select Exception Report");
-        descriptor.setValid(false);
-        controller.getPanel().setError(NbBundle.getMessage(
-                    ReportSelectorPanelController.class, "ERR_EMPTY_FIELDS")); //NOI18N);
-        controller.setDialogDescriptor(descriptor);
-        
-        
-        descriptor.setButtonListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Next actions will follow...");
-            }
-        });
-        
-        DialogDisplayer.getDefault().notify(descriptor);
+    private ActiveReports() {
+        activeList = Collections.synchronizedList(new ArrayList<ReportTask>());
     }
+    
+    public void addReportTask(ReportTask task) {
+        activeList.add(task);
+    }
+    
+    public List<ReportTask> getReportTasks() {
+        return activeList;
+    }
+    
+    public static ActiveReports getDefault() {
+        if (activeReports == null) {
+            activeReports = new ActiveReports();
+        }
+        return activeReports;
+    }
+    
 }

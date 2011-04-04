@@ -39,72 +39,26 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.issuekicker.ui;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import org.openide.DialogDescriptor;
-import org.openide.util.NbBundle;
+package org.netbeans.modules.issuekicker;
 
 /**
  *
  * @author Martin Fousek
  */
-public class ReportSelectorPanelController implements ChangeListener {
+public class Report {
     
-    private ReportSelectorPanel panel = null;
-    private DialogDescriptor dialogDescriptor = null;
-    
-    public void setDialogDescriptor(DialogDescriptor dialogDescriptor) {
-        this.dialogDescriptor = dialogDescriptor;
-    }
-    
-    public ReportSelectorPanel getPanel() {
-        if (panel == null) {
-            panel = new ReportSelectorPanel();
-            panel.addChangeListener(this);
-        }
-        return panel;
-    }
-    
-    public boolean isValid() {
-        // empty text fields
-        if (panel.getReportNumber().length() == 0 && panel.getExceptionNumber().length() == 0) {
-            panel.setError(NbBundle.getMessage(
-                    ReportSelectorPanelController.class, "ERR_EMPTY_FIELDS")); // NOI18N
-            return false;
-        }
-        
-        // not valid number entered
-        if (!isNumber(panel.getExceptionNumber()) && !isNumber(panel.getReportNumber())) { 
-            panel.setError(NbBundle.getMessage(
-                    ReportSelectorPanelController.class, "ERR_NOT_NUMBER_ENTERED")); // NOI18N
-            return false;
-        }
+    private int number;
 
-        // everything ok
-        panel.setError(" "); // NOI18N
-        return true;
+    public Report(int number) {
+        this.number = number;
     }
     
-    public static boolean isNumber(String number) {
-        int parsedNumber = 0;
-        try {
-            parsedNumber = Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        
-        if (String.valueOf(parsedNumber).length() != number.length()
-                || parsedNumber <= 0) {
-            return false;
-        }
-        return true;
+    public int getNumber() {
+        return number;
     }
 
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        dialogDescriptor.setValid(isValid());
+    public void setNumber(int number) {
+        this.number = number;
     }
-
+    
 }
