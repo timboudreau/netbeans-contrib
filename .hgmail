@@ -48,3 +48,4 @@ tasklist-commits@contrib.netbeans.org=o.n.tasklistapi/*,tasklist.bugs/*,tasklist
 tboudreau@netbeans.org=docbook/*,docbook.project/*
 tomcatint-commits@serverplugins.netbeans.org=tomcat5.bundled/*
 web@javaee.netbeans.org=api.web.dd/*,web.webrest/*
+marfous@netbeans.org=issuekicker/*
