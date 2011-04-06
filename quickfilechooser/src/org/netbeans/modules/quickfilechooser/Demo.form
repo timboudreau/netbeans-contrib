@@ -87,6 +87,10 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="currentDirLabel">
       <Properties>
+        <Property name="displayedMnemonic" type="int" value="85"/>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="currentDir"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Current dir:"/>
       </Properties>
     </Component>
@@ -97,6 +101,10 @@
     </Component>
     <Component class="javax.swing.JLabel" name="selectedFileLabel">
       <Properties>
+        <Property name="displayedMnemonic" type="int" value="83"/>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="selectedFile"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Selected file:"/>
       </Properties>
     </Component>
@@ -107,6 +115,10 @@
     </Component>
     <Component class="javax.swing.JLabel" name="selectedFilesLabel">
       <Properties>
+        <Property name="displayedMnemonic" type="int" value="69"/>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="selectedFiles"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Selected files:"/>
       </Properties>
     </Component>
@@ -126,6 +138,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="modeGroup"/>
         </Property>
+        <Property name="mnemonic" type="int" value="70"/>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Files"/>
       </Properties>
@@ -138,6 +151,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="modeGroup"/>
         </Property>
+        <Property name="mnemonic" type="int" value="68"/>
         <Property name="text" type="java.lang.String" value="Dirs"/>
       </Properties>
       <Events>
@@ -149,6 +163,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="modeGroup"/>
         </Property>
+        <Property name="mnemonic" type="int" value="66"/>
         <Property name="text" type="java.lang.String" value="Both"/>
       </Properties>
       <Events>
@@ -157,6 +172,7 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="html">
       <Properties>
+        <Property name="mnemonic" type="int" value="72"/>
         <Property name="text" type="java.lang.String" value="HTML Only"/>
       </Properties>
       <Events>

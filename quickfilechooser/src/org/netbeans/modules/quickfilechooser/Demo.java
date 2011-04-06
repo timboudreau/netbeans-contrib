@@ -116,19 +116,26 @@ public class Demo extends JPanel {
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Chooser Properties"));
 
+        currentDirLabel.setDisplayedMnemonic('U');
+        currentDirLabel.setLabelFor(currentDir);
         currentDirLabel.setText("Current dir:");
 
         currentDir.setEditable(false);
 
+        selectedFileLabel.setDisplayedMnemonic('S');
+        selectedFileLabel.setLabelFor(selectedFile);
         selectedFileLabel.setText("Selected file:");
 
         selectedFile.setEditable(false);
 
+        selectedFilesLabel.setDisplayedMnemonic('E');
+        selectedFilesLabel.setLabelFor(selectedFiles);
         selectedFilesLabel.setText("Selected files:");
 
         selectedFilesScroll.setViewportView(selectedFiles);
 
         modeGroup.add(files);
+        files.setMnemonic('F');
         files.setSelected(true);
         files.setText("Files");
         files.addActionListener(new java.awt.event.ActionListener() {
@@ -138,6 +145,7 @@ public class Demo extends JPanel {
         });
 
         modeGroup.add(dirs);
+        dirs.setMnemonic('D');
         dirs.setText("Dirs");
         dirs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -146,6 +154,7 @@ public class Demo extends JPanel {
         });
 
         modeGroup.add(both);
+        both.setMnemonic('B');
         both.setText("Both");
         both.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -153,6 +162,7 @@ public class Demo extends JPanel {
             }
         });
 
+        html.setMnemonic('H');
         html.setText("HTML Only");
         html.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
