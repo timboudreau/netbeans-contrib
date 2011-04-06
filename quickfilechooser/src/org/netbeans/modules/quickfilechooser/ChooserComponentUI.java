@@ -401,6 +401,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                     buttons.setVisible(getFileChooser().getControlButtonsAreShown());
                 } else if (JFileChooser.FILE_FILTER_CHANGED_PROPERTY.equals(name)) {
                     updateFilterDisplay();
+                    refreshCompletions();
+                } else if (JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(name)) {
+                    refreshCompletions();
                 }
             }
         };
