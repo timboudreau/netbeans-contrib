@@ -64,6 +64,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.prefs.Preferences;
@@ -496,12 +497,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             String newname = maximalCompletion != null ? name.substring(0, slash + 1) + maximalCompletion : null;
             File newnameF = newname != null ? new File(newname) : null;
             if (newnameF != null && newnameF.isDirectory() && !newname.endsWith(File.separator)) {
-                // Also check that there is no non-dir completion (e.g. .../nb_all/nbbuild/build{,.xml,.properties})
+                // Also check that there is no longer completion (e.g. .../nb_all/nbbuild/build{,.xml,.properties})
                 String[] siblings = newnameF.getParentFile().list();
                 boolean complete = true;
-                String me = newnameF.getName();
+                // #197348: needs to be case-insensitive for e.g. ~/Public vs. ~/public_html
+                String me = newnameF.getName().toLowerCase(Locale.ENGLISH);
                 for (int i = 0; i < siblings.length; i++) {
-                    if (siblings[i].startsWith(me) && !siblings[i].equals(me)) {
+                    String sibling = siblings[i].toLowerCase(Locale.ENGLISH);
+                    if (sibling.startsWith(me) && !sibling.equals(me)) {
                         complete = false;
                         break;
                     }
