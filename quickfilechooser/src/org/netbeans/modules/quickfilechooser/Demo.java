@@ -41,29 +41,27 @@
 
 package org.netbeans.modules.quickfilechooser;
 
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
-import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 
-public class Demo {
+public class Demo extends JPanel {
 
     public static void main(String[] args) {
         Install.main(null);
         final JFileChooser chooser = new JFileChooser();
         chooser.setMultiSelectionEnabled(true);
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        //chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
-        File contrib = new File(System.getProperty("contrib"));
-        chooser.setCurrentDirectory(contrib);
-        chooser.setSelectedFiles(new File[] {new File(contrib, "docbook")});
+        chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
         chooser.setFileView(new FileView() {
             public Icon getIcon(File f) {
                 if (f.getName().endsWith(".gif") || f.getName().endsWith(".png")) {
@@ -75,8 +73,157 @@ public class Demo {
                 return null;
             }
         });
-        /*
-        chooser.addChoosableFileFilter(new FileFilter() {
+        chooser.setAccessory(new Demo(chooser));
+        Dimension d = chooser.getPreferredSize();
+        chooser.setPreferredSize(new Dimension(d.width + 200, d.height));
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
+        }
+        System.exit(0);
+    }
+
+    private final JFileChooser chooser;
+    private Demo(JFileChooser c) {
+        this.chooser = c;
+        initComponents();
+        chooser.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                setText(currentDir, chooser.getCurrentDirectory());
+                setText(selectedFile, chooser.getSelectedFile());
+                selectedFiles.setModel(new DefaultComboBoxModel(chooser.getSelectedFiles()));
+            }
+            private void setText(JTextField field, File f) {
+                field.setText(f != null ? f.getAbsolutePath() : null);
+            }
+        });
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        modeGroup = new javax.swing.ButtonGroup();
+        currentDirLabel = new javax.swing.JLabel();
+        currentDir = new javax.swing.JTextField();
+        selectedFileLabel = new javax.swing.JLabel();
+        selectedFile = new javax.swing.JTextField();
+        selectedFilesLabel = new javax.swing.JLabel();
+        selectedFilesScroll = new javax.swing.JScrollPane();
+        selectedFiles = new javax.swing.JList();
+        files = new javax.swing.JRadioButton();
+        dirs = new javax.swing.JRadioButton();
+        both = new javax.swing.JRadioButton();
+        html = new javax.swing.JCheckBox();
+
+        setBorder(javax.swing.BorderFactory.createTitledBorder("Chooser Properties"));
+
+        currentDirLabel.setText("Current dir:");
+
+        currentDir.setEditable(false);
+
+        selectedFileLabel.setText("Selected file:");
+
+        selectedFile.setEditable(false);
+
+        selectedFilesLabel.setText("Selected files:");
+
+        selectedFilesScroll.setViewportView(selectedFiles);
+
+        modeGroup.add(files);
+        files.setSelected(true);
+        files.setText("Files");
+        files.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filesActionPerformed(evt);
+            }
+        });
+
+        modeGroup.add(dirs);
+        dirs.setText("Dirs");
+        dirs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dirsActionPerformed(evt);
+            }
+        });
+
+        modeGroup.add(both);
+        both.setText("Both");
+        both.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bothActionPerformed(evt);
+            }
+        });
+
+        html.setText("HTML Only");
+        html.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                htmlActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(currentDirLabel)
+                    .addComponent(selectedFileLabel)
+                    .addComponent(selectedFilesLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(selectedFilesScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                    .addComponent(selectedFile, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                    .addComponent(currentDir, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(files)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dirs)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(both)
+                .addGap(34, 34, 34))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(html)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(currentDirLabel)
+                    .addComponent(currentDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(selectedFileLabel)
+                    .addComponent(selectedFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(selectedFilesLabel)
+                    .addComponent(selectedFilesScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(files)
+                    .addComponent(dirs)
+                    .addComponent(both))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(html)
+                .addContainerGap(124, Short.MAX_VALUE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void dirsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dirsActionPerformed
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    }//GEN-LAST:event_dirsActionPerformed
+
+    private void filesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filesActionPerformed
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    }//GEN-LAST:event_filesActionPerformed
+
+    private void bothActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bothActionPerformed
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    }//GEN-LAST:event_bothActionPerformed
+
+    private void htmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_htmlActionPerformed
+        chooser.setFileFilter(html.isSelected() ? new FileFilter() {
             public boolean accept(File pathname) {
                 return pathname.isDirectory() ||
                         pathname.getName().toLowerCase().endsWith(".html");
@@ -84,40 +231,22 @@ public class Demo {
             public String getDescription() {
                 return "HTML Files";
             }
-        });
-         */
-        //chooser.setControlButtonsAreShown(false);
-        class Accessory extends JTextArea implements PropertyChangeListener {
-            public Accessory() {
-                super(4, 20);
-                setLineWrap(true);
-                update();
-                chooser.addPropertyChangeListener(this);
-            }
-            private void update() {
-                StringBuffer buf = new StringBuffer();
-                buf.append("Selected file: ");
-                buf.append(chooser.getSelectedFile());
-                buf.append('\n');
-                buf.append("Selected file list: ");
-                buf.append(Arrays.asList(chooser.getSelectedFiles()));
-                buf.append('\n');
-                buf.append("Current dir: ");
-                buf.append(chooser.getCurrentDirectory());
-                setText(buf.toString());
-                setCaretPosition(getText().length());
-            }
-            public void propertyChange(PropertyChangeEvent evt) {
-                update();
-            }
-        }
-        JScrollPane accessory = new JScrollPane(new Accessory());
-        accessory.setBorder(BorderFactory.createTitledBorder("Chooser Properties"));
-        chooser.setAccessory(accessory);
-        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            System.out.println("Selected: " + Arrays.asList(chooser.getSelectedFiles()));
-        }
-        System.exit(0);
-    }
-    
+        } : null);
+    }//GEN-LAST:event_htmlActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton both;
+    private javax.swing.JTextField currentDir;
+    private javax.swing.JLabel currentDirLabel;
+    private javax.swing.JRadioButton dirs;
+    private javax.swing.JRadioButton files;
+    private javax.swing.JCheckBox html;
+    private javax.swing.ButtonGroup modeGroup;
+    private javax.swing.JTextField selectedFile;
+    private javax.swing.JLabel selectedFileLabel;
+    private javax.swing.JList selectedFiles;
+    private javax.swing.JLabel selectedFilesLabel;
+    private javax.swing.JScrollPane selectedFilesScroll;
+    // End of variables declaration//GEN-END:variables
+
 }
