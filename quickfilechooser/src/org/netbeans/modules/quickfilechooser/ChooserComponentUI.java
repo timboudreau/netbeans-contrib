@@ -722,7 +722,6 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
         public void actionPerformed(ActionEvent ae) {
             updateFromHistory();
-            int sz = box.getModel().getSize();
             int sel = box.getSelectedIndex();
             if (up) {
                 sel++;
