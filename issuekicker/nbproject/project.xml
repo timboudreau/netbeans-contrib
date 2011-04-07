@@ -6,6 +6,15 @@
             <code-name-base>org.netbeans.modules.issuekicker</code-name-base>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.netbeans.api.progress</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.23</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.awt</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -38,7 +47,13 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <subpackages>org.jsoup</subpackages>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/issuekicker/jsoup-1.5.2.jar</runtime-relative-path>
+                <binary-origin>external/jsoup-1.5.2.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
