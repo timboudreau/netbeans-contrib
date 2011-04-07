@@ -64,7 +64,10 @@ import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;
-import org.openide.util.TaskListener;
+
+/**
+ * @author Martin Fousek
+ */
 
 @ActionID(category = "Tools",
 id = "org.netbeans.modules.issuekicker.AddReportAnalyzerAction")
@@ -76,9 +79,6 @@ displayName = "#CTL_ReportAnalyzerAction")
     @ActionReference(path = "Shortcuts", name = "DO-I")
 })
 @Messages("CTL_ReportAnalyzerAction=Analyze Exception Report")
-/**
- * @author Martin Fousek
- */
 public final class AddReportAnalyzerAction implements ActionListener {
 
     private RequestProcessor rp = new RequestProcessor("Bugzilla query", 1, true);  // NOI18N
@@ -154,7 +154,7 @@ public final class AddReportAnalyzerAction implements ActionListener {
         if (ReportSelectorPanelController.isNumber(reportNumber)) {
             number = Integer.parseInt(reportNumber);
         } else if (ReportSelectorPanelController.isNumber(exceptionNumber)) {
-            // get report number from the issue zilla
+            // get report number from the bugzilla
             number = JsoupIssueDetail.getExceptionReportNumber(Integer.parseInt(exceptionNumber));
         }
 
