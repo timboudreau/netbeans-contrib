@@ -41,13 +41,17 @@
  */
 package org.netbeans.modules.issuekicker.actions;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.issuekicker.ActiveReports;
 import org.netbeans.modules.issuekicker.Report;
 import org.netbeans.modules.issuekicker.ReportTask;
+import org.netbeans.modules.issuekicker.jsoup.JsoupIssueDetail;
 import org.netbeans.modules.issuekicker.ui.ReportSelectorPanelController;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -55,8 +59,12 @@ import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionID;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;
+import org.openide.util.TaskListener;
 
 @ActionID(category = "Tools",
 id = "org.netbeans.modules.issuekicker.AddReportAnalyzerAction")
@@ -73,9 +81,11 @@ displayName = "#CTL_ReportAnalyzerAction")
  */
 public final class AddReportAnalyzerAction implements ActionListener {
 
+    private RequestProcessor rp = new RequestProcessor("Bugzilla query", 1, true);  // NOI18N
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        ReportSelectorPanelController controller = new ReportSelectorPanelController();
+        final ReportSelectorPanelController controller = new ReportSelectorPanelController();
         DialogDescriptor descriptor = new DialogDescriptor(controller.getPanel(),
                 NbBundle.getMessage(AddReportAnalyzerAction.class, "MSG_DIALOG_TITLE_SELECT_REPORT")); //NOI18N
         descriptor.setValid(false);
@@ -85,27 +95,69 @@ public final class AddReportAnalyzerAction implements ActionListener {
         Object returnButton = DialogDisplayer.getDefault().notify(descriptor);
 
         if (returnButton == DialogDescriptor.OK_OPTION) {
-            // get entered number
-            int reportNumber = getReportNumberFromDialog(controller);
-            assert reportNumber != -1 : "Number wasn't valid : RN=" + controller.getPanel().getReportNumber() + ", "
-                    + "EN=" + controller.getPanel().getExceptionNumber(); //NOI18N
+            
+            final Task[] t = new Task[1];
+            Cancellable c = new Cancellable() {
+                @Override
+                public boolean cancel() {
+                    if(t[0] != null) {
+                        return t[0].cancel();
+                    }
+                    return true;
+                }
+            };
+            
+            final String msgPopulating = NbBundle.getMessage(AddReportAnalyzerAction.class, 
+                    "MSG_WAIT_FOR_REPORT_NUMBER", controller.getPanel().getExceptionNumber());  // NOI18N
+            final ProgressHandle handle = ProgressHandleFactory.createHandle(msgPopulating, c);
+            
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    handle.start();
+                }
+            });
+            
+            t[0] = rp.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // get entered number
+                        Integer reportNumber = getReportNumberFromDialog(controller);
+                        assert (reportNumber == null || reportNumber != -1) : "Number wasn't valid : RN=" + controller.getPanel().getReportNumber() + ", "
+                                + "EN=" + controller.getPanel().getExceptionNumber(); //NOI18N
 
-            Logger.getLogger(AddReportAnalyzerAction.class.getName()).log(
-                    Level.INFO, "New Report Analyzer Action was added to the active list."); //NOI18N
-            ActiveReports.getDefault().addReportTask(new ReportTask(new Report(reportNumber)));
+                        if (reportNumber == null) 
+                            return;
+
+                        Logger.getLogger(AddReportAnalyzerAction.class.getName()).log(
+                                Level.INFO, "New Report Analyzer Action (report #{0}) is adding to the active list.", reportNumber); //NOI18N
+                        ActiveReports.getDefault().addReportTask(new ReportTask(new Report(reportNumber)));
+                    } finally {
+                        EventQueue.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                handle.finish();
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
-    private int getReportNumberFromDialog(ReportSelectorPanelController controller) {
+    private Integer getReportNumberFromDialog(ReportSelectorPanelController controller) {
+        Integer number = -1;
         String reportNumber = controller.getPanel().getReportNumber();
         String exceptionNumber = controller.getPanel().getExceptionNumber();
 
         if (ReportSelectorPanelController.isNumber(reportNumber)) {
-            return Integer.parseInt(reportNumber);
+            number = Integer.parseInt(reportNumber);
         } else if (ReportSelectorPanelController.isNumber(exceptionNumber)) {
-            return Integer.parseInt(exceptionNumber);
+            // get report number from the issue zilla
+            number = JsoupIssueDetail.getExceptionReportNumber(Integer.parseInt(exceptionNumber));
         }
 
-        return -1;
+        return number;
     }
 }

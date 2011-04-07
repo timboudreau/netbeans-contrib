@@ -66,27 +66,23 @@ public class ReportSelectorPanel extends javax.swing.JPanel {
         
         this.notificationLabel.setText(" "); //NOI18N
         
-        reportNumberTextField.getDocument().addDocumentListener(new DocumentListener() {
-
-            @Override
+        DocumentListener docListener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 processUpdate();
             }
-
-            @Override
             public void removeUpdate(DocumentEvent e) {
                 processUpdate();
             }
-
-            @Override
             public void changedUpdate(DocumentEvent e) {
                 processUpdate();
             } 
-            
             private void processUpdate() {
                 fireChange();
             }
-        });
+        };
+        
+        reportNumberTextField.getDocument().addDocumentListener(docListener);
+        exceptionNumberTextField.getDocument().addDocumentListener(docListener);
         
     }
 
