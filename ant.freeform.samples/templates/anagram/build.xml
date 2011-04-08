@@ -20,7 +20,7 @@
         <depend srcdir="${src.dir}" destdir="${classes.dir}" cache="build/depcache">
             <classpath path="${cp}"/>
         </depend>
-        <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.4" debug="${debug}" deprecation="${deprecation}" includeantruntime="false">
             <classpath path="${cp}"/>
         </javac>
         <copy todir="${classes.dir}">
