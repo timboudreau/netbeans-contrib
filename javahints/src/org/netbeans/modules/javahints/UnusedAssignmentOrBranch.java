@@ -87,10 +87,15 @@ public class UnusedAssignmentOrBranch implements CancellableTask<CompilationInfo
         if (doc == null) return ;
 
         FlowResult flow = Flow.assignmentsForUse(info, cancel);
+
+        if (flow == null || cancel.get()) return ;
+        
         final Set<Tree> usedAssignments = new HashSet<Tree>();
 
         for (Iterable<? extends TreePath> i : flow.getAssignmentsForUse().values()) {
             for (TreePath tp : i) {
+                if (tp == null) continue;
+                
                 usedAssignments.add(tp.getLeaf());
             }
         }
