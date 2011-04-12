@@ -47,9 +47,12 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import java.awt.Color;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
@@ -104,13 +107,17 @@ public class UnusedAssignmentOrBranch implements CancellableTask<CompilationInfo
 
         new TreePathScanner<Void, Void>() {
             @Override public Void visitAssignment(AssignmentTree node, Void p) {
-                if (!usedAssignments.contains(node.getExpression())) {
+                Element var = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getVariable()));
+
+                if (var != null && LOCAL_VARIABLES.contains(var.getKind()) && !usedAssignments.contains(node.getExpression())) {
                     unusedValue(node.getExpression());
                 }
                 return super.visitAssignment(node, p);
             }
             @Override public Void visitVariable(VariableTree node, Void p) {
-                if (node.getInitializer() != null && !usedAssignments.contains(node.getInitializer())) {
+                Element var = info.getTrees().getElement(getCurrentPath());
+
+                if (var != null && LOCAL_VARIABLES.contains(var.getKind()) && node.getInitializer() != null && !usedAssignments.contains(node.getInitializer())) {
                     unusedValue(node.getInitializer());
                 }
                 return super.visitVariable(node, p);
@@ -141,6 +148,7 @@ public class UnusedAssignmentOrBranch implements CancellableTask<CompilationInfo
         cancel.set(true);
     }
 
+    private static final Set<ElementKind> LOCAL_VARIABLES = EnumSet.of(ElementKind.EXCEPTION_PARAMETER, ElementKind.LOCAL_VARIABLE, ElementKind.PARAMETER);
     private static final AttributeSet UNUSED_VALUE = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.GRAY, EditorStyleConstants.Tooltip, "The assigned value is never used");
     private static final AttributeSet DEAD_BRANCH = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.GRAY, EditorStyleConstants.Tooltip, "The branch is never used");
     
