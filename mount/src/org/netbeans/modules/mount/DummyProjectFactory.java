@@ -42,6 +42,7 @@
 package org.netbeans.modules.mount;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
@@ -56,7 +57,16 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service=ProjectFactory.class)
 public final class DummyProjectFactory implements ProjectFactory {
 
-    static final FileObject PROJECT_DIR = FileUtil.getConfigFile("org-netbeans-modules-mount-dummy");
+    static final FileObject PROJECT_DIR;
+    static {
+        FileObject d = FileUtil.getConfigFile("org-netbeans-modules-mount-dummy");
+        if (d != null) {
+            PROJECT_DIR = d;
+        } else {
+            Logger.getLogger(DummyProjectFactory.class.getName()).warning("#197748: could not find mount dir in SFS");
+            PROJECT_DIR = FileUtil.createMemoryFileSystem().getRoot();
+        }
+    }
 
     public boolean isProject(FileObject projectDirectory) {
         return projectDirectory == PROJECT_DIR;
