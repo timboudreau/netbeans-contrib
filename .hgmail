@@ -19,7 +19,6 @@ commits@platform.netbeans.org=visual.examples/*,visual.experimental/*,visual.exa
 commits@qa.netbeans.org=a11y/*,a11ychecker/*
 commits@ruby.netbeans.org=gsf.tools/*,languages.haml/*
 commits@serverplugins.netbeans.org=j2ee.oc4j/*,j2ee.sun.avk/*,j2ee.hk2/*,j2ee.sun.ws7/*
-commits@soa.netbeans.org=c.gestalt.netbeans.modules.wsdlextensions.rss/*,c.gestalt.netbeans.modules.wsdlextensions.sip/*,c.gestalt.netbeans.modules.wsdlextensions.uddi/*,c.gestalt.netbeans.modules.wsdlextensions.xmpp/*,wsdlextensions.*/*,javax.mail/*,workflow.editor/*
 commits@utilities.netbeans.org=enode/*,enode.test/*
 commits@utilities.netbeans.org=group/*,loaderswitcher/*
 commits@versioncontrol.netbeans.org=net.java.dev.cvsrootselector/*

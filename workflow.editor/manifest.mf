@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.workflow.editor
-OpenIDE-Module-Layer: org/netbeans/modules/workflow/editor/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/workflow/editor/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
-Name: org/netbeans/modules/workflow/editor/dataloader/WorkflowDataLoader.class
-OpenIDE-Module-Class: Loader
-
