@@ -102,6 +102,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         return t;
     }
 
+    @Override
     public void run() {
         try {
             if (server == null) {
@@ -127,6 +128,9 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
                 default:
                     assert false : "Invalid option";
             }
+            if (action == null) {
+                return;
+            }
             isRunning = (!action.equals(Action.STOP));
             action = null;
         } catch (BindException bi){
@@ -145,6 +149,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         server = new SeleniumServer(conf);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (SeleniumProperties.PORT.equals(evt.getPropertyName())){
             action = Action.RELOAD;
