@@ -39,6 +39,7 @@
 package org.netbeans.modules.contrib.testng.spi;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
@@ -95,9 +96,9 @@ public abstract class TestNGSupportImplementation {
         FileObject ng = cp.findResource("org.testng.annotations.Test"); //NOI18N
         if (ng == null) {
             // add library to the project
-            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-5.11"); //NOI18N
+            Library nglib = LibraryManager.getDefault().getLibrary("TestNG-6.0.1"); //NOI18N
             if (!ProjectClassPathModifier.addLibraries(new Library[]{nglib}, fo, ClassPath.COMPILE)) {
-                LOGGER.fine("TestNG library not added to project " + p); //NOI18N
+                LOGGER.log(Level.FINE, "TestNG library not added to project {0}", p); //NOI18N
                 return false;
             }
         }
