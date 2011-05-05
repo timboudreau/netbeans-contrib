@@ -70,7 +70,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author lukas
  */
-@ServiceProvider(service = TestNGSupportImplementation.class)
+@ServiceProvider(service=TestNGSupportImplementation.class)
 public class AntTestNGSupport extends TestNGSupportImplementation {
 
     private static final Logger LOGGER = Logger.getLogger(AntTestNGSupport.class.getName());
@@ -88,10 +88,12 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
     }
 
+    @Override
     public boolean isActionSupported(Action action, Project p) {
         return p != null && p.getLookup().lookup(AntArtifactProvider.class) != null && SUPPORTED_ACTIONS.contains(action);
     }
 
+    @Override
     public void configureProject(FileObject createdFile) {
         try {
             addLibrary(createdFile);
@@ -104,11 +106,11 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
             String ID = "test-ng-1.0"; //NOI18N
             Extension extension = extender.getExtension(ID);
             if (extension == null) {
-                LOGGER.finer("Extensible targets: " + extender.getExtensibleTargets());
+                LOGGER.log(Level.FINER, "Extensible targets: {0}", extender.getExtensibleTargets());
                 try {
                     // create testng-build.xml
                     FileObject testng = p.getProjectDirectory().getFileObject("nbproject").createData("testng-impl", "xml"); //NOI18N
-                    InputStream is = AntTestNGSupport.class.getResourceAsStream("resources/testng-build.xml"); //NOI18N
+                    InputStream is = AntTestNGSupport.class.getResourceAsStream("testng-build.xml"); //NOI18N
                     FileLock lock = testng.lock();
                     OutputStream os = testng.getOutputStream(lock);
                     try {
@@ -132,6 +134,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         }
     }
 
+    @Override
     public TestExecutor createExecutor(Project p) {
         return new AntExecutor(p);
     }
@@ -145,6 +148,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
             this.p = p;
         }
 
+        @Override
         public boolean hasFailedTests() {
             FileObject projectHome = p.getProjectDirectory();
             //XXX - should rather listen on a fileobject??
@@ -153,6 +157,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
             return failedTestsConfig != null && failedTestsConfig.isValid();
         }
 
+        @Override
         public void execute(Action action, TestConfig config) throws IOException {
             FileObject projectHome = p.getProjectDirectory();
             Properties props = new Properties();
