@@ -49,6 +49,9 @@ import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.netbeans.modules.contrib.testng.spi.TestConfig;
 import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation.TestExecutor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -62,6 +65,9 @@ import org.openide.util.actions.NodeAction;
  *
  * @author lukas
  */
+@ActionID(id = "org.netbeans.modules.contrib.testng.actions.DebugTestClassAction", category = "TestNG")
+@ActionRegistration(displayName = "#CTL_DebugTestClassAction")
+@ActionReference(path = "Editors/text/x-java/Popup/TestNG", position = 600)
 public class DebugTestClassAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger(DebugTestClassAction.class.getName());
