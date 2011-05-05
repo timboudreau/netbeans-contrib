@@ -49,6 +49,10 @@ import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport.Action;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -57,6 +61,11 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
+@ActionID(id = "org.netbeans.modules.contrib.testng.actions.ConvertAction", category = "TestNG")
+@ActionRegistration(displayName = "#CTL_ConvertAction")
+@ActionReferences(value = {
+    @ActionReference(path = "Loaders/text/x-java/Actions", position = 2196),
+    @ActionReference(path = "Editors/text/x-java/Popup/TestNG", position = 700)})
 public final class ConvertAction extends CookieAction {
 
     private static final Logger LOGGER = Logger.getLogger(ConvertAction.class.getName());
