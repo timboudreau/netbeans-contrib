@@ -57,7 +57,7 @@ made subject to such option by the copyright holder.
             <attribute name="testincludes" default="**/*Test.class"/>
             <sequential>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
-                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
                         <pathelement path="${run.test.classpath}"/>
                         <pathelement path="${j2ee.platform.classpath}"/>
@@ -74,15 +74,13 @@ made subject to such option by the copyright holder.
             <attribute name="testSuite" default="${build.dir}/generated/testng/temp-testng-customsuite.xml"/>
             <sequential>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
-                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" sourcedir="${test.src.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
+                <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
                         <pathelement path="${run.test.classpath}"/>
                         <pathelement path="${j2ee.platform.classpath}"/>
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
-                    <xmlfileset dir="${basedir}">
-                        <filename name="@{testSuite}"/>
-                    </xmlfileset>
+                    <xmlfileset file="@{testSuite}"/>
                     <jvmarg line="${run.jvmargs.prop}"/>
                 </testng>
             </sequential>
@@ -287,22 +285,7 @@ made subject to such option by the copyright holder.
         </macrodef>
     </target>
 
-    <target name="-init-macrodef-testng-junit-converter">
-        <macrodef name="junit-converter">
-            <sequential>
-                <java classname="org.testng.JUnitConverter" dir="${basedir}">
-                    <classpath>
-                        <path path="${run.test.classpath}:${java.home}/../lib/tools.jar"/>
-                    </classpath>
-                    <arg line="-overwrite"/>
-                    <arg line="-annotation"/>
-                    <arg line="-srcdir ${test.src.dir}"/>
-                </java>
-            </sequential>
-        </macrodef>
-    </target>
-
-    <target name="-reinit-tasks" depends="-init-env, -init-macrodef-testng, -testng, -testng-junit, -init-macrodef-testng-junit-converter" />
+    <target name="-reinit-tasks" depends="-init-env, -init-macrodef-testng, -testng, -testng-junit" />
 
     <target name="-run-testng-default" unless="testng.config">
         <testng-ant/>
@@ -313,10 +296,6 @@ made subject to such option by the copyright holder.
     </target>
 
     <target name="run-testng" depends="compile-test, -init-macrodef-testng, -run-testng-default, -run-testng-custom"/>
-
-    <target name="convert" depends="init, -init-macrodef-testng-junit-converter">
-        <junit-converter/>
-    </target>
 
     <!-- Call testng from java -->
     <target name="-init-macrodef-testng-java">
