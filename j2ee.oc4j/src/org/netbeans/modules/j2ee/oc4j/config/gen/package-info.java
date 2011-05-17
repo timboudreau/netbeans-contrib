@@ -59,7 +59,6 @@
     @Schema2Beans(
         schema="../../resources/orion-ejb-jar-10_0.xsd",
         schemaType=SchemaType.XML_SCHEMA,
-        mddFile="../../resources/orion-ejb-jar-10_0.mdd",
         outputType=OutputType.TRADITIONAL_BASEBEAN,
         validate=false,
         attrProp=true,
