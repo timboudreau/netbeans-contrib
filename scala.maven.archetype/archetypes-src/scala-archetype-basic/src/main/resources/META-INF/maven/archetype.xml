@@ -1,9 +1,0 @@
-<archetype>
-  <id>scala-archetype-basic</id>
-  <sources>
-    <source>src/main/scala/App.scala</source>
-  </sources>
-  <testSources>
-    <source>src/test/scala/AppTest.scala</source>
-  </testSources>
-</archetype>

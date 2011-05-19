@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: false
-OpenIDE-Module: org.netbeans.modules.scala.stdplatform
-OpenIDE-Module-Layer: org/netbeans/modules/scala/stdplatform/resources/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/stdplatform/Bundle.properties
-OpenIDE-Module-Install: org/netbeans/modules/scala/stdplatform/J2SEPlatformModule.class
-OpenIDE-Module-Specification-Version: 0.12
-
