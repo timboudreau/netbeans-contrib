@@ -50,7 +50,6 @@ import javax.swing.text.JTextComponent;
 import org.netbeans.editor.AnnotationDesc;
 import org.netbeans.editor.Annotations;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.Coloring;
 import org.netbeans.modules.editor.errorstripe.AnnotationViewFactory;
 import org.netbeans.modules.fisheye.FiMark;
 import org.netbeans.modules.fisheye.FisheyeHandler;
@@ -77,7 +76,7 @@ public class FisheyeAnnotationViewFactory extends AnnotationViewFactory {
 
         private FisheyeTrigger trig;
 
-        public int viewToModel(int yCoord, JComponent trigger) {
+        public Integer viewToModel(int yCoord, JComponent trigger) {
             return trig.getLocusElement();
         }
 

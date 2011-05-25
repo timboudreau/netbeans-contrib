@@ -183,41 +183,24 @@ final class FishEyeTextView extends JComponent implements DocumentListener {
         return seg;
     }
     
-    public int getLocusElement (double total, double height) {
+    public Integer getLocusElement (double total, double height) {
+        if (locus == null) {
+            return null;
+        }
         double factor = (double) locus.y / height;
         return (int) (total * factor);
     }
-//
-//    private int fontSize (double element, double locusElement, double count) {
-//        double distToLocusInLines = Math.abs (locusElement - element);
-//        double factor = distToLocusInLines / count;
-//        double sz = ((double) fonts.length * factor);
-//        int result = fonts.length - Math.min (fonts.length - 1, Math.max (1, (int) sz));
-//        return result;
-//    }
-//
-//    private Dimension d = new Dimension();
-//    private void bounds (Dimension d, Element el, FontWrapper f) {
-//        int len = el.getStartOffset() - el.getEndOffset();
-//        d.width = f.charw * len;
-//        d.height = f.h;
-//    }
-//
-//    private int maxFontSize (Rectangle bounds, int length) {
-//        for (int i = fonts.length-1; i >= 0; i--) {
-//            if (fonts[i].charw * length < bounds.width) {
-//                return i;
-//            }
-//        }
-//        return 0;
-//    }
     
-    public int getLocusElement() {
+    public Integer getLocusElement() {
         Element root = document.getDefaultRootElement();
         int ct = root.getElementCount();
         Insets ins = getInsets();
         int h = getHeight() - (ins.top + ins.bottom) ;
-        int locusElement = Math.max(0, Math.min (ct-1, getLocusElement(ct, h)));
+        Integer locus = getLocusElement(ct, h);
+        if (locus == null) {
+            return null;
+        }
+        int locusElement = Math.max(0, Math.min (ct-1, locus));
         return locusElement;
     }
     
@@ -550,7 +533,6 @@ final class FishEyeTextView extends JComponent implements DocumentListener {
                 continue;
             }
             if (firstNonWhitespace > 0) {
-                char[] c = s.toCharArray();
                 s = s.substring(firstNonWhitespace);
             }
             result.add (s);

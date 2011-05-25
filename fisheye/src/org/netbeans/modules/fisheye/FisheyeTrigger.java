@@ -94,7 +94,7 @@ public class FisheyeTrigger {
         triggerComponent.addMouseListener (triggerListener);
     }
 
-    public int getLocusElement() {
+    public Integer getLocusElement() {
         return view.getLocusElement();
     }
 
@@ -132,10 +132,19 @@ public class FisheyeTrigger {
         public void mouseReleased(MouseEvent e) {
             boolean releasedInBar = triggerComponent.contains(e.getPoint());
             triggerComponent.removeMouseMotionListener(this);
+            Container c = triggerComponent.getTopLevelAncestor();
+            if (c instanceof Frame) {
+                ((Frame) c).removeWindowListener(this);
+            } else if (c instanceof Dialog) {
+                ((Dialog) c).removeWindowListener(this);
+            }
             if (releasedInBar) {
                 JTextComponent jc = textComponent.get();
                 if (jc != null) {
-                    int line = handler.viewToModel(e.getY(), triggerComponent);
+                    Integer line = handler.viewToModel(e.getY(), triggerComponent);
+                    if (line == null) {
+                        return;
+                    }
                     if (line >= 0 && line < jc.getDocument().getDefaultRootElement().getElementCount()) {
                         Element el = jc.getDocument().getDefaultRootElement().getElement(line);
                         int start = el.getStartOffset();
@@ -155,12 +164,6 @@ public class FisheyeTrigger {
                 }
             } else {
                 System.err.println("not released in bar");
-            }
-            Container c = triggerComponent.getTopLevelAncestor();
-            if (c instanceof Frame) {
-                ((Frame) c).removeWindowListener(this);
-            } else if (c instanceof Dialog) {
-                ((Dialog) c).removeWindowListener(this);
             }
             setDragging (false);
         }
