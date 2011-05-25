@@ -53,7 +53,7 @@ public interface FisheyeHandler {
      * @return the line number in the document corresponding to
      *  yCoord on the component's surface's vertical axis.
      */
-    int viewToModel(int yCoord, JComponent trigger);
+    Integer viewToModel(int yCoord, JComponent trigger);
 
     List<FiMark> getMarks(Document doc);
 }
