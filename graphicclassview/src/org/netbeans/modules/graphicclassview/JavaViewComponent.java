@@ -60,6 +60,7 @@ public class JavaViewComponent extends TopComponent {
         };
         DefaultComboBoxModel mdl = new DefaultComboBoxModel(LayoutKinds.values());
         final JComboBox layoutBox = new JComboBox(mdl);
+        layoutBox.setEnabled(false); //#171770 - temporarily disable until a reasonably performant layout can be had
         result.setFloatable(false);
         final JButton refresh = new JButton(new ImageIcon(Utilities.loadImage("org/netbeans/modules/graphicclassview/resources/refresh.png")));
         refresh.setToolTipText(getString("BTN_REFRESH"));
