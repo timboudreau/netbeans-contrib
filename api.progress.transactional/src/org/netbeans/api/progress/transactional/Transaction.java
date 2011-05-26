@@ -413,9 +413,10 @@ public abstract class Transaction<ArgType,ResultType> {
      * if the return values of both transactions are null, the return value
      * of the parallel transaction will be null.
      *
-     * @param <A> The result type of transaction a
-     * @param <B> The result type of transaction b
-     * @param name The name of the containing transaction
+     * @param <AArgType> The argument type of transaction a
+     * @param <BArgType> The argument type of transaction b
+     * @param <AResultType> The result type of transaction a
+     * @param <BResultType> The result type of transaction b
      * @param a A transaction which takes an argument of AArgType and returns AResultType
      * @param b A transaction which takes an argument of BArgType, and return BResultType
      * @return A transaction which will run both of these transactions in parallel
