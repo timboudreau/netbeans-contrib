@@ -36,12 +36,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.UIManager;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -50,12 +53,16 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 
 final class Kids extends Children.Keys implements Runnable, Comparator, FileChangeListener, PropertyChangeListener {
     private final String projPath;
     private final File dir;
+    //XXX 90% of this code could be deleted by using ChildFactory;  however,
+    //the code which scans for titles (and cancels scanning under certain
+    //circumstances) might complicate it a bit.
     Kids(HtmlProject proj, File file) {
         this.proj = proj;
         if (file == null) {
@@ -70,7 +77,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
 
     RequestProcessor.Task post(Runnable run) {
         synchronized (this) {
-            System.err.println("post " + run);
             return rp.post (run);
         }
     }
@@ -87,8 +93,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
 
     private void dequeueAll() {
         synchronized (this) {
-            System.err.println("DQ ALL");
-            
             //We can have a huge number of HtmlNodes waiting to scan files for 
             //their html titles.  Rather than try to find them and cancel
             //all their runnables, just stop the RP they're queued on
@@ -114,8 +118,7 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
 
     private RequestProcessor.Task task;
     public void addNotify() {
-        System.err.println("AddNotify");
-        setKeys (new String[]{ "Finding files..."});
+        setKeys (new String[]{ NbBundle.getMessage(Kids.class, "WAIT_NODE")}); //NOI18N
         showing = true;
         launch();
         proj.getProjectDirectory().addFileChangeListener(this);
@@ -141,7 +144,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
         dequeueAll();
         proj.getProjectDirectory().removeFileChangeListener(this);
         OpenProjects.getDefault().removePropertyChangeListener(this);
-        System.err.println("KIDS CLOSED");
     }
     
     private void finished() {
@@ -152,7 +154,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
 
     public void removeNotify() {
         showing = false;
-        System.err.println("REMOVE NOTIFY");
         closed();
     }
     
@@ -182,7 +183,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
             result.setDisplayName(o.toString());
         }  else if (o instanceof File) {
                 File f = (File) o;
-                String ext = FileProcessor.getExt (f).toUpperCase(Locale.ENGLISH);
                 boolean isHtml = isHtml (f);
                 boolean usable = isUsable (f);
                 if (!sortByFolder) {
@@ -190,10 +190,20 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
                         result = new HtmlFileNode(f, projPath, proj.getProjectDirectory(), this);
                     }  else                        if (usable) {
                             try {
-                                result = new FilterNode(DataObject.find(
-                                    FileUtil.toFileObject(f)).getNodeDelegate());
+                                FileObject fo = FileUtil.toFileObject(f);
+                                DataObject dob = fo == null ? null : 
+                                        DataObject.find(FileUtil.toFileObject(f));
+                                if (dob == null) {
+                                    Logger.getLogger(Kids.class.getName()).log (
+                                            Level.INFO, "{0} disappeared but " + 
+                                            " a key was created for it.", f);
+                                } else {
+                                    result = new FilterNode(
+                                            dob.getNodeDelegate());
+                                }
                             }  catch (DataObjectNotFoundException ex) {
-                                ErrorManager.getDefault().notify(ex);
+                                    Logger.getLogger(Kids.class.getName()).log (
+                                            Level.WARNING, "" + f, ex);
                             }
                         }
                 }  else {
@@ -239,7 +249,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
         more.removeAll (keys);
         keys.addAll (more);
         Collections.sort(keys, this);
-        System.err.println("BATCH ADD " + more.size() + " files ");
         Thread.currentThread().yield();
         setKeys (keys);
     }
@@ -305,15 +314,12 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
     }
 
     public void fileFolderCreated(FileEvent fileEvent) {
-        System.err.println("FOLDER CREATED "  + fileEvent.getFile().getPath());
         fileEvent.getFile().addFileChangeListener(this);
         upd (false);
     }
 
     public void fileDataCreated(FileEvent e) {
-        System.err.println("DATA CREATED " + e.getFile().getPath());
         if (showing) {
-            System.err.println("Adding to keys");
             keys.add(FileUtil.toFile(e.getFile()));
             setKeys (keys);
         }
@@ -337,7 +343,6 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
     }
 
     public void fileChanged(FileEvent e) {
-        System.err.println("FILE CHANGED " + e.getFile().getPath());
         File f = FileUtil.toFile (e.getFile());
         String nm = snipPath (f, projPath);
         
@@ -346,13 +351,10 @@ final class Kids extends Children.Keys implements Runnable, Comparator, FileChan
             synchronized (this) {
                 task = post (this);
             }
-        }  else {
-            System.err.println("CANNOT FIND CHILD NODE NAMED " + nm);
         }
     }
 
     public void fileDeleted(FileEvent fileEvent) {
-        System.err.println("File DELETED " + fileEvent.getFile().getPath());
         File f = FileUtil.toFile (fileEvent.getFile());
         String nm = snipPath (f, projPath);
         try {
