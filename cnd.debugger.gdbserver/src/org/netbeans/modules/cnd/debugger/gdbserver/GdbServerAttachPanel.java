@@ -49,13 +49,16 @@
 package org.netbeans.modules.cnd.debugger.gdbserver;
 
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
 import org.netbeans.modules.cnd.debugger.common2.debugger.DebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
+import org.netbeans.modules.cnd.debugger.common2.debugger.remote.CndRemote;
 import org.netbeans.modules.cnd.debugger.gdb2.GdbDebuggerInfo;
 import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupport;
 import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration;
+import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.spi.debugger.ui.Controller;
 import org.openide.util.NbPreferences;
 
@@ -175,13 +178,17 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
             if (pi != null) {
                 MakeConfiguration conf = ConfigurationSupport.getProjectActiveConfiguration(pi.getProject()).clone();
                 DebugTarget dt = new DebugTarget(conf);
+                
+                // set executable
                 String path = conf.getAbsoluteOutputValue().replace("\\", "/"); // NOI18N
+                ExecutionEnvironment exEnv = conf.getDevelopmentHost().getExecutionEnvironment();
+                path = RemoteSyncSupport.getPathMap(exEnv, pi.getProject()).getRemotePath(path, true);
                 dt.setExecutable(path);
 
                 // always use gdb
                 GdbDebuggerInfo gdi = GdbDebuggerInfo.create();
                 gdi.setDebugTarget(dt);
-                gdi.setHostName("localhost"); //NOI18N
+                gdi.setHostName(CndRemote.userhostFromConfiguration(conf));
                 gdi.setConfiguration(conf);
                 gdi.setAction(DebuggerManager.ATTACH);
                 gdi.setRemoteTarget(hostValue + ':' + portValue);
