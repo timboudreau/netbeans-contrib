@@ -41,18 +41,34 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.nodejs.libraries.LibrariesPanel;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.actions.FindAction;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
@@ -62,16 +78,19 @@ import org.openide.util.lookup.Lookups;
  */
 public class ProjectRootNode extends AbstractNode {
 
+    private final NodeJSProject project;
+
     ProjectRootNode(NodeJSProject project) {
         super(NodeFactorySupport.createCompositeChildren(project,
                 "Project/NodeJS/Nodes"),
                 Lookups.singleton(project));
+        this.project = project;
         setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/logo.png");
         super.setName(ProjectUtils.getInformation(project).getDisplayName());
     }
 
     public Action[] getActions(boolean ignored) {
-        ResourceBundle bundle =
+        final ResourceBundle bundle =
                 NbBundle.getBundle(ProjectRootNode.class);
 
         List<Action> actions = new ArrayList<Action>();
@@ -83,9 +102,67 @@ public class ProjectRootNode extends AbstractNode {
                 bundle.getString("LBL_RunAction_Name"), null)); // NOI18N
         actions.add(null);
         actions.add(CommonProjectActions.setAsMainProjectAction());
+        actions.add(null);
         actions.add(ProjectSensitiveActions.projectCommandAction(
                 NodeJSProject.MAIN_FILE_COMMAND,
                 bundle.getString("LBL_ChooseMainFile_Name"), null)); // NOI18N
+        actions.add(null);
+//        actions.add(ProjectSensitiveActions.projectCommandAction(
+//                NodeJSProject.LIBRARIES_COMMAND,
+//                bundle.getString("LBL_AddLibrary_Name"), null));
+        actions.add(new AbstractAction() {
+
+            {
+                putValue(NAME, bundle.getString("LBL_AddLibrary_Name"));
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LibrariesPanel pn = new LibrariesPanel(project);
+                DialogDescriptor dd = new DialogDescriptor(pn, NbBundle.getMessage(NodeJSProject.class, "SEARCH_FOR_LIBRARIES"));
+                if (DialogDisplayer.getDefault().notify(dd).equals(DialogDescriptor.OK_OPTION)) {
+                    final Set<String> libraries = new HashSet<String>(pn.getLibraries());
+                    if (libraries.size() > 0) {
+                        RequestProcessor.getDefault().post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                List<Process> p = new ArrayList<Process>();
+                                try {
+                                    for (String lib : libraries) {
+                                        ProcessBuilder pb = new ProcessBuilder("npm", "install", lib);
+                                        pb.directory(FileUtil.toFile(project.getProjectDirectory()));
+                                        try {
+                                            Process proc = pb.start();
+                                            p.add(proc);
+                                        } catch (IOException ex) {
+                                            Exceptions.printStackTrace(ex);
+                                        }
+                                    }
+                                    for (Process proc : p) {
+                                        try {
+                                            proc.waitFor();
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(ProjectRootNode.class.getName()).log(Level.INFO, null, ex);
+                                        }
+                                    }
+                                } finally {
+                                    project.getProjectDirectory().refresh();
+                                    FileObject fo = project.getProjectDirectory().getFileObject("node_modules");
+                                    if (fo != null) {
+                                        fo.refresh();
+                                    }
+                                }
+                                System.out.println("All npm processes exited, rebuilding children from scratch");
+                                Children ch = NodeFactorySupport.createCompositeChildren(project, "Project/NodeJS/Nodes");
+                                setChildren(ch);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        actions.add(null);
         actions.add(CommonProjectActions.closeProjectAction());
         actions.add(null);
         actions.add(CommonProjectActions.renameProjectAction());

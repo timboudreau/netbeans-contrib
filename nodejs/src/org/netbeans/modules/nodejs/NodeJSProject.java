@@ -43,7 +43,6 @@ package org.netbeans.modules.nodejs;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -53,9 +52,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.logging.Logger;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import org.netbeans.api.project.Project;
@@ -64,6 +61,7 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.validation.adapters.DialogBuilder;
 import org.netbeans.api.validation.adapters.DialogBuilder.DialogType;
+import org.netbeans.modules.nodejs.libraries.LibrariesPanel;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ProjectConfiguration;
 import org.netbeans.spi.project.ProjectState;
@@ -76,6 +74,8 @@ import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.ui.ValidationGroup;
 import org.netbeans.validation.api.ui.ValidationListener;
 import org.netbeans.validation.api.ui.ValidationPanel;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.explorer.ExplorerManager;
@@ -110,6 +110,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     private final ProjectState state;
     static final String MAIN_FILE_COMMAND = "set_main_file"; //NOI18N
     static final String PROPERTIES_COMMAND = "project_properties"; //NOI18N
+    static final String LIBRARIES_COMMAND = "libs";
     static final String CLOSE_COMMAND = "close"; //NOI18N
     static final Logger LOGGER = Logger.getLogger(NodeJSProject.class.getName());
     private final ProjectMetadataImpl metadata = new ProjectMetadataImpl(this);
@@ -121,13 +122,6 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     NodeJSProject(FileObject dir, ProjectState state) {
         this.dir = dir;
         this.state = state;
-//        metadata.addPropertyChangeListener(new PropertyChangeListener() {
-//
-//            @Override
-//            public void propertyChange(PropertyChangeEvent evt) {
-//                supp.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-//            }
-//        });
     }
 
     ProjectState state() {
@@ -199,6 +193,10 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         } else if (PROPERTIES_COMMAND.equals(string)) {
         } else if (CLOSE_COMMAND.equals(string)) {
             OpenProjects.getDefault().close(new Project[]{this});
+        } else if (LIBRARIES_COMMAND.equals(string)) {
+            LibrariesPanel pn = new LibrariesPanel(this);
+            DialogDescriptor dd = new DialogDescriptor(pn, NbBundle.getMessage(NodeJSProject.class, "SEARCH_FOR_LIBRARIES"));
+            DialogDisplayer.getDefault().notify(dd);
         } else {
             throw new UnsupportedOperationException(string);
         }
@@ -208,6 +206,9 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     public boolean isActionEnabled(String string, Lookup lkp) throws IllegalArgumentException {
         if (COMMAND_RUN.equals(string)) {
             return getLookup().lookup(NodeJSProjectProperties.class).getMainFile() != null;
+        }
+        if (LIBRARIES_COMMAND.equals(string)) {
+            return true;
         }
         return true;
     }
