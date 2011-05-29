@@ -9,6 +9,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.nodejs.DefaultExectable;
+import org.netbeans.modules.nodejs.options.NodePanel;
+import org.netbeans.modules.projecttemplates.FileCreator;
 import org.netbeans.modules.projecttemplates.GeneratedProject;
 import org.netbeans.modules.projecttemplates.ProjectCreator;
 import org.netbeans.spi.project.ui.templates.support.Templates;
@@ -56,12 +58,23 @@ public class ProjectWizardIterator implements WizardDescriptor.ProgressInstantia
         Map<String, String> templateProperties = NbCollections.checkedMapByFilter(wiz.getProperties(), String.class, String.class, false);
         templateProperties.put(ProjectWizardKeys.WIZARD_PROP_PORT, new DefaultExectable().getDefaultPort() + "");
         templateProperties.put("project.license", panel.getLicense());
+        templateProperties.put("license", panel.getLicense() == null ? "none" : panel.getLicense());
+        templateProperties.put("author", NodePanel.getAuthor());
+        templateProperties.put("email", NodePanel.getEmail());
+        templateProperties.put("login", NodePanel.getLogin());
+        if (Boolean.TRUE.equals(wiz.getProperty(ProjectWizardKeys.WIZARD_PROP_GENERATE_PACKAGE_JSON))) {
+            FileObject packageTemplate = FileUtil.getConfigFile("Templates/javascript/package.json"); //NOI18N
+            if (packageTemplate != null) {
+                gen.add(null, "package.json", packageTemplate, false); //NOI18N
+            }
+        }
+        
         GeneratedProject proj = gen.createProject(h, name, template, templateProperties);
         results.add(proj.projectDir);
         results.addAll(proj.filesToOpen);
         return results;
     }
-
+    
     @Override
     public Set instantiate() throws IOException {
         throw new AssertionError("instantiate(ProgressHandle) " //NOI18N

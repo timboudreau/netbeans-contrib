@@ -103,8 +103,9 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         searchField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         inner = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        instructionsLabel = new javax.swing.JLabel();
+        linkLabel = new javax.swing.JLabel();
+        progress = new javax.swing.JProgressBar();
 
         statusLabel.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.statusLabel.text")); // NOI18N
 
@@ -115,12 +116,12 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         inner.setLayout(new javax.swing.BoxLayout(inner, javax.swing.BoxLayout.Y_AXIS));
         jScrollPane1.setViewportView(inner);
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.jLabel1.text")); // NOI18N
+        instructionsLabel.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.instructionsLabel.text")); // NOI18N
 
-        jLabel2.setForeground(java.awt.Color.blue);
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.jLabel2.text")); // NOI18N
-        jLabel2.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.blue));
-        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+        linkLabel.setForeground(java.awt.Color.blue);
+        linkLabel.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.linkLabel.text")); // NOI18N
+        linkLabel.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.blue));
+        linkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 showNpmDownloadInstructions(evt);
             }
@@ -130,19 +131,22 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(instructionsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2))
-                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(linkLabel))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(searchLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, 734, Short.MAX_VALUE)))
+                        .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, 734, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 632, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -150,17 +154,19 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(instructionsLabel)
+                    .addComponent(linkLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(searchLabel)
                     .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusLabel)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusLabel))
+                .addGap(14, 14, 14))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -174,9 +180,10 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel inner;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel instructionsLabel;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel linkLabel;
+    private javax.swing.JProgressBar progress;
     private javax.swing.JTextField searchField;
     private javax.swing.JLabel searchLabel;
     private javax.swing.JLabel statusLabel;
@@ -209,7 +216,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         if (txt[0].trim().equals("")) {
             return;
         }
-        ProcessBuilder pb = new ProcessBuilder("npm", "search", txt[0]);
+        ProcessBuilder pb = new ProcessBuilder("npm", "search", txt[0]); //NOI18N
         try {
             Process p = pb.start();
             synchronized (lock) {
@@ -253,7 +260,22 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
     private class OutProcessor implements Runnable {
 
         @Override
+        @SuppressWarnings("CallToThreadYield")
         public void run() {
+            //How this all works:
+            //Any edit to the search text schedules the LibrariesPanel runnable
+            //on a background thread.  That thread will start an external npm
+            //process and notify this thread that there is something to do.
+            //
+            //This thread loops continuously and grabs whatever process
+            //InputStream is available, and processes output line-by-line,
+            //publishing to the event thread whenever a line is complleted,
+            //until there is no more output or the process it has been slurping
+            //data from is destroyed, at which point it goes back to 
+            //lock.wait() until it is given something to do again.
+            //
+            //Hiding the UI will destroy any running processes and cause
+            //both background threads to exit.
             synchronized (lock) {
                 outProcessorThread = Thread.currentThread();
             }
@@ -286,8 +308,9 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                                     }
                                 }
                                 char c = (char) val;
-                                if (c == '\n') {
+                                if (c == '\n') { //NOI18N
                                     publish(sb);
+                                    Thread.yield();
                                     if (Thread.interrupted()) {
                                         try {
                                             in.close();
@@ -312,7 +335,11 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                                             return;
                                         }
                                     }
-                                    statusLabel.setText(NbBundle.getMessage(LibrariesPanel.class, "SEARCH_DONE", inner.getComponentCount()));
+                                    statusLabel.setText(NbBundle.getMessage(
+                                            LibrariesPanel.class, "SEARCH_DONE", 
+                                            inner.getComponentCount())); //NOI18N
+                                    progress.setIndeterminate(false);
+                                    progress.setVisible(false);
                                 }
                             });
                         }
@@ -333,7 +360,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         }
     }
     private static final Pattern p = Pattern.compile(
-            "(\\S+)\\s+(.*)=(\\S+)");
+            "(\\S+)\\s+(.*)=(\\S+)"); //NOI18N
 
     private void publish(CharSequence seq) {
         final Matcher m = p.matcher(seq);
@@ -357,6 +384,8 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                     inner.invalidate();
                     inner.revalidate();
                     inner.repaint();
+                    statusLabel.setText(NbBundle.getMessage(LibrariesPanel.class, 
+                            "SEARCH_PROGRESS", inner.getComponentCount())); //NOI18N
                 }
             });
         }
@@ -374,11 +403,12 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                 inner.remove(c);
             }
         }
-//        inner.removeAll();
         inner.invalidate();
         inner.revalidate();
         inner.repaint();
         statusLabel.setText(NbBundle.getMessage(LibrariesPanel.class, "SEARCHING"));
+        progress.setIndeterminate(true);
+        progress.setVisible(true);
         task.schedule(750);
     }
 

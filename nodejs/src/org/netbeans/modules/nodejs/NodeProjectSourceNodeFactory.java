@@ -41,15 +41,33 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.nodejs.NodeProjectSourceNodeFactory.Key;
 import org.netbeans.modules.nodejs.NodeProjectSourceNodeFactory.KeyTypes;
+import org.netbeans.modules.nodejs.json.SimpleJSONParser;
+import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
+import org.openide.awt.HtmlBrowser.URLDisplayer;
+import org.openide.cookies.EditCookie;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -64,6 +82,8 @@ import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -243,16 +263,147 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
     private static final class LibraryFilterNode extends FilterNode {
 
         private final Key key;
+        private static RequestProcessor jsonReader = new RequestProcessor("Node lib json loader", 1);
 
         public LibraryFilterNode(Key key) {
             this(nodeFromKey(key), key);
         }
 
-        private LibraryFilterNode(Node original, Key key) {
+        private LibraryFilterNode(Node original, final Key key) {
             super(nodeFromKey(key), Children.create(new LibraryNodeChildren(original.getLookup().lookup(DataObject.class)), true));
             assert key.type == KeyTypes.LIBRARY;
             this.key = key;
+            jsonReader.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    Map<String, Object> json = getPackageInfo();
+                    synchronized (key) {
+                        LibraryFilterNode.this.name = getString(json, "name", getDisplayName());
+                        LibraryFilterNode.this.description = getString(json, "description", "[no description]");
+                        LibraryFilterNode.this.author = getString(json, "author", null);
+                        LibraryFilterNode.this.version = getString(json, "version", null);
+                    }
+                    Object license = json.get("license");
+                    List<String> l = new ArrayList<String>();
+                    if (license == null) {
+                        license = json.get("licenses");
+                    }
+                    if (license instanceof String) {
+                        l.add(license.toString());
+                    }
+                    if (license instanceof List) {
+                        for (Object o : (List<?>) license) {
+                            if (o instanceof String) {
+                                l.add(o.toString());
+                            } else if (o instanceof Map) {
+                                Map<?, ?> m = (Map<?, ?>) o;
+                                Object val = m.get("type");
+                                if (val != null) {
+                                    l.add(val.toString());
+                                }
+                            }
+                        }
+                    }
+                    if (license instanceof Map) {
+                        Map<?, ?> m = (Map<?, ?>) license;
+                        Object val = m.get("type");
+                        if (val != null) {
+                            l.add(val.toString());
+                        }
+                    }
+                    Object repo = json.get("repository");
+                    if (repo instanceof String) {
+                        synchronized (key) {
+                            LibraryFilterNode.this.repo = repo.toString();
+                            LibraryFilterNode.this.repoType = "[unknown]";
+                        }
+                    }
+                    if (repo instanceof Map) {
+                        Map<?, ?> m = (Map<?, ?>) repo;
+                        Object rType = m.get("type");
+                        if (rType instanceof String) {
+                            synchronized (key) {
+                                LibraryFilterNode.this.repoType = rType.toString();
+                            }
+                        }
+                        Object r = m.get("url");
+                        if (r instanceof String) {
+                            synchronized (key) {
+                                LibraryFilterNode.this.repo = r.toString();
+                            }
+                        }
+                    }
+                    if (author == null) {
+                        Object a = json.get("author");
+                        if (a instanceof Map) {
+                            StringBuilder sb = new StringBuilder();
+                            Object nm = ((Map) a).get("name");
+                            if (nm != null) {
+                                sb.append(nm);
+                            }
+                            nm = ((Map) a).get("email");
+                            if (nm != null) {
+                                sb.append(" <").append(nm).append(">");
+                            }
+                            synchronized (key) {
+                                LibraryFilterNode.this.author = sb.toString();
+                            }
+                        } else if (a instanceof List) {
+                            StringBuilder sb = new StringBuilder();
+                            List<?> list = (List<?>) a;
+                            for (Iterator<?> it = list.iterator(); it.hasNext();) {
+                                Object o = it.next();
+                                if (o instanceof String) {
+                                    sb.append(o);
+                                    if (it.hasNext()) {
+                                        sb.append(", ");
+                                    }
+                                } else if (o instanceof Map) {
+                                    Object nm = ((Map) o).get("name");
+                                    if (nm != null) {
+                                        sb.append(nm);
+                                    }
+                                    nm = ((Map) o).get("email");
+                                    if (nm != null) {
+                                        sb.append(" <").append(nm).append(">");
+                                    }
+                                }
+                            }
+                            synchronized (key) {
+                                LibraryFilterNode.this.author = sb.toString();
+                            }
+                        }
+                    }
+                    Object o = json.get("bugs");
+                    if (o instanceof String) {
+                        synchronized (key) {
+                            LibraryFilterNode.this.bugUrl = o.toString();
+                        }
+                    } else if (o instanceof Map) {
+                        Map<?, ?> m = (Map<?, ?>) o;
+                        Object web = m.get("web");
+                        if (web instanceof String) {
+                            synchronized (key) {
+                                LibraryFilterNode.this.bugUrl = web.toString();
+                            }
+
+                        }
+                    }
+                    synchronized (key) {
+                        LibraryFilterNode.this.licenses = l.toArray(new String[l.size()]);
+                    }
+                }
+            });
         }
+        private String version;
+        private String author;
+        private String name;
+        private String description;
+        private String[] licenses;
+        private String repoType;
+        private String repo;
+        private String bugUrl;
 
         @Override
         public Image getIcon(int type) {
@@ -270,8 +421,174 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
 
         @Override
         public String getHtmlDisplayName() {
-            return key.direct ? super.getHtmlDisplayName()
-                    : "<font color='!controlShadow'>" + super.getDisplayName() + " (&lt;-" + key.fld.getParent().getParent().getName() + ")";
+            StringBuilder sb = new StringBuilder();
+            if (!key.direct) {
+                sb.append("<font color='!controlShadow'>");
+            }
+            sb.append(getDisplayName());
+            if (version != null) {
+                sb.append(" <i><font color='#9999AA'> ").append(version).append("</i>");
+                if (!key.direct) {
+                    sb.append("<font color='!controlShadow'>");
+                }
+            }
+            if (!key.direct) {
+                sb.append(" (&lt;-").append(key.fld.getParent().getParent().getName()).append(")");
+            }
+            return sb.toString();
+        }
+
+        @Override
+        public String getShortDescription() {
+            if (this.description != null || this.name != null) {
+                StringBuilder sb = new StringBuilder("<html><body>");
+                synchronized (key) {
+                    sb.append("<b><u>").append(name == null ? getDisplayName() : name).append("</u></b><br>\n");
+                    sb.append("<table border=0>");
+                    if (description != null) {
+                        sb.append("<tr><th align=\"left\">").append("Description").append("</th><td>").append(description).append("</td></tr>\n");
+                    }
+                    if (version != null) {
+                        sb.append("<tr><th align=\"left\">").append("Version").append("</th><td>").append(version).append("</td></tr>\n");
+                    }
+                    if (author != null) {
+                        sb.append("<tr><th align=\"left\">").append(author.indexOf(',') > 0 ? "Authors"
+                                : "Author").append("</th><td>").append(author).append("</td></tr>\n");
+                    }
+                    if (licenses != null && licenses.length > 0) {
+                        sb.append("<tr><th align=\"left\">");
+                        sb.append(licenses.length > 0 ? "Licenses" : "License");
+                        sb.append("</th><td>");
+                        for (int i = 0; i < licenses.length; i++) {
+                            sb.append(licenses[i]);
+                            if (i != licenses.length - 1) {
+                                sb.append(", ");
+                            }
+                        }
+                        sb.append("</td></tr>");
+                    }
+                    if (repo != null) {
+                        sb.append("<tr><th align=\"left\">");
+                        sb.append("Repository");
+                        if (repoType != null) {
+                            sb.append('(').append(repoType).append(')');
+                        }
+                        sb.append("</th><td>");
+                        sb.append(repo);
+                        sb.append("</td></tr>");
+                    }
+                    if (bugUrl != null) {
+                        sb.append("<tr><th align=\"left\">");
+                        sb.append("Bugs:");
+                        sb.append("</th><td>");
+                        sb.append(bugUrl);
+                        sb.append("</td></tr>");
+                    }
+                    sb.append("</table>");
+                }
+                return sb.toString();
+            }
+            return super.getShortDescription();
+        }
+
+        private String getString(Map<String, Object> m, String key, String def) {
+            Object o = m.get(key);
+            if (o instanceof String) {
+                return ((String) o);
+            }
+            if (o instanceof List) {
+                StringBuilder sb = new StringBuilder();
+                for (Iterator<?> it = ((List<?>) o).iterator(); it.hasNext();) {
+                    sb.append(it.next());
+                    if (it.hasNext()) {
+                        sb.append(',');
+                    }
+                }
+                return sb.toString();
+            }
+            return def;
+        }
+
+        public Action[] getActions(boolean ignored) {
+            Action[] result = super.getActions();
+            List<Action> l = new ArrayList<Action>(Arrays.asList(result));
+            if (bugUrl != null) {
+                try {
+                    URL url = new URL(bugUrl);
+                    l.add(0, new BugAction(url));
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(NodeProjectSourceNodeFactory.class.getName()).log(Level.INFO,
+                            "Bad bug URL in " + getLookup().lookup(DataObject.class).getPrimaryFile().getPath() + ":" + bugUrl, ex);
+                }
+            }
+            FileObject packageInfo = getLookup().lookup(DataObject.class).getPrimaryFile().getFileObject("package.json"); //NOI18N
+            if (packageInfo != null) {
+                l.add (0, new OpenInfoAction(packageInfo));
+            }
+            if (l.size() != result.length) {
+                result = l.toArray(new Action[l.size()]);
+            }
+            return result;
+        }
+
+        private static final class OpenInfoAction extends AbstractAction {
+
+            private final FileObject fo;
+
+            OpenInfoAction(FileObject fo) {
+                this.fo = fo;
+                putValue(NAME, NbBundle.getMessage(OpenInfoAction.class, "OPEN_INFO_ACTION"));
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    DataObject dob = DataObject.find(fo);
+                    OpenCookie oc = dob.getLookup().lookup(OpenCookie.class);
+                    if (oc == null) {
+                        EditCookie ek = dob.getLookup().lookup(EditCookie.class);
+                        if (ek != null) {
+                            ek.edit();
+                        }
+                    } else {
+                        oc.open();
+                    }
+                } catch (DataObjectNotFoundException ex) {
+                    //do nothing
+                }
+
+            }
+        }
+
+        private static class BugAction extends AbstractAction {
+
+            private final URL url;
+
+            BugAction(URL url) {
+                putValue(NAME, NbBundle.getMessage(BugAction.class, "FILE_BUG"));
+                this.url = url;
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                URLDisplayer.getDefault().showURL(url);
+            }
+        }
+
+        private Map<String, Object> getPackageInfo() {
+            assert !EventQueue.isDispatchThread();
+            FileObject json = getLookup().lookup(DataObject.class).getPrimaryFile().getFileObject("package.json");
+            if (json != null) {
+                try {
+                    Map<String, Object> m = new SimpleJSONParser().parse(json);
+                    return m;
+                } catch (JsonException ex) {
+                    Logger.getLogger(NodeProjectSourceNodeFactory.class.getName()).log(Level.INFO, "Bad JSON in " + json.getPath(), ex.getMessage());
+                } catch (IOException ex) {
+                    Logger.getLogger(NodeProjectSourceNodeFactory.class.getName()).log(Level.INFO, "Failed to read JSON in " + json.getPath(), ex);
+                }
+            }
+            return Collections.<String, Object>emptyMap();
         }
     }
 

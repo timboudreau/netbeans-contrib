@@ -52,6 +52,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.nodejs.libraries.LibrariesPanel;
 import org.netbeans.spi.project.ActionProvider;
@@ -62,7 +64,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.actions.FindAction;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -127,35 +128,46 @@ public class ProjectRootNode extends AbstractNode {
 
                             @Override
                             public void run() {
-                                List<Process> p = new ArrayList<Process>();
+                                ProgressHandle h = ProgressHandleFactory.createHandle(NbBundle.getMessage(ProjectRootNode.class, 
+                                        "MSG_RUNNING_NPM", libraries.size(), project.getDisplayName())); //NOI18N
                                 try {
-                                    for (String lib : libraries) {
-                                        ProcessBuilder pb = new ProcessBuilder("npm", "install", lib);
-                                        pb.directory(FileUtil.toFile(project.getProjectDirectory()));
-                                        try {
-                                            Process proc = pb.start();
-                                            p.add(proc);
-                                        } catch (IOException ex) {
-                                            Exceptions.printStackTrace(ex);
+                                    h.start((libraries.size() * 2) + 1);
+                                    List<Process> p = new ArrayList<Process>();
+                                    int uc = 0;
+                                    try {
+                                        for (String lib : libraries) {
+                                            h.progress(lib, ++uc);
+                                            ProcessBuilder pb = new ProcessBuilder("npm", "install", lib); //NOI18N
+                                            pb.directory(FileUtil.toFile(project.getProjectDirectory()));
+                                            try {
+                                                Process proc = pb.start();
+                                                p.add(proc);
+                                            } catch (IOException ex) {
+                                                Exceptions.printStackTrace(ex);
+                                            }
+                                        }
+                                        int ct = libraries.size() + 1;
+                                        for (Process proc : p) {
+                                            try {
+                                                proc.waitFor();
+                                                h.progress(NbBundle.getMessage(ProjectRootNode.class, "PROGRESS_LIBS_REMAINING", ct--), ++uc); //NOI18N
+                                            } catch (InterruptedException ex) {
+                                                Logger.getLogger(ProjectRootNode.class.getName()).log(Level.INFO, null, ex);
+                                            }
+                                        }
+                                    } finally {
+                                        project.getProjectDirectory().refresh();
+                                        FileObject fo = project.getProjectDirectory().getFileObject("node_modules"); //NOI18N
+                                        if (fo != null) {
+                                            fo.refresh();
                                         }
                                     }
-                                    for (Process proc : p) {
-                                        try {
-                                            proc.waitFor();
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(ProjectRootNode.class.getName()).log(Level.INFO, null, ex);
-                                        }
-                                    }
+                                    h.progress(NbBundle.getMessage(ProjectRootNode.class, "PROGRESS_REFRESH_PROJECT"), ++uc);
+                                    Children ch = NodeFactorySupport.createCompositeChildren(project, "Project/NodeJS/Nodes"); //NOI18N
+                                    setChildren(ch);
                                 } finally {
-                                    project.getProjectDirectory().refresh();
-                                    FileObject fo = project.getProjectDirectory().getFileObject("node_modules");
-                                    if (fo != null) {
-                                        fo.refresh();
-                                    }
+                                    h.finish();
                                 }
-                                System.out.println("All npm processes exited, rebuilding children from scratch");
-                                Children ch = NodeFactorySupport.createCompositeChildren(project, "Project/NodeJS/Nodes");
-                                setChildren(ch);
                             }
                         });
                     }

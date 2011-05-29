@@ -51,15 +51,20 @@ import java.util.Arrays;
 
 /**
  *
- * @author tim
+ * @author Tim Boudreau
  */
-class OneLibraryPanel extends javax.swing.JPanel {
+final class OneLibraryPanel extends javax.swing.JPanel {
 
-    /** Creates new form OneLibraryPanel */
     public OneLibraryPanel(String name, String description, String author) {
         initComponents();
+        //GTK UI delegate is screwy as usual
+        if (descriptionLabel.getUI().getClass().getName().contains("synth")) {
+            descriptionLabel.setUI(new javax.swing.plaf.basic.BasicTextAreaUI());
+        }
+        descriptionLabel.setLineWrap(true);
+        descriptionLabel.setWrapStyleWord(true);
+        descriptionLabel.setBackground(getBackground());
         setProperties(name, description, author);
-        System.out.println("Create panel for " + name);
     }
     
     boolean isSelected() {
@@ -78,10 +83,7 @@ class OneLibraryPanel extends javax.swing.JPanel {
             name = name + new String(c);
         }
         nameLabel.setText(name);
-//        descriptionLabel.setText(split(description));
-        
         String desc = description;
-//        desc = split (desc);
         descriptionLabel.setText(desc);
         descriptionLabel.setToolTipText(author);
         invalidate();
@@ -100,8 +102,8 @@ class OneLibraryPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         selectBox = new javax.swing.JCheckBox();
-        descriptionLabel = new javax.swing.JLabel();
         nameLabel = new javax.swing.JLabel();
+        descriptionLabel = new javax.swing.JTextArea();
 
         setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, javax.swing.UIManager.getDefaults().getColor("controlShadow")), javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         setLayout(new java.awt.GridBagLayout());
@@ -111,35 +113,51 @@ class OneLibraryPanel extends javax.swing.JPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
         add(selectBox, gridBagConstraints);
 
-        descriptionLabel.setText(org.openide.util.NbBundle.getMessage(OneLibraryPanel.class, "OneLibraryPanel.descriptionLabel.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipady = 37;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
-        add(descriptionLabel, gridBagConstraints);
-
+        nameLabel.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
         nameLabel.setFont(new java.awt.Font("Monospaced", 1, 12)); // NOI18N
+        nameLabel.setLabelFor(selectBox);
         nameLabel.setText(org.openide.util.NbBundle.getMessage(OneLibraryPanel.class, "OneLibraryPanel.nameLabel.text")); // NOI18N
+        nameLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nameClicked(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 60;
+        gridBagConstraints.ipadx = 27;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(nameLabel, gridBagConstraints);
+
+        descriptionLabel.setBackground(getBackground());
+        descriptionLabel.setColumns(20);
+        descriptionLabel.setEditable(false);
+        descriptionLabel.setLineWrap(true);
+        descriptionLabel.setText(org.openide.util.NbBundle.getMessage(OneLibraryPanel.class, "OneLibraryPanel.descriptionLabel.text")); // NOI18N
+        descriptionLabel.setWrapStyleWord(true);
+        descriptionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        add(descriptionLabel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void nameClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nameClicked
+        selectBox.setSelected(!selectBox.isSelected());
+    }//GEN-LAST:event_nameClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel descriptionLabel;
+    private javax.swing.JTextArea descriptionLabel;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JCheckBox selectBox;
     // End of variables declaration//GEN-END:variables

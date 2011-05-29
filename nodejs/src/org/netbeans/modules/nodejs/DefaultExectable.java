@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
@@ -173,7 +174,15 @@ public final class DefaultExectable extends NodeJSExecutable {
         if (location != null && "".equals(location.trim())) {
             location = null;
         }
-        preferences().put("sources", location);
+        if (location != null) {
+            Preferences p = preferences();
+            p.put("sources", location);
+            try {
+                p.flush();
+            } catch (BackingStoreException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
     }
 
     public String getSourcesLocation() {

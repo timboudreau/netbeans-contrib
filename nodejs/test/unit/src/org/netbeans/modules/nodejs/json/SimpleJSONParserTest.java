@@ -39,39 +39,52 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.nodejs.json;
 
-package org.netbeans.modules.nodejs.ui;
-
-import org.netbeans.validation.api.Problem;
-import org.netbeans.validation.api.Problems;
-import org.netbeans.validation.api.Severity;
-import org.netbeans.validation.api.Validator;
+import java.io.IOException;
+import java.util.Map;
+import java.io.InputStream;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
 
 /**
- * Creates a wrapper validator which downgrades the severity of any problem
- * encountered by one ordinal, with a minimum of 0, i.e. FATAL &gt; WARNING,
- * WARNING &gt; INFO, INFO &gt; INFO.
  *
  * @author Tim Boudreau
  */
-public final class DowngradeValidator<T> implements Validator<T> {
-    private final Validator<T> wrapped;
+public class SimpleJSONParserTest {
 
-    public DowngradeValidator(Validator<T> wrapped) {
-        this.wrapped = wrapped;
-    }
-
-    @Override
-    public boolean validate(Problems prblms, String string, T t) {
-        Problems p = new Problems();
-        boolean result = wrapped.validate(p, string, t);
-        Problem problem = p.getLeadProblem();
-        if (problem != null) {
-            int ordinal = problem.severity() == null ? 1 : Math.max (0, problem.severity().ordinal() - 1);
-            Problem downgraded = new Problem (problem.getMessage(), Severity.values()[ordinal]);
-            prblms.add(downgraded);
+    @Test
+    public void testParse() throws IOException, JsonException {
+        for (int i = 0; i < 6; i++) {
+            parseJSON("package_" + i + ".json");
         }
-        return result;
+        for (int i = 0; i < 4; i++) {
+            try {
+                parseJSON("bad_" + (i+1) + ".json");
+                fail ("bad_" + i + " should not have been parsed");
+            } catch (JsonException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
-    
+
+    private void parseJSON(String what) throws IOException, JsonException {
+        System.out.println("-------------------------------");
+        InputStream in = SimpleJSONParserTest.class.getResourceAsStream(what);
+        assertNotNull("Test data missing: " + what, in);
+        Map<String, Object> m = new SimpleJSONParser().parse(in, "UTF-8");
+        CharSequence seq = SimpleJSONParser.out(m);
+        System.out.println(seq);
+        System.out.println("-------------------------------");
+        Map<String, Object> reconstituted = new SimpleJSONParser().parse(seq);
+        assertMapsEqual(m, reconstituted);
+    }
+
+    private static void assertMapsEqual(Map<String, Object> a, Map<String, Object> b) {
+        boolean match = a.equals(b);
+        if (!match) {
+            fail("No match:\n" + a + "\n" + b);
+        }
+    }
 }

@@ -195,10 +195,10 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             OpenProjects.getDefault().close(new Project[]{this});
         } else if (LIBRARIES_COMMAND.equals(string)) {
             LibrariesPanel pn = new LibrariesPanel(this);
-            DialogDescriptor dd = new DialogDescriptor(pn, NbBundle.getMessage(NodeJSProject.class, "SEARCH_FOR_LIBRARIES"));
+            DialogDescriptor dd = new DialogDescriptor(pn, NbBundle.getMessage(NodeJSProject.class, "SEARCH_FOR_LIBRARIES")); //NOI18N
             DialogDisplayer.getDefault().notify(dd);
         } else {
-            throw new UnsupportedOperationException(string);
+            throw new AssertionError(string);
         }
     }
 
@@ -241,7 +241,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         
         private void createKeys (FileObject fo, List<FileObject> toPopulate) {
             for (FileObject file : fo.getChildren()) {
-                if (file.getExt().equals("js") && file.isData()) {
+                if (file.getExt().equals("js") && file.isData()) { //NOI18N
                     toPopulate.add(file);
                 } else if (file.isFolder()) {
                     createKeys (file, toPopulate);
@@ -290,7 +290,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
                 FileObject fo = getLookup().lookup(DataObject.class).getPrimaryFile();
                 if (fo != null && !fo.getParent().equals(root)) {
                     String s = FileUtil.getRelativePath(root, fo);
-                    int ix = s.lastIndexOf('/');
+                    int ix = s.lastIndexOf('/'); //NOI18N
                     if (ix > 0 && ix < s.length() - 1) {
                         s = s.substring(0, ix);
                     }
@@ -316,7 +316,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             public String getHtmlDisplayName() {
                 String rp = getRelativePath();
                 if (rp != null) {
-                    return super.getDisplayName() + " <font color='!controlShadow'>(" + rp + ")";
+                    return super.getDisplayName() + " <font color='!controlShadow'>(" + rp + ")"; //NOI18N
                 }
                 return super.getHtmlDisplayName();
             }
@@ -347,7 +347,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
                 if (selection != null && selection.length == 1) {
                     return true;
                 }
-                prblms.add(new Problem(NbBundle.getMessage(NodeJSProject.class, "PROBLEM_NO_MAIN_FILE"), Severity.FATAL));
+                prblms.add(new Problem(NbBundle.getMessage(NodeJSProject.class, "PROBLEM_NO_MAIN_FILE"), Severity.FATAL)); //NOI18N
                 return false;
             }
         }
@@ -366,28 +366,30 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     @Override
     public String[] getPrivilegedTemplates() {
         return new String[]{
-                    "Templates/Empty.js",
-                    "Templates/Module.js"
+                    "Templates/javascript/Empty.js", //NOI18N
+                    "Templates/javascript/Module.js", //NOI18N
+                    "Templates/javascript/HelloWorld.js", //NOI18N
+                    "Templates/Other/xhtml.html", //NOI18N
+                    "Templates/Other/javascript.js", //NOI18N
+                    "Templates/Other/json.js", //NOI18N
+                    "Templates/Other/Folder" //NOI18N
                 };
     }
 
     @Override
     public String[] getRecommendedTypes() {
-        return new String[]{"javascript"};
+        return new String[]{"javascript", "Other"}; //NOI18N
     }
 
     @Override
     public Map<String, ?> attributesFor(DataObject template, DataFolder target, String name) {
-        System.out.println("Attributes for " + template.getName() + " name " + name);
         String license = getLookup().lookup(NodeJSProjectProperties.class).getLicense();
-        System.out.println("License is " + license);
         Map<String, Object> result = new HashMap<String, Object>();
         if (license != null) {
-            result.put("project.license", license);
-            result.put("license", license);
+            result.put("project.license", license); //NOI18N
+            result.put("license", license); //NOI18N
         }
-        result.put("port", "" + new DefaultExectable().getDefaultPort());
-        System.out.println("Sending props " + result);
+        result.put("port", "" + new DefaultExectable().getDefaultPort()); //NOI18N
         return result;
     }
 

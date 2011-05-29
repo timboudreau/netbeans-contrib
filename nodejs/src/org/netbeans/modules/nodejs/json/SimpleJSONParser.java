@@ -1,0 +1,641 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2011 Sun Microsystems, Inc.
+ */
+package org.netbeans.modules.nodejs.json;
+
+import static org.netbeans.modules.nodejs.json.SimpleJSONParser.S.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Stack;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Utilities;
+
+/**
+ * A trivial JSON parser.
+ *
+ * @author Tim Boudreau
+ */
+public final class SimpleJSONParser {
+
+    public CharSequence toJSON(Properties properties) {
+        StringBuilder sb = new StringBuilder("{\n");
+        for (String key : properties.stringPropertyNames()) {
+            sb.append("    ").append('"').append(key).append('"').append('\n');
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public CharSequence toJSON(Map<String, Object> properties) {
+        return out(properties);
+    }
+    
+    CharSequence reflectToJSON(Object o) {
+        StringBuilder sb = new StringBuilder();
+        reflectOut(o, sb, 0);
+        return sb;
+    }
+
+    public Map<String, Object> parse(FileObject in) throws JsonException, IOException {
+        return parse(in.asText());
+    }
+
+    public Map<String, Object> parse(InputStream in) throws JsonException, IOException {
+        return parse(in, null);
+    }
+
+    public Map<String, Object> parse(InputStream in, String encoding) throws JsonException, IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FileUtil.copy(in, out);
+        String data = encoding == null ? new String(out.toByteArray()) : new String(out.toByteArray(), encoding);
+        return parse(data);
+    }
+
+    public Map<String, Object> parse(CharSequence seq) throws JsonException {
+        CharVisitor v = new CharVisitor();
+        State state = new State();
+        int len = seq.length();
+        int line = 0;
+        for (int i = 0; i < len; i++) {
+            char c = seq.charAt(i);
+            if (c == '\n') {
+                line++;
+            }
+            v.visitChar(c, i, line, state);
+        }
+        return state.map;
+    }
+
+    private static final class CharVisitor {
+
+        StringBuilder sb = new StringBuilder();
+        S s = BEGIN;
+        Stack<S> awaits = new Stack<S>();
+
+        void setState(S s, char c, int pos) {
+            stateChange(this.s, s, c, pos);
+            this.s = s;
+        }
+
+        char lastChar;
+        S stateBeforeComment;
+        void visitChar(char c, int pos, int line, State state) throws JsonException {
+//            if (lastChar == '/' && (c == '*' || c == '/') && s != IN_ARRAY_ELEMENT && s != IN_KEY && s != IN_VALUE) {
+//                stateBeforeComment = s;
+//                setState(c == '/' ? IN_LINE_COMMENT : IN_COMMENT, c, pos);
+//                return;
+//            }
+            if (c == '/' && s != IN_ARRAY_ELEMENT && s != IN_KEY && s != IN_VALUE && s != AWAIT_BEGIN_COMMENT && s != IN_COMMENT && s != IN_LINE_COMMENT) {
+                stateBeforeComment = s;
+                setState(AWAIT_BEGIN_COMMENT, c, pos);
+                return;
+            }
+            try {
+                switch (s) {
+                    case BEGIN:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case '{':
+                                setState(AWAITING_KEY, c, pos);
+                                break;
+                            case '/':
+                                setState(AWAIT_BEGIN_COMMENT, c, pos);
+                                break;
+                            default:
+                                error("Expected '{'", c, line, pos);
+                        }
+                        break;
+                    case AWAIT_BEGIN_COMMENT :
+                        if (c == '*') {
+                            setState(IN_COMMENT, c, pos);
+                            break;
+                        } else if (c == '/') {
+                            setState(IN_LINE_COMMENT, c, pos);
+                            break;
+                        } else {
+                            if (Character.isWhitespace(c)) break;
+                            error("Expected / or * awaiting comment marker", c, line, pos);
+                        }
+                        break;
+                    case IN_COMMENT:
+                        if (c == '/' && lastChar == '*') {
+                            setState(stateBeforeComment, c, pos);
+                        }
+                        break;
+                    case IN_LINE_COMMENT:
+                        if (c == '\n') {
+                            setState(stateBeforeComment, c, pos);
+                        }
+                        break;
+                    case AWAITING_COMPOUND_VALUE:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case '"':
+                                setState(IN_KEY, c, pos);
+                                break;
+                            case '}':
+                                setState(AFTER_VALUE, c, pos);
+                                break;
+                            default:
+                                error("Expected \" or key awaiting compound value", c, line, pos);
+                        }
+                        break;
+                    case AWAITING_KEY:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case '"':
+                                setState(IN_KEY, c, pos);
+                                break;
+                            case '}':
+                                setState(AFTER_VALUE, c, pos);
+                                state.exitCompoundValue();
+                                break;
+                            default:
+                                error("Expected '\"' or whitespace before key", c, line, pos);
+                        }
+                        break;
+                    case IN_KEY:
+                        switch (c) {
+                            case '"':
+                                setState(BETWEEN_KEY_AND_VALUE, c, pos);
+                                state.enterKey(sb.toString());
+                                sb.setLength(0);
+                                return;
+                            default:
+                                sb.append(c);
+                        }
+                        break;
+                    case BETWEEN_KEY_AND_VALUE:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case (':'):
+                                setState(S.AWAITING_VALUE, c, pos);
+                                break;
+                            default:
+                                error("Expected : or whitespace between key and value", c, line, pos);
+                        }
+                        break;
+                    case AWAITING_VALUE:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case ('['):
+                                setState(S.AWAITING_ARRAY_ELEMENT, c, pos);
+                                state.enterArrayValue();
+                                break;
+                            case ('"'):
+                                setState(IN_VALUE, c, pos);
+                                break;
+                            case ('{'):
+                                setState(AWAITING_COMPOUND_VALUE, c, pos);
+                                state.enterCompoundValue();
+                                break;
+                            default:
+                                error("Expected '\"' or ':' to start value", c, line, pos);
+                        }
+                        break;
+                    case AWAITING_ARRAY_ELEMENT:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case '{':
+                                setState(AWAITING_KEY, c, pos);
+                                state.enterCompoundValue(); //XXX
+                                break;
+                            case '[':
+                                setState(AWAITING_ARRAY_ELEMENT, c, pos);
+                                state.enterArrayValue();
+                                break;
+                            case '"':
+                                setState(S.IN_ARRAY_ELEMENT, c, pos);
+                                break;
+                            case ']':
+                                setState(AFTER_VALUE, c, pos);
+                                state.exitArrayValue();
+                                break;
+                            default:
+                                error("Expected '{' or '\"' awaiting array value", c, line, pos);
+                        }
+                        break;
+                    case IN_ARRAY_ELEMENT:
+                        if (c == '"') {
+                            setState(AFTER_ARRAY_ELEMENT, c, pos);
+                            state.arrayValue(sb.toString());
+                            sb.setLength(0);
+                            return;
+                        }
+                        sb.append(c);
+                        break;
+                    case IN_VALUE:
+                        if (c == '"') {
+                            setState(S.AFTER_VALUE, c, pos);
+                            state.value(sb.toString());
+                            sb.setLength(0);
+                            return;
+                        }
+                        sb.append(c);
+                        break;
+                    case AFTER_VALUE:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case (','):
+                                setState(AWAITING_KEY, c, pos);
+                                break;
+                            case ('}'):
+                                setState(S.AFTER_VALUE, c, pos);
+                                state.exitCompoundValue();
+                                break;
+                            case (']'):
+                                setState(AFTER_VALUE, c, pos);
+                                state.exitArrayValue();
+                                break;
+                            default:
+                                error("Expected , or EOF after value", c, line, pos);
+                        }
+                        break;
+                    case AFTER_ARRAY_ELEMENT:
+                        if (Character.isWhitespace(c)) {
+                            return;
+                        }
+                        switch (c) {
+                            case ',':
+                                setState(AWAITING_ARRAY_ELEMENT, c, pos);
+                                break;
+                            case ']':
+                                state.exitArrayValue();
+                                if (state.hasOuterList()) {
+                                    setState(AWAITING_ARRAY_ELEMENT, c, pos);
+                                } else {
+                                    setState(AFTER_VALUE, c, pos);
+                                }
+                                break;
+                            default:
+                                error("Expected , \" or ] after array value", c, line, pos);
+                        }
+                        break;
+                    default:
+                        throw new AssertionError(s);
+                }
+            } catch (Internal i) {
+                throw new JsonException(s + ": " + i.getMessage(), c, line, pos, i);
+            }
+            lastChar = c;
+        }
+
+        void error(String msg, char what, int line, int pos) throws JsonException {
+            throw new JsonException(s + " - " + msg, what, line, pos);
+        }
+
+        private void stateChange(S s, S to, char c, int pos) {
+//            System.out.println("from " + s + " to " + to + " " + c + " at " + pos);
+        }
+    }
+
+    enum S {
+        AWAIT_BEGIN_COMMENT,
+        IN_COMMENT,
+        IN_LINE_COMMENT,
+        IN_KEY,
+        IN_VALUE,
+        IN_ARRAY_ELEMENT,
+        BEGIN,
+        AWAITING_KEY,
+        AWAITING_COMPOUND_VALUE,
+        AWAITING_ARRAY_ELEMENT,
+        AFTER_ARRAY_ELEMENT,
+        BETWEEN_KEY_AND_VALUE,
+        AWAITING_VALUE,
+        AFTER_VALUE;
+
+        boolean isAwaitState() {
+            switch (this) {
+                case AWAITING_ARRAY_ELEMENT:
+                case AWAITING_VALUE:
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    private static final class State {
+
+        private final Stack<List<Object>> currList = new Stack<List<Object>>();
+        private final Stack<String> currKey = new Stack<String>();
+        private final Stack<Map<String, Object>> currMap = new Stack<Map<String, Object>>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        Map<String, Object> curr = map;
+        String lastKey;
+
+        public void enterKey(String s) {
+            currKey.push(s);
+            lastKey = s;
+        }
+
+        S state() {
+            if (currKey.isEmpty()) {
+                if (map.isEmpty()) {
+                    return BEGIN;
+                } else {
+                    return AWAITING_KEY;
+                }
+            }
+            String k = currKey.peek();
+            Object o = map.get(k);
+            if (o == null) {
+                return AWAITING_VALUE;
+            } else if (o instanceof Map) {
+                return AWAITING_COMPOUND_VALUE;
+            } else if (o instanceof List) {
+                return AWAITING_ARRAY_ELEMENT;
+            }
+            return AWAITING_KEY;
+        }
+
+        public void enterCompoundValue() {
+            String key = currKey.peek();
+            Map<String, Object> nue = new LinkedHashMap<String, Object>();
+            curr.put(key, nue);
+            currMap.push(curr);
+            curr = nue;
+        }
+
+        public void enterArrayValue() {
+            String key = currKey.peek();
+            List l = currList.isEmpty() ? null : currList.peek();
+            if (l != null) {
+                List<Object> nue = new ArrayList<Object>();
+                currList.push(nue);
+                l.add(nue);
+            } else {
+                List<Object> nue = new ArrayList<Object>();
+                currList.push(nue);
+                curr.put(key, nue);
+            }
+        }
+
+        public void exitArrayValue() {
+            String key = currKey.isEmpty() ? lastKey : currKey.pop();
+            if (!currList.isEmpty()) {
+                currList.pop();
+            } else {
+            }
+        }
+
+        public void arrayValue(String value) {
+            String key = currKey.peek();
+            List<Object> l = null;
+            if (l == null && !currList.isEmpty()) {
+                l = currList.peek();
+            } else if (l == null) {
+                throw new Internal("No array present for array value " + value);
+            }
+            l.add(value);
+        }
+
+        public void value(String value) {
+            String key = currKey.pop();
+            curr.put(key, value);
+        }
+
+        public void exitCompoundValue() {
+            if (!currMap.isEmpty()) {
+                curr = currMap.pop();
+            }
+            String s = currKey.isEmpty() ? lastKey : currKey.pop();
+        }
+
+        private boolean hasOuterList() {
+            return !currList.isEmpty();
+        }
+    }
+
+    public static CharSequence out(Map<String, Object> m) {
+        StringBuilder sb = new StringBuilder("{\n");
+        out(m, sb, 0);
+        sb.append("}\n");
+        return sb;
+    }
+    private static final int INDENT_COUNT = 4;
+
+    private static final void out(List<Object> l, StringBuilder sb, int indent) {
+        char[] indentChars = new char[indent * INDENT_COUNT];
+        Arrays.fill(indentChars, ' ');
+        String ind = new String(indentChars);
+        String indl = ind + "    ";
+        sb.append(ind).append('[').append('\n');
+        for (Iterator<Object> it = l.iterator(); it.hasNext();) {
+            Object o = it.next();
+            if (o instanceof Map) {
+                Map<String, Object> mm = (Map<String, Object>) o;
+                out(mm, sb, indent + 1);
+            } else if (o instanceof List) {
+                out((List) o, sb, indent + 1);
+            } else if (o instanceof CharSequence) {
+                String s = ("" + o).replace("\"", "\\\"");
+                sb.append(indl).append('"').append(s).append('"');
+                if (it.hasNext()) {
+                    sb.append(',');
+                }
+                sb.append('\n');
+            } else if (o != null) {
+                if (o.getClass().isArray()) {
+                    if (o.getClass().getComponentType().isPrimitive()) {
+                        o = Utilities.toObjectArray(o);
+                    }
+                    Object[] oo = (Object[]) o;
+                    out(Arrays.asList(oo), sb, indent + 1);
+                } else {
+                    reflectOut(o, sb, indent + 1);
+                }
+            }
+        }
+        sb.append(ind).append(']').append('\n');
+    }
+
+    private static final void reflectOut(Object o, StringBuilder sb, int indent) {
+        if (indent > 30) {
+            System.err.println("break at 30 depth");
+            return;
+        }
+        char[] indentChars = new char[indent * INDENT_COUNT];
+        Arrays.fill(indentChars, ' ');
+        String ind = new String(indentChars);
+        sb.append(ind).append('{').append('\n');
+        char[] indentChars2 = new char[indent * INDENT_COUNT];
+        Arrays.fill(indentChars2, ' ');
+        String ind2 = new String(indentChars2);
+        Class<?> c = o.getClass();
+        Field[] ff = c.getDeclaredFields();
+        for (int i = 0; i < ff.length; i++) {
+            Field f = ff[i];
+            if ((f.getModifiers() & Modifier.STATIC) != 0) {
+                continue;
+            }
+            if (f.getDeclaringClass() == Character.class || f.getDeclaringClass() == String.class || 
+                    f.getDeclaringClass() == Integer.class || f.getDeclaringClass() == Short.class || 
+                    f.getDeclaringClass() == Double.class || f.getDeclaringClass() == Long.class || 
+                    f.getDeclaringClass() == Float.class) {
+                continue;
+            }
+            f.setAccessible(true);
+            try {
+                Object value = f.get(o);
+                System.out.println("Field " + f.getName() + "=" + value + " on " + f.getDeclaringClass() + " from a " + o.getClass());
+                if (value instanceof List) {
+                    List l = (List) value;
+                    out(l, sb, indent + 1);
+                } else if (value instanceof Map) {
+                    Map m = (Map) o;
+                    out(m, sb, indent + 1);
+                } else if (value != null && value.getClass().isArray()) {
+                    if (value.getClass().getComponentType().isPrimitive()) {
+                        o = Utilities.toObjectArray(value);
+                    }
+                    List l = Arrays.asList(value);
+                    out(l, sb, indent + 1);
+                } else if (value instanceof CharSequence) {
+                    sb.append(ind2).append('"');
+                    sb.append(f.getName());
+                    sb.append('"').append(" ").append(':').append(' ');
+                    sb.append('"');
+                    String val = "" + f.get(o);
+                    sb.append(val.replace("\"", "\\\""));
+                    sb.append('"');
+                } else if (value != null && value != o) {
+                    reflectOut(value, sb, indent + 1);
+                }
+            } catch (IllegalArgumentException ex) {
+                sb.append(ex.getClass().getSimpleName());
+            } catch (IllegalAccessException ex) {
+                sb.append(ex.getClass().getSimpleName());
+            }
+            if (i < ff.length - 1) {
+                sb.append(',');
+            }
+            sb.append('\n');
+        }
+        sb.append(ind).append('}').append('\n');
+    }
+
+    private static final void out(Map<String, Object> m, StringBuilder sb, int indent) {
+        char[] indentChars = new char[indent * INDENT_COUNT];
+        Arrays.fill(indentChars, ' ');
+        String ind = new String(indentChars);
+        for (Iterator<Map.Entry<String, Object>> it = m.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Object> e = it.next();
+            sb.append(ind);
+            sb.append('"').append(e.getKey().replace("\"", "\\\"")).append('"').append(' ').append(':').append(' ');
+            if (e.getValue() instanceof CharSequence) {
+                String s = e.getValue().toString();
+                s = s.replace("\"", "\\\"");
+                sb.append('"').append(e.getValue()).append('"');
+            } else if (e.getValue() instanceof List) {
+                List l = (List) e.getValue();
+                out(l, sb, indent + 1);
+            } else if (e.getValue() instanceof Map) {
+                sb.append('{');
+                sb.append('\n');
+                out((Map<String, Object>) e.getValue(), sb, indent + 1);
+                sb.append(ind);
+                sb.append('}');
+            } else if (e.getValue().getClass().isArray()) {
+                if (e.getValue().getClass().getComponentType().isPrimitive()) {
+                    Object[] o = Utilities.toObjectArray(e.getValue());
+                    out(Arrays.asList(o), sb, indent + 1);
+                }
+            } else {
+                reflectOut(e.getValue(), sb, indent + 1);
+            }
+            if (it.hasNext()) {
+                sb.append(',');
+            }
+            sb.append('\n');
+        }
+    }
+
+    public static final class JsonException extends Exception {
+
+        private final char what;
+        private final int position;
+
+        JsonException(String msg, char what, int line, int position, Throwable cause) {
+            super("Illegal JSON at line " + line + " offset " + position + " with character '" + what + "': " + msg, cause);
+            this.what = what;
+            this.position = position;
+        }
+
+        JsonException(String msg, char what, int line, int position) {
+            super("Illegal JSON at line " + line + " offset " + position + " with character '" + what + "': " + msg);
+            this.what = what;
+            this.position = position;
+        }
+    }
+
+    private static final class Internal extends RuntimeException {
+
+        Internal(String s) {
+            super(s);
+        }
+    }
+}
