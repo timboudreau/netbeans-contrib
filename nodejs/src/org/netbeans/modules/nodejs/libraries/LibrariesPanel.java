@@ -81,12 +81,18 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
     private final RequestProcessor.Task outTask;
 
     /** Creates new form LibrariesPanel */
+    @SuppressWarnings("LeakingThisInConstructor")
     public LibrariesPanel(NodeJSProject project) {
         initComponents();
         task = rp.create(this);
         searchField.getDocument().addDocumentListener(this);
         outTask = rp2.create(new OutProcessor());
         UiUtil.prepareComponents(this);
+        statusLabel.setText(" ");
+        progress.setVisible(false);
+        jScrollPane1.setAutoscrolls(false);
+        inner.setAutoscrolls(false);
+        jScrollPane1.getViewport().setAutoscrolls(false);
     }
 
     /** This method is called from within the constructor to
@@ -142,11 +148,10 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(searchLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, 734, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 632, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -157,17 +162,20 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                     .addComponent(instructionsLabel)
                     .addComponent(linkLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(searchLabel)
-                    .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(searchLabel)
+                        .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(statusLabel))
+                .addComponent(statusLabel)
                 .addGap(14, 14, 14))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {progress, searchField});
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void showNpmDownloadInstructions(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showNpmDownloadInstructions
@@ -390,7 +398,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
             });
         }
     }
-
+    
     @Override
     public void insertUpdate(DocumentEvent e) {
         for (Component c : inner.getComponents()) {

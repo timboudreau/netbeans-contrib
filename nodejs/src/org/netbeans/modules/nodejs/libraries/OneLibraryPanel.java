@@ -141,6 +141,7 @@ final class OneLibraryPanel extends javax.swing.JPanel {
         descriptionLabel.setLineWrap(true);
         descriptionLabel.setText(org.openide.util.NbBundle.getMessage(OneLibraryPanel.class, "OneLibraryPanel.descriptionLabel.text")); // NOI18N
         descriptionLabel.setWrapStyleWord(true);
+        descriptionLabel.setAutoscrolls(false);
         descriptionLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
