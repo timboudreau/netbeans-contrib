@@ -55,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
@@ -65,6 +68,25 @@ import org.openide.util.Utilities;
  * @author Tim Boudreau
  */
 public final class SimpleJSONParser {
+
+    private boolean permissive;
+    boolean thrown = false;
+
+    public SimpleJSONParser() {
+        this(false);
+    }
+
+    public SimpleJSONParser(boolean permissive) {
+        setPermissive(permissive);
+    }
+
+    void setPermissive(boolean val) {
+        this.permissive = val;
+    }
+    
+    public boolean hasErrors() {
+        return thrown;
+    }
 
     public CharSequence toJSON(Properties properties) {
         StringBuilder sb = new StringBuilder("{\n");
@@ -78,7 +100,7 @@ public final class SimpleJSONParser {
     public CharSequence toJSON(Map<String, Object> properties) {
         return out(properties);
     }
-    
+
     CharSequence reflectToJSON(Object o) {
         StringBuilder sb = new StringBuilder();
         reflectOut(o, sb, 0);
@@ -86,7 +108,12 @@ public final class SimpleJSONParser {
     }
 
     public Map<String, Object> parse(FileObject in) throws JsonException, IOException {
-        return parse(in.asText());
+        FileLock lock = in.lock();
+        try {
+            return parse(in.asText());
+        } finally {
+            lock.releaseLock();
+        }
     }
 
     public Map<String, Object> parse(InputStream in) throws JsonException, IOException {
@@ -115,7 +142,7 @@ public final class SimpleJSONParser {
         return state.map;
     }
 
-    private static final class CharVisitor {
+    private final class CharVisitor {
 
         StringBuilder sb = new StringBuilder();
         S s = BEGIN;
@@ -125,18 +152,21 @@ public final class SimpleJSONParser {
             stateChange(this.s, s, c, pos);
             this.s = s;
         }
-
         char lastChar;
         S stateBeforeComment;
+
         void visitChar(char c, int pos, int line, State state) throws JsonException {
-//            if (lastChar == '/' && (c == '*' || c == '/') && s != IN_ARRAY_ELEMENT && s != IN_KEY && s != IN_VALUE) {
-//                stateBeforeComment = s;
-//                setState(c == '/' ? IN_LINE_COMMENT : IN_COMMENT, c, pos);
-//                return;
-//            }
             if (c == '/' && s != IN_ARRAY_ELEMENT && s != IN_KEY && s != IN_VALUE && s != AWAIT_BEGIN_COMMENT && s != IN_COMMENT && s != IN_LINE_COMMENT) {
                 stateBeforeComment = s;
                 setState(AWAIT_BEGIN_COMMENT, c, pos);
+                return;
+            }
+            if (c == '"' && lastChar == '\\' && (s == IN_KEY || s == IN_VALUE || s == IN_ARRAY_ELEMENT)) {
+                if (sb.charAt(sb.length() - 1) == '\\') {
+                    sb.setLength(sb.length() - 1); //manage escaped quotes
+                }
+                lastChar = c;
+                sb.append(c);
                 return;
             }
             try {
@@ -156,7 +186,7 @@ public final class SimpleJSONParser {
                                 error("Expected '{'", c, line, pos);
                         }
                         break;
-                    case AWAIT_BEGIN_COMMENT :
+                    case AWAIT_BEGIN_COMMENT:
                         if (c == '*') {
                             setState(IN_COMMENT, c, pos);
                             break;
@@ -164,7 +194,9 @@ public final class SimpleJSONParser {
                             setState(IN_LINE_COMMENT, c, pos);
                             break;
                         } else {
-                            if (Character.isWhitespace(c)) break;
+                            if (Character.isWhitespace(c)) {
+                                break;
+                            }
                             error("Expected / or * awaiting comment marker", c, line, pos);
                         }
                         break;
@@ -303,8 +335,13 @@ public final class SimpleJSONParser {
                                 setState(AWAITING_KEY, c, pos);
                                 break;
                             case ('}'):
-                                setState(S.AFTER_VALUE, c, pos);
                                 state.exitCompoundValue();
+                                if (state.hasOuterList()) {
+                                    setState(AFTER_ARRAY_ELEMENT, c, pos);
+                                } else {
+                                    setState(S.AFTER_VALUE, c, pos);
+                                }
+                                
                                 break;
                             case (']'):
                                 setState(AFTER_VALUE, c, pos);
@@ -338,13 +375,39 @@ public final class SimpleJSONParser {
                         throw new AssertionError(s);
                 }
             } catch (Internal i) {
-                throw new JsonException(s + ": " + i.getMessage(), c, line, pos, i);
+                if (!thrown) {
+                    JsonException e = new JsonException(s + ": " + i.getMessage(), c, line, pos, i);
+                    if (permissive) {
+                        Logger.getLogger(SimpleJSONParser.class.getName()).log(Level.WARNING, null, e);
+                    } else {
+                        throw e;
+                    }
+                    thrown = true;
+                }
+            } catch (RuntimeException ex) {
+                if (!thrown) {
+                    if (permissive) {
+                        Logger.getLogger(SimpleJSONParser.class.getName()).log(Level.WARNING, null, ex);
+                    } else {
+                        throw ex;
+                    }
+                    thrown = true;
+                }
             }
             lastChar = c;
         }
 
         void error(String msg, char what, int line, int pos) throws JsonException {
-            throw new JsonException(s + " - " + msg, what, line, pos);
+            if (thrown) {
+                return; //anything can go wrong at this point
+            }
+            JsonException e = new JsonException(s + " - " + msg, what, line, pos);
+            if (permissive) {
+                thrown = true;
+                Logger.getLogger(SimpleJSONParser.class.getName()).log(Level.INFO, null, e);
+            } else {
+                throw e;
+            }
         }
 
         private void stateChange(S s, S to, char c, int pos) {
@@ -353,6 +416,7 @@ public final class SimpleJSONParser {
     }
 
     enum S {
+
         AWAIT_BEGIN_COMMENT,
         IN_COMMENT,
         IN_LINE_COMMENT,
@@ -413,7 +477,10 @@ public final class SimpleJSONParser {
         }
 
         public void enterCompoundValue() {
-            String key = currKey.peek();
+            String key = currKey.isEmpty() ? null : currKey.peek();
+            if (key == null) {
+                key = lastKey;  //XXX - need better handling of compounds inside arrays
+            }
             Map<String, Object> nue = new LinkedHashMap<String, Object>();
             curr.put(key, nue);
             currMap.push(curr);
@@ -438,7 +505,6 @@ public final class SimpleJSONParser {
             String key = currKey.isEmpty() ? lastKey : currKey.pop();
             if (!currList.isEmpty()) {
                 currList.pop();
-            } else {
             }
         }
 
@@ -472,7 +538,7 @@ public final class SimpleJSONParser {
 
     public static CharSequence out(Map<String, Object> m) {
         StringBuilder sb = new StringBuilder("{\n");
-        out(m, sb, 0);
+        out(m, sb, 1);
         sb.append("}\n");
         return sb;
     }
@@ -510,12 +576,11 @@ public final class SimpleJSONParser {
                 }
             }
         }
-        sb.append(ind).append(']').append('\n');
+        sb.append(ind).append(']');
     }
 
     private static final void reflectOut(Object o, StringBuilder sb, int indent) {
         if (indent > 30) {
-            System.err.println("break at 30 depth");
             return;
         }
         char[] indentChars = new char[indent * INDENT_COUNT];
@@ -532,16 +597,15 @@ public final class SimpleJSONParser {
             if ((f.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
-            if (f.getDeclaringClass() == Character.class || f.getDeclaringClass() == String.class || 
-                    f.getDeclaringClass() == Integer.class || f.getDeclaringClass() == Short.class || 
-                    f.getDeclaringClass() == Double.class || f.getDeclaringClass() == Long.class || 
-                    f.getDeclaringClass() == Float.class) {
+            if (f.getDeclaringClass() == Character.class || f.getDeclaringClass() == String.class
+                    || f.getDeclaringClass() == Integer.class || f.getDeclaringClass() == Short.class
+                    || f.getDeclaringClass() == Double.class || f.getDeclaringClass() == Long.class
+                    || f.getDeclaringClass() == Float.class) {
                 continue;
             }
             f.setAccessible(true);
             try {
                 Object value = f.get(o);
-                System.out.println("Field " + f.getName() + "=" + value + " on " + f.getDeclaringClass() + " from a " + o.getClass());
                 if (value instanceof List) {
                     List l = (List) value;
                     out(l, sb, indent + 1);
@@ -589,7 +653,7 @@ public final class SimpleJSONParser {
             if (e.getValue() instanceof CharSequence) {
                 String s = e.getValue().toString();
                 s = s.replace("\"", "\\\"");
-                sb.append('"').append(e.getValue()).append('"');
+                sb.append('"').append(s).append('"');
             } else if (e.getValue() instanceof List) {
                 List l = (List) e.getValue();
                 out(l, sb, indent + 1);

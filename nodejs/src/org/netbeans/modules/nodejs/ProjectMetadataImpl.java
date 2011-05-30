@@ -43,168 +43,324 @@ package org.netbeans.modules.nodejs;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
-import static org.netbeans.modules.nodejs.NodeJSProject.*;
-
+import java.util.logging.Logger;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.modules.nodejs.json.SimpleJSONParser;
+import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
+import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileChangeAdapter;
-import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem.AtomicAction;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.EditableProperties;
 import org.openide.util.Exceptions;
-import org.openide.util.Parameters;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;
+import org.openide.util.WeakListeners;
 
 /**
  *
  * @author Tim Boudreau
  */
-final class ProjectMetadataImpl implements ProjectMetadata {
+public final class ProjectMetadataImpl extends FileChangeAdapter implements ProjectMetadata {
 
-    private final NodeJSProject project;
-    private volatile EditableProperties props;
-    private long lastModifiedFileDate = Integer.MIN_VALUE;
-    private boolean listening = false;
+    private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
+    private final Project project;
+    private static final RequestProcessor rp = new RequestProcessor("node.js project metadata saver", 1, true);
 
-    ProjectMetadataImpl(NodeJSProject project) {
+    public ProjectMetadataImpl(Project project) {
         this.project = project;
     }
 
-    @Override
     public String getValue(String key) {
-        return getProperties().getProperty(key);
+        if (key.indexOf('.') > 0) {
+            List<String> keys = new ArrayList<String>(Arrays.asList(key.split("\\.")));
+            Object result = getValue(getMap(), keys);
+            synchronized (this) {
+                if (map.isEmpty()) {
+                    map = null;
+                }
+            }
+            return toString(result);
+        } else {
+            return toString(getMap().get(key));
+        }
     }
 
-    @Override
-    public void setValue(String key, String value) {
-        Parameters.notNull("key", key);
-        String oldValue;
-        if (value == null) {
-            oldValue = getProperties().remove(key);
+    public List<?> getValues(String key) {
+        Object result = null;
+        if (key.indexOf('.') > 0) {
+            List<String> keys = new ArrayList<String>(Arrays.asList(key.split("\\.")));
+            result = getValue(getMap(), keys);
         } else {
-            oldValue = getProperties().setProperty(key, value);
+            result = getMap().get(key);
         }
-        if (different(oldValue, value)) {
-            project.state().markModified();
+        synchronized (this) {
+            if (map.isEmpty()) {
+                map = null;
+            }
+        }
+        if (result instanceof List) {
+            return (List<?>) result;
+        } else if (result instanceof Map) {
+            return Arrays.asList(toString(result));
+        } else if (result instanceof String) {
+            return Arrays.asList((String) result);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private String toString(Object o) {
+        if (o instanceof Map) {
+            return SimpleJSONParser.out((Map<String, Object>) o).toString();
+        } else if (o instanceof List) {
+            StringBuilder sb = new StringBuilder();
+            for (Iterator<?> it = ((List<?>) o).iterator(); it.hasNext();) {
+                sb.append(toString(it.next()));
+                if (it.hasNext()) {
+                    sb.append(", ");
+                }
+            }
+        } else if (o instanceof CharSequence) {
+            return o.toString();
+        } else if (o == null) {
+            return "";
+        }
+        return o.toString();
+    }
+
+    private Object getValue(Map<String, Object> m, List<String> keys) {
+        String next = keys.remove(0);
+        if (keys.isEmpty()) {
+            Object result = m.get(next);
+            return result;
+        } else {
+            Object o = m.get(next);
+            if (o instanceof Map) {
+                return getValue((Map<String, Object>) o, keys);
+            } else {
+                return toString(o);
+            }
+        }
+    }
+    private volatile Map<String, Object> map;
+    private volatile boolean hasErrors;
+
+    private final Map<String, Object> getMap() {
+        if (map == null) {
+            synchronized (this) {
+                if (map != null) {
+                    return map;
+                }
+            }
+            FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+            if (fo != null) {
+                try {
+                    fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
+                    SimpleJSONParser p = new SimpleJSONParser(true);
+                    synchronized (this) {
+                        map = Collections.synchronizedMap(p.parse(fo));
+                    }
+                    if (hasErrors = p.hasErrors()) {
+                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
+                    }
+                } catch (JsonException ex) {
+                    Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
+                            "Bad package.json in " + fo.getPath(), ex);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+            synchronized (this) {
+                return map = Collections.synchronizedMap(new HashMap<String, Object>());
+            }
+        }
+        return map;
+    }
+    volatile int saveCount;
+
+    @Override
+    public void fileChanged(FileEvent fe) {
+        if (saveCount > 0) {
+            saveCount--;
+            return;
+        }
+        map = null;
+    }
+
+    public void setValue(String key, List<String> values) {
+        Object oldValue;
+        if (key.indexOf('.') > 0) {
+            List<String> keys = new ArrayList<String>(Arrays.asList(key.split("\\.")));
+            oldValue = setValues(getMap(), keys, values);
+        } else {
+            oldValue = getMap().put(key, values);
+        }
+        if (unequal(oldValue, values)) {
+            queueSave();
+            supp.firePropertyChange(key, toString(oldValue), values);
+        }
+    }
+
+    public void setValue(String key, String value) {
+        Object oldValue;
+        if (key.indexOf('.') > 0) {
+            List<String> keys = new ArrayList<String>(Arrays.asList(key.split("\\.")));
+            oldValue = setValue(getMap(), keys, value);
+        } else {
+            oldValue = getMap().put(key, value);
+        }
+        if (unequal(oldValue, value)) {
+            queueSave();
+            supp.firePropertyChange(key, toString(oldValue), value);
+        }
+    }
+
+    private boolean unequal(Object a, Object b) {
+        if (a == null && b == null) {
+            return false;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        return !a.equals(b);
+    }
+
+    private Object setValue(Map<String, Object> m, List<String> keys, String value) {
+        String nextKey = keys.remove(0);
+        if (keys.isEmpty()) {
+            Object result = m.put(nextKey, value);
+            if (unequal(value, result)) {
+                queueSave();
+            }
+            return result;
+        } else {
+            Object o = m.get(nextKey);
+            Map<String, Object> nue = null;
+            if (o instanceof Map) {
+                nue = (Map<String, Object>) o;
+            }
+            if (nue == null) {
+                //if the value was a string, we clobber it here - careful
+                nue = new LinkedHashMap<String, Object>();
+                queueSave();
+            }
+            if (value == null) {
+                m.remove(nextKey);
+            } else {
+                m.put(nextKey, nue);
+            }
+            return setValue(nue, keys, value);
+        }
+    }
+
+    private Object setValues(Map<String, Object> m, List<String> keys, List<String> values) {
+        String nextKey = keys.remove(0);
+        if (keys.isEmpty()) {
+            Object result = m.put(nextKey, values);
+            if (unequal(values, result)) {
+                queueSave();
+            }
+            return result;
+        } else {
+            Map<String, Object> nue = (Map<String, Object>) m.get(nextKey);
+            if (nue == null) {
+                nue = new LinkedHashMap<String, Object>();
+                queueSave();
+            }
+            if (values == null) {
+                m.remove(nextKey);
+            } else {
+                m.put(nextKey, nue);
+            }
+            return setValues(nue, keys, values);
+        }
+    }
+
+    public String toString() {
+        return SimpleJSONParser.out(getMap()).toString();
+    }
+
+    public void save() throws IOException {
+        if (this.map != null) {
+            if (hasErrors) {
+                NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ProjectMetadataImpl.class, "OVERWRITE_BAD_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()));
+                if (!DialogDisplayer.getDefault().notify(nd).equals(nd.OK_OPTION)) {
+                    synchronized(this) {
+                        map = null;
+                    }
+                    return;
+                }
+            }
+            final FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+            project.getProjectDirectory().getFileSystem().runAtomicAction(new AtomicAction() {
+
+                @Override
+                public void run() throws IOException {
+                    FileObject save = fo;
+                    if (save == null) {
+                        save = project.getProjectDirectory().createData("package.json");
+                    }
+                    try {
+                        CharSequence seq = SimpleJSONParser.out(map);
+                        OutputStream out = save.getOutputStream();
+                        try {
+                            ByteArrayInputStream in = new ByteArrayInputStream(seq.toString().getBytes("UTF-8"));
+                            FileUtil.copy(in, out);
+                        } finally {
+                            out.close();
+                            synchronized (this) { //tests
+                                notifyAll();
+                            }
+                            saveCount++;
+                        }
+                        hasErrors = false;
+                    } catch (FileAlreadyLockedException e) {
+                        Logger.getLogger(ProjectMetadataImpl.class.getName()).log(
+                                Level.INFO, "Could not save properties for {0} - queue for later",
+                                project.getProjectDirectory().getPath());
+                        queueSave();
+                    }
+                }
+            });
+        }
+    }
+
+    class R implements Runnable {
+
+        public void run() {
             try {
                 save();
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
-            } finally {
-                supp.firePropertyChange(key, oldValue, value);
             }
         }
     }
+    private final Task task = rp.create(new R());
 
-    private boolean different(Object a, Object b) {
-        if ((a == null) != (b == null)) {
-            return true;
-        } else if (a != null && b != null) {
-            return !a.equals(b);
-        }
-        return false;
+    private void queueSave() {
+        task.schedule(1000);
     }
 
-    private EditableProperties getProperties() {
-        FileObject metadataFile = getMetadataFile(false);
-        if (metadataFile == null || metadataFile.isFolder()) {
-            //hosed
-            return props = new EditableProperties(true);
-        }
-        if (props == null) {
-            synchronized (this) {
-                if (metadataFile == null || !metadataFile.isValid()) {
-                    synchronized (this) {
-                        return props = new EditableProperties(true);
-                    }
-                }
-                if (props == null) {
-                    props = loadProperties(metadataFile);
-                }
-            }
-        } else {
-            long newLastModified = metadataFile == null || !metadataFile.isValid() ? Long.MIN_VALUE : metadataFile.lastModified().getTime();
-            synchronized (this) {
-                if (newLastModified != lastModifiedFileDate) {
-                    props = loadProperties(metadataFile);
-                }
-            }
-        }
-        return props;
-    }
-
-    private FileObject getMetadataFile(boolean create) {
-        String fname = METADATA_DIR + '/' + METADATA_PROPERTIES_FILE;
-        FileObject result = project.getProjectDirectory().getFileObject(fname);
-        if (result == null && create) {
-            try {
-                result = FileUtil.createData(project.getProjectDirectory(), fname);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        return result;
-    }
-
-    private EditableProperties loadProperties(FileObject metadataFile) {
-        assert Thread.holdsLock(this);
-        EditableProperties result = new EditableProperties(true);
-        if (metadataFile != null) {
-            lastModifiedFileDate = metadataFile.lastModified().getTime();
-            try {
-                InputStream in = metadataFile.getInputStream();
-                try {
-                    result.load(in);
-                } finally {
-                    in.close();
-                }
-                if (!listening) {
-                    metadataFile.addFileChangeListener(FileUtil.weakFileChangeListener(changeListener, this));
-                }
-            } catch (IOException ioe) {
-                LOGGER.log(Level.SEVERE, "Failure reading project metadata for {0}", project.getProjectDirectory().getPath());
-                LOGGER.log(Level.SEVERE, null, ioe);
-            }
-        }
-        return result;
-    }
-    private final FileChangeListener changeListener = new FileChangeAdapter() {
-
-        @Override
-        public void fileChanged(FileEvent fe) {
-            synchronized (ProjectMetadataImpl.this) {
-                props = null;
-            }
-        }
-    };
-
-    @Override
-    public void save() throws IOException {
-        EditableProperties properties;
-        synchronized (this) {
-            properties = props;
-        }
-        if (properties == null) {
-            return;
-        }
-        FileObject metadataFile = getMetadataFile(true);
-        OutputStream out = metadataFile.getOutputStream();
-        try {
-            properties.store(out);
-            synchronized (this) {
-                lastModifiedFileDate = metadataFile.lastModified().getTime();
-            }
-        } finally {
-            out.close();
-        }
-    }
-    private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
-
-    @Override
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        supp.addPropertyChangeListener(pcl);
+        supp.addPropertyChangeListener(WeakListeners.propertyChange(pcl, supp));
     }
 }

@@ -41,8 +41,15 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.api.project.Project;
+import org.netbeans.validation.api.Problems;
+import org.netbeans.validation.api.builtin.Validators;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbCollections;
 import org.openide.util.Parameters;
 
 /**
@@ -56,7 +63,11 @@ public class NodeJSProjectProperties {
     NodeJSProjectProperties(NodeJSProject project) {
         this.project = project;
     }
-    
+
+    Project project() {
+        return project;
+    }
+
     public String getDisplayName() {
         String result = project.metadata().getValue(ProjectMetadata.PROP_NAME);
         if (result == null) {
@@ -64,10 +75,75 @@ public class NodeJSProjectProperties {
         }
         return result;
     }
-    
+
     public void setDisplayName(String name) {
         Parameters.notNull("name", name);
         project.metadata().setValue(ProjectMetadata.PROP_NAME, name);
+    }
+
+    public void setDescription(String description) {
+        System.out.println("set description '" + description + "'");
+        Parameters.notNull("description", description);
+        project.metadata().setValue(ProjectMetadata.PROP_DESCRIPTION, description);
+    }
+
+    public void setLicense(String kind, URL url) {
+        project.metadata().setValue(ProjectMetadata.PROP_LICENSE_KIND, kind);
+        project.metadata().setValue(ProjectMetadata.PROP_LICENSE_URL, url.toString());
+    }
+
+    public void setLicenseType(String type) {
+        project.metadata().setValue(ProjectMetadata.PROP_LICENSE_KIND, type);
+    }
+
+    public void setLicenseURL(URL url) {
+        project.metadata().setValue(ProjectMetadata.PROP_LICENSE_URL, url.toString());
+    }
+
+    public String getLicenseType() {
+        return project.metadata().getValue(ProjectMetadata.PROP_LICENSE_KIND);
+    }
+
+    public String getLicenseURL() {
+        return project.metadata().getValue(ProjectMetadata.PROP_LICENSE_URL);
+    }
+
+    public String getDescription() {
+        return project.metadata().getValue(ProjectMetadata.PROP_DESCRIPTION);
+    }
+
+    public void setAuthor(String author) {
+        project.metadata().setValue(ProjectMetadata.PROP_AUTHOR_NAME, author);
+    }
+
+    public void setAuthorEmail(String email) {
+        if (email != null && !"".equals(email)) {
+            Problems p = new Problems();
+            assert Validators.EMAIL_ADDRESS.validate(p, "email", email); //NOI18N
+            if (p.hasFatal()) {
+                throw new IllegalArgumentException(p.getLeadProblem().getMessage());
+            }
+        }
+        project.metadata().setValue(ProjectMetadata.PROP_AUTHOR_EMAIL, email);
+    }
+
+    public void setBugTrackerURL(URL url) {
+        project.metadata().setValue(ProjectMetadata.PROP_BUG_URL, url + "");
+    }
+
+    public void setKeywords(String commaDelimited) {
+        String[] s = commaDelimited.split(",");
+        List<String> l = new ArrayList<String>();
+        for (String ss : s) {
+            l.add(ss.trim());
+        }
+        project.metadata().setValue(ProjectMetadata.PROP_KEYWORDS, l);
+    }
+
+    public List<String> getKeywords() {
+        List<?> l = project.metadata().getValues(ProjectMetadata.PROP_KEYWORDS);
+        System.out.println("Keywords: " + l);
+        return NbCollections.checkedListByCopy(l, String.class, false);
     }
 
     public void setMainFile(FileObject fileObject) {
@@ -90,7 +166,15 @@ public class NodeJSProjectProperties {
         return result;
     }
 
-    String getLicense() {
-        return project.metadata().getValue("license"); //NOI18N
+    public String getAuthorEmail() {
+        return project.metadata().getValue(ProjectMetadata.PROP_AUTHOR_EMAIL);
+    }
+
+    public String getAuthorName() {
+        return project.metadata().getValue(ProjectMetadata.PROP_AUTHOR_NAME);
+    }
+
+    String getBugTrackerURL() {
+        return project.metadata().getValue(ProjectMetadata.PROP_BUG_URL);
     }
 }

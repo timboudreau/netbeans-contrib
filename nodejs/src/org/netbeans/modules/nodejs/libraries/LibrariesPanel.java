@@ -49,6 +49,8 @@ package org.netbeans.modules.nodejs.libraries;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -59,6 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
@@ -79,7 +82,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
     private final RequestProcessor rp2 = new RequestProcessor("npm output processor", 1, true, true);
     private final RequestProcessor.Task task;
     private final RequestProcessor.Task outTask;
-
+    private final String defaultText = NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.searchField.text");
     /** Creates new form LibrariesPanel */
     @SuppressWarnings("LeakingThisInConstructor")
     public LibrariesPanel(NodeJSProject project) {
@@ -93,6 +96,13 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
         jScrollPane1.setAutoscrolls(false);
         inner.setAutoscrolls(false);
         jScrollPane1.getViewport().setAutoscrolls(false);
+        searchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                searchField.setForeground(UIManager.getColor("textText"));
+                searchField.removeKeyListener(this);
+            }
+        });
     }
 
     /** This method is called from within the constructor to
@@ -117,6 +127,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
 
         searchLabel.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.searchLabel.text")); // NOI18N
 
+        searchField.setForeground(javax.swing.UIManager.getDefaults().getColor("controlShadow"));
         searchField.setText(org.openide.util.NbBundle.getMessage(LibrariesPanel.class, "LibrariesPanel.searchField.text")); // NOI18N
 
         inner.setLayout(new javax.swing.BoxLayout(inner, javax.swing.BoxLayout.Y_AXIS));
@@ -140,7 +151,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 793, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(instructionsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -151,7 +162,7 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
                         .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE))
+                    .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 793, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

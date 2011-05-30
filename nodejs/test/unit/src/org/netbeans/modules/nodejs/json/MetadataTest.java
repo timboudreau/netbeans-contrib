@@ -35,37 +35,56 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  *
- * Contributor(s): Tim Boudreau
+ * Contributor(s):
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.nodejs;
+package org.netbeans.modules.nodejs.json;
+import org.netbeans.modules.nodejs.ProjectMetadataImpl;
 
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.nodejs.ProjectMetadata;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 
 /**
  *
- * @author tim
+ * @author Tim Boudreau
  */
-public interface ProjectMetadata {
-
-    public static final String PROP_MAIN_FILE = "main";
-    public static final String PROP_TEST_FILE = "test";
-    public static final String PROP_NAME = "name";
-    public static final String PROP_DESCRIPTION = "description";
-    public static final String PROP_LICENSE_KIND = "license.type";
-    public static final String PROP_LICENSE_URL = "license.url";
-    public static final String PROP_AUTHOR_NAME = "author.name";
-    public static final String PROP_AUTHOR_EMAIL = "author.email";
-    public static final String PROP_BUG_URL = "bugs.web";
-    public static final String PROP_KEYWORDS = "keywords";
-
-    public String getValue(String key);
-
-    public void setValue(String key, String value);
-
-    public void save() throws IOException;
+public class MetadataTest {
+    Fake fake = new Fake();
+    ProjectMetadata impl = new ProjectMetadataImpl(fake);
     
-    public void addPropertyChangeListener(PropertyChangeListener pcl);
+    @Test
+    public void test() {
+        impl.setValue("name", "thing");
+        assertEquals ("thing", impl.getValue("name"));
+        impl.setValue("name", "another");
+        assertEquals ("another", impl.getValue("name"));
+        test("foo.bar", "foobar");
+        test("foo.baz", "foobaz");
+        test("foo.fung.hey", "hey");
+        System.out.println(impl);
+    }
+    
+    private void test (String key, String val) {
+        impl.setValue(key, val);
+        assertEquals (val, impl.getValue(key));
+    }
+    
+    static class Fake implements Project {
+        FileObject root = FileUtil.createMemoryFileSystem().getRoot();
+
+        public FileObject getProjectDirectory() {
+            return root;
+        }
+
+        public Lookup getLookup() {
+            return Lookup.EMPTY;
+        }
+        
+    }
 }

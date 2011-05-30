@@ -89,7 +89,7 @@ public class ProjectRootNode extends AbstractNode {
         setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/logo.png");
         super.setName(ProjectUtils.getInformation(project).getDisplayName());
     }
-
+    
     public Action[] getActions(boolean ignored) {
         final ResourceBundle bundle =
                 NbBundle.getBundle(ProjectRootNode.class);
@@ -185,6 +185,17 @@ public class ProjectRootNode extends AbstractNode {
         actions.add(SystemAction.get(FindAction.class));
         actions.add(null);
         actions.add(Lookups.forPath("Project/NodeJS/Actions").lookup(Action.class));
+        actions.add(new AbstractAction() {
+            {
+                putValue(NAME, NbBundle.getMessage(ProjectRootNode.class, "PROPERTIES"));
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PropertiesPanel(project.getLookup().lookup(NodeJSProjectProperties.class)).showDialog();
+            }
+            
+        });
         return actions.toArray(new Action[actions.size()]);
     }
 }

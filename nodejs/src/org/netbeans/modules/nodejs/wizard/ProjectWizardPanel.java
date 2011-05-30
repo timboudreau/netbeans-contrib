@@ -166,6 +166,7 @@ public class ProjectWizardPanel extends JPanel implements DocumentListener {
         nameField.setName(nameLabel.getText());
         portField.setName(portLabel.getText());
         createInField.setName(createInLabel.getText());
+        packageJsonBox.setVisible(false); //we now use package.json as primary metadata
     }
 
     static final class ParentMustExistValidator implements Validator<String> {

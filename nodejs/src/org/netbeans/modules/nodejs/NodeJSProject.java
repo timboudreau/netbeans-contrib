@@ -47,6 +47,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -101,12 +103,9 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Tim Boudreau
  */
-public class NodeJSProject implements Project, ProjectConfiguration, ActionProvider, Comparable<NodeJSProject>, LogicalViewProvider, ProjectInformation, PrivilegedTemplates, RecommendedTemplates, CreateFromTemplateAttributesProvider {
+public class NodeJSProject implements Project, ProjectConfiguration, ActionProvider, Comparable<NodeJSProject>, LogicalViewProvider, ProjectInformation, PrivilegedTemplates, RecommendedTemplates, CreateFromTemplateAttributesProvider, PropertyChangeListener {
 
     private final FileObject dir;
-    public static final String METADATA_DIR = "nbproject"; //NOI18N
-    public static final String MARKER_FILE = "nodeproject.properties"; //NOI18N
-    public static final String METADATA_PROPERTIES_FILE = "project.properties"; //NOI18N
     private final ProjectState state;
     static final String MAIN_FILE_COMMAND = "set_main_file"; //NOI18N
     static final String PROPERTIES_COMMAND = "project_properties"; //NOI18N
@@ -122,6 +121,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     NodeJSProject(FileObject dir, ProjectState state) {
         this.dir = dir;
         this.state = state;
+        metadata.addPropertyChangeListener(this);
     }
 
     ProjectState state() {
@@ -144,7 +144,11 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
 
     @Override
     public String getDisplayName() {
-        return getLookup().lookup(NodeJSProjectProperties.class).getDisplayName();
+        String result = getLookup().lookup(NodeJSProjectProperties.class).getDisplayName();
+        if (result == null || "".equals(result)) {
+            result = getProjectDirectory().getName();
+        }
+        return result;
     }
 
     @Override
@@ -219,13 +223,34 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         int otherPathLength = t.getProjectDirectory().getPath().length();
         return myPathLength > otherPathLength ? -1 : myPathLength < otherPathLength ? 0 : 1;
     }
+    private Reference<ProjectRootNode> rn = null;
 
     @Override
     public Node createLogicalView() {
-        return new ProjectRootNode(this);
+        ProjectRootNode n = new ProjectRootNode(this);
+        synchronized (this) {
+            rn = new WeakReference<ProjectRootNode>(n);
+        }
+        return n;
     }
-    
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProjectMetadata.PROP_NAME.equals(evt.getPropertyName())) {
+            ProjectRootNode n = null;
+            synchronized (this) {
+                if (rn != null) {
+                    n = rn.get();
+                }
+            }
+            if (n != null) {
+                n.setDisplayName(evt.getNewValue() + "");
+            }
+        }
+    }
+
     private static final class AllJSFiles extends ChildFactory<FileObject> implements Comparator<FileObject> {
+
         private final FileObject root;
 
         public AllJSFiles(FileObject root) {
@@ -238,13 +263,13 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             Collections.sort(toPopulate, this);
             return true;
         }
-        
-        private void createKeys (FileObject fo, List<FileObject> toPopulate) {
+
+        private void createKeys(FileObject fo, List<FileObject> toPopulate) {
             for (FileObject file : fo.getChildren()) {
                 if (file.getExt().equals("js") && file.isData()) { //NOI18N
                     toPopulate.add(file);
                 } else if (file.isFolder()) {
-                    createKeys (file, toPopulate);
+                    createKeys(file, toPopulate);
                 }
             }
         }
@@ -252,7 +277,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         @Override
         protected Node createNodeForKey(FileObject key) {
             try {
-                DataObject dob = DataObject.find (key);
+                DataObject dob = DataObject.find(key);
                 return new JSFileFilterNode(dob.getNodeDelegate());
             } catch (DataObjectNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
@@ -276,16 +301,17 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
                 return p1.getName().compareToIgnoreCase(p2.getName());
             }
         }
-        
+
         private final class JSFileFilterNode extends FilterNode {
+
             public JSFileFilterNode(Node original) {
                 super(original, Children.LEAF);
             }
-            
+
             public Action[] getActions(boolean ignored) {
                 return new Action[0];
             }
-            
+
             private String getRelativePath() {
                 FileObject fo = getLookup().lookup(DataObject.class).getPrimaryFile();
                 if (fo != null && !fo.getParent().equals(root)) {
@@ -322,7 +348,6 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             }
         }
     }
-    
 
     private FileObject showSelectMainFileDialog() {
         ExplorerPanel ep = new ExplorerPanel();
@@ -383,7 +408,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
 
     @Override
     public Map<String, ?> attributesFor(DataObject template, DataFolder target, String name) {
-        String license = getLookup().lookup(NodeJSProjectProperties.class).getLicense();
+        String license = getLookup().lookup(NodeJSProjectProperties.class).getLicenseType();
         Map<String, Object> result = new HashMap<String, Object>();
         if (license != null) {
             result.put("project.license", license); //NOI18N
@@ -395,6 +420,33 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
 
     @Override
     public Node findPath(Node root, Object target) {
+        System.out.println("Target is " + target + " " + target.getClass().getName());
+        FileObject fo;
+        if (target instanceof DataObject) {
+            fo = ((DataObject) target).getPrimaryFile();
+        } else if (target instanceof FileObject) {
+            fo = (FileObject) target;
+        } else {
+            return null;
+        }
+        if (FileUtil.isParentOf(getProjectDirectory(), fo)) {
+            Node n = rn == null ? null : rn.get();
+            if (n != null) {
+                String relPath = FileUtil.getRelativePath(getProjectDirectory(), fo);
+                String[] paths = relPath.split("/"); //NOI18N
+                Node curr = n;
+                for (String path : paths) {
+                    curr = n.getChildren().findChild(path);
+                    System.out.println("Find child " + path + " found? " + curr);
+                    if (curr == null) {
+                        break;
+                    }
+                }
+                return curr;
+            } else {
+                System.out.println("no node");
+            }
+        }
         return null;
     }
 

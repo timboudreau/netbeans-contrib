@@ -41,6 +41,7 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -57,6 +58,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.nodejs.NodeProjectSourceNodeFactory.Key;
@@ -66,8 +69,6 @@ import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
-import org.openide.cookies.EditCookie;
-import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -84,6 +85,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.openide.windows.TopComponent;
 
 /**
  *
@@ -115,7 +117,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
             if (fo.isData()) {
                 keys.add(new Key(KeyTypes.SOURCE, fo));
             } else if (fo.isFolder()) {
-                if (fo.getName().equals(NodeJSProject.METADATA_DIR) || fo.equals(libFolder)) {
+                if (fo.getName().equals("package.json") || fo.equals(libFolder)) {
                     continue;
                 }
                 keys.add(new Key(KeyTypes.SOURCE, fo));
@@ -510,7 +512,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         }
 
         public Action[] getActions(boolean ignored) {
-            Action[] result = super.getActions();
+            Action[] result = super.getActions(ignored);
             List<Action> l = new ArrayList<Action>(Arrays.asList(result));
             if (bugUrl != null) {
                 try {
@@ -543,6 +545,28 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    org.netbeans.modules.nodejs.json.JsonPanel jp = new org.netbeans.modules.nodejs.json.JsonPanel(fo);
+                    DataObject dob = DataObject.find(fo);
+                    TopComponent tc = new TopComponent(dob.getLookup()) {
+                        @Override
+                        public int getPersistenceType() {
+                            return TopComponent.PERSISTENCE_NEVER;
+                        }
+                    };
+                    tc.setDisplayName(fo.getParent().getName());
+                    tc.setLayout(new BorderLayout());
+                    JScrollPane ssc = new JScrollPane(jp);
+                    ssc.setBorder(BorderFactory.createEmptyBorder());
+                    ssc.setViewportBorder(BorderFactory.createEmptyBorder());
+                    tc.add(ssc, BorderLayout.CENTER);
+                    tc.open();
+                    tc.requestActive();
+                } catch (Exception ex) {
+                    //already logged
+                }
+                
+                /*
+                try {
                     DataObject dob = DataObject.find(fo);
                     OpenCookie oc = dob.getLookup().lookup(OpenCookie.class);
                     if (oc == null) {
@@ -556,6 +580,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                 } catch (DataObjectNotFoundException ex) {
                     //do nothing
                 }
+                */
 
             }
         }

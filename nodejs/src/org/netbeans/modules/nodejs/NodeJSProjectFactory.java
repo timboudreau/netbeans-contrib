@@ -57,7 +57,6 @@ import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ImageUtilities;
-import static org.netbeans.modules.nodejs.NodeJSProject.*;
 
 /**
  *
@@ -71,10 +70,11 @@ public class NodeJSProjectFactory implements ProjectFactory2 {
 
     @Override
     public boolean isProject(FileObject fo) {
-        FileObject metadataDir = fo.getFileObject(METADATA_DIR);
-        FileObject metadataFile = metadataDir == null ? null
-                : metadataDir.getFileObject(NodeJSProject.METADATA_PROPERTIES_FILE);
-        return metadataFile != null;
+//        FileObject metadataDir = fo.getFileObject(METADATA_DIR);
+//        FileObject metadataFile = metadataDir == null ? null
+//                : metadataDir.getFileObject(NodeJSProject.METADATA_PROPERTIES_FILE);
+//        return metadataFile != null;
+        return fo.getFileObject("package.json") != null;
     }
 
     NodeJSProject findOwner(FileObject fo) throws IOException {
@@ -89,10 +89,10 @@ public class NodeJSProjectFactory implements ProjectFactory2 {
             }
         }
         FileObject projectDir = fo;
-        while (projectDir != null && (!projectDir.isFolder() || projectDir.getFileObject(NodeJSProject.METADATA_DIR) == null)) {
+        while (projectDir != null && (!projectDir.isFolder() || projectDir.getFileObject("package.json") == null)) {
             projectDir = projectDir.getParent();
         }
-        if (projectDir != null && projectDir.getFileObject(NodeJSProject.METADATA_DIR) != null) {
+        if (projectDir != null && projectDir.getFileObject("package.json") != null) {
             Project p = ProjectManager.getDefault().findProject(projectDir);
             if (p != null) {
                 return p.getLookup().lookup(NodeJSProject.class);

@@ -72,6 +72,7 @@ public class UiUtil {
                     String newName = NbBundle.getMessage(outer.getClass(), name);
                     c.setName(newName);
                 } catch (MissingResourceException e) {
+                    System.out.println(name+'=');
                     continue;
                 }
             }

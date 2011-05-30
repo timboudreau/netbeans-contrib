@@ -10,7 +10,10 @@
     },
 
     "keywords":     [],
-    "license":      "${license}",
+
+    "licenses":      {
+        "type": "${license}"
+    }
 
 /*
   "repository" : {
