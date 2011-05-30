@@ -8,7 +8,7 @@
         <folder name="Project">
             <folder name="nodejs">
                 <attr name="displayName" bundlevalue="org.netbeans.modules.nodejs.Bundle#Templates/Project/nodejs"/>
-                <attr name="position" intvalue="471"/>
+                <attr name="position" intvalue="472"/>
 
                 <file name="HelloWorldProjectTemplate.properties" url="templates/HelloWorldProjectTemplate.properties">
                     <attr name="displayName" bundlevalue="org.netbeans.modules.nodejs.Bundle#Templates/Project/nodejs/HelloWorldProjectTemplate.properties"/>
