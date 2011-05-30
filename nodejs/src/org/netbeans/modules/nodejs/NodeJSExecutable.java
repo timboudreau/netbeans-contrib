@@ -42,19 +42,17 @@
 package org.netbeans.modules.nodejs;
 
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.netbeans.api.extexecution.ExecutionDescriptor.LineConvertorFactory;
-import org.netbeans.api.extexecution.print.ConvertedLine;
-import org.netbeans.api.extexecution.print.LineConvertor;
 import org.openide.LifecycleManager;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -71,7 +69,11 @@ public abstract class NodeJSExecutable {
     }
 
     public final void run(FileObject targetFile) throws IOException {
-        assert targetFile.isValid() && targetFile.isData();
+        if (!targetFile.isValid() || !targetFile.isData()) {
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
+                    NodeJSExecutable.class, "MSG_CANNOT_RUN", targetFile.getPath()));
+            Toolkit.getDefaultToolkit().beep();
+        }
         assert !EventQueue.isDispatchThread();
         LifecycleManager.getDefault().saveAll();
         doRun(targetFile);
