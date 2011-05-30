@@ -133,8 +133,10 @@ public class NodeJSProjectFactory implements ProjectFactory2 {
 
     @Override
     public Result isProject2(FileObject fo) {
-        return new ProjectManager.Result(ImageUtilities.loadImageIcon(
-                NodeJSProjectFactory.class.getPackage().getName().replace('.', '/')
-                + "project.png", false));
+        if (isProject(fo)) {
+            return new ProjectManager.Result(ImageUtilities.loadImageIcon(
+                    "org/netbeans/modules/nodejs/resources/logo.png", false));
+        }
+        return null;
     }
 }
