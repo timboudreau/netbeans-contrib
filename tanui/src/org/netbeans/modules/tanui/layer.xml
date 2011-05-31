@@ -2,6 +2,7 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Editors">
+        <attr name="currentFontColorProfile" stringvalue="Tan"/>
         <folder name="FontsColors">
             <folder name="Tan">
                 <file name="org-netbeans-modules-editor-settings-CustomFontsColors-tokenColorings.xml" url="Editors-FontsColors-Tim-org-netbeans-modules-editor-settings-CustomFontsColors-tokenColorings.xml.content">

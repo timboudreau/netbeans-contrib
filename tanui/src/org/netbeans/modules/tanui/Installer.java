@@ -39,16 +39,12 @@
 package org.netbeans.modules.tanui;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInstall;
-import org.openide.util.Exceptions;
 
 /**
  * @author Tim Boudreau
@@ -131,22 +127,4 @@ public class Installer extends ModuleInstall {
         return false;
     }
 
-    @Override
-    public void restored() {
-        boolean themeSet = FileUtil.getConfigFile("themeSet") != null; //NOI18N
-        if (!themeSet) {
-            //Manually set the editor profile
-            FileObject fo = FileUtil.getConfigFile("Editors"); //NOI18N
-            try {
-                fo.setAttribute("currentFontColorProfile", "Tan"); //NOI18N
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            try {
-                FileUtil.getConfigRoot().createData("themeSet"); //NOI18N
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-    }
 }
