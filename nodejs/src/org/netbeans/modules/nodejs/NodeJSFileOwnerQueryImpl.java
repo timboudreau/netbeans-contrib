@@ -63,7 +63,7 @@ public class NodeJSFileOwnerQueryImpl implements FileOwnerQueryImplementation {
     public Project getOwner(URI uri) {
         File file = new File(uri);
         FileObject fo = FileUtil.toFileObject(file);
-        return getOwner(fo);
+        return fo != null ? getOwner(fo) : null;
     }
 
     @Override
