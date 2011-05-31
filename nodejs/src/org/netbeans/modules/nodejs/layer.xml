@@ -22,6 +22,7 @@
         </folder>
         <folder name="javascript">
             <attr name="displayName" bundlevalue="org.netbeans.modules.nodejs.Bundle#Templates/javascript"/>
+            <attr name="position" intvalue="1644"/>
             <file name="Empty.js" url="templates/Empty.js">
                 <attr name="displayName" bundlevalue="org.netbeans.modules.nodejs.Bundle#Empty.js"/>
                 <attr name="template" boolvalue="true"/>
