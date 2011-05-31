@@ -53,6 +53,7 @@ import org.netbeans.spi.project.ProjectFactory2;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -62,7 +63,7 @@ import org.openide.util.ImageUtilities;
  *
  * @author Tim Boudreau
  */
-@ServiceProvider(service = ProjectFactory2.class)
+@ServiceProvider(service = ProjectFactory.class)
 public class NodeJSProjectFactory implements ProjectFactory2 {
 
     private final Set<NodeJSProject> cache = 
@@ -112,6 +113,9 @@ public class NodeJSProjectFactory implements ProjectFactory2 {
 
     @Override
     public Project loadProject(FileObject fo, ProjectState ps) throws IOException {
+        if (!isProject(fo)) {
+            return null;
+        }
         NodeJSProject result = new NodeJSProject(fo, ps);
         for (Iterator<NodeJSProject> i = cache.iterator(); i.hasNext();) {
             NodeJSProject p = i.next();
