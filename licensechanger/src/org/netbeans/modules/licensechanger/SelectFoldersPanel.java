@@ -41,7 +41,6 @@ package org.netbeans.modules.licensechanger;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.modules.licensechanger.FolderChildren.FolderItem;
 import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
@@ -78,9 +77,9 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         Set <FileObject> folders = new HashSet<FileObject>();
         for (Node n : mgr.getRootContext().getChildren().getNodes(true)) {
             if (Boolean.TRUE.equals(n.getValue(CheckboxListView.SELECTED))) {
-                FolderItem item = n.getLookup().lookup(FolderItem.class);
-                if (item != null) {
-                    folders.add(item.getFolder());
+                FileObject f = n.getLookup().lookup(FileObject.class);
+                if (f != null) {
+                    folders.add(f);
                 }
             }
         }
@@ -102,9 +101,9 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         Set<FileObject> result = new HashSet<FileObject>();
         for (Node n : mgr.getRootContext().getChildren().getNodes(true)) {
             if (Boolean.TRUE.equals(n.getValue(CheckboxListView.SELECTED))) {
-                FolderItem item = n.getLookup().lookup(FolderItem.class);
-                if (item != null) {
-                    result.add (item.getFolder());
+                FileObject f = n.getLookup().lookup(FileObject.class);
+                if (f != null) {
+                    result.add(f);
                 }
             }
         }

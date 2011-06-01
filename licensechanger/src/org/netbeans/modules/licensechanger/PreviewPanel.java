@@ -245,6 +245,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
                 FileItem item = n[0].getLookup().lookup(FileItem.class);
                 if (item != null) {
                     setFileItem(item);
+                    // XXX use FileUtil.getFileDisplayName rather than FileObject.getPath
                     jLabel3.setText (item.file.getPath());
                 } else {
                     before.setText("");
@@ -260,6 +261,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
 
     private void setFileItem(FileItem item) {
         if (item.file.isValid()) {
+            // XXX should use Diff API instead (like refactoring preview)
             before.setContentType("text/plain");
             after.setContentType("text/plain");
             before.setText("Loading " + item.file.getPath());

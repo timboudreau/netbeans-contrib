@@ -1,71 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="netbeans" name="contrib/licensechanger">
-    <description>Builds, tests, and runs the project org.netbeans.modules.licensechanger</description>
-    <property name="licenses-dir" value="${basedir}/../../nbbuild/licenses"/>
-    <available file="${licenses-dir}" property="licenses-dir-found"/>
-    <property name="licenses-list-file" value="${basedir}/src/org/netbeans/modules/licensechanger/licenses.txt"/>
-    <property name="licenses-dest-dir" value="${basedir}/src/org/netbeans/modules/licensechanger/licenses"/>
-    <condition property="isUnix">
-        <os family="unix"/>
-    </condition>
-    <condition property="isWindows">
-        <os family="windows"/>
-    </condition>
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="-release.files" depends="copy-wizard-lib, projectized.-release.files"/>
-
-    <target name="copy-wizard-lib" description="copy-wizard-library">
-        <mkdir dir="${basedir}/release/modules/ext"/>
-        <copy file="${basedir}/../o.yourorghere.wizard2/release/modules/ext/wizard.jar"
-            todir="${basedir}/release/modules/ext"/>
-    </target>
-
-    <target name="build-init" depends="copy-licenses,projectized.build-init"/>
-
-    <target name="clean" depends="projectized-common.clean">
-        <delete dir="${licenses-dest-dir}"/>
-        <delete file="${licenses-list-file}"/>
-    </target>
-
-    <target name="copy-licenses" depends="create-license-list" description="Copy license files">
-        <fail unless="licenses-dir-found">
-            Could not find ${licenses-dir}
-        </fail>
-        <mkdir dir="${licenses-dest-dir}"/>
-        <copy todir="${licenses-dest-dir}">
+    <target name="compile" depends="projectized-common.compile">
+        <mkdir dir="${build.classes.dir}/org/netbeans/modules/licensechanger/licenses"/>
+        <copy todir="${build.classes.dir}/org/netbeans/modules/licensechanger/licenses">
             <fileset dir="${basedir}/../../nbbuild/licenses">
-                <include name="*"/>
-                <exclude name="BSD-jsch-variant"/>
-                <exclude name="Northwoods"/>
-                <exclude name="freemarker"/>
+                <!-- XXX would it be better to just include the ones we _do_ want? -->
+                <exclude name="ANTLR-2"/>
                 <exclude name="Apache-1.1-xmlunit_variant"/>
                 <exclude name="Apache-2.0-Vera-Perseus"/>
                 <exclude name="Apache-JDOM"/>
-                <exclude name="HttpUnit"/>
-                <exclude name="prefuse-BSD"/>
+                <exclude name="BSD-jsch-variant"/>
+                <exclude name="DOM4J-BSD"/>
                 <exclude name="GPL-with-Proguard-exception"/>
+                <exclude name="HttpUnit"/>
+                <exclude name="Northwoods"/>
+                <exclude name="Subversion"/>
+                <exclude name="TEL_For_NB_dbxGUI"/>
+                <exclude name="cobertura"/>
+                <exclude name="freemarker"/>
+                <exclude name="prefuse-BSD"/>
             </fileset>
         </copy>
+        <fileset dir="${build.classes.dir}/org/netbeans/modules/licensechanger/licenses" id="license.files"/>
+        <pathconvert property="license.files.nl" pathsep="&#10;" refid="license.files">
+            <mapper type="flatten"/>
+        </pathconvert>
+        <echo file="${build.classes.dir}/org/netbeans/modules/licensechanger/licenses.txt" message="${license.files.nl}"/>
     </target>
 
-    <target name="create-license-list" description="Create a list of license files">
-        <fileset dir="${licenses-dir}" id="license.files">
-            <include name="*"/>
-            <exclude name="BSD-jsch-variant"/>
-            <exclude name="Northwoods"/>
-            <exclude name="freemarker"/>
-            <exclude name="Apache-1.1-xmlunit_variant"/>
-            <exclude name="Apache-2.0-Vera-Perseus"/>
-            <exclude name="Apache-JDOM"/>
-            <exclude name="HttpUnit"/>
-            <exclude name="prefuse-BSD"/>
-            <exclude name="GPL-with-Proguard-exception"/>
-        </fileset>
-        <pathconvert dirsep="/" property="license-files" pathsep="&#13;" refid="license.files">
-            <map from="${licenses-dir}" to=""/>
-        </pathconvert>
-        <echo file="${licenses-list-file}" message="${license-files}"/>
-    </target>
 </project>

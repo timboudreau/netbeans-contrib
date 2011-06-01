@@ -62,6 +62,7 @@
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/wizard.jar</runtime-relative-path>
+                <!-- XXX switch to external/binaries-list: 6457C7671CCE963183972513BA7DE661512A3653 wizard.java.net.264.jar -->
                 <binary-origin>release/modules/ext/wizard.jar</binary-origin>
             </class-path-extension>
         </data>

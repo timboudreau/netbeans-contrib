@@ -103,9 +103,6 @@
 ^lexer.editorbridge.calc/src/org/netbeans/modules/lexer/editorbridge/calc/\.xvpics$
 ^lib.graphlayout/dist/javadoc$
 ^lib.graphlayout/test$
-^licensechanger/release/modules/ext/wizard\.jar$
-^licensechanger/src/org/netbeans/modules/licensechanger/licenses/*$
-^licensechanger/src/org/netbeans/modules/licensechanger/licenses\.txt$
 ^loaderswitcher/Info$
 ^loaderswitcher/manifest-subst\.mf$
 ^loaderswitcher/netbeans$

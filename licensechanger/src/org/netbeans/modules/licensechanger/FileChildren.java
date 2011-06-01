@@ -70,6 +70,8 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
     private final Set<FileItem> items = Collections.synchronizedSet(new HashSet<FileItem>());
 
     FileChildren(Set<FileObject> folders, Map<Object, Object> settings) {
+        assert folders != null;
+        assert settings != null;
         this.settings = settings;
         this.folders = new HashSet<FileObject>(folders);
         allHandlers = Lookup.getDefault().lookupAll(FileHandler.class);
