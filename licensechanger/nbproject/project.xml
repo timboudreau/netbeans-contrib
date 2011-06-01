@@ -94,7 +94,7 @@
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/wizard.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/wizard.jar</binary-origin>
+                <binary-origin>../o.yourorghere.wizard2/release/modules/ext/wizard.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
