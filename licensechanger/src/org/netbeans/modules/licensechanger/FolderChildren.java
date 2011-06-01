@@ -42,7 +42,6 @@ package org.netbeans.modules.licensechanger;
 import java.awt.EventQueue;
 import java.util.List;
 import javax.swing.Action;
-import org.netbeans.modules.licensechanger.FolderChildren.FolderItem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -62,7 +61,7 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author Tim Boudreau
  */
-abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implements Runnable {
+abstract class FolderChildren extends ChildFactory.Detachable<FileObject> implements Runnable {
     private FileObject[] roots;
     volatile int keyCount = 0;
     private int nodeCount = 0;
@@ -94,39 +93,45 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
     }
 
     private boolean shouldSkipFolder (FileObject folder) {
+        // XXX use VisibilityQuery instead
         String path = folder.getPath();
         return path.contains(".svn") || path.contains(".cvs") || path.contains(".hg") ||
                 path.endsWith(".svn") || path.endsWith(".cvs") || path.endsWith(".hg");
     }
 
     @Override
-    protected boolean createKeys(List<FolderItem> toPopulate) {
+    protected boolean createKeys(List<FileObject> toPopulate) {
         for (FileObject f : roots) {
+            toPopulate.add(f);
+            keyCount++;
             for (FileObject fo : NbCollections.iterable(f.getChildren(true))) {
                 if (fo.isFolder()) {
                     if (shouldSkipFolder(fo)) {
                         continue;
                     }
-                    String relPath = FileUtil.getRelativePath(f, fo);
-                    toPopulate.add(new FolderItem(fo, relPath, f.getPath()));
+                    toPopulate.add(fo);
                     keyCount++;
                 }
-                if (cancelled) return true;
+                if (cancelled) {
+                    return true;
+                }
             }
-            if (cancelled) return true;
+            if (cancelled) {
+                return true;
+            }
         }
         return true;
     }
 
     @Override
-    protected Node createNodeForKey(FolderItem key) {
+    protected Node createNodeForKey(FileObject f) {
         try {
-            Node n = DataObject.find(key.folder).getNodeDelegate();
+            Node n = DataObject.find(f).getNodeDelegate();
             nodeCount++;
             if (nodeCount == keyCount) {
                 EventQueue.invokeLater(this);
             }
-            return new FN (n, key);
+            return new FN(n, f);
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
             return null;
@@ -139,26 +144,10 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
         onAllNodesCreated();
     }
 
-    final static class FolderItem {
-        private final FileObject folder;
-        private final String relativePath;
-        private final String rootPath;
-
-        public FolderItem(FileObject folder, String relativePath, String rootPath) {
-            this.folder = folder;
-            this.relativePath = relativePath;
-            this.rootPath = rootPath;
-        }
-
-        public FileObject getFolder() {
-            return folder;
-        }
-    }
-
     private static final class FN extends FilterNode {
-        FN(Node orig, FolderItem item) {
+        FN(Node orig, FileObject f) {
             super (orig, Children.LEAF, new ProxyLookup(
-                    Lookups.singleton(item),
+                    Lookups.singleton(f),
                     orig.getLookup()));
             disableDelegation(DELEGATE_GET_ACTIONS);
             disableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);
@@ -168,22 +157,14 @@ abstract class FolderChildren extends ChildFactory.Detachable<FolderItem> implem
             disableDelegation(DELEGATE_SET_VALUE);
             disableDelegation(DELEGATE_SET_NAME);
             disableDelegation(DELEGATE_GET_NAME);
-            if (!item.relativePath.endsWith("nbproject") && 
-                !item.relativePath.endsWith("nbproject/private") &&
-                !item.relativePath.contains("/tmp") &&
-                !item.relativePath.contains("META-INF")) { //NOI18N
+            String p = f.getPath();
+            // XXX this is a pretty arbitrary list... maybe check SharabilityQuery?
+            if (!p.endsWith("nbproject") &&
+                !p.endsWith("nbproject/private")) { //NOI18N
                 setValue (CheckboxListView.SELECTED, Boolean.TRUE);
             }
-            setName (item.relativePath);
-            setDisplayName (item.relativePath);
-            setShortDescription(item.relativePath);
-            setName (item.relativePath);
-        }
-
-        @Override
-        public String getHtmlDisplayName() {
-            FolderItem item = getLookup().lookup(FolderItem.class);
-            return super.getDisplayName() + " (" + item.rootPath + ")";
+            setName(p);
+            setDisplayName(FileUtil.getFileDisplayName(f));
         }
 
         @Override
