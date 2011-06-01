@@ -42,4 +42,10 @@ made subject to such option by the copyright holder.
 -->
 <project name="contrib/javahints" default="netbeans" basedir=".">
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="do-unit-test-build" depends="-fix-testdist,projectized.do-unit-test-build" />
+    <target name="-fix-testdist">
+        <echo>${nb_all}/nbbuild/build/testdist/extralibs/${module.jar.basename}</echo>
+        <delete file="${nb_all}/nbbuild/build/testdist/extralibs/${module.jar.basename}" />
+    </target>
 </project>
