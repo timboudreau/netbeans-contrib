@@ -93,8 +93,8 @@
                 <package>org.netbeans.modules.licensechanger.api</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/wizard.jar</runtime-relative-path>
-                <binary-origin>../o.yourorghere.wizard2/release/modules/ext/wizard.jar</binary-origin>
+                <runtime-relative-path>ext/wizard.java.net.264.jar</runtime-relative-path>
+                <binary-origin>external/wizard.java.net.264.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
