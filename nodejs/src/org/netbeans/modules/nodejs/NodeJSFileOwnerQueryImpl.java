@@ -69,10 +69,12 @@ public class NodeJSFileOwnerQueryImpl implements FileOwnerQueryImplementation {
     @Override
     public Project getOwner(FileObject fo) {
         NodeJSProjectFactory factory = Lookup.getDefault().lookup(NodeJSProjectFactory.class);
-        try {
-            return factory.findOwner(fo);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+        if (factory != null) { //happens when module is being reloaded
+            try {
+                return factory.findOwner(fo);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
         return null;
     }

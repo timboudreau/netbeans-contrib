@@ -56,7 +56,7 @@ public class SimpleJSONParserTest {
 
     @Test
     public void testParse() throws IOException, JsonException {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 10; i++) {
             parseJSON("package_" + i + ".json");
         }
         for (int i = 0; i < 4; i++) {
