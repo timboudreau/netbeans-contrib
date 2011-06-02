@@ -62,6 +62,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.queries.VisibilityQuery;
 import org.netbeans.modules.nodejs.NodeProjectSourceNodeFactory.Key;
 import org.netbeans.modules.nodejs.NodeProjectSourceNodeFactory.KeyTypes;
 import org.netbeans.modules.nodejs.json.SimpleJSONParser;
@@ -112,22 +113,27 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
     @Override
     public List<Key> keys() {
         List<Key> keys = new ArrayList<Key>();
+        
         FileObject libFolder = project.getProjectDirectory().getFileObject("node_modules");
+        VisibilityQuery q = VisibilityQuery.getDefault();
         for (FileObject fo : project.getProjectDirectory().getChildren()) {
-            if (fo.isData()) {
-                keys.add(new Key(KeyTypes.SOURCE, fo));
-            } else if (fo.isFolder()) {
-                if (fo.getName().equals("package.json") || fo.equals(libFolder)) {
-                    continue;
+            if (q.isVisible(fo)) {
+                if (fo.isData()) {
+                    keys.add(new Key(KeyTypes.SOURCE, fo));
+                } else if (fo.isFolder()) {
+                    if (fo.getName().equals("package.json") || fo.equals(libFolder)) {
+                        continue;
+                    }
+                    keys.add(new Key(KeyTypes.SOURCE, fo));
                 }
-                keys.add(new Key(KeyTypes.SOURCE, fo));
             }
         }
         //now add libraries
         if (libFolder != null) {
             List<Key> libFolders = new ArrayList<Key>();
             for (FileObject lib : libFolder.getChildren()) {
-                if (!"node_modules".equals(lib.getName()) && !"nbproject".equals(lib.getName()) && lib.isFolder()) {
+                boolean visible = q.isVisible(lib);
+                if (visible && !"node_modules".equals(lib.getName()) && !"nbproject".equals(lib.getName()) && lib.isFolder()) {
                     Key key = new Key(KeyTypes.LIBRARY, lib);
                     key.direct = true;
                     keys.add(key);

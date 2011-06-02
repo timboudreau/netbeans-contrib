@@ -63,6 +63,7 @@ import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.actions.FindAction;
+import org.openide.actions.PasteAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
@@ -183,6 +184,8 @@ public class ProjectRootNode extends AbstractNode {
         actions.add(CommonProjectActions.deleteProjectAction());
         actions.add(null);
         actions.add(SystemAction.get(FindAction.class));
+        actions.add(null);
+        actions.add(SystemAction.get(PasteAction.class));
         actions.add(null);
         actions.add(Lookups.forPath("Project/NodeJS/Actions").lookup(Action.class));
         actions.add(new AbstractAction() {

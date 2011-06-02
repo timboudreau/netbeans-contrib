@@ -165,38 +165,37 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
     private volatile boolean hasErrors;
 
     private final Map<String, Object> getMap() {
-        if (map == null) {
+        if (map != null) {
             synchronized (this) {
-                if (map != null) {
-                    return map;
-                }
-            }
-            FileObject fo = project.getProjectDirectory().getFileObject("package.json");
-            if (fo != null) {
-                try {
-                    fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
-                    SimpleJSONParser p = new SimpleJSONParser(true);
-                    synchronized (this) {
-                        map = Collections.synchronizedMap(p.parse(fo));
-                    }
-                    if (hasErrors = p.hasErrors()) {
-                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
-                    }
-                } catch (JsonException ex) {
-                    Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
-                            "Bad package.json in " + fo.getPath(), ex);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-            synchronized (this) {
-                return map = Collections.synchronizedMap(new HashMap<String, Object>());
+                return map;
             }
         }
-        return map;
+        FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+        if (fo != null) {
+            try {
+                fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
+                SimpleJSONParser p = new SimpleJSONParser(true);
+                Map<String, Object> m = p.parse(fo);
+                synchronized (this) {
+                    map = Collections.synchronizedMap(m);
+                }
+                if (hasErrors = p.hasErrors()) {
+                    StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
+                }
+                
+            } catch (JsonException ex) {
+                Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
+                        "Bad package.json in " + fo.getPath(), ex);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        synchronized(this) {
+            return map == null ? new LinkedHashMap<String,Object>() : map;
+        }
     }
-    volatile int saveCount;
 
+    volatile int saveCount;
     @Override
     public void fileChanged(FileEvent fe) {
         if (saveCount > 0) {
@@ -304,7 +303,7 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
             if (hasErrors) {
                 NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ProjectMetadataImpl.class, "OVERWRITE_BAD_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()));
                 if (!DialogDisplayer.getDefault().notify(nd).equals(nd.OK_OPTION)) {
-                    synchronized(this) {
+                    synchronized (this) {
                         map = null;
                     }
                     return;
