@@ -179,7 +179,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
                     @Override
                     public void run() {
                         try {
-                            exe.run(toRun);
+                            exe.run(toRun, getLookup().lookup(NodeJSProjectProperties.class).getRunArguments());
                         } catch (IOException ex) {
                             throw new IllegalArgumentException(ex);
                         }

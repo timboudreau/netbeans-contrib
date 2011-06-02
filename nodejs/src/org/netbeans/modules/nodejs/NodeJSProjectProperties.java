@@ -41,6 +41,9 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,7 @@ import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.builtin.Validators;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.NbCollections;
 import org.openide.util.Parameters;
 
@@ -176,5 +180,36 @@ public class NodeJSProjectProperties {
 
     String getBugTrackerURL() {
         return project.metadata().getValue(ProjectMetadata.PROP_BUG_URL);
+    }
+
+    public void setRunArguments(String args) {
+        //Run arguments are very likely to be machine-specific and have no
+        //business in package.json
+        try {
+            FileObject fo = project.getProjectDirectory().getFileObject(".nbrun");
+            if (fo != null && (args == null || args.trim().length() == 0) ) {
+                fo.delete();
+                return;
+            } else if (fo == null) {
+                fo = project.getProjectDirectory().createData(".nbrun");
+            }
+            OutputStream out = fo.getOutputStream();
+            PrintStream ps = new PrintStream(out);
+            ps.println(args);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public String getRunArguments() {
+        FileObject fo = project.getProjectDirectory().getFileObject(".nbrun");
+        if (fo != null) {
+            try {
+                return fo.asText().trim();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return null;
     }
 }

@@ -68,7 +68,7 @@ public abstract class NodeJSExecutable {
         return exe;
     }
 
-    public final void run(FileObject targetFile) throws IOException {
+    public final void run(FileObject targetFile, String args) throws IOException {
         if (!targetFile.isValid() || !targetFile.isData()) {
             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
                     NodeJSExecutable.class, "MSG_CANNOT_RUN", targetFile.getPath()));
@@ -76,10 +76,10 @@ public abstract class NodeJSExecutable {
         }
         assert !EventQueue.isDispatchThread();
         LifecycleManager.getDefault().saveAll();
-        doRun(targetFile);
+        doRun(targetFile, args);
     }
 
-    protected abstract Future<Integer> doRun(FileObject file) throws IOException;
+    protected abstract Future<Integer> doRun(FileObject file, String args) throws IOException;
 
     public abstract void setNodeExecutable(String location);
 
@@ -88,7 +88,7 @@ public abstract class NodeJSExecutable {
     static final class DummyExectable extends NodeJSExecutable {
 
         @Override
-        protected Future<Integer> doRun(FileObject file) throws IOException {
+        protected Future<Integer> doRun(FileObject file, String args) throws IOException {
             return new Future<Integer>() {
 
                 @Override

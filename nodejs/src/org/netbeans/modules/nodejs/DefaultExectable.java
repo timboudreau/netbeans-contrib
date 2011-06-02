@@ -109,7 +109,7 @@ public final class DefaultExectable extends NodeJSExecutable {
     }
 
     @Override
-    protected Future<Integer> doRun(FileObject file) throws IOException {
+    protected Future<Integer> doRun(FileObject file, String args) throws IOException {
         File f = FileUtil.toFile(file);
         String executable = getNodeExecutable(true);
         if (executable == null) {
@@ -118,7 +118,14 @@ public final class DefaultExectable extends NodeJSExecutable {
             Toolkit.getDefaultToolkit().beep();
             return null;
         }
-        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath()).redirectErrorStream(true).workingDirectory(f.getParentFile());
+        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath());
+        if (args != null) {
+            //If we cared, the javacard runtime module has full blown argv processing
+            for (String arg : args.split(" ")) {
+                b = b.addArgument(arg);
+            }
+        }
+        b = b.workingDirectory(FileUtil.toFile(file.getParent())).redirectErrorStream(true).workingDirectory(f.getParentFile());
         ExecutionDescriptor des = new ExecutionDescriptor().showProgress(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter());
         ExecutionService service = ExecutionService.newService(b, des, file.getName());
         return service.run();

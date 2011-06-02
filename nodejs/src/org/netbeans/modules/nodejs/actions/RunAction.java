@@ -78,7 +78,7 @@ public final class RunAction implements ActionListener, Runnable {
     @Override
     public void run() {
         try {
-            NodeJSExecutable.getDefault().run(context.getPrimaryFile());
+            NodeJSExecutable.getDefault().run(context.getPrimaryFile(), null);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }

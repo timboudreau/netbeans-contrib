@@ -43,7 +43,6 @@ package org.netbeans.modules.nodejs;
 
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -87,8 +86,6 @@ final class LineConverter implements LineConvertorFactory {
 
             @Override
             public List<ConvertedLine> convert(String line) {
-                System.out.println("convert " + line);
-
                 Matcher m = ERR_PATTERN.matcher(line);
                 OutputListener ol = null;
                 if (m.find()) {
@@ -97,7 +94,6 @@ final class LineConverter implements LineConvertorFactory {
                     int lineNumber = Integer.parseInt(m.group(3));
                     int charPos = Integer.parseInt(m.group(4));
                     ol = new Link(clazz, path, lineNumber, charPos);
-                    System.out.println("");
                 }
                 return Collections.singletonList(ConvertedLine.forText(line, ol));
             }
