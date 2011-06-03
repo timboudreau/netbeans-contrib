@@ -88,12 +88,25 @@ final class LineConverter implements LineConvertorFactory {
             public List<ConvertedLine> convert(String line) {
                 Matcher m = ERR_PATTERN.matcher(line);
                 OutputListener ol = null;
-                if (m.find()) {
-                    String clazz = m.group(1);
-                    String path = m.group(2);
-                    int lineNumber = Integer.parseInt(m.group(3));
-                    int charPos = Integer.parseInt(m.group(4));
-                    ol = new Link(clazz, path, lineNumber, charPos);
+                try {
+                    if (m.find()) {
+                        String clazz = m.group(1);
+                        String path = m.group(2);
+                        int lineNumber = Integer.parseInt(m.group(3));
+                        int charPos = Integer.parseInt(m.group(4));
+                        ol = new Link(clazz, path, lineNumber, charPos);
+                    } else {
+                        m = SYNTAX_ERR_PATTERN.matcher(line);
+                        if (m.find()) {
+                            String clazz = null;
+                            String path = m.group(1);
+                            int lineNumber = Integer.parseInt(m.group(2));
+                            int charPos = 0;
+                            ol = new Link(clazz, path, lineNumber, charPos);
+                        }
+                    }
+                } catch (NumberFormatException nfe) {
+                    //do nothing - some output looked like a stack element by accident
                 }
                 return Collections.singletonList(ConvertedLine.forText(line, ol));
             }
@@ -101,6 +114,10 @@ final class LineConverter implements LineConvertorFactory {
     }
     private static final Pattern ERR_PATTERN =
             Pattern.compile("at\\s(.*?)\\s\\((.*?.js):(\\d+):(\\d+)\\)");
+    //e.g. at Server.<anonymous> (/home/tim/Fooger/src/Fooger.js:7:5)
+    private static final Pattern SYNTAX_ERR_PATTERN =
+            Pattern.compile("(\\/.*?\\.js):(\\d+)");
+    //e.g. /home/tim/work/personal/captcha/captcha.js:38
 
     private static class Link implements OutputListener {
 
@@ -168,8 +185,4 @@ final class LineConverter implements LineConvertorFactory {
             return path + " line " + line + " pos " + charPos;
         }
     }
-    /*
-    at Server.<anonymous> (/home/tim/Fooger/src/Fooger.js:7:5)
-    convert     at Server.emit (events.js:67:17)
-     */
 }

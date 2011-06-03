@@ -52,6 +52,9 @@ import java.util.prefs.Preferences;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
@@ -107,7 +110,7 @@ public final class DefaultExectable extends NodeJSExecutable {
         }
         preferences().put(NODE_EXE_KEY, location);
     }
-
+    
     @Override
     protected Future<Integer> doRun(FileObject file, String args) throws IOException {
         File f = FileUtil.toFile(file);
@@ -118,19 +121,30 @@ public final class DefaultExectable extends NodeJSExecutable {
             Toolkit.getDefaultToolkit().beep();
             return null;
         }
-        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath());
+        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath()).workingDirectory(f.getParentFile());
         if (args != null) {
             //If we cared, the javacard runtime module has full blown argv processing
             for (String arg : args.split(" ")) {
                 b = b.addArgument(arg);
             }
         }
+        Project p = FileOwnerQuery.getOwner(file);
+        String displayName = file.getName();
+        if (p != null && p.getLookup().lookup(NodeJSProject.class) != null) {
+            NodeJSProject info = p.getLookup().lookup(NodeJSProject.class);
+            displayName = info.getDisplayName();
+            if (!file.equals(info.getLookup().lookup(NodeJSProjectProperties.class).getMainFile())) {
+                displayName += "-" + file.getName();
+            }
+        }
         b = b.workingDirectory(FileUtil.toFile(file.getParent())).redirectErrorStream(true).workingDirectory(f.getParentFile());
         ExecutionDescriptor des = new ExecutionDescriptor().showProgress(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter());
-        ExecutionService service = ExecutionService.newService(b, des, file.getName());
+        ExecutionService service = ExecutionService.newService(b, des, displayName);
         return service.run();
     }
 
+//        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showSuspended(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter());
+    
     private String lookForNodeExecutable(boolean showDialog) {
         StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
                 DefaultExectable.class, "LOOK_FOR_EXE")); //NOI18N
