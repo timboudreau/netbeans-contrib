@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.util.concurrent.Future;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
@@ -112,7 +113,7 @@ public final class DefaultExectable extends NodeJSExecutable {
     }
     
     @Override
-    protected Future<Integer> doRun(FileObject file, String args) throws IOException {
+    protected Future<Integer> doRun(final FileObject file, String args) throws IOException {
         File f = FileUtil.toFile(file);
         String executable = getNodeExecutable(true);
         if (executable == null) {
@@ -138,7 +139,23 @@ public final class DefaultExectable extends NodeJSExecutable {
             }
         }
         b = b.workingDirectory(FileUtil.toFile(file.getParent())).redirectErrorStream(true).workingDirectory(f.getParentFile());
-        ExecutionDescriptor des = new ExecutionDescriptor().showProgress(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter());
+        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showSuspended(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter()).rerunCondition(new ExecutionDescriptor.RerunCondition() {
+
+            @Override
+            public void addChangeListener(ChangeListener listener) {
+                //do nothing
+            }
+
+            @Override
+            public void removeChangeListener(ChangeListener listener) {
+                //do nothing
+            }
+
+            @Override
+            public boolean isRerunPossible() {
+                return file.isValid();
+            }
+        });
         ExecutionService service = ExecutionService.newService(b, des, displayName);
         return service.run();
     }
