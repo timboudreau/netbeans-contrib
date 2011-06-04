@@ -126,7 +126,7 @@ public class OrganizeImports extends AbstractHint {
         }
 
         @Override
-        protected void performRewrite(WorkingCopy wc, TreePath tp, UpgradeUICallback callback) {
+        protected void performRewrite(WorkingCopy wc, TreePath tp, boolean canShowUI) {
             organizeImports(wc);
         }
     }

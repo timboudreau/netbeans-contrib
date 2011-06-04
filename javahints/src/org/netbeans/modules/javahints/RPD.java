@@ -80,7 +80,7 @@ public class RPD {
         }
 
         @Override
-        protected void performRewrite(WorkingCopy wc, TreePath tp, UpgradeUICallback callback) {
+        protected void performRewrite(WorkingCopy wc, TreePath tp, boolean canShowUI) {
             String fieldName = fieldCache.get(wc);
             Scope s = Utilities.constructScope(wc, Collections.<String, TypeMirror>emptyMap());
 
