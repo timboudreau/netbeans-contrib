@@ -28,20 +28,16 @@
 
 package org.netbeans.modules.javahints.tasklist;
 
-import com.sun.source.tree.Tree.Kind;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.modules.java.hints.jackpot.impl.RulesManager;
 import org.netbeans.modules.java.hints.jackpot.impl.hints.HintsInvoker;
 import org.netbeans.modules.java.hints.jackpot.spi.HintDescription;
-import org.netbeans.modules.java.hints.jackpot.spi.HintDescription.PatternDescription;
 import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
 import org.netbeans.modules.java.hints.options.HintsSettings;
 import org.netbeans.spi.editor.hints.ErrorDescription;
@@ -62,13 +58,7 @@ public class ComputeTasks {
             hints.addAll(e.getValue());
         }
 
-        Map<Kind, List<HintDescription>> kind2Hints = new HashMap<Kind, List<HintDescription>>();
-        Map<PatternDescription, List<HintDescription>> pattern2Hints = new HashMap<PatternDescription, List<HintDescription>>();
-
-        RulesManager.sortOut(hints, kind2Hints, pattern2Hints);
-
-        List<ErrorDescription> errors = new HintsInvoker(info, cancel).computeHints(info, kind2Hints, pattern2Hints);
-
+        List<ErrorDescription> errors = new HintsInvoker(info, cancel).computeHints(info, hints);
         List<Task> result = new LinkedList<Task>();
 
         for (ErrorDescription e : errors) {
