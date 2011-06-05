@@ -46,6 +46,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -55,14 +57,15 @@ import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
+import org.openide.util.WeakSet;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -74,6 +77,25 @@ public final class DefaultExectable extends NodeJSExecutable {
 
     private static final String NODE_EXE_KEY = "nodejs_binary";
     private static final String PORT_KEY = "port";
+    private static DefaultExectable instance;
+
+    @SuppressWarnings("LeakingThisInConstructor")
+    public DefaultExectable() {
+        assert instance == null;
+        instance = this;
+    }
+
+    public static DefaultExectable get() {
+        if (instance == null) {
+            NodeJSExecutable e = NodeJSExecutable.getDefault();
+            if (e instanceof DefaultExectable) {
+                instance = (DefaultExectable) e;
+            } else {
+                instance = new DefaultExectable();
+            }
+        }
+        return instance;
+    }
 
     private Preferences preferences() {
         return NbPreferences.forModule(NodeJSExecutable.class);
@@ -111,9 +133,30 @@ public final class DefaultExectable extends NodeJSExecutable {
         }
         preferences().put(NODE_EXE_KEY, location);
     }
-    
+
+    public void stopRunningProcesses(NodeJSProject p) {
+        FileObject f = p.getLookup().lookup(NodeJSProjectProperties.class).getMainFile();
+        if (f != null) {
+            for (Rerunner r : runners) {
+                if (f.equals(r.file)) {
+                    r.stopOldProcessIfRunning();
+                }
+            }
+        }
+    }
+
     @Override
     protected Future<Integer> doRun(final FileObject file, String args) throws IOException {
+        Rerunner old = null;
+        for (Rerunner r : runners) {
+            if (file.equals(r.file)) {
+                old = r;
+                break;
+            }
+        }
+        if (old != null) {
+            old.stopOldProcessIfRunning();
+        }
         File f = FileUtil.toFile(file);
         String executable = getNodeExecutable(true);
         if (executable == null) {
@@ -122,9 +165,9 @@ public final class DefaultExectable extends NodeJSExecutable {
             Toolkit.getDefaultToolkit().beep();
             return null;
         }
-        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath()).workingDirectory(f.getParentFile());
+        ExternalProcessBuilder b = new ExternalProcessBuilder(executable).addArgument(f.getAbsolutePath()).workingDirectory(f.getParentFile()).redirectErrorStream(true);
+
         if (args != null) {
-            //If we cared, the javacard runtime module has full blown argv processing
             for (String arg : args.split(" ")) {
                 b = b.addArgument(arg);
             }
@@ -138,30 +181,80 @@ public final class DefaultExectable extends NodeJSExecutable {
                 displayName += "-" + file.getName();
             }
         }
-        b = b.workingDirectory(FileUtil.toFile(file.getParent())).redirectErrorStream(true).workingDirectory(f.getParentFile());
-        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showSuspended(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter()).rerunCondition(new ExecutionDescriptor.RerunCondition() {
 
-            @Override
-            public void addChangeListener(ChangeListener listener) {
-                //do nothing
-            }
+        Rerunner rerunner = new Rerunner(file, b);
+        synchronized (this) {
+            runners.add(rerunner);
+        }
+        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showSuspended(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter()).rerunCondition(rerunner).preExecution(rerunner).postExecution(rerunner).optionsPath("Advanced/Node");
 
-            @Override
-            public void removeChangeListener(ChangeListener listener) {
-                //do nothing
-            }
-
-            @Override
-            public boolean isRerunPossible() {
-                return file.isValid();
-            }
-        });
-        ExecutionService service = ExecutionService.newService(b, des, displayName);
+        ExecutionService service = ExecutionService.newService(rerunner, des, displayName);
         return service.run();
     }
+    private Set<Rerunner> runners = new WeakSet<Rerunner>();
 
-//        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showSuspended(true).frontWindow(true).outLineBased(true).controllable(true).errLineBased(true).errConvertorFactory(new LineConverter()).outLineBased(true).outConvertorFactory(new LineConverter());
-    
+    static class Rerunner implements ExecutionDescriptor.RerunCondition, Runnable, Callable<Process> {
+
+        private final FileObject file;
+        private volatile int prePost;
+        private final ChangeSupport supp = new ChangeSupport(this);
+        private final Callable<Process> processCreator;
+
+        public Rerunner(FileObject file, ExternalProcessBuilder b) {
+            this.file = file;
+            this.processCreator = b;
+        }
+
+        @Override
+        public void addChangeListener(ChangeListener listener) {
+            supp.addChangeListener(listener);
+        }
+
+        @Override
+        public void removeChangeListener(ChangeListener listener) {
+            supp.removeChangeListener(listener);
+        }
+
+        @Override
+        public boolean isRerunPossible() {
+            return file.isValid();
+        }
+
+        @Override
+        public synchronized void run() {
+            boolean isPre = (prePost++ % 2) == 0;
+            if (isPre) {
+                supp.fireChange();
+            }
+        }
+
+        public void stopOldProcessIfRunning() {
+            Process p;
+            synchronized (this) {
+                p = this.process;
+            }
+            if (p != null && (prePost % 2) != 0) {
+                StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Rerunner.class, "STOPPING", file.getName()));
+                p.destroy();
+                try {
+                    p.waitFor();
+                } catch (InterruptedException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        Process process;
+
+        @Override
+        public Process call() throws Exception {
+            Process result = processCreator.call();
+            synchronized (this) {
+                process = result;
+            }
+            return result;
+        }
+    }
+
     private String lookForNodeExecutable(boolean showDialog) {
         StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(
                 DefaultExectable.class, "LOOK_FOR_EXE")); //NOI18N

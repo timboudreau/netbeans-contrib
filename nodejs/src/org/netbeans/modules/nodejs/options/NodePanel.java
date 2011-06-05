@@ -54,7 +54,6 @@ import javax.swing.event.DocumentListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.nodejs.DefaultExectable;
-import org.netbeans.modules.nodejs.ui.DowngradeValidator;
 import org.netbeans.modules.nodejs.ui.UiUtil;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
@@ -74,7 +73,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
 
     private final NodeOptionsPanelController controller;
     private final ValidationGroup g;
-    private final DefaultExectable exe = new DefaultExectable();
+    private final DefaultExectable exe = DefaultExectable.get();
 
     @SuppressWarnings("LeakingThisInConstructor")
     NodePanel(NodeOptionsPanelController controller) {
@@ -85,7 +84,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
         g.add(binaryField, Validators.REQUIRE_NON_EMPTY_STRING, Validators.FILE_MUST_EXIST, Validators.FILE_MUST_BE_FILE);
         g.add(sourcesField, new FileOrArchiveValidator());
         g.add(authorField, Validators.REQUIRE_NON_EMPTY_STRING);
-        g.add(emailField, Validators.EMAIL_ADDRESS);
+        g.add(emailField, new AllowNullValidator(Validators.EMAIL_ADDRESS));
         UiUtil.prepareComponents(this);
         portField.getDocument().addDocumentListener(this);
         binaryField.getDocument().addDocumentListener(this);
@@ -100,9 +99,25 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
         }
         return false;
     }
+    
+    private static final class AllowNullValidator implements Validator<String> {
+        private final Validator<String> other;
+
+        public AllowNullValidator(Validator<String> other) {
+            this.other = other;
+        }
+
+        @Override
+        public boolean validate(Problems prblms, String string, String model) {
+            if (model == null) {
+                return true;
+            }
+            return other.validate(prblms, string, model);
+        }
+        
+    }
 
     private static final class FileOrArchiveValidator implements Validator<String> {
-
         @Override
         public boolean validate(Problems prblms, String string, String model) {
             if (model == null || "".equals(model)) {
@@ -400,7 +415,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
                             downloadButton.setEnabled(true);
                             if (dest != null && dest.exists()) {
                                 sourcesField.setText(dest.getAbsolutePath());
-                                new DefaultExectable().setSourcesLocation(dest.getAbsolutePath());
+                                DefaultExectable.get().setSourcesLocation(dest.getAbsolutePath());
                             }
                     }
                 }

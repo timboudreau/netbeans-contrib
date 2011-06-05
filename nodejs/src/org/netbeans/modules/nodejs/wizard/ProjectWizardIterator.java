@@ -56,7 +56,7 @@ public class ProjectWizardIterator implements WizardDescriptor.ProgressInstantia
         ProjectCreator gen = new ProjectCreator(dest);
 
         Map<String, String> templateProperties = NbCollections.checkedMapByFilter(wiz.getProperties(), String.class, String.class, false);
-        templateProperties.put(ProjectWizardKeys.WIZARD_PROP_PORT, new DefaultExectable().getDefaultPort() + "");
+        templateProperties.put(ProjectWizardKeys.WIZARD_PROP_PORT, DefaultExectable.get().getDefaultPort() + "");
         templateProperties.put("project.license", panel.getLicense());
         templateProperties.put("license", panel.getLicense() == null ? "none" : panel.getLicense());
         templateProperties.put("author", NodePanel.getAuthor());

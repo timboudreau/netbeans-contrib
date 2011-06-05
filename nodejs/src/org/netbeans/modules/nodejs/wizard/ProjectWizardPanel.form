@@ -29,17 +29,14 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="portField" min="-2" pref="78" max="-2" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="createInField" pref="370" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="browseButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="nameField" alignment="0" pref="444" max="32767" attributes="0"/>
+                          <Component id="nameField" alignment="0" pref="471" max="32767" attributes="0"/>
                           <Component id="licenseCombo" alignment="0" min="-2" pref="161" max="-2" attributes="0"/>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="portField" min="-2" pref="78" max="-2" attributes="0"/>
-                              <EmptySpace min="366" pref="366" max="366" attributes="0"/>
-                          </Group>
                       </Group>
                   </Group>
               </Group>
@@ -57,8 +54,8 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -115,7 +112,7 @@
     <Component class="javax.swing.JTextField" name="portField">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="&quot;&quot; + new DefaultExectable().getDefaultPort()" type="code"/>
+          <Connection code="&quot;&quot; + DefaultExectable.get().getDefaultPort()" type="code"/>
         </Property>
       </Properties>
     </Component>

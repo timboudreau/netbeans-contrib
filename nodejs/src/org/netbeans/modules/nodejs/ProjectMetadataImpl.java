@@ -58,6 +58,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.nodejs.json.SimpleJSONParser;
 import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
 import org.openide.DialogDisplayer;
@@ -70,6 +71,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem.AtomicAction;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.Mutex;
+import org.openide.util.MutexException;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;
@@ -103,7 +106,7 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
             return toString(getMap().get(key));
         }
     }
-
+    
     public List<?> getValues(String key) {
         Object result = null;
         if (key.indexOf('.') > 0) {
@@ -163,6 +166,7 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
     }
     private volatile Map<String, Object> map;
     private volatile boolean hasErrors;
+    private volatile boolean listening;
 
     private final Map<String, Object> getMap() {
         if (map != null) {
@@ -170,32 +174,48 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
                 return map;
             }
         }
-        FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+        final FileObject fo = project.getProjectDirectory().getFileObject("package.json");
         if (fo != null) {
             try {
-                fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
-                SimpleJSONParser p = new SimpleJSONParser(true);
-                Map<String, Object> m = p.parse(fo);
-                synchronized (this) {
-                    map = Collections.synchronizedMap(m);
-                }
-                if (hasErrors = p.hasErrors()) {
+                final boolean[] err = new boolean[1];
+                Map<String, Object> m = ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Map<String, Object>>() {
+
+                    @Override
+                    public Map<String, Object> run() throws Exception {
+                        if (!listening) {
+                            fo.addFileChangeListener(FileUtil.weakFileChangeListener(ProjectMetadataImpl.this, fo));
+                            listening = true;
+                        }
+                        try {
+                            SimpleJSONParser p = new SimpleJSONParser(true); //permissive mode - will parse as much as it can
+                            Map<String, Object> m = p.parse(fo);
+                            ProjectMetadataImpl.this.hasErrors = err[0] = p.hasErrors();
+                            synchronized (ProjectMetadataImpl.this) {
+                                map = Collections.synchronizedMap(m);
+                            }
+                            return m;
+                        } catch (JsonException ex) {
+                            throw new MutexException(ex);
+                        } catch (IOException ex) {
+                            throw new MutexException(ex);
+                        }
+                    }
+                });
+                if (err[0]) {
                     StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
                 }
-                
-            } catch (JsonException ex) {
+                return m;
+            } catch (MutexException ex) {
                 Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
                         "Bad package.json in " + fo.getPath(), ex);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
             }
         }
-        synchronized(this) {
-            return map == null ? new LinkedHashMap<String,Object>() : map;
+        synchronized (this) {
+            return map == null ? new LinkedHashMap<String, Object>() : map;
         }
     }
-
     volatile int saveCount;
+
     @Override
     public void fileChanged(FileEvent fe) {
         if (saveCount > 0) {
@@ -318,25 +338,43 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
                     if (save == null) {
                         save = project.getProjectDirectory().createData("package.json");
                     }
+                    final FileObject writeTo = save;
                     try {
-                        CharSequence seq = SimpleJSONParser.out(map);
-                        OutputStream out = save.getOutputStream();
-                        try {
-                            ByteArrayInputStream in = new ByteArrayInputStream(seq.toString().getBytes("UTF-8"));
-                            FileUtil.copy(in, out);
-                        } finally {
-                            out.close();
-                            synchronized (this) { //tests
-                                notifyAll();
+                        ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+
+                            @Override
+                            public Void run() throws Exception {
+                                CharSequence seq = SimpleJSONParser.out(map);
+                                OutputStream out = writeTo.getOutputStream();
+                                try {
+                                    ByteArrayInputStream in = new ByteArrayInputStream(seq.toString().getBytes("UTF-8"));
+                                    FileUtil.copy(in, out);
+                                } catch (FileAlreadyLockedException e) {
+                                    Logger.getLogger(ProjectMetadataImpl.class.getName()).log(
+                                            Level.INFO, "Could not save properties for {0} - queue for later",
+                                            project.getProjectDirectory().getPath());
+                                    queueSave();
+                                } finally {
+                                    out.close();
+                                    synchronized (ProjectMetadataImpl.this) { //tests
+                                        ProjectMetadataImpl.this.notifyAll();
+                                    }
+                                    saveCount++;
+                                }
+                                hasErrors = false;
+                                return null;
                             }
-                            saveCount++;
+                        });
+                    } catch (MutexException e) {
+                        if (e.getCause() instanceof IOException) {
+                            throw (IOException) e.getCause();
+                        } else if (e.getCause() instanceof RuntimeException) {
+                            throw (RuntimeException) e.getCause();
+                        } else if (e.getCause() instanceof Error) {
+                            throw (Error) e.getCause();
+                        } else {
+                            throw new AssertionError(e);
                         }
-                        hasErrors = false;
-                    } catch (FileAlreadyLockedException e) {
-                        Logger.getLogger(ProjectMetadataImpl.class.getName()).log(
-                                Level.INFO, "Could not save properties for {0} - queue for later",
-                                project.getProjectDirectory().getPath());
-                        queueSave();
                     }
                 }
             });

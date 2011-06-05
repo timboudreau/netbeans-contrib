@@ -41,9 +41,11 @@
  */
 package org.netbeans.modules.nodejs;
 
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -62,16 +64,22 @@ import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.actions.FileSystemAction;
 import org.openide.actions.FindAction;
 import org.openide.actions.PasteAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -90,7 +98,7 @@ public class ProjectRootNode extends AbstractNode {
         setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/logo.png");
         super.setName(ProjectUtils.getInformation(project).getDisplayName());
     }
-    
+
     public Action[] getActions(boolean ignored) {
         final ResourceBundle bundle =
                 NbBundle.getBundle(ProjectRootNode.class);
@@ -129,7 +137,7 @@ public class ProjectRootNode extends AbstractNode {
 
                             @Override
                             public void run() {
-                                ProgressHandle h = ProgressHandleFactory.createHandle(NbBundle.getMessage(ProjectRootNode.class, 
+                                ProgressHandle h = ProgressHandleFactory.createHandle(NbBundle.getMessage(ProjectRootNode.class,
                                         "MSG_RUNNING_NPM", libraries.size(), project.getDisplayName())); //NOI18N
                                 try {
                                     h.start((libraries.size() * 2) + 1);
@@ -176,6 +184,7 @@ public class ProjectRootNode extends AbstractNode {
             }
         });
         actions.add(null);
+        actions.add(CommonProjectActions.setAsMainProjectAction());
         actions.add(CommonProjectActions.closeProjectAction());
         actions.add(null);
         actions.add(CommonProjectActions.renameProjectAction());
@@ -187,8 +196,10 @@ public class ProjectRootNode extends AbstractNode {
         actions.add(null);
         actions.add(SystemAction.get(PasteAction.class));
         actions.add(null);
+        actions.add(getFilesystemAction());
         actions.add(Lookups.forPath("Project/NodeJS/Actions").lookup(Action.class));
         actions.add(new AbstractAction() {
+
             {
                 putValue(NAME, NbBundle.getMessage(ProjectRootNode.class, "PROPERTIES"));
             }
@@ -197,8 +208,28 @@ public class ProjectRootNode extends AbstractNode {
             public void actionPerformed(ActionEvent e) {
                 new PropertiesPanel(project.getLookup().lookup(NodeJSProjectProperties.class)).showDialog();
             }
-            
         });
         return actions.toArray(new Action[actions.size()]);
+    }
+    
+    private Action getFilesystemAction() {
+        FileSystemAction a = SystemAction.get(FileSystemAction.class);
+        try {
+            Node n = DataObject.find(project.getProjectDirectory()).getNodeDelegate();
+            return a.createContextAwareInstance(n.getLookup());
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+            return a;
+        }
+    }
+
+    @Override
+    protected void createPasteTypes(Transferable t, List<PasteType> s) {
+        try {
+            Node n = DataObject.find(project.getProjectDirectory()).getNodeDelegate();
+            s.addAll(Arrays.asList(n.getPasteTypes(t)));
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 }

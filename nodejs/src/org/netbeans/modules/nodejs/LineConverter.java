@@ -72,7 +72,7 @@ final class LineConverter implements LineConvertorFactory {
     private FileObject sourceRoot;
 
     LineConverter() {
-        DefaultExectable e = new DefaultExectable();
+        DefaultExectable e = DefaultExectable.get();
         String s = e.getSourcesLocation();
         if (s != null) {
             File f = new File(s);
@@ -142,7 +142,7 @@ final class LineConverter implements LineConvertorFactory {
         public void outputLineAction(OutputEvent ev) {
             String pathLocal = this.path;
             if (pathLocal.indexOf('/') < 0) { //NOI18N
-                String sourcePath = new DefaultExectable().getSourcesLocation();
+                String sourcePath = DefaultExectable.get().getSourcesLocation();
                 if (sourcePath != null) {
                     File f = new File(sourcePath);
                     f = new File(f, pathLocal);

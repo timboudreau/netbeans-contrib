@@ -46,14 +46,19 @@ import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -65,14 +70,20 @@ import org.netbeans.api.validation.adapters.DialogBuilder;
 import org.netbeans.api.validation.adapters.DialogBuilder.DialogType;
 import org.netbeans.modules.nodejs.libraries.LibrariesPanel;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.CopyOperationImplementation;
+import org.netbeans.spi.project.DeleteOperationImplementation;
+import org.netbeans.spi.project.MoveOrRenameOperationImplementation;
 import org.netbeans.spi.project.ProjectConfiguration;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
+import org.netbeans.spi.project.ui.support.DefaultProjectOperations;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.Severity;
+import org.netbeans.validation.api.Validator;
+import org.netbeans.validation.api.builtin.Validators;
 import org.netbeans.validation.api.ui.ValidationGroup;
 import org.netbeans.validation.api.ui.ValidationListener;
 import org.netbeans.validation.api.ui.ValidationPanel;
@@ -103,7 +114,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Tim Boudreau
  */
-public class NodeJSProject implements Project, ProjectConfiguration, ActionProvider, Comparable<NodeJSProject>, LogicalViewProvider, ProjectInformation, PrivilegedTemplates, RecommendedTemplates, CreateFromTemplateAttributesProvider, PropertyChangeListener {
+public class NodeJSProject implements Project, ProjectConfiguration, ActionProvider, Comparable<NodeJSProject>, LogicalViewProvider, ProjectInformation, PrivilegedTemplates, RecommendedTemplates, CreateFromTemplateAttributesProvider, PropertyChangeListener, MoveOrRenameOperationImplementation, DeleteOperationImplementation, CopyOperationImplementation {
 
     private final FileObject dir;
     private final ProjectState state;
@@ -118,6 +129,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     private final Sources sources = new NodeJSProjectSources(this);
     private final Lookup lookup = Lookups.fixed(this, new NodeJSProjectProperties(this), classpath, sources);
 
+    @SuppressWarnings("LeakingThisInConstructor")
     NodeJSProject(FileObject dir, ProjectState state) {
         this.dir = dir;
         this.state = state;
@@ -153,7 +165,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
 
     @Override
     public String[] getSupportedActions() {
-        return new String[]{COMMAND_RUN, MAIN_FILE_COMMAND, CLOSE_COMMAND, PROPERTIES_COMMAND};
+        return ALWAYS_ENABLED.toArray(new String[ALWAYS_ENABLED.size()]);
     }
 
     @Override
@@ -201,20 +213,42 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             LibrariesPanel pn = new LibrariesPanel(this);
             DialogDescriptor dd = new DialogDescriptor(pn, NbBundle.getMessage(NodeJSProject.class, "SEARCH_FOR_LIBRARIES")); //NOI18N
             DialogDisplayer.getDefault().notify(dd);
+        } else if (COMMAND_DELETE.equals(string)) {
+            DefaultProjectOperations.performDefaultDeleteOperation(this);
+        } else if (COMMAND_MOVE.equals(string)) {
+            DefaultProjectOperations.performDefaultMoveOperation(this);
+        } else if (COMMAND_RENAME.equals(string)) {
+            String label = NbBundle.getMessage(NodeJSProject.class, "LBL_PROJECT_RENAME"); //NOI18N
+            NotifyDescriptor.InputLine l = new NotifyDescriptor.InputLine(label, NbBundle.getMessage(NodeJSProject.class, "TTL_PROJECT_RENAME")); //NOI18N
+            if (DialogDisplayer.getDefault().notify(l).equals(NotifyDescriptor.OK_OPTION)) {
+                String txt = l.getInputText();
+                Validator<String> v = Validators.merge(Validators.REQUIRE_NON_EMPTY_STRING, Validators.REQUIRE_VALID_FILENAME);
+                Problems p = new Problems();
+                if (!v.validate(p, label, txt)) {
+                    NotifyDescriptor.Message msg = new NotifyDescriptor.Message(p.getLeadProblem().getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notify(msg);
+                    return;
+                }
+                DefaultProjectOperations.performDefaultRenameOperation(this, l.getInputText());
+            }
+        } else if (COMMAND_COPY.equals(string)) {
+            DefaultProjectOperations.performDefaultCopyOperation(this);
         } else {
             throw new AssertionError(string);
         }
     }
+
+    private static final Set<String> ALWAYS_ENABLED = new HashSet<String>(Arrays.asList(
+            LIBRARIES_COMMAND, COMMAND_DELETE, COMMAND_MOVE, COMMAND_COPY, 
+            COMMAND_RENAME, MAIN_FILE_COMMAND, CLOSE_COMMAND, COMMAND_RUN));
 
     @Override
     public boolean isActionEnabled(String string, Lookup lkp) throws IllegalArgumentException {
         if (COMMAND_RUN.equals(string)) {
             return getLookup().lookup(NodeJSProjectProperties.class).getMainFile() != null;
         }
-        if (LIBRARIES_COMMAND.equals(string)) {
-            return true;
-        }
-        return true;
+        boolean result = ALWAYS_ENABLED.contains(string);
+        return result;
     }
 
     @Override
@@ -349,7 +383,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         }
     }
 
-    private FileObject showSelectMainFileDialog() {
+    FileObject showSelectMainFileDialog() {
         ExplorerPanel ep = new ExplorerPanel();
         final ExplorerManager mgr = ep.getExplorerManager();
         ChildFactory<?> kids = new AllJSFiles(getProjectDirectory());
@@ -394,16 +428,19 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
                     "Templates/javascript/Empty.js", //NOI18N
                     "Templates/javascript/Module.js", //NOI18N
                     "Templates/javascript/HelloWorld.js", //NOI18N
-                    "Templates/Other/xhtml.html", //NOI18N
                     "Templates/Other/javascript.js", //NOI18N
-                    "Templates/Other/json.js", //NOI18N
-                    "Templates/Other/Folder" //NOI18N
+                    "Templates/Web/Xhtml.html", //NOI18N
+                    "Templates/Web/Html.html", //NOI18N
+                    "Templates/Web/CascadingStyleSheet.css", //NOI18N
+                    "Templates/Other/json.json", //NOI18N
+                    "Templates/Other/Folder", //NOI18N
+                    "Templates/javscript/package.json" //NOI18N
                 };
     }
 
     @Override
     public String[] getRecommendedTypes() {
-        return new String[]{"javascript", "Other"}; //NOI18N
+        return new String[]{"javascript", "Other", "Web"}; //NOI18N
     }
 
     @Override
@@ -414,13 +451,14 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             result.put("project.license", license); //NOI18N
             result.put("license", license); //NOI18N
         }
-        result.put("port", "" + new DefaultExectable().getDefaultPort()); //NOI18N
+        result.put("port", "" + DefaultExectable.get().getDefaultPort()); //NOI18N
         return result;
     }
 
     @Override
     public Node findPath(Node root, Object target) {
-        System.out.println("Target is " + target + " " + target.getClass().getName());
+        System.out.println("FindPath " + target);
+        //XXX this does not work - but what will?
         FileObject fo;
         if (target instanceof DataObject) {
             fo = ((DataObject) target).getPrimaryFile();
@@ -434,17 +472,18 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             if (n != null) {
                 String relPath = FileUtil.getRelativePath(getProjectDirectory(), fo);
                 String[] paths = relPath.split("/"); //NOI18N
+                String nm = fo.getName();
+                paths[paths.length - 1] = nm;
                 Node curr = n;
-                for (String path : paths) {
+                for (int i=0; i < paths.length; i++) {
+                    String path = paths[i];
                     curr = n.getChildren().findChild(path);
                     System.out.println("Find child " + path + " found? " + curr);
-                    if (curr == null) {
-                        break;
+                    if (curr != null && i == paths.length - 1) {
+                        return curr;
                     }
                 }
                 return curr;
-            } else {
-                System.out.println("no node");
             }
         }
         return null;
@@ -473,5 +512,64 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         supp.removePropertyChangeListener(listener);
+    }
+    
+    @Override
+    public void notifyRenaming() throws IOException {
+        DefaultExectable.get().stopRunningProcesses(this);
+    }
+
+    @Override
+    public void notifyRenamed(String nueName) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void notifyMoving() throws IOException {
+        DefaultExectable.get().stopRunningProcesses(this);
+    }
+
+    @Override
+    public void notifyMoved(Project original, File originalPath, String nueName) throws IOException {
+        getLookup().lookup(NodeJSProjectProperties.class).setDisplayName(nueName);
+    }
+
+    @Override
+    public List<FileObject> getMetadataFiles() {
+        List<FileObject> result = new ArrayList<FileObject>();
+        FileObject projectProps = getProjectDirectory().getFileObject("package.json");
+        if (projectProps != null) {
+            result.add(projectProps);
+        }
+        FileObject runProps = getProjectDirectory().getFileObject(".nbrun");
+        if (runProps != null) {
+            result.add(runProps);
+        }
+        return result;
+    }
+
+    @Override
+    public List<FileObject> getDataFiles() {
+        return Arrays.asList(getProjectDirectory().getChildren());
+    }
+
+    @Override
+    public void notifyDeleting() throws IOException {
+        DefaultExectable.get().stopRunningProcesses(this);
+    }
+
+    @Override
+    public void notifyDeleted() throws IOException {
+        //wipe project props?
+    }
+
+    @Override
+    public void notifyCopying() throws IOException {
+        //do nothing
+    }
+
+    @Override
+    public void notifyCopied(Project original, File originalPath, String nueName) throws IOException {
+        //do nothing
     }
 }

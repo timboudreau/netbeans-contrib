@@ -51,11 +51,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.validation.adapters.DialogDescriptorAdapter;
 import org.netbeans.modules.nodejs.ui.UiUtil;
 import org.netbeans.validation.api.Problems;
+import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.Validator;
 import org.netbeans.validation.api.builtin.Validators;
 import org.netbeans.validation.api.ui.ValidationGroup;
@@ -112,9 +114,15 @@ public class PropertiesPanel extends javax.swing.JPanel {
         g.add(nameField, Validators.REQUIRE_NON_EMPTY_STRING);
         g.add(authorEmailField, new AllowNullValidator(Validators.EMAIL_ADDRESS));
         g.add(mainFileField, new FileRelativeValidator());
+        g.add(commandLineField, new WhitespaceValidator());
+    }
+    
+    public void addNotify() {
+        super.addNotify();
+        g.validateAll();
     }
 
-    private final class AllowNullValidator implements Validator<String> {
+    private static final class AllowNullValidator implements Validator<String> {
         //Some validators do not allow nulls - they should and a newer version
         //of the lib fixes this
 
@@ -148,6 +156,20 @@ public class PropertiesPanel extends javax.swing.JPanel {
             }
             return result;
         }
+    }
+    
+    private static final class WhitespaceValidator implements Validator<String> {
+        private static final Pattern WHITESPACE = Pattern.compile (".*\\s.*");
+
+        @Override
+        public boolean validate(Problems prblms, String string, String model) {
+            if (model != null && WHITESPACE.matcher(model).matches()) {
+                prblms.add(NbBundle.getMessage(WhitespaceValidator.class, "INFO_MAIN_CLASS_WHITESPACE"), Severity.INFO);
+                return false;
+            }
+            return true;
+        }
+        
     }
 
     private void set(JTextComponent c, String s) {
@@ -216,6 +238,7 @@ public class PropertiesPanel extends javax.swing.JPanel {
         keywordsField = new javax.swing.JTextField();
         commandLineField = new javax.swing.JTextField();
         commandLineLabel = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         nameLabel.setLabelFor(nameField);
         nameLabel.setText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.nameLabel.text")); // NOI18N
@@ -260,6 +283,7 @@ public class PropertiesPanel extends javax.swing.JPanel {
         mainFileLabel.setLabelFor(mainFileField);
         mainFileLabel.setText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.mainFileLabel.text")); // NOI18N
 
+        mainFileField.setEditable(false);
         mainFileField.setText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.main.text")); // NOI18N
         mainFileField.setName("main"); // NOI18N
 
@@ -276,6 +300,13 @@ public class PropertiesPanel extends javax.swing.JPanel {
         commandLineLabel.setLabelFor(commandLineField);
         commandLineLabel.setText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.commandLineLabel.text")); // NOI18N
         commandLineLabel.setToolTipText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.commandLineLabel.toolTipText")); // NOI18N
+
+        jButton1.setText(org.openide.util.NbBundle.getMessage(PropertiesPanel.class, "PropertiesPanel.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseMainFile(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -304,9 +335,13 @@ public class PropertiesPanel extends javax.swing.JPanel {
                             .addComponent(authorEmailField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                             .addComponent(bugTrackerField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                             .addComponent(licenseField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mainFileField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                             .addComponent(keywordsField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
-                            .addComponent(commandLineField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE))))
+                            .addComponent(commandLineField, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(mainFileField, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1)
+                                .addGap(6, 6, 6)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -339,7 +374,8 @@ public class PropertiesPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(mainFileLabel)
-                    .addComponent(mainFileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(mainFileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(keywordsLabel)
@@ -348,11 +384,20 @@ public class PropertiesPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(commandLineField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(commandLineLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addComponent(status)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+private void browseMainFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseMainFile
+    FileObject fo = props.project().getLookup().lookup(NodeJSProject.class).showSelectMainFileDialog();
+    if (fo != null) {
+        String path = FileUtil.getRelativePath(props.project().getProjectDirectory(), fo);
+        mainFileField.setText(path);
+    }
+}//GEN-LAST:event_browseMainFile
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField authorEmailField;
     private javax.swing.JLabel authorEmailLabel;
@@ -364,6 +409,7 @@ public class PropertiesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel commandLineLabel;
     private javax.swing.JTextArea descriptionField;
     private javax.swing.JLabel descriptionLabel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField keywordsField;
     private javax.swing.JLabel keywordsLabel;
