@@ -147,15 +147,10 @@ public final class DefaultExectable extends NodeJSExecutable {
 
     @Override
     protected Future<Integer> doRun(final FileObject file, String args) throws IOException {
-        Rerunner old = null;
         for (Rerunner r : runners) {
             if (file.equals(r.file)) {
-                old = r;
-                break;
+                r.stopOldProcessIfRunning();
             }
-        }
-        if (old != null) {
-            old.stopOldProcessIfRunning();
         }
         File f = FileUtil.toFile(file);
         String executable = getNodeExecutable(true);
@@ -238,6 +233,8 @@ public final class DefaultExectable extends NodeJSExecutable {
                 p.destroy();
                 try {
                     p.waitFor();
+                    //Give the OS a chance to release the socket
+                    Thread.sleep(300);
                 } catch (InterruptedException ex) {
                     Exceptions.printStackTrace(ex);
                 }
