@@ -14,6 +14,7 @@
                         <specification-version>1.19</specification-version>
                     </run-dependency>
                 </dependency>
+                <!-- XXX no longer available in nb.org sources
                 <dependency>
                     <code-name-base>org.netbeans.libs.scala</code-name-base>
                     <build-prerequisite/>
@@ -23,6 +24,7 @@
                         <specification-version>2.8.0</specification-version>
                     </run-dependency>
                 </dependency>
+                -->
                 <dependency>
                     <code-name-base>org.netbeans.modules.csl.api</code-name-base>
                     <build-prerequisite/>
