@@ -49,11 +49,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
@@ -67,6 +67,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem.AtomicAction;
 import org.openide.filesystems.FileUtil;
@@ -106,7 +107,7 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
             return toString(getMap().get(key));
         }
     }
-    
+
     public List<?> getValues(String key) {
         Object result = null;
         if (key.indexOf('.') > 0) {
@@ -167,52 +168,69 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
     private volatile Map<String, Object> map;
     private volatile boolean hasErrors;
     private volatile boolean listening;
+    private final ReentrantLock lock = new ReentrantLock();
 
-    private final Map<String, Object> getMap() {
-        if (map != null) {
+    private Map<String, Object> load(FileObject fo) throws IOException {
+        lock.lock();
+        boolean err = false;
+        try {
             synchronized (this) {
-                return map;
-            }
-        }
-        final FileObject fo = project.getProjectDirectory().getFileObject("package.json");
-        if (fo != null) {
-            try {
-                final boolean[] err = new boolean[1];
-                Map<String, Object> m = ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Map<String, Object>>() {
-
-                    @Override
-                    public Map<String, Object> run() throws Exception {
-                        if (!listening) {
-                            fo.addFileChangeListener(FileUtil.weakFileChangeListener(ProjectMetadataImpl.this, fo));
-                            listening = true;
-                        }
-                        try {
-                            SimpleJSONParser p = new SimpleJSONParser(true); //permissive mode - will parse as much as it can
-                            Map<String, Object> m = p.parse(fo);
-                            ProjectMetadataImpl.this.hasErrors = err[0] = p.hasErrors();
-                            synchronized (ProjectMetadataImpl.this) {
-                                map = Collections.synchronizedMap(m);
-                            }
-                            return m;
-                        } catch (JsonException ex) {
-                            throw new MutexException(ex);
-                        } catch (IOException ex) {
-                            throw new MutexException(ex);
-                        }
-                    }
-                });
-                if (err[0]) {
-                    StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
+                if (map != null) {
+                    return map;
                 }
-                return m;
-            } catch (MutexException ex) {
+            }
+            FileLock fileLock = fo.lock();
+            try {
+                SimpleJSONParser p = new SimpleJSONParser(true); //permissive mode - will parse as much as it can
+                Map<String, Object> m = p.parse(fo);
+                ProjectMetadataImpl.this.hasErrors = err = p.hasErrors();
+                synchronized (this) {
+                    map = Collections.synchronizedMap(m);
+                    return map;
+                }
+            } catch (JsonException ex) {
                 Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
                         "Bad package.json in " + fo.getPath(), ex);
+                return new LinkedHashMap<String, Object>();
+            } finally {
+                fileLock.releaseLock();
+            }
+        } finally {
+            lock.unlock();
+            if (err) {
+                StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(ProjectMetadataImpl.class, "ERROR_PARSING_PACKAGE_JSON", project.getLookup().lookup(ProjectInformation.class).getDisplayName()), 3);
             }
         }
-        synchronized (this) {
-            return map == null ? new LinkedHashMap<String, Object>() : map;
+    }
+
+    private final Map<String, Object> getMap() {
+        Map<String, Object> result = map;
+        if (result == null) {
+            synchronized (this) {
+                result = map;
+            }
         }
+        if (result == null) {
+            final FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+            if (fo == null) {
+                return new LinkedHashMap<String, Object>();
+            }
+            if (!listening) {
+                listening = true;
+                fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
+            }
+            try {
+                result = load(fo);
+                synchronized (this) {
+                    map = result;
+                }
+            } catch (IOException ioe) {
+                Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
+                        "Problems loading " + fo.getPath(), ioe);
+                result = new LinkedHashMap<String,Object>();
+            }
+        }
+        return result;
     }
     volatile int saveCount;
 

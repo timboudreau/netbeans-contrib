@@ -57,7 +57,6 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
@@ -108,12 +107,7 @@ public final class SimpleJSONParser {
     }
 
     public Map<String, Object> parse(FileObject in) throws JsonException, IOException {
-        FileLock lock = in.lock();
-        try {
-            return parse(in.asText());
-        } finally {
-            lock.releaseLock();
-        }
+        return parse(in.asText());
     }
 
     public Map<String, Object> parse(InputStream in) throws JsonException, IOException {
