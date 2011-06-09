@@ -44,7 +44,7 @@ made subject to such option by the copyright holder.
 <project name="Arch Questions and Answers Generator" default="answer" basedir=".">
   <!-- modify this property to point to root of NetBeans CVS
        so necessary files in the build system may be found -->
-  <property name="ide.root" value="../../.." />
+  <property name="nb_all" value="../../.." />
 
   <!-- choose a name of your project. It will be used to name
        input and output files -->
@@ -57,14 +57,14 @@ made subject to such option by the copyright holder.
   <property name="arch.generate" value="true" /> 
   -->
   
-  <taskdef name="arch" classname="org.netbeans.nbbuild.Arch" classpath="${ide.root}/nbbuild/nbantext.jar"/>
+  <taskdef name="arch" classname="org.netbeans.nbbuild.Arch" classpath="${nb_all}/nbbuild/build/nbantext.jar"/>
 
   <target name="answer" description="Generates HTML file with answers to architecture questions" >
     <arch answers="arch-${arch.name}.xml" output="${arch.outputdir}/${arch.name}.html" />
   </target>
   
   <target name="question" description="Generates HTML file with well formated questions" >
-    <style in="${ide.root}/nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml" style="arch2html.xsl" out="${arch.outputdir}/questions.html" />
+    <style in="${nb_all}/nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml" style="arch2html.xsl" out="${arch.outputdir}/questions.html" />
   </target>
 
   <target name="clean">

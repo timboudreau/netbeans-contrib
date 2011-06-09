@@ -47,9 +47,9 @@ made subject to such option by the copyright holder.
 
   <property name="build.compiler.debug" value="on"/>
 
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbantext.jar}"/>
 
-  <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nbantext.jar}"/>
 
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric/profiles/testprofiles.files">

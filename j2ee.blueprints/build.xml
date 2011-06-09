@@ -113,7 +113,7 @@ made subject to such option by the copyright holder.
       </and>
       </condition>  
       <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
-               classpath="${nb_all}/nbbuild/nbantext.jar"/>
+               classpath="${nbantext.jar}"/>
       <repeat target="setup-one-locale" name="locale" values="${locales}"/>
     </target>
     
@@ -134,7 +134,7 @@ made subject to such option by the copyright holder.
    <target name="jar-ml" depends="buildjar-ml">
         <taskdef name="locjar" 
                  classname="org.netbeans.nbbuild.LocalizedJar" 
-                 classpath="${nb_all}/nbbuild/nbantext.jar"/>
+                 classpath="${nbantext.jar}"/>
         <locjar warnMissingDir="true"
                 basedir="${bp.locale.dir}/src"
                 jarfile="${cluster}/modules/org-netbeans-modules-j2ee-blueprints.jar"/>
@@ -150,7 +150,7 @@ made subject to such option by the copyright holder.
       </and>
       </condition>  
       <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
-               classpath="${nb_all}/nbbuild/nbantext.jar"/>
+               classpath="${nbantext.jar}"/>
       <repeat target="update-one-locale" name="locale" values="${locales}"/>
     </target>
     

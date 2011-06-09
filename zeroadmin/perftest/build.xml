@@ -10,9 +10,9 @@
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property location="${nb_all}/nbbuild/standard-nbm-license.txt" name="license.file"/>
 
-    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
-    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
-    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/build/nbantext.jar" name="makenbm"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/build/nbantext.jar" name="genlist"/>
+    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/build/nbantext.jar" name="locjar"/>
 
     <target name="compile">
         <javac destdir="src" 
