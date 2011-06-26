@@ -364,8 +364,10 @@ private void jspFolderBrowseActionPerformed(java.awt.event.ActionEvent evt) {//G
                 enableTextField(helpJspTf, false);
             }
             
-            String portletName = context.getPortletName();
-            configFileTf.setText(portletName+"-portlet.xml");
+            //String portletName = context.getPortletName();
+            String configFileName = configFileTf.getText();
+            if(configFileName == null || configFileName.trim().length() == 0)
+                configFileTf.setText(context.getPortletName()+"-portlet.xml");
         }
                 
     }

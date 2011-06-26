@@ -33,15 +33,17 @@ public final class PSModuleID implements TargetModuleID {
     private Target target;
     private String jar_name;
     private String context_url;
+    private String moduleId;
 
     Vector childs = new Vector();
     TargetModuleID  parent = null;
     public PSModuleID(Target target){
-        this( target, "");
+        this( target, "", "");
     }
-    public PSModuleID(Target target, String jar_name  ){
+    public PSModuleID(Target target, String moduleId, String jar_name  ){
         this.target = target;
         this.setJARName(jar_name);
+        this.moduleId = moduleId;
         
     }    
     public void setContextURL( String context_url ){
@@ -66,7 +68,7 @@ public final class PSModuleID implements TargetModuleID {
     }
     //Retrieve a list of identifiers of the children of this deployed module.
     public java.lang.String     getModuleID(){
-        return jar_name ;
+        return moduleId ;
     }
     //         Retrieve the id assigned to represent the deployed module.
     public TargetModuleID     getParentTargetModuleID(){
@@ -83,7 +85,7 @@ public final class PSModuleID implements TargetModuleID {
     }
     //If this TargetModulID represents a web module retrieve the URL for it.
     public java.lang.String     toString() {
-        return getModuleID() +  hashCode();
+        return getModuleID();
     }
     
 }

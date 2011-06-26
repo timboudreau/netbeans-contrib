@@ -50,12 +50,19 @@ public class RubyPortletProjectUtil {
                     if(bpLibrary == null) {
                         
                         String jrubyLibDir = RubyPlatformUtil.getRubyLibDir();
-                        URL bsfJar = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "bsf.jar")).getURL();
-                        URL jrubyJar = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "jruby.jar")).getURL();
-                       
+
+                        URL bsfJar = null;
+                        FileObject bsfJarFO = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "bsf.jar"));
+                        if(bsfJarFO != null)
+                                bsfJar = bsfJarFO.getURL();
+
+                        URL jrubyJar = FileUtil.toFileObject(new File(jrubyLibDir + File.separator + "jruby.jar")).getURL();       
                         
                         List urls = new ArrayList();
-                        urls.add(bsfJar);
+
+                        if(bsfJar != null)
+                            urls.add(bsfJar);
+
                         urls.add(jrubyJar);
                         
                         Map content = new HashMap();

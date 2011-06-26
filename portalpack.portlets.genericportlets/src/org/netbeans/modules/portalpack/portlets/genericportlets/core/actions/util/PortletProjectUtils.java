@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 
 import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.filesystems.FileObject;
@@ -55,18 +56,22 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.spi.java.queries.SourceLevelQueryImplementation;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.libraries.Library;
+import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 
 // XXX WebProjectLibrariesModifier and WebPropertyEvaluator in org.netbeans.modules.web.project
-import org.netbeans.spi.project.AuxiliaryConfiguration;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
+import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 // are not accessible under NetBeans 6.0; need friend-package
-import org.w3c.dom.Element;
+import org.openide.util.Lookup;
 // We now access these APIs by org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil
 // import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 // import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
@@ -608,5 +613,47 @@ public class PortletProjectUtils {
         if(pkg == null) return "";
         else
             return pkg;
+    }
+
+    public static boolean addPortletLibraryToProject(Project project,String portletVersion) {
+
+        if(project == null)
+            return false;
+        WebModule wm = getWebModule(project);
+        if(wm == null)
+            return false;
+        ClassPath cp = ClassPath.getClassPath(wm.getDocumentBase(), ClassPath.COMPILE);
+
+        if (cp != null && cp.findResource("javax/portlet/GenericPortlet.class") != null) { //NOI18N
+            return true;
+        }
+
+         try{
+             Library bpLibrary = null;
+             if (portletVersion.equals(NetbeanConstants.PORTLET_2_0)) {
+                 bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-2.0-Lib"); //NOI18N
+             } else {
+                 bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
+             }
+             Lookup lookup = project.getLookup();
+             Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
+             if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
+                 //((WebProjectLibrariesModifier) modifierObj).addCompileLibraries(new Library[]{bpLibrary});
+                 //As the friend-api relationship is now broken. This has to be done through reflection.
+                 Library[] libs = {bpLibrary};           
+                 Class[] paramTypes = {Library[].class};
+                 Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
+                    
+                 method.invoke(modifierObj, new Object[]{libs});
+             } else {
+                 ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, getSourceRoot(project), ClassPath.COMPILE);
+             }
+
+         }catch(Exception e){
+             return false;
+         }
+
+        return true;
+
     }
 }

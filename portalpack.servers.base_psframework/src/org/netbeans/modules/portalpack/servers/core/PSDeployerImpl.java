@@ -20,9 +20,6 @@
 package org.netbeans.modules.portalpack.servers.core;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
-import org.netbeans.modules.portalpack.servers.core.PSCommandType;
-import org.netbeans.modules.portalpack.servers.core.PSModuleID;
-import org.netbeans.modules.portalpack.servers.core.PSDeployer;
 import org.netbeans.modules.portalpack.servers.core.util.ProgressEventSupport;
 import org.netbeans.modules.portalpack.servers.core.util.Status;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
@@ -41,6 +38,7 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.MBeanException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -69,8 +67,20 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
     
          
         logger.log(Level.FINEST,"Inside Deploy of Deploy71.....");
-         
-         module_id = new PSModuleID(target, file1.getName() );
+        
+        String moduleId = file1.getName();
+        if(file1.getName().endsWith(".war")) {
+            String fName = file1.getName();
+            moduleId = fName.substring(0,fName.lastIndexOf("."));
+
+        }
+
+        if(file1.isDirectory()) {
+            String fName = file2.getName();
+            moduleId = fName.substring(0,fName.lastIndexOf("."));
+        }
+
+         module_id = new PSModuleID(target, moduleId, file1.getName() );
         
        
             String server_url = "http://" + host+":"+port;
@@ -127,7 +137,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
 
     /** JSR88 method. */
     public void stop() throws OperationUnsupportedException {
-        throw new OperationUnsupportedException("stop not supported in WS deployment"); // NOI18N
+       throw new OperationUnsupportedException("stop not supported in WS deployment"); // NOI18N
     }
 
     /** JSR88 method. */
@@ -195,13 +205,12 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
         UISupport.getServerIO(uri).select();
     }
 
-    public ProgressObject startModule(TargetModuleID[] module) {
-        logger.log(Level.FINEST,">>>>>>>>>>>>>>>> Inside startModule");
+    public ProgressObject stopModule(TargetModuleID[] module) {
         return this;
     }
 
-    public ProgressObject stopModule(TargetModuleID[] module) {
-        return this;
+    public ProgressObject startModule(final TargetModuleID[] module) {
+         return this;
     }
     
     
@@ -209,7 +218,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
     public ProgressObject undeploy(final String portletAppName, final String dn) {
          cmdType = PSCommandType.UNDEPLOY;
          pes.fireHandleProgressEvent(null,
-                                    new Status(ActionType.EXECUTE, CommandType.UNDEPLOY,
+                                    new Status(ActionType.EXECUTE, PSCommandType.UNDEPLOY,
                                                NbBundle.getMessage(PSDeployerImpl.class, "START_UNDEPLOY"),
                                                StateType.RUNNING));
 
@@ -225,7 +234,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
                     logger.log(Level.SEVERE,"Deployment failed for application "+portletAppName,ex);
                     writeToOutput(dm.getUri(),portletAppName + " " +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"));
                     pes.fireHandleProgressEvent(null,
-                                new Status(ActionType.EXECUTE, cmdType,
+                                new Status(ActionType.EXECUTE, PSCommandType.UNDEPLOY,
                                            org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"),
                                            StateType.FAILED));
                     return;
@@ -233,7 +242,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
                 
                 
                 pes.fireHandleProgressEvent(null,
-                                new Status(ActionType.EXECUTE, cmdType,
+                                new Status(ActionType.EXECUTE, PSCommandType.UNDEPLOY,
                                            NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLOYED"),
                                            StateType.COMPLETED));
             }
@@ -259,6 +268,13 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
 
     public ProgressObject createContainer(String dn, String container, String provider) {
         return this;
+    }
+
+    public void fireHandleProgressEvent(CommandType cmdType,String msg,StateType stateType) {
+        pes.fireHandleProgressEvent(null,
+                                new Status(ActionType.EXECUTE, cmdType,
+                                           msg,
+                                           stateType));
     }
        
 }

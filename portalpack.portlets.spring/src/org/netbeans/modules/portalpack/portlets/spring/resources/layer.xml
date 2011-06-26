@@ -11,7 +11,7 @@
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.portlets.spring.ui.SpringPortletWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/ui/springportlet.html"/>
-                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/resources/spring.png"/>
+                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/spring/resources/spring.png"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
         </folder>
@@ -24,36 +24,36 @@
     
     <folder name="spring-portlet">
         <folder name="templates">
-            <file name="portlet-context.xml" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/portlet-context.template">
+            <file name="portlet-context.xml" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/portlet-context.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="applicationContext.xml" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/applicationContext.template">
+            <file name="applicationContext.xml" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/applicationContext.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="portletcontroller.java" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/portletcontroller.template">
+            <file name="portletcontroller.java" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/portletcontroller.template">
                 <attr name="position" intvalue="1"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="formcontroller.java" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/formcontroller.template">
+            <file name="formcontroller.java" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/formcontroller.template">
                 <attr name="position" intvalue="2"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="commandbean.java" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/commandbean.template">
+            <file name="commandbean.java" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/commandbean.template">
                 <attr name="position" intvalue="3"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
 
-            <file name="jsptemplate.jsp" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/jsptemplate.jsp">
+            <file name="jsptemplate.jsp" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/jsptemplate.jsp">
                 <attr name="position" intvalue="4"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-             <file name="form.jsp" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/form.jsp">
+             <file name="form.jsp" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/form.jsp">
                 <attr name="position" intvalue="5"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-             <file name="success_view.jsp" url="nbresloc:/org/netbeans/modules/portalpack/portlets/spring/templates/success_view.jsp">
+             <file name="success_view.jsp" url="nbresloc:org/netbeans/modules/portalpack/portlets/spring/templates/success_view.jsp">
                 <attr name="position" intvalue="6"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>

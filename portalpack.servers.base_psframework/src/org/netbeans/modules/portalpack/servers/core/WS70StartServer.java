@@ -52,14 +52,14 @@ public class WS70StartServer extends PSStartServerInf{
         
     }
     
-    public void doStartServer() throws Exception {
+    public void doStartServer(String[] env) throws Exception {
         runProcess(makeProcessString("start"), true); //NO I18N  
         if(!dm.isRunningInstanceServer()) {
             runProcess(makeProcessStringForDomain("start"),true);
         }
     }
     
-    public void doStopServer() throws Exception {
+    public void doStopServer(String[] env) throws Exception {
         
         runProcess(makeProcessString("stop"), true); //NO I18N
         if(dm.isRunningInstanceServer()) {
@@ -132,10 +132,10 @@ public class WS70StartServer extends PSStartServerInf{
         }
     }
 
-    public void doStartDebug() throws Exception {
+    public void doStartDebug(String[] env) throws Exception {
     }
 
-    public void doStopDebug() throws Exception {
+    public void doStopDebug(String[] env) throws Exception {
     }
 
     public int getDebugPort() {

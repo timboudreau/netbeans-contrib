@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE look-and-feel PUBLIC "-//Liferay//DTD Look and Feel <#if VERSION != "">${DTD_VERSION}</#if>//EN" "http://www.liferay.com/dtd/liferay-look-and-feel_<#if VERSION != "">${VERSION}</#if>.dtd">
+
+<look-and-feel>
+    <compatibility>
+		<version><#if VERSION != "">${DTD_VERSION}</#if>+</version>
+	</compatibility>
+</look-and-feel>

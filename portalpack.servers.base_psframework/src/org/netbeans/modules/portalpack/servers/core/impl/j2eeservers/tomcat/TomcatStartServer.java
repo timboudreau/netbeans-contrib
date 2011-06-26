@@ -74,25 +74,25 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
         this.psconfig = dm.getPSConfig();
     }
 
-    public void doStartServer() throws Exception {
+    public void doStartServer(String[] env) throws Exception {
         NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_STARTUP);
-        runProcess(CMD_START, nd, setEnv(), true);
+        runProcess(CMD_START, nd, setEnv(env), true);
     //viewLogs();
     }
 
-    public void doStopServer() throws Exception {
+    public void doStopServer(String[] env) throws Exception {
         NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_SHUTDOWN);
-        runProcess(CMD_STOP, nd, setEnv(), true);
+        runProcess(CMD_STOP, nd, setEnv(env), true);
     }
     
-    public void doStartDebug() throws Exception {
+    public void doStartDebug(String[] env) throws Exception {
         NbProcessDescriptor nd = defaultDebugStartDesc (TAG_DEBUG_CMD, TAG_JPDA_STARTUP);
         runProcess(CMD_START, nd, setDebugEnv(), true);
     }
 
-    public void doStopDebug() throws Exception {
+    public void doStopDebug(String[] env) throws Exception {
         NbProcessDescriptor nd = defaultExecDesc(TAG_EXEC_CMD, TAG_EXEC_SHUTDOWN);
-        runProcess(CMD_STOP, nd, setEnv(), true);
+        runProcess(CMD_STOP, nd, setEnv(env), true);
     }
 
     public int getDebugPort() {
@@ -169,9 +169,12 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
         return 0;
 
     }
-    private String[] setEnv() {
+    private String[] setEnv(String[] addEnv) {
 
-        String[] env = new String[5];
+        int addLength = 0;
+        if(addEnv != null)
+            addLength = addEnv.length;
+        String[] env = new String[5 + addLength];
         env[0] = "CATALINA_HOME=" + psconfig.getProperty(CATALINA_HOME);
         env[1] = "CATALINA_BASE=" + psconfig.getProperty(CATALINA_BASE);
         env[2] = "JRE_HOME=" + psconfig.getProperty(JAVA_HOME);
@@ -185,6 +188,11 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
         }
         env[4] = "SystemRoot=" + systemRoot;
         System.out.println(System.getenv("SystemRoot"));
+        if(addLength > 0) {
+            for(int i=0;i<addEnv.length;i++) {
+                env[5+i] = addEnv[i];
+            }
+        }
 
         return env;
     }

@@ -19,6 +19,10 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api;
 
+import java.io.File;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+
 /**
  *
  * @author Satya
@@ -29,5 +33,9 @@ public interface ServerDeployHandler {
     public boolean undeploy(String appName) throws Exception;
     public boolean install() throws Exception;
     public boolean deploy(String dir,String contextName) throws Exception;
-    
+    public void restart(String contextRoot) throws Exception;
+    public boolean isDeployOnSaveSupported();
+    public TargetModuleID[] getAvailableModules(Target[] targets);
+    public boolean isServerRunning();
+    public File  getModuleDirectory(TargetModuleID module);
 }

@@ -80,7 +80,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                 logger.log(Level.SEVERE,"Error creating classLoader for portletcontainer",ex);
             }
         }
-        deployerHandler = ServerDeployerHandlerFactory.getServerDeployerHandler(dm);
+        deployerHandler = dm.getServerDeployHandler();
     }
 
 
@@ -124,6 +124,14 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/sun-portlet.tld", "sun-portlet.tld");
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/sun-portlet_2_0.tld", "sun-portlet_2_0.tld");
         
+        try{
+            String jsDir = deployedDir + File.separator + "js";
+            File jsDirFile = new File(jsDir);
+            if(!jsDirFile.exists()) {
+                jsDirFile.mkdir();
+            }
+            copyFilesFromWar(jarFile, jsDir, "js/XMLPortletRequest.js","XMLPortletRequest.js");
+        }catch(Exception e) {}
         //For backward compatibility for PC 2.0
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet.tld", "portlet.tld");
         copyFilesFromWar(jarFile, webInfDir, "WEB-INF/portlet_2_0.tld", "portlet_2_0.tld");   

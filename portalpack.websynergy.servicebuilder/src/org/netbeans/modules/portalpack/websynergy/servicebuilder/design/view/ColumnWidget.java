@@ -239,7 +239,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
             Column newCol = en.newColumn();
             newCol.setName(name);
             if(dbName != null && dbName.trim().length() != 0)
-                newCol.setDbName(name);
+                newCol.setDbName(dbName);
             newCol.setType(type);
             
             if(primaryKey)

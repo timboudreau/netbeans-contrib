@@ -19,6 +19,9 @@
 package org.netbeans.modules.portalpack.servers.websynergy.ui;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -30,6 +33,11 @@ import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserve
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibrariesFactory;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerJEELibraries;
+import org.netbeans.modules.portalpack.servers.websynergy.impl.LiferayHelper;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -40,7 +48,9 @@ import org.openide.util.NbBundle;
 public class LiferayConfigPanel extends ConfigPanel implements DocumentListener {
 
     private String psVersion;
-
+    private int lrVersion = 1;
+    private PSConfigObject psObject;
+    
     /** Creates new form LifeRayConfigPanel */
     public LiferayConfigPanel(String psVersion) {
         this.psVersion = psVersion;
@@ -48,7 +58,6 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
         initData();
 
         portalUri.getDocument().addDocumentListener(this);
-        portletUriTf.getDocument().addDocumentListener(this);
         autoDeployTf.getDocument().addDocumentListener(this);
         portalDepDirTf.getDocument().addDocumentListener(this);
     //adminConsoleUriTf.getDocument().addDocumentListener(this);
@@ -69,15 +78,15 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
         jSeparator1 = new javax.swing.JSeparator();
         jLabel2 = new javax.swing.JLabel();
         hostTf = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        portletUriTf = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         autoDeployTf = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         portalDepDirTf = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        portalDeployBrowseButton = new javax.swing.JButton();
         directoryDeployment = new javax.swing.JCheckBox();
+        isDeveloperMode = new javax.swing.JCheckBox();
+        getButton = new javax.swing.JButton();
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
 
@@ -94,9 +103,6 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
             }
         });
 
-        jLabel6.setLabelFor(portletUriTf);
-        jLabel6.setText(org.openide.util.NbBundle.getBundle(LiferayConfigPanel.class).getString("LBL_PORTLET_URI")); // NOI18N
-
         jLabel3.setLabelFor(autoDeployTf);
         jLabel3.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_Auto_Deploy_Dir")); // NOI18N
 
@@ -109,56 +115,74 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
 
         jLabel5.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_Portal_Deploy_Dir")); // NOI18N
 
-        jButton1.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); // NOI18N
+        portalDeployBrowseButton.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); // NOI18N
+        portalDeployBrowseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                portalDeployBrowseButtonActionPerformed(evt);
+            }
+        });
 
         directoryDeployment.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_DIRECTORY_DEPLOYMENT")); // NOI18N
+
+        isDeveloperMode.setSelected(true);
+        isDeveloperMode.setText(org.openide.util.NbBundle.getMessage(LiferayConfigPanel.class, "LBL_RUN_IN_DEVELOPER_MODE")); // NOI18N
+
+        getButton.setText("Get");
+        getButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
-                .add(169, 169, 169)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
-                .add(169, 169, 169))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+                        .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
+                        .add(4, 4, 4))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(38, 38, 38))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                    .add(portalDepDirTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                    .add(autoDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, portletUriTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
-                        .add(87, 87, 87)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+                        .add(3, 3, 3)))
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(browseButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .add(hostTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(portalUri, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 165, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(148, 148, 148))
+                    .add(autoDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
+                    .add(portalDepDirTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(portalDeployBrowseButton, 0, 21, Short.MAX_VALUE)
+                    .add(browseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(getButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(14, 14, 14))
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(directoryDeployment, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(333, 333, 333))
+                .add(isDeveloperMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                .add(365, 365, 365))
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(directoryDeployment, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+                .add(10, 10, 10))
+            .add(layout.createSequentialGroup()
+                .add(169, 169, 169)
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
+                .add(235, 235, 235))
+            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
         );
+
+        layout.linkSize(new java.awt.Component[] {browseButton, getButton, portalDeployBrowseButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -166,34 +190,32 @@ public class LiferayConfigPanel extends ConfigPanel implements DocumentListener 
                 .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2)
-                    .add(hostTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(12, 12, 12)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(hostTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2))
+                .add(12, 12, 12)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(portalUri, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel6)
-                    .add(portletUriTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(jLabel3))
-                            .add(browseButton))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(portalDepDirTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jButton1))))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(browseButton)
+                        .add(getButton))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(autoDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jLabel3)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portalDeployBrowseButton)
+                    .add(jLabel5)
+                    .add(portalDepDirTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(directoryDeployment)
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(isDeveloperMode)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         browseButton.getAccessibleContext().setAccessibleDescription("null");
@@ -212,53 +234,102 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
 }//GEN-LAST:event_browseButtonActionPerformed
 
+private void portalDeployBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portalDeployBrowseButtonActionPerformed
+// TODO add your handling code here:
+    String portalDeployDirLoc = browseAutoDeployLocation();
+    if (portalDeployDirLoc != null) {
+        portalDepDirTf.setText(portalDeployDirLoc);
+    }
+}//GEN-LAST:event_portalDeployBrowseButtonActionPerformed
+
+private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
+    String autoDeployLoc = LiferayHelper.getAutoDeployDirectory(psObject, Boolean.TRUE);
+    if (autoDeployLoc == null) {
+        DialogDisplayer.getDefault().notify(
+                   new NotifyDescriptor.Message(NbBundle.getMessage(
+                   LiferayConfigPanel.class, "LBL_AUTO_DEPLOY_DIR_SERVER_NOT_RUNNING")));
+        return;
+    } else {
+        autoDeployTf.setText(autoDeployLoc);
+    }
+}//GEN-LAST:event_getButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField autoDeployTf;
     private javax.swing.JButton browseButton;
     private javax.swing.JCheckBox directoryDeployment;
+    private javax.swing.JButton getButton;
     private javax.swing.JTextField hostTf;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox isDeveloperMode;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField portalDepDirTf;
+    private javax.swing.JButton portalDeployBrowseButton;
     private javax.swing.JTextField portalUri;
-    private javax.swing.JTextField portletUriTf;
     // End of variables declaration//GEN-END:variables
 
     public void initData() {
-        portalUri.setText("/portal");
-        portletUriTf.setText("/portal");
+        portalUri.setText("/");
         hostTf.setText("localhost");
 
     }
 
     public void populateDataForCustomizer(PSConfigObject object) {
-
+        psObject = object;
         //hostTf.setText(object.getHost());
         //portTf.setText(object.getPort());
         portalUri.setText(object.getPortalUri());
 
         hostTf.setText(object.getHost());
         // adminConsoleUriTf.setText(object.getProperty(LifeRayConstants.ADMIN_CONSOLE_URI));
-        portletUriTf.setText(object.getProperty(LiferayConstants.PORTLET_URI));
         autoDeployTf.setText(object.getProperty(LiferayConstants.AUTO_DEPLOY_DIR));
         portalDepDirTf.setText(object.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
 
         hostTf.setEnabled(false);
-        directoryDeployment.setSelected(object.isDirectoryDeployment());
 
+		//added for JBOSS
+		if(ServerConstants.JBOSS_5_X.equals(object.getServerType())) {
+            directoryDeployment.setEnabled(false);
+            directoryDeployment.setSelected(false);
+        } else {
+			directoryDeployment.setEnabled(true);
+			directoryDeployment.setSelected(object.isDirectoryDeployment());
+		}
+        
+        String lv = object.getProperty(LiferayConstants.LR_VERSION);
+        
+        try{
+            if(lv != null) {
+                lrVersion = Integer.parseInt(lv);
+            }
+        }catch(Exception e) {
+            
+        }
+        String serverType = object.getServerType();
+        if ( serverType != null && serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
+            isDeveloperMode.setVisible(false);
+        }
+        if(lrVersion < 5200) {
+           //isDeveloperMode.setVisible(false);
+        } else {
+
+            if(Boolean.valueOf(object.getProperty(LiferayConstants.LR_DEVELOPER_MODE))) {
+                isDeveloperMode.setSelected(true);
+            } else {
+                isDeveloperMode.setSelected(false);
+            }
+        }
+   
     }
 
     public void read(org.openide.WizardDescriptor wizardDescriptor) {
 
         WizardPropertyReader reader = new WizardPropertyReader(wizardDescriptor);
 
-        // if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
         autoDeployTf.setText(System.getProperty("user.home") + File.separator + "liferay" +
                 File.separator + "deploy");
 
@@ -267,64 +338,138 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
         if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
 
-            String domainDir = reader.getDomainDir();
-            String version = getGlassFishVersion(reader.getServerHome());
+            String deployDir = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getWebAppInstallDirectory(reader)
+                        + File.separator + "liferay-portal";
+            portalDepDirTf.setText(deployDir);
+            
+            String portalKernel = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader) +
+                    File.separator + "portal-kernel.jar";
 
-            if (version.equals(SunAppServerConstants.GLASSFISH_V2)) {
-                String deployDir = domainDir + File.separator +
-                        "applications" + File.separator +
-                        "j2ee-modules" + File.separator + "liferay-portal";
-                portalDepDirTf.setText(deployDir);
-            } else {
-                String deployDir = domainDir + File.separator +
-                        "applications" + File.separator +
-                        "liferay-portal";
-                portalDepDirTf.setText(deployDir);
+            String portalService = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader) +
+                    File.separator + "portal-service.jar";
+            
+            lrVersion = getLiferayVersion(new String[]{portalKernel,portalService});
+           // if(lrVersion != 1)
+           //     lrVersionLabel.setText("(Build: " + lrVersion + ")");
+            
+            if(lrVersion == 5200) {
+                String autoDepDir = get5200AutoDeployDirectory(reader, portalDepDirTf.getText(), portalKernel);
+                if(autoDepDir != null)
+                    autoDeployTf.setText(autoDepDir);
             }
+            
+            if(lrVersion > 5200) {
+                autoDeployTf.setText("");
+                autoDeployTf.setEnabled(false);
+                browseButton.setEnabled(false);
+            }
+            
+            isDeveloperMode.setVisible(false);
 
         } else if (serverType.equals(ServerConstants.TOMCAT_5_X)
                         || serverType.equals(ServerConstants.TOMCAT_6_X)) {
 
-            String tomcatHome = reader.getProperty(TomcatConstant.CATALINA_HOME);
-
-            String deployDir = tomcatHome + File.separator + "webapps" + File.separator + "ROOT";
+            String deployDir = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getWebAppInstallDirectory(reader)
+                                    + File.separator + "ROOT";
             portalDepDirTf.setText(deployDir);
+            
+            String portalKernel = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader) 
+                    + File.separator + "portal-kernel.jar";
+            String portalService = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader) +
+                    File.separator + "portal-service.jar";
+            
+            lrVersion = getLiferayVersion(new String[]{portalKernel,portalService});
+            //if(lrVersion != 1)
+            //    lrVersionLabel.setText("(Build: " + lrVersion + ")");
+            
+            if(lrVersion == 5200) {
+                String autoDepDir = get5200AutoDeployDirectory(reader, portalDepDirTf.getText(), portalKernel);
+                if(autoDepDir != null)
+                    autoDeployTf.setText(autoDepDir);
+            }
+            
+            if(lrVersion > 5200) {
+                autoDeployTf.setText("");
+                autoDeployTf.setEnabled(false);
+                browseButton.setEnabled(false);
+                getButton.setEnabled(false);
+            }
+            if(lrVersion < 5200) {
+
+               // isDeveloperMode.setVisible(false);
+            }
+        } else if(serverType.equals(ServerConstants.JBOSS_5_X)) {
+            String deployDir = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getWebAppInstallDirectory(reader)
+                                    + File.separator + "ROOT.war";
+            portalDepDirTf.setText(deployDir);
+
+            String portalKernel = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader)
+                    + File.separator + "portal-kernel.jar";;
+
+            String portalService = JEEServerLibrariesFactory.getJEEServerLibraries(serverType).getPortalServerLibraryLocation(reader) +
+                    File.separator + "portal-service.jar";
+
+            lrVersion = getLiferayVersion(new String[]{portalKernel, portalService});
+
+            if(lrVersion > 5200) {
+                autoDeployTf.setText("");
+                autoDeployTf.setEnabled(false);
+                browseButton.setEnabled(false);
+                getButton.setEnabled(false);
+            }
+            if(lrVersion < 5200) {
+              //  isDeveloperMode.setVisible(false);
+            }
         }
 
-    }
-
-    private String getGlassFishVersion(String glassfishHome) {
-
-        File javaeeFile = new File(glassfishHome + File.separator + "lib" + File.separator + "javaee.jar");
-        File module = new File(glassfishHome + File.separator + "modules");
-
-        if (!javaeeFile.exists() && module.exists()) {
-            return SunAppServerConstants.GLASSFISH_V3;
+		if(serverType.equals(ServerConstants.JBOSS_5_X)) {
+            directoryDeployment.setSelected(false);
+            directoryDeployment.setEnabled(false);
+        } else {
+            directoryDeployment.setEnabled(true);
         }
-
-        return SunAppServerConstants.GLASSFISH_V2;
 
     }
 
     public void store(org.openide.WizardDescriptor d) {
 
         WizardPropertyReader wr = new WizardPropertyReader(d);
-        wr.setAdminUser("admin");
-        wr.setAdminPassWord("adminadmin");
-        //wr.setPort(portTf.getText());
-        //wr.setAdminPort(portTf.getText());
+        ///wr.setAdminUser("admin");
+        ///wr.setAdminPassWord("adminadmin");
         wr.setRemote(false);
         wr.setPortalUri(portalUri.getText());
         wr.setHost(hostTf.getText());
-//        wr.setProperty(LifeRayConstants.ADMIN_CONSOLE_URI,adminConsoleUriTf.getText());
-        wr.setProperty(LiferayConstants.PORTLET_URI, portletUriTf.getText());
         wr.setProperty(LiferayConstants.AUTO_DEPLOY_DIR, autoDeployTf.getText());
         wr.setProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR, portalDepDirTf.getText());
         wr.setDirectoryDeployment(directoryDeployment.isSelected());
     //  wr.setPortalUri("/pcdriver");
         
-        String gf_version = getGlassFishVersion(wr.getServerHome());
-        wr.setProperty(SunAppServerConstants.GLASSFISH_VERSON, gf_version);
+        if(wr.getServerType() != null && 
+                wr.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            String gf_version = SunAppServerJEELibraries.getGlassFishVersion(wr.getServerHome());
+            wr.setProperty(SunAppServerConstants.GLASSFISH_VERSON, gf_version);
+        }
+        
+        //if(wr.getServerType() != null) //don't do anything when in customize mode
+        wr.setProperty(LiferayConstants.LR_VERSION, String.valueOf(lrVersion));
+ 
+		PortalEXTModifier.createDeveloperProperties(wr.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
+            if(isDeveloperMode.isSelected()) {
+                //For Glassfish
+                if(wr.getServerType() != null &&
+                    wr.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+                    PortalEXTModifier.setDeveloperMode(
+                            wr.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR));
+                    wr.setProperty(LiferayConstants.LR_DEVELOPER_MODE, "true");
+                } else {
+                   // wr.setEnvProperties("JAVA_OPTS=\"-Dexternal-properties=portal-developer.properties\"");
+                    wr.setEnvProperties("JAVA_OPTS=-Dexternal-properties=portal-developer.properties");
+                    wr.setProperty(LiferayConstants.LR_DEVELOPER_MODE, "true");
+                }
+            } else {
+                wr.setEnvProperties(null);
+                wr.setProperty(LiferayConstants.LR_DEVELOPER_MODE, "false");
+            }
     }
 
     public boolean validate(Object wizardDescriptor) {
@@ -333,45 +478,25 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         }
         WizardPropertyReader wr = new WizardPropertyReader(((WizardDescriptor) wizardDescriptor));
         
-        String domainDir = wr.getDomainDir();
-        String serverType = wr.getServerType();
-        
-        if (serverType.equals(ServerConstants.SUN_APP_SERVER_9)) {
-
-            File file = new File(domainDir + File.separator + "lib" + File.separator + "portal-service.jar");
-            if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND"));
-                autoDeployTf.setText("");
-                return false;
-
-            }
-        } else if (serverType.equals(ServerConstants.TOMCAT_5_X)) {
-
-            File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "common" + File.separator +
-                    "lib" + File.separator +
-                    "ext" + File.separator +
-                    "portal-service.jar");
-            if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT"));
-                autoDeployTf.setText("");
-                return false;
-            }
-        } else if (serverType.equals(ServerConstants.TOMCAT_6_X)) {
+        File file = new File(JEEServerLibrariesFactory.getJEEServerLibraries(wr.getServerType()).getPortalServerLibraryLocation(wr)+ File.separator + "portal-service.jar");
+        if (!file.exists()) {
+            String msg = NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION");
             
-            File file = new File(wr.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "lib" + File.separator +
-                    "ext" + File.separator +
-                    "portal-service.jar");
-            if (!file.exists()) {
-                setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT"));
-                autoDeployTf.setText("");
-                return false;
+            if (wr.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+                msg = NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND");
+            } else if(wr.getServerType().equals(ServerConstants.TOMCAT_5_X) ||
+                       wr.getServerType().equals(ServerConstants.TOMCAT_6_X)){
+                 msg = NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NO_LIFERAY_INSTALLATION_FOUND_ON_TOMCAT");
             }
+            
+            setErrorMessage(msg);
+            autoDeployTf.setText("");
+            return false;
+
         }
 
         String autoDeployDir = autoDeployTf.getText();
-        if (autoDeployDir == null || autoDeployDir.trim().length() == 0) {
+        if ((autoDeployDir == null || autoDeployDir.trim().length() == 0) && lrVersion <= 5200) {
             setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_INVALID_AUTODEPLOY_DIR"));
             return false;
         }
@@ -385,12 +510,6 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         String portalUriString = portalUri.getText();
         if (portalUriString == null || portalUriString.trim().length() == 0) {
             setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTAL_URI"));
-            return false;
-        }
-
-        String portletUriString = portletUriTf.getText();
-        if (portletUriString == null || portletUriString.trim().length() == 0) {
-            setErrorMessage(NbBundle.getMessage(LiferayConfigPanel.class, "MSG_NOT_A_VALID_PORTLET_URI"));
             return false;
         }
 
@@ -408,7 +527,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         String autoDeployLocation = null;
         JFileChooser chooser = getJFileChooser();
         int returnValue = chooser.showDialog(SwingUtilities.getWindowAncestor(this),
-                NbBundle.getMessage(LiferayConfigPanel.class, "LBL_BrowseButton")); //NOI18N
+                NbBundle.getMessage(LiferayConfigPanel.class, "LBL_ChooserName")); //NOI18N
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             autoDeployLocation = chooser.getSelectedFile().getAbsolutePath();
@@ -443,6 +562,43 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
     public String getDescription() {
         return NbBundle.getMessage(LiferayConfigPanel.class, "DESC_LIFE_RAY");
+    }
+    
+    private int getLiferayVersion(String[] portalJars) {
+        
+        try{
+
+            URL[] urls = new URL[portalJars.length];
+
+            for(int i=0;i<portalJars.length;i++) {
+                urls[i] = new File(portalJars[i]).toURI().toURL();
+            }
+
+            URLClassLoader loader = new URLClassLoader(
+                    urls);
+
+            Class releaseClass = loader.loadClass("com.liferay.portal.kernel.util.ReleaseInfo");
+            Method gV = releaseClass.getMethod("getBuildNumber");
+            Integer version = (Integer)gV.invoke(null,null);
+            return version.intValue();
+        }catch(Exception e) {
+            return 1;
+        }           	
+    }
+    
+    private static synchronized String get5200AutoDeployDirectory(WizardPropertyReader reader,
+                            String portalInstallDir, String portalKernelJar) {
+        
+        String defaultAutoDeployDir = "";
+        if(reader.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
+            defaultAutoDeployDir = new File(reader.getServerHome()).
+                    getParentFile().getAbsolutePath() + File.separator + "deploy";
+        } else {
+            defaultAutoDeployDir = new File(reader.getProperty(TomcatConstant.CATALINA_BASE)).
+                    getParentFile().getAbsolutePath() + File.separator + "deploy";
+        }
+        
+        return defaultAutoDeployDir;
     }
 
     public void insertUpdate(DocumentEvent e) {

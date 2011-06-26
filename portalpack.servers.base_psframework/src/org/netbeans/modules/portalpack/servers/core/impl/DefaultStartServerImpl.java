@@ -33,19 +33,19 @@ public class DefaultStartServerImpl  extends PSStartServerInf {
     public DefaultStartServerImpl() {
     }
 
-    public void doStartServer() throws Exception {
+    public void doStartServer(String[] env) throws Exception {
         System.out.println("StartServer is not implemented yet...");
     }
 
-    public void doStopServer() throws Exception {
+    public void doStopServer(String[] env) throws Exception {
         
         System.out.println("StartServer is not implemented yet...");
     }
 
-    public void doStartDebug() throws Exception {
+    public void doStartDebug(String[] env) throws Exception {
     }
 
-    public void doStopDebug() throws Exception {
+    public void doStopDebug(String[] env) throws Exception {
     }
 
     public int getDebugPort(){

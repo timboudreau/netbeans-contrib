@@ -39,6 +39,10 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api;
 
+import java.io.File;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+
 /**
  *
  * @author satyaranjan
@@ -61,4 +65,23 @@ public class DefaultServerDeployHandler implements ServerDeployHandler{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public void restart(String contextRoot) throws Exception {
+        
+    }
+
+    public boolean isDeployOnSaveSupported() {
+        return false;
+    }
+
+    public TargetModuleID[] getAvailableModules(Target[] targets) {
+        return new TargetModuleID[0];
+    }
+
+    public boolean isServerRunning() {
+        return true;
+    }
+
+    public File getModuleDirectory(TargetModuleID module) {
+        return null;
+    }
 }

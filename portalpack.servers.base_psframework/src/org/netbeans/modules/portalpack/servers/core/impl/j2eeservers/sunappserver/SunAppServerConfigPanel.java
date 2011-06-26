@@ -32,13 +32,16 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
+import javax.xml.parsers.ParserConfigurationException;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppConfigUtil.ReadAccessDeniedException;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -48,7 +51,7 @@ import org.xml.sax.SAXParseException;
 public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServerConstants, DocumentListener{
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    
+
     /** Creates new form SunAppServerConfigPanel */
     public SunAppServerConfigPanel() {
         initComponents();
@@ -342,9 +345,10 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
     private void populateAllDefaultValues()
     {
         String domainDir = domainDirTf.getText();
+        String homeDir = homeTf.getText();
         SunAppConfigUtil configUtil = null;
         try {
-            configUtil = new SunAppConfigUtil(new File(domainDir));
+           configUtil = getConfigUtil(homeDir,domainDir);
         } catch (SAXParseException ex) {      
             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_XML"));
             fireChangeEvent();
@@ -370,13 +374,23 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
             return;
         }
          
-         setErrorMessage("");
+        setErrorMessage("");
         String port = configUtil.getPort();
         portTf.setText(port);
         String adminPort =  configUtil.getAdminPort();
         adminPortTf.setText(adminPort);
         domainTf.setText(configUtil.getDomainName());
         fireChangeEvent();
+    }
+
+    private SunAppConfigUtil getConfigUtil(String homeDir,String domainDir)
+            throws IOException, SAXException, ParserConfigurationException, ReadAccessDeniedException {
+
+        if(SunAppServerJEELibraries.getGlassFishVersion(homeDir).equals(
+                    SunAppServerConstants.GLASSFISH_V2))
+             return new SunAppConfigUtil(new File(domainDir));
+         else
+             return new GlassfishV3ConfigUtil(new File(domainDir));
     }
     
     private void clearDomainXmlData()
@@ -418,9 +432,23 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         wr.setDomainDir(domainDirTf.getText());
         wr.setAdminPort(adminPortTf.getText());
         wr.setDefaultDomain(domainTf.getText());
+        wr.setAdminUser(userNameTf.getText());//same as server user
         wr.setProperty(SERVER_USER,userNameTf.getText());
         wr.setProperty(SERVER_PASSWORD,new String(passwordTf.getPassword()));
         wr.setPort(portTf.getText());
+
+        String gf_version = SunAppServerJEELibraries.getGlassFishVersion(wr.getServerHome());
+        wr.setProperty(SunAppServerConstants.GLASSFISH_VERSON, gf_version);
+        
+        SunAppConfigUtil configUtil = null;
+        try {
+           configUtil = getConfigUtil(wr.getServerHome(),wr.getDomainDir());
+           wr.setProperty(SunAppServerConstants.JMX_CONNECTOR_PORT, configUtil.getJMXConnectorPort());
+        } catch (Exception ex) {      
+            ex.printStackTrace();
+            wr.setProperty(SunAppServerConstants.JMX_CONNECTOR_PORT, "8989");
+        }
+
     }
 
     public boolean validate(Object wizardDescriptor) {
@@ -439,7 +467,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         String domainDir = domainDirTf.getText();
         SunAppConfigUtil configUtil = null;
         try {
-            configUtil = new SunAppConfigUtil(new File(domainDir));
+            configUtil = getConfigUtil(home,domainDir);
         } catch (SAXParseException ex) {
             
             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_XML"));

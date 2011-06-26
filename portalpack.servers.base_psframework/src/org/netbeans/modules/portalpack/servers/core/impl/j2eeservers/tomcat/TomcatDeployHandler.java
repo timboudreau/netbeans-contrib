@@ -18,29 +18,45 @@
  */
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.modules.portalpack.servers.core.PSModuleID;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.DefaultServerDeployHandler;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
  * @author root
  */
-public class TomcatDeployHandler implements ServerDeployHandler {
+public class TomcatDeployHandler extends DefaultServerDeployHandler {
 
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private PSConfigObject psconfig;
@@ -227,4 +243,139 @@ public class TomcatDeployHandler implements ServerDeployHandler {
     public boolean deploy(String deployDir, String contextName) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public boolean isDeployOnSaveSupported() {
+        return true;
+    }
+
+    @Override
+    public TargetModuleID[] getAvailableModules(Target[] target) {
+        String[] portlets = dm.getTaskHandler().getPortlets(null);
+        if(portlets == null || portlets.length ==0)
+            return new TargetModuleID[0];
+        if(target == null || target.length == 0)
+            return new TargetModuleID[0];
+
+        Map map = new HashMap();
+        List<TargetModuleID> list = new ArrayList();
+        for(String portlet:portlets) {
+
+            String appName = portlet;
+            int index = appName.lastIndexOf(".");
+            if(index != -1) {
+                appName = portlet.substring(0,index);
+            }
+
+            if(map.get(appName) == null) {
+                map.put(appName, appName);
+                list.add(new PSModuleID(target[0], appName, appName + ".war"));
+            }
+        }
+        return  (TargetModuleID[]) list.toArray(new TargetModuleID[0]);
+    }
+
+    @Override
+    public void restart(String contextRoot) throws Exception {
+        File confDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME)
+                                        + File.separator + TOMCAT_CONF_DIR);
+        String contextXml = contextRoot + ".xml";
+
+        File contextXmlFile = new File(confDir,contextXml);
+        contextXmlFile.setLastModified(System.currentTimeMillis());
+    }
+
+    @Override
+    public boolean isServerRunning() {
+        /** Return true if a Tomcat server is running on the specifed port */
+        int timeout = 2000;
+        int port = Integer.parseInt(psconfig.getPort());
+        // checking whether a socket can be created is not reliable enough, see #47048
+        Socket socket = new Socket();
+        try {
+            try {
+                socket.connect(new InetSocketAddress("localhost", port), timeout); // NOI18N
+                socket.setSoTimeout(timeout);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                try {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    try {
+                        // request
+                        out.println("HEAD /netbeans-tomcat-status-test HTTP/1.1\nHost: localhost:" + port + "\n"); // NOI18N
+
+                        // response
+                        String text = in.readLine();
+                        if (text == null || !text.startsWith("HTTP/")) { // NOI18N
+                            return false; // not an http response
+                        }
+                        Map headerFileds = new HashMap();
+                        while ((text = in.readLine()) != null && text.length() > 0) {
+                            int colon = text.indexOf(':');
+                            if (colon <= 0) {
+                                return false; // not an http header
+                            }
+                            String name = text.substring(0, colon).trim();
+                            String value = text.substring(colon + 1).trim();
+                            List list = (List) headerFileds.get(name);
+                            if (list == null) {
+                                list = new ArrayList();
+                                headerFileds.put(name, list);
+                            }
+                            list.add(value);
+                        }
+                        List/*<String>*/ server = (List/*<String>*/) headerFileds.get("Server"); // NIO18N
+                        if (server != null) {
+                            if (server.contains("Apache-Coyote/1.1")) { // NOI18N
+                                if (headerFileds.get("X-Powered-By") == null) { // NIO18N
+                                    // if X-Powered-By header is set, it is probably jboss
+                                    return true;
+                                }
+                            } else if (server.contains("Sun-Java-System/Web-Services-Pack-1.4")) {  // NOI18N
+                                // it is probably Tomcat with JWSDP installed
+                                return true;
+                            }
+                        }
+                        return false;
+                    } finally {
+                        in.close();
+                    }
+                } finally {
+                    out.close();
+                }
+            } finally {
+                socket.close();
+            }
+        } catch (Exception ioe) {
+            return false;
+        }
+    }
+
+    @Override
+    public File getModuleDirectory(TargetModuleID module) {
+        try{
+            String contextRoot = module.getModuleID();
+            File confDir = new File(psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator + TOMCAT_CONF_DIR);
+            String contextXml = contextRoot + ".xml";
+
+            File contextXmlFile = new File(confDir, contextXml);
+            if (!contextXmlFile.exists()) {
+                return null;
+            }
+
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(contextXmlFile);
+            Element elm = doc.getDocumentElement();
+            String docBase = elm.getAttribute("docBase");
+            File docBaseFile = new File(docBase);
+            if(docBaseFile.exists())
+                return docBaseFile;
+            else
+                return null;
+        }catch(Throwable t) {
+            return null;
+        }
+
+    }
+    
 }

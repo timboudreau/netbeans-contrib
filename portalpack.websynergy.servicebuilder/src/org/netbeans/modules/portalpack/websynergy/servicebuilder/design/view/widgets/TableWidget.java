@@ -307,7 +307,6 @@ public class TableWidget extends Widget{
             super.notifyRemoved();
             if(userObject instanceof Entity) {
                 Entity e = (Entity)userObject;
-                System.out.println("Removed Entity --------------------------- "+e+"  "+e.getName());
             }
             if(getScene() instanceof ObjectScene && userObject!=null) {
                 ObjectScene scene =(ObjectScene) getScene();

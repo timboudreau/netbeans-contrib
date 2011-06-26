@@ -26,8 +26,10 @@ package org.netbeans.modules.portalpack.servers.websynergy.common;
  */
 public class LiferayConstants {
     
-    public static String LR_1_0 = "lr_1_0";
-    public static String LR_1_0_URI_PREFIX = "liferay_1_0";
+    public static String LR_1_0 = "lr_2_0";
+    public static String LR_1_0_URI_PREFIX = "liferay_2_0";
+    
+    public static String LR_PREFIX = "liferay";
     
     //config parameters
     public static String ADMIN_CONSOLE_URI = "ADMIN_CONSOLE_URI";
@@ -37,4 +39,11 @@ public class LiferayConstants {
     public static String LR_LOGGER = "org.netbeans.modules.portalpack.servers.liferay.logger";
     public static String AUTO_DEPLOY_DIR = "lr_auto_deploy_dir";
     public static String LR_PORTAL_DEPLOY_DIR = "lr_portal_deploy_dir";
+    public static String LR_VERSION = "liferay.version";
+    public static String LR_DEVELOPER_MODE = "lr_developer_mode";
+    
+    //Liferay Version
+    public static final int LR_5_1_0 = 5100;
+    public static final int LR_5_2_0 = 5200;
+	public static final int LR_5_2_3 = 5230;
 }

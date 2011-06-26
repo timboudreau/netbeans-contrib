@@ -1,0 +1,22 @@
+<#if PACKAGE != "">package ${PACKAGE};
+</#if>
+
+import com.liferay.portal.kernel.events.ActionException;
+import com.liferay.portal.kernel.events.SimpleAction;
+import com.liferay.portal.kernel.util.GetterUtil;
+
+public class ${CLASS_NAME} extends SimpleAction {
+
+    @Override
+    public void run(String[] ids) throws ActionException {
+        try {
+            doRun(GetterUtil.getLong(ids[0]));
+        } catch (Exception e) {
+            throw new ActionException(e);
+        }
+    }
+
+    private void doRun(long companyId) {
+        System.out.println("Company Id: " + companyId);
+    }   
+}

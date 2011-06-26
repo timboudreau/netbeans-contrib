@@ -9,6 +9,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -20,50 +21,50 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jSeparator1" alignment="0" pref="533" max="32767" attributes="0"/>
+          <Component id="jSeparator1" alignment="0" pref="586" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="155" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="239" max="32767" attributes="0"/>
+              <EmptySpace pref="252" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel2" max="32767" attributes="0"/>
+                      <Component id="jLabel2" pref="61" max="32767" attributes="0"/>
                       <EmptySpace min="49" pref="49" max="49" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel3" max="32767" attributes="0"/>
+                      <Component id="jLabel3" pref="82" max="32767" attributes="0"/>
                       <EmptySpace min="28" pref="28" max="28" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel4" max="32767" attributes="0"/>
+                      <Component id="jLabel4" pref="83" max="32767" attributes="0"/>
                       <EmptySpace min="27" pref="27" max="27" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel5" max="32767" attributes="0"/>
+                      <Component id="jLabel5" pref="84" max="32767" attributes="0"/>
                       <EmptySpace min="26" pref="26" max="26" attributes="0"/>
                   </Group>
-                  <Component id="jLabel6" pref="75" max="32767" attributes="0"/>
+                  <Component id="jLabel6" pref="110" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="adminConsoleUriTf" alignment="0" pref="173" max="32767" attributes="2"/>
-                          <Component id="portalUri" alignment="0" pref="173" max="32767" attributes="2"/>
-                          <Component id="portletUriTf" alignment="0" pref="173" max="32767" attributes="2"/>
+                          <Component id="adminConsoleUriTf" alignment="0" pref="185" max="32767" attributes="2"/>
+                          <Component id="portalUri" alignment="0" pref="185" max="32767" attributes="2"/>
+                          <Component id="portletUriTf" alignment="0" pref="185" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" pref="168" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="hostTf" alignment="0" pref="299" max="32767" attributes="2"/>
+                          <Component id="hostTf" alignment="0" pref="303" max="32767" attributes="2"/>
                           <Component id="homeTf" alignment="0" min="-2" pref="299" max="-2" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="homeChooseButton" pref="36" max="32767" attributes="0"/>
+                      <Component id="homeChooseButton" pref="41" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" pref="103" max="-2" attributes="0"/>

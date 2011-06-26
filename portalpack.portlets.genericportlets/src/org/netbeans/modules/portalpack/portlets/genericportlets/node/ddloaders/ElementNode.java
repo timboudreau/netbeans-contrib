@@ -21,7 +21,6 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.openide.loaders.DataNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 /**

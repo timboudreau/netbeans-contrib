@@ -9,20 +9,26 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeListener;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
+import org.netbeans.modules.portalpack.servers.websynergy.common.WebSpacePropertiesUtil;
 import org.netbeans.modules.portalpack.servers.websynergy.dd.ld.impl400.Category;
 import org.netbeans.modules.portalpack.servers.websynergy.dd.ld.impl400.Display;
 import org.netbeans.modules.portalpack.servers.websynergy.dd.lp.impl440.LiferayPortletApp;
 import org.netbeans.modules.portalpack.servers.websynergy.dd.lp.impl440.Portlet;
-import org.netbeans.modules.schema2beans.BaseBean;
-import org.openide.util.Exceptions;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -32,12 +38,41 @@ public class LiferayPortletXMLListener implements PortletXMLChangeListener {
 
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
     public static String SPRING_PORTLET = "org.springframework.web.portlet.DispatcherPortlet";
+    public static String JSF_PORTLET = "com.sun.faces.portlet.FacesPortlet";
+    public static String RUBY_PORTLET = "com.liferay.util.bridges.ruby.RubyPortlet";
 
     public void addPortlet(PortletContext portletContext, AppContext appContext, String webInfDir) {
 
         addPortletToLifeRayPortletFile(portletContext, appContext, webInfDir);
         addPortletToLifeRayDisplayFile(portletContext, appContext, webInfDir);
-        addDependencyJars(portletContext, webInfDir);
+
+        Properties pluginPackageProperties = getPluginPackageProperties(webInfDir);
+
+        boolean addJars = addDependencyJars(pluginPackageProperties, portletContext, webInfDir);
+        boolean addProps = addPluginPackageProperties(pluginPackageProperties, portletContext, webInfDir);
+
+        if (addJars || addProps) {
+            storePluginPackageProperties(pluginPackageProperties, webInfDir);
+        }
+
+        FileObject webInfFO = FileUtil.toFileObject(new File(webInfDir));
+        if(webInfFO != null) {
+            Project prj = FileOwnerQuery.getOwner(webInfFO);
+            if(prj != null) {
+                //check if Liferay/WebSpace
+                boolean isLiferay = WebSpacePropertiesUtil.isWebSynergyServer(prj);
+                if(isLiferay) {
+                    String prjName = ProjectUtils.getInformation(prj).getName();
+                    if(prjName != null && prjName.endsWith("-hook")) {
+                        NotifyDescriptor nd = new NotifyDescriptor.Message(
+                                NbBundle.getMessage(LiferayPortletXMLListener.class,
+                                "MSG_PORTLET_NOT_ALLOWED_IN_HOOK_PROJECT"),NotifyDescriptor.WARNING_MESSAGE);
+                        DialogDisplayer.getDefault().notify(nd);
+                    }
+                }
+            }
+
+        }
     }
 
     private void addPortletToLifeRayDisplayFile(PortletContext portletContext, AppContext appContext, String webInfDir) {
@@ -94,23 +129,12 @@ public class LiferayPortletXMLListener implements PortletXMLChangeListener {
 
     }
 
-    private void addDependencyJars(PortletContext pc, String webInfDir) {
+    private boolean addDependencyJars(Properties pluginPackageProp, PortletContext pc, String webInfDir) {
 
         String className = pc.getPortletClass();
         if (className != null && className.equals(SPRING_PORTLET)) {
 
-            InputStream in = null;
-            OutputStream out = null;
             try {
-                File file = new File(webInfDir + File.separator + "liferay-plugin-package.properties");
-
-                if (!file.exists()) {
-                    return;
-                }
-                in = new FileInputStream(file);
-
-                Properties pluginPackageProp = new Properties();
-                pluginPackageProp.load(in);
 
                 String depJar = pluginPackageProp.getProperty("portal.dependency.jars");
 
@@ -119,7 +143,7 @@ public class LiferayPortletXMLListener implements PortletXMLChangeListener {
                 } else {
 
                     if (depJar.indexOf("commons-fileupload.jar") != -1) {
-                        return;
+                        return false;
                     }
                     if (depJar.endsWith(",")) {
                         depJar += "commons-fileupload.jar";
@@ -127,35 +151,105 @@ public class LiferayPortletXMLListener implements PortletXMLChangeListener {
                         depJar += "," + "commons-fileupload.jar";
                     }
                     pluginPackageProp.setProperty("portal.dependency.jars", depJar);
-
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (IOException ex) {
-                            //Exceptions.printStackTrace(ex);
-                        }
-                    }
-                    try {
-                        out = new FileOutputStream(file);
-                        pluginPackageProp.store(out, "");
-                        out.flush();
-                        out.close();
-                    } catch (Exception e) {
-                        logger.info(e.getMessage());
-                    }
-
                 }
+
             } catch (Exception e) {
-            }finally {
-                if(out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException ex) {
-                        
+            }
+            return true;
+        } else if (className != null && className.equals(RUBY_PORTLET)) {
+
+            
+            try {
+
+                String depJar = pluginPackageProp.getProperty("portal.dependency.jars");
+
+                if (depJar == null || depJar.trim().length() == 0) {
+                    pluginPackageProp.setProperty("portal.dependency.jars", "bsf.jar");
+                } else {
+
+                    if (depJar.indexOf("bsf.jar") != -1) {
+                        return false;
                     }
+                    if (depJar.endsWith(",")) {
+                        depJar += "bsf.jar";
+                    } else {
+                        depJar += "," + "bsf.jar";
+                    }
+                    pluginPackageProp.setProperty("portal.dependency.jars", depJar);
                 }
+
+            } catch (Exception e) {
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean addPluginPackageProperties(Properties pluginPackage, PortletContext portletContext, String webInfDir) {
+        String className = portletContext.getPortletClass();
+        if (className != null && className.equals(JSF_PORTLET)) {
+
+            String speedFilterEnabled =
+                    pluginPackage.getProperty("speed-filters-enabled");
+            if (speedFilterEnabled == null || speedFilterEnabled.trim().length() == 0) {
+
+                pluginPackage.setProperty("speed-filters-enabled", "false");
+                return true;
             }
 
+            return false;
+
         }
+
+        return false;
+    }
+
+    private Properties getPluginPackageProperties(String webInfDir) {
+        InputStream in = null;
+        try {
+            File file = new File(webInfDir + File.separator + "liferay-plugin-package.properties");
+
+            if (!file.exists()) {
+                return new Properties();
+            }
+            in = new FileInputStream(file);
+
+            Properties pluginPackageProp = new Properties();
+            pluginPackageProp.load(in);
+
+            return pluginPackageProp;
+        } catch (Exception e) {
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    //Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        return new Properties();
+    }
+
+    private void storePluginPackageProperties(Properties pluginPackage, String webInfDir) {
+        File file = new File(webInfDir + File.separator + "liferay-plugin-package.properties");
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            pluginPackage.store(out, "");
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+
     }
 }

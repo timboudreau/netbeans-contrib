@@ -22,11 +22,12 @@ package org.netbeans.modules.portalpack.servers.core.util;
 import java.beans.PropertyChangeListener;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.PSConfigCallBackHandler;
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.List;
 import java.util.WeakHashMap;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 
@@ -64,6 +65,8 @@ public class PSConfigObject {
     private Properties props = null;
     
     private boolean newInstance = false;
+
+    private String[] envProperties;
    // private boolean libraryChanged = false;
     
     private static PSConfigObject instance = null;
@@ -172,6 +175,14 @@ public class PSConfigObject {
 
     public void setDirectoryDeployment(boolean directoryDeployment) {
         this.directoryDeployment = directoryDeployment;
+    }
+
+    public void setEnvProperties(String[] envProperties) {
+        this.envProperties = envProperties;
+    }
+
+    public String[] getEnvProperties() {
+        return envProperties;
     }
     
  //comment start
@@ -295,6 +306,8 @@ public class PSConfigObject {
         setAdminPort(ip.getProperty("ADMIN_PORT"));
         setClassPath(ip.getProperty("CLASSPATH"));
         setPortalUri(ip.getProperty("PORTAL_URI"));
+
+        setEnvProperties(decodeEnvProperties(ip.getProperty("SERVER_ENV_PROPERTIES")));
         
         //load specific properties
         Enumeration keys = ip.propertyNames();
@@ -334,6 +347,8 @@ public class PSConfigObject {
         handler.setClassPath(getClassPath());
         handler.setPortalUri(getPortalUri());
         handler.setDirectoryDeployment(isDirectoryDeployment());
+
+        handler.setEnvProperties(encodeEnvProperties(getEnvProperties()));
   
     }
   
@@ -368,7 +383,8 @@ public class PSConfigObject {
         ip.setProperty("ADMIN_PORT",getAdminPort());
         ip.setProperty("CLASSPATH",getClassPath());
         ip.setProperty("PORTAL_URI",getPortalUri());
-        
+        ip.setProperty("SERVER_ENV_PROPERTIES", encodeEnvProperties(getEnvProperties()) );
+
         if(props != null)
         {
            Enumeration keys = props.propertyNames();
@@ -466,6 +482,39 @@ public class PSConfigObject {
         key = PSConfigCallBackHandler.ADD_PROP_PREFIX + key;
         return props.getProperty(key);
     }
+
+    private String encodeEnvProperties(String[] env) {
+        if(env == null)
+            return null;
+
+        StringBuilder envBuf = new StringBuilder();
+        for(String e:env) {
+            envBuf.append(e);
+            envBuf.append(",");
+        }
+        return envBuf.toString();
+    }
+
+    private String[] decodeEnvProperties(String encodeStr) {
+
+        List<String> envs = null;
+        if(encodeStr == null)
+            return null;
+        StringTokenizer st = new StringTokenizer(encodeStr,",");
+        while(st.hasMoreTokens()) {
+            if(envs == null)
+                envs = new ArrayList();
+            String token = st.nextToken();
+            if(token != null && token.trim().length() != 0) {
+                envs.add(token);
+            }
+        }
+
+        if(envs == null || envs.size() == 0)
+            return null;
+
+        return envs.toArray(new String[0]);
+    }
     
     public synchronized void populate(PSConfigCallBackHandler handler)
     {
@@ -487,6 +536,7 @@ public class PSConfigObject {
         setPortalUri(handler.getPortalUri());
         
         setDirectoryDeployment(handler.isDirectoryDeployment());
+        setEnvProperties(decodeEnvProperties(handler.getEnvProperties()));
         
         props = new Properties(handler.getProperties());
         

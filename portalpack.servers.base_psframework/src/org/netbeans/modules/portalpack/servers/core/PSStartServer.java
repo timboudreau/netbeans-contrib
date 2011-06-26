@@ -41,6 +41,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -225,17 +226,21 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
     
     // Ruunable run implementation
     public synchronized void run(){
-        
+
+        String[] env = null;
+        PSConfigObject psConfig = dm.getPSConfig();
+        if(psConfig != null) {
+            env = psConfig.getEnvProperties();
+        }
         Object lock = new Object();
         if (cmdType.equals(PSCommandType.START)) {
             
             logger.log(Level.FINEST,"Just before starting server ****");
             try{
-                
-                
+
                 //start admin server
                 writeToOutput(org.openide.util.NbBundle.getMessage(PSStartServer.class, "MSG_STARTING_ADMIN_SERVER"));
-                startServerHandler.startServer(); 
+                startServerHandler.startServer(env);
                 pes.fireHandleProgressEvent(null,
                         new Status(ActionType.EXECUTE, cmdType,
                         NbBundle.getMessage(PSStartServer.class,"MSG_ADMIN_SERVER_STARTED"),
@@ -250,7 +255,7 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
         } else if(cmdType.equals(PSCommandType.STOP)) {
             try{
                             
-                startServerHandler.stopServer();
+                startServerHandler.stopServer(env);
                 
                 pes.fireHandleProgressEvent(null,
                         new Status(ActionType.EXECUTE, cmdType,
@@ -276,7 +281,7 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
                  
                 //start admin server
                 writeToOutput(org.openide.util.NbBundle.getMessage(PSStartServer.class, "MSG_STARTING_ADMIN_SERVER"));
-                startServerHandler.startDebug(); 
+                startServerHandler.startDebug(env);
                 pes.fireHandleProgressEvent(null,
                         new Status(ActionType.EXECUTE, cmdType,
                         NbBundle.getMessage(PSStartServer.class,"MSG_ADMIN_SERVER_STARTED"),

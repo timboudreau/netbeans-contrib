@@ -84,7 +84,7 @@ public class JNPCDeploymentManager extends PSDeploymentManager {
     }
 
     @Override
-    public void showServerLog() {
+    public void showServerLog(boolean createNew) {
         try {
             
             FileLogViewerSupport.removeLogViewerSupport(getUri());

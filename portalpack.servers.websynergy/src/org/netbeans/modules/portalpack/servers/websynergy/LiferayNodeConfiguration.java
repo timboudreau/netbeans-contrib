@@ -20,12 +20,18 @@
 package org.netbeans.modules.portalpack.servers.websynergy;
 
 import javax.swing.Action;
+import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSNodeConfiguration;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.netbeans.modules.portalpack.servers.websynergy.nodes.HookHolderNode;
+import org.netbeans.modules.portalpack.servers.websynergy.nodes.ThemeHolderNode;
+import org.openide.nodes.Node;
 
 /**
  *
- * @author root
+ * @author Satya
  */
 public class LiferayNodeConfiguration extends DefaultPSNodeConfiguration{
     
@@ -64,4 +70,21 @@ public class LiferayNodeConfiguration extends DefaultPSNodeConfiguration{
         //newActions[1] = SystemAction.get(ShowMultiplePortletsAction.class);
         return newActions;
     }
+
+    @Override
+    public Node[] getCustomChildrenForDnNode(PSDeploymentManager dm, String baseDn, String key) {
+        PSConfigObject psconfig = dm.getPSConfig();
+        String lrVersionStr = psconfig.getProperty(LiferayConstants.LR_VERSION);
+        int liferayVersion = -1;
+        try {
+          liferayVersion = Integer.parseInt(lrVersionStr);
+        } catch (Exception e) {
+        }
+
+        if(liferayVersion >= 5203) {
+            return new Node[]{new HookHolderNode(dm, key), new ThemeHolderNode(dm, key)};
+        }
+        return new Node[]{new HookHolderNode(dm, key)};
+    }
+
 }

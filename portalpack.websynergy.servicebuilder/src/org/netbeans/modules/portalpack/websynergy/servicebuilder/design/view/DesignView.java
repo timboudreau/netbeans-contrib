@@ -73,6 +73,7 @@ import org.openide.filesystems.FileObject;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.widgets.*;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.javamodel.*;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui.AddServiceUI;
+import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.ui.PreferencesUI;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.GenerateServiceHelper;
 import org.netbeans.modules.portalpack.websynergy.servicebuilder.helper.ServiceBuilderHelper;
 import org.openide.DialogDisplayer;
@@ -425,6 +426,19 @@ public class DesignView extends JPanel {
 
         generateServiceButton.setAction(new GenerateAction(context.getServiceBuilderFile()));
         headerPanelWidget.addChild(reloadButton);
+        
+        ButtonWidget cleanButton = new ButtonWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_CLEAN"));
+        cleanButton.setOpaque(true);
+        cleanButton.setRoundedBorder(3, 4, 0, null);
+        cleanButton.setAction(new CleanAction(context.getServiceBuilderFile()));
+        headerPanelWidget.addChild(cleanButton);
+        
+        ButtonWidget preferencesButton = new ButtonWidget(scene, NbBundle.getMessage(DesignView.class, "LBL_PREFERENCES"));
+        preferencesButton.setOpaque(true);
+        preferencesButton.setRoundedBorder(3, 4, 0, null);
+        preferencesButton.setAction(new PreferencesAction(context.getServiceBuilderFile()));
+        headerPanelWidget.addChild(preferencesButton);
+        
         return headerPanelWidget;
     }
 
@@ -548,8 +562,8 @@ public class DesignView extends JPanel {
                 selectedEntity.setLocalService(Boolean.toString(addSrvUI.isLocalService()));
 
                 String table = addSrvUI.getTableName();
-                if(table != null && table.trim().length() != 0)
-                    selectedEntity.setTable(table);
+                //if(table != null && table.trim().length() != 0)
+                selectedEntity.setTable(table);
                 
                 if(!helper.save()) {
                     helper.forceReload();
@@ -673,6 +687,32 @@ public class DesignView extends JPanel {
         }
     }
     
+    private class CleanAction extends AbstractAction {
+        
+        private FileObject serviceXmlFileObject;
+
+        public CleanAction(FileObject serviceXmlFileObject) {
+            this.serviceXmlFileObject = serviceXmlFileObject;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            GenerateServiceHelper.getInstance().cleanService(serviceXmlFileObject);
+            //reload();
+        }
+    }
+    
+     private class PreferencesAction extends AbstractAction {
+        
+        private FileObject serviceXmlFileObject;
+
+        public PreferencesAction(FileObject serviceXmlFileObject) {
+            this.serviceXmlFileObject = serviceXmlFileObject;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            PreferencesUI prefUI= new PreferencesUI(serviceXmlFileObject);
+        }
+    }
     private class EntityChangeListSelectionListener implements ListSelectionListener {
 
         public void valueChanged(ListSelectionEvent e) {

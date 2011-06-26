@@ -23,9 +23,11 @@ import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultStartServerImpl;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.jboss.JBStartServer;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerStartServer;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatStartServer;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.websynergy.impl.JBossStartStopServerListener;
 import org.netbeans.modules.portalpack.servers.websynergy.impl.SunASStartStopListener;
 import org.netbeans.modules.portalpack.servers.websynergy.impl.TomcatStartStopServerListener;
 
@@ -34,14 +36,14 @@ import org.netbeans.modules.portalpack.servers.websynergy.impl.TomcatStartStopSe
  * @author satya
  */
 public class ContainerStartHandlerFactory implements ServerConstants{
-    
+
 
     public static PSStartServerInf getStartServerHandler(PSDeploymentManager dm)
     {
         PSConfigObject psconfig = dm.getPSConfig();
         if(psconfig.getServerType() == null)
             return new DefaultStartServerImpl();
-        
+
         if(psconfig.getServerType().equals(SUN_APP_SERVER_9))
         {
             PSStartServerInf startHandler = new SunAppServerStartServer(dm);
@@ -55,10 +57,15 @@ public class ContainerStartHandlerFactory implements ServerConstants{
             startHandler.addListener(new TomcatStartStopServerListener(dm));
             return startHandler;
         }
+        else if(psconfig.getServerType().equals(JBOSS_5_X)) {
+            PSStartServerInf startHandler = new JBStartServer(dm);
+            startHandler.addListener(new JBossStartStopServerListener(dm));
+            return startHandler;
+        }
         else
             return new DefaultStartServerImpl();
-        
+
     }
 
-    
+
 }

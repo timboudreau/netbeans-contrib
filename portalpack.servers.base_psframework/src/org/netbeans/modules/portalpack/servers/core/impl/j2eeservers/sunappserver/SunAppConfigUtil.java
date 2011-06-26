@@ -65,9 +65,8 @@ public class SunAppConfigUtil {
                 throw new ReadAccessDeniedException();
             }
          }
+        
           logger.log(Level.FINEST,"XmlRoot is :: "+xmlRoot);
-          InputSource inputSource = 
-              new InputSource(new FileInputStream(xmlRoot));
           
           doc = createDocumentFromXml(xmlRoot);   
           
@@ -230,7 +229,12 @@ public class SunAppConfigUtil {
         
         return debugOptionsVal;
     }
-    private XPath getXPath()
+
+    public String getJMXConnectorPort() {
+        return getAdminPort();
+    }
+    
+    protected XPath getXPath()
     {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
@@ -249,6 +253,10 @@ public class SunAppConfigUtil {
             
         Document document = builder.parse(file);
         return document;
+    }
+
+    public Document getDocument() {
+        return doc;
     }
     
     

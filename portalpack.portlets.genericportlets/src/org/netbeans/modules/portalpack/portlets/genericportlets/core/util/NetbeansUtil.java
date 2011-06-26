@@ -22,6 +22,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.Cod
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -187,9 +188,31 @@ public class NetbeansUtil {
         }
 
         if (ClassPath.COMPILE.equals(type)) {
-            return wplm.addCompileLibraries(libraries);
+            
+            try { 
+                Class[] paramTypes = {Library[].class};
+                Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
+                    
+                method.invoke(wplm, new Object[]{libraries});
+                return true;
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, type, e);
+                return false;
+            }
+            //return wplm.addCompileLibraries(libraries);
         } else if (ClassPath.EXECUTE.equals(type)) {
-            return wplm.addPackageLibraries(libraries, "WEB-INF/lib"); // NOI18N
+            
+            try { 
+                Class[] paramTypes = {Library[].class, String.class};
+                Method method = WebProjectLibrariesModifier.class.getMethod("addPackageLibraries", paramTypes);
+                    
+                method.invoke(wplm, new Object[]{libraries,"WEB-INF/lib"});
+                return true;
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, type, e);
+                return false;
+            }
+            //return wplm.addPackageLibraries(libraries, "WEB-INF/lib"); // NOI18N
         }
 
         return false;

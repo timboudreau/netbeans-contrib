@@ -1,0 +1,54 @@
+<!--
+This is the DTD for the Hook parameters for Liferay Portal.
+
+<!DOCTYPE hook PUBLIC
+	"-//Liferay//DTD Hook 5.2.0//EN"
+	"http://www.liferay.com/dtd/liferay-hook_5_2_0.dtd">
+-->
+
+<!ELEMENT hook (portal-properties?, language-properties*, custom-jsp-dir?)>
+
+<!--
+Not all portal properties can be overridden via a hook. The supported properties
+are:
+
+auth.forward.by.last.path
+javascript.fast.load
+layout.template.cache.enabled
+layout.user.private.layouts.auto.create
+layout.user.private.layouts.enabled
+layout.user.private.layouts.modifiable
+layout.user.public.layouts.auto.create
+layout.user.public.layouts.enabled
+layout.user.public.layouts.modifiable
+my.places.show.community.private.sites.with.no.layouts
+my.places.show.community.public.sites.with.no.layouts
+my.places.show.organization.private.sites.with.no.layouts
+my.places.show.organization.public.sites.with.no.layouts
+my.places.show.user.private.sites.with.no.layouts
+my.places.show.user.public.sites.with.no.layouts
+terms.of.use.required
+theme.css.fast.load
+theme.images.fast.load
+
+passwords.passwordpolicytoolkit.generator
+passwords.passwordpolicytoolkit.static
+
+layout.static.portlets.all
+
+auto.login.hooks
+
+application.startup.events
+
+login.events.post
+login.events.pre
+logout.events.post
+logout.events.pre
+servlet.service.events.post
+servlet.service.events.pre
+-->
+<!ELEMENT portal-properties (#PCDATA)>
+
+<!ELEMENT language-properties (#PCDATA)>
+
+<!ELEMENT custom-jsp-dir (#PCDATA)>

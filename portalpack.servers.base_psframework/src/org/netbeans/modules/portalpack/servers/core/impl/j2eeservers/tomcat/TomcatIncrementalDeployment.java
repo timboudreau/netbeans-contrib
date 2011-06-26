@@ -41,16 +41,21 @@ package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat;
 
 import java.io.File;
 import java.io.IOException;
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.api.AppChangeDescriptor;
+import org.netbeans.modules.j2ee.deployment.plugins.api.DeploymentChangeDescriptor;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
 import org.netbeans.modules.portalpack.servers.core.PSDeployer;
 import org.netbeans.modules.portalpack.servers.core.PSDeployerImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
+import org.netbeans.modules.portalpack.servers.core.common.ShortCircuitProgressObject;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -84,9 +89,38 @@ public class TomcatIncrementalDeployment extends IncrementalDeployment{
 
     @Override
     public ProgressObject incrementalDeploy(TargetModuleID module, AppChangeDescriptor changes) {
-        PSDeployer deployer = new PSDeployerImpl((PSDeploymentManager)dm, "",0);
-        return deployer;
+
+        if(changes.classesChanged() || changes.serverDescriptorChanged()
+                   || changes.descriptorChanged()) {
+            final ServerDeployHandler deployHandler = dm.getServerDeployHandler();
+            if(deployHandler == null) {
+                return new ShortCircuitProgressObject(CommandType.REDEPLOY,
+                        "No Deployment Required",
+                        StateType.COMPLETED,new TargetModuleID[] { module });
+            }
+
+            try {
+                String moduleID = module.getModuleID();
+                deployHandler.restart(moduleID);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return new ShortCircuitProgressObject(CommandType.REDEPLOY,
+                "DEPLOYMENT_DONE",
+                StateType.COMPLETED,new TargetModuleID[] { module });
+            
+        } else {
+            return new ShortCircuitProgressObject(CommandType.REDEPLOY,
+                        "No Deployment Required",
+                        StateType.COMPLETED,new TargetModuleID[] { module });
+        }
         
+    }
+
+     @Override
+    public ProgressObject deployOnSave(TargetModuleID module, DeploymentChangeDescriptor desc) {
+
+        return incrementalDeploy(module, desc);
     }
 
     @Override
@@ -106,16 +140,25 @@ public class TomcatIncrementalDeployment extends IncrementalDeployment{
 
     @Override
     public File getDirectoryForNewModule(File appDir, String uri, J2eeModule module, ModuleConfiguration configuration) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
     @Override
     public File getDirectoryForModule(TargetModuleID module) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ServerDeployHandler deployHandler = dm.getServerDeployHandler();
+        if(deployHandler == null)
+            return null;
+
+        File f = deployHandler.getModuleDirectory(module);
+        return f;
     }
 
     @Override
     public boolean isDeployOnSaveSupported() {
-        return true;
+        ServerDeployHandler deployHandler = dm.getServerDeployHandler();
+        if(deployHandler == null)
+            return false;
+
+        return deployHandler.isDeployOnSaveSupported();
     }
 }

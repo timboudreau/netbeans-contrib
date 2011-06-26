@@ -41,13 +41,21 @@ package org.netbeans.modules.portalpack.servers.websynergy.config;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateNotFoundException;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.actions.util.PortletProjectUtils;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.netbeans.modules.portalpack.servers.websynergy.common.WebSpacePropertiesUtil;
+import org.netbeans.modules.portalpack.servers.websynergy.util.TemplateNotFoundException;
+import org.netbeans.modules.portalpack.servers.websynergy.util.TemplateUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
@@ -56,24 +64,28 @@ import org.openide.util.Exceptions;
  */
 public class LiferayXMLUtil {
 
-    public static String LR_PORTLET_TEMPLATE = "liferay-portlet-440.template";
-    public static String LR_DISPLAY_TEMPLATE = "liferay-display-400.template";
-    public static String LR_PLUGIN_PACKAGE_TEMPLATE = "liferay-plugin-package-430.template";
+    public static String LR_PORTLET_TEMPLATE = "liferay-portlet.xml";
+    public static String LR_DISPLAY_TEMPLATE = "liferay-display.xml";
+    public static String LR_PLUGIN_PACKAGE_TEMPLATE = "liferay-plugin-package.xml";
     
     private static String templateFolder = "liferay/templates";
-    private static FileObject folder;
+    
     protected static Logger logger = Logger.getLogger(LiferayConstants.LR_LOGGER);
     
     public static boolean createLRXMLFile(String templateName,String destFolder,String fileName)
     {
-        FileObject templateFile = getTemplateFile(templateName);
-        if(templateFile == null)
-        {
-            logger.severe("Template File "+templateName + " not found !!!");
-            return false;
+        TemplateUtil templateUtil = new TemplateUtil(templateFolder);
+        FileObject templateFile = null;
+        try {
+            templateFile = templateUtil.getTemplateFile(templateName);
+        } catch (TemplateNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
         }
         
         File destDir = new File(destFolder);
+
+        Project project = FileOwnerQuery.getOwner(FileUtil.toFileObject(destDir));
+
         if(destDir == null || !destDir.exists())
         {
             logger.severe("Destination Folder "+ destFolder + " doesn't exist !!!");
@@ -86,37 +98,39 @@ public class LiferayXMLUtil {
             logger.severe("Destination Object for folder "+ destFolder + " is null !!!");
             return false;
         }
+
+        PSConfigObject psconfig = WebSpacePropertiesUtil.getSelectedServerProperties(project);
+        int liferayVersion = 0;
+        String version = "5_1_0";
+        String dtdVersion = "5.1.0";
+        if (psconfig != null) {
+            liferayVersion = WebSpacePropertiesUtil.getLiferayVersion(psconfig);
+            
+            if(liferayVersion >= 6000) {
+                version = "6_0_0";
+                dtdVersion = "6.0.0";
+            } else if (liferayVersion >= 5200) {
+                version = "5_2_0";
+                dtdVersion = "5.2.0";
+            } else {
+                version = "5_1_0";
+                dtdVersion = "5.1.0";
+            }
+        }
+        Map values = new HashMap();
+       
+        values.put("DTD_VERSION", dtdVersion);
+        values.put("VERSION", version);
+
         try {
-            FileUtil.copyFile(templateFile, destObj, fileName, "xml");
+            templateUtil.mergeTemplateToFile(templateFile, FileUtil.toFileObject(new File(destFolder)), fileName, values);
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Error creating lr xml file : " + fileName, ex);
-            return false;
+            Exceptions.printStackTrace(ex);
         }
+
         return true;
-    }
-    /**
-     * It returns the template FileObject
-     * 
-     * @param name Template name. Template name is usually specified in the layer.xml 
-     * @return Template FileObject
-     **/
-    public static FileObject getTemplateFile(String name) {
-        FileObject fo = getFolder() != null ? getFolder().getFileObject(name) : null;
-        return fo;
-    }
-
-    public static FileObject getFolder() {
-        if (folder == null) {
-            folder = Repository.getDefault().getDefaultFileSystem().findResource(templateFolder);
-            //For NB 7.0
-            //folder = FileUtil.getConfigFile(templateFolder);
-
-        }
-        return folder;
-    }
-
-    public static void setFolder(FileObject folder) {
-        folder = folder;
     }
 
 }

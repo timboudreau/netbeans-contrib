@@ -36,8 +36,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
@@ -49,10 +51,14 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.sun.api.SunURIManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.common.ShortCircuitProgressObject;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployerHandlerFactory;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  * @author Satya
@@ -67,6 +73,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
     private String psVersion;
     private LogManager logManager;
     private PSJ2eePlatformImpl psPlatformImpl;
+    private ServerDeployHandler serverDeployHandler;
     
     public PSDeploymentManager(String uri,String psVersion)
     {
@@ -80,6 +87,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
             port = 80;
         }
         logManager = new LogManager(this);
+        serverDeployHandler = getServerDeployHandler();
       
         psconfig.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -151,7 +159,10 @@ public abstract class PSDeploymentManager implements DeploymentManager {
 
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, InputStream inputStream, InputStream inputStream2) throws UnsupportedOperationException, IllegalStateException {
         logger.log(Level.FINEST,"Inside redeploy ***");
-        return null;
+        return new ShortCircuitProgressObject(CommandType.REDEPLOY,
+                        "",
+                        StateType.COMPLETED, targetModuleID);
+//        return null;
     }
 
     public ProgressObject distribute(Target[] target, InputStream inputStream, InputStream inputStream2) throws IllegalStateException {
@@ -161,7 +172,20 @@ public abstract class PSDeploymentManager implements DeploymentManager {
 
     public ProgressObject undeploy(TargetModuleID[] targetModuleID) throws IllegalStateException {
         logger.log(Level.FINEST,"Inside undeploy ***");
-        return null;
+        
+        if(!psconfig.isRemote() && psconfig.isDirectoryDeployment()) {
+            PSDeployerImpl depl = new PSDeployerImpl(this,host,port);
+            if(targetModuleID != null && targetModuleID.length != 0) {
+                String moduleID = targetModuleID[0].getModuleID();
+                depl.undeploy(moduleID,null);
+                return depl;
+            }
+        }
+
+        return new ShortCircuitProgressObject(CommandType.UNDEPLOY,
+                        "",
+                        StateType.COMPLETED, targetModuleID);
+    
     }
 
     public ProgressObject stop(TargetModuleID[] targetModuleID) throws IllegalStateException {
@@ -185,7 +209,12 @@ public abstract class PSDeploymentManager implements DeploymentManager {
 
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
         logger.log(Level.FINEST,"Inside getAvailableModules ***");
-        return new TargetModuleID[]{};
+
+        if(!psconfig.isRemote() && serverDeployHandler != null) {
+            return serverDeployHandler.getAvailableModules(target);
+        }
+
+        return  new TargetModuleID[0];
     }
 
     public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
@@ -195,12 +224,22 @@ public abstract class PSDeploymentManager implements DeploymentManager {
 
     public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
         logger.log(Level.FINEST,"Insidee getRunningModule ***");
-        return new TargetModuleID[]{};
+        if(!psconfig.isRemote() && serverDeployHandler != null) {
+            return serverDeployHandler.getAvailableModules(target);
+        }
+
+        return  new TargetModuleID[0];
     }
 
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, File file, File file2) throws UnsupportedOperationException, IllegalStateException {
         logger.log(Level.FINEST,"Inside redeploy file file *");
-        return null;
+        PSDeployer depl = new PSDeployerImpl(this,host,port);
+        ProgressObject po = depl.deploy(targetModuleID[0].getTarget(),file,file2);
+        return po;
+  //      return new ShortCircuitProgressObject(CommandType.REDEPLOY,
+    //                    "",
+    //                    StateType.COMPLETED, targetModuleID);
+        //return null;
     }
 
     public void setDConfigBeanVersion(DConfigBeanVersionType dConfigBeanVersionType) throws DConfigBeanVersionUnsupportedException {
@@ -248,9 +287,11 @@ public abstract class PSDeploymentManager implements DeploymentManager {
     
     public boolean isRunning(){        
        
-        if(isRunningAdminServer() && isRunningInstanceServer())
-            return true;
-        else
+        if(isRunningAdminServer() && isRunningInstanceServer()) {
+            if(getServerDeployHandler() == null)
+                return true;
+            return getServerDeployHandler().isServerRunning();
+        }else
             return false;
     }
     
@@ -382,7 +423,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
        return false;
    }
    
-   public void showServerLog()
+   public void showServerLog(boolean createNew)
    {
        //do nothing
    }
@@ -390,6 +431,15 @@ public abstract class PSDeploymentManager implements DeploymentManager {
    public String getServerIcon() {
        return null;
    }
+
+   public ServerDeployHandler getServerDeployHandler() {
+       if(serverDeployHandler == null) {
+            serverDeployHandler =
+                    ServerDeployerHandlerFactory.getServerDeployerHandler(this);
+       }
+       return serverDeployHandler;
+   }
+
    public abstract PSTaskHandler getTaskHandler();
    public abstract PSConfigPanelManager getPSConfigPanelManager();
    public PSNodeConfiguration getPSNodeConfiguration()

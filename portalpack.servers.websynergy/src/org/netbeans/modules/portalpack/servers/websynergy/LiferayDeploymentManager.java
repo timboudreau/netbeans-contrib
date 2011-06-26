@@ -28,6 +28,7 @@ import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.jboss.JBConstant;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
 import org.netbeans.modules.portalpack.servers.websynergy.common.WSConstants;
@@ -84,13 +85,14 @@ public class LiferayDeploymentManager extends PSDeploymentManager {
     }
 
     @Override
-    public void showServerLog() {
+    public void showServerLog(boolean createNew) {
 
         if (getPSConfig().getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
             
             try {
-
-                FileLogViewerSupport.removeLogViewerSupport(getUri());
+				if(createNew) {
+					FileLogViewerSupport.removeLogViewerSupport(getUri());
+				}
                 File f = new File(getPSConfig().getDomainDir() + File.separator + "/logs/server.log");
                 FileLogViewerSupport p = FileLogViewerSupport.getLogViewerSupport(f, getUri(), 2000, true);
                 p.showLogViewer(true);
@@ -98,6 +100,21 @@ public class LiferayDeploymentManager extends PSDeploymentManager {
                 Exceptions.printStackTrace(ex);
             }
         }
+
+		if (getPSConfig().getServerType().equals(ServerConstants.JBOSS_5_X)) {
+			try {
+				if(createNew) {
+					FileLogViewerSupport.removeLogViewerSupport(getUri());
+				}
+                File f = new File(getPSConfig().getProperty(JBConstant.SERVER_DIR) +
+						File.separator + "log" + File.separator + "server.log");
+				System.out.println("Log file Location: " + f.getAbsolutePath());
+                FileLogViewerSupport p = FileLogViewerSupport.getLogViewerSupport(f, getUri(), 2000, true);
+                p.showLogViewer(true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+		}
     }
 
     @Override

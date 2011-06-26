@@ -86,7 +86,6 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         portTf = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         debugPortTf = new javax.swing.JTextField();
-        isSecureCB = new javax.swing.JCheckBox();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TomcatConfigPanel.class, "LBL_CATALINA_HOME")); // NOI18N
 
@@ -126,13 +125,6 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         jLabel7.setLabelFor(debugPortTf);
         jLabel7.setText(org.openide.util.NbBundle.getMessage(TomcatConfigPanel.class, "LBL_DEBUG_PORT")); // NOI18N
 
-        isSecureCB.setText(org.openide.util.NbBundle.getMessage(TomcatConfigPanel.class, "LBL_IS_SECURE")); // NOI18N
-        isSecureCB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                isSecureCBActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -156,12 +148,9 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
                         .add(jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, debugPortTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, portTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE))
-                        .add(28, 28, 28)
-                        .add(isSecureCB))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, debugPortTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, portTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(baseTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
@@ -174,9 +163,9 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {debugPortTf, portTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {baseTf, homeTf, javacombo}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {debugPortTf, portTf}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -198,8 +187,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(portTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel6)
-                    .add(isSecureCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jLabel6))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(debugPortTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -225,7 +213,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
     private void baseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baseButtonActionPerformed
         
         DirectoryChooser chooser = new DirectoryChooser();
-        String dir = browseInstallLocation(System.getProperty("netbeans.user"));
+        String dir = browseInstallLocation(System.getProperty("user.home"));
         if(dir != null) {
             baseTf.setText(dir);
             populateAllDefaultValues();
@@ -236,7 +224,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
 // TODO add your handling code here:
         
         DirectoryChooser chooser = new DirectoryChooser();
-        String dir = browseInstallLocation(System.getProperty("netbeans.user"));
+        String dir = browseInstallLocation(System.getProperty("user.home"));
         if(dir != null)
             homeTf.setText(dir);
         if(!checkIfValueAlreadySet(baseTf))
@@ -247,10 +235,6 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         if(dir != null)
             populateAllDefaultValues();
     }//GEN-LAST:event_homeButtonActionPerformed
-
-    private void isSecureCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isSecureCBActionPerformed
-        // TODO add your handling code here:
-}//GEN-LAST:event_isSecureCBActionPerformed
 
     private String browseInstallLocation(String defaultDir){
         String insLocation = null;
@@ -361,6 +345,12 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         
         homeTf.setText(object.getProperty(CATALINA_HOME));
         baseTf.setText(object.getProperty(CATALINA_BASE));
+        homeTf.setEnabled(false);
+        baseTf.setEnabled(false);
+        
+        homeButton.setEnabled(false);
+        baseButton.setEnabled(false);
+        
         //tomcatUserNameTf.setText(object.getProperty(MANAGER_USER));
         //tomcatPasswordTf.setText(object.getProperty(MANAGER_PASSWORD));
         
@@ -369,7 +359,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         if(javaHomeObject != null)
         {
             javacombo.setSelectedItem(javaHomeObject);
-            javacombo.setEnabled(false);
+            //javacombo.setEnabled(false);
         }
         else{
            
@@ -382,7 +372,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
     
     public void read(WizardDescriptor wizardDescriptor) {
         //wd = wizardDescriptor;
-        logger.info("Inside read of TomcatConfigPanel...................");
+        //logger.info("Inside read of TomcatConfigPanel...................");
                 
     }
     
@@ -538,7 +528,6 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
     private javax.swing.JTextField debugPortTf;
     private javax.swing.JButton homeButton;
     private javax.swing.JTextField homeTf;
-    private javax.swing.JCheckBox isSecureCB;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -563,7 +552,19 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant, Do
         public String getJavaHome() {
             return javaHome;
         }
-        
+
+        @Override
+        public boolean equals(Object obj) {
+            if(obj == null)
+                return false;
+            if(!(obj instanceof JavaHome))
+                return false;
+            if(this.toString().equalsIgnoreCase(((JavaHome)obj).toString()))
+                return true;
+            else
+                return false;
+        }
+      
     }
     
     

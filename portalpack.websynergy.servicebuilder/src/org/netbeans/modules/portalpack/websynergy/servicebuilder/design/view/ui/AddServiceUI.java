@@ -58,7 +58,7 @@ public class AddServiceUI extends javax.swing.JDialog implements DocumentListene
     private boolean localService;
     private String tableName;
     private boolean addMode;
-
+ 
     /** Creates new form AddServiceUI */
     public AddServiceUI(java.awt.Frame parent) {
         super(parent, true);
@@ -151,6 +151,11 @@ public class AddServiceUI extends javax.swing.JDialog implements DocumentListene
         remoteServiceLabel.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.remoteServiceLabel.text")); // NOI18N
 
         remoteServiceCB.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.remoteServiceCB.text")); // NOI18N
+        remoteServiceCB.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                remoteServiceCBItemStateChanged(evt);
+            }
+        });
 
         localServiceCB.setSelected(true);
         localServiceCB.setText(org.openide.util.NbBundle.getMessage(AddServiceUI.class, "AddServiceUI.localServiceCB.text")); // NOI18N
@@ -308,6 +313,14 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     dispose();
 }//GEN-LAST:event_updateButtonActionPerformed
 
+private void remoteServiceCBItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_remoteServiceCBItemStateChanged
+// TODO add your handling code here:
+    if (!addMode){
+        setErrorMessage("");
+        updateButton.setEnabled(true);
+    }
+}//GEN-LAST:event_remoteServiceCBItemStateChanged
+
     /**
     * @param args the command line arguments
     */
@@ -389,7 +402,7 @@ private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             // Add mode and Valid
             setErrorMessage("");
             addButton.setEnabled(true);
-        }
+        } 
     }
     public void stateChanged(ChangeEvent e) {
         throw new UnsupportedOperationException("Not supported yet.");

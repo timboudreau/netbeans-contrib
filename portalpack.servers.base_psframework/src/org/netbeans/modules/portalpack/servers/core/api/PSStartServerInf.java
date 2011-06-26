@@ -26,33 +26,54 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
  * @author Satya
  */
 public abstract class PSStartServerInf {
-    
+
+    public static String USE_CUSTOM_STARTUP_SCRIPT = "use_custom_startup_script";
     private List listeners;
-    public final void startServer() throws Exception
+    public final void startServer(String[] env) throws Exception
     {
         fireStartStopEvent(StartStopEvent.BEFORE_START);
-        doStartServer();
+        doStartServer(env);
         fireStartStopEvent(StartStopEvent.AFTER_START);
     }
-    public final void stopServer() throws Exception
+
+    public final void startServer() throws Exception
+    {
+        startServer(null);
+    }
+    public final void stopServer(String[] env) throws Exception
     {
         fireStartStopEvent(StartStopEvent.BEFORE_STOP);
-        doStopServer();
+        doStopServer(env);
         fireStartStopEvent(StartStopEvent.AFTER_STOP);
     }
+
+    public final void stopServer() throws Exception
+    {
+        startServer(null);
+    }
     
-    public final void startDebug() throws Exception
+    public final void startDebug(String[] env) throws Exception
     {
         fireStartStopEvent(StartStopEvent.BEFORE_START);
-        doStartDebug();
+        doStartDebug(env);
+        fireStartStopEvent(StartStopEvent.AFTER_START);
+    }
+
+    public final void startDebug() throws Exception
+    {
+        startDebug(null);
+    }
+
+    public final void stopDebug(String[] env) throws Exception
+    {
+        fireStartStopEvent(StartStopEvent.BEFORE_START);
+        doStopDebug(env);
         fireStartStopEvent(StartStopEvent.AFTER_START);
     }
 
     public final void stopDebug() throws Exception
     {
-        fireStartStopEvent(StartStopEvent.BEFORE_START);
-        doStopDebug();
-        fireStartStopEvent(StartStopEvent.AFTER_START);
+        stopDebug(null);
     }
     public void addListener(ServerStartStopListener listener)
     {
@@ -85,10 +106,10 @@ public abstract class PSStartServerInf {
         }
     }
     
-    public abstract void doStartServer() throws Exception;
-    public abstract void doStopServer() throws Exception;
-    public abstract void doStartDebug() throws Exception;
-    public abstract void doStopDebug() throws Exception;
+    public abstract void doStartServer(String[] env) throws Exception;
+    public abstract void doStopServer(String[] env) throws Exception;
+    public abstract void doStartDebug(String[] env) throws Exception;
+    public abstract void doStopDebug(String[] env) throws Exception;
     public abstract int  getDebugPort(); 
     //Implement this menthod to make debugger find the generated jsps
     public abstract FindJSPServlet getFindJSPServlet(PSDeploymentManager dm);  

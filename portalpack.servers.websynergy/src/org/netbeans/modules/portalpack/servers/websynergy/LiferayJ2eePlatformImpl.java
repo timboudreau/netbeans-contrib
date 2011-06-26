@@ -19,7 +19,6 @@
 package org.netbeans.modules.portalpack.servers.websynergy;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,12 +26,11 @@ import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
-import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibraries;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibrariesFactory;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -56,142 +54,40 @@ public class LiferayJ2eePlatformImpl extends PSJ2eePlatformImpl {
     protected List getCustomLibraries() {
         List classPath = new ArrayList();
 
-        String[] libFiles = {"portal-service.jar", "portal-kernel.jar","annotations.jar","portlet-container.jar"};
+        String[] libFiles = {"portal-service.jar", "portal-kernel.jar", "annotations.jar", "portlet-container.jar"};
         //PSConfigObject psconfig = psconfig.getPSConfig();
+        JEEServerLibraries jeeServerLibraries =
+                JEEServerLibrariesFactory.getJEEServerLibraries(psconfig.getServerType());
 
-        //If glassfish then add javaee.jar
-        if (psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)) {
-            String portalLibDir = psconfig.getDomainDir() + File.separator + "lib";
-            for (int i = 0; i < libFiles.length; i++) {
-                String portletJarUri = portalLibDir + File.separator + libFiles[i];
-                File portletJar = new File(portletJarUri);
-                if (portletJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(portletJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-
-            String[] libs = {"javaee.jar","appserv-jstl.jar"};
-
-            File javaeeJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + "javaee.jar");
-            if (!javaeeJar.exists()) {
-                //Means GV3
-
-                File modulesFolder = new File(psconfig.getServerHome() + File.separator + "modules");
-                File[] files = modulesFolder.listFiles(new FilenameFilter() {
-
-                    public boolean accept(File dir, String name) {
-
-                        if (name.startsWith("javax.")) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-                if (files != null && files.length != 0) {
-                    for(File f:files) {
-                        try {
-                            classPath.add(fileToUrl(f));
-                        } catch (MalformedURLException ex) {
-                            // Exceptions.printStackTrace(ex);
-                        }
-                    }
-                }
-                
-                File webFolder = new File(modulesFolder,"web");
-                File jstlJar = new File(webFolder,"jstl-impl.jar");
-                if(jstlJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(jstlJar));
-                    } catch (MalformedURLException ex) {
-                        //Exceptions.printStackTrace(ex);
-                    }
-                }
-                
-            }
-
-            for (int k = 0; k < libs.length; k++) {
-                File libJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + libs[k]);
-                if (libJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(libJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
+        String portalLibDir = jeeServerLibraries.getPortalServerLibraryLocation(psconfig);
+        for (int i = 0; i < libFiles.length; i++) {
+            String portletJarUri = portalLibDir + File.separator + libFiles[i];
+            File portletJar = new File(portletJarUri);
+            if (portletJar.exists()) {
+                try {
+                    classPath.add(fileToUrl(portletJar));
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
 
-        if (psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+        //add javaee jars
+        List<File> javaeeJars = jeeServerLibraries.getJEEServerLibraries(psconfig);
 
-            String portalLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "common" + File.separator + "lib" + File.separator + "ext";
+        for (int k = 0; k < javaeeJars.size(); k++) {
 
-            for (int i = 0; i < libFiles.length; i++) {
-                String portalJarUri = portalLibDir + File.separator + libFiles[i];
-                File portletJar = new File(portalJarUri);
-                if (portletJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(portletJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-
-            String[] libs = {"servlet-api.jar", "jsp-api.jar"};
-            String serverLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator +
-                    "common" + File.separator + "lib";
-            for (int k = 0; k < libs.length; k++) {
-                File libJar = new File(serverLibDir + File.separator + libs[k]);
-                if (libJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(libJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        }
-        
-        //FOR Tomcat 6.x
-        if (psconfig.getServerType().equals(ServerConstants.TOMCAT_6_X)) {
-
-            String portalLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME)
-                        + File.separator + "lib" + File.separator + "ext";
-
-            for (int i = 0; i < libFiles.length; i++) {
-                String portalJarUri = portalLibDir + File.separator + libFiles[i];
-                File portletJar = new File(portalJarUri);
-                if (portletJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(portletJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-
-            String[] libs = {"servlet-api.jar", "jsp-api.jar","annotations-api.jar"};
-            String serverLibDir = psconfig.getProperty(TomcatConstant.CATALINA_HOME) + File.separator + "lib";
-            for (int k = 0; k < libs.length; k++) {
-                File libJar = new File(serverLibDir + File.separator + libs[k]);
-                if (libJar.exists()) {
-                    try {
-                        classPath.add(fileToUrl(libJar));
-                    } catch (MalformedURLException ex) {
-                        ex.printStackTrace();
-                    }
+            if (javaeeJars.get(k).exists()) {
+                try {
+                    classPath.add(fileToUrl(javaeeJars.get(k)));
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
 
         //add util-java.jar,util-taglib.jar
-        String[] lrJars = {"util-java.jar", "util-taglib.jar","commons-logging.jar"};
+        String[] lrJars = {"util-java.jar", "util-taglib.jar", "commons-logging.jar"};
         String portalAppDepDir = psconfig.getProperty(LiferayConstants.LR_PORTAL_DEPLOY_DIR);
         if (portalAppDepDir != null && portalAppDepDir.trim().length() != 0) {
             String webInfLoc = portalAppDepDir + File.separator + "WEB-INF" + File.separator + "lib";

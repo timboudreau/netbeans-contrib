@@ -19,39 +19,81 @@
 
 package org.netbeans.modules.portalpack.servers.core.api;
 
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import java.util.HashMap;
+import java.util.Map;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import org.openide.util.NbBundle;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.InstanceListener;
 
 /**
  * @author Satya
  */
-public abstract class PSDeploymentFactory implements DeploymentFactory {
-     
+public abstract class PSDeploymentFactory implements DeploymentFactory, InstanceListener {
+
+    final private Map<String,DeploymentManager> dms = new HashMap<String,DeploymentManager>();
+    private boolean instanceListenerAdded;
+
     public boolean handlesURI(String uri) {
         return uri != null && uri.startsWith(getURIPrefix());
     }
     
     public DeploymentManager getDeploymentManager(String uri, String uname, String passwd) throws DeploymentManagerCreationException {
+        registerInstanceListener();
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri); // NOI18N
         }
-        return getPSDeploymentManager(uri,getPSVersion());
+
+        synchronized(dms) {
+            DeploymentManager dm = (DeploymentManager)dms.get(uri);
+            if(dm == null) {
+                dm = getPSDeploymentManager(uri,getPSVersion());
+                dms.put(uri,dm);
+            }
+            return dm;
+        }
     }
     
     public DeploymentManager getDisconnectedDeploymentManager(String uri) throws DeploymentManagerCreationException {
+        registerInstanceListener();
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri); // NOI18N
         }
-        return getPSDeploymentManager(uri,getPSVersion());
+        synchronized(dms) {
+            DeploymentManager dm = (DeploymentManager)dms.get(uri);
+            if(dm == null) {
+                dm = getPSDeploymentManager(uri,getPSVersion());
+                dms.put(uri,dm);
+            }
+            return dm;
+        }
     }
     
     public String getProductVersion() {
         return "0.1"; // NOI18N
     }
-    
+
+    private void registerInstanceListener() {
+        synchronized(dms) {
+            if(!instanceListenerAdded) {
+                Deployment.getDefault().addInstanceListener(this);
+                instanceListenerAdded = true;
+            }
+        }
+    }
+
+    public void instanceAdded(String serverInstanceID) {
+
+    }
+
+    public void instanceRemoved(String serverInstanceID) {
+        synchronized (dms) {
+            // serverInstanceID is really the URI of this installed server :)
+            dms.remove(serverInstanceID);
+        }
+    }
+
     public abstract DeploymentManager getPSDeploymentManager(String uri,String psVersion);
     public abstract String getDisplayName();
     

@@ -29,58 +29,40 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <folder name="text">
             <folder name="x-dd-portlet1.0">
                 <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance"/>
                     <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
                     <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
-                    <file name="org-openide-actions-CopyAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-CutAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CutAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-DeleteAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-DeleteAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-FileSystemAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-FileSystemAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-OpenAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-OpenAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-PropertiesAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-PropertiesAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-RenameAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-RenameAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-SaveAsTemplateAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAsTemplateAction.instance"/>
-                    </file>
-                    <file name="org-openide-actions-ToolsAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-ToolsAction.instance"/>
-                    </file>
                     <file name="sep-1.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                     </file>
                     <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
                     <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
                     <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
                     <file name="sep-2.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                     </file>
                     <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
                     <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
                     <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
                     <file name="sep-3.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                     </file>
                     <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
                     <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
                     <file name="sep-4.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                     </file>
                     <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
                     <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
-                    </folder>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+                </folder>
             </folder>
             <folder name="x-portlet">
                 <folder name="Actions">
@@ -123,40 +105,31 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             
             <folder name="x-dd-portlet20+xml">
                 <folder name="Actions">
-                    <file name="org-openide-actions-CopyAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
+                    <file name="org-openide-actions-CopyAction.instance">
                         <attr name="position" intvalue="500"/>
                     </file>
-                    <file name="org-openide-actions-CutAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CutAction.instance"/>
+                    <file name="org-openide-actions-CutAction.instance">
                         <attr name="position" intvalue="400"/>
                     </file>
-                    <file name="org-openide-actions-DeleteAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-DeleteAction.instance"/>
+                    <file name="org-openide-actions-DeleteAction.instance">
                         <attr name="position" intvalue="700"/>
                     </file>
-                    <file name="org-openide-actions-FileSystemAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-FileSystemAction.instance"/>
+                    <file name="org-openide-actions-FileSystemAction.instance">
                         <attr name="position" intvalue="200"/>
                     </file>
-                    <file name="org-openide-actions-OpenAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-OpenAction.instance"/>
+                    <file name="org-openide-actions-OpenAction.instance">
                         <attr name="position" intvalue="100"/>
                     </file>
-                    <file name="org-openide-actions-PropertiesAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-PropertiesAction.instance"/>
+                    <file name="org-openide-actions-PropertiesAction.instance">
                         <attr name="position" intvalue="1300"/>
                     </file>
-                    <file name="org-openide-actions-RenameAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-RenameAction.instance"/>
+                    <file name="org-openide-actions-RenameAction.instance">
                         <attr name="position" intvalue="800"/>
                     </file>
-                    <file name="org-openide-actions-SaveAsTemplateAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance">
                         <attr name="position" intvalue="1000"/>
                     </file>
-                    <file name="org-openide-actions-ToolsAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-ToolsAction.instance"/>
+                    <file name="org-openide-actions-ToolsAction.instance">
                         <attr name="position" intvalue="1200"/>
                     </file>
                     <file name="sep-1.instance">
@@ -211,8 +184,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="template" boolvalue="true"/>
                 <attr name="position" intvalue="503"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
             </file>
             <file name="PortletFilter">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
@@ -220,7 +193,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="template" boolvalue="true"/>
                 <attr name="position" intvalue="504"/>
                 <attr name="templateCategory" stringvalue="servlet-types"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/filetype/filters/newFilterWizard.html"/>
             </file>
             
@@ -252,46 +225,46 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     -->
     <folder name="genericportlets"> 
         <folder name="templates">
-            <file name="jsr168portlet.java" url="nbresloc:/templates/jsr168portlet.template">
+            <file name="jsr168portlet.java" url="nbresloc:templates/jsr168portlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="jsr168portletwithjsp.java" url="nbresloc:/templates/jsr168portletwithjsp.template">
+            <file name="jsr168portletwithjsp.java" url="nbresloc:templates/jsr168portletwithjsp.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>    
-            <file name="portlet168-portlet.template" url="nbresloc:/templates/portlet168-portlet.template">
+            <file name="portlet168-portlet.template" url="nbresloc:templates/portlet168-portlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>    
-            <file name="portlet168-xml.template" url="nbresloc:/templates/portlet168-xml.template">
+            <file name="portlet168-xml.template" url="nbresloc:templates/portlet168-xml.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>    
-            <file name="jsptemplate.jsp" url="nbresloc:/templates/jsptemplate.jsp">
+            <file name="jsptemplate.jsp" url="nbresloc:templates/jsptemplate.jsp">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
             <!-- portlet20 related entries -->
-            <file name="portlet20-xml.template" url="nbresloc:/templates/portlet20-xml.template">
+            <file name="portlet20-xml.template" url="nbresloc:templates/portlet20-xml.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="portlet20-portlet.template" url="nbresloc:/templates/portlet20-portlet.template">
+            <file name="portlet20-portlet.template" url="nbresloc:templates/portlet20-portlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="portlet20-filter.java" url="nbresloc:/templates/portletfilter.template">
+            <file name="portlet20-filter.java" url="nbresloc:templates/portletfilter.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
             <!-- Eventing templates -->
             
-            <file name="processevent.template" url="nbresloc:/templates/processevent.template">
+            <file name="processevent.template" url="nbresloc:templates/processevent.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="publishevent.template" url="nbresloc:/templates/publishevent.template">
+            <file name="publishevent.template" url="nbresloc:templates/publishevent.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -299,9 +272,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     </folder>
     
     <folder name="portlet-libraries">
-        <file name="portlet-api-1.0.jar" url="nbresloc:/templates/lib/portlet-api-1.0.jar"/> 
-        <file name="portlettaglib-1.0.jar" url="nbresloc:/templates/lib/portlettaglib-1.0.jar"/> 
-        <file name="portlet.tld" url="nbresloc:/templates/lib/portlet.tld"/> 
+        <file name="portlet-api-1.0.jar" url="nbresloc:templates/lib/portlet-api-1.0.jar"/> 
+        <file name="portlettaglib-1.0.jar" url="nbresloc:templates/lib/portlettaglib-1.0.jar"/> 
+        <file name="portlet.tld" url="nbresloc:templates/lib/portlet.tld"/> 
     </folder>
     
     <!-- Portlet WebFramework -->

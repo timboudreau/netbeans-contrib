@@ -24,13 +24,13 @@ Microsystems, Inc. All Rights Reserved.
     <localizing-bundle>org/netbeans/modules/portalpack/jsfportletbridge/Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.2.3.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.2.4.jar!/</resource>
     </volume>
     <volume>
         <type>javadoc</type>
     </volume>
     <volume>
         <type>maven-pom</type>
-        <resource>http://download.java.net/maven/2/com/sun/faces/portlet/jsf-portlet/1.2.3/jsf-portlet-1.2.3.pom</resource>
+        <resource>http://download.java.net/maven/2/com/sun/faces/portlet/jsf-portlet/1.2.4/jsf-portlet-1.2.4.pom</resource>
     </volume>
 </library>

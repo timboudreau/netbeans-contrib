@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application <#if VERSION != "">${DTD_VERSION}</#if>//EN" "http://www.liferay.com/dtd/liferay-portlet-app_<#if VERSION != "">${VERSION}</#if>.dtd">
+<liferay-portlet-app>
+</liferay-portlet-app>

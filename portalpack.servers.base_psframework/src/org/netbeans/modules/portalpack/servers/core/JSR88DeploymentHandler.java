@@ -18,6 +18,7 @@ import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
+import org.openide.util.Exceptions;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
 
@@ -233,6 +234,42 @@ public class JSR88DeploymentHandler {
         if (isError) {
             throw new DeploymentException("Undeployment failed.");
         }
+    }
+
+    public void restart(String warContext) throws DeploymentException {
+         try {
+            TargetModuleID[] ids = getDeploymentManager().getRunningModules(ModuleType.WAR, getDeploymentManager().getTargets());
+            TargetModuleID[] myIDs = new TargetModuleID[1];
+            for (TargetModuleID id : ids) {
+                if (warContext.equals(id.getModuleID())) {
+                    myIDs[0] = id;
+                    ProgressObject po = getDeploymentManager().stop(new TargetModuleID[]{id});
+                    while(po.getDeploymentStatus().isRunning()) {
+
+                    }
+                    ProgressObject pl = getDeploymentManager().start(new TargetModuleID[]{id});
+                    while(pl.getDeploymentStatus().isRunning()) {
+
+                    }
+                    return;
+                }
+            }
+        } catch (IllegalStateException ex) {
+            ex.printStackTrace(errWriter);
+        } catch (TargetException ex) {
+            ex.printStackTrace(errWriter);
+        }
+    }
+
+    public TargetModuleID[] getRunningModules() {
+        try {
+            return getDeploymentManager().getRunningModules(ModuleType.WAR, getDeploymentManager().getTargets());
+        } catch (TargetException ex) {
+            ex.printStackTrace();
+        } catch (IllegalStateException ex) {
+            ex.printStackTrace();
+        }
+        return new TargetModuleID[]{};
     }
 
     public void releaseDeploymentManager() {

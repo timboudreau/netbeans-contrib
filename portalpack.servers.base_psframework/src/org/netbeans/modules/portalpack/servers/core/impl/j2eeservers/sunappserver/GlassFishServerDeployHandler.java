@@ -23,11 +23,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.JSR88DeploymentHandler;
+import org.netbeans.modules.portalpack.servers.core.PSModuleID;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
@@ -48,6 +55,10 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
     private PSDeploymentManager dm;
     private String uri;
     private ExtendedClassLoader loader;
+    private ExtendedClassLoader jmxLoader;
+    private boolean isSecure;
+    private boolean secureCheckDone;
+    
     /**
      * Creates a new instance of SunAppServerDeployHandler
      */
@@ -74,28 +85,57 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
             fout.flush();
             fout.close();
         }
-        
+
+        String gfVersion = getGlassFishVersion();
+
         Command cmd = new Command();
         String ext = "";
          if (org.openide.util.Utilities.isWindows()){
             ext = ".bat";
         }
-        cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
-        cmd.add("deploy");
-        cmd.add("--precompilejsp=false");
-        cmd.add("--port");
-        cmd.add(psconfig.getAdminPort());
-        cmd.add("-u");
-        cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
-        cmd.add("--passwordfile");
-        cmd.add(file.getAbsolutePath());
-        if(contextroot != null) {
-            cmd.add("--contextroot");
-            cmd.add(contextroot);
-            cmd.add("--name");
-            cmd.add(contextroot);
+
+        if(SunAppServerConstants.GLASSFISH_V2.equals(gfVersion)) {
+
+            cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
+            cmd.add("deploy");
+            cmd.add("--precompilejsp=false");
+            cmd.add("--port");
+            cmd.add(psconfig.getAdminPort());
+            cmd.add("--user");
+            cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
+            cmd.add("--passwordfile");
+            cmd.add(file.getAbsolutePath());
+            if(contextroot != null) {
+                cmd.add("--contextroot");
+                cmd.add(contextroot);
+                cmd.add("--name");
+                cmd.add(contextroot);
+            }
+
+            cmd.add("--force=true");
+            cmd.add(warFile);
+        } else if(SunAppServerConstants.GLASSFISH_V3.equals(gfVersion)){
+            cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
+            
+            cmd.add("--port");
+            cmd.add(psconfig.getAdminPort());
+            cmd.add("--user");
+            cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
+            cmd.add("--passwordfile");
+            cmd.add(file.getAbsolutePath());
+            cmd.add("deploy");
+            cmd.add("--precompilejsp=false");
+            if(contextroot != null) {
+                cmd.add("--contextroot");
+                cmd.add(contextroot);
+                cmd.add("--name");
+                cmd.add(contextroot);
+            }
+
+            cmd.add("--force=true");
+
+            cmd.add(warFile);
         }
-        cmd.add(warFile);
                 
         logger.info(cmd.toString());
         try {
@@ -108,6 +148,56 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
         }
         logger.info("Password file: "+file.getAbsolutePath());
         
+    }
+
+    private String getGlassFishVersion() {
+        String gfVersion = psconfig.getProperty(SunAppServerConstants.GLASSFISH_VERSON);
+        if (gfVersion == null || gfVersion.trim().length() == 0) {
+            gfVersion = SunAppServerConstants.GLASSFISH_V2;
+        }
+        return gfVersion;
+    }
+
+    private Properties getJSR88Properties() {
+
+        String gfVersion = getGlassFishVersion();
+        Properties props = new Properties();
+        if (isSecure) {
+            props.put("jsr88.dm.id", "deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort() + ":https");
+        } else {
+            props.put("jsr88.dm.id", "deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
+        }
+        props.put("jsr88.dm.user", psconfig.getProperty(SunAppServerConstants.SERVER_USER));
+        props.put("jsr88.dm.passwd", psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD));
+        
+        if (SunAppServerConstants.GLASSFISH_V2.equals(gfVersion)) {
+            props.put("jsr88.df.classname", "com.sun.enterprise.deployapi.SunDeploymentFactory");
+        } else {
+            // for V3
+            props.put("jsr88.df.classname", "org.glassfish.deployapi.SunDeploymentFactory");
+        }
+        return props;
+    }
+
+    private String getJMXHandlerClassName(String gfVersion) {
+
+        if (SunAppServerConstants.GLASSFISH_V2.equals(gfVersion)) {
+            return "org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.GlassFishJMXHandler";
+        } else if (SunAppServerConstants.GLASSFISH_V3.equals(gfVersion)) {
+            return "org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.GlassFishV3JMXHandler";
+        } else
+            return "org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.GlassFishJMXHandler";
+
+    }
+
+    private String getJMXConnectorPort(String gfVersion) {
+
+        if (SunAppServerConstants.GLASSFISH_V2.equals(gfVersion)) {
+            return psconfig.getAdminPort();
+        } else if (SunAppServerConstants.GLASSFISH_V3.equals(gfVersion)) {
+            return psconfig.getProperty(SunAppServerConstants.JMX_CONNECTOR_PORT);
+        } else
+            return psconfig.getProperty(SunAppServerConstants.JMX_CONNECTOR_PORT);   
     }
      
      
@@ -179,7 +269,8 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
            if(gfVersion == null || gfVersion.trim().length() == 0)
                gfVersion = SunAppServerConstants.GLASSFISH_V2;
            
-           if(gfVersion.equals(SunAppServerConstants.GLASSFISH_V2)) {
+           if(gfVersion.equals(SunAppServerConstants.GLASSFISH_V2)
+                   || gfVersion.equals(SunAppServerConstants.GLASSFISH_V3)) {
                
                _deploy(warFile);
                
@@ -196,10 +287,22 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
     }
 
     public boolean undeploy(String appName) throws Exception {
+
+        String gfVersion = psconfig.getProperty(SunAppServerConstants.GLASSFISH_VERSON);
+        if(gfVersion == null || gfVersion.trim().length() == 0)
+            gfVersion = SunAppServerConstants.GLASSFISH_V2;
+
         try{
-            //Uncomment the following line to undeploy using asadmin...
-            //unDeployFromGlassFish(appName);
-            _undeploy(appName);
+           
+            if(gfVersion.equals(SunAppServerConstants.GLASSFISH_V2)
+                    || gfVersion.equals(SunAppServerConstants.GLASSFISH_V3)) {
+                
+                _undeploy(appName);
+
+            } else {
+                unDeployFromGlassFish(appName);
+            }
+
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;
@@ -219,15 +322,23 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
     {
         _deploy(warFile,null);
     }
-    
+
+    private void doSecureCheck() {
+         if (secureCheckDone == false) {
+            try{
+                isSecure = PortDetector.isSecurePort(psconfig.getHost(), Integer.parseInt(psconfig.getAdminPort()));
+                secureCheckDone = true;
+
+            } catch(Exception e){
+            }
+        }
+
+    }
     //context should be passed as null for war deployment.
     public void _deploy(String warFile, String context) throws DeploymentException
     {
-        Properties props = new Properties();
-        props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
-        props.put("jsr88.dm.user",psconfig.getAdminUser());
-        props.put("jsr88.dm.passwd",psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD));
-        props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
+        doSecureCheck();
+        Properties props = getJSR88Properties();
         
         ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
          
@@ -245,11 +356,8 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
     
     public void _undeploy(String appName) throws DeploymentException
     {
-        Properties props = new Properties();
-        props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
-        props.put("jsr88.dm.user",psconfig.getAdminUser());
-        props.put("jsr88.dm.passwd",psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD));
-        props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
+        doSecureCheck();
+        Properties props = getJSR88Properties();
         
         ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
          
@@ -258,39 +366,167 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
         deploymentHandler.undeployApp(appName);
         deploymentHandler.releaseDeploymentManager();
     }
+
+    public void restartJSR88(String appName) throws DeploymentException
+    {
+        doSecureCheck();
+        Properties props = getJSR88Properties();
+
+        ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
+
+        JSR88DeploymentHandler deploymentHandler = new JSR88DeploymentHandler(ld,props,UISupport.getServerIO(uri));
+
+        deploymentHandler.restart(appName);
+        deploymentHandler.releaseDeploymentManager();
+    }
+
+    public void restart(String appName) throws Exception{
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+        String gfVersion = getGlassFishVersion();
+        try{
+
+            int adminPort = 4848;
+            try {
+                adminPort = Integer.parseInt(getJMXConnectorPort(gfVersion));
+            } catch (Exception e) {
+            }
+            ClassLoader ld = getJMXClassLoader(new File(psconfig.getServerHome()));
+            Thread.currentThread().setContextClassLoader(ld);
+            
+            Class clazz = ld.loadClass(getJMXHandlerClassName(gfVersion));
+            Constructor con = clazz.getConstructor(String.class,String.class,String.class,int.class);
+            Object instance = con.newInstance(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD), adminPort);
+            //GlassFishJMXHandler jmxHandler = new GlassFishJMXHandler(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getAdminPassWord(), adminPort);
+            
+            Method method = clazz.getMethod("reload", String.class);
+            method.invoke(instance, appName);
+
+        }catch(Throwable ex){
+            ex.printStackTrace();
+        }finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+    }
+
+    public TargetModuleID[] getAvailableModules(Target[] target) {
+
+        try{
+            
+            doSecureCheck();
+            Properties props = getJSR88Properties();
+
+
+            ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
+
+            JSR88DeploymentHandler deploymentHandler = new JSR88DeploymentHandler(ld,props,UISupport.getServerIO(uri));
+
+
+            TargetModuleID[] tmids = deploymentHandler.getRunningModules();
+
+            List<TargetModuleID> list = new ArrayList();
+            for(TargetModuleID tmid:tmids) {
+                //PSModuleID psMid = new PSModuleID(tmid.getTarget(), tmid.getModuleID(), "");
+                PSModuleID psMid = new PSModuleID(target[0], tmid.getModuleID(), "");
+                list.add(psMid);
+            }
+            return (TargetModuleID[]) list.toArray(new TargetModuleID[0]);
+
+        }catch(Exception e) {
+            logger.log(Level.SEVERE,"error",e);
+            return new TargetModuleID[0];
+        }
+    }
     
-    private static void updatePluginLoader(File platformLocation, ExtendedClassLoader loader) throws Exception{
+    private  void updatePluginLoader(File platformLocation, ExtendedClassLoader loader) throws Exception{
         try {
             java.io.File f = platformLocation;
             if (null == f || !f.exists()){
                 return;
             }
-            String installRoot = f.getAbsolutePath();
-            f = new File(installRoot+"/lib/appserv-admin.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/appserv-ext.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/appserv-rt.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/appserv-cmp.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/commons-logging.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/admin-cli.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/common-laucher.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/j2ee.jar");//NOI18N
-	    loader.addURL(f);
-	    f = new File(installRoot+"/lib/install/applications/jmsra/imqjmsra.jar");//NOI18N
-	    loader.addURL(f);
+
+            String gfVersion = getGlassFishVersion();
+            if(SunAppServerConstants.GLASSFISH_V3.equals(gfVersion)) {
+
+                String installRoot = f.getAbsolutePath();
+                f = new File(installRoot+"/modules/deployment-client.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/javax.enterprise.deploy.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/common-util.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/deployment-common.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/deployment-javaee-core.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/admin-cli.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/admin-core.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/admin-util.jar");//NOI18N
+                loader.addURL(f);
+
+            } else { //for Glassfish V2
+
+                String installRoot = f.getAbsolutePath();
+                f = new File(installRoot+"/lib/appserv-admin.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/appserv-ext.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/appserv-rt.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/appserv-cmp.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/commons-logging.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/admin-cli.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/common-laucher.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/j2ee.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/install/applications/jmsra/imqjmsra.jar");//NOI18N
+                loader.addURL(f);
+            }
 	    
 	} catch (Exception ex2) {
 	    throw new Exception(ex2.getLocalizedMessage());
 	}
     }
+
+    private void updateJMXPluginLoader(File platformLocation, ExtendedClassLoader loader) throws Exception{
+        try {
+            java.io.File f = platformLocation;
+            if (null == f || !f.exists()){
+                return;
+            }
+            
+            String installRoot = f.getAbsolutePath();
+            String gfVersion = getGlassFishVersion();
+
+            if(SunAppServerConstants.GLASSFISH_V3.equals(gfVersion)) {
+                
+                f = new File(installRoot+"/modules/deployment-client.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/modules/jmxremote_optional-repackaged.jar");//NOI18N
+                loader.addURL(f);
+
+            } else { //GF V2
+
+                f = new File(installRoot+"/lib/appserv-deployment-client.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/jmxremote_optional.jar");//NOI18N
+                loader.addURL(f);
+                f = new File(installRoot+"/lib/appserv-ext.jar");//NOI18N
+                loader.addURL(f);
+            }
+
+	} catch (Exception ex2) {
+	    throw new Exception(ex2.getLocalizedMessage());
+	}
+    }
     
-    private synchronized ClassLoader getServerClassLoader(File platformLocation) {
+    synchronized ClassLoader getServerClassLoader(File platformLocation) {
 	
 	if(loader==null){        
 	    try {
@@ -303,6 +539,100 @@ public class GlassFishServerDeployHandler implements ServerDeployHandler{
 	
 	return loader;
     }
+
+    private synchronized ClassLoader getJMXClassLoader(File platformLocation) {
+
+	if(jmxLoader==null){
+	    try {
+                jmxLoader = new ExtendedClassLoader(new Empty().getClass().getClassLoader());
+                updateJMXPluginLoader(platformLocation, jmxLoader);
+	    } catch (Exception ex2) {
+		org.openide.ErrorManager.getDefault().notify(ex2);
+	    }
+        }
+
+	return jmxLoader;
+    }
+
+    public boolean isDeployOnSaveSupported() {
+        return true;
+    }
+
+    public boolean isServerRunning() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        String gfVersion = getGlassFishVersion();
+
+        try{
+
+            int adminPort = 4848;
+            try {
+                adminPort = Integer.parseInt(getJMXConnectorPort(gfVersion));
+            } catch (Exception e) {
+            }
+            ClassLoader ld = getJMXClassLoader(new File(psconfig.getServerHome()));
+            Thread.currentThread().setContextClassLoader(ld);
+
+            Class clazz = ld.loadClass(getJMXHandlerClassName(gfVersion));
+            Constructor con = clazz.getConstructor(String.class,String.class,String.class,int.class);
+            Object instance = con.newInstance(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD), adminPort);
+            //GlassFishJMXHandler jmxHandler = new GlassFishJMXHandler(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getAdminPassWord(), adminPort);
+
+            Method method = clazz.getMethod("getConfigDirectory");
+            Object object = method.invoke(instance);
+            if(object == null)
+                return true; //damage control..incase MBean doesn't exist
+
+            if(!(object instanceof String))
+                return true;
+
+            String domainDirPath = new File((String)object).getParentFile().getCanonicalPath();
+            //System.out.println("ConfigDir:::: " +domainDirPath);
+            String domainPath = new File(psconfig.getDomainDir()).getCanonicalPath();
+            if(domainDirPath.equals(domainPath))
+                return true;
+            else
+                return false;
+
+        }catch(Throwable ex){
+            ex.printStackTrace();
+            return true;
+        }finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+
+    }
+
+    public File getModuleDirectory(TargetModuleID module) {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        String gfVersion = getGlassFishVersion();
+        try{
+
+            int adminPort = 4848;
+            try {
+                adminPort = Integer.parseInt(getJMXConnectorPort(gfVersion));
+            } catch (Exception e) {
+            }
+            ClassLoader ld = getJMXClassLoader(new File(psconfig.getServerHome()));
+            Thread.currentThread().setContextClassLoader(ld);
+
+            Class clazz = ld.loadClass(getJMXHandlerClassName(gfVersion));
+            Constructor con = clazz.getConstructor(String.class,String.class,String.class,int.class);
+            Object instance = con.newInstance(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD), adminPort);
+            //GlassFishJMXHandler jmxHandler = new GlassFishJMXHandler(psconfig.getHost(), psconfig.getAdminUser(), psconfig.getAdminPassWord(), adminPort);
+
+            Method method = clazz.getMethod("getModuleDirectory", TargetModuleID.class);
+            return (File)method.invoke(instance, module);
+
+        }catch(Throwable ex){
+            //ex.printStackTrace();
+        }finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+
+        return null;
+    }
+
+
     
     static class Empty{
         

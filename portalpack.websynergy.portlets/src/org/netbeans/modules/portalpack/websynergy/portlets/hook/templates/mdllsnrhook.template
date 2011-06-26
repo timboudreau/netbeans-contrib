@@ -1,0 +1,53 @@
+<#if PACKAGE != "">package ${PACKAGE};
+</#if>
+
+import com.liferay.portal.ModelListenerException;
+import com.liferay.portal.model.BaseModel;
+import com.liferay.portal.model.ModelListener;
+//import ${MDL_LISTENER};
+
+public class ${CLASS_NAME} implements ModelListener {
+
+    public void onAfterCreate(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+        ${MDL_LISTENER} mdlObj 
+                = (${MDL_LISTENER}) model;
+    }
+
+    public void onAfterAddAssociation(Object arg0, String arg1, Object arg2) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onAfterRemove(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onAfterRemoveAssociation(Object arg0, String arg1, Object arg2) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onAfterUpdate(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onBeforeAddAssociation(Object arg0, String arg1, Object arg2) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onBeforeCreate(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onBeforeRemove(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onBeforeRemoveAssociation(Object arg0, String arg1, Object arg2) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+    public void onBeforeUpdate(BaseModel model) throws ModelListenerException {
+        //Add your implementation here
+    }
+
+}

@@ -280,6 +280,7 @@ public class RubyPortletBuilder extends NonJavaPortletBuilder implements RubyPor
 
             if (webModule.getWebInf() != null) {
                 String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
+                pc.setPortletClass(RubyPortletConstants.RUBY_PORTLET_CLASS);
                 PortletXMLChangeEventNotificationHelper.firePortletAddEvent(pc, new AppContext(), webInfPath);
             }
         //}

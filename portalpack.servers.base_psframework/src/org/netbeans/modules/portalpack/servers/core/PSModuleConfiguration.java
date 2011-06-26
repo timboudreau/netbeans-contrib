@@ -18,7 +18,10 @@
  */
 package org.netbeans.modules.portalpack.servers.core;
 
+import java.io.OutputStream;
+import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.DeploymentPlanConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -27,15 +30,19 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Satyaranjan
  */
-public class PSModuleConfiguration implements ModuleConfiguration{
+public class PSModuleConfiguration implements ModuleConfiguration, DeploymentPlanConfiguration{
     private J2eeModule j2eeModule;
+    private Lookup lookup;
     public PSModuleConfiguration(J2eeModule j2eeModule) {
         this.j2eeModule = j2eeModule;
         createConfiguration();
     }
 
     public Lookup getLookup() {
-        return Lookups.fixed(this);
+        if (null == lookup) {
+            lookup = Lookups.fixed(this);
+        }
+        return lookup;
     }
 
     public J2eeModule getJ2eeModule() {
@@ -49,6 +56,10 @@ public class PSModuleConfiguration implements ModuleConfiguration{
     public void createConfiguration()
     {
         
+    }
+
+    public void save(OutputStream outputStream) throws ConfigurationException {
+        //do nothing.
     }
 
 }

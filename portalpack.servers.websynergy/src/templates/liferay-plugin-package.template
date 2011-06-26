@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plugin-package PUBLIC "-//Liferay//DTD Plugin Package <#if VERSION != "">${DTD_VERSION}</#if>//EN" "http://www.liferay.com/dtd/liferay-plugin-package_<#if VERSION != "">${VERSION}</#if>.dtd">
+<plugin-package>
+</plugin-package>

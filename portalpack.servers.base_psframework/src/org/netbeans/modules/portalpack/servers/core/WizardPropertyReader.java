@@ -33,7 +33,7 @@ public class WizardPropertyReader implements PSConfigCallBackHandler{
     
     private WizardDescriptor desc;
     private Properties _addProperties;
-    
+
     private static String ADD_PP_LIST_KEY = "ADD_PROP_LIST_KEY";
     private List addPropNameList;
     /** Creates a new instance of WizardPropertyReader */
@@ -219,6 +219,15 @@ public class WizardPropertyReader implements PSConfigCallBackHandler{
     public void setPortalUri(String uri)
     {
         _setProperty("PORTAL_URI",uri);
+    }
+
+    public void setEnvProperties(String envProperties) {
+
+        _setProperty("SERVER_ENV_PROPERTIES", envProperties);
+    }
+
+    public String getEnvProperties() {
+        return _getProperty("SERVER_ENV_PROPERTIES");
     }
 
     public Properties getProperties() {

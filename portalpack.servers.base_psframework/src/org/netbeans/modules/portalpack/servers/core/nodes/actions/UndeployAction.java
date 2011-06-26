@@ -55,7 +55,7 @@ public final class UndeployAction extends CookieAction {
                  continue;
             
             String name = cookie.getName();
-            int index = name.indexOf(".");
+            int index = name.lastIndexOf(".");
             if(index != -1)
             {
                 name = name.substring(0,index);

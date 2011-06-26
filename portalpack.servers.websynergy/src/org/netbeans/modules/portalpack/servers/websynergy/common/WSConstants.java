@@ -45,7 +45,11 @@ package org.netbeans.modules.portalpack.servers.websynergy.common;
  */
 public class WSConstants {
 
-    public static String WS_1_0 = "ws_1_0";
-    public static String WS_1_0_URI_PREFIX = "websynergy_1_0";
+    public static String WS_1_0 = "ws_2_0";
+    public static String WS_1_0_URI_PREFIX = "webspace_2_0";
+    
+    public static String WS_APPLICATION_NAME = "webspace";
+    
+    public static String WS_PREFIX = "webspace";
 
 }

@@ -18,21 +18,19 @@
  */
 package org.netbeans.modules.portalpack.servers.websynergy.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,18 +41,23 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.JarUti
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
-import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibraries;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibrariesFactory;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployHandler;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.ServerDeployerHandlerFactory;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.jboss.JBConstant;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
+import org.netbeans.modules.portalpack.servers.websynergy.common.WSConstants;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -68,7 +71,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     protected PSConfigObject psconfig;
     protected ServerDeployHandler deployerHandler;
     protected String uri;
-    private static String WS_PREFIX = "websynergy";
+    
 
     /** Creates a new instance of LifeRayTaskHandler */
     public LiferayTaskHandler(PSDeploymentManager dm) {
@@ -76,10 +79,10 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         this.psconfig = dm.getPSConfig();
         this.uri = dm.getUri();
 
-        deployerHandler = ServerDeployerHandlerFactory.getServerDeployerHandler(dm);
+        deployerHandler = dm.getServerDeployHandler();
     }
 
-    public void _deployOnGF(String warfile, String serveruri) throws Exception {
+    public void _deployOnGF(String warfile, String autoDeployDir, String serveruri) throws Exception {
         File warF = new File(warfile);
         
         File tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator
@@ -110,7 +113,6 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
         
         //Copy that file
-        String autoDeployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
         File deployDirFile = new File(autoDeployDir);
         if (!deployDirFile.exists()) {
             deployDirFile.mkdirs();
@@ -144,9 +146,11 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
         
         if(counter >= 300) {
-            final String errorMsg = "Massaging could not been done properly." +
-                    "\n Autodeploy scanner might not be responding." +
-                    "\n Please restart your sever and try again... ";
+            final String errorMsg = "Massaging could not be done properly. Possible reasons :" +
+                    "\n1. Auto deploy directory is not set properly. If so please go to the server" +
+                    "config panel and set the auto deploy directory correctly." +
+                    "\n2. Autodeploy scanner might not be responding. " +
+                    "\n3. Please restart your sever and try again... ";
             writeErrorToOutput(uri, new Exception(errorMsg));
             
             throw new DeploymentException(errorMsg);
@@ -178,7 +182,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         //System.out.println("Time taken to massaging :::: "+(t2-t1));
         
         //For backward compatiblility when server is Liferay.
-        if(!isWebSynergy()) 
+        if(!isWebSynergy() && getLiferayBuildNumber() < 5200) 
             verifyDisplayName(tempDir.getAbsolutePath(), context);
         
         File destWar = new File(tempDir.getParentFile(),warF.getName());
@@ -233,14 +237,31 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     
     public String deploy(String warfile, String serveruri) throws Exception {
 
+        String deployDir = LiferayHelper.getAutoDeployDirectory(psconfig);
+        
+        if(deployDir == null || deployDir.trim().length() == 0) {
+           DialogDisplayer.getDefault().notify(
+                   new NotifyDescriptor.Message(NbBundle.getMessage(
+                   LiferayTaskHandler.class, "LBL_AUTO_DEPLOY_DIR_IS_NOT_SET")));
+           throw new Exception("Auto Deploy Directory is not set. Please set it in Server Configuration Panel.");
+        }
+        
+        //For Hook plugins when there is no portlet.xml
+        //starts
+     
+        JarFile jarFile = new JarFile(new File(warfile));
+        ZipEntry portletXml = jarFile.getEntry("WEB-INF/portlet.xml");      
+     
+        //ends
+        
         if (psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)
-                && isDirectoryDeploymentSupported()) {
+                && isDirectoryDeploymentSupported() && portletXml != null) {
             
-            _deployOnGF(warfile, serveruri);
+            _deployOnGF(warfile, deployDir, serveruri);
             return "deployed";
         }
         
-        String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        
         File deployDirFile = new File(deployDir);
         if (!deployDirFile.exists()) {
             deployDirFile.mkdirs();
@@ -248,14 +269,12 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         long baseTime = System.currentTimeMillis();
         copy(warfile, deployDir);
         showServerLog();
-        return getDeploymentMessage(warfile, baseTime);
+        return getDeploymentMessage(warfile, deployDir, baseTime);
     }
 
-    public String getDeploymentMessage(String warfile, long baseTime) throws Exception {
+    public String getDeploymentMessage(String warfile, String deployDir, long baseTime) throws Exception {
         File warFile = new File(warfile);
         String warName = warFile.getName();
-
-        String deployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
 
         File warInLRAutoDeployDir = new File(deployDir + File.separator + warName);
         int counter = 0;
@@ -275,10 +294,15 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
             return _getGlassFishDeploymentMessage(warName, baseTime);
         }
         
-        if(psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)) {
+        if(psconfig.getServerType().equals(ServerConstants.TOMCAT_5_X)
+				|| psconfig.getServerType().equals(ServerConstants.TOMCAT_6_X)) {
             return _getTomcatDeploymentMessage(warName, baseTime);
         }
         
+		if(psconfig.getServerType().equals(ServerConstants.JBOSS_5_X)) {
+			return _getJBOSSDeploymentMessage(warName, baseTime);
+		}
+
         return org.openide.util.NbBundle.getMessage(LiferayTaskHandler.class, "Deployment_Done");
         
     }
@@ -358,9 +382,44 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
     }
     
+	private String _getJBOSSDeploymentMessage(String warName,long baseTime)
+        throws DeploymentException{
     
+        String appDir = warName;
+
+        File appDeployDir = new File(psconfig.getProperty(JBConstant.SERVER_DIR)
+									+ File.separator + "deploy" + File.separator + appDir);
+
+        int counter = 0;
+        while (true) {
+            if (appDeployDir.exists()) {
+                if (appDeployDir.lastModified() >= baseTime) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        //do nothing.
+                    }
+
+                    return warName + " deployed successfully. Check log for more message.";
+                }
+            }
+
+            try {
+
+                Thread.sleep(300);
+            } catch (InterruptedException ex) {
+                logger.info(ex.getMessage());
+            }
+            counter++;
+            if (counter >= 50) {
+                return "Deployment done. Check server log for the status.";
+            }
+        }
+    }
+
+
     private boolean isWebSynergy() {
-        if(uri.startsWith(WS_PREFIX))
+        if(uri.startsWith(WSConstants.WS_PREFIX))
             return true;
         else
             return false;
@@ -370,6 +429,9 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
      
         //For liferay directory deployment is always supported..
         if(!isWebSynergy())
+            return true;
+        
+        if(getLiferayBuildNumber() > 5200)
             return true;
 
         //check if the directory deployment is supported...
@@ -468,6 +530,20 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
          }catch(Exception e){
              e.printStackTrace();
          }*/
+        File hookXml = new File(deployedDir + File.separator + "WEB-INF"
+                                    + File.separator + "liferay-hook.xml");
+        File portletXml = new File(deployedDir + File.separator + "WEB-INF" 
+                                    + File.separator + "portlet.xml");
+        if(hookXml.exists() && !portletXml.exists()) {
+           
+           NotifyDescriptor nd = new NotifyDescriptor.Message(
+                   NbBundle.getMessage(LiferayTaskHandler.class,
+                   "DIR_DEPLOYMENT_NOT_ALLOWED_FOR_HOOK"),  NotifyDescriptor.WARNING_MESSAGE);
+           DialogDisplayer.getDefault().notify(nd);
+           throw new DeploymentException(NbBundle.getMessage(LiferayTaskHandler.class,
+                   "DIR_DEPLOYMENT_NOT_ALLOWED_FOR_HOOK"));
+        }
+
         File deployXmlFile = File.createTempFile("deploy",".xml");
         FileOutputStream fout = new FileOutputStream(deployXmlFile);
         String xml = "<Context docBase=\""+ deployedDir + "\"></Context>"; 
@@ -483,7 +559,14 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
         
         //Copy that file
-        String autoDeployDir = psconfig.getProperty(LiferayConstants.AUTO_DEPLOY_DIR);
+        String autoDeployDir = LiferayHelper.getAutoDeployDirectory(psconfig);
+        if(autoDeployDir == null || autoDeployDir.trim().length() == 0) {
+           DialogDisplayer.getDefault().notify(
+                   new NotifyDescriptor.Message(NbBundle.getMessage(
+                   LiferayTaskHandler.class, "LBL_AUTO_DEPLOY_DIR_IS_NOT_SET")));
+           throw new Exception("Auto Deploy Directory is not set. Please set it in Server Configuration Panel.");
+        }
+        
         File deployDirFile = new File(autoDeployDir);
         if (!deployDirFile.exists()) {
             deployDirFile.mkdirs();
@@ -518,9 +601,11 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
         
          if(counter >= 300) {
-            final String errorMsg = "Massaging could not been done properly." +
-                    "\n Autodeploy scanner might not be responding." +
-                    "\n Please restart your sever and try again... ";
+            final String errorMsg = "Massaging could not be done properly. Possible reasons :" +
+                    "\n1. Auto deploy directory is not set properly. If so please go to the server" +
+                    "config panel and set the auto deploy directory correctly." +
+                    "\n2. Autodeploy scanner might not be responding. " +
+                    "\n3. Please restart your sever and try again... ";
             writeErrorToOutput(uri, new Exception(errorMsg));
             
             throw new DeploymentException(errorMsg);
@@ -546,7 +631,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         if(confDir != null)
             deleteDir(confDir);
         
-        if(!isWebSynergy())
+        if(!isWebSynergy() && getLiferayBuildNumber() < 5200)
             verifyDisplayName(deployedDir, context);
         
         showServerLog();
@@ -580,9 +665,12 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     
     public String[] getPortlets(String dn) {
         try {
-
+			String portalUri = LiferayHelper.normalizeURL(psconfig.getPortalUri());
             URL url = null;
-            String urlStr = "http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/c/" + psconfig.getPortalUri() + "/" + "json_service?serviceClassName=" + "com.liferay.portal.service.http.PortletServiceJSON" + "&serviceMethodName=getWARPortlets";
+            String urlStr = "http://" + psconfig.getHost() + ":" + psconfig.getPort() + portalUri +"/c/portal/" + "json_service?serviceClassName=" + "com.liferay.portal.service.http.PortletServiceJSON" + "&serviceMethodName=getWARPortlets";
+             if(getLiferayBuildNumber() >= 5203) {
+                urlStr = "http://" + psconfig.getHost() + ":" + psconfig.getPort() + portalUri +"/c/portal/" + "json_service?serviceClassName=" + "com.liferay.portal.service.PortletServiceUtil" + "&serviceMethodName=getWARPortlets";
+            }
             try {
                 url = new URL(urlStr);
             } catch (MalformedURLException e) {
@@ -591,7 +679,7 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
                 return new String[0];
             }
 
-            String jsonString = getContentFromHttpURL(url);
+            String jsonString = LiferayHelper.getContentFromHttpURL(url);
             if (jsonString == null) {
                 return new String[0];
             }
@@ -605,6 +693,68 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
             }
 
             return (String[]) portlets.toArray(new String[0]);
+        } catch (JSONException ex) {
+            logger.log(Level.SEVERE, "Error", ex);
+            return new String[0];
+        }
+    }
+    
+    public String[] getHooks() {
+        JEEServerLibraries jEEServerLibraries = 
+                JEEServerLibrariesFactory.getJEEServerLibraries(psconfig.getServerType());
+        String webAppInstallDir = jEEServerLibraries.getWebAppInstallDirectory(psconfig);
+        
+        File webAppDir = new File(webAppInstallDir);
+        if(webAppDir == null || !webAppDir.isDirectory())
+            return new String[]{};
+        
+        File[] dirs = webAppDir.listFiles();
+        
+        List hooks = new ArrayList();
+        for(File dir:dirs) {
+            if(dir.isFile())
+                continue;
+            File hookXml = new File(dir,"WEB-INF/liferay-hook.xml");
+            if(hookXml.exists()) {
+                if(dir.getName().equals("ROOT")
+                        || dir.getName().equals("webspace")
+                        || dir.getName().equals("liferay-portal")) {
+                    continue;
+                }
+                hooks.add(dir.getName());
+            }
+        }
+        return (String [])hooks.toArray(new String[0]);
+    }
+    
+    public String[] getThemes() {
+       try {
+            String portalUri = LiferayHelper.normalizeURL(psconfig.getPortalUri());
+            URL url = null;
+            String urlStr = "http://" + psconfig.getHost() + ":" + psconfig.getPort() + portalUri +"/c/portal/" + "json_service?serviceClassName=" + "com.liferay.portal.service.ThemeServiceUtil" + "&serviceMethodName=getWARThemes";
+            try {
+                url = new URL(urlStr);
+            } catch (MalformedURLException e) {
+                logger.warning("Failed to create URL for the websynergy json service ");
+                logger.warning(e.getMessage());
+                return new String[0];
+            }
+
+            String jsonString = LiferayHelper.getContentFromHttpURL(url);
+            if (jsonString == null) {
+                return new String[0];
+            }
+            JSONArray jsonArray = new JSONArray(jsonString);
+            List<String> themes = new ArrayList();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String themeID = jsonObject.getString("theme_id");
+                //String themeName = jsonObject.getString("theme_name");
+                String appName = jsonObject.getString("servlet_context_name");
+                themes.add(appName + "." + themeID);
+            }
+
+            return (String[]) themes.toArray(new String[0]);
         } catch (JSONException ex) {
             logger.log(Level.SEVERE, "Error", ex);
             return new String[0];
@@ -652,35 +802,13 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
         }
         return "http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/" + contextUri;
     }
-
-    public String getContentFromHttpURL(URL url) {
-        BufferedReader br = null;
-        try {
-            // TODO code application logic here
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            InputStream ins = con.getInputStream();
-
-            br = new BufferedReader(new InputStreamReader(ins));
-            String content = "";
-            String line = br.readLine();
-            while (line != null) {
-                content += line;
-                line = br.readLine();
-            }
-
-            return content;
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error", e);
-            return null;
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ex) {
-                    //Exceptions.printStackTrace(ex);
-                }
-            }
+    
+    private int getLiferayBuildNumber() {
+        try{
+            return Integer.parseInt(
+                    psconfig.getProperty(LiferayConstants.LR_VERSION));
+        }catch(Exception e) {
+            return 1;
         }
     }
 
@@ -775,13 +903,9 @@ public class LiferayTaskHandler extends DefaultPSTaskHandler {
     public void showServerLog() {
         
         try {
+			dm.showServerLog(false);
             
-            File f = new File(psconfig.getDomainDir() + File.separator + "logs"
-                              + File.separator + "server.log");
-            FileLogViewerSupport p = FileLogViewerSupport.getLogViewerSupport(f, dm.getUri(), 2000, true);
-            p.showLogViewer(false);
-            
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             //Exceptions.printStackTrace(ex);
         }
     }

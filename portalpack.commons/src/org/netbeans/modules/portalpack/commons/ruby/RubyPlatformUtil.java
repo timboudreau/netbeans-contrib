@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.portalpack.commons.ruby;
 
-import org.netbeans.api.ruby.platform.RubyPlatform;
-import org.netbeans.api.ruby.platform.RubyPlatformManager;
+//import org.netbeans.api.ruby.platform.RubyPlatform;
+//import org.netbeans.api.ruby.platform.RubyPlatformManager;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -51,8 +51,9 @@ public class RubyPlatformUtil {
     
     public static String getRubyLibDir() {
         
-        RubyPlatform rubyPlatform = RubyPlatformManager.getDefaultPlatform();
-        return rubyPlatform.getLibDir();
+//        RubyPlatform rubyPlatform = RubyPlatformManager.getDefaultPlatform();
+//        return rubyPlatform.getLibDir();
+        return null;
         
     }
 }

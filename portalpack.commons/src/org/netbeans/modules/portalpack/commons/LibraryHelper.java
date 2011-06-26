@@ -39,10 +39,17 @@
 package org.netbeans.modules.portalpack.commons;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.openide.util.Lookup;
 import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -56,10 +63,104 @@ public class LibraryHelper {
         Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
         if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
             try {
-                ((WebProjectLibrariesModifier) modifierObj).addCompileRoots(roots);
+                //((WebProjectLibrariesModifier) modifierObj).addCompileRoots(roots);
+                
+                Class[] paramTypes = {URL[].class};
+                Method method = WebProjectLibrariesModifier.class.getMethod("addCompileRoots", paramTypes);
+                    
+                method.invoke(modifierObj, new Object[]{roots});
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else {
+            try {
+                ProjectClassPathModifier.addRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
             } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (UnsupportedOperationException ex) {
                 ex.printStackTrace();
             }
         }
+                
+    }
+    
+    public static void addPackageRoot(Project project,URL[] roots, String path) {
+        
+        Lookup lookup = project.getLookup();
+        Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
+        if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
+            try {
+                //((WebProjectLibrariesModifier) modifierObj).addPackageRoots(roots, path);
+                 Class[] paramTypes = {URL[].class, String.class};
+                 Method method = WebProjectLibrariesModifier.class.getMethod("addPackageRoots", paramTypes);
+                    
+                 method.invoke(modifierObj, new Object[]{roots,path});
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else {
+            try {
+                ProjectClassPathModifier.addRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (UnsupportedOperationException ex) {
+                ex.printStackTrace();
+            }
+        }
+                
+    }
+    
+    public static void removePackageRoot(Project project,URL[] roots, String path) {
+        
+        Lookup lookup = project.getLookup();
+        Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
+        if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
+            try {
+                //boolean ret = ((WebProjectLibrariesModifier) modifierObj).removePackageRoots(roots, path);
+                
+                Class[] paramTypes = {URL[].class, String.class};
+                Method method = WebProjectLibrariesModifier.class.getMethod("removePackageRoots", paramTypes);
+                    
+                method.invoke(modifierObj, new Object[]{roots,path});
+               
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else {
+            try {
+                ProjectClassPathModifier.removeRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (UnsupportedOperationException ex) {
+                ex.printStackTrace();
+            }
+        }
+                
+    }
+    
+    /**
+     * Convenience method to obtain the source root folder.
+     * @param project the Project object
+     * @return the FileObject of the source root folder
+     */
+    public static FileObject getSourceRoot(Project project) {
+        if (project == null) {
+            return null;
+        }
+        Sources src = (Sources)project.getLookup().lookup(Sources.class);
+        
+        SourceGroup[] grp = src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        for (int i = 0; i < grp.length; i++) {
+            if ("${src.dir}".equals(grp[i].getName())) { // NOI18N
+
+                return grp[i].getRootFolder();
+            }
+        }
+        if (grp.length != 0) {
+            return grp[0].getRootFolder();
+        }
+
+        return null;
     }
 }

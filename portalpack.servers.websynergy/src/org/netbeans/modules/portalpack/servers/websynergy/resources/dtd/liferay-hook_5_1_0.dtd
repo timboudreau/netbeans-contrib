@@ -1,0 +1,53 @@
+<!--
+This is the DTD for the Hook parameters for Liferay Portal.
+
+<!DOCTYPE hook PUBLIC
+	"-//Liferay//DTD Hook 5.1.0//EN"
+	"http://www.liferay.com/dtd/liferay-hook_5_1_0.dtd">
+-->
+
+<!ELEMENT hook (event*, model-listener*, portal-properties?, custom-jsp-dir?)>
+
+<!ELEMENT event (event-class, event-type)>
+
+<!ELEMENT event-class (#PCDATA)>
+
+<!ELEMENT event-type (#PCDATA)>
+
+<!ELEMENT model-listener (model-listener-class, model-name)>
+
+<!ELEMENT model-listener-class (#PCDATA)>
+
+<!ELEMENT model-name (#PCDATA)>
+
+<!--
+Not all portal properties can be overridden via a hook. The supported properties
+are:
+
+auth.forward.by.last.path
+javascript.fast.load
+layout.template.cache.enabled
+layout.user.private.layouts.auto.create
+layout.user.private.layouts.enabled
+layout.user.private.layouts.modifiable
+layout.user.public.layouts.auto.create
+layout.user.public.layouts.enabled
+layout.user.public.layouts.modifiable
+my.places.show.community.private.sites.with.no.layouts
+my.places.show.community.public.sites.with.no.layouts
+my.places.show.organization.private.sites.with.no.layouts
+my.places.show.organization.public.sites.with.no.layouts
+my.places.show.user.private.sites.with.no.layouts
+my.places.show.user.public.sites.with.no.layouts
+terms.of.use.required
+theme.css.fast.load
+theme.images.fast.load
+
+passwords.passwordpolicytoolkit.generator
+passwords.passwordpolicytoolkit.static
+
+layout.static.portlets.all
+-->
+<!ELEMENT portal-properties (#PCDATA)>
+
+<!ELEMENT custom-jsp-dir (#PCDATA)>

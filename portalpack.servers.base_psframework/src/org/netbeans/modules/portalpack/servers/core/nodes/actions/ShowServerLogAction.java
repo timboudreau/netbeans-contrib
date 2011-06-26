@@ -81,7 +81,7 @@ public class ShowServerLogAction extends CookieAction{
                         logger.log(Level.WARNING,"Deployment Manager is Null");
                         return;
                     } else {
-                        manager.showServerLog();
+                        manager.showServerLog(true);
                     }   
                 }
                 catch (Exception e){

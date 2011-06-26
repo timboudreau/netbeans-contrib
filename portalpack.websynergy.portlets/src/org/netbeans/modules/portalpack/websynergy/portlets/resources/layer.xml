@@ -19,15 +19,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Actions">
-        <folder name="Tools">
-            <file name="SetPortletModeAction.instance"/>
-        </folder>
-    </folder>
     <folder name="portalpack">
         <folder name="listeners">
             <folder name="initial-page">
-                <file name="org-netbeans-modules-portalpack-websynergy-portlets-ruby-RubyInitialPageListener.instance"/>
+<!--                <file name="org-netbeans-modules-portalpack-websynergy-portlets-ruby-RubyInitialPageListener.instance"/>-->
                 <file name="org-netbeans-modules-portalpack-websynergy-portlets-php-PhpInitialPageListener.instance"/>
                 <file name="org-netbeans-modules-portalpack-websynergy-portlets-groovy-GroovyInitialPageListener.instance"/>
             </folder>
@@ -37,11 +32,26 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <folder name="WebSynergyPortlets">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
             <attr name="position" intvalue="311"/>
+            <file name="themeWizard">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/theme/resources/theme2.png"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.websynergy.portlets.theme.ui.ThemeWizardWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/theme/ui/themeWizard.html"/>
+            </file>
         </folder>
     </folder>
-    
+
+     <folder name="theme">
+        <folder name="templates">
+            <file name="liferay-look-and-feel.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/theme/templates/liferay-look-and-feel.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+        </folder>
+     </folder>
     <!-- Ruby Portlet declarations START-->
-    <folder name="Templates">
+<!--    <folder name="Templates">
         <folder name="WebSynergyPortlets">
             <file name="RubyPortlet.rb">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.ruby.Bundle"/>
@@ -59,9 +69,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <folder name="text">
             <folder name="x-ruby">
                 <folder name="Actions">
-                  <!-- Add Set As Initial Page action -->
-                    <file name="SetPortletModeAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Tools/SetPortletModeAction.instance"/>
+                   Add Set As Initial Page action 
+                    <file name="SetPortletModeAction.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.ruby.actions.RubySetAsInitialAction"/>
                         <attr name="position" intvalue="154"/>
                     </file>
                 </folder>
@@ -70,36 +80,36 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     </folder>
     <folder name="ruby">
         <folder name="templates">
-            <file name="Action.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Action.template">
+            <file name="Action.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Action.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="Custom.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Custom.template">
+            <file name="Custom.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Custom.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="Info.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Info.template">
+            <file name="Info.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Info.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="Java.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Java.template">
+            <file name="Java.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/Java.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="RubyPortlet.java" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/RubyPortlet.template">
+            <file name="RubyPortlet.java" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/RubyPortlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="View.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/View.template">
+            <file name="View.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/View.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="liferay-portlet.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/liferay-portlet.template">
+            <file name="liferay-portlet.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/ruby/templates/liferay-portlet.template">
                 <attr name="position" intvalue="0"/>
             </file>
         </folder>
     </folder>
-    <!-- Ruby Portlet declarations END-->
+     Ruby Portlet declarations END-->
     
     <!-- PHP Portlet declaration START -->
     <folder name="Templates">
         <folder name="WebSynergyPortlets">
-            <file name="PhpPortlet.php" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/php/templates/phpportlet.template">
+            <file name="PhpPortlet.php" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/php/templates/phpportlet.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.php.Bundle"/>
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
@@ -113,19 +123,19 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     </folder>
     <folder name="groovy">
         <folder name="templates">
-            <file name="Action.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Action.template">
+            <file name="Action.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Action.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="Custom.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Custom.template">
+            <file name="Custom.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Custom.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="Info.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Info.template">
+            <file name="Info.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/Info.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="View.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/View.template">
+            <file name="View.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/View.template">
                 <attr name="position" intvalue="0"/>
             </file>
-            <file name="liferay-portlet.template" url="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/liferay-portlet.template">
+            <file name="liferay-portlet.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/groovy/templates/liferay-portlet.template">
                 <attr name="position" intvalue="0"/>
             </file>
         </folder>
@@ -175,4 +185,78 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         </folder>
     </folder>
     <!-- Groovy Portlet declaration END -->
+    
+    <!-- Hook Plugin declaration START -->
+    <folder name="Templates">
+        <folder name="WebSynergyPortlets">
+            <file name="HookAction.java">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.websynergy.portlets.hook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/hook/resources/hook.png"/>
+                <attr name="position" intvalue="510"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="web-types"/>
+                <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.websynergy.portlets.hook.ui.HookPluginWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/websynergy/portlets/hook/resources/Hook.html"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+        </folder>
+    </folder>
+    
+    <folder name="hook">
+        <folder name="templates">
+            <file name="liferayhook.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/liferay-hook-template.xml">
+                <attr name="position" intvalue="0"/>
+            </file>
+            <file name="portalproperties.template" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/portal-props-template.properties">
+                <attr name="position" intvalue="0"/>
+            </file>
+            <file name="startupEvntHookPlugin.java" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/startupeventhook.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="evntHookPlugin.java" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/eventhook.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="mdlLsnrHookPlugin.java" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/mdllsnrhook.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="mdlLsnrHookPlugin523.java" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/hook/templates/mdllsnrhook_5_2_3.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+        </folder>
+     </folder>   
+            
+     <folder name="j2ee">
+        <folder name="webtier">
+            <folder name="templates">
+                <file name="org-netbeans-modules-portalpack-websynergy-portlets-WebSpacePrivilegedTemplates.instance"> 
+                    <attr name="position" intvalue="101"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>            
+    
+    <!-- Hook Plugin declaration END -->
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="html">
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-portalpack-websynergy-portlets-vm-codecompletion.VelocityCompletionProvider.instance"/>
+
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+     <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="Velocity.xml" url="nbresloc:org/netbeans/modules/portalpack/websynergy/portlets/vm/resources/Velocity.xml">
+                <!--attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.velocity.Bundle"/-->
+                <attr name="position" intvalue="275"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>

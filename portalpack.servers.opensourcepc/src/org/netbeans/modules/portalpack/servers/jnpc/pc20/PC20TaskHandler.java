@@ -16,15 +16,28 @@
  */
 package org.netbeans.modules.portalpack.servers.jnpc.pc20;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.zip.ZipException;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
+import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -42,8 +55,47 @@ public class PC20TaskHandler extends JNPCTaskHandler {
         super(dm);
     }
 
+    //Directory deployment can be done through url deployment
+    @Override
+    public String deploy(String deployedDir, String warfile, String serveruri) throws Exception {
+
+        File warFileObj = new File(warfile);
+        if(checkIfURLDeploymentSupported()) {
+
+            doUrlDeployment(warFileObj.getName(), deployedDir);
+        } else{
+            super.deploy(deployedDir, warfile, serveruri);
+            return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
+        }
+
+        String appName = warFileObj.getName().substring(0,warFileObj.getName().indexOf("."));
+
+        try{
+            deployerHandler.deploy(deployedDir,appName);
+        }catch(Exception e){
+            try{
+               // String fileName = warFileObj.getName();
+
+                _undeployFromPC(appName,false);
+            }catch(Exception ex){
+               // ex.printStackTrace();
+            }
+            //writeErrorToOutput(uri,e);
+            throw e;
+        }
+        return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
+
+    }
+
     @Override
     protected void _deployOnPC(final String warfile) throws Exception {
+
+        if(checkIfURLDeploymentSupported()) {
+            File warFileObj = new File(warfile);
+
+            doUrlDeployment(warFileObj.getName(), warFileObj.getAbsolutePath());
+            return;
+        }
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -92,6 +144,11 @@ public class PC20TaskHandler extends JNPCTaskHandler {
     @Override
     protected void _undeployFromPC(final String portletAppName, boolean logError) throws Exception {
 
+        if(checkIfURLDeploymentSupported()) {
+            doUrlUnDeployment(portletAppName);
+            return;
+        }
+
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(loader);
@@ -131,6 +188,31 @@ public class PC20TaskHandler extends JNPCTaskHandler {
 
     @Override
     public String[] getPortlets(String dn) {
+
+         if(checkIfURLDeploymentSupported()) {
+            String contextUri = getContextUri();
+            if(contextUri == null)
+                return new String[0];
+
+            URL url = null;
+            try {
+                url = new URL("http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/" + contextUri + "/list");
+            } catch (MalformedURLException ex) {
+                logger.log(Level.SEVERE, ex.getMessage(), ex);
+            }
+            String content = getContentFromHttpURL(url);
+            if(content == null)
+                return new String[0];
+
+            String[] portlets = content.split(",");
+            List portletList = new ArrayList();
+            for(String portlet:portlets) {
+                if(portlet != null && portlet.trim().length() != 0)
+                    portletList.add(portlet);
+            }
+
+            return (String[]) portletList.toArray(new String[0]);
+        }
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -189,4 +271,187 @@ public class PC20TaskHandler extends JNPCTaskHandler {
             //ignore exception incase of class not found.
         }
     }
+
+
+    private boolean doUrlDeployment(String warFileName,String warPath) throws Exception {
+        String  contextUri = getContextUri();
+
+        if(contextUri == null)
+            return false;
+
+        warFileName = URLEncoder.encode(warFileName, "UTF-8");
+        warPath = URLEncoder.encode(warPath, "UTF-8");
+        
+        URL url;
+        HttpURLConnection urlConnection = null;
+        try {
+            url = new URL("http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/" + contextUri + "/deploy?dt.war="+warFileName+"&dt.path="+warPath);
+            int responseCode;
+            urlConnection =  (HttpURLConnection) url.openConnection();
+            responseCode = urlConnection.getResponseCode();
+
+            if(responseCode == 500) {
+                String errorMsg = urlConnection.getResponseMessage();
+                throw new DeploymentException(errorMsg);
+            }
+
+        } catch (Exception ex) {
+            writeErrorToOutput(uri,ex);
+            writeToOutput(uri, ex.getMessage());
+            throw ex;
+        } finally {
+            try{
+                urlConnection.disconnect();
+            }catch(Exception e){}
+        }
+
+        return true;
+
+    }
+
+    private boolean doUrlUnDeployment(String appName) throws Exception {
+        String  contextUri = getContextUri();
+
+        if(contextUri == null)
+            return false;
+
+        appName = URLEncoder.encode(appName, "UTF-8");
+        
+        URL url;
+        HttpURLConnection urlConnection = null;
+        try {
+            url = new URL("http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/" + contextUri + "/undeploy?dt.war="+appName);
+            int responseCode;
+            urlConnection =  (HttpURLConnection) url.openConnection();
+            responseCode = urlConnection.getResponseCode();
+
+            if(responseCode == 500) {
+                String errorMsg = urlConnection.getResponseMessage();
+                throw new DeploymentException(errorMsg);
+            }
+           
+        } catch (Exception ex) {
+            writeErrorToOutput(uri,ex);
+            writeToOutput(uri, ex.getMessage());
+            throw ex;
+        } finally {
+            try{
+                urlConnection.disconnect();
+            }catch(Exception e){}
+        }
+
+        return true;
+
+    }
+
+
+    private String getContextUri() {
+        String  contextUri = psconfig.getPortalUri();
+
+        if(contextUri == null)
+            return null;
+
+        String[] segments = contextUri.split("/");
+
+        for(String segment:segments) {
+            if(segment != null && segment.trim().length() != 0) {
+                contextUri = segment;
+                break;
+            }
+        }
+
+        return contextUri;
+    }
+    /*
+     * This will check if the pc version is 2.1.1 or later
+     */
+    private boolean checkIfURLDeploymentSupported() {
+
+        String  contextUri = getContextUri();
+
+        if(contextUri == null)
+            return false;
+
+        URL url;
+        try {
+            url = new URL("http://" + psconfig.getHost() + ":" + psconfig.getPort() + "/" + contextUri + "/deploy");
+            int responseCode;
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            responseCode = urlConnection.getResponseCode();
+            if(responseCode == 404 || responseCode == 503) //Not Found
+            {
+              logger.info("404 - Not Found Exception for deploy url .....");
+              return false;
+            }
+            try{
+                urlConnection.disconnect();
+            }catch(Exception e) {}
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+
+        return true;
+     }
+
+    private  String getContentFromHttpURL(URL url) {
+        BufferedReader br = null;
+        try {
+            // TODO code application logic here
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setDoOutput(true);
+            InputStream ins = con.getInputStream();
+
+            br = new BufferedReader(new InputStreamReader(ins));
+            String content = "";
+            String line = br.readLine();
+            while (line != null) {
+                content += line;
+                line = br.readLine();
+            }
+
+            return content;
+        } catch (Exception e) {
+            //logger.log(Level.SEVERE, "Error", e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            return null;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+    }
+
+    private  String getErrorStream(HttpURLConnection urlCon) {
+        BufferedReader br = null;
+        try {
+
+            InputStream ins = urlCon.getErrorStream();
+            br = new BufferedReader(new InputStreamReader(ins));
+            String content = "";
+            String line = br.readLine();
+            while (line != null) {
+                content += line;
+                line = br.readLine();
+            }
+
+            return content;
+        } catch (Exception e) {
+            //logger.log(Level.SEVERE, "Error", e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            return null;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+
+    }
+
 }

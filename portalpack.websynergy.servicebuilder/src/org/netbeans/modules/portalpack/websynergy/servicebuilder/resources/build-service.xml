@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 
 <project name="build-service">
+        <property file="${service.property.file}"/>
+        <echo message="${service.property.file}"/>
 	<property environment="env" />
 		<!-- property name="project.dir" value="../"/-->
 		<!-- property name="plugin.name" value="custom"/ -->
@@ -33,23 +35,26 @@
 		</path>
 
         <target name="build-service">
-		<mkdir dir="${docroot}/WEB-INF/classes" />
+		<!--mkdir dir="${docroot}/WEB-INF/classes" / -->
+                <!--mkdir dir="${web.inf.dir}/classes"/-->
 		<mkdir dir="${project.dir}/service" />
                 <mkdir dir="${project.dir}/service/src" />
                 <mkdir dir="${project.dir}/service/lib" />
-		<mkdir dir="${docroot}/WEB-INF/sql" />
-		<!--mkdir dir="${src.dir}/WEB-INF/src" /-->
-
-		<copy todir="${docroot}/WEB-INF/classes">
+                <mkdir dir="${web.inf.dir}/sql"/>
+		<!--mkdir dir="${docroot}/WEB-INF/sql" /-->
+		
+		<!--copy todir="${docroot}/WEB-INF/classes"-->
+                <!--commented copy todir="${web.inf.dir}/classes">    
 			<fileset dir="${src.dir}" excludes="**/*.java" />
-		</copy>
+		</copy-->
 
 		<path id="service.classpath">
 			<path refid="lib.classpath" />
 			<path refid="portal.classpath" />
 			<!--fileset dir="${docroot}/WEB-INF/lib" includes="*.jar" /-->
                         <fileset dir="${project.dir}/service/lib" includes="*.jar" />
-			<pathelement location="${docroot}/WEB-INF/classes" />
+                        <!--pathelement location="${docroot}/WEB-INF/classes" /-->
+			<pathelement location="${web.inf.dir}/classes" />
 			
 			<pathelement location="${app.server.classes.portal.dir}" />
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
@@ -58,7 +63,7 @@
                         <pathelement path="${javaee.jars.classpath}"/>
 		</path>
 		
-		<echo message="${app.server.lib.portal.dir}-------------------------------"/>
+		<echo message="${app.server.lib.portal.dir}"/>
 
 		<java
 			classname="com.liferay.portal.tools.servicebuilder.ServiceBuilder"
@@ -71,17 +76,21 @@
 			<jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger" />
 			<jvmarg value="-Dservice.input.file=${input.file}" />
 			<jvmarg value="-Dservice.hbm.file=${src.dir}/META-INF/portlet-hbm.xml" />
+			<jvmarg value="-Dservice.orm.file=${src.dir}/META-INF/portlet-orm.xml" />
 			<jvmarg value="-Dservice.model.hints.file=${src.dir}/META-INF/portlet-model-hints.xml" />
 			<jvmarg value="-Dservice.spring.file=${src.dir}/META-INF/portlet-spring.xml" />
                         <jvmarg value="-Dservice.spring.data.source.file=${src.dir}/META-INF/data-source-spring.xml" />
+                        <jvmarg value="-Dservice.spring.dynamic.data.source.file=${src.dir}/META-INF/dynamic-data-source-spring.xml" />
                         <jvmarg value="-Dservice.spring.misc.file=${src.dir}/META-INF/misc-spring.xml" />
 			<jvmarg value="-Dservice.spring.base.file=${src.dir}/META-INF/base-spring.xml" />
 			<jvmarg value="-Dservice.spring.hibernate.file=${src.dir}/META-INF/hibernate-spring.xml" />
 			<jvmarg value="-Dservice.spring.infrastructure.file=${src.dir}/META-INF/infrastructure-spring.xml" />
 			<jvmarg value="-Dservice.api.dir=${project.dir}/service/src" />
 			<jvmarg value="-Dservice.impl.dir=${src.dir}" />
+			<jvmarg value="-Dservice.json.file=${src.dir}/META-INF/service.js" />
 			<!--<jvmarg value="-Dservice.json.file=${docroot}/js/service_unpacked.js" />-->
-			<jvmarg value="-Dservice.sql.dir=${docroot}/WEB-INF/sql" />
+			<!--jvmarg value="-Dservice.sql.dir=${docroot}/WEB-INF/sql" /-->
+                        <jvmarg value="-Dservice.sql.dir=${web.inf.dir}/sql" />
 			<jvmarg value="-Dservice.sql.file=tables.sql" />
 			<jvmarg value="-Dservice.sql.indexes.file=indexes.sql" />
 			<jvmarg value="-Dservice.sql.indexes.properties.file=indexes.properties" />
@@ -102,12 +111,12 @@
 		<mkdir dir="${project.dir}/service/classes" />
                 <delete file="${project.dir}/service/classes/*.*"/>
 
-		<delete file="${project.dir}/service/lib/${project.name}-service.jar" />
+		<delete file="${project.dir}/service/lib/${service.jar.name}" />
 
 		<path id="service.classpath">
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
 			<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-			<fileset dir="${project.dir}/service/lib" excludes="${project.name}-service.jar" includes="*.jar" />
+			<fileset dir="${project.dir}/service/lib" excludes="${service.jar.name}" includes="*.jar" />
 		</path>
 		
 		<javac
@@ -117,108 +126,35 @@
 			destdir="${project.dir}/service/classes"
 			nowarn="${javac.nowarn}"
 			srcdir="${project.dir}/service/src"
+                        source="1.5"
+                        target="1.5"
 		/>
 
 		<zip
 			basedir="${project.dir}/service/classes"
-			destfile="${project.dir}/service/lib/${project.name}-service.jar"
+			destfile="${project.dir}/service/lib/${service.jar.name}"
 		/>
-                
-                <copy todir="${app.server.lib.global.dir}" file="${project.dir}/service/lib/${project.name}-service.jar"/>
-                <echo message="Service api jar copied to server classpath. Please restart the server."/>
+             
+                <antcall target="copy-jar"/>
+                <echo message="Incase the generated source files are not visible under 'Source Packages' node, then reopen the project again to see the generated files under 'Source Packages'."/>
+                <!-- copy todir="${app.server.lib.global.dir}" file="${project.dir}/service/lib/${project.name}-service.jar"/ -->
+                <!--echo message="Service api jar copied to server classpath. Please restart the server."/-->
 
 		<!-- delete dir="${project.dir}/service-classes" / -->
 	</target>
-
-
-	<target name="build-my-service">
-		<mkdir dir="${docroot}/WEB-INF/classes" />
-		<mkdir dir="${docroot}/WEB-INF/lib" />
-		<mkdir dir="${docroot}/WEB-INF/service" />
-		<mkdir dir="${docroot}/WEB-INF/sql" />
-		<mkdir dir="${docroot}/WEB-INF/src" />
-
-		<copy todir="${docroot}/WEB-INF/classes">
-			<fileset dir="${docroot}/WEB-INF/src" excludes="**/*.java" />
-		</copy>
-
-		<path id="service.classpath">
-			<path refid="lib.classpath" />
-			<path refid="portal.classpath" />
-			<fileset dir="${docroot}/WEB-INF/lib" includes="*.jar" />
-			<pathelement location="${docroot}/WEB-INF/classes" />
-			
-			<pathelement location="${app.server.classes.portal.dir}" />
-					<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
-					<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-				<fileset dir="${lib.dir}" includes="servlet.jar" />
-		</path>
-		
-		<echo message="${app.server.lib.portal.dir}-------------------------------"/>
-
-		<java
-			classname="com.liferay.portal.tools.servicebuilder.ServiceBuilder"
-			classpathref="service.classpath"
-			fork="true"
-			maxmemory="256m"
-			newenvironment="true"
-		>
-			<jvmarg value="-Dexternal-properties=com/liferay/portal/tools/dependencies/portal-tools.properties" />
-			<jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger" />
-			<jvmarg value="-Dservice.input.file=${input.file}" />
-			<jvmarg value="-Dservice.hbm.file=${docroot}/WEB-INF/src/META-INF/portlet-hbm.xml" />
-			<jvmarg value="-Dservice.model.hints.file=${docroot}/WEB-INF/src/META-INF/portlet-model-hints.xml" />
-			<jvmarg value="-Dservice.spring.file=${docroot}/WEB-INF/src/META-INF/portlet-spring.xml" />
-			<jvmarg value="-Dservice.spring.base.file=${docroot}/WEB-INF/src/META-INF/base-spring.xml" />
-			<jvmarg value="-Dservice.spring.hibernate.file=${docroot}/WEB-INF/src/META-INF/hibernate-spring.xml" />
-			<jvmarg value="-Dservice.spring.infrastructure.file=${docroot}/WEB-INF/src/META-INF/infrastructure-spring.xml" />
-			<jvmarg value="-Dservice.api.dir=${docroot}/WEB-INF/service" />
-			<jvmarg value="-Dservice.impl.dir=${docroot}/WEB-INF/src" />
-			<!--<jvmarg value="-Dservice.json.file=${docroot}/js/service_unpacked.js" />-->
-			<jvmarg value="-Dservice.sql.dir=${docroot}/WEB-INF/sql" />
-			<jvmarg value="-Dservice.sql.file=tables.sql" />
-			<jvmarg value="-Dservice.sql.indexes.file=indexes.sql" />
-			<jvmarg value="-Dservice.sql.indexes.properties.file=indexes.properties" />
-			<jvmarg value="-Dservice.sql.sequences.file=sequences.sql" />
-			<jvmarg value="-Dservice.auto.namespace.tables=true" />
-			<jvmarg value="-Dservice.bean.locator.util=com.liferay.util.bean.PortletBeanLocatorUtil" />
-			<jvmarg value="-Dservice.props.util=com.liferay.util.service.ServiceProps" />
-			<jvmarg value="-Dservice.plugin.name=${project.name}" />
-		</java>
-
-		<delete file="ServiceBuilder.temp" />
-
-		<!--<antcall target="build-javascript-cmd">
-			<param name="js.from.file" value="docroot/js/service_unpacked.js" />
-			<param name="js.to.file" value="docroot/js/service_packed.js" />
-		</antcall>-->
-
-		<mkdir dir="${docroot}/WEB-INF/service-classes" />
-
-		<delete file="${docroot}/WEB-INF/lib/${project.name}-service.jar" />
-
-		<path id="service.classpath">
-			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
-			<fileset dir="${app.server.lib.portal.dir}" includes="*.jar" />
-			<fileset dir="${docroot}/WEB-INF/lib" excludes="${project.name}-service.jar" includes="*.jar" />
-		</path>
-		
-		<javac
-			classpathref="service.classpath"
-			debug="${javac.debug}"
-			deprecation="${javac.deprecation}"
-			destdir="${docroot}/WEB-INF/service-classes"
-			nowarn="${javac.nowarn}"
-			srcdir="${docroot}/WEB-INF/service"
-		/>
-
-		<zip
-			basedir="${docroot}/WEB-INF/service-classes"
-			destfile="${docroot}/WEB-INF/lib/${project.name}-service.jar"
-		/>
-                
-		<delete dir="${docroot}/WEB-INF/service-classes" />
-	</target>
+        
+        <target name="copy-jar" if="copy.jar.to.global.cp">
+             <copy todir="${app.server.lib.global.dir}" file="${project.dir}/service/lib/${service.jar.name}"/>
+             <echo message="Don't package the ${service.jar.name} inside the war."/>
+             <echo message="Go to the Project Properties > Build > Packaging dialog and remove server/lib from packaging if present."/>
+             <echo message="The ${service.jar.name} was copied to the server classpath. Please restart the server."/>
+        </target>
+        
+        <target name="clean-service">
+		<property name="service.dir" value="${project.dir}/service"/>
+                <delete dir="${service.dir}"/>
+                    
+        </target>
         
         <target name="download-jars">
             <!--

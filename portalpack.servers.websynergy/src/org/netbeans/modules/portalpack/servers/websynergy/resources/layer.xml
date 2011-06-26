@@ -55,6 +55,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                         <file name="WEB-INF\liferay-display.xml"/>
                         <file name="WEB-INF\liferay-plugin-package.xml"/>
                         <file name="WEB-INF\liferay-plugin-package.properties"/>
+                        <file name="WEB-INF\liferay-hook.xml"/>
                     </folder>
                 </folder> 
             </folder>
@@ -92,6 +93,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                         <file name="WEB-INF\liferay-display.xml"/>
                         <file name="WEB-INF\liferay-plugin-package.xml"/>
                         <file name="WEB-INF\liferay-plugin-package.properties"/>
+                        <file name="WEB-INF\liferay-hook.xml"/>
                     </folder>
                 </folder>
             </folder>
@@ -113,15 +115,33 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
       
      <folder name="liferay"> 
         <folder name="templates">
-            <file name="liferay-display-400.template" url="nbresloc:/templates/liferay-display-400.template">
+            <file name="liferay-display.xml" url="nbresloc:templates/liferay-display.template">
                 <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
-            <file name="liferay-plugin-package-430.template" url="nbresloc:/templates/liferay-plugin-package-430.template">
+            <file name="liferay-plugin-package.xml" url="nbresloc:templates/liferay-plugin-package.template">
                 <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>    
-            <file name="liferay-portlet-440.template" url="nbresloc:/templates/liferay-portlet-440.template">
+            <file name="liferay-portlet.xml" url="nbresloc:templates/liferay-portlet.template">
                 <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+			<file name="portal-developer.properties" url="nbresloc:templates/portal-developer.properties">
+                <attr name="position" intvalue="50"/>
             </file>
         </folder>
-    </folder> 
+    </folder>
+
+     <folder name="Plugins">
+        <!-- Register XML module catalog plugin -->
+        <folder name="XML">
+            <folder name="UserCatalogs">
+                <file name="org-netbeans-modules-portalpack-servers-websynergy-catalog-LiferayDTDCatalog.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.websynergy.catalog.LiferayDTDCatalog"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.xml.catalog.spi.CatalogReader"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>

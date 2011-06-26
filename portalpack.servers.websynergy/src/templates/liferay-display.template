@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE display PUBLIC "-//Liferay//DTD Display <#if VERSION != "">${DTD_VERSION}</#if>//EN" "http://www.liferay.com/dtd/liferay-display_<#if VERSION != "">${VERSION}</#if>.dtd">
+<display>
+</display>

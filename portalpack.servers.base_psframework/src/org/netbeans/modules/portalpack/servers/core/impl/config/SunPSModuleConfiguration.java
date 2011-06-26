@@ -53,7 +53,11 @@ public class SunPSModuleConfiguration extends PSModuleConfiguration{
                     if (file.exists())
                         return;
                     String text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                +"<portlet-app-extension xmlns=\"http://www.sun.com/software/xml/ns/portal_server\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sunportal=\"http://www.sun.com/software/xml/ns/portal_server\" xsi:noNamespaceSchemaLocation=\"http://www.sun.com/software/xml/ns/portal_server\" version=\"1.0\">\n"
+                                +"<portlet-app-extension xmlns=\"http://portlet-container.dev.java.net/xml/ns/sun-portlet_2_0.xsd\" " +
+                                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                                "xmlns:sunportal=\"http://portlet-container.dev.java.net/xml/ns/sun-portlet_2_0.xsd\" " +
+                                "xsi:noNamespaceSchemaLocation=\"http://portlet-container.dev.java.net/xml/ns/sun-portlet_2_0.xsd\" " +
+                                "version=\"2.0\">\n"
                                 +"</portlet-app-extension>";
                     try{
                         writer = new java.io.FileWriter(file);

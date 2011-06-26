@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.jboss.JBDeployHandler;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.GlassFishServerDeployHandler;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatDeployHandler;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
@@ -31,21 +32,27 @@ import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
  * @author root
  */
 public class ServerDeployerHandlerFactory {
-    
+
     /** Creates a new instance of ServerDeployerHandlerFactory */
     private ServerDeployerHandlerFactory() {
     }
-    
+
     public static ServerDeployHandler getServerDeployerHandler(PSDeploymentManager dm)
     {
          PSConfigObject psconfig = dm.getPSConfig();
+         if(psconfig.getServerType() == null || psconfig.getServerType().trim().length() == 0)
+             return new DefaultServerDeployHandler();
+
          if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
          {
              return new GlassFishServerDeployHandler(dm);
          }
+         else if(psconfig.getServerType().equals(ServerConstants.JBOSS_5_X)) {
+             return new JBDeployHandler(dm);
+        }
          else{
              return new TomcatDeployHandler(dm);
          }
     }
-    
+
 }

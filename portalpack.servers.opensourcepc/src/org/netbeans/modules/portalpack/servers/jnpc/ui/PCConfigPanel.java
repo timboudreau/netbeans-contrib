@@ -233,9 +233,8 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
                 return false;
             }
         }
-        File config = new File(homeDir,"config" + File.separator + "pcenv.conf");
         File lib = new File(homeDir,"lib");
-        if(!config.exists() || !lib.exists())
+        if(!lib.exists())
         {           
             setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_INVALID_PC_HOME"));
             return false;

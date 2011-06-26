@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr168;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,9 @@ import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
 import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -89,7 +92,12 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
                 Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
                 if(modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier))
                 {
-                    ((WebProjectLibrariesModifier)modifierObj).addCompileLibraries(new Library[]{bpLibrary});
+                    Library[] libs = {bpLibrary};
+                    //((WebProjectLibrariesModifier)modifierObj).addCompileLibraries(new Library[]{bpLibrary});             
+                    Class[] paramTypes = {Library[].class};
+                    Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
+                    
+                    method.invoke(modifierObj, new Object[]{libs});
                 }else {
                     ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, getSourceRoot(project), ClassPath.COMPILE);
                 }
@@ -114,6 +122,10 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
          {
             PortletFrameworkUtil.createPkgAndClass(srcFolder, project, wm,pkg,context);
             resultSet.add(srcFolder);
+
+			try{
+				FileUtil.refreshFor(FileUtil.toFile(srcFolder));
+			}catch(Exception e){}
          }
          else
          {
@@ -126,7 +138,14 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
                 ex.printStackTrace();
             }
         }
-        return null;
+
+        try {
+            documentBase.getFileSystem().refresh(true);
+        } catch (FileStateInvalidException ex) {
+           ex.printStackTrace();
+        }
+
+        return resultSet;
         
     }
 

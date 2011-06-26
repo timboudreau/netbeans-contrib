@@ -35,6 +35,8 @@ import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibraries;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.api.JEEServerLibrariesFactory;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.filesystems.FileUtil;
 
@@ -62,11 +64,16 @@ public class PSJ2eePlatformImpl extends J2eePlatformImpl {
         libraries.add(lib);
     }
     public boolean isToolSupported(String toolName) {
-        return false;
+         JEEServerLibraries jeeServerLibraries =
+                JEEServerLibrariesFactory.getJEEServerLibraries(psconfig.getServerType());
+
+         return jeeServerLibraries.isToolSupported(toolName,psconfig);
     }
     
     public File[] getToolClasspathEntries(String toolName) {
-        return new File[0];
+        JEEServerLibraries jeeServerLibraries =
+                JEEServerLibrariesFactory.getJEEServerLibraries(psconfig.getServerType());
+        return jeeServerLibraries.getToolClasspathEntries(toolName,psconfig);
     }
     
     public Set getSupportedSpecVersions() {
@@ -86,7 +93,11 @@ public class PSJ2eePlatformImpl extends J2eePlatformImpl {
     }
     
     public java.io.File[] getPlatformRoots() {
-        return new File[]{new File(psconfig.getPSHome())};
+
+        String root = psconfig.getPSHome();
+        if(root == null || root.trim().length() == 0)
+            root = psconfig.getServerHome();
+        return new File[]{new File(root)};
     }
     
    public void notifyLibrariesChanged() {
