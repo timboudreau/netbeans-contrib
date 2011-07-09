@@ -99,7 +99,16 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
                     
                     method.invoke(modifierObj, new Object[]{libs});
                 }else {
-                    ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, getSourceRoot(project), ClassPath.COMPILE);
+                    
+                    String classpathType = ClassPath.COMPILE;
+                    //check if maven project
+                    FileObject pom = project.getProjectDirectory().getFileObject("pom.xml");//NOI18N
+                    if(pom != null) {
+                        classpathType = "classpath/compile_only";
+                    } 
+
+                    ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, 
+                            getSourceRoot(project), classpathType);
                 }
                 
               
