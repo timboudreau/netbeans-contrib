@@ -46,6 +46,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.websynergy.common.LiferayConstants;
 import org.netbeans.modules.portalpack.servers.websynergy.common.WebSpacePropertiesUtil;
 import org.netbeans.modules.portalpack.websynergy.portlets.hook.api.HookType;
 import org.netbeans.modules.portalpack.websynergy.portlets.hook.api.HookTypeFactory;
@@ -131,13 +133,19 @@ public class HookDetailsPanel implements WizardDescriptor.Panel, ChangeListener 
             }
         } else {
             String prjName = ProjectUtils.getInformation(project).getName();
-            if(prjName != null && !prjName.endsWith("-hook")) {
-                   if(wizard != null) {
-                        wizard.putProperty("WizardPanel_errorMessage",
-                                NbBundle.getMessage(
-                                HookDetailsPanel.class, "HOOK_NOT_ALLOWED_WHEN_APP_NAME_NOT_ENDS_WITH_HOOK")); // NOI18N
-                        return false;
-                   }
+            
+            int lrVersion = WebSpacePropertiesUtil.getLiferayVersion(project);
+                
+            if(lrVersion < LiferayConstants.LR_6_0_0) {
+            
+                if(prjName != null && !prjName.endsWith("-hook")) {
+                       if(wizard != null) {
+                            wizard.putProperty("WizardPanel_errorMessage",
+                                    NbBundle.getMessage(
+                                    HookDetailsPanel.class, "HOOK_NOT_ALLOWED_WHEN_APP_NAME_NOT_ENDS_WITH_HOOK")); // NOI18N
+                            return false;
+                       }
+                }
             }
             
         }

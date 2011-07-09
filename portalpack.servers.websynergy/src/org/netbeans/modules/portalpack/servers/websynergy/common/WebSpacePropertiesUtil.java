@@ -98,4 +98,17 @@ public class WebSpacePropertiesUtil {
             return 1;
         }
     }
+    
+    public static int getLiferayVersion(Project prj) {
+        
+        if(prj == null)
+            return -1;
+        
+        PSConfigObject psConfig = getSelectedServerProperties(prj);
+        
+        if(psConfig == null)
+            return -1;
+        
+        return getLiferayVersion(psConfig);
+    }
 }

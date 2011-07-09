@@ -45,5 +45,7 @@ public class LiferayConstants {
     //Liferay Version
     public static final int LR_5_1_0 = 5100;
     public static final int LR_5_2_0 = 5200;
-	public static final int LR_5_2_3 = 5230;
+    public static final int LR_5_2_3 = 5230;
+    public static final int LR_6_0_0 = 6000;
+    public static final int LR_6_0_6 = 6006;
 }
