@@ -73,7 +73,8 @@ public class BrowseSubmenu implements Presenter.Menu {
 
     /** Tuples of display label, URL format; use @REPO@, @FILEPATH@, @JAVABASENAME@, @CNBDASHES@ */
     private static final String[][] LINKS_FILE = {
-        {"Source (Hg)", "@REPO@/raw-file/@BRANCH@/@FILEPATH@"},
+        {"Raw Source (Hg)", "@REPO@/raw-file/@BRANCH@/@FILEPATH@"},
+        {"Source (Hg)", "@REPO@/file/@BRANCH@/@FILEPATH@"},
         {"Javadoc (official)", "http://bits.netbeans.org/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
         {"Javadoc (Hudson)", "http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
     };
