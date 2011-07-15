@@ -74,7 +74,7 @@ public class FindBugsQuery {
         Parameters.notNull("project", project);
         FindBugsQueryImplementation query = project.getLookup().lookup(FindBugsQueryImplementation.class);
         if (query != null) {
-            URL url = query.getFindBugsUrl(project, remote);
+            URL url = query.getFindBugsUrl(remote);
             LOG.log(Level.FINE, "getFindBugsUrl({0}, {1}) -> {2}", new Object[] {project.getProjectDirectory(), remote, url});
             return url;
         }
@@ -93,9 +93,9 @@ public class FindBugsQuery {
         Parameters.notNull("project", project);
         FindBugsQueryImplementation query = project.getLookup().lookup(FindBugsQueryImplementation.class);
         if (query != null) {
-            URL url = query.getFindBugsUrl(project, false);
+            URL url = query.getFindBugsUrl(false);
             if (url == null) {
-                url = query.getFindBugsUrl(project, true);
+                url = query.getFindBugsUrl(true);
             }
             LOG.log(Level.FINE, "getFindBugsUrl({0}) -> {1}", new Object[] {project.getProjectDirectory(), url});
             return url;

@@ -47,24 +47,25 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.modules.java.j2seproject.api.J2SEPropertyEvaluator;
+import org.netbeans.spi.project.ProjectServiceProvider;
 
 /**
  *
  * @author Martin Grebac
  */
+@ProjectServiceProvider(service=FindBugsQueryImplementation.class, projectType="org-netbeans-modules-java-j2seproject")
 public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementation {
 
     private static final Logger LOG = Logger.getLogger(J2seFindBugsQueryProvider.class.getName());
 
-    public J2seFindBugsQueryProvider() {}
-    
-    public static FindBugsQueryImplementation createInstance() {
-        // TODO possibly also use just one static instance everywhere..
-        return new J2seFindBugsQueryProvider();
+    private final Project project;
+
+    public J2seFindBugsQueryProvider(Project project) {
+        this.project = project;
     }
     
     @CheckForNull
-    public URL getFindBugsUrl(Project project, boolean remote) {
+    public URL getFindBugsUrl(boolean remote) {
         if (!remote) {
             return null;
         }
@@ -80,7 +81,7 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
                     url = new URL(urlValue);
                 }
             } catch (MalformedURLException ex) {
-                LOG.log(Level.INFO, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
+                LOG.log(Level.INFO, "URL incorrect: {0} {1}", new Object[] {urlValue, ex.getLocalizedMessage()});
             }
         }
         return url;
