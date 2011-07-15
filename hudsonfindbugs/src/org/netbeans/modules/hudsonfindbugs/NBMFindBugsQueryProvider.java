@@ -46,6 +46,7 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.apisupport.project.spi.NbModuleProvider;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -68,12 +69,11 @@ public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementati
     public URL getFindBugsUrl(Project project, boolean remote) {
         URL url = null;
         NbModuleProvider prov = project.getLookup().lookup(NbModuleProvider.class);
-        if (prov != null && prov.getModuleType() == NbModuleProvider.NETBEANS_ORG) {
+        if (prov != null) {
             if (!remote) {
-                File file = prov.getActivePlatformLocation();
-                File parent = file.getParentFile();
-                if (parent != null) {
-                    File findbugsFile = new File(parent, "build" + File.separator + "findbugs" + File.separator
+                File nbbuild = new File(FileUtil.toFile(project.getProjectDirectory()).getParentFile(), "nbbuild");
+                if (nbbuild.isDirectory()) {
+                    File findbugsFile = new File(nbbuild, "build" + File.separator + "findbugs" + File.separator
                             + prov.getCodeNameBase().replace('.', '-') + ".xml");
                     if (findbugsFile.exists() && findbugsFile.isFile() && findbugsFile.canRead()) {
                         try {
