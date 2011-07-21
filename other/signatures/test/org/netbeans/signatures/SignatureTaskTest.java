@@ -80,13 +80,11 @@ public class SignatureTaskTest extends TestCase {
         task.setOut(out);
         FileSet fs = new FileSet();
         fs.setProject(p);
-        fs.setDir(antJar.getParentFile());
-        fs.setIncludes(antJar.getName());
+        fs.setFile(antJar);
         task.addFileSet(fs);
         fs = new FileSet();
         fs.setProject(p);
-        fs.setDir(antLauncherJar.getParentFile());
-        fs.setIncludes(antLauncherJar.getName());
+        fs.setFile(antLauncherJar);
         task.addFileSet(fs);
         task.execute();
         assertTrue(out.isFile());
