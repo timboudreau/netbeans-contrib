@@ -65,7 +65,7 @@ import org.openide.windows.WindowManager;
  */
 @ActionID(id = "org.netbeans.modules.whichproject.WhichProjectAction", category = "Project")
 @ActionRegistration(displayName = "#LBL_Action")
-@ActionReference(path = "Shortcuts", name = "OS-P")
+@ActionReference(path = "Menu/File", position = 1826)
 public class WhichProjectAction extends CallableSystemAction {
     
     public void performAction () {
