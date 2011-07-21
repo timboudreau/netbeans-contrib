@@ -188,7 +188,7 @@ public class SignatureWriterTest extends TestCase {
                 null,
                 compUnits);
         boolean ok = task.call();
-        String errors = err.toString();
+        String errors = cleanup(err);
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
         // Now compile a dummy class so we can run the processor.
@@ -203,7 +203,7 @@ public class SignatureWriterTest extends TestCase {
         task.setProcessors(Collections.singleton(new P(result, clazz)));
         ok = task.call();
         // XXX could now delete the .class files in dir
-        errors = err.toString();
+        errors = cleanup(err);
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
         SortedSet<String> lines = new TreeSet<String>(Arrays.asList(sig.split("  ")));
@@ -216,6 +216,10 @@ public class SignatureWriterTest extends TestCase {
         }
         assertEquals(source, b.toString(), result.toString().replaceAll("^\\{", "").replaceAll("\\}\n\n$", "").replaceAll("\\}\n\\{", "  "));
         // XXX check that sig is compilable, too
+    }
+
+    private static String cleanup(StringWriter err) {
+        return err.toString().replaceAll("warning: .options. bootstrap class path not set in conjunction with -source 1[.]6\r?\n?|\\d+ warnings?\r?\n?", "");
     }
     
     /* Just does not work, not obvious why. Never writes out a .class file.
