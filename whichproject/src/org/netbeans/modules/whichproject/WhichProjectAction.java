@@ -44,6 +44,9 @@ package org.netbeans.modules.whichproject;
 import java.awt.Toolkit;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -60,6 +63,9 @@ import org.openide.windows.WindowManager;
  *
  * @author Tim Boudreau
  */
+@ActionID(id = "org.netbeans.modules.whichproject.WhichProjectAction", category = "Project")
+@ActionRegistration(displayName = "#LBL_Action")
+@ActionReference(path = "Shortcuts", name = "OS-P")
 public class WhichProjectAction extends CallableSystemAction {
     
     public void performAction () {
@@ -109,7 +115,7 @@ public class WhichProjectAction extends CallableSystemAction {
         }
         DataObject obj = null;
         for (int i=0; i < nodes.length; i++) {
-            obj = (DataObject) nodes[i].getCookie(DataObject.class);
+            obj = nodes[i].getCookie(DataObject.class);
             if (obj != null) {
                 FileObject file = obj.getPrimaryFile();
                 if (obj != null) {

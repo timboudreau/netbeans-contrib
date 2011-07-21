@@ -40,6 +40,10 @@
  */
 package org.netbeans.modules.whichproject;
 
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
@@ -49,6 +53,11 @@ import org.openide.windows.TopComponent;
  *
  *@author Tim Boudreau
  */
+@ActionID(id = "org.netbeans.modules.whichproject.CloseUnrelatedAction", category = "Project")
+@ActionRegistration(displayName = "#LBL_CloseAction")
+@ActionReferences(value = {
+    @ActionReference(path = "Shortcuts", name = "CA-P"),
+    @ActionReference(path = "Menu/File", name = "CloseUnrelatedAction", position = 1828, separatorAfter=1830)})
 public class CloseUnrelatedAction extends WhichProjectAction {
     protected boolean processTc (TopComponent tc, boolean val) {
         if (!val) {
