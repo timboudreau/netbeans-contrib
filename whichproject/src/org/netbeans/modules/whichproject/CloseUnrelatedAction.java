@@ -57,7 +57,7 @@ import org.openide.windows.TopComponent;
 @ActionRegistration(displayName = "#LBL_CloseAction")
 @ActionReferences(value = {
     @ActionReference(path = "Shortcuts", name = "CA-P"),
-    @ActionReference(path = "Menu/File", name = "CloseUnrelatedAction", position = 1828, separatorAfter=1830)})
+    @ActionReference(path = "Menu/File", position = 1828, separatorAfter=1830)})
 public class CloseUnrelatedAction extends WhichProjectAction {
     protected boolean processTc (TopComponent tc, boolean val) {
         if (!val) {
