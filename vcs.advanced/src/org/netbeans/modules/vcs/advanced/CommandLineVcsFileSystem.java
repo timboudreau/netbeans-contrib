@@ -236,6 +236,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setCommands(new CommandsTree(new UserCommandSupport(new UserCommand("NONE"), this)));//EMPTY_COMMANDS);
         addPropertyChangeListener(this);
         String userDir = System.getProperty("netbeans.user");
+        // XXX should be replaced; see #57798
         cacheRoot = userDir+File.separator+"var"+File.separator+"cache"+File.separator+"vcs"; // NOI18N
         cachePath = createNewCacheDir();
         //System.out.println("  cachePath = "+cachePath);

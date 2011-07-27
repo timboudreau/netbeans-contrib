@@ -161,6 +161,7 @@ public class MDRDataObject extends MultiDataObject {
         if (tagName.startsWith(TAG_BODY_FOLDER)) {
             String folder = tagName.substring(TAG_BODY_FOLDER.length()).replace('\\', '/');
             ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "found folder: " + folder);
+            // XXX should be replaced; see #57798
             String resultFolder = System.getProperty("netbeans.user") + "/var/cache/" + folder;
             try {
                 File result = new File(resultFolder);
