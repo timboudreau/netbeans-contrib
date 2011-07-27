@@ -431,8 +431,8 @@ class WrapperKids extends Children.Keys implements Cloneable {
                                 }
                             }
                             if (provenance == null) {
-                                File system1 = new File(new File(System.getProperty("netbeans.home")), "system");
-                                File system2 = new File(new File(System.getProperty("netbeans.user")), "system");
+                                File system1 = new File(new File(System.getProperty("netbeans.home")), "config");
+                                File system2 = new File(new File(System.getProperty("netbeans.user")), "config");
                                 if (dir.equals(system1)) {
                                     provenance = "NetBeans installation";
                                 } else if (dir.equals(system2)) {
@@ -442,6 +442,7 @@ class WrapperKids extends Children.Keys implements Cloneable {
                         } else if (fs instanceof XMLFileSystem) {
                             // Well, a good guess at least. Note merged XMLFS's and
                             // module cache mean we cannot easily do better.
+                            // XXX look for "layers" file attribute
                             provenance = "module";
                         }
                         if (provenance != null) {
