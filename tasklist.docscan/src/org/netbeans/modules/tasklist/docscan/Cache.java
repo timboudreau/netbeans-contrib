@@ -171,6 +171,7 @@ final class Cache {
 
     private static File getCacheFile(boolean create) throws IOException {
         String loc = System.getProperty("netbeans.user") + // NOI18N
+            // XXX should be replaced; see bug #57798
             File.separatorChar + "var" + File.separatorChar + "cache" + File.separatorChar + "all-todos.ser";
         File file = new File(loc);
         if (create) {

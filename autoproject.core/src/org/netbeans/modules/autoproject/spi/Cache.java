@@ -75,7 +75,12 @@ public class Cache {
     static {
         String userdir = System.getProperty("netbeans.user");
         if (userdir != null) {
-            CACHE = new File(userdir, "var/cache/autoprojects.properties");
+            File compatibilityLocation = new File(userdir, "var/cache/autoprojects.properties");
+            if (compatibilityLocation.isFile()) {
+                CACHE = compatibilityLocation;
+            } else {
+                CACHE = new File(userdir, "var/autoprojects.properties");
+            }
         } else {
             CACHE = null;
         }

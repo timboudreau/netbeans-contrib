@@ -102,6 +102,7 @@ public abstract class Index extends org.netbeans.modules.gsf.api.Index {
     private static final String NB_USER_DIR = "netbeans.user";   //NOI18N
     private static final String SEGMENTS_FILE = "segments";      //NOI18N
     private static final String SLICE_PREFIX = "s";              //NOI18N    
+    // XXX should be replaced; see #57798:
     private static final String INDEX_DIR = "var"+File.separatorChar+"cache"+File.separatorChar+"gsf-index"+File.separatorChar+VERSION+'.'+SUBVERSION;    //NOI18N
     // BEGIN TOR MODIFICATIONS
     protected static final String PREINDEXED = "netbeans-index-" + VERSION + "." + SUBVERSION + "-"; // NOI18N
