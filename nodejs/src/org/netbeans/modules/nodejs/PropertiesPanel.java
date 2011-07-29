@@ -199,7 +199,11 @@ public class PropertiesPanel extends javax.swing.JPanel {
             props.setLicenseType(licenseField.getSelectedItem().toString());
         }
     }
-
+    
+    boolean notEmpty (JTextComponent c) {
+        return c.getText().trim().length() > 0;
+    }
+    
     public void showDialog() {
         DialogDescriptor d = new DialogDescriptor(this, props.project().getLookup().lookup(ProjectInformation.class).getDisplayName());
         DialogDescriptorAdapter adap = new DialogDescriptorAdapter(d);

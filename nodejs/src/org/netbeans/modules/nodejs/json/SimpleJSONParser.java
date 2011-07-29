@@ -543,7 +543,7 @@ public final class SimpleJSONParser {
         Arrays.fill(indentChars, ' ');
         String ind = new String(indentChars);
         String indl = ind + "    ";
-        sb.append(ind).append('[').append('\n');
+        sb.append('\n').append(ind).append('[').append('\n');
         for (Iterator<Object> it = l.iterator(); it.hasNext();) {
             Object o = it.next();
             if (o instanceof Map) {
