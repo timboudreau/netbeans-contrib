@@ -44,6 +44,7 @@ package org.netbeans.modules.nodejs.actions;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import org.netbeans.api.actions.Savable;
 import org.netbeans.modules.nodejs.NodeJSExecutable;
 import org.openide.loaders.DataObject;
 
@@ -78,6 +79,10 @@ public final class RunAction implements ActionListener, Runnable {
     @Override
     public void run() {
         try {
+            Savable save = context.getLookup().lookup(Savable.class);
+            if (save != null) {
+                save.save();
+            }
             NodeJSExecutable.getDefault().run(context.getPrimaryFile(), null);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
