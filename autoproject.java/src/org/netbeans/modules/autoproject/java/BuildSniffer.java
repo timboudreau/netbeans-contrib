@@ -457,7 +457,7 @@ public class BuildSniffer extends AntLogger {
             basedirs.add(resolve(event, event.evaluate(basedir)).getAbsolutePath());
         }
         for (TaskStructure child : event.getTaskStructure().getChildren()) {
-            if (child.getName().equals("fileset")) {
+            if (child.getName().equals("fileset") || child.getName().equals("zipfileset")) {
                 basedir = child.getAttribute("dir");
                 if (basedir != null) {
                     basedirs.add(resolve(event, event.evaluate(basedir)).getAbsolutePath());

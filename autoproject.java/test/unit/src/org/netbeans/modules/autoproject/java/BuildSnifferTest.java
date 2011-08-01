@@ -258,6 +258,7 @@ public class BuildSnifferTest extends NbTestCase {
                 "  <jar destfile='c2.jar'><fileset dir='c'/></jar>\n" +
                 "  <jar jarfile='c3.jar' basedir='c'/>\n" +
                 "  <jar destfile='c4.jar'><fileset dir='c'/><fileset dir='s'/></jar>\n" +
+                "  <jar destfile='c5.jar'><zipfileset dir='c'/></jar>\n" +
                 " </target>\n" +
                 "</project>\n");
         runAnt();
@@ -266,6 +267,7 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "c", Cache.get(prefix + "c2.jar" + JavaCacheConstants.JAR));
         assertEquals(prefix + "c", Cache.get(prefix + "c3.jar" + JavaCacheConstants.JAR));
         assertEquals(prefix + "c" + File.pathSeparator + prefix + "s", Cache.get(prefix + "c4.jar" + JavaCacheConstants.JAR));
+        assertEquals(prefix + "c", Cache.get(prefix + "c5.jar" + JavaCacheConstants.JAR));
     }
 
     public void testComputedJar() throws Exception {
