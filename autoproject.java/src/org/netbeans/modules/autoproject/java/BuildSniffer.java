@@ -450,17 +450,17 @@ public class BuildSniffer extends AntLogger {
         if (jar == null) {
             return;
         }
-        String key = resolve(event, jar) + JavaCacheConstants.JAR;
+        String key = resolve(event, event.evaluate(jar)) + JavaCacheConstants.JAR;
         List<String> basedirs = new ArrayList<String>();
         String basedir = event.getTaskStructure().getAttribute("basedir");
         if (basedir != null) {
-            basedirs.add(resolve(event, basedir).getAbsolutePath());
+            basedirs.add(resolve(event, event.evaluate(basedir)).getAbsolutePath());
         }
         for (TaskStructure child : event.getTaskStructure().getChildren()) {
-            if (child.getName().equals("fileset")) {
+            if (child.getName().equals("fileset") || child.getName().equals("zipfileset")) {
                 basedir = child.getAttribute("dir");
                 if (basedir != null) {
-                    basedirs.add(resolve(event, basedir).getAbsolutePath());
+                    basedirs.add(resolve(event, event.evaluate(basedir)).getAbsolutePath());
                 }
             }
         }
