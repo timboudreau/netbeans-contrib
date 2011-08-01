@@ -268,6 +268,22 @@ public class BuildSnifferTest extends NbTestCase {
         assertEquals(prefix + "c" + File.pathSeparator + prefix + "s", Cache.get(prefix + "c4.jar" + JavaCacheConstants.JAR));
     }
 
+    public void testComputedJar() throws Exception {
+        write("build.xml",
+                "<project default='c'>\n" +
+                " <target name='c'>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <property name='b' location='b'/>\n" +
+                "  <mkdir dir='${b}/c'/>\n" +
+                "  <javac srcdir='s' destdir='${b}/c'/>\n" +
+                "  <jar destfile='${b}/c.jar' basedir='${b}/c'/>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals(prefix + "b" + File.separator + "c", Cache.get(prefix + "s" + JavaCacheConstants.BINARY));
+        assertEquals(prefix + "b" + File.separator + "c", Cache.get(prefix + "b" + File.separator + "c.jar" + JavaCacheConstants.JAR));
+    }
+
     public void testIncludesExcludes() throws Exception {
         assertIncludesExcludes("", null, null);
         assertIncludesExcludes("includes='dir1/,dir/2/' excludes='dir3/,dir/4/'", "dir1/,dir/2/", "dir3/,dir/4/");
