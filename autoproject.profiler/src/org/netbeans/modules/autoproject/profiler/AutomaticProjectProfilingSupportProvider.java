@@ -1,7 +1,10 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -13,9 +16,9 @@
  * specific language governing permissions and limitations under the
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
+ * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
@@ -34,9 +37,8 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.autoproject.profiler;
 
 import java.util.Properties;
@@ -50,66 +52,49 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.profiler.AbstractProjectTypeProfiler;
-import org.netbeans.modules.profiler.spi.ProjectTypeProfiler;
+import org.netbeans.modules.profiler.api.JavaPlatform;
+import org.netbeans.modules.profiler.nbimpl.project.JavaProjectProfilingSupportProvider;
+import org.netbeans.modules.profiler.spi.project.ProjectProfilingSupportProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.modules.InstalledFileLocator;
 
 /**
- * Configures profiler to accept automatic projects.
+ *
+ * @author Jiri Sedlacek
  */
-@ProjectServiceProvider(service=ProjectTypeProfiler.class, projectType="org-netbeans-modules-autoproject")
-public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
+@ProjectServiceProvider(service=ProjectProfilingSupportProvider.class, projectType="org-netbeans-modules-autoproject") // NOI18N
+public final class AutomaticProjectProfilingSupportProvider extends JavaProjectProfilingSupportProvider {
 
     @Override
-    public boolean isProfilingSupported(Project project) {
-        return true;
+    public boolean isFileObjectSupported(FileObject fo) {
+        return fo.hasExt("java"); // NOI18N
     }
 
     @Override
-    public boolean checkProjectIsModifiedForProfiler(Project project) {
-        return true;
+    public JavaPlatform getProjectJavaPlatform() {
+        return null;
     }
 
     @Override
-    public FileObject getProjectBuildScript(Project project) {
-        return FileUtil.toFileObject(InstalledFileLocator.getDefault().locate(
-                "autoproject-profile.xml", "org.netbeans.modules.autoproject.profiler", false));
-    }
-
-    @Override
-    public String getProfilerTargetName(Project project, FileObject buildScript, int type, FileObject profiledClassFile) {
-        // XXX do we need to pay attention to 'type' here?
-        return "profile";
-    }
-
-    @Override
-    public boolean isFileObjectSupported(Project project, FileObject fo) {
-        return fo.hasExt("java");
-    }
-
-    @Override
-    public boolean checkProjectCanBeProfiled(Project project, FileObject profiledClassFile) {
+    public boolean checkProjectCanBeProfiled(FileObject profiledClassFile) {
         return profiledClassFile != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE) != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE) != null;
     }
 
     @Override
-    public void configurePropertiesForProfiling(Properties props, Project project, FileObject profiledClassFile) {
+    public void configurePropertiesForProfiling(Properties props, FileObject profiledClassFile) {
         ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE);
-        String classname = sourcepath.getResourceName(profiledClassFile, '.', false);
+        String classname = sourcepath.getResourceName(profiledClassFile, '.', false); // NOI18N
         // XXX #159643: AntActions.doProfileProject is not smart enough yet...
         if (isTest(profiledClassFile, sourcepath)) {
-            props.setProperty("classname", "junit.textui.TestRunner");
-            props.setProperty("args", classname);
+            props.setProperty("classname", "junit.textui.TestRunner"); // NOI18N
+            props.setProperty("args", classname); // NOI18N
         } else {
-            props.setProperty("classname", classname);
-            props.setProperty("args", "");
+            props.setProperty("classname", classname); // NOI18N
+            props.setProperty("args", ""); // NOI18N
         }
-        props.setProperty("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL));
+        props.setProperty("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL)); // NOI18N
     }
 
     private static boolean isTest(final FileObject fo, final ClassPath sourcepath) {
@@ -121,16 +106,20 @@ public class AutomaticProjectTypeProfiler extends AbstractProjectTypeProfiler {
                     assert name != null : fo;
                     TypeElement runType = cc.getElements().getTypeElement(name);
                     assert runType != null : name;
-                    TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
+                    TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase"); // NOI18N
                     if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
                         isActuallyTest.set(true);
                     }
                 }
             }, true).get();
         } catch (Exception x) {
-            Logger.getLogger(AutomaticProjectTypeProfiler.class.getName()).log(Level.INFO, null, x);
+            Logger.getLogger(AutomaticProjectProfilingSupportProvider.class.getName()).log(Level.INFO, null, x);
         }
         return isActuallyTest.get();
     }
-
+    
+    public AutomaticProjectProfilingSupportProvider(Project project) {
+        super(project);
+    }
+    
 }
