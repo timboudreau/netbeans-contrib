@@ -280,9 +280,14 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                             URL u = entry.getURL();
                             FileObject r2 = entry.getRoot();
                             pw.println("      " + (r2 != null ? FileUtil.getFileDisplayName(r2) : u.toString()));
-                            FileObject[] source = SourceForBinaryQuery.findSourceRoots(u).getRoots();
+                            SourceForBinaryQuery.Result2 sfbq = SourceForBinaryQuery.findSourceRoots2(u);
+                            FileObject[] source = sfbq.getRoots();
                             if (source.length > 0) {
-                                pw.print("        sources:");
+                                if (sfbq.preferSources()) {
+                                    pw.print("        sources (authoritative):");
+                                } else {
+                                    pw.print("        sources (informational):");
+                                }
                                 for (FileObject r3 : source) {
                                     pw.print(" " + FileUtil.getFileDisplayName(r3));
                                 }
