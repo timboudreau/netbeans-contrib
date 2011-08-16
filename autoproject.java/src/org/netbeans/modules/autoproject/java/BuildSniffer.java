@@ -40,7 +40,6 @@
 package org.netbeans.modules.autoproject.java;
 
 import java.io.BufferedReader;
-import org.netbeans.modules.autoproject.spi.Cache;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -64,6 +63,7 @@ import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.spi.AutomaticProjectMarker;
+import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.project.support.JavadocAndSourceRootDetection;
 import org.netbeans.spi.project.support.ant.PathMatcher;
 import org.openide.filesystems.FileObject;
