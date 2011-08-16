@@ -169,7 +169,6 @@ public class BuildSnifferTest extends NbTestCase {
 
     public void testComplexClasspath() throws Exception {
         File lib = new File(getWorkDir(), "lib");
-        lib.mkdir();
         for (String jar : new String[] {"b", "ax", "ay", "aw", "c", "r1", "r2"}) {
             TestFileUtils.writeZipFile(new File(lib, jar + ".jar"), "META-INF/MANIFEST.MF:Manifest-Version: 1.0\n\n");
         }
