@@ -60,6 +60,7 @@ import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.modules.autoproject.java.JavaCacheConstants;
 import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.spi.project.ActionProvider;
@@ -243,6 +244,8 @@ public class ActionProviderImpl implements ActionProvider {
         if (sourcepath == null) {
             return null;
         }
+        FileObject root = sourcepath.findOwnerRoot(fo);
+        assert root != null : fo;
         Map<String, Object> properties = new HashMap<String, Object>();
         FileObject toRun = fo;
         boolean test;
@@ -255,8 +258,6 @@ public class ActionProviderImpl implements ActionProvider {
         } else if (command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
             test = true;
             // Check for a matching unit test.
-            FileObject root = sourcepath.findOwnerRoot(fo);
-            assert root != null : fo;
             String testResource = sourcepath.getResourceName(fo, '/', false) + "Test.java";
             for (URL u : UnitTestForSourceQuery.findUnitTests(root)) {
                 try {
@@ -272,6 +273,19 @@ public class ActionProviderImpl implements ActionProvider {
         } else {
             assert command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) : command;
             test = false;
+        }
+        List<String> vmargs = new ArrayList<String>();
+        String vmargPrefix = FileUtil.toFile(root).getAbsolutePath() + JavaCacheConstants.VMARGS;
+        for (int i = 0; ; i++) {
+            String vmarg = Cache.get(vmargPrefix + i);
+            if (vmarg == null) {
+                break;
+            } else {
+                vmargs.add(vmarg);
+            }
+        }
+        if (!vmargs.isEmpty()) {
+            properties.put(JavaRunner.PROP_RUN_JVMARGS, vmargs);
         }
         properties.put(JavaRunner.PROP_EXECUTE_FILE, toRun);
         boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) ||

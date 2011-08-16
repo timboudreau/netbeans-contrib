@@ -102,7 +102,7 @@ public class BuildSniffer extends AntLogger {
         return AntLogger.ALL_TARGETS;
     }
 
-    private final String[] INTERESTING_TASKS = {"javac", "ivy:compile", "fileset", "jar"};
+    private final String[] INTERESTING_TASKS = {"javac", "ivy:compile", "fileset", "jar", "junit"};
     @Override
     public String[] interestedInTasks(AntSession session) {
         return INTERESTING_TASKS;
@@ -147,8 +147,17 @@ public class BuildSniffer extends AntLogger {
 
     }
 
-    public @Override void buildFinished(AntEvent event) {
+    private State state(AntEvent event, boolean create) {
         State state = (State) event.getSession().getCustomData(this);
+        if (state == null && create) {
+            state = new State();
+            event.getSession().putCustomData(this, state);
+        }
+        return state;
+    }
+
+    @Override public void buildFinished(AntEvent event) {
+        State state = state(event, false);
         if (state == null) {
             return;
         }
@@ -157,20 +166,23 @@ public class BuildSniffer extends AntLogger {
         }
     }
 
-    @Override
-    public void taskFinished(AntEvent event) {
-        State state = (State) event.getSession().getCustomData(this);
-        if (state == null) {
-            state = new State();
-            event.getSession().putCustomData(this, state);
+    @Override public void taskStarted(AntEvent event) {
+        String taskName = event.getTaskName();
+        if (taskName.equals("junit")) {
+            handleJUnit(event, state(event, true));
         }
+    }
+
+    @Override public void taskFinished(AntEvent event) {
         String taskName = event.getTaskName();
         if (taskName.equals("fileset")) {
-            handleFileset(event, state);
+            handleFileset(event, state(event, true));
         } else if (taskName.matches("javac|ivy:compile")) {
-            handleJavac(event, state);
+            handleJavac(event, state(event, true));
         } else if (taskName.equals("jar")) {
-            handleJar(event, state);
+            handleJar(event, state(event, true));
+        } else if (taskName.equals("junit")) {
+            // do nothing here; typical to abort build in middle of test run
         } else {
             assert false : event;
         }
@@ -465,6 +477,35 @@ public class BuildSniffer extends AntLogger {
             }
         }
         writePath(key, basedirs, state, true, File.pathSeparatorChar);
+    }
+
+    private void handleJUnit(AntEvent event, State state) {
+        List<String> jvmargs = new ArrayList<String>();
+        List<String> testSourceRoots = new ArrayList<String>();
+        for (TaskStructure child : event.getTaskStructure().getChildren()) {
+            String n = child.getName();
+            if (n.equals("sysproperty")) {
+                for (String v : parseCLI(child, event)) {
+                    jvmargs.add("-D" + child.getAttribute("key") + "=" + v);
+                }
+            } else if (n.equals("jvmarg")) {
+                jvmargs.addAll(parseCLI(child, event));
+            } else if (n.equals("batchtest")) {
+                for (TaskStructure fs : child.getChildren()) {
+                    if (fs.getName().equals("fileset")) {
+                        String dir = fs.getAttribute("dir");
+                        if (dir != null) {
+                            testSourceRoots.add(resolve(event, event.evaluate(dir)).getAbsolutePath());
+                        } // XXX interpret also state.filesetBasedirs
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < jvmargs.size(); i++) {
+            for (String testSourceRoot : testSourceRoots) {
+                state.toWrite.put(testSourceRoot + JavaCacheConstants.VMARGS + i, jvmargs.get(i));
+            }
+        }
     }
 
     private static void writePath(String key, List<String> path, State state, boolean union, char separator) {

@@ -56,5 +56,10 @@ public class JavaCacheConstants {
      * Original location of classes packed into a JAR. Key is JAR, value is dir or path of dirs.
      */
     public static final String JAR = "#jar";
+    /**
+     * VM args, such as those passed to JUnit.
+     * Key is (typically test) source directory plus {@code 0}, {@code 1}, etc.; value is a VM argument (possibly {@code -Dk=v}).
+     */
+    public static final String VMARGS = "#vmargs.";
 
 }

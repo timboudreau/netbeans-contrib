@@ -489,6 +489,30 @@ public class BuildSnifferTest extends NbTestCase {
         // XXX how to test -processor? need to actually write one for the build to succeed
     }
 
+    public void testJUnitVMArgs() throws Exception { // #153234
+        write("build.xml",
+                "<project default='t'>\n" +
+                " <target name='t'>\n" +
+                "  <property name='a' value='-showversion'/>\n" +
+                "  <property name='v' value='v'/>\n" +
+                "  <mkdir dir='s'/>\n" +
+                "  <junit>\n" +
+                "   <sysproperty key='k' value='${v}'/>" +
+                "   <jvmarg value='${a}'/>" +
+                "   <sysproperty key='f' file='s'/>" +
+                "   <batchtest todir='.'>" +
+                "    <fileset dir='s'/>" +
+                "   </batchtest>" +
+                "  </junit>\n" +
+                " </target>\n" +
+                "</project>\n");
+        runAnt();
+        assertEquals("-Dk=v", Cache.get(prefix + "s" + JavaCacheConstants.VMARGS + "0"));
+        assertEquals("-showversion", Cache.get(prefix + "s" + JavaCacheConstants.VMARGS + "1"));
+        assertEquals("-Df=" + prefix + "s", Cache.get(prefix + "s" + JavaCacheConstants.VMARGS + "2"));
+        assertEquals(null, Cache.get(prefix + "s" + JavaCacheConstants.VMARGS + "3"));
+    }
+
     private void write(String file, String body) throws IOException {
         TestFileUtils.writeFile(new File(getWorkDir(), file), body);
     }
