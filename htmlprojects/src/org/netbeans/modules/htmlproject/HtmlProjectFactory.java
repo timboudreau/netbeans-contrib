@@ -115,5 +115,5 @@ public final class HtmlProjectFactory implements ProjectFactory {
     static void putHtmlMainFile(FileObject projdir, String name) throws IOException {
         projdir.setAttribute(KEY_MAIN_FILE, name);
     }
-
+    
 }
