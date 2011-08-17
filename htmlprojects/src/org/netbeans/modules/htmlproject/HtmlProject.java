@@ -39,6 +39,9 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +60,7 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.netbeans.spi.queries.FileEncodingQueryImplementation;
 import org.openide.ErrorManager;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.awt.StatusDisplayer;
@@ -103,8 +107,24 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
 
     private Lookup createLookup() {
         return Lookups.fixed(new Object[] {
-            this,
+            this, encodingQuery
         });
+    }
+    
+    private final FileEncodingQueryImplementation encodingQuery = new FEnc();
+    private final class FEnc extends FileEncodingQueryImplementation {
+        @Override
+        public Charset getEncoding(FileObject file) {
+            String encoding = (String) dir.getAttribute("encoding");
+            encoding = encoding == null ? "UTF-8" : encoding;
+            try {
+                return Charset.forName(encoding);
+            } catch (IllegalCharsetNameException e) {
+                return Charset.forName("UTF-8");
+            } catch (UnsupportedCharsetException e) {
+                return Charset.forName("UTF-8");
+            }
+        }
     }
 
     private static final String PROP_NAME = "name"; //NOI18N
