@@ -59,19 +59,27 @@ import org.apache.tools.ant.module.api.AntTargetExecutor;
 import org.apache.tools.ant.module.api.support.AntScriptUtils;
 import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.Project;
+import static org.netbeans.modules.autoproject.java.actions.Bundle.*;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
+import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor;
 import org.openide.util.actions.Presenter;
 
 /**
  * Tries to add actions from an Ant script.
  */
+@ActionID(id = "org.netbeans.modules.autoproject.java.actions.AntActions", category = "Tools")
+@ActionRegistration(displayName = "#AntActions.label")
+@ActionReference(path = "Projects/org-netbeans-modules-autoproject/Actions", position = 1000)
+@Messages("AntActions.label=Documented Ant Targets")
 public class AntActions extends AbstractAction implements ContextAwareAction {
 
     /** public for layer */
@@ -110,7 +118,7 @@ public class AntActions extends AbstractAction implements ContextAwareAction {
             Menu() {
                 FileObject buildXml = p.getProjectDirectory().getFileObject("build.xml");
                 apc = buildXml != null ? AntScriptUtils.antProjectCookieFor(buildXml) : null;
-                Mnemonics.setLocalizedText(this, NbBundle.getMessage(AntActions.class, "AntActions.label"));
+                Mnemonics.setLocalizedText(this, AntActions_label());
             }
 
             public JComponent[] getMenuPresenters() {
