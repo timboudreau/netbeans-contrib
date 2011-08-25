@@ -45,7 +45,6 @@ import java.util.List;
 import org.netbeans.modules.php.api.phpmodule.BadgeIcon;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
-import org.netbeans.modules.php.spi.commands.FrameworkCommandSupport;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
 import org.netbeans.modules.php.spi.phpmodule.PhpFrameworkProvider;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleActionsExtender;
