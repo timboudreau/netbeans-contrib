@@ -79,7 +79,7 @@ public class YiiPhpModuleExtender extends PhpModuleExtender{
                     .log(Level.INFO, "Framework Yii not found in newly created project {0}", phpModule.getDisplayName());
             throw new ExtendingException(NbBundle.getMessage(YiiPhpModuleExtender.class, "MSG_NotExtended"));
         }
-
+        
         // prefetch commands
         YiiPhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).refreshFrameworkCommandsLater(null);
 

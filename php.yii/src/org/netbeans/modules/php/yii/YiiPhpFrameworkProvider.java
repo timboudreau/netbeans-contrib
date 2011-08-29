@@ -39,6 +39,7 @@
 package org.netbeans.modules.php.yii;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +52,7 @@ import org.netbeans.modules.php.spi.phpmodule.PhpModuleActionsExtender;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleExtender;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleIgnoredFilesExtender;
 import org.netbeans.modules.php.yii.commands.YiiCommandSupport;
+import org.netbeans.modules.php.yii.ui.options.YiiOptions;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ImageUtilities;
@@ -65,12 +67,12 @@ public class YiiPhpFrameworkProvider extends PhpFrameworkProvider {
     private static final String ICON_PATH = "org/netbeans/modules/php/yii/ui/resources/yii_badge_8.png"; // NOI18N
     private static final YiiPhpFrameworkProvider INSTANCE = new YiiPhpFrameworkProvider();
     private final BadgeIcon badgeIcon;
-    
-    @PhpFrameworkProvider.Registration(position=400)
+
+    @PhpFrameworkProvider.Registration(position = 400)
     public static YiiPhpFrameworkProvider getInstance() {
         return INSTANCE;
-    }    
-    
+    }
+
     private YiiPhpFrameworkProvider() {
         super("PHP Yii Framework", //NOI18N
                 NbBundle.getMessage(YiiPhpFrameworkProvider.class, "LBL_FrameworkName"),
@@ -79,12 +81,12 @@ public class YiiPhpFrameworkProvider extends PhpFrameworkProvider {
                 ImageUtilities.loadImage(ICON_PATH),
                 YiiPhpFrameworkProvider.class.getResource("/" + ICON_PATH)); // NOI18N              
     }
-    
+
     @Override
     public BadgeIcon getBadgeIcon() {
         return badgeIcon;
     }
-    
+
     @Override
     public boolean isInPhpModule(PhpModule phpModule) {
         FileObject yiiProject = phpModule.getSourceDirectory().getFileObject("protected/yiic.php");
@@ -123,7 +125,15 @@ public class YiiPhpFrameworkProvider extends PhpFrameworkProvider {
         if (tests != null) {
             properties = properties.setTests(tests);
         }
-        return properties;
+
+        FileObject index = sourceDirectory.getFileObject("index.php"); // NOI18N
+        if (index != null) {
+            properties = properties.setIndexFile(index);
+        }            
+        
+        ArrayList<String> includes = new ArrayList<String>();
+        includes.add(YiiOptions.getInstance().getFrameworkPath());
+        return properties.setIncludePath(includes);
     }
 
     @Override
@@ -148,5 +158,4 @@ public class YiiPhpFrameworkProvider extends PhpFrameworkProvider {
         return null;
         //throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

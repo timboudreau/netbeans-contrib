@@ -38,6 +38,7 @@
 package org.netbeans.modules.php.yii;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
@@ -52,6 +53,8 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.modules.InstalledFileLocator;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -60,12 +63,31 @@ import org.openide.util.NbBundle;
  */
 public class YiiScript extends PhpProgram {
 
-    public static final String SCRIPT_NAME = "yicc"; // NOI18N
+    public static final String SCRIPT_NAME = "yiic"; // NOI18N
     public static final String SCRIPT_NAME_LONG = SCRIPT_NAME + FileUtils.getScriptExtension(true);
     public static final String OPTIONS_SUB_PATH = "Yii"; // NOI18N
-    public static final String CMD_INIT_PROJECT = "webapp";
+    public static final String CMD_INIT_PROJECT = "nbwebapp";
     public static final String[] CMD_INIT_PROJECT_ARGS = new String[]{"."}; // NOI18N
     public static final String[] CMD_INIT_PROJECT_ARGS_TITLE = new String[]{"project"}; // NOI18N
+    private static final String NB_WEBAPP_COMMAND = "NbWebAppCommand";
+    private static final String NB_WEBAPP_COMMAND_FILE = NB_WEBAPP_COMMAND + ".php";
+    private static final String COMMANDS_PROVIDER_REL_PATH = "yii/" + NB_WEBAPP_COMMAND_FILE ; // NOI18N
+    private static final File COMMANDS_PROVIDER;
+    
+    
+    static {
+        File commandsProvider = null;
+        try {
+            commandsProvider = FileUtil.normalizeFile(
+                    InstalledFileLocator.getDefault().locate(COMMANDS_PROVIDER_REL_PATH, "org.netbeans.modules.php.yii", false).getCanonicalFile()); // NOI18N
+            if (commandsProvider == null || !commandsProvider.isFile()) {
+                throw new IllegalStateException("Could not locate file " + COMMANDS_PROVIDER_REL_PATH);
+            }
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not locate file " + COMMANDS_PROVIDER_REL_PATH, ex);
+        }
+        COMMANDS_PROVIDER = commandsProvider;
+    }    
 
     private YiiScript(String command) {
         super(command);
@@ -112,7 +134,8 @@ public class YiiScript extends PhpProgram {
             return result;
         }
     }
-
+    
+    
     private String extendYiiToSupportNetBeans(String frameworkPath) {
 
         if (YiiOptions.getInstance().getYiiExtended()) {
@@ -124,14 +147,20 @@ public class YiiScript extends PhpProgram {
                 return NbBundle.getMessage(YiiScript.class, "MSG_NoClientCommandsPath");
             } else if (cmdPath != null && !cmdPath.canWrite()) {
                 return NbBundle.getMessage(YiiScript.class, "MSG_CommandsNotWritable", cmdPath.getPath());
-            } else if (cmdPath.getFileObject("nbsupport.php") != null) {
+            } else if (cmdPath.getFileObject(NB_WEBAPP_COMMAND_FILE) != null) {
                 YiiOptions.getInstance().setYiiExtended(true);
                 return null;
             } else {
-                NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(YiiScript.class, "MSG_YiiExtendWithNB"));
-                DialogDisplayer.getDefault().notify(nd);
-                YiiOptions.getInstance().setYiiExtended(true);
-                return null;
+                try {
+                    NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(YiiScript.class, "MSG_YiiExtendWithNB"));
+                    DialogDisplayer.getDefault().notify(nd);
+                    YiiOptions.getInstance().setYiiExtended(true);                    
+                    FileUtil.copyFile(FileUtil.toFileObject(COMMANDS_PROVIDER),cmdPath,NB_WEBAPP_COMMAND);
+                    return null;
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                    return ex.getMessage();
+                }
             }
         }
     }

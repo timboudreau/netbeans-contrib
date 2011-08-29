@@ -37,6 +37,7 @@
  */
 package org.netbeans.modules.php.yii.ui.options;
 
+import java.io.File;
 import java.util.List;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -44,6 +45,7 @@ import java.util.prefs.Preferences;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.yii.YiiScript;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbPreferences;
 
@@ -54,20 +56,18 @@ import org.openide.util.NbPreferences;
 public final class YiiOptions {
     // Do not change arbitrary - consult with layer's folder OptionsExport
     // Path to Preferences node for storing these preferences
+
     private static final String PREFERENCES_PATH = "yii"; // NOI18N
-
     private static final YiiOptions INSTANCE = new YiiOptions();
-
     // zend script
     private static final String Yii = "Yii"; // NOI18N
-
     final ChangeSupport changeSupport = new ChangeSupport(this);
-
     private volatile boolean yiiSearched = false;
     private volatile boolean yiiExtended = false;
 
     private YiiOptions() {
         getPreferences().addPreferenceChangeListener(new PreferenceChangeListener() {
+
             @Override
             public void preferenceChange(PreferenceChangeEvent evt) {
                 changeSupport.fireChange();
@@ -86,13 +86,19 @@ public final class YiiOptions {
     public void removeChangeListener(ChangeListener listener) {
         changeSupport.removeChangeListener(listener);
     }
-    
+
     public boolean getYiiExtended() {
         return yiiExtended;
     }
-    
+
     public void setYiiExtended(boolean value) {
         yiiExtended = value;
+    }
+
+    public synchronized String getFrameworkPath() {
+        String yiiPath = FileUtil.normalizePath(getYii());
+        File f = new File(yiiPath);
+        return f.getParent();
     }
 
     public synchronized String getYii() {
@@ -112,9 +118,7 @@ public final class YiiOptions {
         getPreferences().put(Yii, yii);
     }
 
-
     private Preferences getPreferences() {
         return NbPreferences.forModule(YiiOptions.class).node(PREFERENCES_PATH);
     }
-    
 }
