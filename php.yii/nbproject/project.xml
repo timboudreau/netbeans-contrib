@@ -103,11 +103,11 @@
             </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/antlr-3.3-complete.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/antlr-3.3-complete.jar</binary-origin>
+                <binary-origin>external/antlr-3.3-complete.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/ST-4.0.4.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/ST-4.0.4.jar</binary-origin>
+                <binary-origin>external/ST-4.0.4.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
