@@ -56,6 +56,10 @@ public abstract class YiiExtensionProvider {
     
     public abstract void configureExtension(YiiProjectConfiguration config);
     
+    public String getName() {
+        return name;
+    }
+    
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE, ElementType.METHOD})
     public @interface Registration {

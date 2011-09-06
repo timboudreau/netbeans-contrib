@@ -37,7 +37,6 @@
  */
 package org.netbeans.modules.php.yii.extensions.gii;
 
-import java.util.List;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
 
