@@ -41,7 +41,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -55,7 +56,10 @@ public abstract class YiiExtensionProvider {
     }
     
     public abstract void configureExtension(YiiProjectConfiguration config);
-    
+    public abstract void addChangeListener(ChangeListener listener);
+    public abstract void removeChangeListener(ChangeListener listener);
+    public abstract JPanel getConfigPanel();
+        
     public String getName() {
         return name;
     }

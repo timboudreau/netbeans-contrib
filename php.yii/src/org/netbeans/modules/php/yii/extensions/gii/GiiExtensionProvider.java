@@ -37,6 +37,8 @@
  */
 package org.netbeans.modules.php.yii.extensions.gii;
 
+import javax.swing.JPanel;
+import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
 
@@ -46,12 +48,30 @@ import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
  */
 public class GiiExtensionProvider extends YiiExtensionProvider {
 
+    private GiiExtensionConfigPanel panel;
+    
     public GiiExtensionProvider() {
         super("Gii Module");
+        panel = new GiiExtensionConfigPanel();
     }
 
     @Override
     public void configureExtension(YiiProjectConfiguration config) {
+    }
+
+    @Override
+    public void addChangeListener(ChangeListener listener) {
+        panel.addChangeListener(listener);
+    }
+
+    @Override
+    public void removeChangeListener(ChangeListener listener) {
+        panel.removeChangeListener(listener);
+    }
+
+    @Override
+    public JPanel getConfigPanel() {
+        return panel;
     }
 
 }

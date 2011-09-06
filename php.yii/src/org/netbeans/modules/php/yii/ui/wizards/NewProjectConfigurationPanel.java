@@ -37,20 +37,20 @@
  */
 package org.netbeans.modules.php.yii.ui.wizards;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.netbeans.modules.php.yii.YiiExtensions;
 import org.netbeans.modules.php.yii.YiiProjectConfigurationImpl;
@@ -64,11 +64,12 @@ import org.openide.util.ChangeSupport;
  *
  * @author Gevik Babakhani <gevik@netbeans.org>
  */
-public class NewProjectConfigurationPanel extends JPanel implements ChangeListener {
+public class NewProjectConfigurationPanel extends JPanel implements ChangeListener, TableModelListener {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private YiiProjectConfiguration projectConfig;
     private ExtensionTableModel model;
+    private YiiExtensionProvider currentExtension;
 
     /** Creates new form NewProjectConfigurationPanel */
     public NewProjectConfigurationPanel() {
@@ -77,23 +78,14 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         optionsLabel.setMaximumSize(optionsLabel.getPreferredSize());
 
         model = new ExtensionTableModel();
-        extensionsTable.setModel(model);        
-                
+        extensionsTable.setModel(model);
+
         createExtensionsList();
         initTableVisualProperties();
-
-        generateProjectLabel.addPropertyChangeListener("enabled", new PropertyChangeListener() { // NOI18N
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                enableOptionsLabel();
-            }
-        });
-        enableOptionsLabel();
     }
-    
+
     private void initTableVisualProperties() {
-        //extensionsTable.getModel().addTableModelListener(this);
+        extensionsTable.getModel().addTableModelListener(this);
         //extensionsTable.getSelectionModel().addListSelectionListener(this);
 
         extensionsTable.setRowHeight(extensionsTable.getRowHeight() + 4);
@@ -101,7 +93,50 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         // set the color of the table's JViewport
         extensionsTable.getParent().setBackground(extensionsTable.getBackground());
         extensionsTable.getColumnModel().getColumn(0).setMaxWidth(30);
-    }    
+    }
+
+    private void activateExtension() {
+        if (currentExtension != null) {
+            currentExtension.removeChangeListener(this);
+        }
+
+        if (extensionsTable.getSelectedRow() == -1) {
+            configPanelHolder.removeAll();
+            configPanelHolder.repaint();
+            configPanelHolder.revalidate();
+        } else {
+            ExtensionModelItem item = model.getItem(extensionsTable.getSelectedRow());
+
+            configPanelHolder.removeAll();
+            currentExtension = item.getProvider();
+            currentExtension.addChangeListener(this);
+            JPanel component = currentExtension.getConfigPanel();
+            if (component != null) {
+                configPanelHolder.add(component, BorderLayout.CENTER);
+                enableComponents(component, item.isSelected());
+            }
+            configPanelHolder.revalidate();
+            configPanelHolder.repaint();
+
+        }
+
+        fireChange();
+    }
+
+    private void fireChange() {
+        changeSupport.fireChange();
+    }
+
+    private void enableComponents(Container root, boolean enabled) {
+        root.setEnabled(enabled);
+        for (Component child : root.getComponents()) {
+            if (child instanceof Container) {
+                enableComponents((Container) child, enabled);
+            } else {
+                child.setEnabled(enabled);
+            }
+        }
+    }
 
     public YiiProjectConfiguration getProjectConfiguration() {
         return projectConfig;
@@ -134,15 +169,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
     public String getWarningMessage() {
         return null;
     }
-
-    void fireChange() {
-        changeSupport.fireChange();
-    }
-
-    void enableOptionsLabel() {
-        optionsLabel.setVisible(generateProjectLabel.isEnabled());
-    }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -153,13 +180,10 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        generateProjectLabel = new javax.swing.JLabel();
         optionsLabel = new javax.swing.JLabel();
         extensionsScrollPanel = new javax.swing.JScrollPane();
         extensionsTable = new javax.swing.JTable();
-
-        generateProjectLabel.setBackground(new java.awt.Color(255, 0, 51));
-        generateProjectLabel.setText("DUMMY"); // NOI18N
+        configPanelHolder = new javax.swing.JPanel();
 
         optionsLabel.setText(org.openide.util.NbBundle.getMessage(NewProjectConfigurationPanel.class, "NewProjectConfigurationPanel.optionsLabel.text")); // NOI18N
         optionsLabel.setToolTipText(org.openide.util.NbBundle.getMessage(NewProjectConfigurationPanel.class, "NewProjectConfigurationPanel.optionsLabel.toolTipText")); // NOI18N
@@ -176,19 +200,18 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(generateProjectLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 361, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(424, Short.MAX_VALUE)
                 .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(generateProjectLabel)
-                    .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        extensionsScrollPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         extensionsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -204,19 +227,27 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         extensionsTable.setTableHeader(null);
         extensionsScrollPanel.setViewportView(extensionsTable);
 
+        configPanelHolder.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        configPanelHolder.setLayout(new java.awt.BorderLayout());
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                    .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -228,9 +259,9 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         evt.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 }//GEN-LAST:event_optionsLabelMouseEntered
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel configPanelHolder;
     private javax.swing.JScrollPane extensionsScrollPanel;
     private javax.swing.JTable extensionsTable;
-    private javax.swing.JLabel generateProjectLabel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel optionsLabel;
     // End of variables declaration//GEN-END:variables
@@ -244,6 +275,11 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
         for (YiiExtensionProvider item : YiiExtensions.getExtensions()) {
             model.addItem(new ExtensionModelItem(item));
         }
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        activateExtension();
     }
 
     private static final class ExtensionTableModel extends AbstractTableModel {
