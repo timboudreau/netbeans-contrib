@@ -49,21 +49,35 @@ package org.netbeans.modules.php.yii.extensions.gii;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.netbeans.modules.php.yii.extensions.api.YiiExtensionUtils;
 import org.openide.util.ChangeSupport;
 
 /**
  *
  * @author gevik
  */
-public class GiiExtensionConfigPanel extends javax.swing.JPanel implements ChangeListener{
+public class GiiExtensionConfigPanel extends javax.swing.JPanel {
 
     private final ChangeSupport changeSupport = new ChangeSupport(this);    
     
     /** Creates new form GiiExtensionConfigPanel */
     public GiiExtensionConfigPanel() {
         initComponents();
+        DocumentListener defaultDocumentListener = new DefaultDocumentListener();
+        passwordField.setText(YiiExtensionUtils.RandomPassword.getRandomString(6));
+        passwordField.getDocument().addDocumentListener(defaultDocumentListener);
     }
     
+    public String getErrorMessage() {
+        return passwordField.getText();
+    }
+    
+    void fireChange() {
+        changeSupport.fireChange();
+    }
+        
     public void addChangeListener(ChangeListener listener) {
         changeSupport.addChangeListener(listener);
     }
@@ -72,7 +86,6 @@ public class GiiExtensionConfigPanel extends javax.swing.JPanel implements Chang
         changeSupport.removeChangeListener(listener);
     }
     
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -83,37 +96,66 @@ public class GiiExtensionConfigPanel extends javax.swing.JPanel implements Chang
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        passwordField = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        ipAddressField = new javax.swing.JTextField();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(GiiExtensionConfigPanel.class, "GiiExtensionConfigPanel.jLabel1.text")); // NOI18N
 
-        jPasswordField1.setText(org.openide.util.NbBundle.getMessage(GiiExtensionConfigPanel.class, "GiiExtensionConfigPanel.jPasswordField1.text")); // NOI18N
+        passwordField.setText(org.openide.util.NbBundle.getMessage(GiiExtensionConfigPanel.class, "GiiExtensionConfigPanel.passwordField.text")); // NOI18N
+
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(GiiExtensionConfigPanel.class, "GiiExtensionConfigPanel.jLabel2.text")); // NOI18N
+
+        ipAddressField.setText(org.openide.util.NbBundle.getMessage(GiiExtensionConfigPanel.class, "GiiExtensionConfigPanel.ipAddressField.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPasswordField1, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ipAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(280, Short.MAX_VALUE))
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(ipAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(249, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField ipAddressField;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPasswordField jPasswordField1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextField passwordField;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    private final class DefaultDocumentListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            processUpdate();
+        }
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            processUpdate();
+        }
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            processUpdate();
+        }
+        private void processUpdate() {
+            fireChange();
+        }
+    }    
 }

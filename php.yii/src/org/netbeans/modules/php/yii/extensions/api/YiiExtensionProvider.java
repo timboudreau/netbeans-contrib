@@ -43,6 +43,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
+import org.openide.util.ChangeSupport;
 
 /**
  *
@@ -50,16 +51,28 @@ import javax.swing.event.ChangeListener;
  */
 public abstract class YiiExtensionProvider {
     private final String name;
+    private final ChangeSupport changeSupport = new ChangeSupport(this);    
 
     public YiiExtensionProvider(String name) {
         this.name = name;
     }
     
     public abstract void configureExtension(YiiProjectConfiguration config);
-    public abstract void addChangeListener(ChangeListener listener);
-    public abstract void removeChangeListener(ChangeListener listener);
     public abstract JPanel getConfigPanel();
+    public abstract String getErrorMessage();
+    
+    protected void fireChange() {
+        changeSupport.fireChange();
+    }
         
+    public void addChangeListener(ChangeListener listener) {
+        changeSupport.addChangeListener(listener);
+    }
+
+    public void removeChangeListener(ChangeListener listener) {
+        changeSupport.removeChangeListener(listener);
+    }
+            
     public String getName() {
         return name;
     }

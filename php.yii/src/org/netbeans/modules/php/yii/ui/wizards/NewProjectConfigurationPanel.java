@@ -111,6 +111,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
             currentExtension = item.getProvider();
             currentExtension.addChangeListener(this);
             JPanel component = currentExtension.getConfigPanel();
+            component.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
             if (component != null) {
                 configPanelHolder.add(component, BorderLayout.CENTER);
                 enableComponents(component, item.isSelected());
@@ -169,7 +170,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
     public String getWarningMessage() {
         return null;
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -268,7 +269,12 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        fireChange();
+        if (e.getSource() instanceof YiiExtensionProvider) {
+            YiiExtensionProvider provider = (YiiExtensionProvider) e.getSource();
+            String errorMessage = provider.getErrorMessage();
+        } else {
+            fireChange();
+        }
     }
 
     private void createExtensionsList() {
