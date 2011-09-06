@@ -41,6 +41,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  *
@@ -52,6 +53,8 @@ public abstract class YiiExtensionProvider {
     public YiiExtensionProvider(String name) {
         this.name = name;
     }
+    
+    public abstract void configureExtension(YiiProjectConfiguration config);
     
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE, ElementType.METHOD})

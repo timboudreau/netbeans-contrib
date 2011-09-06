@@ -70,24 +70,43 @@ public class YiiScript extends PhpProgram {
     public static final String[] CMD_INIT_PROJECT_ARGS = new String[]{"."}; // NOI18N
     public static final String[] CMD_INIT_PROJECT_ARGS_TITLE = new String[]{"project"}; // NOI18N
     private static final String NB_WEBAPP_COMMAND = "NbWebAppCommand";
+    private static final String NB_UTIL_COMMAND = "NbUtilCommand";
     private static final String NB_WEBAPP_COMMAND_FILE = NB_WEBAPP_COMMAND + ".php";
-    private static final String COMMANDS_PROVIDER_REL_PATH = "yii/" + NB_WEBAPP_COMMAND_FILE ; // NOI18N
-    private static final File COMMANDS_PROVIDER;
+    private static final String NB_UTIL_COMMAND_FILE = NB_UTIL_COMMAND + ".php";
+    private static final String WEBAPP_PROVIDER_REL_PATH = "yii/" + NB_WEBAPP_COMMAND_FILE ; // NOI18N
+    private static final String UTIL_PROVIDER_REL_PATH = "yii/" + NB_UTIL_COMMAND_FILE ; // NOI18N
+    private static final File WEBAPP_PROVIDER;
+    private static final File UTIL_PROVIDER;
     
     
     static {
         File commandsProvider = null;
         try {
             commandsProvider = FileUtil.normalizeFile(
-                    InstalledFileLocator.getDefault().locate(COMMANDS_PROVIDER_REL_PATH, "org.netbeans.modules.php.yii", false).getCanonicalFile()); // NOI18N
+                    InstalledFileLocator.getDefault().locate(WEBAPP_PROVIDER_REL_PATH, "org.netbeans.modules.php.yii", false).getCanonicalFile()); // NOI18N
             if (commandsProvider == null || !commandsProvider.isFile()) {
-                throw new IllegalStateException("Could not locate file " + COMMANDS_PROVIDER_REL_PATH);
+                throw new IllegalStateException("Could not locate file " + WEBAPP_PROVIDER_REL_PATH);
             }
         } catch (IOException ex) {
-            throw new IllegalStateException("Could not locate file " + COMMANDS_PROVIDER_REL_PATH, ex);
+            throw new IllegalStateException("Could not locate file " + WEBAPP_PROVIDER_REL_PATH, ex);
         }
-        COMMANDS_PROVIDER = commandsProvider;
+        WEBAPP_PROVIDER = commandsProvider;
     }    
+    
+    static {
+        File commandsProvider = null;
+        try {
+            commandsProvider = FileUtil.normalizeFile(
+                    InstalledFileLocator.getDefault().locate(UTIL_PROVIDER_REL_PATH, "org.netbeans.modules.php.yii", false).getCanonicalFile()); // NOI18N
+            if (commandsProvider == null || !commandsProvider.isFile()) {
+                throw new IllegalStateException("Could not locate file " + UTIL_PROVIDER_REL_PATH);
+            }
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not locate file " + UTIL_PROVIDER_REL_PATH, ex);
+        }
+        UTIL_PROVIDER = commandsProvider;
+    }    
+    
 
     private YiiScript(String command) {
         super(command);
@@ -155,7 +174,8 @@ public class YiiScript extends PhpProgram {
                     NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(YiiScript.class, "MSG_YiiExtendWithNB"));
                     DialogDisplayer.getDefault().notify(nd);
                     YiiOptions.getInstance().setYiiExtended(true);                    
-                    FileUtil.copyFile(FileUtil.toFileObject(COMMANDS_PROVIDER),cmdPath,NB_WEBAPP_COMMAND);
+                    FileUtil.copyFile(FileUtil.toFileObject(WEBAPP_PROVIDER),cmdPath,NB_WEBAPP_COMMAND);
+                    FileUtil.copyFile(FileUtil.toFileObject(UTIL_PROVIDER),cmdPath,NB_UTIL_COMMAND);
                     return null;
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);

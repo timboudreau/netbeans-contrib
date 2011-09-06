@@ -44,8 +44,9 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.options.OptionsDisplayer;
-import org.netbeans.modules.php.yii.YiiExtensions;
+import org.netbeans.modules.php.yii.YiiProjectConfigurationImpl;
 import org.netbeans.modules.php.yii.YiiScript;
+import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
 import org.netbeans.modules.php.yii.ui.options.YiiOptions;
 import org.openide.util.ChangeSupport;
 
@@ -57,10 +58,13 @@ import org.openide.util.ChangeSupport;
 public class NewProjectConfigurationPanel extends JPanel implements ChangeListener {
 
  private final ChangeSupport changeSupport = new ChangeSupport(this);
+ private YiiProjectConfiguration projectConfig;
+ 
 
     /** Creates new form NewProjectConfigurationPanel */
     public NewProjectConfigurationPanel() {
         initComponents();
+        projectConfig = new YiiProjectConfigurationImpl();
         optionsLabel.setMaximumSize(optionsLabel.getPreferredSize());
 
         generateProjectLabel.addPropertyChangeListener("enabled", new PropertyChangeListener() { // NOI18N
@@ -69,12 +73,11 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
                 enableOptionsLabel();
             }
         });
-        enableOptionsLabel();
-
-        Object obj = YiiExtensions.getExtensions();
-        obj = null;
-
-
+        enableOptionsLabel();       
+    }
+    
+    public YiiProjectConfiguration getProjectConfiguration() {
+        return projectConfig;
     }
 
     @Override
@@ -146,7 +149,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(generateProjectLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 326, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 347, Short.MAX_VALUE)
                 .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
@@ -155,7 +158,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(generateProjectLabel))
-                .addContainerGap(284, Short.MAX_VALUE))
+                .addContainerGap(257, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
