@@ -38,40 +38,58 @@
  */
 package org.netbeans.modules.selenium.server;
 
+import org.netbeans.modules.selenium.server.SeleniumServerNodeTest.IFL;
+import org.openide.util.test.MockLookup;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.netbeans.api.server.properties.InstanceProperties;
-import org.openide.nodes.Sheet;
-import org.openide.nodes.Sheet.Set;
-import org.openqa.selenium.server.RemoteControlConfiguration;
+import org.netbeans.modules.selenium.server.Installer;
+import org.netbeans.modules.selenium.server.SeleniumProperties;
+import org.netbeans.modules.selenium.server.SeleniumServerRunner;
 import static org.junit.Assert.*;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class SeleniumPropertiesTest {
+public class InstallerTest {
 
-    @Test
-    public void testCreateSheet() throws Exception {
-        Sheet sheet = SeleniumProperties.createSheet();
-        assertNotNull(sheet);
-        assertEquals(1, sheet.toArray().length);
-        Set set = sheet.get(Sheet.PROPERTIES);
-        assertNotNull(set);
-        assertNotNull(set.get(SeleniumProperties.START_ON_STARTUP));
-        assertNotNull(set.get(SeleniumProperties.PORT));
+    static Installer ins = null;
+    @BeforeClass
+    public static void beforeClass() {
+        ins = new Installer();
+        MockLookup.setInstances(new IFL());
+    }
+
+    @After
+    public void afterTest(){
+        ins.close();
     }
 
     @Test
-    public void testGetInstanceProperties() {
-        InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        assertEquals(RemoteControlConfiguration.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
-        assertEquals(true, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, false));
+    public void testInstaller() {
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertTrue(SeleniumServerRunner.isRunning());
 
-        ip.putBoolean(SeleniumProperties.START_ON_STARTUP, false);
-        ip = SeleniumProperties.getInstanceProperties();
-        assertEquals(RemoteControlConfiguration.DEFAULT_PORT, ip.getInt(SeleniumProperties.PORT, 0));
-        assertEquals(false, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, true));
+        ins.uninstalled();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
 
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertTrue(SeleniumServerRunner.isRunning());
+
+        ins.close();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
+    }
+
+    @Test
+    public void dontStartOnStartup() {
+        SeleniumProperties.getInstanceProperties().putBoolean(SeleniumProperties.START_ON_STARTUP, false);
+        ins.restored();
+        SeleniumServerRunner.waitAllTasksFinished();
+        assertFalse(SeleniumServerRunner.isRunning());
     }
 }
