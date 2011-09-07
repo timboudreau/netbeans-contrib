@@ -41,6 +41,7 @@ package org.netbeans.modules.selenium.server;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
@@ -60,12 +61,12 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
     private final Action startAction = new StartServerAction();
     private final Action stopAction = new StopServerAction();
     private final Action restartAction = new RestartServerAction();
-    private static final String RUNNING_ICON 
+    private static final String RUNNING_ICON
             = "org/netbeans/modules/glassfish/common/resources/running.png"; // NOI18N
     private static final String IMAGE_PATH = "org/netbeans/modules/selenium/resources/logo16.png";  //NOI18N
     private static final Image IMG = ImageUtilities.loadImage(IMAGE_PATH);
     private static SeleniumServerNode instance;
-    
+
     static synchronized SeleniumServerNode getInstance() {
         if (instance == null){
             instance = new SeleniumServerNode();
@@ -173,7 +174,14 @@ class SeleniumServerNode extends AbstractNode implements TaskListener {
     }
 
     private void checkEnabledActions() {
-        startAction.setEnabled(!SeleniumServerRunner.isRunning());
-        stopAction.setEnabled(SeleniumServerRunner.isRunning());
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                startAction.setEnabled(!SeleniumServerRunner.isRunning());
+                stopAction.setEnabled(SeleniumServerRunner.isRunning());
+            }
+        });
+
     }
 }

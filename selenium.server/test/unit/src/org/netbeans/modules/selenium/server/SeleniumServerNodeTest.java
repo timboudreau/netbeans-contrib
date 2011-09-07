@@ -46,8 +46,6 @@ import javax.swing.SwingUtilities;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.netbeans.modules.selenium.server.SeleniumServerNode;
-import org.netbeans.modules.selenium.server.SeleniumServerRunner;
 import org.openide.util.test.MockLookup;
 import static org.junit.Assert.*;
 
