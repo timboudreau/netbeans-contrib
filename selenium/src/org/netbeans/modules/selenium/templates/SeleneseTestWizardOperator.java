@@ -61,7 +61,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;
-import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
@@ -96,7 +95,7 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Asynchronous
         params.put("server_port", serverPort);   //NOI18N
 
         InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        int port = ip.getInt(SeleniumProperties.PORT, RemoteControlConfiguration.DEFAULT_PORT);
+        int port = ip.getInt(SeleniumProperties.PORT, SeleniumProperties.getSeleniumDefaultPort());
         params.put("selenium_server_port", Integer.toString(port));
 
         DataObject dobj = dTemplate.createFromTemplate(df, targetName, params);

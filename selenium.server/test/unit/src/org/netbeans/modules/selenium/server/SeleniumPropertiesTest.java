@@ -38,52 +38,48 @@
  */
 package org.netbeans.modules.selenium.server;
 
-import org.junit.After;
+import org.netbeans.modules.selenium.server.SeleniumServerNodeTest.IFL;
+import org.openide.util.test.MockLookup;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.netbeans.api.server.properties.InstanceProperties;
+import org.netbeans.modules.selenium.server.SeleniumProperties;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.Sheet.Set;
 import static org.junit.Assert.*;
 
 /**
  *
  * @author Jindrich Sedek
  */
-public class InstallerTest {
+public class SeleniumPropertiesTest {
 
-    static Installer ins = null;
     @BeforeClass
     public static void beforeClass() {
-        ins = new Installer();
-    }
-
-    @After
-    public void afterTest(){
-        ins.close();
-    }
-    
-    @Test
-    public void testInstaller() {
-        ins.restored();
-        SeleniumServerRunner.waitAllTasksFinished();
-        assertTrue(SeleniumServerRunner.isRunning());
-
-        ins.uninstalled();
-        SeleniumServerRunner.waitAllTasksFinished();
-        assertFalse(SeleniumServerRunner.isRunning());
-
-        ins.restored();
-        SeleniumServerRunner.waitAllTasksFinished();
-        assertTrue(SeleniumServerRunner.isRunning());
-
-        ins.close();
-        SeleniumServerRunner.waitAllTasksFinished();
-        assertFalse(SeleniumServerRunner.isRunning());
+        MockLookup.setInstances(new IFL());
     }
 
     @Test
-    public void dontStartOnStartup() {
-        SeleniumProperties.getInstanceProperties().putBoolean(SeleniumProperties.START_ON_STARTUP, false);
-        ins.restored();
-        SeleniumServerRunner.waitAllTasksFinished();
-        assertFalse(SeleniumServerRunner.isRunning());
+    public void testCreateSheet() throws Exception {
+        Sheet sheet = SeleniumProperties.createSheet();
+        assertNotNull(sheet);
+        assertEquals(1, sheet.toArray().length);
+        Set set = sheet.get(Sheet.PROPERTIES);
+        assertNotNull(set);
+        assertNotNull(set.get(SeleniumProperties.START_ON_STARTUP));
+        assertNotNull(set.get(SeleniumProperties.PORT));
+    }
+
+    @Test
+    public void testGetInstanceProperties() {
+        InstanceProperties ip = SeleniumProperties.getInstanceProperties();
+        assertEquals(SeleniumProperties.getSeleniumDefaultPort(), ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(true, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, false));
+
+        ip.putBoolean(SeleniumProperties.START_ON_STARTUP, false);
+        ip = SeleniumProperties.getInstanceProperties();
+        assertEquals(SeleniumProperties.getSeleniumDefaultPort(), ip.getInt(SeleniumProperties.PORT, 0));
+        assertEquals(false, ip.getBoolean(SeleniumProperties.START_ON_STARTUP, true));
+
     }
 }

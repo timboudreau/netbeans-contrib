@@ -40,7 +40,10 @@ package org.netbeans.modules.selenium.server;
 
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLClassLoader;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.server.properties.InstanceProperties;
 import org.netbeans.api.server.properties.InstancePropertiesManager;
 import org.openide.nodes.Node;
@@ -48,14 +51,17 @@ import org.openide.nodes.Node.Property;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
-import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
  * @author Jindrich Sedek
+ * @author Martin Fousek
  */
 public class SeleniumProperties {
 
+    private static Logger LOGGER = Logger.getLogger(SeleniumProperties.class.getName());
+
+    public static int seleniumDefaultPort = -1;
     public static final String PORT = "Port";
     public static final String START_ON_STARTUP = "Startup";
     private static InstanceProperties instanceProps;
@@ -70,6 +76,33 @@ public class SeleniumProperties {
         return sheet;
     }
 
+    /**
+     * Gets the default server port contained in the Selenium server configuration.
+     * @return default Selenium server port
+     */
+    public static int getSeleniumDefaultPort() {
+        if (seleniumDefaultPort == -1) {
+            try {
+                URLClassLoader urlClassLoader = SeleniumServerRunner.getSeleniumServerClassLoader();
+                Class remoteControlConfiguration = urlClassLoader.loadClass(
+                        "org.openqa.selenium.server.RemoteControlConfiguration"); //NOI18N
+                seleniumDefaultPort = remoteControlConfiguration.getDeclaredField(
+                        "DEFAULT_PORT").getInt(remoteControlConfiguration); //NOI18N
+            } catch (NoSuchFieldException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        }
+        return seleniumDefaultPort;
+    }
+
     public static InstanceProperties getInstanceProperties(){
         if (instanceProps == null){
             InstancePropertiesManager manager = InstancePropertiesManager.getInstance();
@@ -79,7 +112,7 @@ public class SeleniumProperties {
                     instanceProps = allProps.iterator().next();
                 } else {
                     instanceProps = manager.createProperties(NAMESPACE);
-                    instanceProps.putInt(PORT, RemoteControlConfiguration.DEFAULT_PORT);
+                    instanceProps.putInt(PORT, getSeleniumDefaultPort());
                     instanceProps.putBoolean(START_ON_STARTUP, true);
                     allProps.add(instanceProps);
                 }

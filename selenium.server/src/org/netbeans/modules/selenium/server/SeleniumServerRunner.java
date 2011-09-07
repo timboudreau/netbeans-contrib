@@ -42,24 +42,29 @@ package org.netbeans.modules.selenium.server;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
 import java.net.BindException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.server.properties.InstanceProperties;
-import org.openide.util.Exceptions;
+import org.openide.modules.InstalledFileLocator;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
-import org.openqa.selenium.server.SeleniumServer;
-import org.openqa.selenium.server.RemoteControlConfiguration;
 
 /**
  *
  * @author Jindrich Sedek
+ * @author Martin Fousek
  */
 class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 
+    private static final Logger LOGGER = Logger.getLogger(SeleniumServerRunner.class.getName());
+
     private static final SeleniumServerRunner instance = new SeleniumServerRunner();
-    private SeleniumServer server = null;
+    private static Object server = null;
     private boolean isRunning = false;
     private static Action action = null;
     private static Task latestTask = null;
@@ -110,20 +115,20 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             }
             switch (action) {
                 case START:
-                    server.start();
+                    callSeleniumServerMethod("start");
                     break;
                 case STOP:
-                    server.stop();
+                    callSeleniumServerMethod("stop");
                     break;
                 case RESTART:
-                    server.stop();
-                    server.start();
+                    callSeleniumServerMethod("stop");
+                    callSeleniumServerMethod("start");
                     break;
                 case RELOAD:
-                    server.stop();
+                    callSeleniumServerMethod("stop");
                     server = null;
                     initializeServer();
-                    server.start();
+                    callSeleniumServerMethod("start");
                     break;
                 default:
                     assert false : "Invalid option";
@@ -133,20 +138,62 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             }
             isRunning = (!action.equals(Action.STOP));
             action = null;
-        } catch (BindException bi){
-            Logger.getLogger(SeleniumServerRunner.class.getName()).log(Level.INFO,
-                    "Port already in use - the server is probably already running.", bi);
+        } catch (BindException bi) {
+            LOGGER.log(Level.INFO, "Port already in use - the server is probably already running.", bi); //NOI18N
         } catch (Exception exc) {
-            Exceptions.printStackTrace(exc);
+            LOGGER.log(Level.INFO, null, exc);
         }
     }
 
-    private void initializeServer() throws Exception {
+    protected static URLClassLoader getSeleniumServerClassLoader() {
+        URL url = null;
+        try {
+            url = InstalledFileLocator.getDefault().locate(
+                        "modules/ext/selenium/selenium-server-2.0.jar", //NOI18N
+                        null, //NOI18N
+                        false).toURI().toURL();
+        } catch (MalformedURLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        return URLClassLoader.newInstance(new URL[] {url}); //NOI18N
+    }
+
+    private void callSeleniumServerMethod(String method) {
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
+        try {
+            ClassLoader curr = server.getClass().getClassLoader();
+            Thread.currentThread().setContextClassLoader(curr);
+            server.getClass().getMethod(method).invoke(server);
+        } catch (IllegalAccessException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (NoSuchMethodException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
+        }
+    }
+
+    private static void initializeServer() throws Exception {
+        URLClassLoader urlClassLoader = getSeleniumServerClassLoader();
+        Class seleniumServer = urlClassLoader.loadClass("org.openqa.selenium.server.SeleniumServer"); //NOI18N
+        Class remoteControlConfiguration = urlClassLoader.loadClass(
+                "org.openqa.selenium.server.RemoteControlConfiguration"); //NOI18N
+
         InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        RemoteControlConfiguration conf = new RemoteControlConfiguration();
-        int port = ip.getInt(SeleniumProperties.PORT, RemoteControlConfiguration.DEFAULT_PORT);
-        conf.setPort(port);
-        server = new SeleniumServer(conf);
+        Object remoteControlConfigurationInstance = remoteControlConfiguration.newInstance();
+        int port = ip.getInt(
+                SeleniumProperties.PORT,
+                SeleniumProperties.getSeleniumDefaultPort()); //NOI18N
+        remoteControlConfiguration.getMethod("setPort", int.class).invoke(
+                remoteControlConfigurationInstance, port); //NOI18N
+        server = seleniumServer.getConstructor(remoteControlConfiguration).
+                newInstance(remoteControlConfigurationInstance);
     }
 
     @Override

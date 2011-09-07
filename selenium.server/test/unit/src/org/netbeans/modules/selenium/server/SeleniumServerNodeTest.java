@@ -39,10 +39,16 @@
 
 package org.netbeans.modules.selenium.server;
 
+import java.io.File;
+import org.openide.modules.InstalledFileLocator;
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.netbeans.modules.selenium.server.SeleniumServerNode;
+import org.netbeans.modules.selenium.server.SeleniumServerRunner;
+import org.openide.util.test.MockLookup;
 import static org.junit.Assert.*;
 
 /**
@@ -56,8 +62,9 @@ public class SeleniumServerNodeTest {
     @BeforeClass
     public static void startClass(){
          node = new SeleniumServerNode();
+         MockLookup.setInstances(new IFL());
     }
-    
+
     @After
     public void tearDown(){
         SeleniumServerRunner.stopServer().waitFinished();
@@ -74,8 +81,8 @@ public class SeleniumServerNodeTest {
     }
 
     @Test
-    public void testStartAction(){
-        Action startAction = node.getActions(true)[0];
+    public void testStartAction() throws Exception {
+        final Action startAction = node.getActions(true)[0];
         assertFalse(SeleniumServerRunner.isRunning());
         assertTrue(startAction.isEnabled());
 
@@ -83,12 +90,15 @@ public class SeleniumServerNodeTest {
         SeleniumServerRunner.waitAllTasksFinished();
         node.taskFinished(null);
         assertTrue(SeleniumServerRunner.isRunning());
-        assertFalse(startAction.isEnabled());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                assertFalse(startAction.isEnabled());
+            }
+        });
     }
 
-    @Test
-    public void testStopAction(){
-        Action startAction = node.getActions(true)[0];
+    public void testStopAction() throws Exception {
+        final Action startAction = node.getActions(true)[0];
         Action stopAction = node.getActions(true)[1];
         assertFalse(SeleniumServerRunner.isRunning());
         assertFalse(stopAction.isEnabled());
@@ -103,12 +113,15 @@ public class SeleniumServerNodeTest {
         SeleniumServerRunner.waitAllTasksFinished();
         node.taskFinished(null);
         assertFalse(SeleniumServerRunner.isRunning());
-        assertFalse(stopAction.isEnabled());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                assertFalse(startAction.isEnabled());
+            }
+        });
     }
 
-    @Test
-    public void testRestartAction(){
-        Action restartAction = node.getActions(true)[2];
+    public void testRestartAction() throws Exception {
+        final Action restartAction = node.getActions(true)[2];
         assertFalse(SeleniumServerRunner.isRunning());
         assertTrue(restartAction.isEnabled());
 
@@ -122,7 +135,29 @@ public class SeleniumServerNodeTest {
         SeleniumServerRunner.waitAllTasksFinished();
         node.taskFinished(null);
         assertTrue(SeleniumServerRunner.isRunning());
-        assertTrue(restartAction.isEnabled());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                assertTrue(restartAction.isEnabled());
+            }
+        });
+    }
+
+    /** Copied from AntLoggerTest. */
+    public static final class IFL extends InstalledFileLocator {
+
+        public IFL() {}
+
+        @Override
+        public File locate(String relativePath, String codeNameBase, boolean localized) {
+            if (relativePath.equals("modules/ext/selenium/selenium-server-2.0.jar")) {
+                String path = System.getProperty("test.selenium.server.jar");
+                System.err.println(path);
+                assertNotNull("must set test.selenium.server.jar", path);
+                return new File(path);
+            }
+
+            return null;
+        }
     }
 
 }
