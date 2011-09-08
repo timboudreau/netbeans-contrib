@@ -202,7 +202,7 @@
                         <attr name="position" intvalue="1800"/>
                     </file>
                     <file name="RefactoringWhereUsed.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Refactoring/RefactoringWhereUsed.instance"/>
+                        <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance"/>
                         <attr name="position" intvalue="1700"/>
                     </file>
                     <file name="org-openide-actions-CopyAction.shadow">
