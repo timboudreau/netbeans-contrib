@@ -57,6 +57,10 @@ public interface YiiProjectConfiguration {
     public List<String> getApplicationParameters();
 
     public List<String> getPreLoadedClassNames();
+    
+    public void addModuleConfiguration(String moduleConfig);
+    public String createArrayItem(String name, String value, boolean isstring);
+    public String createArrayItem(String name, List values, boolean isstring);
 
     public void renderTo(final FileObject configFile);
 }

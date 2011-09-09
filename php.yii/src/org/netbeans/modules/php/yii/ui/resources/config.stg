@@ -18,6 +18,12 @@ php_array_item(name,value) ::=<<
 
 php_array(name,items) ::=<<
 <name> =\> array(
-    <items;seperator=",\n">
+    <items;separator=",\n">
+)
+>>
+
+modules_array(modules) ::=<<
+'modules' => array(
+    <modules;separator=",\n">
 )
 >>

@@ -63,6 +63,7 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
     static final Logger LOGGER = Logger.getLogger(YiiProjectConfigurationImpl.class.getName());
     private List<String> preloadedClassNames;
     private List<String> appParams;
+    private List<String> modules;
     private String appname;
     private STGroup stg;
     private ST php_array_item;
@@ -75,32 +76,39 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
         preloadedClassNames.add("log");
         
         appParams = new ArrayList<String>();
-        appParams.add(STArrayItem("adminEmail", "webmaster@example.com", true));
+        appParams.add(createArrayItem("adminEmail", "webmaster@example.com", true));
+        
+        modules = new ArrayList<String>();
         
         appname = "My Web Application";
     }
 
+    @Override
     public void setAppName(String name) {
         appname = name;
     }
 
+    @Override
     public String getAppName() {
         return appname;
     }
 
+    @Override
     public List<String> getApplicationParameters() {
         return appParams;
     }
 
+    @Override
     public List<String> getPreLoadedClassNames() {
         return preloadedClassNames;
     }
 
     public void renderTo(final FileObject configFile) {
         ST config_file = stg.getInstanceOf("config_file");
-        config_file.add("items", STArrayItem("name", getAppName(), true));
-        config_file.add("items", STArrayItem("preload", preloadedClassNames, true));
-        config_file.add("items", STArrayItem("params", appParams, false));
+        config_file.add("items", createArrayItem("name", getAppName(), true));
+        config_file.add("items", createArrayItem("preload", preloadedClassNames, true));
+        config_file.add("items", createArrayItem("params", appParams, false));
+        createModulesSection(config_file);
         try {
             FileWriter fileWriter = new FileWriter(configFile.getPath());
             fileWriter.write(config_file.render());
@@ -109,22 +117,40 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
             Exceptions.printStackTrace(ex);
         }
     }
+    
+    @Override
+    public void addModuleConfiguration(String moduleConfig) {
+        modules.add(moduleConfig);
+    }
 
-    private String STArrayItem(String name, List values, boolean isstring) {
+    public String createArrayItem(String name, List values, boolean isstring) {
         ArrayList<String> v = new ArrayList<String>();
         for (Object item : values) {
             v.add(isstring ? "'" + item.toString() + "'" : item.toString());
         }
         php_array_item = stg.getInstanceOf("php_array");
         php_array_item.add("name", "'" + name + "'");
-        php_array_item.add("items", v);
+        for(Object item : v) {
+            php_array_item.add("items", item);
+        }        
         return php_array_item.render();
     }
-
-    private String STArrayItem(String name, String value, boolean isstring) {
+        
+    @Override
+    public String createArrayItem(String name, String value, boolean isstring) {
         php_array_item = stg.getInstanceOf("php_array_item");
         php_array_item.add("name", "'" + name + "'");
         php_array_item.add("value", isstring ? "'" + value + "'" : value);
         return php_array_item.render();
+    }
+    
+    private void createModulesSection(ST config_file) {
+        if(!modules.isEmpty()) {
+            ST modules_array = stg.getInstanceOf("modules_array");
+            for(String item : modules) {
+                modules_array.add("modules",item);
+            }
+            config_file.add("items", modules_array.render());
+        }
     }
 }

@@ -37,6 +37,7 @@
  */
 package org.netbeans.modules.php.yii.extensions.gii;
 
+import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -57,6 +58,11 @@ public class GiiExtensionProvider extends YiiExtensionProvider implements Change
 
     @Override
     public void configureExtension(YiiProjectConfiguration config) {
+        ArrayList<String> items = new ArrayList<String>();
+        items.add(config.createArrayItem("class", "system.gii.GiiModule", true));
+        items.add(config.createArrayItem("password", panel.getPassword(), true));
+        items.add(config.createArrayItem("ipFilters", "array('" + panel.getIPAddess() + "','::1')", false));
+        config.addModuleConfiguration(config.createArrayItem("gii", items, false));
     }
 
     @Override

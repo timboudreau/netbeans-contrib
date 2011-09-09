@@ -70,6 +70,14 @@ public class GiiExtensionConfigPanel extends javax.swing.JPanel {
         passwordField.getDocument().addDocumentListener(defaultDocumentListener);    
         ipAddressField.getDocument().addDocumentListener(defaultDocumentListener);
     }
+    
+    public String getPassword() {
+        return passwordField.getText();
+    }
+    
+    public String getIPAddess() {
+        return ipAddressField.getText();
+    }
 
     /**
      * @todo make the return values translatable and implement

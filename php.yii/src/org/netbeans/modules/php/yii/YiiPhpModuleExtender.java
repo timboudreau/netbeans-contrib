@@ -65,7 +65,7 @@ public class YiiPhpModuleExtender extends PhpModuleExtender{
 
     @Override
     public Set<FileObject> extend(PhpModule phpModule) throws ExtendingException {
-        
+        String configFile = "protected/config/main.php";
         // init project
         YiiScript yiiScript = null;
         try {
@@ -89,32 +89,17 @@ public class YiiPhpModuleExtender extends PhpModuleExtender{
         for(YiiExtensionProvider extension : YiiExtensions.getExtensions()) {
             extension.configureExtension(projectConfig);
         }
-        projectConfig.renderTo(phpModule.getSourceDirectory().getFileObject("protected/config/main.php"));
+        projectConfig.renderTo(phpModule.getSourceDirectory().getFileObject(configFile));
 
 
         // return files
         Set<FileObject> files = new HashSet<FileObject>();
-        //Enumeration<? extends FileObject> nfiles = phpModule.getSourceDirectory().getChildren(true);
-        //while(nfiles.hasMoreElements()) {
-        //    files.add(nfiles.nextElement());
-        //}        
-        /*
-        FileObject appConfig = phpModule.getSourceDirectory().getFileObject("application/configs/application.ini"); // NOI18N
+        
+        FileObject appConfig = phpModule.getSourceDirectory().getFileObject(configFile); // NOI18N
         if (appConfig != null) {
             files.add(appConfig);
         }
-        FileObject indexController = phpModule.getSourceDirectory().getFileObject("application/controllers/IndexController.php"); // NOI18N
-        if (indexController != null) {
-            files.add(indexController);
-        }
-        FileObject bootstrap = phpModule.getSourceDirectory().getFileObject("application/Bootstrap.php"); // NOI18N
-        if (bootstrap != null) {
-            files.add(bootstrap);
-        }
-         * 
-         * 
-         */
-
+               
         return files;
     }
 
