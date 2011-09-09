@@ -52,7 +52,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import org.netbeans.api.options.OptionsDisplayer;
-import org.netbeans.modules.php.yii.YiiExtensions;
+import org.netbeans.modules.php.yii.extensions.api.YiiExtensions;
 import org.netbeans.modules.php.yii.YiiProjectConfigurationImpl;
 import org.netbeans.modules.php.yii.YiiScript;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;

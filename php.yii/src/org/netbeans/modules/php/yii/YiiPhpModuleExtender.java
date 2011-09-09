@@ -37,6 +37,7 @@
  */
 package org.netbeans.modules.php.yii;
 
+import org.netbeans.modules.php.yii.extensions.api.YiiExtensions;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;

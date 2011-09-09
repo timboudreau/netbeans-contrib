@@ -41,7 +41,7 @@ package org.netbeans.modules.php.yii.annotations;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import org.netbeans.modules.php.yii.YiiExtensions;
+import org.netbeans.modules.php.yii.extensions.api.YiiExtensions;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.openide.util.lookup.ServiceProvider;
 

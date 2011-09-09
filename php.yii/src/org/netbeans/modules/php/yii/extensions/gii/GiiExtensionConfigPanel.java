@@ -47,7 +47,6 @@
  */
 package org.netbeans.modules.php.yii.extensions.gii;
 
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

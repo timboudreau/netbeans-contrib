@@ -35,10 +35,9 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.php.yii;
+package org.netbeans.modules.php.yii.extensions.api;
 
 import java.util.Collection;
-import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
