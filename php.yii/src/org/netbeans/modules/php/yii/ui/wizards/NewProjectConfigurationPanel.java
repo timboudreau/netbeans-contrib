@@ -69,7 +69,8 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private YiiProjectConfiguration projectConfig;
     private ExtensionTableModel model;
-    private YiiExtensionProvider currentExtension;
+    private YiiExtensionProvider currentExtension;    
+    private String currentError = null;
 
     /** Creates new form NewProjectConfigurationPanel */
     public NewProjectConfigurationPanel() {
@@ -82,6 +83,8 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
 
         createExtensionsList();
         initTableVisualProperties();
+        
+        errorMessageLabel.setText("");
     }
 
     private void initTableVisualProperties() {
@@ -164,7 +167,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
     }
 
     public String getErrorMessage() {
-        return null;
+        return currentError;
     }
 
     public String getWarningMessage() {
@@ -182,6 +185,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
 
         jPanel1 = new javax.swing.JPanel();
         optionsLabel = new javax.swing.JLabel();
+        errorMessageLabel = new javax.swing.JLabel();
         extensionsScrollPanel = new javax.swing.JScrollPane();
         extensionsTable = new javax.swing.JTable();
         configPanelHolder = new javax.swing.JPanel();
@@ -197,18 +201,24 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
             }
         });
 
+        errorMessageLabel.setForeground(new java.awt.Color(255, 0, 102));
+        errorMessageLabel.setText(org.openide.util.NbBundle.getMessage(NewProjectConfigurationPanel.class, "NewProjectConfigurationPanel.errorMessageLabel.text")); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(424, Short.MAX_VALUE)
+                .addComponent(errorMessageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(optionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(errorMessageLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -238,7 +248,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
             .addGroup(layout.createSequentialGroup()
                 .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
+                .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE))
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -247,8 +257,8 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)))
+                    .addComponent(extensionsScrollPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                    .addComponent(configPanelHolder, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -261,6 +271,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
 }//GEN-LAST:event_optionsLabelMouseEntered
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel configPanelHolder;
+    private javax.swing.JLabel errorMessageLabel;
     private javax.swing.JScrollPane extensionsScrollPanel;
     private javax.swing.JTable extensionsTable;
     private javax.swing.JPanel jPanel1;
@@ -269,12 +280,12 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
 
     @Override
     public void stateChanged(ChangeEvent e) {
+        currentError = null;
         if (e.getSource() instanceof YiiExtensionProvider) {
             YiiExtensionProvider provider = (YiiExtensionProvider) e.getSource();
-            String errorMessage = provider.getErrorMessage();
-        } else {
-            fireChange();
+            currentError = provider.getErrorMessage();
         }
+        fireChange();
     }
 
     private void createExtensionsList() {

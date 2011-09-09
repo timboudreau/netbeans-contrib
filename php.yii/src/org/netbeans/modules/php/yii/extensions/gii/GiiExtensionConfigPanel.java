@@ -51,6 +51,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.php.api.util.StringUtils;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionUtils;
 import org.openide.util.ChangeSupport;
 
@@ -60,24 +61,37 @@ import org.openide.util.ChangeSupport;
  */
 public class GiiExtensionConfigPanel extends javax.swing.JPanel {
 
-    private final ChangeSupport changeSupport = new ChangeSupport(this);    
-    
+    private final ChangeSupport changeSupport = new ChangeSupport(this);
+
     /** Creates new form GiiExtensionConfigPanel */
     public GiiExtensionConfigPanel() {
         initComponents();
         DocumentListener defaultDocumentListener = new DefaultDocumentListener();
         passwordField.setText(YiiExtensionUtils.RandomPassword.getRandomString(6));
-        passwordField.getDocument().addDocumentListener(defaultDocumentListener);
+        passwordField.getDocument().addDocumentListener(defaultDocumentListener);    
+        ipAddressField.getDocument().addDocumentListener(defaultDocumentListener);
     }
-    
+
+    /**
+     * @todo make the return values translatable and implement
+     * a better validation
+     */
     public String getErrorMessage() {
-        return passwordField.getText();
+        if (!StringUtils.hasText(passwordField.getText())) {
+            return "Invalid or empty password";
+        }
+
+        if (!StringUtils.hasText(ipAddressField.getText())) {
+            return "Invalid or empty IP address";
+        }
+        
+        return null;
     }
-    
+
     void fireChange() {
         changeSupport.fireChange();
     }
-        
+
     public void addChangeListener(ChangeListener listener) {
         changeSupport.addChangeListener(listener);
     }
@@ -85,7 +99,7 @@ public class GiiExtensionConfigPanel extends javax.swing.JPanel {
     public void removeChangeListener(ChangeListener listener) {
         changeSupport.removeChangeListener(listener);
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -142,20 +156,24 @@ public class GiiExtensionConfigPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     private final class DefaultDocumentListener implements DocumentListener {
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             processUpdate();
         }
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             processUpdate();
         }
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             processUpdate();
         }
+
         private void processUpdate() {
             fireChange();
         }
-    }    
+    }
 }
