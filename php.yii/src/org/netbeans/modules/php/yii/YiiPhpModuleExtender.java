@@ -59,8 +59,9 @@ import org.openide.util.NbBundle;
  *
  * @author Gevik Babakhani <gevik@netbeans.org>
  */
-public class YiiPhpModuleExtender extends PhpModuleExtender{
+public class YiiPhpModuleExtender extends PhpModuleExtender {
     //@GuardedBy(this)
+
     private NewProjectConfigurationPanel panel = null;
 
     @Override
@@ -78,28 +79,29 @@ public class YiiPhpModuleExtender extends PhpModuleExtender{
 
         if (!yiiScript.initProject(phpModule)) {
             // can happen if zend script was not chosen
-            Logger.getLogger(YiiPhpModuleExtender.class.getName())
-                    .log(Level.INFO, "Framework Yii not found in newly created project {0}", phpModule.getDisplayName());
+            Logger.getLogger(YiiPhpModuleExtender.class.getName()).log(Level.INFO, "Framework Yii not found in newly created project {0}", phpModule.getDisplayName());
             throw new ExtendingException(NbBundle.getMessage(YiiPhpModuleExtender.class, "MSG_NotExtended"));
         }
-        
+
         // prefetch commands
         YiiPhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).refreshFrameworkCommandsLater(null);
         YiiProjectConfiguration projectConfig = panel.getProjectConfiguration();
-        for(YiiExtensionProvider extension : YiiExtensions.getExtensions()) {
-            extension.configureExtension(projectConfig);
+        for (YiiExtensionProvider extension : YiiExtensions.getExtensions()) {
+            if (extension.getActive()) {
+                extension.configureExtension(projectConfig);
+            }
         }
         projectConfig.renderTo(phpModule.getSourceDirectory().getFileObject(configFile));
 
 
         // return files
         Set<FileObject> files = new HashSet<FileObject>();
-        
+
         FileObject appConfig = phpModule.getSourceDirectory().getFileObject(configFile); // NOI18N
         if (appConfig != null) {
             files.add(appConfig);
         }
-               
+
         return files;
     }
 
@@ -149,5 +151,4 @@ public class YiiPhpModuleExtender extends PhpModuleExtender{
         }
         return panel;
     }
-    
 }

@@ -52,14 +52,24 @@ import org.openide.util.ChangeSupport;
 public abstract class YiiExtensionProvider {
     private final String name;
     private final ChangeSupport changeSupport = new ChangeSupport(this);    
+    private boolean active;
 
     public YiiExtensionProvider(String name) {
         this.name = name;
+        this.active = false;
     }
     
     public abstract void configureExtension(YiiProjectConfiguration config);
     public abstract JPanel getConfigPanel();
     public abstract String getErrorMessage();
+    
+    public boolean getActive() {
+        return this.active;
+    }
+    
+    public void setActive(boolean value) {
+        this.active = value;
+    }
     
     protected void fireChange() {
         changeSupport.fireChange();

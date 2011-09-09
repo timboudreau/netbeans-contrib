@@ -358,6 +358,7 @@ public class NewProjectConfigurationPanel extends JPanel implements ChangeListen
             switch (column) {
                 case 0:
                     item.setSelected((Boolean) value);
+                    item.provider.setActive((Boolean) value);
                     break;
                 case 1:
                     // nothing needed
