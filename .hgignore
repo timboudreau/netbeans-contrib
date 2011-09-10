@@ -145,6 +145,7 @@
 ^other/ubuntupackages55/upstream/netbeans-5_5\.tar\.gz$
 ^other/wadechandler/DiskUtilities/dist$
 ^performance.insane/parser/dist$
+^php.yii/release/modules/ext$
 ^pmd/netbeans$
 ^pmd/pmd\.nbm$
 ^pmd/tmp$
