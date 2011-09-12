@@ -71,15 +71,15 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
     public YiiProjectConfigurationImpl() {
         URL url = YiiProjectConfigurationImpl.class.getResource("/org/netbeans/modules/php/yii/ui/resources/config.stg");
         stg = new STGroupFile(url, "UTF-8", '<', '>');
-               
+
         preloadedClassNames = new ArrayList<String>();
         preloadedClassNames.add("log");
-        
+
         appParams = new ArrayList<String>();
         appParams.add(createArrayItem("adminEmail", "webmaster@example.com", true));
-        
+
         modules = new ArrayList<String>();
-        
+
         appname = "My Web Application";
     }
 
@@ -106,8 +106,10 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
     public void renderTo(final FileObject configFile) {
         ST config_file = stg.getInstanceOf("config_file");
         config_file.add("items", createArrayItem("name", getAppName(), true));
+        config_file.add("items", createArrayItem("basePath", "dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'", false));
         config_file.add("items", createArrayItem("preload", preloadedClassNames, true));
         config_file.add("items", createArrayItem("params", appParams, false));
+        createImportSection(config_file);
         createModulesSection(config_file);
         try {
             FileWriter fileWriter = new FileWriter(configFile.getPath());
@@ -117,7 +119,14 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
+    private void createImportSection(ST config_file) {
+        ArrayList<String> items = new ArrayList<String>();
+        items.add("application.models.*");
+        items.add("application.components.*");
+        config_file.add("items", createArrayItem("import", items, true));
+    }
+
     @Override
     public void addModuleConfiguration(String moduleConfig) {
         modules.add(moduleConfig);
@@ -130,12 +139,12 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
         }
         php_array_item = stg.getInstanceOf("php_array");
         php_array_item.add("name", "'" + name + "'");
-        for(Object item : v) {
+        for (Object item : v) {
             php_array_item.add("items", item);
-        }        
+        }
         return php_array_item.render();
     }
-        
+
     @Override
     public String createArrayItem(String name, String value, boolean isstring) {
         php_array_item = stg.getInstanceOf("php_array_item");
@@ -143,12 +152,12 @@ public class YiiProjectConfigurationImpl implements YiiProjectConfiguration {
         php_array_item.add("value", isstring ? "'" + value + "'" : value);
         return php_array_item.render();
     }
-    
+
     private void createModulesSection(ST config_file) {
-        if(!modules.isEmpty()) {
+        if (!modules.isEmpty()) {
             ST modules_array = stg.getInstanceOf("modules_array");
-            for(String item : modules) {
-                modules_array.add("modules",item);
+            for (String item : modules) {
+                modules_array.add("modules", item);
             }
             config_file.add("items", modules_array.render());
         }
