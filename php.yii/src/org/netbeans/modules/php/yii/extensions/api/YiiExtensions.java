@@ -53,4 +53,8 @@ public class YiiExtensions {
     public static Collection<? extends YiiExtensionProvider> getExtensions() {
         return EXTENSIONS.allInstances();
     }
+    
+    public static <T> T getInstanceOf(Class<T> clazz) {
+        return Lookups.forPath(EXTENSIONS_PATH).lookup(clazz);
+    }
 }

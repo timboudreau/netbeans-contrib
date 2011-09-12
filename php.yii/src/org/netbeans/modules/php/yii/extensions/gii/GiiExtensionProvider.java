@@ -39,10 +39,10 @@ package org.netbeans.modules.php.yii.extensions.gii;
 
 import java.util.ArrayList;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -75,12 +75,13 @@ public class GiiExtensionProvider extends YiiExtensionProvider implements Change
     }
 
     @Override
-    public void stateChanged(ChangeEvent e) {
-        fireChange();
+    protected String getPanelErrorMessage() {
+        return panel.getErrorMessage();
     }
 
     @Override
-    public String getErrorMessage() {
-        return panel.getErrorMessage();
+    public boolean setupExtension(FileObject projectFolder) {
+        //no-op
+        return true;
     }
 }

@@ -76,6 +76,7 @@
 ^eview/Info$
 ^eview/eview\.nbm$
 ^eview/netbeans$
+^ext4yii-editor$
 ^gsf.api/anttask/gsfanttask\.jar$
 ^hibernate/src/org/netbeans/modules/hibernate/cfg/model$
 ^hibernate/src/org/netbeans/modules/hibernate/mapping/model$

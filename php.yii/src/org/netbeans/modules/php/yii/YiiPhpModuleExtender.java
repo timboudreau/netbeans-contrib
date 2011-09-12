@@ -88,7 +88,9 @@ public class YiiPhpModuleExtender extends PhpModuleExtender {
         YiiProjectConfiguration projectConfig = panel.getProjectConfiguration();
         for (YiiExtensionProvider extension : YiiExtensions.getExtensions()) {
             if (extension.getActive()) {
-                extension.configureExtension(projectConfig);
+                if (extension.setupExtension(phpModule.getSourceDirectory())) {
+                    extension.configureExtension(projectConfig);
+                }
             }
         }
         projectConfig.renderTo(phpModule.getSourceDirectory().getFileObject(configFile));
