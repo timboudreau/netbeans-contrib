@@ -43,7 +43,6 @@ package org.netbeans.modules.moduleresolver.ui;
 
 import org.netbeans.modules.moduleresolver.*;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -96,14 +95,6 @@ public class LicensePanel extends javax.swing.JPanel {
             rbDismis.setEnabled (false);
             taLicenses.setEnabled (false);
         }
-    }
-    
-    Collection<String> getLicenses () {
-        assert license4plugins != null : "Licenses must found.";
-        if (license4plugins == null && license4plugins.isEmpty ()) {
-            return Collections.emptyList ();
-        }
-        return license4plugins.keySet ();
     }
     
     private void goOverLicenses (Collection<UpdateElement> elements) {
@@ -225,6 +216,9 @@ private void rbAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private void writeLicenses (Collection<UpdateElement> elements) {
         goOverLicenses (elements);
         String content = "";
+        if (license4plugins == null) {
+            return ;
+        }
         for (String lic : license4plugins.keySet ()) {
             String title = "";
             for (String plugin : license4plugins.get (lic)) {
