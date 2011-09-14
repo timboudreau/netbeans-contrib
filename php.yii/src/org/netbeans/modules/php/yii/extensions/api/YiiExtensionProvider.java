@@ -64,6 +64,7 @@ public abstract class YiiExtensionProvider implements ChangeListener {
     public abstract void configureExtension(YiiProjectConfiguration config);
     public abstract boolean setupExtension(FileObject projectFolder);
     public abstract JPanel getConfigPanel();
+    public abstract void installConsoleCommands(FileObject cmdPath);
     protected abstract String getPanelErrorMessage();
     
     @Override

@@ -84,4 +84,9 @@ public class GiiExtensionProvider extends YiiExtensionProvider implements Change
         //no-op
         return true;
     }
+
+    @Override
+    public void installConsoleCommands(FileObject cmdPath) {
+        //no-op
+    }
 }
