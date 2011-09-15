@@ -40,6 +40,7 @@ package org.netbeans.modules.php.yii.extensions.gii;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.php.yii.commands.YiiCommandSupport;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
 import org.openide.filesystems.FileObject;

@@ -60,13 +60,13 @@ public abstract class YiiExtensionProvider implements ChangeListener {
         this.name = name;
         this.active = false;
     }
-    
+        
     public abstract void configureExtension(YiiProjectConfiguration config);
     public abstract boolean setupExtension(FileObject projectFolder);
     public abstract JPanel getConfigPanel();
     public abstract void installConsoleCommands(FileObject cmdPath);
     protected abstract String getPanelErrorMessage();
-    
+        
     @Override
     public void stateChanged(ChangeEvent e) {
         fireChange();

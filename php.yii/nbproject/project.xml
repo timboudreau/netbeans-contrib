@@ -99,6 +99,8 @@
             </module-dependencies>
             <friend-packages>
                 <friend>com.ext4yii.editor</friend>
+                <package>org.netbeans.modules.php.yii</package>
+                <package>org.netbeans.modules.php.yii.commands</package>
                 <package>org.netbeans.modules.php.yii.extensions.api</package>
             </friend-packages>
             <class-path-extension>

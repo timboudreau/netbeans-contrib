@@ -207,7 +207,7 @@ public class YiiScript extends PhpProgram {
         return UiUtils.OPTIONS_PATH + "/" + getOptionsSubPath(); // NOI18N
     }
 
-    private static void runService(ExternalProcessBuilder processBuilder, ExecutionDescriptor executionDescriptor, String title, boolean warnUser) {
+    public static void runService(ExternalProcessBuilder processBuilder, ExecutionDescriptor executionDescriptor, String title, boolean warnUser) {
         try {
             executeAndWait(processBuilder, executionDescriptor, title);
         } catch (CancellationException ex) {

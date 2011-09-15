@@ -47,6 +47,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpProgram.InvalidPhpProgramException;
 import org.netbeans.modules.php.spi.phpmodule.PhpModuleExtender;
+import org.netbeans.modules.php.yii.commands.YiiCommandSupport;
 import org.netbeans.modules.php.yii.extensions.api.YiiExtensionProvider;
 import org.netbeans.modules.php.yii.extensions.api.YiiProjectConfiguration;
 import org.netbeans.modules.php.yii.ui.wizards.NewProjectConfigurationPanel;
@@ -82,7 +83,7 @@ public class YiiPhpModuleExtender extends PhpModuleExtender {
             Logger.getLogger(YiiPhpModuleExtender.class.getName()).log(Level.INFO, "Framework Yii not found in newly created project {0}", phpModule.getDisplayName());
             throw new ExtendingException(NbBundle.getMessage(YiiPhpModuleExtender.class, "MSG_NotExtended"));
         }
-
+        
         // prefetch commands
         YiiPhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).refreshFrameworkCommandsLater(null);
         YiiProjectConfiguration projectConfig = panel.getProjectConfiguration();
