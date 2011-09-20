@@ -85,7 +85,6 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         smtpUsernameField = new javax.swing.JTextField();
         smtpPassword = new javax.swing.JLabel();
         useSSL = new javax.swing.JCheckBox();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         smtpPasswordField = new javax.swing.JPasswordField();
         mailFromLabel = new javax.swing.JLabel();
@@ -129,8 +128,6 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
         useSSL.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel5.setText("Storing of passwords is not recommended.");
-
         jLabel6.setText("SMTP server is required, username and password is optional.");
 
         smtpPasswordField.setPreferredSize(new java.awt.Dimension(11, 18));
@@ -153,7 +150,6 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(useSSL)
                     .add(jLabel6)
-                    .add(jLabel5)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(smtpServer)
@@ -165,7 +161,7 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                                     .add(smtpPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 178, Short.MAX_VALUE))
+                                    .add(smtpUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .add(87, 87, 87))))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -200,11 +196,9 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
                     .add(smtpPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(useSSL)
-                .add(17, 17, 17)
-                .add(jLabel5)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel6)
-                .add(18, 18, 18)
+                .add(50, 50, 50)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(mailFromLabel)
                     .add(mailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -278,7 +272,6 @@ public class EmailSettingsDialog extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
