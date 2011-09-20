@@ -385,6 +385,9 @@ public class CssPreviewPanel extends javax.swing.JPanel implements CssPreviewCom
                 LOGGER.log(Level.INFO, null, ex); //NOI18N
             } catch (MalformedURLException ex) {
                 LOGGER.log(Level.INFO, null, ex); //NOI18N
+            } catch (IllegalArgumentException ex) {
+                //Bug 198411 - Corrupted URI from CssPreviewPanel: URI has an authority component 
+                LOGGER.log(Level.INFO, null, ex); //NOI18N
             }
             // falling back to FlyingSaucer implementation
             return super.resolveURI(uri);
