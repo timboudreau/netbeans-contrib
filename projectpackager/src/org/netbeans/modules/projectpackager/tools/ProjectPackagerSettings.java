@@ -42,6 +42,7 @@
 package org.netbeans.modules.projectpackager.tools;
 
 import java.util.prefs.Preferences;
+import org.netbeans.api.keyring.Keyring;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
@@ -50,6 +51,8 @@ import org.openide.util.NbPreferences;
  * @author Roman "Roumen" Strobl
  */
 public class ProjectPackagerSettings {
+
+    private static final String KEYRING_SMTP_PASSWORD = "org.netbeans.modules.projectpackager.smtpPassword";
 
     private static Preferences prefs() {
         return NbPreferences.forModule(ProjectPackagerSettings.class);
@@ -70,10 +73,20 @@ public class ProjectPackagerSettings {
     }
 
     public static void setSmtpPassword(String newVal) {
-        prefs().put("smtpPassword", newVal);
+        if (newVal == null || newVal.isEmpty()) {
+            Keyring.delete(KEYRING_SMTP_PASSWORD);
+        } else {
+            Keyring.save(KEYRING_SMTP_PASSWORD, newVal.toCharArray(), null);
+        }
     }
     public static String getSmtpPassword() {
-        return prefs().get("smtpPassword", System.getProperty("smtp_password", ""));
+        String old = prefs().get("smtpPassword", null);
+        if (old != null) {
+            setSmtpPassword(old);
+            prefs().remove("smtpPassword");
+        }
+        char[] pwd = Keyring.read(KEYRING_SMTP_PASSWORD);
+        return pwd != null ? new String(pwd) : "";
     }
 
     public static void setSmtpUseSSL(boolean newVal) {
