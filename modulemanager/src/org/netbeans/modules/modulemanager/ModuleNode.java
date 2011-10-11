@@ -64,7 +64,6 @@ import java.util.prefs.Preferences;
 import javax.swing.Action;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.actions.PropertiesAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -189,14 +188,7 @@ public class ModuleNode extends AbstractNode {
                 SystemAction.get(ModuleNodeActions.UninstallAction.class),
                 null,
                 SystemAction.get(ModuleNodeActions.SortAction.class),
-                null,
-                SystemAction.get(PropertiesAction.class),
             };
-        }
-
-        @Override
-        public Action getPreferredAction() {
-            return SystemAction.get(PropertiesAction.class);
         }
 
         @Override
@@ -661,8 +653,6 @@ public class ModuleNode extends AbstractNode {
                 SystemAction.get(ModuleNodeActions.UninstallAction.class),
                 null,
                 SystemAction.get(ModuleNodeActions.SortAction.class),
-                null,
-                SystemAction.get(PropertiesAction.class),
             };
         }
 
