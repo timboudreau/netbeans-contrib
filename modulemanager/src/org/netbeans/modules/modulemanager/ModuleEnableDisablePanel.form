@@ -25,7 +25,7 @@
     <Component class="javax.swing.JLabel" name="enableDisableConfirmation">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/autoupdate/catalog/Bundle.properties" key="LBL_ModuleEnableDisablePanel_EnableConfirmation" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;, {arguments})"/>
+          <ResourceString bundle="org/netbeans/modules/modulemanager/Bundle.properties" key="LBL_ModuleEnableDisablePanel_EnableConfirmation" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;, {arguments})"/>
         </Property>
       </Properties>
       <Constraints>

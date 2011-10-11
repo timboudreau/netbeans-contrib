@@ -3,7 +3,7 @@
 <Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
     <Property name="name" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-      <ResourceString bundle="org/netbeans/modules/autoupdate/catalog/Bundle.properties" key="LBL_ModuleSelectionPanel_Name" replaceFormat="NbBundle.getMessage(ModuleSelectionPanel.class, &quot;{key}&quot;)"/>
+      <ResourceString bundle="org/netbeans/modules/modulemanager/Bundle.properties" key="LBL_ModuleSelectionPanel_Name" replaceFormat="NbBundle.getMessage(ModuleSelectionPanel.class, &quot;{key}&quot;)"/>
     </Property>
   </Properties>
   <AuxValues>
@@ -22,7 +22,7 @@
           <ComponentRef name="modulesPane"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/autoupdate/catalog/Bundle.properties" key="ModuleSelectionPanel_ModuleLabel_text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/modulemanager/Bundle.properties" key="ModuleSelectionPanel_ModuleLabel_text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -34,7 +34,7 @@
     <Component class="javax.swing.JButton" name="uninstallButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/autoupdate/catalog/Bundle.properties" key="BTN_ModuleSelectionPanel_Uninstall" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/modulemanager/Bundle.properties" key="BTN_ModuleSelectionPanel_Uninstall" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -52,7 +52,7 @@
           <ComponentRef name="descriptionPane"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/autoupdate/catalog/Bundle.properties" key="LBL_ModuleSelectionPanel_descriptionLabel" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/modulemanager/Bundle.properties" key="LBL_ModuleSelectionPanel_descriptionLabel" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
