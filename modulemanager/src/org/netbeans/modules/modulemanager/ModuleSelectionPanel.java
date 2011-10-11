@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.modulemanager;
 
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -54,7 +53,10 @@ import java.io.CharConversionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -73,9 +75,9 @@ import org.openide.explorer.view.TreeTableView;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.AsyncGUIJob;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.windows.TopComponent;
 import org.openide.xml.XMLUtil;
 
 /** Module selection panel allows user to enable/disable modules in Module Catalog
@@ -83,7 +85,7 @@ import org.openide.xml.XMLUtil;
  * @author cledantec, jrojcek, Jesse Glick, Jirka Rechtacek (jrechtacek@netbeans.org)
  */
 public class ModuleSelectionPanel extends javax.swing.JPanel 
-                                  implements PropertyChangeListener {
+                                  implements PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider {
 
     private TreeTableView treeTableView;
     private static final Logger err = Logger.getLogger(ModuleSelectionPanel.class.getName ());
@@ -93,9 +95,9 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
     private static final int DEF_0_COL_WIDTH = 60;
     private static final int DEF_1_COL_WIDTH = 150;
     private static final int DEF_HEIGHT = 350;
-    
-    private static ModuleDeleter deleter;
-    
+
+    private final ExplorerManager manager;
+    private final Lookup lookup;
     private Cursor cursor = null;
     static private ModuleSelectionPanel panel = null;
     
@@ -108,18 +110,20 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
     }
 
     private ModuleSelectionPanel ()  {
+        manager = new ExplorerManager();
+        ActionMap map = getActionMap();
+        map.put("delete", ExplorerUtils.actionDelete(manager, false));
+        InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        keys.put(KeyStroke.getKeyStroke("DELETE"), "delete");
+        lookup = ExplorerUtils.createLookup(manager, map);
         initComponents();
         treeTableView = new TreeTableView ();
         treeTableView.setRootVisible(false);
-        ExplorerPanel explorerPanel = new ExplorerPanel ();
-	explorerPanel.getAccessibleContext ().setAccessibleName (
+        getAccessibleContext().setAccessibleName(
 	    NbBundle.getBundle (ModuleSelectionPanel.class).getString  ("ACN_ModuleSelectionPanel_ExplorerPanel")); // NOI18N
-	explorerPanel.getAccessibleContext ().setAccessibleDescription (
+        getAccessibleContext().setAccessibleDescription(
 	    NbBundle.getBundle (ModuleSelectionPanel.class).getString  ("ACD_ModuleSelectionPanel_ExplorerPanel")); // NOI18N
-        explorerPanel.setLayout (new BorderLayout ());
-        explorerPanel.add (treeTableView, BorderLayout.CENTER);
-        modulesPane.add (explorerPanel, BorderLayout.CENTER);
-        manager = explorerPanel.getExplorerManager();
+        modulesPane.add(treeTableView);
 
         //Fix for NPE on WinXP L&F - either may be null - Tim
         Font f = UIManager.getFont("controlFont"); // NOI18N
@@ -432,32 +436,23 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
     private javax.swing.JButton uninstallButton;
     // End of variables declaration//GEN-END:variables
 
-    private ExplorerManager manager;
-    
-    private static class ExplorerPanel extends TopComponent implements ExplorerManager.Provider {
-        private ExplorerManager mgr;
-        public ExplorerPanel () {
-            this.mgr = new ExplorerManager ();
-            ActionMap map = this.getActionMap ();
-            map.put ("delete", ExplorerUtils.actionDelete(mgr, false));
-            associateLookup (ExplorerUtils.createLookup (mgr, map));
-        }
-        
-        public ExplorerManager getExplorerManager () {
-            return mgr;
-        }
-        
-        @Override
-        protected void componentActivated() {
-            ExplorerUtils.activateActions (mgr, true);
-        }
-        
-        @Override
-        protected void componentDeactivated() {
-            ExplorerUtils.activateActions (mgr, false);
-        }
+    @Override public void addNotify() {
+        super.addNotify();
+        ExplorerUtils.activateActions(manager, true);
     }
-    
+
+    @Override public void removeNotify() {
+        super.removeNotify();
+        ExplorerUtils.activateActions(manager, false);
+    }
+
+    @Override public ExplorerManager getExplorerManager() {
+        return manager;
+    }
+    @Override public Lookup getLookup() {
+        return lookup;
+    }
+
     /** Handling of property changes in node structure
      */
     public void propertyChange(PropertyChangeEvent evt) {
