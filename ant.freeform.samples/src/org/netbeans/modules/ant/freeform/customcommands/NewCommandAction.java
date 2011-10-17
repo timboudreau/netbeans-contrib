@@ -59,6 +59,9 @@ import org.netbeans.spi.project.ActionProvider;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -74,6 +77,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+@ActionID(id = "org.netbeans.modules.ant.freeform.customcommands.NewCommandAction", category = "Tools")
+@ActionRegistration(displayName = "#LBL_action")
+@ActionReference(path = "Projects/org-netbeans-modules-ant-freeform/Actions", position = 350)
 public final class NewCommandAction extends AbstractAction implements ContextAwareAction {
     
     public NewCommandAction() {
