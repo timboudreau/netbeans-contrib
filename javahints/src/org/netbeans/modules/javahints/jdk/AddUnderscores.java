@@ -41,7 +41,6 @@
  */
 package org.netbeans.modules.javahints.jdk;
 
-import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import java.util.prefs.Preferences;
@@ -50,14 +49,13 @@ import javax.lang.model.SourceVersion;
 import javax.swing.JComponent;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.WorkingCopy;
-import org.netbeans.modules.java.hints.errors.Utilities;
-import org.netbeans.modules.java.hints.errors.Utilities.RadixInfo;
 import org.netbeans.modules.java.hints.jackpot.code.spi.Hint;
 import org.netbeans.modules.java.hints.jackpot.code.spi.TriggerTreeKind;
 import org.netbeans.modules.java.hints.jackpot.spi.CustomizerProvider;
 import org.netbeans.modules.java.hints.jackpot.spi.HintContext;
 import org.netbeans.modules.java.hints.jackpot.spi.JavaFix;
 import org.netbeans.modules.java.hints.jackpot.spi.support.ErrorDescriptionFactory;
+import org.netbeans.modules.java.hints.infrastructure.NoClassLoaderProblemCustomizerProvider;
 import org.netbeans.modules.javahints.jdk.AddUnderscores.CustomizerProviderImpl;
 import org.netbeans.modules.java.hints.spi.AbstractHint.HintSeverity;
 import org.netbeans.spi.editor.hints.ErrorDescription;
@@ -68,7 +66,7 @@ import org.openide.util.NbBundle;
  *
  * @author lahvac
  */
-@Hint(id=AddUnderscores.ID, category="rules15", enabled=false, severity=HintSeverity.CURRENT_LINE_WARNING, customizerProvider=CustomizerProviderImpl.class)
+@Hint(id=AddUnderscores.ID, category="rules15", enabled=false, severity=HintSeverity.CURRENT_LINE_WARNING, customizerProvider=NoClassLoaderProblemCustomizerProvider.class)
 public class AddUnderscores {
     public static final String ID = "org.netbeans.modules.javahints.jdk.AddUnderscores";
 
@@ -81,7 +79,7 @@ public class AddUnderscores {
         int end = (int) ctx.getInfo().getTrees().getSourcePositions().getEndPosition(tp.getCompilationUnit(), tp.getLeaf());
         String literal = ctx.getInfo().getText().substring(start, end);
         if (!isReplaceLiteralsWithUnderscores(ctx.getPreferences()) && literal.contains("_")) return null;
-        RadixInfo info = Utilities.radixInfo(literal);
+        RadixInfo info = radixInfo(literal);
         String normalized = info.constant.replaceAll(Pattern.quote("_"), "");
         int separateCount = getSizeForRadix(ctx.getPreferences(), info.radix);
         StringBuilder split = new StringBuilder();
@@ -147,6 +145,50 @@ public class AddUnderscores {
         prefs.putBoolean(KEY_ALSO_WITH_UNDERSCORES, value);
     }
 
+
+    public static RadixInfo radixInfo(String literal) {
+        int currentRadix = 10;
+        String prefix = "";
+
+        if (literal.startsWith("0x") || literal.startsWith("0X")) {
+            currentRadix = 16;
+            prefix = literal.substring(0, 2);
+            literal = literal.substring(2);
+        } else if (literal.startsWith("0b") || literal.startsWith("0B")) {
+            currentRadix = 2;
+            prefix = literal.substring(0, 2);
+            literal = literal.substring(2);
+        } else if (literal.startsWith("0")) {
+            currentRadix = 8;
+            prefix = literal.substring(0, 1);
+            literal = literal.substring(1);
+        }
+
+        String suffix = "";
+
+        if (literal.endsWith("l") || literal.endsWith("L")) {
+            suffix = literal.substring(literal.length() - 1);
+            literal = literal.substring(0, literal.length() - 1);
+        }
+
+        return new RadixInfo(prefix, literal, suffix, currentRadix);
+    }
+
+    public static final class RadixInfo {
+        public final String prefix;
+        public final String constant;
+        public final String suffix;
+        public final int radix;
+
+        public RadixInfo(String prefix, String constant, String suffix, int radix) {
+            this.prefix = prefix;
+            this.constant = constant;
+            this.suffix = suffix;
+            this.radix = radix;
+        }
+
+    }
+    
     private static final class FixImpl extends JavaFix {
 
         private final String target;
@@ -167,6 +209,10 @@ public class AddUnderscores {
             wc.rewrite(tp.getLeaf(), wc.getTreeMaker().Identifier(target));
         }
 
+    }
+
+    static {
+        NoClassLoaderProblemCustomizerProvider.register(ID, new CustomizerProviderImpl());
     }
     
     public static final class CustomizerProviderImpl implements CustomizerProvider {
