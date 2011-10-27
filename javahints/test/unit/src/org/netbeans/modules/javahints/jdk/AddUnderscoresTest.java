@@ -126,6 +126,19 @@ public class AddUnderscoresTest extends TestBase {
                        "}\n").replaceAll("[ \t\n]+", " "));
     }
 
+    public void testZeroIsNotOctal() throws Exception {
+        assertEquals(10, AddUnderscores.radixInfo("0").radix);
+        assertEquals(10, AddUnderscores.radixInfo("0L").radix);
+    }
+
+    public void testIgnoreOctalConstantsForNow() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test;\n" +
+                            "public class Test {\n" +
+                            "    private static final int CONST = 0123;\n" +
+                            "}\n");
+    }
+
     private Preferences prefs;
 
     @Override

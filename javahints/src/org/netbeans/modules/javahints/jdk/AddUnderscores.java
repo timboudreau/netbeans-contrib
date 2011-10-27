@@ -80,6 +80,7 @@ public class AddUnderscores {
         String literal = ctx.getInfo().getText().substring(start, end);
         if (!isReplaceLiteralsWithUnderscores(ctx.getPreferences()) && literal.contains("_")) return null;
         RadixInfo info = radixInfo(literal);
+        if (info.radix == 8) return null;//octals ignored for now
         String normalized = info.constant.replaceAll(Pattern.quote("_"), "");
         int separateCount = getSizeForRadix(ctx.getPreferences(), info.radix);
         StringBuilder split = new StringBuilder();
@@ -147,6 +148,13 @@ public class AddUnderscores {
 
 
     public static RadixInfo radixInfo(String literal) {
+        String suffix = "";
+
+        if (literal.endsWith("l") || literal.endsWith("L")) {
+            suffix = literal.substring(literal.length() - 1);
+            literal = literal.substring(0, literal.length() - 1);
+        }
+
         int currentRadix = 10;
         String prefix = "";
 
@@ -158,17 +166,10 @@ public class AddUnderscores {
             currentRadix = 2;
             prefix = literal.substring(0, 2);
             literal = literal.substring(2);
-        } else if (literal.startsWith("0")) {
+        } else if (literal.startsWith("0") && literal.length() > 1) {
             currentRadix = 8;
             prefix = literal.substring(0, 1);
             literal = literal.substring(1);
-        }
-
-        String suffix = "";
-
-        if (literal.endsWith("l") || literal.endsWith("L")) {
-            suffix = literal.substring(literal.length() - 1);
-            literal = literal.substring(0, literal.length() - 1);
         }
 
         return new RadixInfo(prefix, literal, suffix, currentRadix);
