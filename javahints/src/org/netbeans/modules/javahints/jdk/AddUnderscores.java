@@ -55,7 +55,6 @@ import org.netbeans.modules.java.hints.jackpot.spi.CustomizerProvider;
 import org.netbeans.modules.java.hints.jackpot.spi.HintContext;
 import org.netbeans.modules.java.hints.jackpot.spi.JavaFix;
 import org.netbeans.modules.java.hints.jackpot.spi.support.ErrorDescriptionFactory;
-import org.netbeans.modules.java.hints.infrastructure.NoClassLoaderProblemCustomizerProvider;
 import org.netbeans.modules.javahints.jdk.AddUnderscores.CustomizerProviderImpl;
 import org.netbeans.modules.java.hints.spi.AbstractHint.HintSeverity;
 import org.netbeans.spi.editor.hints.ErrorDescription;
@@ -66,7 +65,7 @@ import org.openide.util.NbBundle;
  *
  * @author lahvac
  */
-@Hint(id=AddUnderscores.ID, category="rules15", enabled=false, severity=HintSeverity.CURRENT_LINE_WARNING, customizerProvider=NoClassLoaderProblemCustomizerProvider.class)
+@Hint(id=AddUnderscores.ID, category="rules15", enabled=false, severity=HintSeverity.CURRENT_LINE_WARNING, customizerProvider=CustomizerProviderImpl.class)
 public class AddUnderscores {
     public static final String ID = "org.netbeans.modules.javahints.jdk.AddUnderscores";
 
@@ -212,10 +211,6 @@ public class AddUnderscores {
 
     }
 
-    static {
-        NoClassLoaderProblemCustomizerProvider.register(ID, new CustomizerProviderImpl());
-    }
-    
     public static final class CustomizerProviderImpl implements CustomizerProvider {
 
         @Override
