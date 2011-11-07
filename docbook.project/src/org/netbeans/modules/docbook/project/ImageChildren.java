@@ -70,9 +70,8 @@ public class ImageChildren extends FilterNode.Children {
     }
 
     protected Node[] createNodes(Node key) {
-        DataObject ob = key.getLookup().lookup(DataObject.class);
-        if (ob != null) {
-            FileObject fob = ob.getPrimaryFile();
+        FileObject fob = key.getLookup().lookup(FileObject.class);
+        if (fob != null) {
             if (exts.contains(fob.getExt().toLowerCase())) {
                 return super.createNodes (key);
             }
