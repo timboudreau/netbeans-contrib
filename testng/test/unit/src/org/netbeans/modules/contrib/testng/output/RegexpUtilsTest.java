@@ -508,6 +508,80 @@ public class RegexpUtilsTest extends TestCase {
         assertEquals("ab c\tde", specialTrim("ab c\tde\t"));
     }
 
+    public void testRunningSuite() throws Exception {
+        Pattern pattern = getPattern("RUNNING_SUITE_REGEX");
+        final String matchingString =
+            "[NBTestListener] RUNNING: Suite: \"Junit via TestNG XML\" containing \"5\" Tests (config: /space/sources/tng_fork/src/test/resources/junit-suite.xml)";
+        Matcher m = pattern.matcher(matchingString);
+        assertTrue(m.matches());
+        assertEquals(4, m.groupCount());
+        assertEquals("Junit via TestNG XML", m.group(1));
+        assertEquals("5", m.group(2));
+        assertEquals("/space/sources/tng_fork/src/test/resources/junit-suite.xml", m.group(3));
+        final String matchingString2 =
+            "[NBTestListener] RUNNING: Suite: \"Junit via TestNG XML\" containing \"5\" Tests (config: c:\\test\\resources\\junit-suite.xml)";
+        m = pattern.matcher(matchingString2);
+        assertTrue(m.matches());
+        assertEquals(4, m.groupCount());
+        assertEquals("Junit via TestNG XML", m.group(1));
+        assertEquals("5", m.group(2));
+        assertEquals("c:\\test\\resources\\junit-suite.xml", m.group(3));
+    }
+
+    public void testTestRegexp() throws Exception {
+        Pattern pattern = getPattern("TEST_REGEX");
+        final String matchingString =
+            "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString()";
+        Matcher m = pattern.matcher(matchingString);
+        assertTrue(m.matches());
+        assertEquals(6, m.groupCount());
+        assertEquals("Regression1", m.group(1));
+        assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
+        assertEquals("", m.group(3));
+        assertNull(m.group(4));
+        assertNull(m.group(5));
+        final String matchingString2 =
+            "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString(java.lang.String)(value(s): \"Cedric\")";
+        m = pattern.matcher(matchingString2);
+        assertTrue(m.matches());
+        assertEquals(6, m.groupCount());
+        assertEquals("Regression1", m.group(1));
+        assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
+        assertEquals("java.lang.String", m.group(3));
+        assertEquals("(value(s): \"Cedric\")", m.group(4));
+        assertEquals("\"Cedric\"", m.group(5));
+        final String matchingString3 =
+            "[NBTestListener] PASSED: \"Injection\" - test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))";
+        m = pattern.matcher(matchingString3);
+        assertTrue(m.matches());
+        assertEquals(6, m.groupCount());
+        assertEquals("Injection", m.group(1));
+        assertEquals("test.inject.NoInjectionTest.withInjection", m.group(2));
+        assertEquals("java.lang.reflect.Method", m.group(3));
+        assertEquals("(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))", m.group(4));
+        assertEquals("java.lang.reflect.Method", m.group(5));
+    }
+
+    public void testStatsRegexp() throws Exception {
+        Pattern pattern = getPattern("STATS_REGEX");
+        final String matchingString =
+            "[NBTestListener]     Tests run: 559, Failures: 4, Skips: 9";
+        Matcher m = pattern.matcher(matchingString);
+        assertTrue(m.matches());
+        assertEquals(5, m.groupCount());
+        assertEquals("559", m.group(1));
+        assertEquals("4", m.group(2));
+        assertEquals("9", m.group(4));
+        final String matchingString2 =
+            "[NBTestListener]     Configuration Failures: 22, Skips: 11";
+        m = pattern.matcher(matchingString2);
+        assertTrue(m.matches());
+        assertEquals(5, m.groupCount());
+        assertEquals("22", m.group(1));
+        assertEquals("11", m.group(2));
+        assertNull(m.group(3));
+        assertNull(m.group(4));
+    }
 
     private Pattern getPattern(String fieldName) throws Exception {
         return Pattern.compile(getRegex(fieldName));

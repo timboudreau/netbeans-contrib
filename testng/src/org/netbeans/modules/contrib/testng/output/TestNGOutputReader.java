@@ -47,13 +47,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.UnsupportedCharsetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.tools.ant.module.spi.AntEvent;
@@ -64,78 +60,64 @@ import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.gsf.testrunner.api.Manager;
-import org.netbeans.modules.gsf.testrunner.api.OutputLine;
-import org.netbeans.modules.gsf.testrunner.api.Report;
-import org.netbeans.modules.gsf.testrunner.api.Status;
-import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
-import org.netbeans.modules.gsf.testrunner.api.TestSuite;
-import org.netbeans.modules.gsf.testrunner.api.Testcase;
-import org.netbeans.modules.gsf.testrunner.api.Trouble;
+import org.netbeans.modules.gsf.testrunner.api.*;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.xml.sax.SAXException;
-import static java.util.Calendar.MILLISECOND;
-import static java.util.logging.Level.FINER;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.ADD_ERROR_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.ADD_FAILURE_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.END_OF_TEST_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.START_OF_TEST_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTCASE_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TEST_LISTENER_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTS_COUNT_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTSUITE_PREFIX;
-import static org.netbeans.modules.contrib.testng.output.RegexpUtils.TESTSUITE_STATS_PREFIX;
 
 /**
- * Obtains events from a single session of an Ant <code>junit</code> task
- * and builds a {@link Report}.
- * The events are delivered by the {@link TestNGAntLogger}.
+ * Obtains events from a single session of an Ant
+ * <code>junit</code> task and builds a {@link Report}. The events are delivered
+ * by the {@link TestNGAntLogger}.
  *
- * @see  TestNGAntLogger
- * @see  Report
- * @author  Marian Petras
- * @author  Lukas Jungmann
+ * @see TestNGAntLogger
+ * @see Report
+ * @author Marian Petras
+ * @author Lukas Jungmann
  */
 final class TestNGOutputReader {
 
-    private static final int MAX_REPORT_FILE_SIZE = 1 << 22;    //2 MiB
-    /** */
+    private static final Logger LOG = Logger.getLogger(TestNGOutputReader.class.getName());
+    private static final Logger progressLogger = Logger.getLogger(
+            "org.netbeans.modules.contrib.testng.outputreader.progress");
+    /**
+     *
+     */
     private final NumberFormat numberFormat = NumberFormat.getInstance();
-    /** */
+    /**
+     *
+     */
     private final SessionType sessionType;
-    /** whether XML report is expected */
+    /**
+     * whether XML report is expected
+     */
     private boolean expectXmlReport;
-    /** */
+    /**
+     *
+     */
     private final File antScript;
-    /** */
+    /**
+     *
+     */
     private final long timeOfSessionStart;
     private long lastSuiteTime = 0;
-    private final Logger LOG;
-    private final Logger progressLogger;
-    /** */
-    private RegexpUtils regexp = RegexpUtils.getInstance();
-    /** */
-    private boolean lastHeaderBrief;
-    /** */
+    /**
+     *
+     */
     private final Manager manager = Manager.getInstance();
-    /** */
+    /**
+     *
+     */
     private ClassPath platformSources;
-    private TestSession testSession;
+    private TestNGTestSession testSession;
     private Project project;
     private File resultsDir;
-    private TestNGTestcase testcase;
-    private Report report;
+    private Map<String, Report> reports;
 
-    enum State {
-
-        DEFAULT, SUITE_STARTED, TESTCASE_STARTED, SUITE_FINISHED, TESTCASE_ISSUE
-    };
-    private State state = State.DEFAULT;
-
-    /** Creates a new instance of TestNGOutputReader */
+    /**
+     * Creates a new instance of TestNGOutputReader
+     */
     TestNGOutputReader(final AntSession session,
             final AntSessionInfo sessionInfo,
             final Project project,
@@ -148,11 +130,10 @@ final class TestNGOutputReader {
             FileObject fileObj = FileUtil.toFileObject(antScript);
             this.project = FileOwnerQuery.getOwner(fileObj);
         }
-        this.testSession = new TestNGTestSession("", this.project, sessionType, new TestNGTestNodeFactory()); //NOI18N
+        this.testSession = new TestNGTestSession(
+                sessionInfo.getSessionName(), this.project, sessionType, new TestNGTestNodeFactory());
         testSession.setRerunHandler(new TestNGExecutionManager(session, testSession, props));
-        this.progressLogger = Logger.getLogger(
-                "org.netbeans.modules.contrib.testng.outputreader.progress");    //NOI18N
-        this.LOG = Logger.getLogger(TestNGOutputReader.class.getName());
+        reports = new HashMap<String, Report>();
     }
 
     Project getProject() {
@@ -168,118 +149,124 @@ final class TestNGOutputReader {
         if (msg == null) {
             return;
         }
+        if (!msg.startsWith(RegexpUtils.TEST_LISTENER_PREFIX) || expectXmlReport) {
+            //this message is not for us...
+            return;
+        }
         verboseMessageLogged(msg);
-        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+//        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
     }
+    private boolean suiteSummary = false;
+
+    private class SuiteStats {
+
+        private String name = null;
+        private int testRun = -1;
+        private int testFail = -1;
+        private int testSkip = -1;
+        private int confFail = 0;
+        private int confSkip = 0;
+    }
+    private SuiteStats suiteStat;
 
     /**
      */
     synchronized void verboseMessageLogged(String msg) {
-        Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
-        if (matcher.find()) {
-            String executable = matcher.group(1);
-            ClassPath platformSrcs = findPlatformSources(executable);
-            if (platformSrcs != null) {
-                this.platformSources = platformSrcs;
+        //suite starting
+        if (getMessage(msg).startsWith("RUNNING: ")) {
+            Matcher m = Pattern.compile(RegexpUtils.RUNNING_SUITE_REGEX).matcher(msg);
+            if (m.matches()) {
+                suiteStarted(m.group(1), Integer.valueOf(m.group(2)), m.group(3));
+            } else {
+                assert false : "Cannot match: '" + msg + "'.";
             }
+            return;
         }
-//        switch (state) {
-//            case SUITE_STARTED: {
-//                if (msg.startsWith(TEST_LISTENER_PREFIX)) {
-//                    String testListenerMsg = msg.substring(TEST_LISTENER_PREFIX.length());
-//                    if (testListenerMsg.startsWith(TESTS_COUNT_PREFIX)) {
-////                        String countStr = testListenerMsg.substring(TESTS_COUNT_PREFIX.length());
-//                        return;
-//                    }
-//
-//                    int leftBracketIndex = testListenerMsg.indexOf('(');
-//                    if (leftBracketIndex == -1) {
-//                        return;
-//                    }
-//
-//                    final String shortMsg = testListenerMsg.substring(0, leftBracketIndex);
-//                    if (shortMsg.equals(START_OF_TEST_PREFIX)) {
-//                        String restOfMsg = testListenerMsg.substring(START_OF_TEST_PREFIX.length());
-//                        if (restOfMsg.length() != 0) {
-//                            char firstChar = restOfMsg.charAt(0);
-//                            char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
-//                            if ((firstChar == '(') && (lastChar == ')')) {
-//                                testCaseStarted(restOfMsg.substring(1, restOfMsg.length() - 1));
-//                            }
-//                        }
-//                        return;
-//                    }
-//                }
-//                break;
-//            }
-//            case TESTCASE_STARTED: {
-//                if (msg.startsWith(TEST_LISTENER_PREFIX)) {
-//                    String testListenerMsg = msg.substring(TEST_LISTENER_PREFIX.length());
-//                    int leftBracketIndex = testListenerMsg.indexOf('(');
-//                    if (leftBracketIndex == -1) {
-//                        return;
-//                    }
-//                    final String shortMsg = testListenerMsg.substring(0, leftBracketIndex);
-//
-//                    if (shortMsg.equals(END_OF_TEST_PREFIX)) {
-//                        String restOfMsg = testListenerMsg.substring(END_OF_TEST_PREFIX.length());
-//                        if (restOfMsg.length() != 0) {
-//                            char firstChar = restOfMsg.charAt(0);
-//                            char lastChar = restOfMsg.charAt(restOfMsg.length() - 1);
-//                            if ((firstChar == '(') && (lastChar == ')')) {
-//                                String name = restOfMsg.substring(1, restOfMsg.length() - 1);
-//                                if (name.equals(testSession.getCurrentTestCase().getName())) {
-//                                    testCaseFinished();
-//                                }
-//                            }
-//                        }
-//                        return;
-//                    } else if (shortMsg.equals(ADD_FAILURE_PREFIX)
-//                            || shortMsg.equals(ADD_ERROR_PREFIX)) {
-//                        int lastCharIndex = testListenerMsg.length() - 1;
-//
-//                        String insideBrackets = testListenerMsg.substring(
-//                                shortMsg.length() + 1,
-//                                lastCharIndex);
-//                        int commaIndex = insideBrackets.indexOf(',');
-//                        String testName = (commaIndex == -1)
-//                                ? insideBrackets
-//                                : insideBrackets.substring(0, commaIndex);
-//                        if (!testName.equals(testSession.getCurrentTestCase().getName())) {
-//                            return;
-//                        }
-//                        testSession.getCurrentTestCase().setTrouble(new Trouble(shortMsg.equals(ADD_ERROR_PREFIX)));
-//                        boolean hasErrMsg = (commaIndex != -1)
-//                                && ((commaIndex + 2) <= insideBrackets.length()); // #166912
-//                        if (hasErrMsg) {
-//                            int errMsgStart;
-//                            if (Character.isSpaceChar(insideBrackets.charAt(commaIndex + 1))) {
-//                                errMsgStart = commaIndex + 2;
-//                            } else {
-//                                errMsgStart = commaIndex + 1;
-//                            }
-//                            String troubleMsg = insideBrackets.substring(errMsgStart);
-//                            if (!troubleMsg.equals("null")) {                   //NOI18N
-//                                addStackTraceLine(testSession.getCurrentTestCase(), troubleMsg, false);
-//                            }
-//                        }
-//                        return;
-//                    }
-//                }
-//                break;
-//            }
-//            case DEFAULT:
-//            case SUITE_FINISHED:
-//            case TESTCASE_ISSUE: {
-//                Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
-//                if (matcher.find()) {
-//                    String executable = matcher.group(1);
-//                    ClassPath platformSrcs = findPlatformSources(executable);
-//                    if (platformSrcs != null) {
-//                        this.platformSources = platformSrcs;
-//                    }
-//                }
-//                break;
+        //suite finishing
+        if (getMessage(msg).equals("===============================================")) {
+            suiteSummary = !suiteSummary;
+            if (suiteSummary) {
+                suiteStat = new SuiteStats();
+            } else {
+                suiteFinished(suiteStat);
+                suiteStat = null;
+            }
+            return;
+        } else if (suiteSummary) {
+            if (suiteStat.name != null) {
+                Matcher m = Pattern.compile(RegexpUtils.STATS_REGEX).matcher(msg);
+                if (suiteStat.testRun < 0) {
+                    //Tests run/fail/skip
+                    if (m.matches()) {
+                        suiteStat.testRun = Integer.valueOf(m.group(1));
+                        suiteStat.testFail = Integer.valueOf(m.group(2));
+                        suiteStat.testSkip = Integer.valueOf(m.group(4));
+                    } else {
+                        assert false : "Cannot match: '" + msg + "'.";
+                    }
+                } else {
+                    //Configuration fail/skip
+                    if (m.matches()) {
+                        suiteStat.confFail = Integer.valueOf(m.group(1));
+                        suiteStat.confSkip = Integer.valueOf(m.group(2));
+                    } else {
+                        assert false : "Cannot match: '" + msg + "'.";
+                    }
+                }
+            } else {
+                suiteStat.name = getMessage(msg).trim();
+            }
+            return;
+        }
+        //test
+        if (getMessage(msg).startsWith("INVOKING: ")) {
+            Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
+            if (m.matches()) {
+                testStarted(m.group(1), m.group(2), m.group(3), m.group(5));
+            } else {
+                assert false : "Cannot match: '" + msg + "'.";
+            }
+            return;
+        }
+
+        Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
+        if (getMessage(msg).startsWith("PASSED: ")) {
+            if (m.matches()) {
+                testFinished("PASSED", m.group(1), m.group(2), m.group(3), m.group(5));
+            } else {
+                assert false : "Cannot match: '" + msg + "'.";
+            }
+            return;
+        }
+
+        if (getMessage(msg).startsWith("PASSED with failures: ")) {
+        }
+
+        if (getMessage(msg).startsWith("SKIPPED: ")) {
+            if (m.matches()) {
+                testFinished("SKIPPED", m.group(1), m.group(2), m.group(3), m.group(5));
+            } else {
+                assert false : "Cannot match: '" + msg + "'.";
+            }
+            return;
+        }
+
+        if (getMessage(msg).startsWith("FAILED: ")) {
+            if (m.matches()) {
+                testFinished("FAILED", m.group(1), m.group(2), m.group(3), m.group(5));
+            } else {
+                assert false : "Cannot match: '" + msg + "'.";
+            }
+            return;
+        }
+
+        //configuration methods
+//        Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
+//        if (matcher.find()) {
+//            String executable = matcher.group(1);
+//            ClassPath platformSrcs = findPlatformSources(executable);
+//            if (platformSrcs != null) {
+//                this.platformSources = platformSrcs;
 //            }
 //        }
     }
@@ -289,67 +276,10 @@ final class TestNGOutputReader {
         if (msg == null) {
             return;
         }
-        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
-//        switch (state) {
-//            case TESTCASE_ISSUE:
-//            case SUITE_FINISHED: {
-//                if (msg.startsWith(TESTCASE_PREFIX)) {
-//                    String header = msg.substring(TESTCASE_PREFIX.length());
-//                    boolean success =
-//                            lastHeaderBrief
-//                            ? tryParseBriefHeader(header)
-//                            || !(lastHeaderBrief = !tryParsePlainHeader(header))
-//                            : tryParsePlainHeader(header)
-//                            || (lastHeaderBrief = tryParseBriefHeader(header));
-//                    if (success) {
-//                        state = State.TESTCASE_ISSUE;
-//                    }
-//                    break;
-//                }
-//            }
-//            case DEFAULT: {
-//                if (msg.contains(TESTSUITE_PREFIX)) {
-//                    String suiteName = msg.substring(TESTSUITE_PREFIX.length());
-//                    if (regexp.getFullJavaIdPattern().matcher(suiteName).matches()) {
-//                        suiteStarted(suiteName);
-//                        resultsDir = determineResultsDir(event);
-//                    }
-//                }
-//
-//                if (state.equals(State.TESTCASE_ISSUE) && !msg.equals("")) {
-//                    addStackTraceLine(testcase, msg, true);
-//                }
-//                break;
-//            }
-//            case SUITE_STARTED: {
-//                if (msg.startsWith(TESTSUITE_STATS_PREFIX)) {
-//                    Matcher matcher = regexp.getSuiteStatsPattern().matcher(msg);
-//                    if (matcher.matches()) {
-//                        try {
-//                            suiteFinished(Integer.parseInt(matcher.group(1)),
-//                                    Integer.parseInt(matcher.group(2)),
-//                                    Integer.parseInt(matcher.group(3)),
-//                                    parseTime(matcher.group(4)));
-//                        } catch (NumberFormatException ex) {
-//                            assert false;
-//                        }
-//                    } else {
-//                        assert false;
-//                    }
-//                    break;
-//                }
-//            }
-//            case TESTCASE_STARTED: {
-//                int posTestListener = msg.indexOf(TEST_LISTENER_PREFIX);
-//                if (posTestListener != -1) {
-//                    displayOutput(msg.substring(0, posTestListener), event.getLogLevel() == AntEvent.LOG_WARN);
-//                    verboseMessageLogged(msg.substring(posTestListener));
-//                } else {
-//                    displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
-//                }
-//                break;
-//            }
-//        }
+        if (!expectXmlReport) {
+            //log/verbose level = 0 so don't show output
+            displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+        }
     }
 
     /**
@@ -368,10 +298,11 @@ final class TestNGOutputReader {
     /**
      * Tries to determine test results directory.
      *
-     * @param  event  Ant event serving as a source of information
-     * @return  <code>File<code> object representing the results directory,
-     *          or <code>null</code> if the results directory could not be
-     *          determined
+     * @param event Ant event serving as a source of information
+     * @return
+     * <code>File<code> object representing the results directory,
+     *          or
+     * <code>null</code> if the results directory could not be determined
      */
     private static File determineResultsDir(final AntEvent event) {
         File resultsDir = null;
@@ -400,8 +331,11 @@ final class TestNGOutputReader {
             return null;
         }
         String todirAttr = (taskStruct.getAttribute("outputdir") != null) //NOI18N
-                ? taskStruct.getAttribute("outputdir") : "test-output"; //NOI18N
-        File resultsDir = getFile(todirAttr, event);
+                ? taskStruct.getAttribute("outputdir") //NOI18N
+                : (taskStruct.getAttribute("workingDir") != null) //NOI18N
+                ? taskStruct.getAttribute("workingDir") + "test-output" //NOI18N
+                : "test-output"; //NOI18N
+        File resultsDir = new File(event.evaluate(todirAttr));
         return findAbsolutePath(resultsDir, taskStruct, event);
     }
 
@@ -432,14 +366,24 @@ final class TestNGOutputReader {
                                     ? todirPath.indexOf("\"", 1) + 1 //NOI18N
                                     : todirPath.indexOf(" "); //NOI18N
                             todirPath = todirPath.substring(0, index);
+                            //found, let's finish
+                            break;
                         }
                     }
                 }
             }
         }
 
-        File resultsDir = (todirPath != ".") ? new File(todirPath) //NOI18N
-                : null;
+        if (todirPath == null) {
+            //-d not set, what about parent java/exec's 'dir'?
+            String dir = taskStruct.getAttribute("dir");
+            if (dir != null) {
+                todirPath = event.evaluate(dir) + "/test-output";
+            } else {
+                todirPath = "test-output";
+            }
+        }
+        File resultsDir = new File(event.evaluate(todirPath));
         return findAbsolutePath(resultsDir, taskStruct, event);
     }
 
@@ -471,7 +415,9 @@ final class TestNGOutputReader {
      */
     private ClassPath findPlatformSources(final String javaExecutable) {
 
-        /* Copied from JavaAntLogger */
+        /*
+         * Copied from JavaAntLogger
+         */
 
         final JavaPlatform[] platforms = JavaPlatformManager.getDefault().getInstalledPlatforms();
         for (int i = 0; i < platforms.length; i++) {
@@ -491,38 +437,34 @@ final class TestNGOutputReader {
 
     /**
      * Notifies that a test (Ant) task was just started.
-     *
-     * @param  expectedSuitesCount  expected number of test suites going to be
-     *                              executed by this task
      */
-    void testTaskStarted(int expectedSuitesCount, boolean expectXmlOutput, AntEvent event) {
+    void testTaskStarted(boolean expectXmlOutput, AntEvent event) {
         this.expectXmlReport = expectXmlOutput;
-        manager.testStarted(testSession);
-//        manager.displaySuiteRunning(testSession, TestSuite.ANONYMOUS_TEST_SUITE);
+        if (!expectXmlReport) {
+            manager.testStarted(testSession);
+        }
         resultsDir = determineResultsDir(event);
     }
 
     /**
      */
     void testTaskFinished() {
-        state = State.SUITE_FINISHED;
-        closePreviousReport(); // #171050
-    }
-
-    private void closePreviousReport() {
-        //get results from report xml file
-        if (resultsDir != null) {
-            File reportFile = findReportFile();
-            if ((reportFile != null) && isValidReportFile(reportFile)) {
-                TestNGSuite reportSuite = parseReportFile(reportFile, testSession);
-                for (TestNGTestSuite ts : reportSuite.getTestSuites()) {
-                    manager.displaySuiteRunning(testSession, ts);
-                    testSession.addSuite(ts);
-                    report = testSession.getReport(ts.getElapsedTime());
-                    manager.displayReport(testSession, report, true);
+        if (expectXmlReport) {
+            manager.testStarted(testSession);
+            //get results from report xml file
+            if (resultsDir != null) {
+                File reportFile = findReportFile();
+                if ((reportFile != null) && isValidReportFile(reportFile)) {
+                    XmlResult reportSuite = parseReportFile(reportFile, testSession);
+                    for (TestNGTestSuite ts : reportSuite.getTestSuites()) {
+                        manager.displaySuiteRunning(testSession, ts);
+                        testSession.setCurrentSuite(ts.getName());
+                        testSession.addSuite(ts);
+                        Report report = testSession.getReport(ts.getElapsedTime());
+                        manager.displayReport(testSession, report, true);
+                    }
                 }
             }
-            report = null;
         }
     }
 
@@ -533,50 +475,21 @@ final class TestNGOutputReader {
     }
 
     //------------------ UPDATE OF DISPLAY -------------------
-
     /**
      */
     private void displayOutput(final String text, final boolean error) {
         manager.displayOutput(testSession, text, error);
-        if (state == State.TESTCASE_STARTED) {
-            List<String> addedLines = new ArrayList<String>();
-            addedLines.add(text);
-            Testcase tc = testSession.getCurrentTestCase();
-            if (tc != null) {
-                tc.addOutputLines(addedLines);
-            }
-        }
+//        if (state == State.TESTCASE_STARTED) {
+//            List<String> addedLines = new ArrayList<String>();
+//            addedLines.add(text);
+//            Testcase tc = testSession.getCurrentTestCase();
+//            if (tc != null) {
+//                tc.addOutputLines(addedLines);
+//            }
+//        }
     }
 
     //--------------------------------------------------------
-    /**
-     */
-    private boolean tryParsePlainHeader(String testcaseHeader) {
-        final Matcher matcher = regexp.getTestcaseHeaderPlainPattern().matcher(testcaseHeader);
-        if (matcher.matches()) {
-            String methodName = matcher.group(1);
-            String timeString = matcher.group(2);
-
-            testcase = findTest(testSession.getCurrentSuite(), methodName);
-            testcase.setTimeMillis(parseTime(timeString));
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private TestNGTestcase findTest(TestSuite suite, String methodName) {
-        TestNGTestcase ret = null;
-        for (Testcase tcase : suite.getTestcases()) {
-            if (tcase.getName().equals(methodName)) {
-                ret = (TestNGTestcase) tcase;
-                break;
-            }
-        }
-        return ret;
-    }
-
     private File findReportFile() {
         File file = new File(resultsDir, "testng-results.xml"); //NOI18N
         return (file.isFile() ? file : null);
@@ -597,17 +510,17 @@ final class TestNGOutputReader {
         long timeDelta = lastModified - timeOfSessionStart;
 
         final Logger logger = Logger.getLogger("org.netbeans.modules.contrib.testng.outputreader.timestamps");//NOI18N
-        final Level logLevel = FINER;
+        final Level logLevel = Level.FINER;
         if (logger.isLoggable(logLevel)) {
             logger.log(logLevel, "Report file: " + reportFile.getPath());//NOI18N
 
             final GregorianCalendar timeStamp = new GregorianCalendar();
 
             timeStamp.setTimeInMillis(timeOfSessionStart);
-            logger.log(logLevel, "Session start:    " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(MILLISECOND)));//NOI18N
+            logger.log(logLevel, "Session start:    " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(Calendar.MILLISECOND)));//NOI18N
 
             timeStamp.setTimeInMillis(lastModified);
-            logger.log(logLevel, "Report timestamp: " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(MILLISECOND)));//NOI18N
+            logger.log(logLevel, "Report timestamp: " + String.format("%1$tT.%2$03d", timeStamp, timeStamp.get(Calendar.MILLISECOND)));//NOI18N
         }
 
         if (timeDelta >= 0) {
@@ -618,11 +531,10 @@ final class TestNGOutputReader {
          * Normally we would return 'false' here, but:
          *
          * We must take into account that modification timestamps of files
-         * usually do not hold milliseconds, just seconds.
-         * The worst case we must accept is that the session started
-         * on YYYY.MM.DD hh:mm:ss.999 and the file was saved exactly in the same
-         * millisecond but its time stamp is just YYYY.MM.DD hh:mm:ss, i.e
-         * 999 milliseconds earlier.
+         * usually do not hold milliseconds, just seconds. The worst case we
+         * must accept is that the session started on YYYY.MM.DD hh:mm:ss.999
+         * and the file was saved exactly in the same millisecond but its time
+         * stamp is just YYYY.MM.DD hh:mm:ss, i.e 999 milliseconds earlier.
          */
         return -timeDelta <= timeOfSessionStart % 1000;
 
@@ -632,14 +544,14 @@ final class TestNGOutputReader {
 //
 //        final GregorianCalendar sessStartCal = new GregorianCalendar();
 //        sessStartCal.setTimeInMillis(timeOfSessionStart);
-//        int sessStartMillis = sessStartCal.get(MILLISECOND);
+//        int sessStartMillis = sessStartCal.get(Calendar.MILLISECOND);
 //        if (timeDelta < -sessStartMillis) {
 //            return false;
 //        }
 //
 //        final GregorianCalendar fileModCal = new GregorianCalendar();
 //        fileModCal.setTimeInMillis(lastModified);
-//        if (fileModCal.get(MILLISECOND) != 0) {
+//        if (fileModCal.get(Calendar.MILLISECOND) != 0) {
 //            /* So the file's timestamp does hold milliseconds! */
 //            return false;
 //        }
@@ -652,8 +564,8 @@ final class TestNGOutputReader {
 //        return lastModified >= (timeOfSessionStart - sessStartMillis);
     }
 
-    private static TestNGSuite parseReportFile(File reportFile, TestSession session) {
-        TestNGSuite reports = null;
+    private static XmlResult parseReportFile(File reportFile, TestSession session) {
+        XmlResult reports = null;
         try {
             reports = XmlOutputParser.parseXmlOutput(
                     new InputStreamReader(
@@ -662,14 +574,74 @@ final class TestNGOutputReader {
         } catch (UnsupportedCharsetException ex) {
             assert false;
         } catch (SAXException ex) {
-            /* This exception has already been handled. */
+            /*
+             * This exception has already been handled.
+             */
         } catch (IOException ex) {
             /*
-             * Failed to read the report file - but we still have
-             * the report built from the Ant output.
+             * Failed to read the report file - but we still have the report
+             * built from the Ant output.
              */
-            Logger.getLogger(TestNGOutputReader.class.getName()).log(Level.INFO, "I/O exception while reading JUnit XML report file from JUnit: ", ex);//NOI18N
+            Logger.getLogger(TestNGOutputReader.class.getName()).log(Level.INFO, "I/O exception while reading TestNG XML report file from TestNG: ", ex);//NOI18N
         }
         return reports;
+    }
+
+    private void suiteStarted(String name, int expectedTCases, String config) {
+        TestSuite suite = new TestNGTestSuite(name, testSession, expectedTCases, config);
+        testSession.addSuite(suite);
+        testSession.setCurrentSuite(name);
+        manager.displaySuiteRunning(testSession, suite);
+        platformSources = null;
+        reports.put(name, new Report(name, project));
+    }
+
+    private void suiteFinished(SuiteStats stats) {
+        testSession.setCurrentSuite(stats.name);
+        TestNGTestSuite s = (TestNGTestSuite) testSession.getCurrentSuite();
+        s.finish(stats.testRun, stats.testFail, stats.testSkip, stats.confFail, stats.confSkip);
+        manager.displayReport(testSession, reports.get(stats.name), true);
+    }
+
+    private void testStarted(String suiteName, String testCase, String parameters, String values) {
+        testSession.setCurrentSuite(suiteName);
+        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, parameters);
+        if (tc == null) {
+            tc = new TestNGTestcase(testCase, parameters, values, testSession);
+            testSession.addTestCase(tc);
+            manager.testStarted(testSession);
+            Report r = reports.get(suiteName);
+            r.update(testSession.getReport(lastSuiteTime));
+            manager.displayReport(testSession, r, false);
+        } else {
+            tc.addValues(values);
+        }
+    }
+
+    private void testFinished(String st, String suiteName, String testCase, String parameters, String values) {
+        testSession.setCurrentSuite(suiteName);
+        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, parameters);
+        if (tc == null) {
+            //TestNG does not log invoke message for junit tests...
+            tc = new TestNGTestcase(testCase, parameters, values, testSession);
+            testSession.addTestCase(tc);
+            manager.testStarted(testSession);
+        }
+        assert tc != null;
+        if ("PASSED".equals(st)) {
+            tc.setStatus(Status.PASSED);
+        } else if ("FAILED".equals(st)) {
+            tc.setStatus(Status.FAILED);
+        } else if ("SKIPPED".equals(st)) {
+            tc.setStatus(Status.SKIPPED);
+        }
+        Report r = reports.get(suiteName);
+        r.update(testSession.getReport(lastSuiteTime));
+        manager.displayReport(testSession, r, false);
+    }
+
+    private String getMessage(String msg) {
+        int prefixLength = RegexpUtils.TEST_LISTENER_PREFIX.length();
+        return msg.substring(prefixLength);
     }
 }

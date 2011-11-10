@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright © 1997-2011 Oracle and/or its affiliates. Inc. All rights reserved.
+ * Copyright © 2010-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,33 +31,48 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.contrib.testng.output;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Collection of basic regex patterns for matching Java identifiers.
  *
- * @author Marian Petras
+ * @author lukas
  */
-public final class RegexpPatterns {
+public class XmlResult {
 
-    /** */
-    private static final String JAVA_ID_START_REGEX
-            = "\\p{javaJavaIdentifierStart}";                           //NOI18N
-    /** */
-    private static final String JAVA_ID_PART_REGEX
-            = "\\p{javaJavaIdentifierPart}";                            //NOI18N
-    /** */
-    public static final String JAVA_ID_REGEX
-            = "(?:" + JAVA_ID_START_REGEX + ')' +                       //NOI18N
-              "(?:" + JAVA_ID_PART_REGEX + ")*";                        //NOI18N
-    /** */
-    public static final String JAVA_ID_REGEX_FULL
-            = JAVA_ID_REGEX + "(?:\\." + JAVA_ID_REGEX + ")*";          //NOI18N
+    private String name;
+    private List<TestNGTest> suites;
 
-    /** Creates a new instance of RegexpPatterns */
-    private RegexpPatterns() {
+    public XmlResult(String name) {
+        this.name = name;
+        suites = new ArrayList<TestNGTest>();
     }
-    
+
+    public void addTestNGTest(TestNGTest ts) {
+        suites.add(ts);
+    }
+
+    public List<TestNGTestSuite> getTestSuites() {
+        List<TestNGTestSuite> s = new ArrayList<TestNGTestSuite>();
+        for (TestNGTest t: suites) {
+            s.addAll(t.getTestcases());
+        }
+        return s;
+    }
+
+    List<TestNGTest> getTestNGTests() {
+        return suites;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

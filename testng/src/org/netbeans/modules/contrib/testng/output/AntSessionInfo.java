@@ -60,6 +60,9 @@ final class AntSessionInfo {
      */
     private SessionType sessionType;
 
+    /** Suite name, defaults to "Ant suite" */
+    private String sessionName = "Ant suite";
+
     /**
      */
     AntSessionInfo() {
@@ -90,4 +93,13 @@ final class AntSessionInfo {
     void setSessionType(SessionType sessionType) {
         this.sessionType = sessionType;
     }
+
+    String getSessionName() {
+        return sessionName;
+    }
+
+    void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
+
 }

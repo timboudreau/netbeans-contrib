@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright © 2010-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright © 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,6 +21,12 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,48 +37,60 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.contrib.testng.output;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Action;
+import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
+import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
+import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 /**
  *
- * @author lukas
+ * @author Marian Petras
  */
-public class TestNGSuite {
+public final class TestNGSuiteNode extends TestsuiteNode {
 
-    private String name;
-    private List<TestNGTest> suites;
+    private InstanceContent ic;
 
-    public TestNGSuite(String name) {
-        this.name = name;
-        suites = new ArrayList<TestNGTest>();
+    /**
+     *
+     * @param  suiteName  name of the test suite, or {@code ANONYMOUS_SUITE}
+     *                    in the case of anonymous suite
+     * @see  ResultDisplayHandler#ANONYMOUS_SUITE
+     */
+    public TestNGSuiteNode(final String suiteName, final boolean filtered) {
+        this(suiteName, filtered, new InstanceContent());
     }
 
-    public void addTestNGTest(TestNGTest ts) {
-        suites.add(ts);
+    private TestNGSuiteNode(String suiteName, boolean filtered, InstanceContent ic) {
+        super(null, suiteName, filtered, new AbstractLookup(ic));
+        this.ic = ic;
     }
 
-    public List<TestNGTestSuite> getTestSuites() {
-        List<TestNGTestSuite> s = new ArrayList<TestNGTestSuite>();
-        for (TestNGTest t: suites) {
-            s.addAll(t.getTestcases());
+    @Override
+    public Action[] getActions(boolean context) {
+        ic.add(((TestNGTestSuite) getSuite()).getSuiteFO());
+        List<Action> actions = new ArrayList<Action>();
+        Action preferred = getPreferredAction();
+        if (preferred != null) {
+            actions.add(preferred);
         }
-        return s;
+        actions.add(SystemAction.get(RunTestClassAction.class));
+        actions.add(SystemAction.get(DebugTestClassAction.class));
+        return actions.toArray(new Action[actions.size()]);
     }
 
-    List<TestNGTest> getTestNGTests() {
-        return suites;
+    @Override
+    public Action getPreferredAction() {
+        return new JumpAction(this, null);
     }
 
-    public String getName() {
-        return name;
-    }
+
 }

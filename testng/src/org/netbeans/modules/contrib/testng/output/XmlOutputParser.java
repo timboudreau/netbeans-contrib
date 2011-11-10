@@ -40,6 +40,8 @@ package org.netbeans.modules.contrib.testng.output;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import org.netbeans.modules.gsf.testrunner.api.Status;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
@@ -85,7 +87,7 @@ public class XmlOutputParser extends DefaultHandler {
     private static final int STATE_FULL_STACKTRACE = 15;
     private int state = STATE_OUT_OF_SCOPE;
     /** */
-    private TestNGSuite reports;
+    private XmlResult reports;
     private TestNGTest test;
     private TestNGTestSuite testsuite;
     private TestNGTestcase testcase;
@@ -102,7 +104,7 @@ public class XmlOutputParser extends DefaultHandler {
         xmlReader.setContentHandler(this);
     }
 
-    static TestNGSuite parseXmlOutput(Reader reader, TestSession session) throws SAXException, IOException {
+    static XmlResult parseXmlOutput(Reader reader, TestSession session) throws SAXException, IOException {
         assert reader != null;
         XmlOutputParser parser = new XmlOutputParser(session);
         try {
@@ -148,6 +150,7 @@ public class XmlOutputParser extends DefaultHandler {
                 if ("class".equals(qName)) { //NOI18N
                     tcClassName = attributes.getValue("name"); //NOI18N
                     testsuite = new TestNGTestSuite(tcClassName, testSession);
+
                     state = STATE_CLASS;
                 }
                 break;
@@ -212,7 +215,7 @@ public class XmlOutputParser extends DefaultHandler {
                     if (name == null || "".equals(name.trim())) {
                         name = NbBundle.getMessage(XmlOutputParser.class, "UNKNOWN_NAME");
                     }
-                    reports = new TestNGSuite(name);
+                    reports = new XmlResult(name);
                     state = STATE_SUITE;
                 }
         }
@@ -330,7 +333,8 @@ public class XmlOutputParser extends DefaultHandler {
     }
 
     private TestNGTestcase createTestcaseReport(String className, String name, int time) {
-        TestNGTestcase tc = new TestNGTestcase(name, "TestNG Test", testSession);
+//        TestNGTestcase tc = new TestNGTestcase(name, "TestNG Test", testSession);
+        TestNGTestcase tc = new TestNGTestcase(name, "params", "values", testSession);
         tc.setTimeMillis(time);
         tc.setClassName(className);
         return tc;
