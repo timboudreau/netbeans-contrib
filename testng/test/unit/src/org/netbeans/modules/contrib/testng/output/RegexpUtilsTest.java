@@ -514,7 +514,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] RUNNING: Suite: \"Junit via TestNG XML\" containing \"5\" Tests (config: /space/sources/tng_fork/src/test/resources/junit-suite.xml)";
         Matcher m = pattern.matcher(matchingString);
         assertTrue(m.matches());
-        assertEquals(4, m.groupCount());
+        assertEquals(3, m.groupCount());
         assertEquals("Junit via TestNG XML", m.group(1));
         assertEquals("5", m.group(2));
         assertEquals("/space/sources/tng_fork/src/test/resources/junit-suite.xml", m.group(3));
@@ -522,7 +522,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] RUNNING: Suite: \"Junit via TestNG XML\" containing \"5\" Tests (config: c:\\test\\resources\\junit-suite.xml)";
         m = pattern.matcher(matchingString2);
         assertTrue(m.matches());
-        assertEquals(4, m.groupCount());
+        assertEquals(3, m.groupCount());
         assertEquals("Junit via TestNG XML", m.group(1));
         assertEquals("5", m.group(2));
         assertEquals("c:\\test\\resources\\junit-suite.xml", m.group(3));
@@ -534,7 +534,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString()";
         Matcher m = pattern.matcher(matchingString);
         assertTrue(m.matches());
-        assertEquals(6, m.groupCount());
+        assertEquals(5, m.groupCount());
         assertEquals("Regression1", m.group(1));
         assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
         assertEquals("", m.group(3));
@@ -544,7 +544,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString(java.lang.String)(value(s): \"Cedric\")";
         m = pattern.matcher(matchingString2);
         assertTrue(m.matches());
-        assertEquals(6, m.groupCount());
+        assertEquals(5, m.groupCount());
         assertEquals("Regression1", m.group(1));
         assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
         assertEquals("java.lang.String", m.group(3));
@@ -554,7 +554,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] PASSED: \"Injection\" - test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))";
         m = pattern.matcher(matchingString3);
         assertTrue(m.matches());
-        assertEquals(6, m.groupCount());
+        assertEquals(5, m.groupCount());
         assertEquals("Injection", m.group(1));
         assertEquals("test.inject.NoInjectionTest.withInjection", m.group(2));
         assertEquals("java.lang.reflect.Method", m.group(3));
@@ -568,7 +568,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener]     Tests run: 559, Failures: 4, Skips: 9";
         Matcher m = pattern.matcher(matchingString);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
+        assertEquals(4, m.groupCount());
         assertEquals("559", m.group(1));
         assertEquals("4", m.group(2));
         assertEquals("9", m.group(4));
@@ -576,7 +576,7 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener]     Configuration Failures: 22, Skips: 11";
         m = pattern.matcher(matchingString2);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
+        assertEquals(4, m.groupCount());
         assertEquals("22", m.group(1));
         assertEquals("11", m.group(2));
         assertNull(m.group(3));
