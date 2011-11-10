@@ -38,11 +38,7 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.List;
 import org.netbeans.api.project.Project;
 import org.netbeans.junit.NbTestCase;
@@ -64,7 +60,7 @@ public class XmlOutputParserTest extends NbTestCase {
     }
 
     public void testParseSimpleXmlOutput() throws Exception {
-        TestNGSuite suite = parseResultXML(new File(getDataDir(), "results/testng-results.xml"));
+        XmlResult suite = parseResultXML(new File(getDataDir(), "results/testng-results.xml"));
         assertEquals("Ant suite", suite.getName());
         List<TestNGTest> testNGTests = suite.getTestNGTests();
         assertEquals(2, testNGTests.size());
@@ -109,14 +105,14 @@ public class XmlOutputParserTest extends NbTestCase {
     }
 
     public void testParseXmlOutput() throws Exception {
-        TestNGSuite reports = parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
+        XmlResult reports = parseResultXML(new File(getDataDir(), "results/testng-results_1.xml"));
         assertEquals(22, reports.getTestNGTests().size());
         List<TestNGTestSuite> testSuites = reports.getTestSuites();
         assertEquals(71, testSuites.size());
     }
 
     public void testParseXmlOutput2() throws Exception {
-        TestNGSuite reports = parseResultXML(new File(getDataDir(), "results/testng-results_2.xml"));
+        XmlResult reports = parseResultXML(new File(getDataDir(), "results/testng-results_2.xml"));
         List<TestNGTestSuite> testSuites = reports.getTestSuites();
         assertEquals(1, testSuites.size());
         int tc = 0;
@@ -126,7 +122,7 @@ public class XmlOutputParserTest extends NbTestCase {
         assertEquals(6, tc);
     }
 
-    TestNGSuite parseResultXML(File f) throws IOException, SAXException {
+    XmlResult parseResultXML(File f) throws IOException, SAXException {
         Reader reader = new BufferedReader(new FileReader(f));
         TestSession ts = new TestSession("test", new P(), SessionType.TEST);
         return XmlOutputParser.parseXmlOutput(reader, ts);

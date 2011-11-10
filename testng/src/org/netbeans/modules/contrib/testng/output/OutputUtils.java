@@ -80,7 +80,7 @@ final class OutputUtils {
     private OutputUtils() {
     }
 
-    static void openTestsuite(TestsuiteNode node) {
+    static void openTestsuite(TestNGSuiteNode node) {
         TestSuite suite = node.getSuite();
         if ((suite != null) && (suite instanceof TestSuite)) {
             final FileObject fo = ((TestNGTestSuite) suite).getSuiteFO();
@@ -116,7 +116,7 @@ final class OutputUtils {
         }
     }
 
-    static void openTestMethod(final TestMethodNode node) {
+    static void openTestMethod(final TestNGMethodNode node) {
         final FileObject fo = node.getTestcase().getClassFileObject();
         if (fo != null) {
             final long[] line = new long[]{0};
@@ -156,7 +156,7 @@ final class OutputUtils {
     }
 
     static void openCallstackFrame(Node node, String frameInfo) {
-        TestMethodNode methodNode = getTestMethodNode(node);
+        TestNGMethodNode methodNode = getTestMethodNode(node);
         FileLocator locator = methodNode.getTestcase().getSession().getFileLocator();
         if (locator == null) {
             return;
@@ -190,11 +190,11 @@ final class OutputUtils {
 
     /**
      */
-    private static TestMethodNode getTestMethodNode(Node node) {
-        while (!(node instanceof TestMethodNode)) {
+    private static TestNGMethodNode getTestMethodNode(Node node) {
+        while (!(node instanceof TestNGMethodNode)) {
             node = node.getParentNode();
         }
-        return (TestMethodNode) node;
+        return (TestNGMethodNode) node;
     }
 
     /**

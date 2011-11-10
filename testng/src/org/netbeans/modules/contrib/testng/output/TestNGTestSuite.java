@@ -38,11 +38,12 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
-import java.util.List;
-import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
+import java.io.File;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.netbeans.modules.gsf.testrunner.api.TestSuite;
+import org.netbeans.modules.gsf.testrunner.api.Testcase;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -54,20 +55,30 @@ public class TestNGTestSuite extends TestSuite {
     private final TestSession session;
     private FileObject suiteFO = null;
     private long elapsedTime = 0;
+    private int expectedTestCases;
+    private FileObject cfgFO;
 
-    public TestNGTestSuite(String name, TestSession session) {
+    TestNGTestSuite(String tcClassName, TestSession testSession) {
+        super(tcClassName);
+        this.session = testSession;
+    }
+
+    public TestNGTestSuite(String name, TestSession session, int expectedTCases, String configFile) {
         super(name);
         this.session = session;
+        expectedTestCases = expectedTCases;
+        cfgFO = configFile.equals("null") ? null : FileUtil.toFileObject(FileUtil.normalizeFile(new File(configFile)));
     }
 
     FileObject getSuiteFO() {
-        if (suiteFO == null) {
-            FileLocator locator = session.getFileLocator();
-            if (locator != null) {
-                suiteFO = locator.find(getName().replace('.', '/') + ".java"); //NOI18N
-            }
-        }
-        return suiteFO;
+        return cfgFO;
+//        if (suiteFO == null) {
+//            FileLocator locator = session.getFileLocator();
+//            if (locator != null) {
+//                suiteFO = locator.find(getName().replace('.', '/') + ".java"); //NOI18N
+//            }
+//        }
+//        return suiteFO;
     }
 
     public long getElapsedTime() {
@@ -77,4 +88,19 @@ public class TestNGTestSuite extends TestSuite {
     public void setElapsedTime(long elapsedTime) {
         this.elapsedTime = elapsedTime;
     }
+
+    public void finish(int run, int fail, int skip, int confFail, int confSkip) {
+        //not needed?
+        //TODO: update tcases with proper status
+    }
+
+    public TestNGTestcase getTestCase(String testCase, String parameters) {
+        for (Testcase tc: getTestcases()) {
+            if (tc.getName().equals(testCase) && ((TestNGTestcase) tc).getParameters().equals(parameters)) {
+                return (TestNGTestcase) tc;
+            }
+        }
+        return null;
+    }
+
 }

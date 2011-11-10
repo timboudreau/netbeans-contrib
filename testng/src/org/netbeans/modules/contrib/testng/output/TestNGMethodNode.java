@@ -38,14 +38,18 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.contrib.testng.output;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Action;
-import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
-import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.contrib.testng.actions.DebugTestMethodAction;
+import org.netbeans.modules.contrib.testng.actions.RunTestMethodAction;
+import org.netbeans.modules.gsf.testrunner.api.DiffViewAction;
+import org.netbeans.modules.gsf.testrunner.api.TestMethodNode;
+import org.netbeans.modules.gsf.testrunner.api.Testcase;
+import org.netbeans.spi.project.SingleMethod;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -53,36 +57,38 @@ import org.openide.util.lookup.InstanceContent;
 /**
  *
  * @author Marian Petras
+ * @author Lukas Jungmann
  */
-public final class TestsuiteNode extends org.netbeans.modules.gsf.testrunner.api.TestsuiteNode {
+final class TestNGMethodNode extends TestMethodNode {
 
     private InstanceContent ic;
 
-    /**
-     *
-     * @param  suiteName  name of the test suite, or {@code ANONYMOUS_SUITE}
-     *                    in the case of anonymous suite
-     * @see  ResultDisplayHandler#ANONYMOUS_SUITE
-     */
-    public TestsuiteNode(final String suiteName, final boolean filtered) {
-        this(suiteName, filtered, new InstanceContent());
+    public TestNGMethodNode(Testcase testcase, Project project) {
+        this(testcase, project, new InstanceContent());
     }
 
-    private TestsuiteNode(String suiteName, boolean filtered, InstanceContent ic) {
-        super(null, suiteName, filtered, new AbstractLookup(ic));
+    private TestNGMethodNode(Testcase tc, Project p, InstanceContent ic) {
+        super(tc, p, new AbstractLookup(ic));
         this.ic = ic;
     }
 
     @Override
     public Action[] getActions(boolean context) {
-        ic.add(((TestNGTestSuite) getSuite()).getSuiteFO());
+        ic.add(new SingleMethod(getTestcase().getClassFileObject(), getTestcase().getName()));
+        ic.add(getTestcase());
         List<Action> actions = new ArrayList<Action>();
         Action preferred = getPreferredAction();
         if (preferred != null) {
             actions.add(preferred);
         }
-        actions.add(SystemAction.get(RunTestClassAction.class));
-        actions.add(SystemAction.get(DebugTestClassAction.class));
+        if ((testcase.getTrouble() != null) && (testcase.getTrouble().getComparisonFailure() != null)){
+            //TODO: differs in TestNG
+            actions.add(new DiffViewAction(testcase));
+        }
+        if (!getTestcase().isConfigMethod()) {
+            actions.add(SystemAction.get(RunTestMethodAction.class));
+            actions.add(SystemAction.get(DebugTestMethodAction.class));
+        }
         return actions.toArray(new Action[actions.size()]);
     }
 
@@ -91,4 +97,13 @@ public final class TestsuiteNode extends org.netbeans.modules.gsf.testrunner.api
         return new JumpAction(this, null);
     }
 
+    public TestNGTestcase getTestcase() {
+        return (TestNGTestcase) testcase;
+    }
+
+    @Override
+    public String getHtmlDisplayName() {
+        return !getTestcase().isConfigMethod() ? super.getHtmlDisplayName()
+                : "<i>" + super.getHtmlDisplayName() + "</i>";
+    }
 }

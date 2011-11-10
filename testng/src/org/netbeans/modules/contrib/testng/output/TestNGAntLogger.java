@@ -45,15 +45,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.apache.tools.ant.module.spi.TaskStructure;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.contrib.testng.output.antutils.TestCounter;
 import org.netbeans.modules.gsf.testrunner.api.Report;
 import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
 import org.openide.filesystems.FileUtil;
@@ -71,13 +68,13 @@ import org.openide.util.lookup.ServiceProvider;
  * @author  Lukas Jungmann
  */
 @ServiceProvider(service = AntLogger.class)
-public final class TestNGAntLogger extends AntLogger {// implements ITestListener {
+public final class TestNGAntLogger extends AntLogger {
 
     /** levels of interest for logging (info, warning, error, ...) */
     private static final int[] LEVELS_OF_INTEREST = {
         AntEvent.LOG_INFO,
         AntEvent.LOG_WARN, //test failures
-        AntEvent.LOG_VERBOSE,
+        AntEvent.LOG_VERBOSE, //our test listener
         AntEvent.LOG_ERR
     };
     public static final String TASK_JAVA = "java";                      //NOI18N
@@ -170,7 +167,7 @@ public final class TestNGAntLogger extends AntLogger {// implements ITestListene
      * @return  list of invidividual parts of the given command-line,
      *          or an empty list if the command-line was empty
      */
-    private static final List<String> parseCmdLine(String cmdLine) {
+    private static List<String> parseCmdLine(String cmdLine) {
         cmdLine = cmdLine.trim();
 
         /* maybe the command-line is empty: */
@@ -304,22 +301,41 @@ public final class TestNGAntLogger extends AntLogger {// implements ITestListene
             if (sessionInfo.getSessionType() == null) {
                 sessionInfo.setSessionType(sessionType);
             }
+            //TODO: do the same for java/java debug tasks
+            TaskStructure struct = event.getTaskStructure();
+            String tmp = struct.getAttribute("suitename");
+            if (tmp != null) {
+                sessionInfo.setSessionName(event.evaluate(tmp));
+            }
+            tmp = struct.getAttribute("verbose");
+            if (tmp == null) {
+                tmp = struct.getAttribute("log");
+            }
+            boolean offline = false;
+            if (tmp != null) {
+                int logLevel = Integer.valueOf(event.evaluate(tmp));
+                //logging is explicitly turned off by the user, so show only final
+                //results computed off-line from testng-results.xml file
+                offline = logLevel == 0;
+            }
 
             /*
              * Count the test classes in the try-catch block so that
              * 'testTaskStarted(...)' is called even if counting fails
              * (throws an exception):
              */
-            int testClassCount;
-            try {
-                testClassCount = TestCounter.getTestClassCount(event);
-            } catch (Exception ex) {
-                testClassCount = 0;
-                Logger.getLogger(TestNGAntLogger.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            //would have to parse all incoming xmls, take includes/excludes
+            //into accout, dependencies between tests, groups etc
+//            int testClassCount;
+//            try {
+//                testClassCount = TestCounter.getTestClassCount(event);
+//            } catch (Exception ex) {
+//                testClassCount = 0;
+//                Logger.getLogger(TestNGAntLogger.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 
-            final boolean hasXmlOutput = hasXmlOutput(event);
-            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput, event);
+//            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput, event);
+            getOutputReader(event).testTaskStarted(offline, event);
         }
     }
 
@@ -406,48 +422,4 @@ public final class TestNGAntLogger extends AntLogger {// implements ITestListene
         }
         return sessionInfo;
     }
-
-    /**
-     * Finds whether the test report will be generated in XML format.
-     */
-    private static boolean hasXmlOutput(AntEvent event) {
-        final String taskName = event.getTaskName();
-        if (TASK_TESTNG.equals(taskName) || TASK_JAVA.equals(taskName)) {
-            return true;
-        } else {
-            assert false;
-            return false;
-        }
-    }
-
-//    public void onTestStart(ITestResult itr) {
-//        System.out.println("Starting: " + itr.getName());
-//        System.err.println("Starting: " + itr.getName());
-//    }
-//
-//    public void onTestSuccess(ITestResult itr) {
-//        System.out.println("succ: " + itr.getName());
-//        System.err.println("succ: " + itr.getName());
-//    }
-//
-//    public void onTestFailure(ITestResult itr) {
-//
-//    }
-//
-//    public void onTestSkipped(ITestResult itr) {
-//
-//    }
-//
-//    public void onTestFailedButWithinSuccessPercentage(ITestResult itr) {
-//
-//    }
-//
-//    public void onStart(ITestContext itc) {
-//
-//    }
-//
-//    public void onFinish(ITestContext itc) {
-//
-//    }
-//
 }

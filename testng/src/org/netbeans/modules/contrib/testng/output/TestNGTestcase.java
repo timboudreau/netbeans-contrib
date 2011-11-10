@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.contrib.testng.output;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.netbeans.modules.gsf.testrunner.api.Testcase;
@@ -52,10 +54,26 @@ public final class TestNGTestcase extends Testcase {
 
     private FileObject classFO = null;
     private boolean confMethod = false;
+    private String parameters;
+    private List<String> values = new ArrayList<String>();
 
 
-    public TestNGTestcase(String name, String type, TestSession session) {
-        super(name, type, session);
+    public TestNGTestcase(String name, String params, String values, TestSession session) {
+        super(name, "TestNG Test", session);
+        parameters = params;
+        this.values.add(values);
+    }
+
+    public String getParameters() {
+        return parameters;
+    }
+
+    public void addValues(String values) {
+        this.values.add(values);
+    }
+
+    public int getInvocationCount() {
+        return values.size();
     }
 
     public FileObject getClassFileObject() {

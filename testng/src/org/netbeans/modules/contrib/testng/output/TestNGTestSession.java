@@ -39,8 +39,10 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -55,6 +57,7 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.gsf.testrunner.api.TestRunnerNodeFactory;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
+import org.netbeans.modules.gsf.testrunner.api.TestSuite;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -67,6 +70,8 @@ import org.openide.filesystems.FileObject;
 public class TestNGTestSession extends TestSession {
 
     private FileLocator projectFileLocator = null;
+    private final List<TestNGTestSuite> suites = new ArrayList<TestNGTestSuite>();
+    private TestSuite currentSuite;
 
     public TestNGTestSession(String name, Project project, SessionType sessionType, TestRunnerNodeFactory nodeFactory) {
         super(name, project, sessionType, nodeFactory);
@@ -83,6 +88,30 @@ public class TestNGTestSession extends TestSession {
         }
         return locator;
     }
+
+    @Override
+    public void addSuite(TestSuite suite) {
+        super.addSuite(suite);
+        suites.add((TestNGTestSuite) suite);
+    }
+
+    @Override
+    public TestSuite getCurrentSuite() {
+        if (currentSuite == null) {
+            return super.getCurrentSuite();
+        }
+        return currentSuite;
+    }
+
+    public void setCurrentSuite(String name) {
+        for (TestNGTestSuite ts : suites) {
+            if (ts.getName().equals(name)) {
+                currentSuite = ts;
+                break;
+            }
+        }
+    }
+
 
     class ProjectFileLocator implements FileLocator {
 

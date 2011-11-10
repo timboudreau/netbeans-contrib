@@ -69,12 +69,12 @@ final class JumpAction extends AbstractAction {
      * tries to jump to the callstack frame source code. Otherwise does nothing.
      */
     public void actionPerformed(ActionEvent e) {
-        if (node instanceof TestsuiteNode){
-            OutputUtils.openTestsuite((TestsuiteNode)node);
+        if (node instanceof TestNGSuiteNode){
+            OutputUtils.openTestsuite((TestNGSuiteNode)node);
         } else if (node instanceof CallstackFrameNode){
             OutputUtils.openCallstackFrame(node, callstackFrameInfo);
-        } else if (node instanceof TestMethodNode){
-            OutputUtils.openTestMethod((TestMethodNode)node);
+        } else if (node instanceof TestNGMethodNode){
+            OutputUtils.openTestMethod((TestNGMethodNode)node);
         }
     }
 

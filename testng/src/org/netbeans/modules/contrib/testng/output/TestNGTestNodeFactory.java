@@ -42,6 +42,7 @@ package org.netbeans.modules.contrib.testng.output;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.gsf.testrunner.api.TestRunnerNodeFactory;
 import org.netbeans.modules.gsf.testrunner.api.Testcase;
+import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
 import org.openide.nodes.Node;
 
 /**
@@ -52,7 +53,7 @@ public class TestNGTestNodeFactory extends TestRunnerNodeFactory {
 
     @Override
     public Node createTestMethodNode(Testcase testcase, Project project) {
-        return new TestMethodNode(testcase, project);
+        return new TestNGMethodNode(testcase, project);
     }
 
     @Override
@@ -61,8 +62,8 @@ public class TestNGTestNodeFactory extends TestRunnerNodeFactory {
     }
 
     @Override
-    public org.netbeans.modules.gsf.testrunner.api.TestsuiteNode createTestSuiteNode(String suiteName, boolean filtered) {
-        return new TestsuiteNode(suiteName, filtered);
+    public TestsuiteNode createTestSuiteNode(String suiteName, boolean filtered) {
+        return new TestNGSuiteNode(suiteName, filtered);
     }
 
 }

@@ -52,6 +52,24 @@ import java.util.regex.Pattern;
  */
 final class RegexpUtils {
 
+/** */
+    private static final String JAVA_ID_START_REGEX
+            = "\\p{javaJavaIdentifierStart}";                           //NOI18N
+    /** */
+    private static final String JAVA_ID_PART_REGEX
+            = "\\p{javaJavaIdentifierPart}";                            //NOI18N
+    /** */
+    public static final String JAVA_ID_REGEX
+            = "(?:" + JAVA_ID_START_REGEX + ')' +                       //NOI18N
+              "(?:" + JAVA_ID_PART_REGEX + ")*";                        //NOI18N
+    /** */
+    public static final String JAVA_ID_REGEX_FULL
+            = JAVA_ID_REGEX + "(?:\\." + JAVA_ID_REGEX + ")*";          //NOI18N
+
+    static final String RUNNING_SUITE_REGEX = "[^\"]*\"([^\"]+)\" [a-z]+ \"(\\d+)\"[^:]*: ([^\\)]*)\\)";
+    static final String TEST_REGEX = "[^\"]*\"([^\"]+)\" - ([^\\(]+)\\(([^\\)]*)\\)([^:]+: (.*)\\))?";
+    static final String STATS_REGEX = "\\D+(\\d+)\\D+(\\d+)(\\D+(\\d+))?";
+
     /** */
     static final String TESTSUITE_PREFIX = "[TestNGAntTask]";//"Testsuite: ";               //NOI18N
     /** */
@@ -84,16 +102,16 @@ final class RegexpUtils {
             = "\\p{Blank}*(?:(FAILED) *|(?i:.*\\berror\\b.*))";         //NOI18N
     /** */
     static final String TESTCASE_HEADER_PLAIN_REGEX
-            = "\\p{Blank}*(" + RegexpPatterns.JAVA_ID_REGEX             //NOI18N
+            = "\\p{Blank}*(" + JAVA_ID_REGEX             //NOI18N
               + ")\\p{Blank}+took\\p{Blank}+(.+)" + SECONDS_REGEX;      //NOI18N
     /** */
     static final String TESTCASE_HEADER_BRIEF_REGEX
-            = "\\p{Blank}*(" + RegexpPatterns.JAVA_ID_REGEX             //NOI18N
-              + ") *\\( *(" + RegexpPatterns.JAVA_ID_REGEX_FULL         //NOI18N
+            = "\\p{Blank}*(" + JAVA_ID_REGEX             //NOI18N
+              + ") *\\( *(" + JAVA_ID_REGEX_FULL         //NOI18N
               + ") *\\) *:" + TESTCASE_ISSUE_REGEX;                     //NOI18N
     /** */
     static final String TESTCASE_EXCEPTION_REGEX
-            = "((?:" + RegexpPatterns.JAVA_ID_REGEX_FULL                //NOI18N
+            = "((?:" + JAVA_ID_REGEX_FULL                //NOI18N
               + "\\.?(?:Exception|Error|ComparisonFailure))"            //NOI18N
                         + "|java\\.lang\\.Throwable)"                   //NOI18N
               + "(?: *: *(.*))?";                                       //NOI18N
@@ -105,16 +123,16 @@ final class RegexpUtils {
     static final String CALLSTACK_LINE_REGEX
             = "(?:\\t\\t?|  +| *\\t? *\\[catch\\] )"                    //NOI18N
               + CALLSTACK_LINE_PREFIX
-              + RegexpPatterns.JAVA_ID_REGEX + "(?:\\."                 //NOI18N
-              + RegexpPatterns.JAVA_ID_REGEX + ")+"                     //NOI18N
+              + JAVA_ID_REGEX + "(?:\\."                 //NOI18N
+              + JAVA_ID_REGEX + ")+"                     //NOI18N
               + "(?: ?\\([^()]+\\))?";                                  //NOI18N
     /** */
     static final String NESTED_EXCEPTION_PREFIX = "Caused by: ";        //NOI18N
     /** */
     static final String NESTED_EXCEPTION_REGEX
-            = "(" + RegexpPatterns.JAVA_ID_REGEX_FULL + ")(?:: (.*))?";//NOI18N
+            = "(" + JAVA_ID_REGEX_FULL + ")(?:: (.*))?";//NOI18N
     static final String LOCATION_IN_FILE_REGEX
-            = RegexpPatterns.JAVA_ID_REGEX_FULL + "(?:\\:[0-9]+)?";     //NOI18N
+            = JAVA_ID_REGEX_FULL + "(?:\\:[0-9]+)?";     //NOI18N
     /** */
     static final String XML_DECL_PREFIX = "<?xml";                      //NOI18N
     /** */
@@ -143,7 +161,7 @@ final class RegexpUtils {
 
     /** */
     static final String TEST_LISTENER_PREFIX
-            = "junit.framework.TestListener: ";                         //NOI18N
+            = "[NBTestListener] ";                         //NOI18N
     /** */
     static final String TESTS_COUNT_PREFIX = "tests to run: ";          //NOI18N
     /** */
@@ -225,7 +243,7 @@ final class RegexpUtils {
     Pattern getFullJavaIdPattern() {
         if (fullJavaIdPattern == null) {
             fullJavaIdPattern
-                    = Pattern.compile(RegexpPatterns.JAVA_ID_REGEX_FULL);
+                    = Pattern.compile(JAVA_ID_REGEX_FULL);
         }
         return fullJavaIdPattern;
     }
