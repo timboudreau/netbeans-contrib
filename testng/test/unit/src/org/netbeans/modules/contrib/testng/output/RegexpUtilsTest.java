@@ -559,7 +559,7 @@ public class RegexpUtilsTest extends TestCase {
         assertEquals("test.inject.NoInjectionTest.withInjection", m.group(2));
         assertEquals("java.lang.reflect.Method", m.group(3));
         assertEquals("(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))", m.group(4));
-        assertEquals("java.lang.reflect.Method", m.group(5));
+//        assertEquals("java.lang.reflect.Method", m.group(5));
     }
 
     public void testStatsRegexp() throws Exception {
