@@ -57,8 +57,9 @@ import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import static org.netbeans.modules.autoproject.wizard.Bundle.*;
+import org.openide.util.NbBundle.Messages;
 
 public class AutoProjectWizardIterator implements WizardDescriptor.InstantiatingIterator {
     private int index;
@@ -76,9 +77,10 @@ public class AutoProjectWizardIterator implements WizardDescriptor.Instantiating
         };
     }
 
+    @Messages("LBL_CreateProjectStep=Location")
     private String[] createSteps() {
         return new String[] {
-            NbBundle.getMessage(AutoProjectWizardIterator.class, "LBL_CreateProjectStep")
+            LBL_CreateProjectStep()
         };
     }
 

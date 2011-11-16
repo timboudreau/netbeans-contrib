@@ -51,7 +51,8 @@ import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
+import static org.netbeans.modules.autoproject.wizard.Bundle.*;
+import org.openide.util.NbBundle.Messages;
 
 public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
 
@@ -152,9 +153,10 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
         panel.fireChangeEvent();
     }//GEN-LAST:event_browseButtonActionPerformed
 
+    @Messages("AutoProjectPanelVisual.configureDetectors.title=Configure Auto-Detection")
     private void configureDetectorsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureDetectorsButtonActionPerformed
         DialogDescriptor dd = new DialogDescriptor(new ConfigureDetectorsDialog(),
-                NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.configureDetectors.title"));
+                AutoProjectPanelVisual_configureDetectors_title());
         dd.setOptions(new Object[] {NotifyDescriptor.OK_OPTION});
         DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
     }//GEN-LAST:event_configureDetectorsButtonActionPerformed
@@ -176,16 +178,20 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
         projectLocationLabel.requestFocus();
     }
 
+    @Messages({
+        "ERR_not_a_dir=Project location is not an existing directory.",
+        "AutoProjectPanelVisual.nbproject=Already contains NetBeans (freeform?) project metadata; nbproject directory will be moved aside."
+    })
     boolean valid(WizardDescriptor wizardDescriptor) {
         File f = FileUtil.normalizeFile(new File(projectLocationTextField.getText()).getAbsoluteFile());
         if (!f.isDirectory()) {
-            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(AutoProjectPanelVisual.class, "ERR_not_a_dir"));
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ERR_not_a_dir());
             return false;
         }
         wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);
         if (new File(f, "nbproject/project.xml").isFile()) { // #153232
             wizardDescriptor.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE,
-                    NbBundle.getMessage(AutoProjectPanelVisual.class, "AutoProjectPanelVisual.nbproject"));
+                    AutoProjectPanelVisual_nbproject());
         }
         return true;
     }

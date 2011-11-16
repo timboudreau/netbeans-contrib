@@ -53,8 +53,9 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import static org.netbeans.modules.autoproject.core.Bundle.*;
+import org.openide.util.NbBundle.Messages;
 
 /**
  * Removes mark that this is an automatic project.
@@ -66,11 +67,13 @@ class DeregisterAction extends AbstractAction {
 
     private final AutomaticProject p;
 
+    @Messages("DeregisterAction.label=Deregister Automatic Project")
     public DeregisterAction(AutomaticProject p) {
-        super(NbBundle.getMessage(DeregisterAction.class, "DeregisterAction.label"));
+        super(DeregisterAction_label());
         this.p = p;
     }
 
+    @Messages("DeregisterAction.manual_restore=NetBeans has saved a copy of your old (freeform?) project metadata in nbproject.bak. To use the old metadata, rename this folder back to nbproject and use File > Open.")
     public void actionPerformed(ActionEvent e) {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
@@ -92,7 +95,7 @@ class DeregisterAction extends AbstractAction {
                             // Impossible to even copy children one by one (because parent is marked deleted).
                             // Punt and ask user to fix it!
                             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                                    NbBundle.getMessage(DeregisterAction.class, "DeregisterAction.manual_restore"),
+                                    DeregisterAction_manual_restore(),
                                     NotifyDescriptor.WARNING_MESSAGE));
                         }
                     }

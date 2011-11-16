@@ -56,7 +56,7 @@ public class AutoProjectWizardPanel implements WizardDescriptor.Panel<WizardDesc
     public Component getComponent() {
         if (component == null) {
             component = new AutoProjectPanelVisual(this);
-            component.setName(NbBundle.getMessage(AutoProjectWizardPanel.class, "LBL_CreateProjectStep"));
+            component.setName(Bundle.LBL_CreateProjectStep());
         }
         return component;
     }
