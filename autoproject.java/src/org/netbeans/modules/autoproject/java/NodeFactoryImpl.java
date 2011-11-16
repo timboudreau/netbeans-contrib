@@ -39,8 +39,11 @@
 
 package org.netbeans.modules.autoproject.java;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -48,11 +51,13 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.autoproject.spi.Cache;
 import org.netbeans.modules.autoproject.spi.PathFinder;
 import org.netbeans.spi.java.project.support.ui.PackageView;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
@@ -73,7 +78,7 @@ public class NodeFactoryImpl implements NodeFactory {
         return new SourceChildren(p);
     }
 
-    private class SourceChildren implements NodeList<Object>, ChangeListener {
+    private class SourceChildren implements NodeList<Object>, ChangeListener, PropertyChangeListener {
 
         private final Project p;
         private final Sources src;
@@ -86,10 +91,12 @@ public class NodeFactoryImpl implements NodeFactory {
 
         public void addNotify() {
             src.addChangeListener(this);
+            Cache.addPropertyChangeListener(this);
         }
 
         public void removeNotify() {
             src.removeChangeListener(this);
+            Cache.removePropertyChangeListener(this);
         }
 
         public Node node(Object key) {
@@ -111,14 +118,36 @@ public class NodeFactoryImpl implements NodeFactory {
             cs.fireChange();
         }
 
+        public void propertyChange(PropertyChangeEvent e) {
+            cs.fireChange();
+        }
+
         public List<Object> keys() {
             List<Object> keys = new ArrayList<Object>();
             for (SourceGroup g : src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
                 keys.add(g);
             }
-            FileObject f = p.getProjectDirectory().getFileObject("build.xml");
-            if (f != null) {
-                keys.add(f);
+            String actionPrefix = FileUtil.toFile(p.getProjectDirectory()) + Cache.ACTION;
+            boolean foundBuildScript = false;
+            for (Map.Entry<String,String> entry : Cache.pairs()) {
+                if (!entry.getKey().startsWith(actionPrefix)) {
+                    continue;
+                }
+                String binding = entry.getValue();
+                String[] protocolScriptAndTargets = binding.split(":", 3);
+                if (protocolScriptAndTargets[0].equals("ant")) {
+                    FileObject script = p.getProjectDirectory().getFileObject(protocolScriptAndTargets[1]); // XXX accept also absolute paths
+                    if (script != null) {
+                        keys.add(script);
+                        foundBuildScript = true;
+                    }
+                }
+             }
+            if (!foundBuildScript) {
+                FileObject f = p.getProjectDirectory().getFileObject("build.xml");
+                if (f != null) {
+                    keys.add(f);
+                }
             }
             keys.add("libraries");
             return keys;
