@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="OptionsExport">
+        <folder name="Advanced">
+            <file name="AutomaticProjects">
+                <attr name="include" stringvalue="var/(cache/)?autoprojects[.]properties"/>
+                <attr name="displayName" bundlevalue="org.netbeans.modules.autoproject.core.Bundle#options-export-displayName"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="Projects">
         <folder name="org-netbeans-modules-autoproject">
             <folder name="Lookup"/>
