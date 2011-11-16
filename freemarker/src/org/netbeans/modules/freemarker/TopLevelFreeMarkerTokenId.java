@@ -45,6 +45,8 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.freemarker.MimeTypes.FutureMimeType;
+import org.netbeans.spi.lexer.EmbeddingPresence;
 import org.netbeans.spi.lexer.LanguageEmbedding;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
@@ -95,8 +97,8 @@ public enum TopLevelFreeMarkerTokenId implements TokenId {
                     if (inputAttributes != null) {
                         Object value = inputAttributes.getValue(languagePath, MimeTypes.MIME_TYPE_PROPERTY);
 
-                        if (value instanceof String) {
-                            embeddedMimeType = MimeTypes.getEmbeddedMimeType((String) value);
+                        if (value instanceof FutureMimeType) {
+                            embeddedMimeType = ((FutureMimeType) value).get();
                         }
                     }
                     
@@ -120,6 +122,11 @@ public enum TopLevelFreeMarkerTokenId implements TokenId {
                 default:
                     return null;
             }
+        }
+
+        @Override
+        protected EmbeddingPresence embeddingPresence(TopLevelFreeMarkerTokenId id) {
+            return EmbeddingPresence.ALWAYS_QUERY;
         }
 
     }.language();

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2011 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -38,6 +38,10 @@
  */
 
 package org.netbeans.modules.freemarker;
+
+import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.text.Document;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -47,9 +51,9 @@ import org.openide.filesystems.FileUtil;
  */
 public class MimeTypes {
 
-    private static final String FREEMARKER_TOP_LEVEL_FRAGMENT = "x-freemarker-tl"; // NOI18N
+    private static final String FREEMARKER_TOP_LEVEL_FRAGMENT = "x-freemarker"; // NOI18N
     public static final String FREEMARKER_TOP_LEVEL = "text/" + FREEMARKER_TOP_LEVEL_FRAGMENT; // NOI18N
-    public static final String FREEMARKER = "text/x-freemarker"; // NOI18N
+    public static final String FREEMARKER = "text/x-freemarker-inner"; // NOI18N
     public static final String MIME_TYPE_PROPERTY = "mimeType"; // NOI18N
             
     public static String prepareCompoundMimeType(FileObject file) {
@@ -64,14 +68,26 @@ public class MimeTypes {
         return "text/" + fileMTFragment + "+" + FREEMARKER_TOP_LEVEL_FRAGMENT; // NOI18N
     }
 
-    public static String getEmbeddedMimeType(String mimeType) {
-        if (mimeType.startsWith("text/") && mimeType.endsWith("+" + FREEMARKER_TOP_LEVEL_FRAGMENT)) { // NOI18N
-            return mimeType.substring(0, mimeType.length() - ("+" + FREEMARKER_TOP_LEVEL_FRAGMENT).length()); // NOI18N
-        } else {
-            return "text/plain"; // NOI18N
+    public static class FutureMimeType {
+        private final Document doc;
+        private final AtomicReference<String> mimeType = new AtomicReference<String>();
+        public FutureMimeType(Document doc) {
+            this.doc = doc;
+        }
+        public String get() {
+            String r = mimeType.get();
+
+            if (r != null) return r;
+
+            FileObject file = NbEditorUtilities.getFileObject(doc);
+            String mt = file != null ? FileUtil.getMIMEType(file) : "text/plain";
+
+            mimeType.compareAndSet(null, mt);
+
+            return mt;
         }
     }
-
+    
     private MimeTypes() {
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2011 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -41,7 +41,10 @@
 
 package org.netbeans.modules.freemarker;
 
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.modules.editor.NbEditorKit;
+import org.netbeans.modules.freemarker.MimeTypes.FutureMimeType;
 
 /**
 * Java editor kit with appropriate document
@@ -57,6 +60,18 @@ public class FreeMarkerKit extends NbEditorKit {
     @Override
     public String getContentType() {
         return MimeTypes.FREEMARKER_TOP_LEVEL;
+    }
+
+    @Override
+    public Document createDefaultDocument() {
+        final Document doc = super.createDefaultDocument();
+        InputAttributes ia = new InputAttributes();
+
+        doc.putProperty(InputAttributes.class, ia);
+
+        ia.setValue(TopLevelFreeMarkerTokenId.language(), MimeTypes.MIME_TYPE_PROPERTY, new FutureMimeType(doc), true);
+        
+        return doc;
     }
 
 }

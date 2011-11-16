@@ -44,7 +44,7 @@ made subject to such option by the copyright holder.
 <filesystem>
     <folder name="Editors">
         <folder name="text">
-            <folder name="x-freemarker-tl">
+            <folder name="x-freemarker">
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.freemarker.TopLevelFreeMarkerTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
@@ -65,7 +65,7 @@ made subject to such option by the copyright holder.
     </folder>
     <folder name="Loaders">
         <folder name="text">
-            <folder name="x-freemarker-tl">
+            <folder name="x-freemarker">
                 <folder name="Actions">
                     <file name="org-openide-actions-CopyAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
