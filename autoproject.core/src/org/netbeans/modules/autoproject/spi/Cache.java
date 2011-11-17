@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.modules.Places;
 import org.openide.util.EditableProperties;
 import org.openide.util.Exceptions;
 import org.openide.util.Parameters;
@@ -73,16 +74,16 @@ public class Cache {
 
     private static final File CACHE;
     static {
-        String userdir = System.getProperty("netbeans.user");
-        if (userdir != null) {
-            File compatibilityLocation = new File(userdir, "var/cache/autoprojects.properties");
-            if (compatibilityLocation.isFile()) {
-                CACHE = compatibilityLocation;
-            } else {
-                CACHE = new File(userdir, "var/autoprojects.properties");
-            }
+        File compatibilityLocation = Places.getCacheSubfile("autoprojects.properties");
+        if (compatibilityLocation.isFile()) {
+            CACHE = compatibilityLocation;
         } else {
-            CACHE = null;
+            File userdir = Places.getUserDirectory();
+            if (userdir != null) {
+                CACHE = new File(userdir, "var/autoprojects.properties");
+            } else {
+                CACHE = null;
+            }
         }
     }
 
