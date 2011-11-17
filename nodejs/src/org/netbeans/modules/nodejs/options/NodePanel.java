@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -55,13 +56,15 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.nodejs.DefaultExectable;
 import org.netbeans.modules.nodejs.ui.UiUtil;
+import org.netbeans.validation.api.AbstractValidator;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.Validator;
-import org.netbeans.validation.api.builtin.Validators;
-import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.ValidatorUtils;
+import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationUI;
+import org.netbeans.validation.api.ui.swing.SwingValidationGroup;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -72,19 +75,19 @@ import org.openide.util.RequestProcessor;
 public final class NodePanel extends JPanel implements ValidationUI, DocumentListener {
 
     private final NodeOptionsPanelController controller;
-    private final ValidationGroup g;
+    private final SwingValidationGroup g;
     private final DefaultExectable exe = DefaultExectable.get();
 
     @SuppressWarnings("LeakingThisInConstructor")
     NodePanel(NodeOptionsPanelController controller) {
         this.controller = controller;
-        g = ValidationGroup.create(this);
+        g = SwingValidationGroup.create(this);
         initComponents();
-        g.add(portField, Validators.REQUIRE_NON_EMPTY_STRING, Validators.REQUIRE_VALID_NUMBER, Validators.REQUIRE_VALID_INTEGER, Validators.REQUIRE_NON_NEGATIVE_NUMBER);
-        g.add(binaryField, Validators.REQUIRE_NON_EMPTY_STRING, Validators.FILE_MUST_EXIST, Validators.FILE_MUST_BE_FILE);
+        g.add(portField, ValidatorUtils.merge(StringValidators.REQUIRE_NON_EMPTY_STRING, ValidatorUtils.merge(StringValidators.REQUIRE_VALID_NUMBER, ValidatorUtils.merge(StringValidators.REQUIRE_VALID_INTEGER, StringValidators.REQUIRE_NON_NEGATIVE_NUMBER))));
+        g.add(binaryField, ValidatorUtils.merge(StringValidators.REQUIRE_NON_EMPTY_STRING, ValidatorUtils.merge(StringValidators.FILE_MUST_EXIST, StringValidators.FILE_MUST_BE_FILE)));
         g.add(sourcesField, new FileOrArchiveValidator());
-        g.add(authorField, Validators.REQUIRE_NON_EMPTY_STRING);
-        g.add(emailField, new AllowNullValidator(Validators.EMAIL_ADDRESS));
+        g.add(authorField, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        g.add(emailField, new AllowNullValidator(StringValidators.EMAIL_ADDRESS));
         UiUtil.prepareComponents(this);
         portField.getDocument().addDocumentListener(this);
         binaryField.getDocument().addDocumentListener(this);
@@ -100,34 +103,38 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
         return false;
     }
     
-    private static final class AllowNullValidator implements Validator<String> {
+    private static final class AllowNullValidator extends AbstractValidator<String> {
         private final Validator<String> other;
 
-        public AllowNullValidator(Validator<String> other) {
+        AllowNullValidator(Validator<String> other) {
+            super(String.class);
             this.other = other;
         }
 
         @Override
-        public boolean validate(Problems prblms, String string, String model) {
+        public void validate(Problems prblms, String string, String model) {
             if (model == null) {
-                return true;
+                return;
             }
-            return other.validate(prblms, string, model);
+            other.validate(prblms, string, model);
         }
         
     }
 
-    private static final class FileOrArchiveValidator implements Validator<String> {
+    private static final class FileOrArchiveValidator extends AbstractValidator<String> {
+        FileOrArchiveValidator() {
+            super(String.class);
+        }
         @Override
-        public boolean validate(Problems prblms, String string, String model) {
+        public void validate(Problems prblms, String string, String model) {
             if (model == null || "".equals(model)) {
                 prblms.add(NbBundle.getMessage(NodePanel.class, "NO_SOURCES"), Severity.INFO);
-                return false;
+                return;
             }
             File f = new File(model);
             if (!f.exists()) {
                 prblms.add(NbBundle.getMessage(NodePanel.class, "SOURCE_DIR_DOES_NOT_EXIST", model), Severity.WARNING);
-                return false;
+                return;
             }
             if (f.isDirectory() && !downloading) {
                 boolean jsFound = containsJsFiles(f);
@@ -135,17 +142,14 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
                 jsFound = child.exists() && containsJsFiles(child);
                 if (!jsFound) {
                     prblms.add(NbBundle.getMessage(NodePanel.class, "NO_JS_FILES", f.getName()), Severity.WARNING);
-                    return false;
                 }
-                return true;
+                return;
             }
             if (!f.isDirectory()) {
                 if (!f.getName().endsWith(".zip") && !f.getName().endsWith(".jar")) {
                     prblms.add(NbBundle.getMessage(NodePanel.class, "NOT_FILE_OR_ARCHIVE", model), Severity.WARNING);
-                    return false;
                 }
             }
-            return true;
         }
     }
 
@@ -157,7 +161,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        problemLabel = g.createProblemLabel();
+        problemLabel = (JLabel) g.createProblemLabel();
         binaryLabel = new javax.swing.JLabel();
         binaryField = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
@@ -408,7 +412,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
                         case 0:
                             if (dest != null) {
                                 sourcesField.setText(dest.getAbsolutePath());
-                                g.validateAll(); //get rid of the warning
+                                g.performValidation(); //get rid of the warning
                                 break;
                             }
                         case 1:
@@ -428,7 +432,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
     }//GEN-LAST:event_downloadSources
 
     void load() {
-        g.modifyComponents(new Runnable() {
+        g.runWithValidationSuspended(new Runnable() {
 
             @Override
             public void run() {
@@ -512,7 +516,7 @@ public final class NodePanel extends JPanel implements ValidationUI, DocumentLis
     }
 
     @Override
-    public void setProblem(Problem prblm) {
+    public void showProblem(Problem prblm) {
         controller.setValid(!prblm.isFatal());
     }
 

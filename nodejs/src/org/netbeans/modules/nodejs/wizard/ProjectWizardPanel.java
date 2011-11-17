@@ -14,10 +14,11 @@ import javax.swing.event.DocumentListener;
 import org.netbeans.api.validation.adapters.WizardDescriptorAdapter;
 import org.netbeans.modules.nodejs.DefaultExectable;
 import org.netbeans.spi.project.ui.templates.support.Templates;
+import org.netbeans.validation.api.AbstractValidator;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
-import org.netbeans.validation.api.Validator;
-import org.netbeans.validation.api.builtin.Validators;
+import org.netbeans.validation.api.ValidatorUtils;
+import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationGroup;
 import org.openide.WizardDescriptor;
 import org.openide.awt.Mnemonics;
@@ -53,7 +54,7 @@ public class ProjectWizardPanel extends JPanel implements DocumentListener {
 
         @Override
         public boolean isValid() {
-            Problem p = grp.validateAll();
+            Problem p = grp.performValidation();
             return p == null || !p.isFatal();
         }
 
@@ -148,18 +149,18 @@ public class ProjectWizardPanel extends JPanel implements DocumentListener {
         configureCaptions(getComponents());
         grp = ValidationGroup.create(new WizardDescriptorAdapter(desc));
         grp.add(nameField,
-                Validators.REQUIRE_VALID_FILENAME,
-                Validators.REQUIRE_NON_EMPTY_STRING);
+                StringValidators.REQUIRE_VALID_FILENAME,
+                StringValidators.REQUIRE_NON_EMPTY_STRING);
 
         grp.add(portField,
-                Validators.REQUIRE_NON_EMPTY_STRING,
-                Validators.REQUIRE_NON_NEGATIVE_NUMBER,
-                Validators.numberRange(1, 65535),
-                Validators.REQUIRE_VALID_INTEGER);
+                StringValidators.REQUIRE_NON_EMPTY_STRING,
+                StringValidators.REQUIRE_NON_NEGATIVE_NUMBER,
+                StringValidators.numberRange(1, 65535),
+                StringValidators.REQUIRE_VALID_INTEGER);
 
         grp.add(createInField,
-                Validators.REQUIRE_NON_EMPTY_STRING,
-                Validators.FILE_MUST_EXIST,
+                StringValidators.REQUIRE_NON_EMPTY_STRING,
+                StringValidators.FILE_MUST_EXIST,
                 new ParentMustExistValidator());
 
         nameField.getDocument().addDocumentListener(this);
@@ -169,18 +170,18 @@ public class ProjectWizardPanel extends JPanel implements DocumentListener {
         packageJsonBox.setVisible(false); //we now use package.json as primary metadata
     }
 
-    static final class ParentMustExistValidator implements Validator<String> {
-
+    static final class ParentMustExistValidator extends AbstractValidator<String> {
+        ParentMustExistValidator() {
+            super(String.class);
+        }
         @Override
-        public boolean validate(Problems prblms, String compName, String file) {
+        public void validate(Problems prblms, String compName, String file) {
             File f = new File(file);
             File parent = f.getParentFile();
-            boolean result = true;
             if (f != null && parent != null) {
-                result = Validators.REQUIRE_VALID_FILENAME.validate(prblms, compName, f.getName());
-                result |= Validators.merge(Validators.FILE_MUST_EXIST, Validators.FILE_MUST_BE_DIRECTORY).validate(prblms, compName, parent.getAbsolutePath());
+                StringValidators.REQUIRE_VALID_FILENAME.validate(prblms, compName, f.getName());
+                ValidatorUtils.merge(StringValidators.FILE_MUST_EXIST, StringValidators.FILE_MUST_BE_DIRECTORY).validate(prblms, compName, parent.getAbsolutePath());
             }
-            return result;
         }
     }
 

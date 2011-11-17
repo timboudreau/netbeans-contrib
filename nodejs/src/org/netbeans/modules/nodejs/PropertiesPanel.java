@@ -52,15 +52,17 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.swing.JLabel;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.validation.adapters.DialogDescriptorAdapter;
 import org.netbeans.modules.nodejs.ui.UiUtil;
+import org.netbeans.validation.api.AbstractValidator;
 import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.Validator;
-import org.netbeans.validation.api.builtin.Validators;
-import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
+import org.netbeans.validation.api.ui.swing.SwingValidationGroup;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileObject;
@@ -74,13 +76,13 @@ import org.openide.util.NbBundle;
  */
 public class PropertiesPanel extends javax.swing.JPanel {
 
-    private final ValidationGroup g;
+    private final SwingValidationGroup g;
     private final NodeJSProjectProperties props;
 
     /** Creates new form PropertiesPanel */
     public PropertiesPanel(NodeJSProjectProperties props) {
         this.props = props;
-        g = ValidationGroup.create();
+        g = SwingValidationGroup.create();
         initComponents();
         UiUtil.prepareComponents(this);
         set(authorEmailField, props.getAuthorEmail());
@@ -110,43 +112,46 @@ public class PropertiesPanel extends javax.swing.JPanel {
             }
         }
         set(keywordsField, sb.toString());
-        g.add(bugTrackerField, new AllowNullValidator(Validators.URL_MUST_BE_VALID));
-        g.add(nameField, Validators.REQUIRE_NON_EMPTY_STRING);
-        g.add(authorEmailField, new AllowNullValidator(Validators.EMAIL_ADDRESS));
+        g.add(bugTrackerField, new AllowNullValidator(StringValidators.URL_MUST_BE_VALID));
+        g.add(nameField, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        g.add(authorEmailField, new AllowNullValidator(StringValidators.EMAIL_ADDRESS));
         g.add(mainFileField, new FileRelativeValidator());
         g.add(commandLineField, new WhitespaceValidator());
     }
     
     public void addNotify() {
         super.addNotify();
-        g.validateAll();
+        g.performValidation();
     }
 
-    private static final class AllowNullValidator implements Validator<String> {
+    private static final class AllowNullValidator extends AbstractValidator<String> {
         //Some validators do not allow nulls - they should and a newer version
         //of the lib fixes this
 
         private final Validator<String> other;
 
-        public AllowNullValidator(Validator<String> other) {
+        AllowNullValidator(Validator<String> other) {
+            super(String.class);
             this.other = other;
         }
 
         @Override
-        public boolean validate(Problems prblms, String string, String t) {
+        public void validate(Problems prblms, String string, String t) {
             if (t == null || "".equals(t.trim())) {
-                return true;
+                return;
             }
-            return other.validate(prblms, string, t);
+            other.validate(prblms, string, t);
         }
     }
 
-    private final class FileRelativeValidator implements Validator<String> {
-
+    private final class FileRelativeValidator extends AbstractValidator<String> {
+        FileRelativeValidator() {
+            super(String.class);
+        }
         @Override
-        public boolean validate(Problems prblms, String string, String model) {
+        public void validate(Problems prblms, String string, String model) {
             if (model == null || "".equals(model.trim())) {
-                return true;
+                return;
             }
             FileObject root = props.project().getProjectDirectory();
             FileObject fo = root.getFileObject(model);
@@ -154,20 +159,19 @@ public class PropertiesPanel extends javax.swing.JPanel {
             if (!result) {
                 prblms.add(NbBundle.getMessage(PropertiesPanel.class, "MAIN_FILE_DOES_NOT_EXIST", model));
             }
-            return result;
         }
     }
     
-    private static final class WhitespaceValidator implements Validator<String> {
+    private static final class WhitespaceValidator extends AbstractValidator<String> {
         private static final Pattern WHITESPACE = Pattern.compile (".*\\s.*");
-
+        WhitespaceValidator() {
+            super(String.class);
+        }
         @Override
-        public boolean validate(Problems prblms, String string, String model) {
+        public void validate(Problems prblms, String string, String model) {
             if (model != null && WHITESPACE.matcher(model).matches()) {
                 prblms.add(NbBundle.getMessage(WhitespaceValidator.class, "INFO_MAIN_CLASS_WHITESPACE"), Severity.INFO);
-                return false;
             }
-            return true;
         }
         
     }
@@ -237,7 +241,7 @@ public class PropertiesPanel extends javax.swing.JPanel {
         licenseField = new javax.swing.JComboBox();
         mainFileLabel = new javax.swing.JLabel();
         mainFileField = new javax.swing.JTextField();
-        status = g.createProblemLabel();
+        status = (JLabel) g.createProblemLabel();
         keywordsLabel = new javax.swing.JLabel();
         keywordsField = new javax.swing.JTextField();
         commandLineField = new javax.swing.JTextField();

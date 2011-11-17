@@ -46,16 +46,18 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import javax.swing.AbstractButton;
-import javax.swing.ButtonModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.validation.adapters.WizardDescriptorAdapter;
+import org.netbeans.validation.api.AbstractValidator;
 import org.netbeans.validation.api.Problem;
-import org.netbeans.validation.api.builtin.Validators;
-import org.netbeans.validation.api.ui.ValidationGroup;
-import org.netbeans.validation.api.ui.ValidationListener;
+import org.netbeans.validation.api.Problems;
+import org.netbeans.validation.api.ValidatorUtils;
+import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationUI;
+import org.netbeans.validation.api.ui.swing.SwingValidationGroup;
 import org.openide.WizardDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileChooserBuilder;
@@ -66,7 +68,7 @@ import org.openide.util.NbBundle;
  * @author  Tim Boudreau
  */
 public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListener, ValidationUI, ActionListener {
-    private final ValidationGroup group = ValidationGroup.create(this);
+    private final SwingValidationGroup group = SwingValidationGroup.create(this);
     public ProjectInfoPanel() {
         initComponents();
         articleButton.putClientProperty ("kind", ProjectKind.Article); //NOI18N
@@ -86,23 +88,28 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
             }
             String nm = c[i].getName();
             if (nm != null) {
-                ValidationListener.setComponentName((JComponent) c[i],
+                SwingValidationGroup.setComponentName((JComponent) c[i],
                         NbBundle.getMessage(ProjectInfoPanel.class, nm));
             }
         }
-        group.add(new ButtonModel[] { bookButton.getModel(), slidesButton.getModel(), articleButton.getModel() },
-                Validators.oneButtonMustBeSelected(
-                NbBundle.getMessage(ProjectInfoPanel.class, "ERR_SELECT_KIND"))); //NOI18N
+        group.add(new AbstractButton[] {bookButton, slidesButton, articleButton},
+                new AbstractValidator<Integer[]>(Integer[].class) {
+                    public void validate(Problems problems, String compName, Integer[] model) {
+                        if (model.length != 1) {
+                            problems.add(NbBundle.getMessage(ProjectInfoPanel.class, "ERR_SELECT_KIND"));
+                        }
+                    }
+                });
         
-        group.add(name, Validators.REQUIRE_NON_EMPTY_STRING, 
-                Validators.REQUIRE_VALID_FILENAME,
-                Validators.FILE_MUST_NOT_EXIST);
-        group.add(location, Validators.REQUIRE_NON_EMPTY_STRING,
-                Validators.FILE_MUST_EXIST,
-                Validators.FILE_MUST_BE_DIRECTORY);
-        group.add(title, Validators.REQUIRE_NON_EMPTY_STRING);
-        group.add(subtitle, Validators.REQUIRE_NON_EMPTY_STRING);
-        group.add(author, Validators.REQUIRE_NON_EMPTY_STRING);
+        group.add(name, ValidatorUtils.merge(StringValidators.REQUIRE_NON_EMPTY_STRING,
+                ValidatorUtils.merge(StringValidators.REQUIRE_VALID_FILENAME,
+                StringValidators.FILE_MUST_NOT_EXIST)));
+        group.add(location, ValidatorUtils.merge(StringValidators.REQUIRE_NON_EMPTY_STRING,
+                ValidatorUtils.merge(StringValidators.FILE_MUST_EXIST,
+                StringValidators.FILE_MUST_BE_DIRECTORY)));
+        group.add(title, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        group.add(subtitle, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        group.add(author, StringValidators.REQUIRE_NON_EMPTY_STRING);
     }
 
     private void setupMnemonics (Component c) {
@@ -127,7 +134,7 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
             }
         }
         wiz.putProperty("kind", getKind()); //NOI18N
-        wiz.setValid(group.validateAll() == null);
+        wiz.setValid(group.performValidation() == null);
         if (delegate != null) {
             group.removeUI(delegate);
         }
@@ -148,7 +155,7 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
     WizardDescriptorAdapter delegate;
     void load (final WizardDescriptor wiz) {
         delegate = new WizardDescriptorAdapter(wiz);
-        group.modifyComponents(new Runnable() {
+        group.runWithValidationSuspended(new Runnable() {
             public void run() {
                 Component[] c = getComponents();
                 for (int i = 0; i < c.length; i++) {
@@ -338,7 +345,7 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
     }
 
     public boolean check() {
-        Problem p = group.validateAll();
+        Problem p = group.performValidation();
         return p == null || !p.isFatal();
     }
 
@@ -366,7 +373,7 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 
-    public void clearProblem() {
+    @Override public void clearProblem() {
         if (delegate != null) {
             delegate.clearProblem();
         }
@@ -375,9 +382,9 @@ public class ProjectInfoPanel extends javax.swing.JPanel implements FocusListene
         }
     }
 
-    public void setProblem(Problem prblm) {
+    @Override public void showProblem(Problem prblm) {
         if (delegate != null) {
-            delegate.setProblem(prblm);
+            delegate.showProblem(prblm);
         }
         if (cl != null) {
             cl.stateChanged(null);

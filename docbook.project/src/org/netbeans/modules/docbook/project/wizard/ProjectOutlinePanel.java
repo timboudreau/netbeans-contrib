@@ -48,13 +48,14 @@ import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.validation.adapters.WizardDescriptorAdapter;
+import org.netbeans.validation.api.AbstractValidator;
 import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.Severity;
-import org.netbeans.validation.api.Validator;
 import org.netbeans.validation.api.ui.ValidationGroup;
-import org.netbeans.validation.api.ui.ValidationListener;
 import org.netbeans.validation.api.ui.ValidationUI;
+import org.netbeans.validation.api.ui.swing.SwingValidationGroup;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
@@ -62,7 +63,7 @@ import org.openide.util.NbBundle;
  *
  * @author  Tim Boudreau
  */
-public class ProjectOutlinePanel extends javax.swing.JPanel implements ValidationUI, Validator<String> {
+public class ProjectOutlinePanel extends javax.swing.JPanel implements ValidationUI {
     private ValidationGroup grp = ValidationGroup.create(this);
     public static final String PROP_GENERATION_STYLE = "generationStyle";
     public ProjectOutlinePanel() {
@@ -70,17 +71,18 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
         inline.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.INLINE);
         files.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.FILE_PER_CHAPTER);
         dirs.putClientProperty(PROP_GENERATION_STYLE, ChapterGenerationStyle.DIRECTORY_PER_CHAPTER);
-        ValidationListener.setComponentName(outline, NbBundle.getMessage(ProjectOutlinePanel.class, "NAME_OUTLINE"));
+        SwingValidationGroup.setComponentName(outline, NbBundle.getMessage(ProjectOutlinePanel.class, "NAME_OUTLINE"));
         grp.add(outline, new OLValidator());
     }
 
-    private static class OLValidator implements Validator<String> {
-        public boolean validate(Problems prblms, String string, String t) {
+    private static class OLValidator extends AbstractValidator<String> {
+        OLValidator() {
+            super(String.class);
+        }
+        @Override public void validate(Problems prblms, String string, String t) {
             if (t == null || t.trim().length() == 0) {
                 prblms.add(NbBundle.getMessage(ProjectOutlinePanel.class, "MSG_OUTLINE_EMPTY"), Severity.INFO); //NOI18N
-                return false;
             }
-            return true;
         }
     }
     
@@ -179,7 +181,7 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
     @Override
     public void addNotify() {
         super.addNotify();
-        grp.validateAll();
+        grp.performValidation();
     }
 
     WizardDescriptorAdapter adap;
@@ -189,7 +191,7 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
         }
         adap = new WizardDescriptorAdapter(wiz);
         grp.addUI(adap);
-        grp.modifyComponents(new Runnable() {
+        grp.runWithValidationSuspended(new Runnable() {
             public void run() {
                 ChapterGenerationStyle style = (ChapterGenerationStyle) wiz.getProperty(PROP_GENERATION_STYLE);
                 ProjectKind kind = (ProjectKind) wiz.getProperty("kind");
@@ -227,7 +229,7 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
 
 
     public boolean check() {
-        return grp.validateAll() == null;
+        return grp.performValidation() == null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -241,7 +243,7 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
     private javax.swing.JTextArea outline;
     // End of variables declaration//GEN-END:variables
 
-    public void clearProblem() {
+    @Override public void clearProblem() {
         if (adap != null) {
             adap.clearProblem();
         }
@@ -250,9 +252,9 @@ public class ProjectOutlinePanel extends javax.swing.JPanel implements Validatio
         }
     }
 
-    public void setProblem(Problem prblm) {
+    @Override public void showProblem(Problem prblm) {
         if (adap != null) {
-            adap.setProblem(prblm);
+            adap.showProblem(prblm);
         }
         if (cl != null) {
             cl.stateChanged (new ChangeEvent(this));

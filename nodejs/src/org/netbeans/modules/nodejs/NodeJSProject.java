@@ -83,10 +83,12 @@ import org.netbeans.validation.api.Problem;
 import org.netbeans.validation.api.Problems;
 import org.netbeans.validation.api.Severity;
 import org.netbeans.validation.api.Validator;
-import org.netbeans.validation.api.builtin.Validators;
-import org.netbeans.validation.api.ui.ValidationGroup;
+import org.netbeans.validation.api.ValidatorUtils;
+import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationListener;
-import org.netbeans.validation.api.ui.ValidationPanel;
+import org.netbeans.validation.api.ui.ValidationUI;
+import org.netbeans.validation.api.ui.swing.SwingValidationGroup;
+import org.netbeans.validation.api.ui.swing.ValidationPanel;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -222,9 +224,10 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
             NotifyDescriptor.InputLine l = new NotifyDescriptor.InputLine(label, NbBundle.getMessage(NodeJSProject.class, "TTL_PROJECT_RENAME")); //NOI18N
             if (DialogDisplayer.getDefault().notify(l).equals(NotifyDescriptor.OK_OPTION)) {
                 String txt = l.getInputText();
-                Validator<String> v = Validators.merge(Validators.REQUIRE_NON_EMPTY_STRING, Validators.REQUIRE_VALID_FILENAME);
+                Validator<String> v = ValidatorUtils.merge(StringValidators.REQUIRE_NON_EMPTY_STRING, StringValidators.REQUIRE_VALID_FILENAME);
                 Problems p = new Problems();
-                if (!v.validate(p, label, txt)) {
+                v.validate(p, label, txt);
+                if (p.hasFatal()) {
                     NotifyDescriptor.Message msg = new NotifyDescriptor.Message(p.getLeadProblem().getMessage(), NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(msg);
                     return;
@@ -390,29 +393,30 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
         Children ch = Children.create(kids, true);
         Node root = new AbstractNode(ch);
         mgr.setRootContext(root);
-        ValidationGroup grp = ValidationGroup.create();
+        final SwingValidationGroup grp = SwingValidationGroup.create();
         ValidationPanel pnl = new ValidationPanel(grp);
         pnl.setInnerComponent(ep);
-        class X extends ValidationListener implements PropertyChangeListener {
-
+        class X extends ValidationListener<Void> implements PropertyChangeListener {
+            X() {
+                super(Void.class, ValidationUI.NO_OP, null);
+            }
             @Override
             public void propertyChange(PropertyChangeEvent pce) {
-                super.validate();
+                grp.performValidation();
             }
 
             @Override
-            protected boolean validate(Problems prblms) {
+            protected void performValidation(Problems prblms) {
                 Node[] selection = mgr.getSelectedNodes();
                 if (selection != null && selection.length == 1) {
-                    return true;
+                    return;
                 }
                 prblms.add(new Problem(NbBundle.getMessage(NodeJSProject.class, "PROBLEM_NO_MAIN_FILE"), Severity.FATAL)); //NOI18N
-                return false;
             }
         }
         X x = new X();
         mgr.addPropertyChangeListener(x);
-        grp.add(x);
+        grp.addItem(x, true);
         DialogBuilder b = new DialogBuilder(NodeJSProject.class).setModal(true).setContent(ep).setValidationGroup(grp).setTitle(NbBundle.getMessage(NodeJSProject.class, "CHOOSE_NO_MAIN_FILE")).setDialogType(DialogType.QUESTION);
         if (b.showDialog(NotifyDescriptor.OK_OPTION) && mgr.getSelectedNodes().length == 1) {
             Node n = mgr.getSelectedNodes()[0];
