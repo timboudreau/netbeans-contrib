@@ -336,8 +336,8 @@ made subject to such option by the copyright holder.
                 <package>org.netbeans.modules.contrib.testng.spi</package>
             </friend-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/testng/testng-6.0.1.jar</runtime-relative-path>
-                <binary-origin>external/testng-6.0.1.jar</binary-origin>
+                <runtime-relative-path>ext/testng/testng-6.3.2beta.jar</runtime-relative-path>
+                <binary-origin>external/testng-6.3.2beta.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
