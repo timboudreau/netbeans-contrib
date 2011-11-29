@@ -53,14 +53,6 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
-    <!-- register entities with system entity resolver -->
-    <folder name="xml">
-        <folder name="entities">
-            <folder name="testng-1.0.dtd">
-                <file name="http://testng.org/testng-1.0.dtd" url="nbres:/org/netbeans/modules/contrib/testng/resources/testng-1.0.dtd" />
-            </folder>
-        </folder>
-    </folder>
     <folder name="Templates">
         <folder name="TestNG">
             <attr name="displayName" bundlevalue="org.netbeans.modules.contrib.testng.Bundle#Templates/TestNG"/>
