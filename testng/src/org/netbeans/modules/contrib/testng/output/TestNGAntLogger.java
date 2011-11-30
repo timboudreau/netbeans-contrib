@@ -313,7 +313,12 @@ public final class TestNGAntLogger extends AntLogger {
             }
             boolean offline = false;
             if (tmp != null) {
-                int logLevel = Integer.valueOf(event.evaluate(tmp));
+                int logLevel;
+                try {
+                    logLevel = Integer.valueOf(event.evaluate(tmp));
+                } catch (NumberFormatException nfe) {
+                    logLevel = -1;
+                }
                 //logging is explicitly turned off by the user, so show only final
                 //results computed off-line from testng-results.xml file
                 offline = logLevel == 0;
