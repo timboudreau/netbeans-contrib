@@ -66,7 +66,13 @@ made subject to such option by the copyright holder.
                     <classfileset dir="${build.test.classes.dir}">
                         <filename name="@{testincludes}"/>
                     </classfileset>
+                    <propertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </propertyset>
+                    <jvmarg value="-ea"/>
                     <jvmarg line="${run.jvmargs.prop}"/>
+                    <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
                 </testng>
             </sequential>
         </macrodef>
@@ -81,7 +87,13 @@ made subject to such option by the copyright holder.
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
                     <xmlfileset file="@{testSuite}"/>
+                    <propertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </propertyset>
+                    <jvmarg value="-ea"/>
                     <jvmarg line="${run.jvmargs.prop}"/>
+                    <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
                 </testng>
             </sequential>
         </macrodef>
