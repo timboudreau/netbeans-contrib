@@ -136,6 +136,17 @@ final class TestNGOutputReader {
         reports = new HashMap<String, Report>();
     }
 
+    /** for tests */
+    TestNGOutputReader(TestNGTestSession session) {
+        testSession = session;
+        sessionType = session.getSessionType();
+        antScript = null;
+        timeOfSessionStart = System.currentTimeMillis();
+        project = session.getProject();
+        reports = new HashMap<String, Report>();
+    }
+
+
     Project getProject() {
         return project;
     }
@@ -232,7 +243,7 @@ final class TestNGOutputReader {
         Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
         if (getMessage(msg).startsWith("PASSED: ")) {
             if (m.matches()) {
-                testFinished("PASSED", m.group(1), m.group(2), m.group(3), m.group(5));
+                testFinished("PASSED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -244,7 +255,7 @@ final class TestNGOutputReader {
 
         if (getMessage(msg).startsWith("SKIPPED: ")) {
             if (m.matches()) {
-                testFinished("SKIPPED", m.group(1), m.group(2), m.group(3), m.group(5));
+                testFinished("SKIPPED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -253,7 +264,7 @@ final class TestNGOutputReader {
 
         if (getMessage(msg).startsWith("FAILED: ")) {
             if (m.matches()) {
-                testFinished("FAILED", m.group(1), m.group(2), m.group(3), m.group(5));
+                testFinished("FAILED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -611,14 +622,15 @@ final class TestNGOutputReader {
             testSession.addTestCase(tc);
             manager.testStarted(testSession);
             Report r = reports.get(suiteName);
-            r.update(testSession.getReport(lastSuiteTime));
+            r.update(testSession.getReport(0));
             manager.displayReport(testSession, r, false);
         } else {
             tc.addValues(values);
+            //TODO: increment test case time
         }
     }
 
-    private void testFinished(String st, String suiteName, String testCase, String parameters, String values) {
+    private void testFinished(String st, String suiteName, String testCase, String parameters, String values, String duration) {
         testSession.setCurrentSuite(suiteName);
         TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, parameters);
         if (tc == null) {
@@ -635,8 +647,12 @@ final class TestNGOutputReader {
         } else if ("SKIPPED".equals(st)) {
             tc.setStatus(Status.SKIPPED);
         }
+        long dur = 0;
+        if (duration != null) {
+            dur = Long.valueOf(duration);
+        }
         Report r = reports.get(suiteName);
-        r.update(testSession.getReport(lastSuiteTime));
+        r.update(testSession.getReport(dur));
         manager.displayReport(testSession, r, false);
     }
 
