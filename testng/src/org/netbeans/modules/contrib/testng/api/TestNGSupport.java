@@ -59,7 +59,6 @@ public final class TestNGSupport {
     public static enum Action {
         CREATE_TEST,
         RUN_FAILED,
-        RUN_TEST,
         RUN_TESTMETHOD,
         DEBUG_TEST,
         DEBUG_TESTMETHOD

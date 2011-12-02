@@ -80,7 +80,6 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         Set<Action> s = new HashSet<Action>();
         s.add(Action.CREATE_TEST);
         s.add(Action.RUN_FAILED);
-        s.add(Action.RUN_TEST);
         s.add(Action.RUN_TESTMETHOD);
         s.add(Action.DEBUG_TEST);
         s.add(Action.DEBUG_TESTMETHOD);
