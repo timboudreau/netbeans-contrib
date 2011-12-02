@@ -49,13 +49,19 @@ made subject to such option by the copyright holder.
         <condition property="run.jvmargs.prop" value="${run.jvmargs}" else="">
             <isset property="run.jvmargs"/>
         </condition>
+        <!-- IDE sets this when CoS off + CTRL+F6 -->
+        <property name="test.includes" value="**/*.java"/>
     </target>
 
     <!-- Call testng ant task -->
     <target name="-init-macrodef-testng">
         <macrodef name="testng-ant">
-            <attribute name="testincludes" default="**/*Test.class"/>
+            <attribute name="testincludes" default="${test.includes}"/>
             <sequential>
+               <pathconvert property="test.includes.classes" pathsep=",">
+                    <path location="@{testincludes}" />
+                    <globmapper from="${basedir}/*.java" to="*.class"/>
+                </pathconvert>
                 <taskdef name="testng" classname="org.testng.TestNGAntTask" classpath="${run.test.classpath}"/>
                 <testng workingDir="${basedir}" failureProperty="testng.tests.failed" outputdir="${build.test.results.dir}" dumpCommand="true" useDefaultListeners="true" verbose="2">
                     <classpath>
@@ -64,7 +70,7 @@ made subject to such option by the copyright holder.
                         <pathelement path="${build.test.classes.dir}"/>
                     </classpath>
                     <classfileset dir="${build.test.classes.dir}">
-                        <filename name="@{testincludes}"/>
+                        <filename name="${test.includes.classes}"/>
                     </classfileset>
                     <propertyset>
                         <propertyref prefix="test-sys-prop."/>
