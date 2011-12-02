@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Action;
 import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
-import org.netbeans.modules.contrib.testng.actions.RunTestClassAction;
 import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
@@ -82,7 +81,6 @@ public final class TestNGSuiteNode extends TestsuiteNode {
         if (preferred != null) {
             actions.add(preferred);
         }
-        actions.add(SystemAction.get(RunTestClassAction.class));
         actions.add(SystemAction.get(DebugTestClassAction.class));
         return actions.toArray(new Action[actions.size()]);
     }
