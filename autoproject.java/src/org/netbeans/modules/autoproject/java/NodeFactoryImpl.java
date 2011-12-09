@@ -42,8 +42,11 @@ package org.netbeans.modules.autoproject.java;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -78,13 +81,13 @@ public class NodeFactoryImpl implements NodeFactory {
         return new SourceChildren(p);
     }
 
-    private class SourceChildren implements NodeList<Object>, ChangeListener, PropertyChangeListener {
+    private static class SourceChildren implements NodeList<Object>, ChangeListener, PropertyChangeListener {
 
         private final Project p;
         private final Sources src;
         private final ChangeSupport cs = new ChangeSupport(this);
 
-        public SourceChildren(Project p) {
+        SourceChildren(Project p) {
             this.p = p;
             src = ProjectUtils.getSources(p);
         }
@@ -124,11 +127,9 @@ public class NodeFactoryImpl implements NodeFactory {
 
         public List<Object> keys() {
             List<Object> keys = new ArrayList<Object>();
-            for (SourceGroup g : src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-                keys.add(g);
-            }
+            keys.addAll(Arrays.asList(src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)));
             String actionPrefix = FileUtil.toFile(p.getProjectDirectory()) + Cache.ACTION;
-            boolean foundBuildScript = false;
+            Set<FileObject> buildScripts = new HashSet<FileObject>();
             for (Map.Entry<String,String> entry : Cache.pairs()) {
                 if (!entry.getKey().startsWith(actionPrefix)) {
                     continue;
@@ -137,13 +138,12 @@ public class NodeFactoryImpl implements NodeFactory {
                 String[] protocolScriptAndTargets = binding.split(":", 3);
                 if (protocolScriptAndTargets[0].equals("ant")) {
                     FileObject script = p.getProjectDirectory().getFileObject(protocolScriptAndTargets[1]); // XXX accept also absolute paths
-                    if (script != null) {
+                    if (script != null && buildScripts.add(script)) {
                         keys.add(script);
-                        foundBuildScript = true;
                     }
                 }
              }
-            if (!foundBuildScript) {
+            if (buildScripts.isEmpty()) {
                 FileObject f = p.getProjectDirectory().getFileObject("build.xml");
                 if (f != null) {
                     keys.add(f);
