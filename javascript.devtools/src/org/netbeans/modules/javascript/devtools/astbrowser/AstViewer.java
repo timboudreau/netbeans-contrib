@@ -42,7 +42,6 @@ package org.netbeans.modules.javascript.devtools.astbrowser;
 
 import com.oracle.nashorn.ir.FunctionNode;
 
-import com.oracle.nashorn.objects.ScriptObject;
 import java.awt.*;
 import java.io.File;
 import java.io.Serializable;
