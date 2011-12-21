@@ -57,10 +57,11 @@ public final class TestNGTestcase extends Testcase {
     private String parameters;
     private List<String> values = new ArrayList<String>();
 
-
+    //TODO: there should be subnode for each value instead
     public TestNGTestcase(String name, String params, String values, TestSession session) {
-        super(name, "TestNG Test", session);
-        parameters = params;
+        super(values != null ? name + "(" + values+ ")" : name, "TestNG Test", session);
+//        parameters = params;
+        parameters = values;
         this.values.add(values);
     }
 

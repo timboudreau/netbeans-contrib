@@ -168,6 +168,7 @@ final class TestNGOutputReader {
 //        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
     }
     private boolean suiteSummary = false;
+    private long elapsedTime = 0;
 
     private class SuiteStats {
 
@@ -233,7 +234,7 @@ final class TestNGOutputReader {
         if (getMessage(msg).startsWith("INVOKING: ")) {
             Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
             if (m.matches()) {
-                testStarted(m.group(1), m.group(2), m.group(3), m.group(5));
+                testStarted(m.group(1), m.group(2), m.group(4), m.group(6));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -243,7 +244,7 @@ final class TestNGOutputReader {
         Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
         if (getMessage(msg).startsWith("PASSED: ")) {
             if (m.matches()) {
-                testFinished("PASSED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
+                testFinished("PASSED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -255,7 +256,7 @@ final class TestNGOutputReader {
 
         if (getMessage(msg).startsWith("SKIPPED: ")) {
             if (m.matches()) {
-                testFinished("SKIPPED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
+                testFinished("SKIPPED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -264,7 +265,7 @@ final class TestNGOutputReader {
 
         if (getMessage(msg).startsWith("FAILED: ")) {
             if (m.matches()) {
-                testFinished("FAILED", m.group(1), m.group(2), m.group(3), m.group(5), m.group(7));
+                testFinished("FAILED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
                 assert false : "Cannot match: '" + msg + "'.";
             }
@@ -610,13 +611,17 @@ final class TestNGOutputReader {
     private void suiteFinished(SuiteStats stats) {
         testSession.setCurrentSuite(stats.name);
         TestNGTestSuite s = (TestNGTestSuite) testSession.getCurrentSuite();
+        s.setElapsedTime(elapsedTime);
         s.finish(stats.testRun, stats.testFail, stats.testSkip, stats.confFail, stats.confSkip);
-        manager.displayReport(testSession, reports.get(stats.name), true);
+        Report r = reports.get(stats.name);
+        r.setElapsedTimeMillis(elapsedTime);
+        manager.displayReport(testSession, r, true);
+        elapsedTime = 0;
     }
 
     private void testStarted(String suiteName, String testCase, String parameters, String values) {
         testSession.setCurrentSuite(suiteName);
-        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, parameters);
+        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, values);
         if (tc == null) {
             tc = new TestNGTestcase(testCase, parameters, values, testSession);
             testSession.addTestCase(tc);
@@ -632,7 +637,7 @@ final class TestNGOutputReader {
 
     private void testFinished(String st, String suiteName, String testCase, String parameters, String values, String duration) {
         testSession.setCurrentSuite(suiteName);
-        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, parameters);
+        TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, values);
         if (tc == null) {
             //TestNG does not log invoke message for junit tests...
             tc = new TestNGTestcase(testCase, parameters, values, testSession);
@@ -651,6 +656,8 @@ final class TestNGOutputReader {
         if (duration != null) {
             dur = Long.valueOf(duration);
         }
+        tc.setTimeMillis(dur);
+        elapsedTime += dur;
         Report r = reports.get(suiteName);
         r.update(testSession.getReport(dur));
         manager.displayReport(testSession, r, false);

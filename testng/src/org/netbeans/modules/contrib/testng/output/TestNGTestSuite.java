@@ -96,7 +96,7 @@ public class TestNGTestSuite extends TestSuite {
 
     public TestNGTestcase getTestCase(String testCase, String parameters) {
         for (Testcase tc: getTestcases()) {
-            if (tc.getName().equals(testCase) && ((TestNGTestcase) tc).getParameters().equals(parameters)) {
+            if (tc.getName().equals(parameters != null ? testCase + "(" + parameters + ")" : testCase)) {
                 return (TestNGTestcase) tc;
             }
         }
