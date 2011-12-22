@@ -56,6 +56,7 @@ public final class TestNGTestcase extends Testcase {
     private boolean confMethod = false;
     private String parameters;
     private List<String> values = new ArrayList<String>();
+    private String description;
 
     //TODO: there should be subnode for each value instead
     public TestNGTestcase(String name, String params, String values, TestSession session) {
@@ -91,5 +92,13 @@ public final class TestNGTestcase extends Testcase {
 
     public void setConfigMethod(boolean isConfigMethod) {
         confMethod = isConfigMethod;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

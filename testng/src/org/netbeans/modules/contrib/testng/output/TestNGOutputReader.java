@@ -180,22 +180,24 @@ final class TestNGOutputReader {
         private int confSkip = 0;
     }
     private SuiteStats suiteStat;
+    private List<String> txt = new ArrayList<String>();
 
     /**
      */
     synchronized void verboseMessageLogged(String msg) {
+        String in = getMessage(msg);
         //suite starting
-        if (getMessage(msg).startsWith("RUNNING: ")) {
-            Matcher m = Pattern.compile(RegexpUtils.RUNNING_SUITE_REGEX).matcher(msg);
+        if (in.startsWith("RUNNING: ")) {
+            Matcher m = Pattern.compile(RegexpUtils.RUNNING_SUITE_REGEX).matcher(in);
             if (m.matches()) {
                 suiteStarted(m.group(1), Integer.valueOf(m.group(2)), m.group(3));
             } else {
-                assert false : "Cannot match: '" + msg + "'.";
+                assert false : "Cannot match: '" + in + "'.";
             }
             return;
         }
         //suite finishing
-        if (getMessage(msg).equals("===============================================")) {
+        if (in.equals("===============================================")) {
             suiteSummary = !suiteSummary;
             if (suiteSummary) {
                 suiteStat = new SuiteStats();
@@ -206,7 +208,7 @@ final class TestNGOutputReader {
             return;
         } else if (suiteSummary) {
             if (suiteStat.name != null) {
-                Matcher m = Pattern.compile(RegexpUtils.STATS_REGEX).matcher(msg);
+                Matcher m = Pattern.compile(RegexpUtils.STATS_REGEX).matcher(in);
                 if (suiteStat.testRun < 0) {
                     //Tests run/fail/skip
                     if (m.matches()) {
@@ -214,7 +216,7 @@ final class TestNGOutputReader {
                         suiteStat.testFail = Integer.valueOf(m.group(2));
                         suiteStat.testSkip = Integer.valueOf(m.group(4));
                     } else {
-                        assert false : "Cannot match: '" + msg + "'.";
+                        assert false : "Cannot match: '" + in + "'.";
                     }
                 } else {
                     //Configuration fail/skip
@@ -222,65 +224,86 @@ final class TestNGOutputReader {
                         suiteStat.confFail = Integer.valueOf(m.group(1));
                         suiteStat.confSkip = Integer.valueOf(m.group(2));
                     } else {
-                        assert false : "Cannot match: '" + msg + "'.";
+                        assert false : "Cannot match: '" + in + "'.";
                     }
                 }
             } else {
-                suiteStat.name = getMessage(msg).trim();
+                suiteStat.name = in.trim();
             }
             return;
         }
         //test
-        if (getMessage(msg).startsWith("INVOKING: ")) {
-            Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
+        if (in.startsWith("INVOKING: ")) {
+            Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(in);
             if (m.matches()) {
                 testStarted(m.group(1), m.group(2), m.group(4), m.group(6));
             } else {
-                assert false : "Cannot match: '" + msg + "'.";
+                assert false : "Cannot match: '" + in + "'.";
             }
+            if (txt.size() > 0) {
+                addStackTrace(txt);
+                txt.clear();
+            }
+            last = null;
             return;
         }
 
-        Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(msg);
-        if (getMessage(msg).startsWith("PASSED: ")) {
+        Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(in);
+        if (in.startsWith("PASSED: ")) {
             if (m.matches()) {
                 testFinished("PASSED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
-                assert false : "Cannot match: '" + msg + "'.";
+                assert false : "Cannot match: '" + in + "'.";
             }
             return;
         }
 
-        if (getMessage(msg).startsWith("PASSED with failures: ")) {
+        if (in.startsWith("PASSED with failures: ")) {
         }
 
-        if (getMessage(msg).startsWith("SKIPPED: ")) {
+        if (in.startsWith("SKIPPED: ")) {
             if (m.matches()) {
                 testFinished("SKIPPED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
-                assert false : "Cannot match: '" + msg + "'.";
+                assert false : "Cannot match: '" + in + "'.";
             }
             return;
         }
 
-        if (getMessage(msg).startsWith("FAILED: ")) {
+        if (in.startsWith("FAILED: ")) {
             if (m.matches()) {
                 testFinished("FAILED", m.group(1), m.group(2), m.group(4), m.group(6), m.group(8));
             } else {
-                assert false : "Cannot match: '" + msg + "'.";
+                assert false : "Cannot match: '" + in + "'.";
             }
             return;
         }
 
         //configuration methods
-//        Matcher matcher = RegexpUtils.JAVA_EXECUTABLE.matcher(msg);
-//        if (matcher.find()) {
-//            String executable = matcher.group(1);
-//            ClassPath platformSrcs = findPlatformSources(executable);
-//            if (platformSrcs != null) {
-//                this.platformSources = platformSrcs;
-//            }
-//        }
+        if (in.contains(" CONFIGURATION: ")) {
+            if (txt.size() > 0) {
+                addStackTrace(txt);
+                txt.clear();
+            }
+            return;
+        }
+
+        Matcher m1 = Pattern.compile(RegexpUtils.RUNNING_SUITE_REGEX).matcher(in);
+        if ((m.matches() || m1.matches()) && last != null) {
+            //update last testcase with the stacktrace
+            if (txt.size() > 0) {
+                addStackTrace(txt);
+                txt.clear();
+            }
+        } else {
+            if (txt.isEmpty() && in.startsWith("       ")) {
+                //we received test description
+                addDescription(in.trim());
+            } else {
+                //we have a stacktrace
+                txt.add(in);
+            }
+        }
     }
 
     synchronized void messageLogged(final AntEvent event) {
@@ -635,6 +658,8 @@ final class TestNGOutputReader {
         }
     }
 
+    private TestNGTestcase last = null;
+
     private void testFinished(String st, String suiteName, String testCase, String parameters, String values, String duration) {
         testSession.setCurrentSuite(suiteName);
         TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, values);
@@ -661,10 +686,21 @@ final class TestNGOutputReader {
         Report r = reports.get(suiteName);
         r.update(testSession.getReport(dur));
         manager.displayReport(testSession, r, false);
+        last = tc;
     }
 
     private String getMessage(String msg) {
         int prefixLength = RegexpUtils.TEST_LISTENER_PREFIX.length();
         return msg.substring(prefixLength);
+    }
+
+    private void addDescription(String in) {
+        last.setDescription(in);
+    }
+
+    private void addStackTrace(List<String> txt) {
+        Trouble t = new Trouble(false);
+        t.setStackTrace(txt.toArray(new String[txt.size()]));
+        last.setTrouble(t);
     }
 }
