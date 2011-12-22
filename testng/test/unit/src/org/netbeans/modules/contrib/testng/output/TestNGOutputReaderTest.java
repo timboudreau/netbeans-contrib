@@ -53,7 +53,7 @@ import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.Lookups;
-
+//14226
 /**
  *
  * @author lukas
@@ -76,18 +76,17 @@ public class TestNGOutputReaderTest extends NbTestCase {
         TestNGOutputReader r = new TestNGOutputReader(ts);
 
         BufferedReader br = new BufferedReader(
-                new FileReader(new File(getDataDir(), "antOut/log3.txt")));
+                new FileReader(new File(getDataDir(), "antOut/log.txt")));
         String line;
         while ((line = br.readLine()) != null) {
             if (line.startsWith(RegexpUtils.TEST_LISTENER_PREFIX)) {
-//                System.out.println(line);
                 r.verboseMessageLogged(line);
             }
         }
-//        System.out.println(ts.getSessionResult().getElapsedTime());
-//        System.out.println(ts.getSessionResult().getErrors());
-//        System.out.println(ts.getSessionResult().getFailed());
-//        System.out.println(ts.getSessionResult().getPassed());
-//        System.out.println(ts.getSessionResult().getTotal());
+        assertEquals(23116, ts.getSessionResult().getElapsedTime());
+        assertEquals(0, ts.getSessionResult().getErrors());
+        assertEquals(0, ts.getSessionResult().getFailed());
+        System.out.println(ts.getSessionResult().getPassed());
+        System.out.println(ts.getSessionResult().getTotal());
     }
 }

@@ -534,35 +534,47 @@ public class RegexpUtilsTest extends TestCase {
             "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString() finished in 4 ms";
         Matcher m = pattern.matcher(matchingString);
         assertTrue(m.matches());
-        assertEquals(7, m.groupCount());
+        assertEquals(8, m.groupCount());
         assertEquals("Regression1", m.group(1));
         assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
-        assertEquals("", m.group(3));
-        assertNull(m.group(4));
+        assertEquals("", m.group(4));
         assertNull(m.group(5));
-        assertEquals("4", m.group(7));
+        assertNull(m.group(6));
+        assertEquals("4", m.group(8));
         final String matchingString2 =
             "[NBTestListener] PASSED: \"Regression1\" - test.parameters.ParameterSample.testSingleString(java.lang.String)(value(s): \"Cedric\") finished in 2 ms";
         m = pattern.matcher(matchingString2);
         assertTrue(m.matches());
-        assertEquals(7, m.groupCount());
+        assertEquals(8, m.groupCount());
         assertEquals("Regression1", m.group(1));
         assertEquals("test.parameters.ParameterSample.testSingleString", m.group(2));
-        assertEquals("java.lang.String", m.group(3));
-        assertEquals("(value(s): \"Cedric\")", m.group(4));
-        assertEquals("\"Cedric\"", m.group(5));
-        assertEquals("2", m.group(7));
+        assertEquals("java.lang.String", m.group(4));
+        assertEquals("(value(s): \"Cedric\")", m.group(5));
+        assertEquals("\"Cedric\"", m.group(6));
+        assertEquals("2", m.group(8));
         final String matchingString3 =
             "[NBTestListener] PASSED: \"Injection\" - test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)) finished in 15 ms";
         m = pattern.matcher(matchingString3);
         assertTrue(m.matches());
-        assertEquals(7, m.groupCount());
+        assertEquals(8, m.groupCount());
         assertEquals("Injection", m.group(1));
         assertEquals("test.inject.NoInjectionTest.withInjection", m.group(2));
-        assertEquals("java.lang.reflect.Method", m.group(3));
-        assertEquals("(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))", m.group(4));
-        assertEquals("public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)", m.group(5));
-        assertEquals("15", m.group(7));
+        assertEquals("java.lang.reflect.Method", m.group(4));
+        assertEquals("(value(s): public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method))", m.group(5));
+        assertEquals("public void test.inject.NoInjectionTest.withInjection(java.lang.reflect.Method)", m.group(6));
+        assertEquals("15", m.group(8));
+
+        final String matchingString4 =
+            "[VerboseTestNG] INVOKING: \"Ant test\" - test.MyTest";
+        m = pattern.matcher(matchingString4);
+        assertTrue(m.matches());
+        assertEquals(8, m.groupCount());
+        assertEquals("Ant test", m.group(1));
+        assertEquals("test.MyTest", m.group(2));
+        assertNull(m.group(3));
+        assertNull(m.group(4));
+        assertNull(m.group(5));
+        assertNull(m.group(7));
     }
 
     public void testStatsRegexp() throws Exception {
