@@ -46,6 +46,7 @@ import java.util.List;
 import javax.swing.Action;
 import org.netbeans.modules.contrib.testng.actions.DebugTestClassAction;
 import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
+import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -75,7 +76,10 @@ public final class TestNGSuiteNode extends TestsuiteNode {
 
     @Override
     public Action[] getActions(boolean context) {
-        ic.add(((TestNGTestSuite) getSuite()).getSuiteFO());
+        FileObject fo = ((TestNGTestSuite) getSuite()).getSuiteFO();
+        if (fo != null) {
+            ic.add(fo);
+        }
         List<Action> actions = new ArrayList<Action>();
         Action preferred = getPreferredAction();
         if (preferred != null) {

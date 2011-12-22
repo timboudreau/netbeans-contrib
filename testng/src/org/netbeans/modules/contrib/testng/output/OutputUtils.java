@@ -50,6 +50,7 @@ import java.util.logging.Logger;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import static javax.lang.model.util.ElementFilter.methodsIn;
 import javax.swing.Action;
 import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
 import org.netbeans.api.java.source.CompilationController;
@@ -66,7 +67,6 @@ import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.text.Line.ShowOpenType;
 import org.openide.text.Line.ShowVisibilityType;
-import static javax.lang.model.util.ElementFilter.*;
 
 /**
  *
@@ -135,7 +135,7 @@ final class OutputUtils {
                                 if (element != null && element.getKind() == ElementKind.CLASS && element.getSimpleName().contentEquals(fo.getName())) {
                                     List<? extends ExecutableElement> methodElements = methodsIn(element.getEnclosedElements());
                                     for (Element child : methodElements) {
-                                        if (child.getSimpleName().contentEquals(node.getTestcase().getName())) {
+                                        if (child.getSimpleName().contentEquals(node.getTestcase().getTestName())) {
                                             long pos = trees.getSourcePositions().getStartPosition(compilationUnitTree, trees.getTree(child));
                                             line[0] = compilationUnitTree.getLineMap().getLineNumber(pos);
                                             break;
@@ -315,7 +315,7 @@ final class OutputUtils {
 
         try {
             DataObject dob = DataObject.find(file);
-            EditorCookie ed = dob.getCookie(EditorCookie.class);
+            EditorCookie ed = dob.getLookup().lookup(EditorCookie.class);
             if (ed != null
                     && /* not true e.g. for *_ja.properties */ file == dob.getPrimaryFile()) {
                 if (lineNum == -1) {

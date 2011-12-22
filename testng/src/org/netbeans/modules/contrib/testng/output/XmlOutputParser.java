@@ -334,9 +334,8 @@ public class XmlOutputParser extends DefaultHandler {
 
     private TestNGTestcase createTestcaseReport(String className, String name, int time) {
 //        TestNGTestcase tc = new TestNGTestcase(name, "TestNG Test", testSession);
-        TestNGTestcase tc = new TestNGTestcase(name, "params", null, testSession);
+        TestNGTestcase tc = new TestNGTestcase(className + "." + name, "params", null, testSession);
         tc.setTimeMillis(time);
-        tc.setClassName(className);
         return tc;
     }
 }

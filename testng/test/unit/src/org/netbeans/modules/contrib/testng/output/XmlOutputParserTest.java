@@ -74,7 +74,7 @@ public class XmlOutputParserTest extends NbTestCase {
         List<Testcase> testcases = result.getTestcases();
         assertEquals(3, testcases.size());
         Testcase[] tcs = testcases.toArray(new Testcase[3]);
-        assertEquals("cTest", tcs[1].getName());
+        assertEquals("test.FailPassSkipTest.cTest", tcs[1].getName());
 //        assertEquals(1, result.failures);
 //        assertEquals(1, result.skips);
 //        assertEquals(3, result.totalTests);
@@ -91,7 +91,7 @@ public class XmlOutputParserTest extends NbTestCase {
         testcases = result.getTestcases();
         assertEquals(3, testcases.size());
         tcs = testcases.toArray(new Testcase[3]);
-        assertEquals("setUp", tcs[0].getName());
+        assertEquals("test.SetUpTest.setUp", tcs[0].getName());
 //        assertEquals(0, result.failures);
 //        assertEquals(1, result.skips);
 //        assertEquals(1, result.totalTests);

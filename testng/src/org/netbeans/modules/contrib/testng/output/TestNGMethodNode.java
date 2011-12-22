@@ -74,7 +74,7 @@ final class TestNGMethodNode extends TestMethodNode {
 
     @Override
     public Action[] getActions(boolean context) {
-        ic.add(new SingleMethod(getTestcase().getClassFileObject(), getTestcase().getName()));
+        ic.add(new SingleMethod(getTestcase().getClassFileObject(), getTestcase().getTestName()));
         ic.add(getTestcase());
         List<Action> actions = new ArrayList<Action>();
         Action preferred = getPreferredAction();

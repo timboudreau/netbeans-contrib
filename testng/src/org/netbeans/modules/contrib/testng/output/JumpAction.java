@@ -44,6 +44,7 @@ package org.netbeans.modules.contrib.testng.output;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.modules.gsf.testrunner.api.TestSuite;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
@@ -70,12 +71,24 @@ final class JumpAction extends AbstractAction {
      */
     public void actionPerformed(ActionEvent e) {
         if (node instanceof TestNGSuiteNode){
+            //TODO: open xml file on a particular line...
             OutputUtils.openTestsuite((TestNGSuiteNode)node);
         } else if (node instanceof CallstackFrameNode){
             OutputUtils.openCallstackFrame(node, callstackFrameInfo);
         } else if (node instanceof TestNGMethodNode){
             OutputUtils.openTestMethod((TestNGMethodNode)node);
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        if (node instanceof TestNGSuiteNode) {
+            TestSuite suite = ((TestNGSuiteNode) node).getSuite();
+            if ((suite != null) && (suite instanceof TestNGTestSuite)) {
+                return ((TestNGTestSuite) suite).getSuiteFO() != null;
+            }
+        }
+        return super.isEnabled();
     }
 
     @Override
