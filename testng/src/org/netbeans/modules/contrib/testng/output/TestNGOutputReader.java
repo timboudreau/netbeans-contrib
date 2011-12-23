@@ -136,7 +136,9 @@ final class TestNGOutputReader {
         reports = new HashMap<String, Report>();
     }
 
-    /** for tests */
+    /**
+     * for tests
+     */
     TestNGOutputReader(TestNGTestSession session) {
         testSession = session;
         sessionType = session.getSessionType();
@@ -145,7 +147,6 @@ final class TestNGOutputReader {
         project = session.getProject();
         reports = new HashMap<String, Report>();
     }
-
 
     Project getProject() {
         return project;
@@ -280,10 +281,10 @@ final class TestNGOutputReader {
 
         //configuration methods
         if (in.contains(" CONFIGURATION: ")) {
-            if (txt.size() > 0) {
-                addStackTrace(txt);
-                txt.clear();
-            }
+//            if (txt.size() > 0) {
+//                addStackTrace(txt);
+//                txt.clear();
+//            }
             return;
         }
 
@@ -292,7 +293,7 @@ final class TestNGOutputReader {
             if (txt.isEmpty() && in.startsWith("       ")) {
                 //we received test description
                 addDescription(in.trim());
-            } else {
+            } else if (in.trim().length() > 0) {
                 //we have a stacktrace
                 txt.add(in);
             }
@@ -689,11 +690,31 @@ final class TestNGOutputReader {
     }
 
     private void addDescription(String in) {
-        ((TestNGTestcase) testSession.getCurrentTestCase()).setDescription(in);
+        Testcase tc = testSession.getCurrentTestCase();
+        //FIXME!!! tc should never be null
+        //looks like some bug :-(
+        if (tc != null) {
+            ((TestNGTestcase) tc).setDescription(in);
+        }
     }
 
     private void addStackTrace(List<String> txt) {
         Trouble t = new Trouble(false);
+        Matcher matcher = RegexpUtils.getInstance().getComparisonPattern().matcher(txt.get(0));
+        if (matcher.matches()) {
+            t.setComparisonFailure(
+                    new Trouble.ComparisonFailure(
+                    matcher.group(1) + matcher.group(2) + matcher.group(3),
+                    matcher.group(4) + matcher.group(5) + matcher.group(6)));
+        } else {
+            matcher = RegexpUtils.getInstance().getComparisonHiddenPattern().matcher(txt.get(0));
+            if (matcher.matches()) {
+                t.setComparisonFailure(
+                        new Trouble.ComparisonFailure(
+                        matcher.group(1),
+                        matcher.group(2)));
+            }
+        }
         t.setStackTrace(txt.toArray(new String[txt.size()]));
         testSession.getCurrentTestCase().setTrouble(t);
     }
