@@ -234,17 +234,16 @@ final class TestNGOutputReader {
         }
         //test
         if (in.startsWith("INVOKING: ")) {
+            if (txt.size() > 0) {
+                addStackTrace(txt);
+                txt.clear();
+            }
             Matcher m = Pattern.compile(RegexpUtils.TEST_REGEX).matcher(in);
             if (m.matches()) {
                 testStarted(m.group(1), m.group(2), m.group(4), m.group(6));
             } else {
                 assert false : "Cannot match: '" + in + "'.";
             }
-            if (txt.size() > 0) {
-                addStackTrace(txt);
-                txt.clear();
-            }
-            last = null;
             return;
         }
 
@@ -289,13 +288,7 @@ final class TestNGOutputReader {
         }
 
         Matcher m1 = Pattern.compile(RegexpUtils.RUNNING_SUITE_REGEX).matcher(in);
-        if ((m.matches() || m1.matches()) && last != null) {
-            //update last testcase with the stacktrace
-            if (txt.size() > 0) {
-                addStackTrace(txt);
-                txt.clear();
-            }
-        } else {
+        if (!(m.matches() || m1.matches())) {
             if (txt.isEmpty() && in.startsWith("       ")) {
                 //we received test description
                 addDescription(in.trim());
@@ -310,6 +303,10 @@ final class TestNGOutputReader {
         final String msg = event.getMessage();
         if (msg == null) {
             return;
+        }
+        Testcase tc = testSession.getCurrentTestCase();
+        if (tc != null) {
+            tc.getOutput().add(new OutputLine(msg, false));
         }
         if (!expectXmlReport) {
             //log/verbose level = 0 so don't show output
@@ -658,8 +655,6 @@ final class TestNGOutputReader {
         }
     }
 
-    private TestNGTestcase last = null;
-
     private void testFinished(String st, String suiteName, String testCase, String parameters, String values, String duration) {
         testSession.setCurrentSuite(suiteName);
         TestNGTestcase tc = ((TestNGTestSuite) ((TestNGTestSession) testSession).getCurrentSuite()).getTestCase(testCase, values);
@@ -686,7 +681,6 @@ final class TestNGOutputReader {
         Report r = reports.get(suiteName);
         r.update(testSession.getReport(dur));
         manager.displayReport(testSession, r, false);
-        last = tc;
     }
 
     private String getMessage(String msg) {
@@ -695,12 +689,12 @@ final class TestNGOutputReader {
     }
 
     private void addDescription(String in) {
-        last.setDescription(in);
+        ((TestNGTestcase) testSession.getCurrentTestCase()).setDescription(in);
     }
 
     private void addStackTrace(List<String> txt) {
         Trouble t = new Trouble(false);
         t.setStackTrace(txt.toArray(new String[txt.size()]));
-        last.setTrouble(t);
+        testSession.getCurrentTestCase().setTrouble(t);
     }
 }
