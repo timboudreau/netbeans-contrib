@@ -41,18 +41,20 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.contrib.testng.actions.DebugTestMethodAction;
-import org.netbeans.modules.contrib.testng.actions.RunTestMethodAction;
 import org.netbeans.modules.gsf.testrunner.api.DiffViewAction;
 import org.netbeans.modules.gsf.testrunner.api.TestMethodNode;
 import org.netbeans.modules.gsf.testrunner.api.Testcase;
+import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.SingleMethod;
-import org.openide.util.actions.SystemAction;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -74,7 +76,8 @@ final class TestNGMethodNode extends TestMethodNode {
 
     @Override
     public Action[] getActions(boolean context) {
-        ic.add(new SingleMethod(getTestcase().getClassFileObject(), getTestcase().getTestName()));
+        SingleMethod sm = new SingleMethod(getTestcase().getClassFileObject(), getTestcase().getTestName());
+        ic.add(sm);
         ic.add(getTestcase());
         List<Action> actions = new ArrayList<Action>();
         Action preferred = getPreferredAction();
@@ -85,9 +88,15 @@ final class TestNGMethodNode extends TestMethodNode {
             //TODO: differs in TestNG
             actions.add(new DiffViewAction(testcase));
         }
-        if (!getTestcase().isConfigMethod()) {
-            actions.add(SystemAction.get(RunTestMethodAction.class));
-            actions.add(SystemAction.get(DebugTestMethodAction.class));
+
+        for (ActionProvider ap : Lookup.getDefault().lookupAll(ActionProvider.class)) {
+            List<String> supportedActions = Arrays.asList(ap.getSupportedActions());
+            if (!getTestcase().isConfigMethod() && supportedActions.contains(SingleMethod.COMMAND_RUN_SINGLE_METHOD)) {
+                actions.add(new TestMethodNodeAction(ap, Lookups.singleton(sm), SingleMethod.COMMAND_RUN_SINGLE_METHOD, "LBL_RerunTest"));
+            }
+            if (!getTestcase().isConfigMethod() && supportedActions.contains(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
+                actions.add(new TestMethodNodeAction(ap, Lookups.singleton(sm), SingleMethod.COMMAND_DEBUG_SINGLE_METHOD, "LBL_DebugTest"));
+            }
         }
         return actions.toArray(new Action[actions.size()]);
     }

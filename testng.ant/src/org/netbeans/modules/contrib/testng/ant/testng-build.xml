@@ -58,7 +58,7 @@ made subject to such option by the copyright holder.
         <macrodef name="testng-ant">
             <attribute name="testincludes" default="${test.includes}"/>
             <sequential>
-               <pathconvert property="test.includes.classes" pathsep=",">
+                <pathconvert property="test.includes.classes" pathsep=",">
                     <path location="@{testincludes}" />
                     <globmapper from="${basedir}/*.java" to="*.class"/>
                 </pathconvert>
@@ -376,25 +376,31 @@ made subject to such option by the copyright holder.
         <delete dir="${build.test.results.dir}" quiet="true"/>
         <mkdir dir="${build.test.results.dir}"/>
         <java classname="org.testng.TestNG" dir="${basedir}" fork="true">
-            <jvmarg line="${debug-args-line}"/>
-            <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
-            <jvmarg line="${run.jvmargs.prop}"/>
-            <arg line="-d ${build.test.results.dir}"/>
-            <arg line="-sourcedir ${test.src.dir}"/>
-            <arg line="${testng.config}"/>
+            <classpath>
+                <pathelement path="${ant.home}/lib/ant.jar"/>
+                <pathelement path="${ant.home}/lib/ant-junit.jar"/>
+                <pathelement path="${debug.test.classpath}"/>
+                <pathelement path="${j2ee.platform.classpath}"/>
+            </classpath>
+            <redirector errorencoding="${runtime.encoding}" inputencoding="${runtime.encoding}" outputencoding="${runtime.encoding}"/>
             <syspropertyset>
                 <propertyref prefix="test-sys-prop."/>
                 <mapper from="test-sys-prop.*" to="*" type="glob"/>
             </syspropertyset>
-            <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
-            <jvmarg value="-ea"/>
-            <classpath>
-                <path path="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}:${j2ee.platform.classpath}"/>
-            </classpath>
             <syspropertyset>
                 <propertyref prefix="run-sys-prop."/>
                 <mapper from="run-sys-prop.*" to="*" type="glob"/>
             </syspropertyset>
+            <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
+            <jvmarg line="${debug-args-line}"/>
+            <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+            <jvmarg value="-Dfile.encoding=${runtime.encoding}"/>
+            <jvmarg line="${run.jvmargs.prop}"/>
+            <jvmarg value="-Dtestng.test.classpath=${build.test.classes.dir}"/>
+            <jvmarg value="-ea"/>
+            <arg line="-d ${build.test.results.dir}"/>
+            <arg line="-listener org.testng.reporters.VerboseReporter"/>
+            <arg line="${testng.config}"/>
         </java>
     </target>
 
