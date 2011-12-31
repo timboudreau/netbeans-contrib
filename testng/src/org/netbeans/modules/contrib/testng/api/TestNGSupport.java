@@ -60,6 +60,7 @@ public final class TestNGSupport {
         CREATE_TEST,
         RUN_FAILED,
         RUN_TESTMETHOD,
+        RUN_TESTSUITE,
         DEBUG_TEST,
         DEBUG_TESTMETHOD
     }

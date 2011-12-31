@@ -81,6 +81,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
         s.add(Action.CREATE_TEST);
         s.add(Action.RUN_FAILED);
         s.add(Action.RUN_TESTMETHOD);
+        s.add(Action.RUN_TESTSUITE);
         s.add(Action.DEBUG_TEST);
         s.add(Action.DEBUG_TESTMETHOD);
         SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
@@ -163,6 +164,9 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                 FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
                 props.put("testng.config", FileUtil.getRelativePath(projectHome, failedTestsConfig));
             } else {
+                if (Action.RUN_TESTSUITE.equals(action)) {
+                props.put("testng.config", FileUtil.toFile(config.getTest()).getAbsolutePath());
+                } else {
                 File f = XMLSuiteSupport.createSuiteforMethod(
                         FileUtil.normalizeFile(new File(System.getProperty("java.io.tmpdir"))), //NOI18N
                         ProjectUtils.getInformation(p).getDisplayName(),
@@ -171,6 +175,7 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                         config.getMethodName());
                 f = FileUtil.normalizeFile(f);
                 props.put("testng.config", f.getAbsolutePath());
+                }
             }
             try {
                 String target = "run-testng"; //NOI18N
