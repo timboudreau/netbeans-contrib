@@ -2,7 +2,7 @@
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright © 1997-2011 Oracle and/or its affiliates. All rights reserved.
+Copyright © 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -138,15 +138,6 @@ made subject to such option by the copyright holder.
         <folder name="TestNG">
             <attr name="displayName" bundlevalue="org.netbeans.modules.contrib.testng.Bundle#Templates/TestNG"/>
             <attr name="position" intvalue="1250"/>
-            <file name="TestNGTest.java" url="testng.template">
-                <attr name="displayName" bundlevalue="org.netbeans.modules.contrib.testng.Bundle#Templates/TestNG/TestNGTest.java"/>
-                <attr name="iconBase" stringvalue="org/netbeans/modules/contrib/testng/resources/testng.gif"/>
-                <attr name="position" intvalue="1000"/>
-                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.contrib.testng.NewTestWizardIterator.create"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/contrib/testng/resources/newTest.html"/>
-            </file>
         </folder>
     </folder>
     <folder name="org-netbeans-api-project-libraries">

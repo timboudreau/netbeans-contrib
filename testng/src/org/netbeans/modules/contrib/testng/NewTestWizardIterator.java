@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright © 2008-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright © 2008-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -40,21 +40,12 @@ package org.netbeans.modules.contrib.testng;
 
 import java.awt.Component;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.logging.Logger;
+import java.util.*;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.SourceGroupModifier;
-import org.netbeans.api.project.Sources;
+import org.netbeans.api.project.*;
+import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
@@ -67,17 +58,19 @@ import org.openide.loaders.DataObject;
 /**
  * Wizard to create a new TestNG file.
  */
+@TemplateRegistration(folder = "TestNG", position = 1000,
+        content = "resources/EmptyTestNGTest.java.template",
+        scriptEngine = "freemarker",
+        displayName = "#Templates/TestNG/TestNGTest.java",
+        iconBase = "org/netbeans/modules/contrib/testng/resources/testng.gif",
+        description = "/org/netbeans/modules/contrib/testng/resources/newTest.html")
 public final class NewTestWizardIterator implements WizardDescriptor.InstantiatingIterator {
 
     private transient int index;
     private transient WizardDescriptor.Panel[] panels;
     private transient WizardDescriptor wiz;
 
-    public static NewTestWizardIterator create() {
-        return new NewTestWizardIterator();
-    }
-
-    private NewTestWizardIterator() {
+    public NewTestWizardIterator() {
     }
 
     private WizardDescriptor.Panel[] createPanels(final WizardDescriptor wizardDescriptor) {
