@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -47,13 +47,11 @@ import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.spi.xml.cookies.CheckXMLSupport;
 import org.netbeans.spi.xml.cookies.DataObjectAdapters;
 import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.CookieSet;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -67,17 +65,12 @@ public class TestNGSuiteDataObject extends MultiDataObject {
         CookieSet cookies = getCookieSet();
         cookies.add(new CheckXMLSupport(DataObjectAdapters.inputSource(this)));
         cookies.add(new ValidateXMLSupport(DataObjectAdapters.inputSource(this)));
-        cookies.add(new TestNGSuiteDataEditor(this));
+        registerEditor(MIME_TYPE, true);
     }
 
     @Override
-    protected Node createNodeDelegate() {
-        return new TestNGSuiteDataNode(this, getLookup());
-    }
-
-    @Override
-    public Lookup getLookup() {
-        return getCookieSet().getLookup();
+    protected int associateLookup() {
+        return 1;
     }
 
     @MultiViewElement.Registration(displayName = "#CTL_SourceTabCaption",
@@ -90,19 +83,5 @@ public class TestNGSuiteDataObject extends MultiDataObject {
     @NbBundle.Messages("CTL_SourceTabCaption=&Source")
     public static MultiViewEditorElement createMultiViewEditorElement(Lookup context) {
         return new MultiViewEditorElement(context);
-    }
-
-    void addSaveCookie(final SaveCookie save) {
-        if (getLookup().lookup(SaveCookie.class) == null) {
-            getCookieSet().add(save);
-            setModified(true);
-        }
-    }
-
-    void removeSaveCookie(final SaveCookie save) {
-        if (getLookup().lookup(SaveCookie.class) == save) {
-            getCookieSet().remove(save);
-            setModified(false);
-        }
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -50,7 +50,6 @@ import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.*;
 import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.modules.contrib.testng.api.TestNGSupport;
-import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
@@ -59,7 +58,8 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
 @TemplateRegistration(folder = "TestNG", position = 2000,
-        content= "resources/testng-suite.template",
+        content = "resources/testng.xml.template",
+        scriptEngine = "freemarker",
         displayName = "#Templates/TestNG/TestNGTestSuite.xml",
         description = "/org/netbeans/modules/contrib/testng/resources/newTestSuite.html",
         iconBase = "org/netbeans/modules/contrib/testng/resources/testng.gif")
@@ -69,6 +69,10 @@ public final class NewTestSuiteWizardIterator implements WizardDescriptor.Instan
     private transient WizardDescriptor.Panel[] panels;
     private transient WizardDescriptor wiz;
 
+    public NewTestSuiteWizardIterator() {
+    }
+
+    
     private WizardDescriptor.Panel[] createPanels(final WizardDescriptor wizardDescriptor) {
         // Ask for Java folders
         Project project = Templates.getProject(wizardDescriptor);
@@ -81,14 +85,10 @@ public final class NewTestSuiteWizardIterator implements WizardDescriptor.Instan
         }
         if (groups.length == 0) {
             groups = sources.getSourceGroups(Sources.TYPE_GENERIC);
-            return new WizardDescriptor.Panel[]{
-                        Templates.buildSimpleTargetChooser(project, groups).create()
-                    };
-        } else {
-            return new WizardDescriptor.Panel[]{
-                        JavaTemplates.createPackageChooser(project, groups)
-                    };
         }
+        return new WizardDescriptor.Panel[]{
+                    Templates.buildSimpleTargetChooser(project, groups).create()
+                };
     }
 
     private String[] createSteps(String[] before, WizardDescriptor.Panel[] panels) {
@@ -111,7 +111,7 @@ public final class NewTestSuiteWizardIterator implements WizardDescriptor.Instan
         return res;
     }
 
-    public Set<FileObject> instantiate() throws IOException {
+    public Set<DataObject> instantiate() throws IOException {
         FileObject dir = Templates.getTargetFolder(wiz);
         String targetName = Templates.getTargetName(wiz);
 
@@ -120,16 +120,23 @@ public final class NewTestSuiteWizardIterator implements WizardDescriptor.Instan
 
         DataObject dTemplate = DataObject.find(template);
         String pkgName = getSelectedPackageName(dir);
-        DataObject dobj;
-        if (pkgName == null) {
-            dobj = dTemplate.createFromTemplate(df, targetName);
-        } else {
-            dobj = dTemplate.createFromTemplate(df, targetName, Collections.singletonMap("name", targetName)); // NOI18N
+        String suiteName = pkgName + " suite";
+        String projectName = ProjectUtils.getInformation(FileOwnerQuery.getOwner(dir)).getName();
+        if (pkgName == null || pkgName.trim().length() < 1) {
+            pkgName = ".*"; //NOI18N
+            suiteName = "All tests for " + projectName;
         }
+        
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("name", projectName);
+        props.put("suiteName", suiteName);
+        props.put("pkg", pkgName);
 
-        FileObject createdFile = dobj.getPrimaryFile();
+        DataObject dobj = dTemplate.createFromTemplate(df, targetName, props);
+
+        FileObject createdFile = DataObject.find(dobj.getPrimaryFile()).getPrimaryFile();
         TestNGSupport.findTestNGSupport(FileOwnerQuery.getOwner(createdFile)).configureProject(createdFile);
-        return Collections.singleton(createdFile);
+        return Collections.singleton(dobj);
     }
 
     public void initialize(WizardDescriptor wiz) {
