@@ -113,7 +113,7 @@ public class MavenModelUtils {
                 Plugin plug = model.getFactory().createPlugin();
                 plug.setGroupId(Constants.GROUP_APACHE_PLUGINS);
                 plug.setArtifactId(Constants.PLUGIN_SUREFIRE);
-                plug.setVersion("2.8.1"); //NOI18N
+                plug.setVersion("2.11"); //NOI18N
                 Configuration conf = model.getFactory().createConfiguration();
                 POMExtensibilityElement suite = model.getFactory().createPOMExtensibilityElement(
                         POMQName.createQName("suiteXmlFiles", model.getPOMQNames().isNSAware()));//NOI18N
