@@ -62,7 +62,8 @@ public final class TestNGSupport {
         RUN_TESTMETHOD,
         RUN_TESTSUITE,
         DEBUG_TEST,
-        DEBUG_TESTMETHOD
+        DEBUG_TESTMETHOD,
+        DEBUG_TESTSUITE
     }
 
     private TestNGSupport() {
