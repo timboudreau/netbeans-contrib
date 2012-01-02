@@ -2,7 +2,7 @@
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright © 2008-2011 Oracle and/or its affiliates. All rights reserved.
+Copyright © 2008-2012 Oracle and/or its affiliates. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -50,5 +50,20 @@ made subject to such option by the copyright holder.
             <goal>test-compile</goal>
             <goal>surefire:test</goal>
         </goals>
+    </action>
+    <action>
+        <actionName>testng.debug</actionName>
+        <packagings>
+            <packaging>*</packaging>
+        </packagings>
+        <goals>
+            <goal>test-compile</goal>
+            <goal>surefire:test</goal>
+        </goals>
+        <properties>
+            <jpda.listen>true</jpda.listen>
+<!--            ", "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -Xnoagent -Djava.compiler=NONE-->
+            <maven.surefire.debug>-Xdebug -Xrunjdwp:transport=dt_socket,suspend=n,server=n,address=${jpda.address}</maven.surefire.debug>
+        </properties>
     </action>
 </actions>

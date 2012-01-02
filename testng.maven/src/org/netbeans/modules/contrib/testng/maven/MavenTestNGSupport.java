@@ -77,6 +77,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
         s.add(Action.RUN_FAILED);
         s.add(Action.RUN_TESTMETHOD);
         s.add(Action.RUN_TESTSUITE);
+        s.add(Action.DEBUG_TESTSUITE);
         SUPPORTED_ACTIONS = Collections.unmodifiableSet(s);
     }
 
@@ -115,7 +116,14 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
         }
 
         public void execute(Action action, TestConfig config) throws IOException {
-            RunConfig rc = new TestNGActionsProvider().createConfigForDefaultAction("testng.test", p, Lookups.singleton(config.getTest()));
+            RunConfig rc;
+            if (Action.DEBUG_TESTSUITE.equals(action)
+                    || Action.DEBUG_TEST.equals(action)
+                    || Action.DEBUG_TESTMETHOD.equals(action)) {
+                rc = new TestNGActionsProvider().createConfigForDefaultAction("testng.debug", p, Lookups.singleton(config.getTest()));
+            } else {
+                rc = new TestNGActionsProvider().createConfigForDefaultAction("testng.test", p, Lookups.singleton(config.getTest()));
+            }
 //            MavenProject mp = rc.getMavenProject();
             rc.setProperty("netbeans.testng.action", "true"); //NOI18N
             if (config.doRerun()) {
@@ -123,7 +131,7 @@ public class MavenTestNGSupport extends TestNGSupportImplementation {
 //                mp.addPlugin(createPluginDef(failedConfPath));
             } else {
                 File f = null;
-                if (Action.RUN_TESTSUITE.equals(action)) {
+                if (Action.RUN_TESTSUITE.equals(action) || Action.DEBUG_TESTSUITE.equals(action)) {
                     f = FileUtil.toFile(config.getTest());
                 } else {
                    f = XMLSuiteSupport.createSuiteforMethod(
