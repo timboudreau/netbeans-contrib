@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright © 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright © 2009-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -39,11 +39,18 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.apache.tools.ant.module.spi.AntSession;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.contrib.testng.actions.TestConfigAccessor;
+import org.netbeans.modules.contrib.testng.api.TestNGSupport;
+import org.netbeans.modules.contrib.testng.spi.TestConfig;
+import org.netbeans.modules.contrib.testng.spi.TestNGSupportImplementation;
 import org.netbeans.modules.gsf.testrunner.api.RerunHandler;
 import org.netbeans.modules.gsf.testrunner.api.RerunType;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
@@ -66,6 +73,8 @@ public class TestNGExecutionManager implements RerunHandler {
     private Properties properties;
     private TestSession testSession;
     private Lookup lookup = Lookup.EMPTY;
+
+    private static final Logger LOGGER = Logger.getLogger(TestNGExecutionManager.class.getName());
 
     public TestNGExecutionManager(AntSession session, TestSession testSession, Properties props) {
         this.testSession = testSession;
@@ -115,6 +124,7 @@ public class TestNGExecutionManager implements RerunHandler {
                 }
             }
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, null, e);
         }
     }
 
@@ -125,43 +135,59 @@ public class TestNGExecutionManager implements RerunHandler {
     }
 
     public void rerun(Set<Testcase> tests) {
-        //not implemented yet
+        Project p = testSession.getProject();
+        TestNGSupportImplementation.TestExecutor exec = TestNGSupport.findTestNGSupport(p).createExecutor(p);
+        TestConfig conf = TestConfigAccessor.getDefault().createTestConfig(p.getProjectDirectory(), true, null, null, null);
+        try {
+            exec.execute(TestNGSupport.Action.RUN_FAILED, conf);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
     }
 
     public boolean enabled(RerunType type) {
         switch (type){
-            case ALL: return true;
-            case CUSTOM: return false;
-            default: return false;
-        }
-    }
-
-    public boolean enabled() {
-        if ((scriptFile == null) || (targets == null) || (targets.length == 0)) {
-            return false;
-        }
-
-        Project project = testSession.getProject();
-        ActionProvider actionProvider = project.getLookup().lookup(ActionProvider.class);
-        if (actionProvider != null) {
-            boolean runSupported = false;
-            for (String action : actionProvider.getSupportedActions()) {
-                if (action.equals(targets[0])) {
-                    runSupported = true;
-                    break;
-                }
-            }
-            if (runSupported && actionProvider.isActionEnabled(targets[0], lookup)) {
+            case ALL:
                 return true;
-            }
+            case CUSTOM:
+                Project p = testSession.getProject();
+                if (TestNGSupport.isActionSupported(TestNGSupport.Action.RUN_FAILED, p)) {
+                    return TestNGSupport.findTestNGSupport(p).createExecutor(p).hasFailedTests();
+                }
+                return false;
+            default:
+                return false;
         }
-
-        return false;
     }
 
+//    public boolean enabled() {
+//        if ((scriptFile == null) || (targets == null) || (targets.length == 0)) {
+//            return false;
+//        }
+//
+//        Project project = testSession.getProject();
+//        ActionProvider actionProvider = project.getLookup().lookup(ActionProvider.class);
+//        if (actionProvider != null) {
+//            boolean runSupported = false;
+//            for (String action : actionProvider.getSupportedActions()) {
+//                if (action.equals(targets[0])) {
+//                    runSupported = true;
+//                    break;
+//                }
+//            }
+//            if (runSupported && actionProvider.isActionEnabled(targets[0], lookup)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+
+    @Override
     public void addChangeListener(ChangeListener listener) {
     }
 
+    @Override
     public void removeChangeListener(ChangeListener listener) {
     }
 }
