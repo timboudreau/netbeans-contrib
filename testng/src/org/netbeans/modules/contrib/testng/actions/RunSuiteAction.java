@@ -71,7 +71,7 @@ import org.openide.util.actions.NodeAction;
 @ActionRegistration(displayName = "#CTL_RunSuiteAction")
 @ActionReferences(value = {
     @ActionReference(path = "Loaders/text/x-testng+xml/Actions", position = 250)})
-@Messages("CTL_RunSuiteAction=&Run")
+@Messages("CTL_RunSuiteAction=&Test File")
 public class RunSuiteAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger(RunSuiteAction.class.getName());

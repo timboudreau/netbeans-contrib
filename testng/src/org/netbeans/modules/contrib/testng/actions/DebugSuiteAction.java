@@ -70,7 +70,7 @@ import org.openide.util.actions.NodeAction;
 @ActionRegistration(displayName = "#CTL_DebugSuiteAction")
 @ActionReferences(value = {
     @ActionReference(path = "Loaders/text/x-testng+xml/Actions", position = 270)})
-@NbBundle.Messages("CTL_DebugSuiteAction=&Debug")
+@NbBundle.Messages("CTL_DebugSuiteAction=&Debug Test File")
 public class DebugSuiteAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger(org.netbeans.modules.contrib.testng.actions.DebugSuiteAction.class.getName());
