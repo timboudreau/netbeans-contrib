@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright © 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright © 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -57,6 +57,7 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.modules.contrib.testng.TestNGEntityResolver;
 import org.netbeans.modules.gsf.testrunner.api.TestSuite;
 import org.netbeans.modules.gsf.testrunner.api.Trouble;
 import org.openide.cookies.EditorCookie;
@@ -67,6 +68,11 @@ import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.text.Line.ShowOpenType;
 import org.openide.text.Line.ShowVisibilityType;
+import org.openide.util.Exceptions;
+import org.openide.xml.XMLUtil;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -85,33 +91,8 @@ final class OutputUtils {
         if ((suite != null) && (suite instanceof TestSuite)) {
             final FileObject fo = ((TestNGTestSuite) suite).getSuiteFO();
             if (fo != null) {
-                final long[] line = new long[]{0};
-                JavaSource javaSource = JavaSource.forFileObject(fo);
-                if (javaSource != null) {
-                    try {
-                        javaSource.runUserActionTask(new Task<CompilationController>() {
-
-                            public void run(CompilationController compilationController) throws Exception {
-                                compilationController.toPhase(Phase.ELEMENTS_RESOLVED);
-                                Trees trees = compilationController.getTrees();
-                                CompilationUnitTree compilationUnitTree = compilationController.getCompilationUnit();
-                                List<? extends Tree> typeDecls = compilationUnitTree.getTypeDecls();
-                                for (Tree tree : typeDecls) {
-                                    Element element = trees.getElement(trees.getPath(compilationUnitTree, tree));
-                                    if (element != null && element.getKind() == ElementKind.CLASS && element.getSimpleName().contentEquals(fo.getName())) {
-                                        long pos = trees.getSourcePositions().getStartPosition(compilationUnitTree, tree);
-                                        line[0] = compilationUnitTree.getLineMap().getLineNumber(pos);
-                                        break;
-                                    }
-                                }
-                            }
-                        }, true);
-
-                    } catch (IOException ioe) {
-                        LOGGER.log(Level.WARNING, null, ioe);
-                    }
-                }
-                openFile(fo, (int) line[0]);
+                int[] location = XmlSuiteHandler.getSuiteLocation(fo, suite.getName());
+                openFile(fo, location[0], location[1]);
             }
         }
     }
@@ -302,6 +283,10 @@ final class OutputUtils {
     }
 
     static void openFile(FileObject file, int lineNum) {
+        openFile(file, lineNum, Integer.MIN_VALUE);
+    }
+
+    static void openFile(FileObject file, int lineNum, int columnNum) {
 
         /*
          * Most of the following code was copied from the Ant module, method
@@ -326,7 +311,11 @@ final class OutputUtils {
                     try {
                         Line l = ed.getLineSet().getOriginal(lineNum - 1);
                         if (!l.isDeleted()) {
-                            l.show(ShowOpenType.OPEN, ShowVisibilityType.FOCUS);
+                            if (columnNum != Integer.MIN_VALUE) {
+                                l.show(ShowOpenType.OPEN, ShowVisibilityType.FOCUS, columnNum);
+                            } else {
+                                l.show(ShowOpenType.OPEN, ShowVisibilityType.FOCUS);
+                            }
                         }
                     } catch (IndexOutOfBoundsException ioobe) {
                         // Probably harmless. Bogus line number.
