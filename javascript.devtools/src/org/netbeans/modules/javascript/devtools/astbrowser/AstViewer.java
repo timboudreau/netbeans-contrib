@@ -445,7 +445,7 @@ public class AstViewer extends TopComponent {
         long end = System.currentTimeMillis();
 //        System.out.println("Nashron creating source: " + (end - start));
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.Options options = new com.oracle.nashorn.runtime.Options("nashorn");
+        com.oracle.nashorn.runtime.options.Options options = new com.oracle.nashorn.runtime.options.Options("nashorn");
         options.process(new String[]{
             "--parse-only=true", 
             //"--print-parse=true",    
@@ -752,7 +752,7 @@ public class AstViewer extends TopComponent {
         long start = System.currentTimeMillis();
         com.oracle.nashorn.runtime.Source source = new com.oracle.nashorn.runtime.Source("test", snapshot.getText().toString());
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.Options options = new com.oracle.nashorn.runtime.Options("nashorn");
+        com.oracle.nashorn.runtime.options.Options options = new com.oracle.nashorn.runtime.options.Options("nashorn");
         options.process(new String[]{
             "--parse-only=true", 
             //"--print-parse=true",    
