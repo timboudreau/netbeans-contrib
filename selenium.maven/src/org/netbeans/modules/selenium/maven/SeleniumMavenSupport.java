@@ -72,7 +72,7 @@ final class SeleniumMavenSupport {
     private final static String SUREFIRE_GROUP_ID = "org.apache.maven.plugins";     //NOI18N
     private final static String SUREFIRE_ARTIFACT_ID = "maven-surefire-plugin";     //NOI18N
     private final static String SELENIUM_GROUP_ID = "org.seleniumhq.selenium";      //NOI18N
-    private final static String SELENIUM_ARTIFACT_ID = "selenium-remote-control";   //NOI18N
+    private final static String SELENIUM_ARTIFACT_ID = "selenium-java";   //NOI18N
 
     static FileObject getTestRoot(Project project) {
         NbMavenProject nbProject = project.getLookup().lookup(NbMavenProject.class);
@@ -111,7 +111,7 @@ final class SeleniumMavenSupport {
         public void performOperation(POMModel model) {
             Dependency dep = ModelUtils.checkModelDependency(model, SELENIUM_GROUP_ID, SELENIUM_ARTIFACT_ID, true);
             dep.setScope("test");
-            dep.setVersion("2.0b3");
+            dep.setVersion("2.16.1");
 
             org.netbeans.modules.maven.model.pom.Project p = model.getProject();
             Build bld = p.getBuild();
