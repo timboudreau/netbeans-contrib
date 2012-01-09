@@ -165,15 +165,15 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             Thread.currentThread().setContextClassLoader(curr);
             server.getClass().getMethod(method).invoke(server);
         } catch (IllegalAccessException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (IllegalArgumentException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (NoSuchMethodException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (SecurityException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (InvocationTargetException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } finally {
             Thread.currentThread().setContextClassLoader(original);
         }
