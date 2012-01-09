@@ -149,7 +149,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         URL url = null;
         try {
             url = InstalledFileLocator.getDefault().locate(
-                        "modules/ext/selenium/selenium-server-2.0.jar", //NOI18N
+                        "modules/ext/selenium/selenium-server-2.16.1.jar", //NOI18N
                         null, //NOI18N
                         false).toURI().toURL();
         } catch (MalformedURLException ex) {
