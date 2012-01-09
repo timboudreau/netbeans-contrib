@@ -54,6 +54,7 @@ import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.libraries.LibrariesCustomizer;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.selenium.templates.SeleneseTestWizardOperator;
@@ -132,6 +133,13 @@ public class SeleniumSupport {
         assert fo != null;
         Project p = FileOwnerQuery.getOwner(fo);
         Library library = LibraryManager.getDefault().getLibrary(libraryName); //NOI18N
+        if (library == null) {
+            library = LibrariesCustomizer.showCreateNewLibraryCustomizer(LibraryManager.getDefault());
+            if (library == null) {
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+                        NbBundle.getMessage(SeleniumSupport.class, "lblNoJunitCreatedOrFound"))); //NOI18N
+            }
+        }
         if (!ProjectClassPathModifier.addLibraries(new Library[]{library}, fo, ClassPath.COMPILE)) {
             Logger.getLogger(SeleniumSupport.class.getName()).log(Level.FINE, "''{0}'' library was not added to project {1}", new Object[]{libraryName, p}); //NOI18N
         } else {
