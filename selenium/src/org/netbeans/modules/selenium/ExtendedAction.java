@@ -96,7 +96,7 @@ public abstract class ExtendedAction extends NodeAction {
         if (file.getChildren().length > 0) {
             for (FileObject fileObject : file.getChildren()) {
                 if ("java".equals(fileObject.getExt())) {
-                    result = file.getPath() + "/*Test.java";
+                    result = "*Test.java";
                     break;
                 }
             }
