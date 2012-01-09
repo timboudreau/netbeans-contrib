@@ -52,7 +52,6 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.api.server.properties.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.selenium.SeleniumSupport;
-import org.netbeans.modules.selenium.server.SeleniumProperties;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -70,7 +69,8 @@ import org.openide.util.NbBundle;
 public class SeleneseTestWizardOperator implements WizardDescriptor.AsynchronousInstantiatingIterator {
 
     private ChangeSupport changeSupport = new ChangeSupport(this);
-    private static final String DEFAULT_SERVER_PORT = "80";         // NOI18N
+    private static final String DEFAULT_SERVER_PORT = "80"; //NOI18N
+    private static final String DEFAULT_SELENIUM_SERVER_PORT = "4444"; //NOI18N
     private transient WizardDescriptor.Panel panel;
     private transient WizardDescriptor wiz;
 
@@ -94,9 +94,9 @@ public class SeleneseTestWizardOperator implements WizardDescriptor.Asynchronous
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("server_port", serverPort);   //NOI18N
 
-        InstanceProperties ip = SeleniumProperties.getInstanceProperties();
-        int port = ip.getInt(SeleniumProperties.PORT, SeleniumProperties.getSeleniumDefaultPort());
-        params.put("selenium_server_port", Integer.toString(port));
+//        InstanceProperties ip = SeleniumProperties.getInstanceProperties();
+//        int port = ip.getInt(SeleniumProperties.PORT, SeleniumProperties.getSeleniumDefaultPort());
+        params.put("selenium_server_port", DEFAULT_SELENIUM_SERVER_PORT);
 
         DataObject dobj = dTemplate.createFromTemplate(df, targetName, params);
         createdFile = dobj.getPrimaryFile();
