@@ -11,6 +11,38 @@ and open the template in the editor.
     <volume>
         <type>classpath</type>
         <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-2.16.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/bsh-1.3.0.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/cglib-nodep-2.1_3.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-codec-1.4.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-collections-3.2.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-exec-1.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-io-2.0.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-jxpath-1.3.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-lang-2.6.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/commons-logging-1.1.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/cssparser-0.9.5.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/guava-10.0.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/hamcrest-all-1.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/htmlunit-2.9.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/htmlunit-core-js-2.9.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/httpclient-4.1.2.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/httpcore-4.1.3.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/httpmime-4.1.2.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/jcommander-1.13.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/jna-3.4.0.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/jna-platform-3.4.0.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/json-20080701.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/junit-dep-4.10.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/nekohtml-1.9.15.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/operadriver-v0.8.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/protobuf-java-2.4.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/sac-1.3.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/selenium-java-2.16.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/serializer-2.7.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/testng-6.0.1-nobsh-noguice.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/xalan-2.7.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/xercesImpl-2.9.1.jar!/</resource>
+        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.16.1/xml-apis-1.3.04.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
@@ -18,6 +50,6 @@ and open the template in the editor.
     </volume>
 <!--    <volume>
         <type>maven-pom</type>
-        <resource>http://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-control/2.0b3/selenium-remote-control-2.0b3.pom</resource>
+        <resource>http://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-java/2.16.1/selenium-java-2.16.1.pom</resource>
     </volume>-->
 </library>
