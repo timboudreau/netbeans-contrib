@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -55,24 +56,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
-import org.netbeans.api.autoupdate.OperationContainer;
-import org.netbeans.api.autoupdate.OperationException;
-import org.netbeans.api.autoupdate.OperationSupport;
-import org.netbeans.api.autoupdate.UpdateManager;
-import org.netbeans.api.autoupdate.UpdateUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import org.netbeans.api.autoupdate.*;
+import org.netbeans.api.autoupdate.InstallSupport.Installer;
+import org.netbeans.api.autoupdate.InstallSupport.Validator;
+import org.netbeans.api.autoupdate.OperationSupport.Restarter;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
+import org.netbeans.spi.sendopts.OptionGroups;
 import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInfo;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
+
+import static org.netbeans.modules.modulemanagement.Bundle.*;
 
 /**
  *
@@ -86,74 +89,75 @@ public class ModuleOptions extends OptionProcessor {
     private Option install;
     private Option disable;
     private Option enable;
+    private Option update;
+    private Option refresh;
+    private Option both;
     
     /** Creates a new instance of ModuleOptions */
     public ModuleOptions() {
     }
 
-    private void init() {
-        if (list != null) {
-            return;
+    @NbBundle.Messages({
+        "MSG_UpdateModules=Updates all or specified modules",
+        "MSG_RefreshModules=Refresh catalog of available modules"
+    })
+    private Option init() {
+        if (both != null) {
+            return both;
         }
 
         String b = "org.netbeans.modules.modulemanagement.Bundle";
         list = Option.shortDescription(
-            Option.withoutArgument(Option.NO_SHORT_NAME, "listmodules"), b, "MSG_ListModules"); // NOI18N
+            Option.withoutArgument(Option.NO_SHORT_NAME, "list"), b, "MSG_ListModules"); // NOI18N
         install = Option.shortDescription(
-            Option.additionalArguments(Option.NO_SHORT_NAME, "installmodules"), b, "MSG_InstallModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "install"), b, "MSG_InstallModules"); // NOI18N
         disable = Option.shortDescription(
-            Option.additionalArguments(Option.NO_SHORT_NAME, "disablemodules"), b, "MSG_DisableModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "disable"), b, "MSG_DisableModules"); // NOI18N
         enable = Option.shortDescription(
-            Option.additionalArguments(Option.NO_SHORT_NAME, "enablemodules"), b, "MSG_EnableModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "enable"), b, "MSG_EnableModules"); // NOI18N
+        update = Option.shortDescription(
+            Option.additionalArguments(Option.NO_SHORT_NAME, "update"), b, "MSG_UpdateModules"); // NOI18N
+        refresh = Option.shortDescription(
+            Option.additionalArguments(Option.NO_SHORT_NAME, "refresh"), b, "MSG_RefreshModules"); // NOI18N
+        
+        Option oper = OptionGroups.oneOf(list, install, disable, enable, update, refresh);
+        Option modules = Option.withoutArgument(Option.NO_SHORT_NAME, "modules");
+        both = OptionGroups.allOf(modules, oper);
+        return both;
     }
 
     public Set<Option> getOptions() {
-        init();
-        Set<Option> s = new HashSet<Option>();
-        s.add(list);
-        s.add(install);
-        s.add(disable);
-        s.add(enable);
-        return s;
+        return Collections.singleton(init());
     }
-
-    private void listAllModules(PrintStream out) {
-        Collection<? extends ModuleInfo> modules = Lookup.getDefault().lookupAll(ModuleInfo.class);
-        Integer number = new Integer(modules.size());
-        out.println(NbBundle.getMessage(ModuleOptions.class, "MSG_ModuleListHeader", number));
-        Iterator<? extends ModuleInfo> it = modules.iterator();
-        while (it.hasNext()) {
-            ModuleInfo module = it.next();
-            Object[] args = {
-                fixedLength(module.getCodeName(), 50),
-                fixedLength(module.getCodeNameBase(), 50),
-                new Integer(module.getCodeNameRelease()),
-                fixedLength(module.getDisplayName(), 50),
-                fixedLength(module.getSpecificationVersion() == null ? "" : module.getSpecificationVersion().toString(), 15),
-                fixedLength(module.getImplementationVersion(), 15),
-                fixedLength(module.getBuildVersion(), 15),
-                new Integer(module.isEnabled() ? 1 : 0),
-            };
-            out.println(NbBundle.getMessage(ModuleOptions.class, "MSG_ModuleListLine", args));
-        }
-        out.println(NbBundle.getMessage(ModuleOptions.class, "MSG_ModuleListFooter", number));
-        out.flush();
-    }
-
-    private static String fixedLength(String s, int len) {
-        if (s == null) {
-            return null;
-        }
-        if (s.length() >= len) {
-            return s.substring(0, len);
-        } else {
-            StringBuffer sb = new StringBuffer(len);
-            sb.append(s);
-            while (sb.length() < len) {
-                sb.append(' ');
+    
+    private void refresh(Env env) throws CommandException {
+        for (UpdateUnitProvider p : UpdateUnitProviderFactory.getDefault().getUpdateUnitProviders(true)) {
+            try {
+                env.getOutputStream().println("Refreshing " + p.getDisplayName());
+                p.refresh(null, true);
+            } catch (IOException ex) {
+                throw (CommandException)new CommandException(33, ex.getMessage()).initCause(ex);
             }
-            return sb.toString();
         }
+    }
+
+    @NbBundle.Messages({
+        "MSG_ListHeader_CodeName=Code Name",
+        "MSG_ListHeader_Version=Version",
+        "MSG_ListHeader_State=State"
+    })
+    private void listAllModules(PrintStream out) {
+        List<UpdateUnit> modules = UpdateManager.getDefault().getUpdateUnits();
+        
+        PrintTable table = new PrintTable(
+            MSG_ListHeader_CodeName(), MSG_ListHeader_Version(), MSG_ListHeader_State()
+        );
+        table.setLimits(50, -1, -1);
+        for (UpdateUnit uu : modules) {
+            table.addRow(Status.toArray(uu));
+        }
+        table.write(out);
+        out.flush();
     }
 
     private static <T extends Throwable> T initCause(T t, Throwable cause) {
@@ -168,70 +172,7 @@ public class ModuleOptions extends OptionProcessor {
     
         try {
             if (optionValues.containsKey(install)) {
-                String[] args = optionValues.get(install);
-                for (String fileName : args) {
-                    File f = new File(env.getCurrentDirectory(), fileName);
-                    if (!f.exists()) {
-                        f = new File(fileName);
-                    }
-                    if (!f.exists()) {
-                        throw new CommandException(5, NbBundle.getMessage(ModuleOptions.class, "ERR_FileNotFound", f)); // NOI18N
-                    }
-
-                    JarFile jar = new JarFile(f);
-                    String cnb = jar.getManifest().getMainAttributes().getValue("OpenIDE-Module"); // NOI18N
-                    if (cnb == null) {
-                        throw new CommandException(6, NbBundle.getMessage(ModuleOptions.class, "ERR_NotModule", f)); // NOI18N
-                    }
-                    {
-                        int slash = cnb.indexOf('/');
-                        if (slash >= 0) {
-                            cnb = cnb.substring(0, slash);
-                        }
-                    }
-
-                    final File file = f;
-                    final String codebase = cnb;
-                    final FileObject root = FileUtil.getConfigRoot();
-                    final FileObject dir = FileUtil.createFolder(root, "Modules");
-                    final String fn = cnb.replace('.', '-') + ".xml";
-
-
-                    class X implements FileSystem.AtomicAction {
-                        FileObject conf = dir.getFileObject(fn);
-
-                        public void run() throws IOException {
-                            conf = FileUtil.createData(dir, fn);
-                            FileLock lock = conf.lock();
-                            PrintStream os = new PrintStream(conf.getOutputStream(lock));
-
-                            os.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                            os.print("<!DOCTYPE module PUBLIC \"-//NetBeans//DTD Module Status 1.0//EN\"\n");
-                            os.print("                        \"http://www.netbeans.org/dtds/module-status-1_0.dtd\">\n");
-                            os.print("<module name=\"" + codebase + "\">\n");
-                            os.print("    <param name=\"autoload\">false</param>\n");
-                            os.print("    <param name=\"eager\">false</param>\n");
-                            os.print("    <param name=\"enabled\">true</param>\n");
-                            os.print("    <param name=\"jar\">" + file + "</param>\n");
-                            os.print("    <param name=\"release\">1</param>\n");
-                            os.print("    <param name=\"reloadable\">false</param>\n");
-                            os.print("    <param name=\"specversion\">1.25</param>\n");
-                            os.print("</module>\n");
-
-                            os.close();
-                            lock.releaseLock();
-                        }
-                    }
-                    X x = new X();
-
-                    if (x.conf != null) {
-                        throw new CommandException(7, NbBundle.getMessage(ModuleOptions.class, "ERR_AlreadyInstalled", f, cnb)); // NOI18N
-                    }
-
-                    dir.getFileSystem().runAtomicAction(x);
-
-                    waitFor(cnb, true);
-                }
+                install(env, optionValues.get(install));
             }
 
             if (optionValues.containsKey(disable)) {
@@ -240,7 +181,6 @@ public class ModuleOptions extends OptionProcessor {
 
             if (optionValues.containsKey(enable)) {
                 changeModuleState(optionValues.get(enable), true);
-
             }
         } catch (InterruptedException ex) {
             throw initCause(new CommandException(4), ex);
@@ -249,97 +189,12 @@ public class ModuleOptions extends OptionProcessor {
         } catch (OperationException ex) {
             throw initCause(new CommandException(4), ex);
         }
-    }
-
-    private static void waitFor(final String codebase, final boolean shouldBeEnabled) throws IOException, InterruptedException, CommandException {
-        LOG.fine("waitFor: " + codebase + " state: " + shouldBeEnabled); // NOI18N
-        
-        final Lookup.Result<ModuleInfo> res = Lookup.getDefault().lookupResult(ModuleInfo.class);
-        res.allInstances();
-
-        class L implements LookupListener, PropertyChangeListener {
-            private boolean go;
-            private Set<ModuleInfo> listening = new HashSet<ModuleInfo>();
-
-            public synchronized void resultChanged(LookupEvent ev) {
-                notifyAll();
-                go = true;
-                LOG.fine("go set to true by a listener"); // NOI18N
-            }
-            
-            public synchronized void propertyChange(PropertyChangeEvent ev) {
-                notifyAll();
-                go = true;
-                LOG.fine("go set to true by a property change listener"); // NOI18N
-            }
-
-            public void waitFor() throws CommandException, InterruptedException {
-                Collection<? extends ModuleInfo> modules;
-
-                for(;;) {
-                    synchronized (this) {
-                        go = false;
-                        LOG.fine("go = false");
-                    }
-
-                    modules = res.allInstances();
-
-                    boolean found = false;
-                    for (ModuleInfo m : modules) {
-                        if (m.getCodeNameBase().equals(codebase)) {
-                            LOG.fine("found code base: " + codebase + " as " + m); // NOI18N
-                            found = true;
-                            if (shouldBeEnabled) {
-                                if (m.isEnabled()) {
-                                    return;
-                                }
-                            } else {
-                                if (!m.isEnabled()) {
-                                    return;
-                                }
-                            }
-                            listening.add(m);
-                            m.addPropertyChangeListener(this);
-                            break;
-                        }
-                    }
-
-                    if (!shouldBeEnabled && !found) {
-                        // all modules scanned but non of it has our codename base
-                        return;
-                    }
-
-                    synchronized (this) {
-                        LOG.fine("waiting 10000"); // NOI18N
-                        if (!go) {
-                            wait(10000);
-                        }
-                        if (!go) {
-                            LOG.fine("No event received: " + go + " exiting"); // NOI18N
-                            throw new CommandException(4, NbBundle.getMessage(ModuleOptions.class, "ERR_TimeOut", codebase, shouldBeEnabled ? 1 : 0)); // NOI18N
-                        }
-                    }
-                }
-            }
-            
-            public void cleanUp() {
-                res.removeLookupListener(this);
-                for (ModuleInfo m : listening) {
-                    m.removePropertyChangeListener(this);
-                }
-            }
+        if (optionValues.containsKey(update)) {
+            updateModules(env, optionValues.get(update));
         }
-
-        L list = new L();
-        try {
-            res.addLookupListener(list);
-            res.allItems();
-            list.waitFor();
-        } finally {
-            list.cleanUp();
+        if (optionValues.containsKey(refresh)) {
+            refresh(env);
         }
-        
-        LOG.fine("waitFor finished");
     }
 
     private void changeModuleState(String[] cnbs, boolean enable) throws IOException, CommandException, InterruptedException, OperationException {
@@ -365,6 +220,117 @@ public class ModuleOptions extends OptionProcessor {
         }
         OperationSupport support = operate.getSupport();
         support.doOperation(null);
+    }
+
+    @NbBundle.Messages({
+        "MSG_UpdateNoMatch=Nothing to update. The pattern {0} has no match among available updates.",
+        "MSG_Update=Will update {0}@{1} to version {2}"
+    })
+    private void updateModules(Env env, String[] pattern) throws CommandException {
+        Pattern[] pats = findMatcher(env, pattern);
+        
+        List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
+        OperationContainer<InstallSupport> operate = OperationContainer.createForInternalUpdate();
+        for (UpdateUnit uu : units) {
+            if (uu.getInstalled() == null) {
+                continue;
+            }
+            final List<UpdateElement> updates = uu.getAvailableUpdates();
+            if (updates.isEmpty()) {
+                continue;
+            }
+            if (!matches(uu.getCodeName(), pats)) {
+                continue;
+            }
+            final UpdateElement ue = updates.get(0);
+            env.getOutputStream().println(
+                Bundle.MSG_Update(uu.getCodeName(), uu.getInstalled().getSpecificationVersion(), ue.getSpecificationVersion()
+            ));
+            operate.add(ue);
+        }
+        final InstallSupport support = operate.getSupport();
+        if (support == null) {
+            env.getOutputStream().println(Bundle.MSG_UpdateNoMatch(Arrays.asList(pats)));
+            return;
+        }
+        try {
+            final Validator res1 = support.doDownload(null, true);
+            Installer res2 = support.doValidate(res1, null);
+            Restarter res3 = support.doInstall(res2, null);
+            if (res3 != null) {
+                support.doRestart(res3, null);
+            }
+        } catch (OperationException ex) {
+            throw (CommandException)new CommandException(33, ex.getMessage()).initCause(ex);
+        }
+    }
+
+    @NbBundle.Messages({
+        "MSG_CantCompileRegex=Cannot understand regular expession '{0}'"
+    })
+    private static Pattern[] findMatcher(Env env, String[] pattern) {
+        Pattern[] arr = new Pattern[pattern.length];
+        for (int i = 0; i < arr.length; i++) {
+            try {
+                arr[i] = Pattern.compile(pattern[i]);
+            } catch (PatternSyntaxException e) {
+                env.getErrorStream().println(Bundle.MSG_CantCompileRegex(pattern[i]));
+            }
+        }
+        return arr;
+    }
+
+    private static boolean matches(String txt, Pattern[] pats) {
+        for (Pattern p : pats) {
+            if (p == null) {
+                continue;
+            }
+            if (p.matcher(txt).matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NbBundle.Messages({
+        "MSG_Installing=Installing {0}@{1}",
+        "MSG_InstallNoMatch=Cannot install. No match for {0}."
+    })
+    private void install(Env env, String[] pattern) throws CommandException {
+        Pattern[] pats = findMatcher(env, pattern);
+
+        List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
+        OperationContainer<InstallSupport> operate = OperationContainer.createForInstall();
+        for (UpdateUnit uu : units) {
+            if (uu.getInstalled() != null) {
+                continue;
+            }
+            if (!matches(uu.getCodeName(), pats)) {
+                continue;
+            }
+            if (uu.getAvailableUpdates().isEmpty()) {
+                continue;
+            }
+            UpdateElement ue = uu.getAvailableUpdates().get(0);
+            env.getOutputStream().println(
+                    Bundle.MSG_Installing(uu.getCodeName(), ue.getSpecificationVersion()));
+            operate.add(ue);
+        }
+        final InstallSupport support = operate.getSupport();
+        if (support == null) {
+            env.getOutputStream().println(Bundle.MSG_InstallNoMatch(Arrays.asList(pats)));
+            return;
+        }
+        try {
+            final Validator res1 = support.doDownload(null, true);
+            Installer res2 = support.doValidate(res1, null);
+            Restarter res3 = support.doInstall(res2, null);
+            if (res3 != null) {
+                support.doRestart(res3, null);
+            }
+        } catch (OperationException ex) {
+            throw (CommandException) new CommandException(33, ex.getMessage()).initCause(ex);
+        }
     }
 
 }
