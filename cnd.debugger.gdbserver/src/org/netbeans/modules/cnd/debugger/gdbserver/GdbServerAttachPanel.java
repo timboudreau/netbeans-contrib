@@ -49,6 +49,7 @@
 package org.netbeans.modules.cnd.debugger.gdbserver;
 
 import java.beans.PropertyChangeListener;
+import javax.swing.JPanel;
 import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
 import org.netbeans.modules.cnd.debugger.common2.debugger.DebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
@@ -60,17 +61,17 @@ import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupp
 import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.spi.debugger.ui.Controller;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
 
 /**
  *
  * @author Egor Ushakov
  */
-public class GdbServerAttachPanel extends javax.swing.JPanel {
+public class GdbServerAttachPanel extends JPanel implements HelpCtx.Provider {
     private final Controller controller;
 
-    private static final String HOST_KEY = "last-gdbserver-host"; //NOI18N
-    private static final String PORT_KEY = "last-gdbserver-port"; //NOI18N
+    private static final String TARGET_KEY = "last-gdbserver-target"; //NOI18N
 
     /** Creates new form GdbServerAttachPanel */
     public GdbServerAttachPanel() {
@@ -78,8 +79,7 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
         initComponents();
         // Fill the Projects combo box
         ExecutableProjectPanel.fillProjectsCombo(projectCB, null);
-        hostTF.setText(NbPreferences.forModule(GdbServerAttachPanel.class).get(HOST_KEY, "")); //NOI18N
-        portTF.setText(NbPreferences.forModule(GdbServerAttachPanel.class).get(PORT_KEY, "")); //NOI18N
+        targetTF.setText(NbPreferences.forModule(GdbServerAttachPanel.class).get(TARGET_KEY, "remote host:port")); //NOI18N
     }
 
     Controller getController() {
@@ -98,17 +98,11 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
         projectLabel = new javax.swing.JLabel();
         projectCB = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
-        hostTF = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        portTF = new javax.swing.JTextField();
+        targetTF = new javax.swing.JTextField();
 
         projectLabel.setText(org.openide.util.NbBundle.getMessage(GdbServerAttachPanel.class, "GdbServerAttachPanel.projectLabel.text")); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(GdbServerAttachPanel.class, "GdbServerAttachPanel.jLabel1.text")); // NOI18N
-
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(GdbServerAttachPanel.class, "GdbServerAttachPanel.jLabel2.text")); // NOI18N
-
-        portTF.setText(org.openide.util.NbBundle.getMessage(GdbServerAttachPanel.class, "GdbServerAttachPanel.portTF.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -117,39 +111,32 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(projectLabel)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(portTF, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
-                    .addComponent(hostTF, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
-                    .addComponent(projectCB, 0, 335, Short.MAX_VALUE)))
+                    .addComponent(targetTF, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                    .addComponent(projectCB, 0, 395, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(hostTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(portTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(targetTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(projectLabel)
-                    .addComponent(projectCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(projectCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField hostTF;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField portTF;
     private javax.swing.JComboBox projectCB;
     private javax.swing.JLabel projectLabel;
+    private javax.swing.JTextField targetTF;
     // End of variables declaration//GEN-END:variables
 
     private class GdbServerAttachController implements Controller {
@@ -161,18 +148,13 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
 
         @Override
         public boolean ok() {
-            String hostValue = hostTF.getText();
-            if (hostValue.length() == 0) {
-                return false;
-            }
-            String portValue = portTF.getText();
-            if (portValue.length() == 0) {
+            String targetValue = targetTF.getText();
+            if (targetValue.length() == 0) {
                 return false;
             }
             
             //store last values
-            NbPreferences.forModule(GdbServerAttachPanel.class).put(HOST_KEY, hostValue);
-            NbPreferences.forModule(GdbServerAttachPanel.class).put(PORT_KEY, portValue);
+            NbPreferences.forModule(GdbServerAttachPanel.class).put(TARGET_KEY, targetValue);
 
             ProjectCBItem pi = (ProjectCBItem) projectCB.getSelectedItem();
             if (pi != null) {
@@ -191,7 +173,7 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
                 gdi.setHostName(CndRemote.userhostFromConfiguration(conf));
                 gdi.setConfiguration(conf);
                 gdi.setAction(DebuggerManager.ATTACH);
-                gdi.setRemoteTarget(hostValue + ':' + portValue);
+                gdi.setTargetCommand(targetValue);
                 
                 DebuggerManager.get().debugNoAsk(gdi);
 //                try {
@@ -218,5 +200,10 @@ public class GdbServerAttachPanel extends javax.swing.JPanel {
         public void removePropertyChangeListener(PropertyChangeListener l) {
         }
 
+    }
+
+    @Override
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx("gdbserver"); // NOI18N
     }
 }
