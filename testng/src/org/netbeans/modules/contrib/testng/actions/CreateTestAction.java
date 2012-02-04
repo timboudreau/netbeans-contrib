@@ -99,7 +99,7 @@ public final class CreateTestAction extends CookieAction {
         DummyUI gui = new DummyUI(s.substring(0, s.length() - 5).replace('/', '.') + "Test");
         Object result = DialogDisplayer.getDefault().notify(new DialogDescriptor(gui, "Create TestNG Test"));
         if (DialogDescriptor.OK_OPTION.equals(result)) {
-            FileObject templateFO = FileUtil.getConfigFile("Templates/TestNG/TestNGTest.java");
+            FileObject templateFO = FileUtil.getConfigFile("Templates/TestNG/EmptyTestNGTest.java");
             DataObject templateDO = null;
             try {
                 templateDO = DataObject.find(templateFO);
