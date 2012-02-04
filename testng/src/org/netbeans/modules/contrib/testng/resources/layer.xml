@@ -51,6 +51,14 @@ made subject to such option by the copyright holder.
                     </folder>
                 </folder>
             </folder>
+            <folder name="x-testng+xml">
+                <folder name="HyperlinkProviders">
+                    <file name="TestNGSuiteHyperlingProvider.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.contrib.testng.TestNGSuiteHyperlingProvider"/>
+                        <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
     </folder>
     <folder name="Loaders">
