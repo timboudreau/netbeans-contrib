@@ -165,9 +165,11 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                 FileObject failedTestsConfig = projectHome.getFileObject(failedConfPath);
                 props.put("testng.config", FileUtil.getRelativePath(projectHome, failedTestsConfig));
             } else {
-                if (Action.RUN_TESTSUITE.equals(action) || Action.DEBUG_TESTSUITE.equals(action)) {
+                if (Action.RUN_TESTSUITE.equals(action)) {
                     props.put("testng.config", FileUtil.toFile(config.getTest()).getAbsolutePath());
-                } else {
+                } else if (Action.DEBUG_TESTSUITE.equals(action)) {
+                    props.put("test.class.or.method", FileUtil.toFile(config.getTest()).getAbsolutePath());
+                } else if (Action.RUN_TESTMETHOD.equals(action)) {
                     File f = XMLSuiteSupport.createSuiteforMethod(
                         FileUtil.normalizeFile(new File(System.getProperty("java.io.tmpdir"))), //NOI18N
                         ProjectUtils.getInformation(p).getDisplayName(),
@@ -176,6 +178,14 @@ public class AntTestNGSupport extends TestNGSupportImplementation {
                         config.getMethodName());
                     f = FileUtil.normalizeFile(f);
                     props.put("testng.config", f.getAbsolutePath());
+                } else {
+                    String cls = config.getPackageName() != null
+                            ? config.getPackageName() + "." + config.getClassName()
+                            : config.getClassName();
+                    props.put("test.class", cls);
+                    if (config.getMethodName() != null && config.getMethodName().trim().length() > 0) {
+                        props.put("test.class.or.method", "-methods " + cls + "." + config.getMethodName());
+                    }
                 }
             }
             try {
