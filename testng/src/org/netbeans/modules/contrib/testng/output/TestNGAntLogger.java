@@ -41,10 +41,7 @@
 package org.netbeans.modules.contrib.testng.output;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
@@ -301,33 +298,44 @@ public final class TestNGAntLogger extends AntLogger {
             if (sessionInfo.getSessionType() == null) {
                 sessionInfo.setSessionType(sessionType);
             }
-            //TODO: do the same for java/java debug tasks
+            String suiteName = null;
+            String logLevel = null;
             TaskStructure struct = event.getTaskStructure();
-            String tmp = struct.getAttribute("suitename");
-            if (tmp != null) {
-                sessionInfo.setSessionName(event.evaluate(tmp));
-            }
-            tmp = struct.getAttribute("verbose");
-            if (tmp == null) {
-                tmp = struct.getAttribute("log");
-            }
-            boolean offline = false;
-            if (tmp != null) {
-                int logLevel;
-                try {
-                    logLevel = Integer.valueOf(event.evaluate(tmp));
-                } catch (NumberFormatException nfe) {
-                    logLevel = -1;
+            if (TASK_TESTNG.equals(struct.getName())) {
+                suiteName = struct.getAttribute("suitename");
+                logLevel = struct.getAttribute("verbose");
+                if (logLevel == null) {
+                    logLevel = struct.getAttribute("log");
                 }
-                //logging is explicitly turned off by the user, so show only final
-                //results computed off-line from testng-results.xml file
-                offline = logLevel == 0;
-            }
+            } else if (TASK_JAVA.equals(struct.getName())) {
+                TaskStructure[] nestedElems = struct.getChildren();
+                for (TaskStructure ts : nestedElems) {
+                    if (ts.getName().equals("arg")) {                //NOI18N
+                        String a = ts.getAttribute("line");
+                        if (a != null) {
+                            String[] args = event.evaluate(a).split(" ");
+                            int size = args.length;
+                            for (int i = 0; i < size; i++) {
+                                String curr = args[i];
+                                if ("-suitename".equals(curr)) {
+                                    suiteName = i + 1 < size ? args[i + 1] : null;
+                                    i++;
+                                } else if ("-log".equals(curr) || "-verbose".equals(curr)) {
+                                    logLevel = i + 1 < size ? args[i + 1] : null;
+                                    i++;
+                                }
+                            }
+                        }
+                    }
+                }
 
+            } else {
+                assert false : "Unexpeted task " + struct.getName();
+            }
             /*
              * Count the test classes in the try-catch block so that
-             * 'testTaskStarted(...)' is called even if counting fails
-             * (throws an exception):
+             * 'testTaskStarted(...)' is called even if counting fails (throws
+             * an exception):
              */
             //would have to parse all incoming xmls, take includes/excludes
             //into accout, dependencies between tests, groups etc
@@ -339,8 +347,23 @@ public final class TestNGAntLogger extends AntLogger {
 //                Logger.getLogger(TestNGAntLogger.class.getName()).log(Level.SEVERE, null, ex);
 //            }
 
-//            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput, event);
+            if (suiteName != null) {
+                sessionInfo.setSessionName(event.evaluate(suiteName));
+            }
+            boolean offline = false;
+            if (logLevel != null) {
+                int lvl;
+                try {
+                    lvl = Integer.valueOf(event.evaluate(logLevel));
+                } catch (NumberFormatException nfe) {
+                    lvl = -1;
+                }
+                //logging is explicitly turned off by the user, so show only final
+                //results computed off-line from testng-results.xml file
+                offline = lvl == 0;
+            }
             getOutputReader(event).testTaskStarted(offline, event);
+//            getOutputReader(event).testTaskStarted(testClassCount, hasXmlOutput, event);
         }
     }
 
@@ -399,8 +422,12 @@ public final class TestNGAntLogger extends AntLogger {
             } catch (Exception e) {
             }
             Properties props = new Properties();
-            for (String propName : event.getPropertyNames()) {
-                props.setProperty(propName, event.getProperty(propName));
+            String[] propsOfInterest = {"javac.includes", "classname", "methodname", "work.dir", "classpath", "platform.java"};//NOI18N
+            for(String prop:propsOfInterest) {
+                String val = event.getProperty(prop);
+                if (val!=null) {
+                    props.setProperty(prop, val);
+                }
             }
             outputReader = new TestNGOutputReader(
                     session,

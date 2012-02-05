@@ -92,7 +92,8 @@ final class TestNGOutputReader {
     /**
      * whether XML report is expected
      */
-    private boolean expectXmlReport;
+    private boolean offline;
+    private boolean noresults = true;
     /**
      *
      */
@@ -161,10 +162,11 @@ final class TestNGOutputReader {
         if (msg == null) {
             return;
         }
-        if (!msg.startsWith(RegexpUtils.TEST_LISTENER_PREFIX) || expectXmlReport) {
+        if (!msg.startsWith(RegexpUtils.TEST_LISTENER_PREFIX) || offline) {
             //this message is not for us...
             return;
         }
+        if (noresults) noresults = false;
         verboseMessageLogged(msg);
 //        displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
     }
@@ -309,9 +311,10 @@ final class TestNGOutputReader {
         if (tc != null) {
             tc.getOutput().add(new OutputLine(msg, false));
         }
-        if (!expectXmlReport) {
+        if (!offline) {
             //log/verbose level = 0 so don't show output
             displayOutput(msg, event.getLogLevel() == AntEvent.LOG_WARN);
+            verboseMessageLogged(event);
         }
     }
 
@@ -346,6 +349,8 @@ final class TestNGOutputReader {
                 resultsDir = determineTestNGTaskResultsDir(event);
             } else if (taskName.equals("java")) {                       //NOI18N
                 resultsDir = determineJavaTaskResultsDir(event);
+            } else {
+                assert false : "Unexpected task: " + taskName;
             }
         }
 
@@ -472,8 +477,8 @@ final class TestNGOutputReader {
      * Notifies that a test (Ant) task was just started.
      */
     void testTaskStarted(boolean expectXmlOutput, AntEvent event) {
-        this.expectXmlReport = expectXmlOutput;
-        if (!expectXmlReport) {
+        this.offline = expectXmlOutput;
+        if (!offline) {
             manager.testStarted(testSession);
         }
         resultsDir = determineResultsDir(event);
@@ -482,8 +487,10 @@ final class TestNGOutputReader {
     /**
      */
     void testTaskFinished() {
-        if (expectXmlReport) {
+        if (offline) {
             manager.testStarted(testSession);
+        }
+        if (offline || noresults) {
             //get results from report xml file
             if (resultsDir != null) {
                 File reportFile = findReportFile();
