@@ -94,7 +94,9 @@ public class TestNGExecutionManager implements RerunHandler {
             String javacIncludes = properties.getProperty("javac.includes");//NOI18N
             if (javacIncludes != null) {
                 FileObject testFO = testSession.getFileLocator().find(javacIncludes);
-                lookup = Lookups.fixed(DataObject.find(testFO));
+                if (testFO != null) {
+                    lookup = Lookups.fixed(DataObject.find(testFO));
+                }
             }
 
             if (targets.length == 0) {
