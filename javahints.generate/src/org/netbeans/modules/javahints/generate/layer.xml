@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="org-netbeans-modules-java-hints">
+        <folder name="rules">
+	    <folder name="lists">
+		<file name="NB68.hints" url="NB68.hints">
+		    <attr name="position" intvalue="68" />
+		</file>
+		<file name="NB69.hints" url="NB69.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB69" />
+		    <attr name="position" intvalue="69" />
+		</file>
+		<file name="NB70.hints" url="NB70.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB70" />
+		    <attr name="position" intvalue="70" />
+		</file>
+		<file name="NB71.hints" url="NB71.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB71" />
+		    <attr name="position" intvalue="71" />
+		</file>
+	    </folder>
+        </folder>
+    </folder>
+</filesystem>
