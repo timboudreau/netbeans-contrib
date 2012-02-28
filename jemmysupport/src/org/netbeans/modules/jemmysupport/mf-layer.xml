@@ -95,7 +95,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         </file>
     </folder>
     <folder name="Toolbars">
-        <folder name="Jemmy Support">
+        <folder name="JemmySupport">
             <attr name="position" intvalue="2000"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
