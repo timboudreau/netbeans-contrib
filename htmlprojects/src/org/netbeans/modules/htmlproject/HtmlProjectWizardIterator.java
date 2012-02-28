@@ -34,23 +34,21 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import org.openide.util.NbBundle.Messages;
 
+@TemplateRegistration(folder="Project/Web", position=407, displayName="#template", iconBase="org/netbeans/modules/htmlproject/htmlProject.png", description="HtmlProjectDescription.html")
+@Messages("template=HTML Project over Existing Folder")
 public class HtmlProjectWizardIterator implements WizardDescriptor.InstantiatingIterator {
 
     private int index;
     private WizardDescriptor.Panel[] panels;
     private WizardDescriptor wiz;
-
-    public HtmlProjectWizardIterator() {}
-
-    public static HtmlProjectWizardIterator createIterator() {
-        return new HtmlProjectWizardIterator();
-    }
 
     private WizardDescriptor.Panel[] createPanels() {
         return new WizardDescriptor.Panel[] {
