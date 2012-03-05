@@ -44,19 +44,25 @@
 
 package org.netbeans.modules.accelerators.terminal;
 
+import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
+import org.openide.util.NbPreferences;
 
 /**
  *
  * @author Andrei Badea
  */
-public class Util {
+final class Util {
 
     private Util() {
+    }
+    
+    public static Preferences prefs() {
+        return NbPreferences.forModule(Util.class);
     }
 
     public static FileObject findFileObject(Node[] activatedNodes) {

@@ -50,6 +50,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -61,6 +65,12 @@ import org.openide.util.actions.NodeAction;
  *
  * @author Andrei Badea
  */
+@ActionID(id = "org.netbeans.modules.accelerators.terminal.RunTerminalAction", category = "Tools")
+@ActionRegistration(lazy = false, displayName = "#LBL_RunTerminal")
+@ActionReferences({
+    @ActionReference(path = "Shortcuts", name = "DSO-Enter"),
+    @ActionReference(path = "UI/ToolActions")
+})
 public class RunTerminalAction extends NodeAction {
 
     private static final Logger LOGGER = Logger.getLogger("org.netbeans.modules.accelerators.terminal"); // NOI18N
@@ -91,10 +101,18 @@ public class RunTerminalAction extends NodeAction {
     }
     
     private void runTerminal(FileObject fo) {
-        String command = TerminalOptions.getInstance().getTerminalCommand();
+        String command = Util.prefs().get("command", null); // NOI18N
         if (command == null || command.trim().length() <= 0) {
-            LOGGER.info(NbBundle.getMessage(RunTerminalAction.class, "MSG_NoCommand"));
-            return;
+            TerminalPanelPanel p = new TerminalPanelPanel(null);
+            p.load();
+            NotifyDescriptor nd = new NotifyDescriptor.Message(p);
+            nd.setOptions(new Object[] { NotifyDescriptor.OK_OPTION, NotifyDescriptor.CANCEL_OPTION });
+            nd.setMessageType(NotifyDescriptor.QUESTION_MESSAGE);
+            if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.OK_OPTION) {
+                command = p.store();
+            } else {
+                return;
+            }
         }
         
         LOGGER.log(Level.FINE, "Active file is {0}", fo); // NOI18N
