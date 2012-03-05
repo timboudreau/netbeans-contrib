@@ -105,6 +105,8 @@ public class RunTerminalAction extends NodeAction {
             wd = FileUtil.toFile(folder);
         }
         
+        command = command.replace("%d", wd.getPath());
+        
         LOGGER.log(Level.FINE, "Running {0}", command); // NOI18N
         LOGGER.log(Level.FINE, "Working dir is {0}", wd); // NOI18N
         
