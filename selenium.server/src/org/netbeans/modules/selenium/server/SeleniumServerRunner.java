@@ -42,6 +42,7 @@ package org.netbeans.modules.selenium.server;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.BindException;
 import java.net.MalformedURLException;
@@ -187,11 +188,20 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 
         InstanceProperties ip = SeleniumProperties.getInstanceProperties();
         Object remoteControlConfigurationInstance = remoteControlConfiguration.newInstance();
-        int port = ip.getInt(
-                SeleniumProperties.PORT,
-                SeleniumProperties.getSeleniumDefaultPort()); //NOI18N
+        int port = ip.getInt(SeleniumProperties.PORT, SeleniumProperties.getSeleniumDefaultPort());
         remoteControlConfiguration.getMethod("setPort", int.class).invoke(
-                remoteControlConfigurationInstance, port); //NOI18N
+            remoteControlConfigurationInstance, port); //NOI18N
+        boolean runInSingleWindow = ip.getBoolean(SeleniumProperties.SINGLE_WINDOW, false);
+        remoteControlConfiguration.getMethod("setSingleWindow", Boolean.TYPE).invoke( //NOI18N
+                remoteControlConfigurationInstance, runInSingleWindow);
+		String firefoxProfileDir = ip.getString(SeleniumProperties.FIREFOX_PROFILE, ""); //NOI18N
+		if (!firefoxProfileDir.isEmpty()) {
+				File ffProfileDir = new File(firefoxProfileDir);
+				if (ffProfileDir.exists()) {
+					remoteControlConfiguration.getMethod("setFirefoxProfileTemplate", File.class).invoke( //NOI18N
+						remoteControlConfigurationInstance, ffProfileDir);
+				}
+		}
         server = seleniumServer.getConstructor(remoteControlConfiguration).
                 newInstance(remoteControlConfigurationInstance);
     }
