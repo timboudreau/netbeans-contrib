@@ -62,8 +62,11 @@ public class SeleniumProperties {
     private static Logger LOGGER = Logger.getLogger(SeleniumProperties.class.getName());
 
     public static int seleniumDefaultPort = -1;
-    public static final String PORT = "Port";
-    public static final String START_ON_STARTUP = "Startup";
+    public static final String PORT = "Port"; //NOI18N
+    public static final String START_ON_STARTUP = "Startup"; //NOI18N
+    public static final String FIREFOX_PROFILE = "FirefoxProfile"; //NOI18N
+    public static final String SINGLE_WINDOW = "SingleWindow"; //NOI18N
+    
     private static InstanceProperties instanceProps;
     private static final String NAMESPACE = "Selenium server properties namespace"; //NOI18N
 
@@ -73,6 +76,8 @@ public class SeleniumProperties {
         Set set = sheet.get(Sheet.PROPERTIES);
         set.put(new ServerIntProperty(PORT, props));
         set.put(new ServerBoolProperty(START_ON_STARTUP, props));
+        set.put(new ServerStringProperty(FIREFOX_PROFILE, props));
+        set.put(new ServerBoolProperty(SINGLE_WINDOW, props));
         return sheet;
     }
 
@@ -114,6 +119,8 @@ public class SeleniumProperties {
                     instanceProps = manager.createProperties(NAMESPACE);
                     instanceProps.putInt(PORT, getSeleniumDefaultPort());
                     instanceProps.putBoolean(START_ON_STARTUP, true);
+                    instanceProps.putString(FIREFOX_PROFILE, ""); //NOI18N
+                    instanceProps.putBoolean(SINGLE_WINDOW, false);
                     allProps.add(instanceProps);
                 }
             }
@@ -161,7 +168,23 @@ public class SeleniumProperties {
 
     }
 
+    private static final class ServerStringProperty extends ServerProperty<String> {
 
+        public ServerStringProperty(String propertyName, InstanceProperties props) {
+            super(String.class, propertyName, props);
+        }
+
+        @Override
+        public String getValue() throws IllegalAccessException, InvocationTargetException {
+            return props.getString(getName(), ""); //NOI18N
+        }
+
+        @Override
+        protected void writeNewValue(String val) {
+            props.putString(getName(), val);
+        }
+
+    }
 
     private static abstract class ServerProperty<T> extends Node.Property<T>{
 
