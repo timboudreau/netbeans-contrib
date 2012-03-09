@@ -38,53 +38,17 @@
  */
 package org.netbeans.modules.javascript.devtools.astbrowser;
 
-import com.oracle.nashorn.ir.AccessNode;
-import com.oracle.nashorn.ir.BinaryNode;
-import com.oracle.nashorn.ir.Block;
-import com.oracle.nashorn.ir.BreakNode;
-import com.oracle.nashorn.ir.CallNode;
-import com.oracle.nashorn.ir.CaseNode;
-import com.oracle.nashorn.ir.CatchNode;
-import com.oracle.nashorn.ir.ContinueNode;
-//import com.oracle.nashorn.ir.ErrorNode;
-import com.oracle.nashorn.ir.ExecuteNode;
-import com.oracle.nashorn.ir.ForNode;
-import com.oracle.nashorn.ir.FunctionNode;
-import com.oracle.nashorn.ir.IdentNode;
-import com.oracle.nashorn.ir.IfNode;
-import com.oracle.nashorn.ir.IndexNode;
-import com.oracle.nashorn.ir.LabelNode;
-import com.oracle.nashorn.ir.LineNumberNode;
-import com.oracle.nashorn.ir.LiteralNode;
-import com.oracle.nashorn.ir.Node;
-import com.oracle.nashorn.ir.ObjectNode;
-import com.oracle.nashorn.ir.PrintVisitor;
-import com.oracle.nashorn.ir.PropertyNode;
-import com.oracle.nashorn.ir.ReferenceNode;
-import com.oracle.nashorn.ir.ReturnNode;
-import com.oracle.nashorn.ir.RuntimeNode;
-import com.oracle.nashorn.ir.SwitchNode;
-import com.oracle.nashorn.ir.TernaryNode;
-import com.oracle.nashorn.ir.ThrowNode;
-import com.oracle.nashorn.ir.TryNode;
-import com.oracle.nashorn.ir.UnaryNode;
-import com.oracle.nashorn.ir.VarNode;
-import com.oracle.nashorn.ir.WhileNode;
-import com.oracle.nashorn.ir.WithNode;
-import com.oracle.nashorn.parser.Token;
 import java.awt.Component;
 import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import javax.swing.JTree;
-import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 
 //import org.netbeans.modules.php.editor.parser.astnodes.*;
 import org.openide.util.Enumerations;
-import com.oracle.nashorn.ir.NodeVisitor;
 
 
 /**
