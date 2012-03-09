@@ -30,16 +30,18 @@ package org.netbeans.modules.javahints.tasklist;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.modules.java.hints.jackpot.impl.RulesManager;
-import org.netbeans.modules.java.hints.jackpot.impl.hints.HintsInvoker;
-import org.netbeans.modules.java.hints.jackpot.spi.HintDescription;
-import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
-import org.netbeans.modules.java.hints.options.HintsSettings;
+import org.netbeans.modules.java.hints.providers.spi.HintDescription;
+import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
+import org.netbeans.modules.java.hints.spiimpl.RulesManager;
+import org.netbeans.modules.java.hints.spiimpl.hints.HintsInvoker;
+import org.netbeans.modules.java.hints.spiimpl.options.HintsSettings;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.tasklist.Task;
 
@@ -52,7 +54,7 @@ public class ComputeTasks {
     public static List<? extends Task> computeTasks(CompilationInfo info, AtomicBoolean cancel) throws IOException {
         //TODO: move the hint computation to TaskResolver?
         Collection<HintDescription> hints = new LinkedList<HintDescription>();
-        for (Entry<HintMetadata, Collection<? extends HintDescription>> e : RulesManager.getInstance().allHints.entrySet()) {
+        for ( Entry<HintMetadata, ? extends Collection<? extends HintDescription>> e : RulesManager.getInstance().readHints(info, Collections.<ClassPath>emptyList(), new AtomicBoolean()).entrySet()) {
             if (!HintsSettings.isEnabled(e.getKey()) || !HintsSettings.isShowInTaskList(e.getKey())) continue;
 
             hints.addAll(e.getValue());

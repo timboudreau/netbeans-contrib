@@ -51,24 +51,22 @@ import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.GeneratorUtilities;
 import org.netbeans.api.java.source.WorkingCopy;
-import org.netbeans.modules.java.hints.jackpot.code.spi.Hint;
-import org.netbeans.modules.java.hints.jackpot.code.spi.TriggerPattern;
-import org.netbeans.modules.java.hints.jackpot.impl.Utilities;
-import org.netbeans.modules.java.hints.jackpot.spi.HintContext;
-import org.netbeans.modules.java.hints.jackpot.spi.JavaFix;
-import org.netbeans.modules.java.hints.jackpot.spi.support.ErrorDescriptionFactory;
+import org.netbeans.modules.java.hints.spiimpl.Utilities;
 import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.java.hints.*;
 
 /**
  *
  * @author lahvac
  */
-@Hint(category="apisupport") // XXX move to apisupport.refactoring once the required packages are at least available to friends
+@Hint(displayName="#DN_org.netbeans.modules.javahints.RPD",
+      description="#DESC_org.netbeans.modules.javahints.RPD",
+      category="apisupport") // XXX move to apisupport.refactoring once the required packages are at least available to friends
 public class RPD {
 
     @TriggerPattern(value="org.openide.util.RequestProcessor.getDefault()")
     public static ErrorDescription hint(HintContext ctx) {
-        return ErrorDescriptionFactory.forTree(ctx, ctx.getPath(), "RequestProcessor.getDefault()", JavaFix.toEditorFix(new FixImpl(ctx.getInfo(), ctx.getPath())));
+        return ErrorDescriptionFactory.forTree(ctx, ctx.getPath(), "RequestProcessor.getDefault()", new FixImpl(ctx.getInfo(), ctx.getPath()).toEditorFix());
     }
 
     private static final class FixImpl extends JavaFix {
@@ -80,12 +78,13 @@ public class RPD {
         }
 
         @Override
-        protected void performRewrite(WorkingCopy wc, TreePath tp, boolean canShowUI) {
+        protected void performRewrite(TransformationContext ctx) {
+            WorkingCopy wc = ctx.getWorkingCopy();
             String fieldName = fieldCache.get(wc);
             Scope s = Utilities.constructScope(wc, Collections.<String, TypeMirror>emptyMap());
 
             if (fieldName == null) {
-                TreePath topLevel = tp;
+                TreePath topLevel = ctx.getPath();
 
                 while (topLevel.getParentPath().getLeaf().getKind() != Kind.COMPILATION_UNIT) {
                     topLevel = topLevel.getParentPath();
@@ -99,7 +98,7 @@ public class RPD {
                 fieldCache.put(wc, fieldName);
             }
 
-            wc.rewrite(tp.getLeaf(), wc.getTreeMaker().Identifier(fieldName));
+            wc.rewrite(ctx.getPath().getLeaf(), wc.getTreeMaker().Identifier(fieldName));
         }
 
         @Override
