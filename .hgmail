@@ -35,7 +35,6 @@ jlahoda@netbeans.org=javahints*/*,java.hints.scripting/*
 java3d-commits@contrib.netbeans.org=java3d/*,venice.model/*,o.jdesktop.lg3d/*,venice.sourcemodel/*,venice.squeegee/*,venice.viewer/*
 jglick@netbeans.org=autoproject.*/*,java.hints.scripting/*,autosave/*,docbook/*,docbook.project/*,insertunicode/*,archiver/*,licensechanger/*
 jrechtacek@netbeans.org=autoupdate.featureondemand/*
-jungi@netbeans.org=testng*/*
 libs@ide.netbeans.org=libs.commons_lang/*,libs.ical4j/*,libs.jcalendar/*
 marfous@netbeans.org=issuekicker/*
 nassern@netbeans.org=dtrace/*
