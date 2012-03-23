@@ -65,7 +65,7 @@ public class LookupProviderImpl implements LookupProvider {
                 new AnnotationProcessingQueryImpl(),
                 new ProjectInformationImpl(p),
                 new SourcesImpl(p),
-                new SourceLevelQueryImpl(p),
+                new SourceLevelQueryImpl(),
                 new OpenHook(p, cpp),
                 new ActionProviderImpl(p),
                 new SubprojectProviderImpl(p));

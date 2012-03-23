@@ -58,6 +58,7 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
 
     private AutoProjectWizardPanel panel;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public AutoProjectPanelVisual(AutoProjectWizardPanel panel) {
         initComponents();
         this.panel = panel;
@@ -136,7 +137,6 @@ public class AutoProjectPanelVisual extends JPanel implements DocumentListener {
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         JFileChooser chooser = new JFileChooser();
-        FileUtil.preventFileChooserSymlinkTraversal(chooser, null);
         chooser.setDialogTitle("Select Project Location");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         String path = this.projectLocationTextField.getText();

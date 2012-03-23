@@ -45,7 +45,6 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,7 +70,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
 import org.netbeans.spi.project.support.GenericSources;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.ImageUtilities;
 import org.openide.util.WeakListeners;
 
@@ -131,11 +129,11 @@ final class LibrariesNode extends AbstractNode {
             sources.addChangeListener(WeakListeners.change(this, sources));
         }
 
-        public void stateChanged(ChangeEvent e) {
+        @Override public void stateChanged(ChangeEvent e) {
             setKeys(getKeys());
         }
 
-        public void propertyChange(PropertyChangeEvent evt) {
+        @Override public void propertyChange(PropertyChangeEvent evt) {
             setKeys(getKeys());
         }
 
@@ -161,14 +159,10 @@ final class LibrariesNode extends AbstractNode {
                     cp.removePropertyChangeListener(cpListener);
                     cp.addPropertyChangeListener(cpListener);
                     BINROOT: for (FileObject binRoot : cp.getRoots()) {
-                        try {
-                            for (FileObject matchingRoot : SourceForBinaryQuery.findSourceRoots(binRoot.getURL()).getRoots()) {
-                                if (sourceRoots.contains(matchingRoot)) {
-                                    continue BINROOT;
-                                }
+                        for (FileObject matchingRoot : SourceForBinaryQuery.findSourceRoots(binRoot.toURL()).getRoots()) {
+                            if (sourceRoots.contains(matchingRoot)) {
+                                continue BINROOT;
                             }
-                        } catch (FileStateInvalidException x) {
-                            assert false : x;
                         }
                         keys.add(binRoot);
                     }
@@ -177,15 +171,8 @@ final class LibrariesNode extends AbstractNode {
             return keys;
         }
 
-        protected Node[] createNodes(FileObject root) {
-            URL u;
-            try {
-                u = root.getURL();
-            } catch (FileStateInvalidException fsie) {
-                assert false : fsie;
-                return null;
-            }
-            File jar = FileUtil.archiveOrDirForURL(u);
+        @Override protected Node[] createNodes(FileObject root) {
+            File jar = FileUtil.archiveOrDirForURL(root.toURL());
             String label = jar != null && jar.isFile() ? jar.getName() : FileUtil.getFileDisplayName(root);
             return new Node[] {PackageView.createPackageView(GenericSources.group(
                     prj, root, root.toString(), label, ARCHIVE_ICON,ARCHIVE_ICON))};

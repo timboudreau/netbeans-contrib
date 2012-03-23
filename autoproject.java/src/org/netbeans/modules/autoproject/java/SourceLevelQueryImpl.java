@@ -39,34 +39,54 @@
 
 package org.netbeans.modules.autoproject.java;
 
-import org.netbeans.modules.autoproject.spi.Cache;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.java.queries.SourceLevelQueryImplementation;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.autoproject.spi.Cache;
+import org.netbeans.spi.java.queries.SourceLevelQueryImplementation2;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.ChangeSupport;
+import org.openide.util.WeakListeners;
 
 /**
  * Just notes 'source' attribute on &lt;javac&gt; currently.
  */
-class SourceLevelQueryImpl implements SourceLevelQueryImplementation {
+class SourceLevelQueryImpl implements SourceLevelQueryImplementation2 {
 
-    private final Project p;
-
-    public SourceLevelQueryImpl(Project p) {
-        this.p = p;
-    }
-
-    public String getSourceLevel(FileObject fo) {
+    @Override public Result getSourceLevel(FileObject fo) {
         File f = FileUtil.toFile(fo);
         while (f != null) {
-            String lvl = Cache.get(f + JavaCacheConstants.SOURCE_LEVEL);
-            if (lvl != null) {
-                return lvl;
+            if (Cache.get(f + JavaCacheConstants.SOURCE_LEVEL) != null) {
+                return new R(f + JavaCacheConstants.SOURCE_LEVEL);
             }
             f = f.getParentFile();
         }
         return null;
     }
 
+    private static class R implements Result, PropertyChangeListener {
+        private final String key;
+        private final ChangeSupport cs = new ChangeSupport(this);
+        @SuppressWarnings("LeakingThisInConstructor")
+        R(String key) {
+            this.key = key;
+            Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
+        }
+        @Override public String getSourceLevel() {
+            return Cache.get(key);
+        }
+        @Override public void addChangeListener(ChangeListener listener) {
+            cs.addChangeListener(listener);
+        }
+        @Override public void removeChangeListener(ChangeListener listener) {
+            cs.removeChangeListener(listener);
+        }
+        @Override public void propertyChange(PropertyChangeEvent evt) {
+            if (key.equals(evt.getPropertyName())) {
+                cs.fireChange();
+            }
+        }
+    }
 }

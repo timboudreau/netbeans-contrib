@@ -139,7 +139,6 @@ class LogicalViewImpl implements LogicalViewProvider {
             actions.addAll(Utilities.actionsForPath("Projects/Profiler_Actions_temporary")); //NOI18N
             actions.addAll(Utilities.actionsForPath("Projects/org-netbeans-modules-autoproject/Actions")); // NOI18N
             actions.add(null);
-            actions.add(CommonProjectActions.setAsMainProjectAction());
             actions.add(CommonProjectActions.openSubprojectsAction());
             actions.add(CommonProjectActions.closeProjectAction());
             actions.add(null);

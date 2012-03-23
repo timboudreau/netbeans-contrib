@@ -44,7 +44,6 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
 
 public class AutoProjectWizardPanel implements WizardDescriptor.Panel<WizardDescriptor> {
 
@@ -62,7 +61,7 @@ public class AutoProjectWizardPanel implements WizardDescriptor.Panel<WizardDesc
     }
 
     public HelpCtx getHelp() {
-        return new HelpCtx(AutoProjectWizardPanel.class);
+        return HelpCtx.DEFAULT_HELP;
     }
 
     public boolean isValid() {
