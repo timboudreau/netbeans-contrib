@@ -48,8 +48,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
-import org.netbeans.modules.java.hints.jackpot.impl.RulesManager;
-import org.netbeans.modules.java.hints.jackpot.spi.HintMetadata;
+import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
+import org.netbeans.modules.java.hints.spiimpl.RulesManager;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -74,7 +74,7 @@ public final class GenerateHintWiki implements ActionListener {
         Map<String, String> since = readSinceData();
         Map<String, List<HintMetadata>> category2Hint = new TreeMap<String, List<HintMetadata>>();
 
-        for (HintMetadata hm : RulesManager.getInstance().allHints.keySet()) {
+        for (HintMetadata hm : RulesManager.getInstance().readHints(null, null, null).keySet()) {
             FileObject catFO = FileUtil.getConfigFile(HINTS_FOLDER + hm.category);
             String categoryDisplayName = catFO != null ? getFileObjectLocalizedName(catFO) : hm.category;
             List<HintMetadata> categorized = category2Hint.get(categoryDisplayName);
