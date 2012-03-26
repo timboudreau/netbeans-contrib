@@ -74,23 +74,23 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         this.cpProvider = cpProvider;
     }
 
-    public FileObject getDocumentBase() {
+    @Override public FileObject getDocumentBase() {
         return docBase;
     }
 
-    public String getContextPath() {
+    @Override public String getContextPath() {
         return "UNKNOWN"; // XXX: will have to ask user for context
     }
 
-    public Profile getJ2eeProfile() {
+    @Override public Profile getJ2eeProfile() {
         return Profile.JAVA_EE_5; // XXX: will have to ask user
     }
 
-    public FileObject getWebInf() {
+    @Override public FileObject getWebInf() {
         return getFile(WebCacheConstants.WEBINF);
     }
 
-    public FileObject getDeploymentDescriptor() {
+    @Override public FileObject getDeploymentDescriptor() {
         return getFile(WebCacheConstants.WEB_XML);
     }
     
@@ -102,11 +102,11 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         return null;
     }
 
-    public FileObject[] getJavaSources() {
+    @Override public FileObject[] getJavaSources() {
         return new FileObject[0];
     }
 
-    public MetadataModel<WebAppMetadata> getMetadataModel() {
+    @Override public MetadataModel<WebAppMetadata> getMetadataModel() {
         if (webAppMetadataModel == null) {
             File rt = new File(root);
             FileObject ddFO = getDeploymentDescriptor();
@@ -122,7 +122,7 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         return webAppMetadataModel;
     }
 
-    public String getModuleVersion() {
+    @Override public String getModuleVersion() {
         WebApp wapp = getWebApp ();
         String version = WebApp.VERSION_2_5;
         if (wapp != null)
@@ -142,28 +142,28 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         return null;
     }
 
-    public J2eeModule.Type getModuleType() {
+    @Override public J2eeModule.Type getModuleType() {
         return J2eeModule.Type.WAR;
     }
 
-    public String getUrl() {
+    @Override public String getUrl() {
         return ""; // XXX
     }
 
-    public FileObject getArchive() throws IOException {
+    @Override public FileObject getArchive() throws IOException {
         return getFile(WebCacheConstants.WAR_FILE);
     }
 
-    public Iterator getArchiveContents() throws IOException {
+    @Override public Iterator<J2eeModule.RootedEntry> getArchiveContents() throws IOException {
         // no incremental deployment
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public FileObject getContentDirectory() throws IOException {
+    @Override public FileObject getContentDirectory() throws IOException {
         return null;
     }
 
-    public <T> MetadataModel<T> getMetadataModel(Class<T> type) {
+    @Override public <T> MetadataModel<T> getMetadataModel(Class<T> type) {
         if (type == WebAppMetadata.class) {
             @SuppressWarnings("unchecked") // NOI18N
             MetadataModel<T> model = (MetadataModel<T>)getMetadataModel();
@@ -172,12 +172,12 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         return null;
     }
 
-    public File getResourceDirectory() {
+    @Override public File getResourceDirectory() {
         // XXX: do not have any
         throw new UnsupportedOperationException(); // XXX
     }
 
-    public File getDeploymentConfigurationFile(String name) {
+    @Override public File getDeploymentConfigurationFile(String name) {
        if (name == null) {
             return null;
         }
@@ -201,11 +201,11 @@ class WebModuleImpl implements WebModuleImplementation2, J2eeModuleImplementatio
         return null;
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    @Override public void addPropertyChangeListener(PropertyChangeListener listener) {
         // TODO
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    @Override public void removePropertyChangeListener(PropertyChangeListener listener) {
         // TODO
     }
 
