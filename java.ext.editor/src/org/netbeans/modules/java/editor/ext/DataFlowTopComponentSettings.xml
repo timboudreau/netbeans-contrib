@@ -5,7 +5,6 @@ and open the template in the editor.
 -->
 <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
 <settings version="1.0">
-    <module name="org.netbeans.modules.java.editor.fold" spec="1.8"/>
     <instanceof class="org.openide.windows.TopComponent"/>
     <instanceof class="org.netbeans.modules.java.editor.ext.refactoring.dataflow.DataFlowTopComponent"/>
     <instance class="org.netbeans.modules.java.editor.ext.refactoring.dataflow.DataFlowTopComponent" method="getDefault"/>
