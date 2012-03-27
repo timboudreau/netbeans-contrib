@@ -94,6 +94,9 @@ public class ActionProviderImpl implements ActionProvider {
             ActionProvider.COMMAND_DEBUG_TEST_SINGLE,
             SingleMethod.COMMAND_RUN_SINGLE_METHOD,
             SingleMethod.COMMAND_DEBUG_SINGLE_METHOD,
+            ActionProvider.COMMAND_PROFILE,
+            ActionProvider.COMMAND_PROFILE_SINGLE,
+            ActionProvider.COMMAND_PROFILE_TEST_SINGLE,
             // You provide the impl:
             ActionProvider.COMMAND_BUILD,
             ActionProvider.COMMAND_CLEAN,
@@ -108,7 +111,8 @@ public class ActionProviderImpl implements ActionProvider {
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
         if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
                 command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
-                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
+                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD) ||
+                command.equals(ActionProvider.COMMAND_PROFILE_SINGLE) || command.equals(ActionProvider.COMMAND_PROFILE_TEST_SINGLE)) {
             return runSetup(context, command) != null;
         } else {
             return true;
@@ -118,7 +122,8 @@ public class ActionProviderImpl implements ActionProvider {
     public void invokeAction(final String command, final Lookup context) throws IllegalArgumentException {
         if (command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_TEST_SINGLE) ||
                 command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
-                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD)) {
+                command.equals(SingleMethod.COMMAND_RUN_SINGLE_METHOD) || command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD) ||
+                command.equals(ActionProvider.COMMAND_PROFILE_SINGLE) || command.equals(ActionProvider.COMMAND_PROFILE_TEST_SINGLE)) {
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     RunSetup setup = runSetup(context, command);
@@ -255,7 +260,7 @@ public class ActionProviderImpl implements ActionProvider {
                 return null;
             }
             properties.put("methodname", methodname); // NOI18N
-        } else if (command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE)) {
+        } else if (command.equals(ActionProvider.COMMAND_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) || command.equals(ActionProvider.COMMAND_PROFILE_TEST_SINGLE)) {
             test = true;
             // Check for a matching unit test.
             String testResource = sourcepath.getResourceName(fo, '/', false) + "Test.java";
@@ -271,7 +276,7 @@ public class ActionProviderImpl implements ActionProvider {
                 }
             }
         } else {
-            assert command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) : command;
+            assert command.equals(ActionProvider.COMMAND_RUN_SINGLE) || command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) || command.equals(ActionProvider.COMMAND_PROFILE_SINGLE) : command;
             test = false;
         }
         List<String> vmargs = new ArrayList<String>();
@@ -291,9 +296,12 @@ public class ActionProviderImpl implements ActionProvider {
         boolean debug = command.equals(ActionProvider.COMMAND_DEBUG_SINGLE) ||
                 command.equals(ActionProvider.COMMAND_DEBUG_TEST_SINGLE) ||
                 command.equals(SingleMethod.COMMAND_DEBUG_SINGLE_METHOD);
+        boolean profile = command.equals(ActionProvider.COMMAND_PROFILE_SINGLE) ||
+                command.equals(ActionProvider.COMMAND_PROFILE_TEST_SINGLE);
         return new RunSetup(debug ?
             (test ? JavaRunner.QUICK_TEST_DEBUG : JavaRunner.QUICK_DEBUG) :
-            (test ? JavaRunner.QUICK_TEST : JavaRunner.QUICK_RUN),
+            (profile ? (test ? JavaRunner.QUICK_TEST_PROFILE : JavaRunner.QUICK_PROFILE) :
+                (test ? JavaRunner.QUICK_TEST : JavaRunner.QUICK_RUN)),
             properties);
     }
 

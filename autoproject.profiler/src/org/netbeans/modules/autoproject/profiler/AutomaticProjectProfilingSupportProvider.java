@@ -57,6 +57,7 @@ import org.netbeans.modules.profiler.nbimpl.project.JavaProjectProfilingSupportP
 import org.netbeans.modules.profiler.spi.project.ProjectProfilingSupportProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
+import java.util.Map;
 
 /**
  *
@@ -70,56 +71,27 @@ public final class AutomaticProjectProfilingSupportProvider extends JavaProjectP
         return fo.hasExt("java"); // NOI18N
     }
 
-    @Override
-    public JavaPlatform getProjectJavaPlatform() {
+    protected JavaPlatform resolveProjectJavaPlatform() {
         return null;
     }
-
+    
     @Override
     public boolean checkProjectCanBeProfiled(FileObject profiledClassFile) {
         return profiledClassFile != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE) != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE) != null;
     }
-
-    @Override
-    public void configurePropertiesForProfiling(Properties props, FileObject profiledClassFile) {
-        ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE);
-        String classname = sourcepath.getResourceName(profiledClassFile, '.', false); // NOI18N
-        // XXX #159643: AntActions.doProfileProject is not smart enough yet...
-        if (isTest(profiledClassFile, sourcepath)) {
-            props.setProperty("classname", "junit.textui.TestRunner"); // NOI18N
-            props.setProperty("args", classname); // NOI18N
-        } else {
-            props.setProperty("classname", classname); // NOI18N
-            props.setProperty("args", ""); // NOI18N
-        }
-        props.setProperty("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL)); // NOI18N
+    
+    public void configurePropertiesForProfiling(Properties props, FileObject profilerClassFile) {
+        // transitional placeholder for API change
     }
 
-    private static boolean isTest(final FileObject fo, final ClassPath sourcepath) {
-        final AtomicBoolean isActuallyTest = new AtomicBoolean();
-        try {
-            JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
-                public void run(CompilationController cc) throws Exception {
-                    String name = sourcepath.getResourceName(fo, '.', false);
-                    assert name != null : fo;
-                    TypeElement runType = cc.getElements().getTypeElement(name);
-                    assert runType != null : name;
-                    TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase"); // NOI18N
-                    if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
-                        isActuallyTest.set(true);
-                    }
-                }
-            }, true).get();
-        } catch (Exception x) {
-            Logger.getLogger(AutomaticProjectProfilingSupportProvider.class.getName()).log(Level.INFO, null, x);
-        }
-        return isActuallyTest.get();
+    public void configurePropertiesForProfiling(Map<String, String> props, FileObject profiledClassFile) {
+        ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE);
+        props.put("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL)); // NOI18N
     }
     
     public AutomaticProjectProfilingSupportProvider(Project project) {
         super(project);
     }
-    
 }
