@@ -619,20 +619,8 @@ public final class LanguageRegistry implements Iterable<Language> {
             return;
         }
 
-        String userDir = System.getProperty("netbeans.user"); // NOI18N
-        if (userDir == null) {
-            return;
-        }
-
-
-        FileObject config = FileUtil.toFileObject(new File(userDir, "config")); // NOI18N
-
-        if (config == null) {
-            return;
-        }
-
-        FileObject navFo = config.getFileObject("Navigator/Panels/text/javascript/org-netbeans-modules-gsfret-navigation-ClassMemberPanel.instance"); // NOI18N
-        if (navFo == null) {
+        FileObject navFo = FileUtil.getConfigFile("Navigator/Panels/text/javascript/org-netbeans-modules-gsfret-navigation-ClassMemberPanel.instance"); // NOI18N
+        if (navFo == null || !navFo.canRevert()) {
             // We've already done the cleanup.
             // (text/javascript is in all configurations of the IDE, so if
             // the text/javascript folder is gone, so are all the others
@@ -640,7 +628,7 @@ public final class LanguageRegistry implements Iterable<Language> {
         }
 
         try {
-            FileObject navigator = config.getFileObject("Navigator"); // NOI18N
+            FileObject navigator = FileUtil.getConfigFile("Navigator"); // NOI18N
             if (navigator != null) {
                 FileObject panels = navigator.getFileObject("Panels"); // NOI18N
                 if (panels != null) {
@@ -648,20 +636,20 @@ public final class LanguageRegistry implements Iterable<Language> {
                         for (FileObject innerMime : outerMime.getChildren()) {
                             FileObject panel = innerMime.getFileObject("org-netbeans-modules-gsfret-navigation-ClassMemberPanel.instance"); // NOI18N
                             if (panel != null) {
-                                panel.delete();
+                                panel.revert();
                                 if (innerMime.getChildren().length == 0) {
-                                    innerMime.delete();
+                                    innerMime.revert();
                                 }
                             }
                             if (outerMime.getChildren().length == 0) {
-                                outerMime.delete();
+                                outerMime.revert();
                             }
                         }
                     }
                     if (panels.getChildren().length == 0) {
-                        panels.delete();
+                        panels.revert();
                         if (navigator.getChildren().length == 0) {
-                            navigator.delete();
+                            navigator.revert();
                         }
                     }
                 }
@@ -669,7 +657,7 @@ public final class LanguageRegistry implements Iterable<Language> {
 
 
             // Delete editors stuff
-            FileObject editors = config.getFileObject("Editors"); // NOI18N
+            FileObject editors = FileUtil.getConfigFile("Editors"); // NOI18N
             if (editors != null) {
                 for (FileObject outerMime : editors.getChildren()) {
                     for (FileObject innerMime : outerMime.getChildren()) {
@@ -680,47 +668,47 @@ public final class LanguageRegistry implements Iterable<Language> {
                         // Clean up the settings files
                         FileObject settings = root.getFileObject("Settings.settings"); // NOI18N
                         if (settings != null) {
-                            settings.delete();
+                            settings.revert();
                         }
 
                         // init code folding bar
                         FileObject fo = root.getFileObject("SideBar/org-netbeans-modules-editor-gsfret-GsfCodeFoldingSideBarFactory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("SideBar");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("FoldManager/org-netbeans-modules-gsfret-editor-fold-GsfFoldManagerFactory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("FoldManager");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // YAML cleanup: Was a Schliemann editor in 6.0/6.1/6.5dev so may have to delete its persistent system files
                         if (mimeType.equals("text/x-yaml") || mimeType.equals("text/x-json")) { // NOI18N
                             FileObject f = root.getFileObject("Popup/generate-fold-popup"); // NOI18N
                             if (f != null) {
-                                f.delete();
+                                f.revert();
                                 f = root.getFileObject("ToolTips/org-netbeans-modules-languages-features-ToolTipAnnotation.instance"); // NOI18N
                                 if (f != null) {
-                                    f.delete();
+                                    f.revert();
                                 }
                                 f = root.getFileObject("Popup/org-netbeans-modules-languages-features-GoToDeclarationAction.instance"); // NOI18N
                                 if (f != null) {
-                                    f.delete();
+                                    f.revert();
                                 }
                                 f = root.getFileObject("UpToDateStatusProvider/org-netbeans-modules-languages-features-UpToDateStatusProviderFactoryImpl.instance"); // NOI18N
                                 if (f != null) {
-                                    f.delete();
+                                    f.revert();
                                 }
                                 f = root.getFileObject("run_script.instance"); // NOI18N
                                 if (f != null) {
-                                    f.delete();
+                                    f.revert();
                                 }
                             }
                         }
@@ -729,21 +717,21 @@ public final class LanguageRegistry implements Iterable<Language> {
                         FileObject oldSidebar = root.getFileObject("SideBar/org-netbeans-modules-editor-retouche-GsfCodeFoldingSideBarFactory.instance");
 
                         if (oldSidebar != null) {
-                            oldSidebar.delete();
+                            oldSidebar.revert();
                             oldSidebar = root.getFileObject("FoldManager/org-netbeans-modules-retouche-editor-fold-GsfFoldManagerFactory.instance");
                             if (oldSidebar != null) {
-                                oldSidebar.delete();
+                                oldSidebar.revert();
                             }
                         }
 
                         // init hyperlink provider
                         FileObject hyperlinkProvider = root.getFileObject("HyperlinkProviders/GsfHyperlinkProvider.instance");
                         if (hyperlinkProvider != null) {
-                            hyperlinkProvider.delete();
+                            hyperlinkProvider.revert();
                         }
                         fo = root.getFileObject("HyperlinkProviders");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // Context menu
@@ -755,76 +743,76 @@ public final class LanguageRegistry implements Iterable<Language> {
                             // items, so the layer will contain Popup already
                             FileObject ref = popup.getFileObject("in-place-refactoring");
                             if (ref != null) {
-                                ref.delete();
+                                ref.revert();
                             }
 
                             FileObject gotoF = popup.getFileObject("goto");
                             if (gotoF != null) {
                                 fo = gotoF.getFileObject("goto-declaration");
                                 if (fo != null) {
-                                    fo.delete();
+                                    fo.revert();
                                 }
                                 fo = gotoF.getFileObject("goto");
                                 if (fo != null) {
-                                    fo.delete();
+                                    fo.revert();
                                 }
                                 if (gotoF.getChildren().length == 0) {
-                                    gotoF.delete();
+                                    gotoF.revert();
                                 }
                             }
                             fo = popup.getFileObject("SeparatorBeforeCut.instance");
                             if (fo != null) {
-                                fo.delete();
+                                fo.revert();
                             }
                             fo = popup.getFileObject("format");
                             if (fo != null) {
-                                fo.delete();
+                                fo.revert();
                             }
                             fo = popup.getFileObject("SeparatorAfterFormat.instance");
                             if (fo != null) {
-                                fo.delete();
+                                fo.revert();
                             }
                             fo = popup.getFileObject("pretty-print");
                             if (fo != null) {
-                                fo.delete();
+                                fo.revert();
                             }
                             fo = popup.getFileObject("generate-goto-popup");
                             if (fo != null) {
-                                fo.delete();
+                                fo.revert();
                             }
                             if (popup.getChildren().length == 0) {
-                                popup.delete();
+                                popup.revert();
                             }
                         }
 
                         // Service to show if file is compileable or not
                         fo = root.getFileObject("UpToDateStatusProvider/org-netbeans-modules-gsfret-hints-GsfUpToDateStateProviderFactory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("UpToDateStatusProvider/org-netbeans-modules-retouche-hints-GsfUpToDateStateProviderFactory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // I'm not sure what this is used for - perhaps to turn orange when there are unused imports etc.
                         fo = root.getFileObject("UpToDateStatusProvider/org-netbeans-modules-gsfret-editor-semantic-OccurrencesMarkProviderCreator.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("UpToDateStatusProvider/org-netbeans-modules-retouche-editor-semantic-OccurrencesMarkProviderCreator.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("UpToDateStatusProvider");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // Highlighting layers
                         fo = root.getFileObject("org-netbeans-modules-gsfret-editor-semantic-HighlightsLayerFactoryImpl.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // Code completion
@@ -835,80 +823,80 @@ public final class LanguageRegistry implements Iterable<Language> {
                             String templates = "org-netbeans-lib-editor-codetemplates-CodeTemplateCompletionProvider.instance";
                             FileObject templeteProvider = root.getFileObject(completionProviders + "/" + templates);
                             if (templeteProvider != null) {
-                                templeteProvider.delete();
+                                templeteProvider.revert();
                             }
                             String provider = "org-netbeans-modules-gsfret-editor-completion-GsfCompletionProvider.instance";
                             FileObject completionProvider = root.getFileObject(completionProviders + "/" + provider);
                             if (completionProvider != null) {
-                                completionProvider.delete();
+                                completionProvider.revert();
                             }
 
                             FileObject old = completion.getFileObject("org-netbeans-modules-retouche-editor-completion-GsfCompletionProvider.instance");
                             if (old != null) {
-                                old.delete();
+                                old.revert();
                             }
                             if (completion.getChildren().length == 0) {
-                                completion.delete();
+                                completion.revert();
                             }
                         }
 
                         // Editor toolbar: commenting and uncommenting actions
                         fo = root.getFileObject("Toolbars/Default/comment");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         fo = root.getFileObject("Toolbars/Default/uncomment");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         FileObject sep = root.getFileObject("Toolbars/Default/Separator-before-comment.instance");
                         if (sep != null) {
-                            sep.delete();
+                            sep.revert();
                         }
                         fo = root.getFileObject("Toolbars/Default");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                             fo = root.getFileObject("Toolbars");
                             if (fo != null && fo.getChildren().length == 0) {
-                                fo.delete();
+                                fo.revert();
                             }
                         }
 
                         // init code templates
                         fo = root.getFileObject("CodeTemplateProcessorFactories/org-netbeans-modules-gsfret-editor-codetemplates-GsfCodeTemplateProcessor$Factory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         FileObject old = root.getFileObject("CodeTemplateProcessorFactories/org-netbeans-modules-retouche-editor-codetemplates-GsfCodeTemplateProcessor$Factory.instance");
                         if (old != null) {
-                            old.delete();
+                            old.revert();
                         }
                         fo = root.getFileObject("CodeTemplateProcessorFactories");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         // init code templates filters
                         fo = root.getFileObject("CodeTemplateFilterFactories/org-netbeans-modules-gsfret-editor-codetemplates-GsfCodeTemplateFilter$Factory.instance");
                         if (fo != null) {
-                            fo.delete();
+                            fo.revert();
                         }
                         old = root.getFileObject("CodeTemplateFilterFactories/org-netbeans-modules-retouche-editor-codetemplates-GsfCodeTemplateFilter$Factory.instance");
                         if (old != null) {
-                            old.delete();
+                            old.revert();
                         }
                         fo = root.getFileObject("CodeTemplateFilterFactories");
                         if (fo != null && fo.getChildren().length == 0) {
-                            fo.delete();
+                            fo.revert();
                         }
 
                         if (innerMime.getChildren().length == 0) {
-                            innerMime.delete();
+                            innerMime.revert();
                         }
                     }
 
                     if (outerMime.getChildren().length == 0) {
-                        outerMime.delete();
+                        outerMime.revert();
                     }
                 }
             }
