@@ -51,7 +51,7 @@ package org.netbeans.modules.cnd.debugger.gdbserver;
 import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
-import org.netbeans.modules.cnd.debugger.common2.debugger.DebuggerManager;
+import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
@@ -172,10 +172,10 @@ public class GdbServerAttachPanel extends JPanel implements HelpCtx.Provider {
                 gdi.setDebugTarget(dt);
                 gdi.setHostName(CndRemote.userhostFromConfiguration(conf));
                 gdi.setConfiguration(conf);
-                gdi.setAction(DebuggerManager.ATTACH);
+                gdi.setAction(NativeDebuggerManager.ATTACH);
                 gdi.setTargetCommand(targetValue);
                 
-                DebuggerManager.get().debugNoAsk(gdi);
+                NativeDebuggerManager.get().debugNoAsk(gdi);
 //                try {
 //                    GdbDebugger.attachGdbServer(target, pi.getProjectInformation());
 //                } catch (DebuggerStartException dse) {
