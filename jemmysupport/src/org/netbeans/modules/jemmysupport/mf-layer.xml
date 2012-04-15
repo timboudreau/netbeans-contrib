@@ -3,7 +3,7 @@
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+Copyright 1997-2012 Sun Microsystems, Inc. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -129,7 +129,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         </folder>
     </folder>
     <folder name="Templates">
-        <folder name="JUnit">
+        <folder name="UnitTests">
             <file name="JellyTestCaseTest.java" url="JellyTestCase.java.template">
                 <attr name="template" boolvalue="true"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
