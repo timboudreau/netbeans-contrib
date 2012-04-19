@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2012 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -23,36 +23,20 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007-2012 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints;
 
-import com.sun.source.tree.AssignmentTree;
-import com.sun.source.tree.BinaryTree;
-import com.sun.source.tree.BreakTree;
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.ConditionalExpressionTree;
-import com.sun.source.tree.ContinueTree;
-import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.IfTree;
-import com.sun.source.tree.LiteralTree;
-import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.MethodInvocationTree;
-import com.sun.source.tree.NewClassTree;
-import com.sun.source.tree.ReturnTree;
-import com.sun.source.tree.ThrowTree;
-import com.sun.source.tree.Tree;
+import com.sun.source.tree.*;
 import com.sun.source.tree.Tree.Kind;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,75 +48,172 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.java.hints.spi.support.FixFactory;
 import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.Fix;
 import org.openide.util.NbBundle;
 
 import static org.netbeans.modules.javahints.NPECheck.State.*;
+import org.netbeans.spi.java.hints.*;
 
-/**
+/**XXX: null initializer to a non-null variable!
  *
  * @author lahvac
  */
-public class NPECheck extends AbstractHint {
+@Hint(displayName="#DN_NPECheck", description="#DESC_NPECheck", category="bugs", enabled=false)
+public class NPECheck {
 
-    public NPECheck() {
-        super(false, true, HintSeverity.WARNING, "null");
-    }
+    @TriggerPattern("$var = $expr")
+    public static ErrorDescription assignment(HintContext ctx) {
+        Element e = ctx.getInfo().getTrees().getElement(ctx.getVariables().get("$var"));
 
-    @Override
-    public String getDescription() {
-        return "NPE";
-    }
-
-    public Set<Kind> getTreeKinds() {
-        return EnumSet.of(Kind.METHOD);
-    }
-
-    public List<ErrorDescription> run(CompilationInfo compilationInfo, TreePath treePath) {
-        VisitorImpl v = new VisitorImpl(compilationInfo);
+        if (e == null || !VARIABLE_ELEMENT.contains(e.getKind())) {
+            return null;
+        }
         
-        v.scan(treePath, null);
+        TreePath expr = ctx.getVariables().get("$expr");
+        State r = computeExpressionsState(ctx.getInfo()).get(expr.getLeaf());
+
+        State elementState = getStateFromAnnotations(e);
+
+        if (elementState != null && elementState.isNotNull()) {
+            String key = null;
+
+            if (r == NULL) {
+                key = "ERR_AssigningNullToNotNull";
+            }
+
+            if (r == POSSIBLE_NULL_REPORT) {
+                key = "ERR_PossibleAssigingNullToNotNull";
+            }
+
+            if (key != null) {
+                return ErrorDescriptionFactory.forTree(ctx, ctx.getPath(), NbBundle.getMessage(NPECheck.class, key));
+            }
+        }
+
+        return null;
+    }
+    
+    @TriggerPattern("$select.$variable")
+    public static ErrorDescription memberSelect(HintContext ctx) {
+        TreePath select = ctx.getVariables().get("$select");
+        State r = computeExpressionsState(ctx.getInfo()).get(select.getLeaf());
         
-        return v.warnings;
-    }
+        if (r == State.NULL) {
+            String displayName = NbBundle.getMessage(NPECheck.class, "ERR_DereferencingNull");
+            
+            return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), displayName);
+        }
 
-    public String getId() {
-        return NPECheck.class.getName();
-    }
-
-    public String getDisplayName() {
-        return "NPE";
-    }
-
-    public void cancel() {
-    }
-
-    private final class VisitorImpl extends TreePathScanner<State, Void> {
+        if (r == State.POSSIBLE_NULL_REPORT) {
+            String displayName = NbBundle.getMessage(NPECheck.class, "ERR_PossiblyDereferencingNull");
+            
+            return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), displayName);
+        }
         
-        private CompilationInfo info;
-        private List<ErrorDescription> warnings;
+        return null;
+    }
+    
+    @TriggerTreeKind(Kind.METHOD_INVOCATION)
+    public static List<ErrorDescription> methodInvocation(HintContext ctx) {
+        MethodInvocationTree mit = (MethodInvocationTree) ctx.getPath().getLeaf();
+        List<State> paramStates = new ArrayList<State>(mit.getArguments().size());
+        Map<Tree, State> expressionsState = computeExpressionsState(ctx.getInfo());
+
+        for (Tree param : mit.getArguments()) {
+            State r = expressionsState.get(param);
+            paramStates.add(r != null ? r : State.POSSIBLE_NULL);
+        }
+
+        Element e = ctx.getInfo().getTrees().getElement(ctx.getPath());
+
+        if (e == null || e.getKind() != ElementKind.METHOD) {
+            return null;
+        }
+
+        ExecutableElement ee = (ExecutableElement) e;
+        int index = 0;
+        List<ErrorDescription> result = new ArrayList<ErrorDescription>();
+
+        for (VariableElement param : ee.getParameters()) {
+            if (getStateFromAnnotations(param) == NOT_NULL) {
+                switch (paramStates.get(index)) {
+                    case NULL:
+                        result.add(ErrorDescriptionFactory.forTree(ctx, mit.getArguments().get(index), NbBundle.getMessage(NPECheck.class, "ERR_NULL_TO_NON_NULL_ARG")));
+                        break;
+                    case POSSIBLE_NULL_REPORT:
+                        result.add(ErrorDescriptionFactory.forTree(ctx, mit.getArguments().get(index), NbBundle.getMessage(NPECheck.class, "ERR_POSSIBLENULL_TO_NON_NULL_ARG")));
+                        break;
+                }
+            }
+        }
         
+        return result;
+    } 
+    
+    private static final Object KEY_EXPRESSION_STATE = new Object();
+    //Cancelling:
+    private static Map<Tree, State> computeExpressionsState(CompilationInfo info) {
+        Map<Tree, State> result = (Map<Tree, State>) info.getCachedValue(KEY_EXPRESSION_STATE);
+        
+        if (result != null) {
+            return result;
+        }
+        
+        VisitorImpl v = new VisitorImpl(info);
+        
+        v.scan(info.getCompilationUnit(), null);
+        
+        info.putCachedValue(KEY_EXPRESSION_STATE, result = v.expressionState, CompilationInfo.CacheClearPolicy.ON_TASK_END);
+        
+        return result;
+    }
+    
+    private static State getStateFromAnnotations(Element e) {
+        return getStateFromAnnotations(e, State.POSSIBLE_NULL);
+    }
+
+    private static State getStateFromAnnotations(Element e, State def) {
+        for (AnnotationMirror am : e.getAnnotationMirrors()) {
+            String simpleName = ((TypeElement) am.getAnnotationType().asElement()).getSimpleName().toString();
+
+            if ("Nullable".equals(simpleName) || "NullAllowed".equals(simpleName)) {
+                return State.POSSIBLE_NULL_REPORT;
+            }
+
+            if ("CheckForNull".equals(simpleName)) {
+                return State.POSSIBLE_NULL_REPORT;
+            }
+
+            if ("NotNull".equals(simpleName) || "NonNull".equals(simpleName)) {
+                return State.NOT_NULL;
+            }
+        }
+
+        return def;
+    }
+        
+    private static final class VisitorImpl extends TreePathScanner<State, Void> {
+        
+        private final CompilationInfo info;
         private Map<VariableElement, State> variable2State = new HashMap<VariableElement, NPECheck.State>();
         private Map<VariableElement, State> testedTo = new HashMap<VariableElement, NPECheck.State>();
+        private final Map<Tree, State> expressionState = new IdentityHashMap<Tree, State>();
 
         public VisitorImpl(CompilationInfo info) {
             this.info = info;
-            this.warnings = new LinkedList<ErrorDescription>();
         }
 
-        private void report(TreePath path, String key) {
-            long start = info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), path.getLeaf());
-            long end = info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), path.getLeaf());
-
-            String displayName = NbBundle.getMessage(NPECheck.class, key);
-            List<Fix> fixes = FixFactory.createSuppressWarnings(info, path, "null");
-            warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
+        @Override
+        public State scan(Tree tree, Void p) {
+            State r = super.scan(tree, p);
+            
+            if (r != null) {
+                expressionState.put(tree, r);
+            }
+            
+            return r;
         }
-        
+
         @Override
         public State visitAssignment(AssignmentTree node, Void p) {
             Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getVariable()));
@@ -146,24 +227,6 @@ public class NPECheck extends AbstractHint {
             variable2State.put((VariableElement) e, r);
             
             scan(node.getVariable(), p);
-            
-            State elementState = getStateFromAnnotations(e);
-            
-            if (elementState != null && elementState.isNotNull()) {
-                String key = null;
-
-                if (r == NULL) {
-                    key = "ERR_AssigningNullToNotNull";
-                }
-
-                if (r == POSSIBLE_NULL_REPORT) {
-                    key = "ERR_PossibleAssigingNullToNotNull";
-                }
-            
-                if (key != null) {
-                    report(getCurrentPath(), key);
-                }
-            }
             
             return r;
         }
@@ -186,37 +249,29 @@ public class NPECheck extends AbstractHint {
         @Override
         public State visitMemberSelect(MemberSelectTree node, Void p) {
             State expr = scan(node.getExpression(), p);
-            
-            long start = info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), node);
-            long end = info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), node);
-
             boolean wasNPE = false;
             
             if (expr == State.NULL) {
-                String displayName = NbBundle.getMessage(NPECheck.class, "ERR_DereferencingNull");
-                List<Fix> fixes = FixFactory.createSuppressWarnings(info, getCurrentPath(), "null");
-                warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
-                
                 wasNPE = true;
             }
 
             if (expr == State.POSSIBLE_NULL_REPORT) {
-                String displayName = NbBundle.getMessage(NPECheck.class, "ERR_PossiblyDereferencingNull");
-                List<Fix> fixes = FixFactory.createSuppressWarnings(info, getCurrentPath(), "null");
-                warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
-                
                 wasNPE = true;
             }
             
-            if (wasNPE) {
-                Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getExpression()));
+            Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getExpression()));
+            
+            if (isVariableElement(e)) {
+                State r = getStateFromAnnotations(e);
                 
-                if (isVariableElement(e)) {
+                if (wasNPE) {
                     variable2State.put((VariableElement) e, NOT_NULL_BE_NPE);
                 }
+                
+                return r;
             }
             
-            return super.visitMemberSelect(node, p);
+            return State.POSSIBLE_NULL;
         }
 
         @Override
@@ -474,34 +529,16 @@ public class NPECheck extends AbstractHint {
         @Override
         public State visitMethodInvocation(MethodInvocationTree node, Void p) {
             scan(node.getTypeArguments(), p);
-            
-            State methodSelectState = scan(node.getMethodSelect(), p);
-            List<State> paramStates = new ArrayList<State>(node.getArguments().size());
+            scan(node.getMethodSelect(), p);
             
             for (Tree param : node.getArguments()) {
-                paramStates.add(scan(param, p));
+                scan(param, p);
             }
             
             Element e = info.getTrees().getElement(getCurrentPath());
             
             if (e == null || e.getKind() != ElementKind.METHOD) {
                 return State.POSSIBLE_NULL;
-            }
-            
-            ExecutableElement ee = (ExecutableElement) e;
-            int index = 0;
-            
-            for (VariableElement param : ee.getParameters()) {
-                if (getStateFromAnnotations(param) == NOT_NULL) {
-                    switch (paramStates.get(index)) {
-                        case NULL:
-                            report(new TreePath(getCurrentPath(), node.getArguments().get(index)), "ERR_NULL_TO_NON_NULL_ARG");
-                            break;
-                        case POSSIBLE_NULL_REPORT:
-                            report(new TreePath(getCurrentPath(), node.getArguments().get(index)), "ERR_POSSIBLENULL_TO_NON_NULL_ARG");
-                            break;
-                    }
-                }
             }
             
             return getStateFromAnnotations(e);
@@ -559,29 +596,6 @@ public class NPECheck extends AbstractHint {
             return null;
         }
         
-        private State getStateFromAnnotations(Element e) {
-            return getStateFromAnnotations(e, State.POSSIBLE_NULL);
-        }
-        
-        private State getStateFromAnnotations(Element e, State def) {
-            for (AnnotationMirror am : e.getAnnotationMirrors()) {
-                String simpleName = ((TypeElement) am.getAnnotationType().asElement()).getSimpleName().toString();
-
-                if ("Nullable".equals(simpleName) || "NullAllowed".equals(simpleName)) {
-                    return State.POSSIBLE_NULL_REPORT;
-                }
-
-                if ("CheckForNull".equals(simpleName)) {
-                    return State.POSSIBLE_NULL_REPORT;
-                }
-
-                if ("NotNull".equals(simpleName) || "NonNull".equals(simpleName)) {
-                    return State.NOT_NULL;
-                }
-            }
-
-            return def;
-        }
     }
     
     static enum State {
