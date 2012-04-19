@@ -49,7 +49,6 @@ import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.WeakHashMap;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -66,20 +64,12 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.SourceUtils;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.modules.java.hints.spi.support.FixFactory;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
-import org.netbeans.spi.project.AuxiliaryConfiguration;
-import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import static org.netbeans.modules.javahints.NPECheck.State.*;
 
@@ -577,7 +567,7 @@ public class NPECheck extends AbstractHint {
             for (AnnotationMirror am : e.getAnnotationMirrors()) {
                 String simpleName = ((TypeElement) am.getAnnotationType().asElement()).getSimpleName().toString();
 
-                if ("Nullable".equals(simpleName)) {
+                if ("Nullable".equals(simpleName) || "NullAllowed".equals(simpleName)) {
                     return State.POSSIBLE_NULL_REPORT;
                 }
 
@@ -585,31 +575,14 @@ public class NPECheck extends AbstractHint {
                     return State.POSSIBLE_NULL_REPORT;
                 }
 
-                if ("NotNull".equals(simpleName)) {
+                if ("NotNull".equals(simpleName) || "NonNull".equals(simpleName)) {
                     return State.NOT_NULL;
-                }
-            }
-            
-            if (e.getKind() == ElementKind.METHOD) {
-                String fqn = getFQN((ExecutableElement) e);
-                Project owner = findProject(info, e);
-                
-                if (owner != null && findCheckForNullNames(owner).contains(fqn)) {
-                    return State.POSSIBLE_NULL_REPORT;
                 }
             }
 
             return def;
         }
     }
-    
-    private String getFQN(ExecutableElement ee) {
-        TypeElement te = (TypeElement) ee.getEnclosingElement();
-        
-        return te.getQualifiedName().toString() + "." + ee.getSimpleName().toString();
-    }
-    
-    private static final Set<ElementKind> LOCAL_VARIABLES = EnumSet.of(ElementKind.EXCEPTION_PARAMETER, ElementKind.LOCAL_VARIABLE, ElementKind.PARAMETER);
     
     static enum State {
         NULL,
@@ -693,56 +666,6 @@ public class NPECheck extends AbstractHint {
             return true; //XXX: simplification
         }
         
-    }
-    
-    private static final Map<TypeElement, Project> class2Project = new WeakHashMap<TypeElement, Project>();
-    
-    private static Project findProject(CompilationInfo info, Element e) {
-        TypeElement owner = info.getElementUtilities().outermostTypeElement(e);
-        
-        if (owner == null) return null;
-        
-        Project p = class2Project.get(owner);
-        
-        if (p == null) {
-            FileObject source = SourceUtils.getFile(e, info.getClasspathInfo());
-
-            if (source != null) {
-                p = FileOwnerQuery.getOwner(source);
-                
-                if (p != null) {
-                    class2Project.put(owner, p);
-                }
-            }
-        }
-        
-        return p;
-    }
-    
-    private static final Map<Project, Set<String>> project2CheckForNullNames = new WeakHashMap<Project, Set<String>>();
-    
-    private static Set<String> findCheckForNullNames(Project p) {
-        Set<String> set = project2CheckForNullNames.get(p);
-        
-        if (set == null) {
-            project2CheckForNullNames.put(p, set = new HashSet<String>());
-            AuxiliaryConfiguration ac = ProjectUtils.getAuxiliaryConfiguration(p);
-
-            if (ac != null) {
-                org.w3c.dom.Element configurationFragment = ac.getConfigurationFragment("npe-check-hints", "http://www.netbeans.org/ns/npe-check-hints/1", true);
-
-                if (configurationFragment != null) {
-                    NodeList nl = configurationFragment.getElementsByTagName("check-for-null");
-
-                    for (int cntr = 0; cntr < nl.getLength(); cntr++) {
-                        Node n = nl.item(cntr);
-                        set.add(n.getTextContent());
-                    }
-                }
-            }
-        }
-        
-        return set;
     }
     
     private static boolean isVariableElement(Element ve) {
