@@ -42,28 +42,16 @@
 
 package org.netbeans.modules.javahints.jdk5;
 
-import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import org.netbeans.api.java.source.TreeMaker;
-import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.java.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.java.hints.Hint;
 import org.netbeans.spi.java.hints.HintContext;
-import org.netbeans.spi.java.hints.JavaFix;
-import org.netbeans.spi.java.hints.JavaFix.TransformationContext;
+import org.netbeans.spi.java.hints.JavaFixUtilities;
 import org.netbeans.spi.java.hints.TriggerPattern;
 import org.openide.util.NbBundle.Messages;
 
@@ -81,47 +69,8 @@ public class IteratorToFor {
         if (uses(ctx, ctx.getMultiVariables().get("$rest$"), ctx.getVariables().get("$it"))) {
             return null;
         }
-        return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), Bundle.ERR_IteratorToFor(), new WhileFix(ctx).toEditorFix());
-    }
-
-    // like JavaFixUtilities.rewriteFix(..., "for ($type $elem : $coll) {$rest$;}"))
-    // but does not mess up interior comments
-    private static final class WhileFix extends JavaFix {
-
-        private final HintContext hctx;
-
-        WhileFix(HintContext hctx) {
-            super(hctx.getInfo(), hctx.getPath());
-            // XXX #211273 comment #3: should not be keeping hctx here, ought to rewrite
-            this.hctx = hctx;
-        }
-
-        @Override protected String getText() {
-            return Bundle.FIX_IteratorToFor();
-        }
-
-        @Override protected void performRewrite(TransformationContext ctx) {
-            WorkingCopy wc = ctx.getWorkingCopy();
-            TreeMaker tm = wc.getTreeMaker();
-            Map<String,TreePath> vars = hctx.getVariables();
-            Map<String,Collection<? extends TreePath>> multivars = hctx.getMultiVariables();
-            BlockTree block = (BlockTree) vars.get("$_").getLeaf();
-            List<StatementTree> stmts = new ArrayList<StatementTree>(block.getStatements());
-            boolean deleted = stmts.remove((StatementTree) vars.get("$it").getLeaf());
-            assert deleted;
-            int idx = stmts.indexOf((StatementTree) vars.get("$elem").getParentPath().getParentPath().getLeaf());
-            assert idx != -1;
-            VariableTree decl = tm.Variable(tm.Modifiers(Collections.<Modifier>emptySet()), hctx.getVariableNames().get("$elem"), vars.get("$type").getLeaf(), null);
-            ExpressionTree expr = (ExpressionTree) vars.get("$coll").getLeaf();
-            List<StatementTree> rest = new ArrayList<StatementTree>();
-            for (TreePath p : multivars.get("$rest$")) {
-                rest.add((StatementTree) p.getLeaf());
-            }
-            StatementTree body = tm.Block(rest, false);
-            stmts.set(idx, tm.EnhancedForLoop(decl, expr, body));
-            wc.rewrite(block, tm.Block(stmts, false));
-        }
-
+        return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), Bundle.ERR_IteratorToFor(),
+                JavaFixUtilities.rewriteFix(ctx, Bundle.FIX_IteratorToFor(), ctx.getPath(), "for ($type $elem : $coll) {$rest$;}"));
     }
 
     @TriggerPattern("for (java.util.Iterator $it = $coll.iterator(); $it.hasNext(); ) {$type $elem = ($type) $it.next(); $rest$;}")
@@ -129,37 +78,8 @@ public class IteratorToFor {
         if (uses(ctx, ctx.getMultiVariables().get("$rest$"), ctx.getVariables().get("$it"))) {
             return null;
         }
-        return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), Bundle.ERR_IteratorToFor(), new ForFix(ctx).toEditorFix());
-    }
-
-    private static final class ForFix extends JavaFix {
-
-        private final HintContext hctx;
-
-        ForFix(HintContext hctx) {
-            super(hctx.getInfo(), hctx.getPath());
-            this.hctx = hctx;
-        }
-
-        @Override protected String getText() {
-            return Bundle.FIX_IteratorToFor();
-        }
-
-        @Override protected void performRewrite(TransformationContext ctx) {
-            WorkingCopy wc = ctx.getWorkingCopy();
-            TreeMaker tm = wc.getTreeMaker();
-            Map<String,TreePath> vars = hctx.getVariables();
-            Map<String,Collection<? extends TreePath>> multivars = hctx.getMultiVariables();
-            VariableTree decl = tm.Variable(tm.Modifiers(Collections.<Modifier>emptySet()), hctx.getVariableNames().get("$elem"), vars.get("$type").getLeaf(), null);
-            ExpressionTree expr = (ExpressionTree) vars.get("$coll").getLeaf();
-            List<StatementTree> rest = new ArrayList<StatementTree>();
-            for (TreePath p : multivars.get("$rest$")) {
-                rest.add((StatementTree) p.getLeaf());
-            }
-            StatementTree body = tm.Block(rest, false);
-            wc.rewrite(ctx.getPath().getLeaf(), tm.EnhancedForLoop(decl, expr, body));
-        }
-
+        return ErrorDescriptionFactory.forName(ctx, ctx.getPath(), Bundle.ERR_IteratorToFor(),
+                JavaFixUtilities.rewriteFix(ctx, Bundle.FIX_IteratorToFor(), ctx.getPath(), "for ($type $elem : $coll) {$rest$;}"));
     }
 
     // adapted from org.netbeans.modules.java.hints.declarative.conditionapi.Matcher.referencedIn
