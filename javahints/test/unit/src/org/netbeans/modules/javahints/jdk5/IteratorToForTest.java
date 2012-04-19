@@ -80,6 +80,125 @@ public class IteratorToForTest {
                 + "}\n").run(IteratorToFor.class).assertWarnings();
     }
 
+    @Test public void whileRaw() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List strings) {\n"
+                + "        Iterator it = strings.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            String s = (String) it.next();\n"
+                + "            System.out.println(s);\n"
+                + "            System.err.println(s);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings();
+    }
+
+    @Test public void whileWrongType() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List<java.net.URL> strings) {\n"
+                + "        Iterator it = strings.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            String s = (String) it.next();\n"
+                + "            System.out.println(s);\n"
+                + "            System.err.println(s);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings();
+    }
+
+    @Test public void whileNotRaw() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(MyList strings) {\n"
+                + "        Iterator it = strings.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            String s = (String) it.next();\n"
+                + "            System.out.println(s);\n"
+                + "            System.err.println(s);\n"
+                + "        }\n"
+                + "    }\n"
+                + "    static class MyList extends ArrayList<String> {}\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings("2:27-9:5:verifier:" + Bundle.ERR_IteratorToFor());
+    }
+
+    @Test public void whileNotIterable() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(MyList strings) {\n"
+                + "        Iterator it = strings.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            String s = (String) it.next();\n"
+                + "            System.out.println(s);\n"
+                + "            System.err.println(s);\n"
+                + "        }\n"
+                + "    }\n"
+                + "    interface MyList {\n"
+                + "        Iterator<String> iterator();\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings();
+    }
+
+    @Test public void whileSubtype() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List<PropertyResourceBundle> bundles) {\n"
+                + "        Iterator it = bundles.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            ResourceBundle bundle = (ResourceBundle) it.next();\n"
+                + "            System.out.println(bundle);\n"
+                + "            System.err.println(bundle);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings("2:49-9:5:verifier:" + Bundle.ERR_IteratorToFor());
+    }
+
+    @Test public void whileGenericSubtype() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List<ArrayList<String>> lists) {\n"
+                + "        Iterator it = lists.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            List<String> list = (List<String>) it.next();\n"
+                + "            System.out.println(list);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).findWarning("2:42-8:5:verifier:" + Bundle.ERR_IteratorToFor()).
+                applyFix().
+                assertCompilable().
+                assertOutput("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List<ArrayList<String>> lists) {\n"
+                + "        for (List<String> list : lists) {\n"
+                + "            System.out.println(list);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n");
+    }
+
+    @Test public void whileNotSubtype() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List<ResourceBundle> bundles) {\n"
+                + "        Iterator it = bundles.iterator();\n"
+                + "        while (it.hasNext()) {\n"
+                + "            PropertyResourceBundle bundle = (PropertyResourceBundle) it.next();\n"
+                + "            System.out.println(bundle);\n"
+                + "            System.err.println(bundle);\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings();
+    }
+
     @Test public void whileFix() throws Exception {
         HintTest.create().input("package test;\n"
                 + "import java.util.*;"
@@ -139,6 +258,20 @@ public class IteratorToForTest {
                 + "            } else {\n"
                 + "                System.out.println(s);\n"
                 + "            }\n"
+                + "        }\n"
+                + "    }\n"
+                + "}\n").run(IteratorToFor.class).assertWarnings();
+    }
+
+    @Test public void forRaw() throws Exception {
+        HintTest.create().input("package test;\n"
+                + "import java.util.*;"
+                + "public class Test {\n"
+                + "    void m(List strings) {\n"
+                + "        for (Iterator it = strings.iterator(); it.hasNext(); ) {\n"
+                + "            String s = (String) it.next();\n"
+                + "            System.out.println(s);\n"
+                + "            System.err.println(s);\n"
                 + "        }\n"
                 + "    }\n"
                 + "}\n").run(IteratorToFor.class).assertWarnings();
