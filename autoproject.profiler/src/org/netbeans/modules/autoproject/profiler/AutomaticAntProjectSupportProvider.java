@@ -53,13 +53,6 @@ import org.openide.modules.InstalledFileLocator;
  */
 @ProjectServiceProvider(service=AntProjectSupportProvider.class, projectType="org-netbeans-modules-autoproject") // NOI18N
 public final class AutomaticAntProjectSupportProvider extends AntProjectSupportProvider {
-
-    @Override
-    public String getProfilerTargetName(FileObject buildScript, int type, FileObject profiledClassFile) {
-        // XXX do we need to pay attention to 'type' here?
-        return "profile"; // NOI18N
-    }
-
     @Override
     public FileObject getProjectBuildScript() {
         return FileUtil.toFileObject(InstalledFileLocator.getDefault().locate(
