@@ -813,9 +813,6 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
                         }
                     }
                 }
-                // Try to enable a subset this time.
-                realModules.remove(realModules);
-                doEnable(realModules);
             }
         }
         
