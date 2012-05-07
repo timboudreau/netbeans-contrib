@@ -174,7 +174,9 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
     }
 
     public void panelDeactivated() {
+        if (selection != null) { // #212112
         selection.removeLookupListener(selectionListener);
+        }
         setListeningToFileObject (null);
         selection = null;
     }
