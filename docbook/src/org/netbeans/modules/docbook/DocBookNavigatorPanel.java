@@ -199,7 +199,9 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                 callback = new ContentCallback(obj);
                 ParsingService serv = current.getNodeDelegate().getLookup().lookup(
                     ParsingService.class);
+                if (serv != null) { // #212111
                 serv.register(callback);
+                }
             } else {
                 callback = null;
                 setItems (null);
