@@ -30,6 +30,7 @@ package org.netbeans.modules.apisupport.projectinspector;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
@@ -38,13 +39,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.JavaClassPathConstants;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -79,13 +78,11 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.Actions;
-import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
@@ -99,29 +96,13 @@ import org.openide.windows.OutputWriter;
 @ActionID(id = "org.netbeans.modules.apisupport.projectinspector.InspectProjectAction", category = "Tools")
 @ActionRegistration(displayName = "Inspect Project Metadata")
 @ActionReference(path = "Projects/Actions", position = 2000)
-public class InspectProjectAction extends AbstractAction implements ContextAwareAction {
+public class InspectProjectAction implements ActionListener {
 
-    /** Default constructor for layer. */
-    public InspectProjectAction() {
-        super("Inspect Project Metadata");
+    private final List<Project> projects;
+
+    public InspectProjectAction(List<Project> projects) {
+        this.projects = projects;
     }
-
-    public void actionPerformed(ActionEvent e) {
-        assert false;
-    }
-
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new Impl(actionContext);
-    }
-
-    private static final class Impl extends AbstractAction implements DynamicMenuContent {
-
-        private final Lookup actionContext;
-
-        public Impl(Lookup actionContext) {
-            super("Inspect Project Metadata");
-            this.actionContext = actionContext;
-        }
 
         public void actionPerformed(ActionEvent e) {
             RequestProcessor.getDefault().post(new Runnable() {
@@ -134,7 +115,7 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                             try {
                                 pw.reset();
                                 boolean first = true;
-                                for (Project p : actionContext.lookupAll(Project.class)) {
+                                for (Project p : projects) {
                                     if (!first) {
                                         pw.println();
                                         pw.println("-------------------------------------------");
@@ -153,19 +134,6 @@ public class InspectProjectAction extends AbstractAction implements ContextAware
                 }
             });
         }
-
-        public JComponent[] getMenuPresenters() {
-            if (actionContext.lookup(Project.class) != null) {
-                return new JComponent[] {new JMenuItem(this)};
-            } else {
-                return new JComponent[0];
-            }
-        }
-
-        public JComponent[] synchMenuPresenters(JComponent[] items) {
-            return getMenuPresenters();
-        }
-    }
 
     private static void dump(Project p, final PrintWriter pw) throws Exception {
         pw.println("Project: \"" + ProjectUtils.getInformation(p).getDisplayName() + "\" (" + ProjectUtils.getInformation(p).getName() + ")");
