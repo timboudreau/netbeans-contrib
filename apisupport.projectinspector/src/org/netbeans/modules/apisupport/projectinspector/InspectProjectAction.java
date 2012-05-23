@@ -43,7 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.JavaClassPathConstants;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -84,6 +86,7 @@ import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.IOProvider;
@@ -98,7 +101,18 @@ import org.openide.windows.OutputWriter;
 @ActionReference(path = "Projects/Actions", position = 2000)
 public class InspectProjectAction implements ActionListener {
 
+    @StaticResource private static final String REFRESH_ICON = "org/netbeans/modules/apisupport/projectinspector/refresh.png";
+
     private final List<Project> projects;
+    private final Action refreshAction = new AbstractAction("Refresh", ImageUtilities.loadImageIcon(REFRESH_ICON, true)) {
+        {
+            putValue(SHORT_DESCRIPTION, "Refresh");
+        }
+        @Override public void actionPerformed(ActionEvent e) {
+            InspectProjectAction.this.actionPerformed(e);
+        }
+    };
+    private InputOutput io;
 
     public InspectProjectAction(List<Project> projects) {
         this.projects = projects;
@@ -109,7 +123,16 @@ public class InspectProjectAction implements ActionListener {
                 public void run() {
                     ProjectManager.mutex().readAccess(new Runnable() {
                         public void run() {
-                            InputOutput io = IOProvider.getDefault().getIO("Project Metadata", false);
+                            if (io != null) {
+                                io.closeInputOutput();
+                            }
+                            String title;
+                            if (projects.size() == 1) {
+                                title = "Metadata: " + ProjectUtils.getInformation(projects.get(0)).getDisplayName();
+                            } else {
+                                title = "Project Metadata";
+                            }
+                            io = IOProvider.getDefault().getIO(title, new Action[] {refreshAction});
                             io.select();
                             OutputWriter pw = io.getOut();
                             try {
