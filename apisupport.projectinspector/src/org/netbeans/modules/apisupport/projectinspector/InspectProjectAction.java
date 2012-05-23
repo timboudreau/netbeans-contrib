@@ -31,7 +31,6 @@ package org.netbeans.modules.apisupport.projectinspector;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -226,7 +225,7 @@ public class InspectProjectAction implements ActionListener {
                 pw.println("  \"" + g.getDisplayName() + "\" (" + g.getName() + "): " + FileUtil.getFileDisplayName(r));
                 pw.println("    source level: " + SourceLevelQuery.getSourceLevel(r));
                 pw.println("    encoding: " + FileEncodingQuery.getEncoding(r).displayName());
-                URL[] builtTo = BinaryForSourceQuery.findBinaryRoots(r.getURL()).getRoots();
+                URL[] builtTo = BinaryForSourceQuery.findBinaryRoots(r.toURL()).getRoots();
                 if (builtTo.length > 0) {
                     pw.print("    binaries:");
                     for (URL u : builtTo) {
@@ -444,12 +443,8 @@ public class InspectProjectAction implements ActionListener {
             pw.println(" (different owner project: " + (owner != null ? ProjectUtils.getInformation(owner).getDisplayName() : "none") + ")");
             return;
         }
-        File f = FileUtil.toFile(fo);
-        if (f == null) {
-            return;
-        }
-        switch (SharabilityQuery.getSharability(f)) {
-        case SharabilityQuery.MIXED:
+        switch (SharabilityQuery.getSharability(fo)) {
+        case MIXED:
             pw.println();
             if (fo.isFolder()) {
                 FileObject[] kids = fo.getChildren();
@@ -465,13 +460,13 @@ public class InspectProjectAction implements ActionListener {
                 }
             }
             break;
-        case SharabilityQuery.NOT_SHARABLE:
+        case NOT_SHARABLE:
             pw.println(" (not sharable)");
             break;
-        case SharabilityQuery.SHARABLE:
+        case SHARABLE:
             pw.println();
             break;
-        case SharabilityQuery.UNKNOWN:
+        case UNKNOWN:
             pw.println(" (sharability unknown)");
             break;
         }
