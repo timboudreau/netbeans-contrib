@@ -84,11 +84,11 @@ class ClassPathProviderImpl implements ClassPathProvider {
     private final Map<File,Map<String,ClassPathImpl>> classpaths = new WeakHashMap<File,Map<String,ClassPathImpl>>();
     private final Map<String,List<ClassPath>> registeredPaths = new HashMap<String,List<ClassPath>>();
 
-    public ClassPathProviderImpl(Project p) {
+    ClassPathProviderImpl(Project p) {
         prj = p;
     }
 
-    public ClassPath findClassPath(FileObject file, String type) {
+    @Override public ClassPath findClassPath(FileObject file, String type) {
         File f = FileUtil.toFile(file);
         if (f == null) {
             return null;
@@ -149,7 +149,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
             Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
         }
 
-        public List<? extends PathResourceImplementation> getResources() {
+        @Override public List<? extends PathResourceImplementation> getResources() {
             boolean fire;
             List<URL> newurls = new ArrayList<URL>();
             synchronized (this) {
@@ -208,15 +208,15 @@ class ClassPathProviderImpl implements ClassPathProvider {
             return resources;
         }
 
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
+        @Override public void addPropertyChangeListener(PropertyChangeListener listener) {
             pcs.addPropertyChangeListener(listener);
         }
 
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
+        @Override public void removePropertyChangeListener(PropertyChangeListener listener) {
             pcs.removePropertyChangeListener(listener);
         }
 
-        public void propertyChange(PropertyChangeEvent evt) {
+        @Override public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().contains(root)) {
                 getResources();
             }
@@ -235,23 +235,23 @@ class ClassPathProviderImpl implements ClassPathProvider {
             Cache.addPropertyChangeListener(WeakListeners.propertyChange(this, Cache.class));
         }
 
-        public URL[] getRoots() {
+        @Override public URL[] getRoots() {
             return new URL[] {root};
         }
 
-        public boolean includes(URL root, String resource) {
+        @Override public boolean includes(URL root, String resource) {
             return pathMatcher().matches(resource, true);
         }
 
-        public ClassPathImplementation getContent() {
+        @Override public ClassPathImplementation getContent() {
             return null;
         }
 
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
+        @Override public void addPropertyChangeListener(PropertyChangeListener listener) {
             pcs.addPropertyChangeListener(listener);
         }
 
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
+        @Override public void removePropertyChangeListener(PropertyChangeListener listener) {
             pcs.removePropertyChangeListener(listener);
         }
 
@@ -269,7 +269,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
             return matcher;
         }
 
-        public void propertyChange(PropertyChangeEvent evt) {
+        @Override public void propertyChange(PropertyChangeEvent evt) {
             String prop = evt.getPropertyName();
             if (prop.endsWith(JavaCacheConstants.INCLUDES) || prop.endsWith(JavaCacheConstants.EXCLUDES)) {
                 synchronized (this) {
@@ -284,7 +284,7 @@ class ClassPathProviderImpl implements ClassPathProvider {
     }
 
     void open() {
-        LOG.fine("opening " + prj);
+        LOG.log(Level.FINE, "opening {0}", prj);
         synchronized (registeredPaths) {
             String[] TYPES = {ClassPath.SOURCE, ClassPath.COMPILE, ClassPath.EXECUTE, ClassPath.BOOT};
             for (String type : TYPES) {
