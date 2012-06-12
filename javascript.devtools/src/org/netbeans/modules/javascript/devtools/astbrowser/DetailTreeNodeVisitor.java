@@ -188,7 +188,7 @@ public class DetailTreeNodeVisitor extends NodeVisitor {
             
             if (iNode.getFrame() != null) {
                 TreeCreator.TreeASTNodeAdapter symbolAdapter;
-                for (Symbol symbol: iNode.getFrame().getVariables()) {
+                for (Symbol symbol: iNode.getFrame().getSymbols()) {
                     variables.addChild(new TreeCreator.TreeASTNodeAdapter(variables, 
                             "<font color='gray'>" + symbol.getName() + "</font>"));
                 }
