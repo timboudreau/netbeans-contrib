@@ -423,7 +423,7 @@ public class AstViewer extends TopComponent {
 //            ParserResult result = resultHolder[0];
             lastResult = fn;
             
-            astNode = (new TreeCreator()).createTree(fn, browserButtons.isDetailView());
+            astNode = fn == null ? null : (new TreeCreator()).createTree(fn, browserButtons.isDetailView());
 
             if (astNode == null) {
                 return;
