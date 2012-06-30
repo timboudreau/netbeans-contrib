@@ -211,6 +211,12 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                 key.direct = true;
                 continue;
             }
+            if (lib.startsWith("./")) {
+//                FileObject fo = project.getProjectDirectory().getFileObject(lib + ".js");
+//                if (fo != null) {
+                    continue;
+//                }
+            }
             Key.MissingLibrary key = new Key.MissingLibrary(lib);
             List<FileObject> referencedBy = otherLibs.get(lib);
             List<String> paths = new LinkedList<String>();
