@@ -131,13 +131,16 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         FileObject[] files = this.project.getProjectDirectory().getChildren();
         Arrays.sort(files, new FOComparator());
         List<FileObject> flds = new LinkedList();
+        
+        List<Key> sources = new ArrayList<Key>();
+        
         for (FileObject fo : files) {
             if (fo.equals(libFolder)) {
                 continue;
             }
             if (q.isVisible(fo)) {
                 if (fo.isData()) {
-                    keys.add(new Key(KeyTypes.SOURCE, fo));
+                    sources.add(new Key(KeyTypes.SOURCE, fo));
                 } else if (fo.isFolder()) {
                     if (fo.getName().equals("package.json") || fo.equals(libFolder)) {
                         continue;
@@ -200,7 +203,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
             if (libDir != null) {
                 File f = new File(libDir, lib + ".js");
                 if ((f.exists()) && (f.isFile()) && (f.canRead())) {
-                    Key key = new Key(KeyTypes.LIBRARY, FileUtil.toFileObject(FileUtil.normalizeFile(f)));
+                    Key key = new Key(KeyTypes.BUILT_IN_LIBRARY, FileUtil.toFileObject(FileUtil.normalizeFile(f)));
                     keys.add(key);
                     continue;
                 }
@@ -230,7 +233,27 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
             key.references = paths;
             keys.add(key);
         }
-
+        Collections.sort(keys);
+        keys.addAll(0, sources);
+        for (Iterator<Key> it=keys.iterator(); it.hasNext();) {
+            Key k = it.next();
+            if (k.type == KeyTypes.MISSING_LIBRARY) {
+                for (Key k1 : new LinkedList<Key>(keys)) {
+                    if (k == k1) {
+                        continue;
+                    }
+                    if (k.toString().equals(k1.toString()) && k1.type != KeyTypes.MISSING_LIBRARY) {
+                        it.remove();
+                    } else if (k.type == k1.type && k.toString().equals(k1.toString())) {
+                        it.remove();
+                    }
+                    if (k.fld != null && k1.fld != null && k.fld.equals(k1.fld)) {
+                        it.remove();
+                    }
+                }
+            }
+        }
+        
         for (FileObject fo : flds) {
             if (fo.getName().equals("node_modules")) {
                 continue;
@@ -312,32 +335,45 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
             case SOURCE:
                 return new FilterNode(nodeFromKey(key));
             case BUILT_IN_LIBRARY:
-                AbstractNode li = new AbstractNode(Children.LEAF);
-                li.setName(key.toString());
-                li.setDisplayName(key.toString());
-                li.setShortDescription("Built-in library '" + key + "'");
-                li.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png"); //NOI18N
-                return li;
-            case MISSING_LIBRARY:
-                AbstractNode an = new AbstractNode(Children.LEAF) {
-                    @Override
-                    public String getHtmlDisplayName() {
-                        return "<font color=\"#EE0000\">" + key; //NOI18N
-                    }
-                };
-                an.setName(key.toString());
-                an.setDisplayName(key.toString());
-                StringBuilder sb = new StringBuilder("<html>Missing library <b><i>" + key + "</i></b>");
-                if (key instanceof Key.MissingLibrary && ((Key.MissingLibrary) key).references != null && !((Key.MissingLibrary) key).references.isEmpty()) {
-                    sb.append("<p>Referenced By<br><ul>");
-                    for (String path : ((Key.MissingLibrary) key).references) {
-                        sb.append("<li>").append(path).append("</li>\n");
-                    }
-                    sb.append("</ul></pre></blockquote></html>");
+                if (key.fld != null) {
+                    return new LibraryFilterNode(key);
+                } else {
+                    AbstractNode li = new AbstractNode(Children.LEAF) {
+                        @Override
+                        public String getHtmlDisplayName() {
+                            return "<font color=\"#22AA22\">" + key; //NOI18N
+                        }
+                    };
+                    li.setName(key.toString());
+                    li.setDisplayName(key.toString());
+                    li.setShortDescription("Built-in library '" + key + "'");
+                    li.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png"); //NOI18N
+                    return li;
                 }
-                an.setShortDescription(sb.toString());
-                an.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png");
-                return an;                
+            case MISSING_LIBRARY:
+                if (key.fld != null) {
+                    return new LibraryFilterNode(key);
+                } else {
+                    AbstractNode an = new AbstractNode(Children.LEAF) {
+                        @Override
+                        public String getHtmlDisplayName() {
+                            return "<font color=\"#CC0000\">" + key; //NOI18N
+                        }
+                    };
+                    an.setName(key.toString());
+                    an.setDisplayName(key.toString());
+                    StringBuilder sb = new StringBuilder("<html>Missing library <b><i>" + key + "</i></b>");
+                    if (key instanceof Key.MissingLibrary && ((Key.MissingLibrary) key).references != null && !((Key.MissingLibrary) key).references.isEmpty()) {
+                        sb.append("<p>Referenced By<br><ul>");
+                        for (String path : ((Key.MissingLibrary) key).references) {
+                            sb.append("<li>").append(path).append("</li>\n");
+                        }
+                        sb.append("</ul></pre></blockquote></html>");
+                    }
+                    an.setShortDescription(sb.toString());
+                    an.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png");
+                    return an;
+                }
             default:
                 throw new AssertionError();
         }
@@ -383,7 +419,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         //do nothing
     }
 
-    static class Key {
+    static class Key implements Comparable<Key> {
 
         private final KeyTypes type;
         private final FileObject fld;
@@ -395,7 +431,15 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         }
 
         public String toString() {
-            return type + " " + fld.getName() + (direct ? " direct" : " indirect"); //NOI18N
+            return fld.getName();
+        }
+
+        @Override
+        public int compareTo(Key o) {
+            if (o.direct != direct) {
+                return direct ? 1 : -1;
+            }
+            return toString().compareToIgnoreCase(o.toString());
         }
         
         static class BuiltInLibrary extends Key {
@@ -456,10 +500,20 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         public LibraryFilterNode(Key key) {
             this(nodeFromKey(key), key);
         }
+        
+        static boolean isFileNode(Node n) {
+            FileObject fo = n.getLookup().lookup(FileObject.class);
+            if (fo == null) {
+                DataObject dob = n.getLookup().lookup(DataObject.class);
+                if (dob != null) {
+                    fo = dob.getPrimaryFile();
+                }
+            }
+            return fo == null ? false : fo.isData();
+        }
 
         private LibraryFilterNode(Node original, final Key key) {
-            super(nodeFromKey(key), Children.create(new LibraryNodeChildren(original.getLookup().lookup(DataObject.class)), true));
-            assert key.type == KeyTypes.LIBRARY;
+            super(nodeFromKey(key), isFileNode(original) ? Children.LEAF : Children.create(new LibraryNodeChildren(original.getLookup().lookup(DataObject.class)), true));
             this.key = key;
             jsonReader.post(new Runnable() {
 
@@ -595,9 +649,15 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
 
         @Override
         public Image getIcon(int type) {
-            Image result = ImageUtilities.loadImage("org/netbeans/modules/nodejs/resources/libs.png");
-            if (!key.direct) {
+            Image result = ImageUtilities.loadImage(key.type == KeyTypes.BUILT_IN_LIBRARY ? 
+                    "org/netbeans/modules/nodejs/resources/libs.png" :
+                    "org/netbeans/modules/nodejs/resources/libs.png"); //NOI18N
+            if (!key.direct && key.type != KeyTypes.BUILT_IN_LIBRARY) {
                 result = ImageUtilities.createDisabledImage(result);
+            }
+            if (key.type == KeyTypes.BUILT_IN_LIBRARY) {
+                Image badge = ImageUtilities.loadImage("org/netbeans/modules/nodejs/resources/logoBadge.png"); //NOI18N
+                result = ImageUtilities.mergeImages(result, badge, 8, 8);
             }
             return result;
         }
@@ -610,17 +670,27 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         @Override
         public String getHtmlDisplayName() {
             StringBuilder sb = new StringBuilder();
-            if (!key.direct) {
+            if (key.type == KeyTypes.BUILT_IN_LIBRARY) {
+                sb.append ("<font color='#22AA22'><i>");
+            } else if (!key.direct) {
                 sb.append("<font color='!controlDkShadow'>");
             }
-            sb.append(getDisplayName());
+            if (isFileNode(getOriginal())) {
+                DataObject dob = getOriginal().getLookup().lookup(DataObject.class);
+                sb.append (dob.getName());
+            } else {
+                sb.append(getDisplayName());
+            }
+            if (key.type == KeyTypes.BUILT_IN_LIBRARY) {
+                sb.append ("</i>");
+            }
             if (version != null) {
                 sb.append(" <i><font color='#9999AA'> ").append(version).append("</i>");
                 if (!key.direct) {
                     sb.append("<font color='!controlDkShadow'>");
                 }
             }
-            if (!key.direct) {
+            if (!key.direct && key.type != KeyTypes.BUILT_IN_LIBRARY) {
                 sb.append(" (&lt;-").append(key.fld.getParent().getParent().getName()).append(")");
             }
             return sb.toString();
