@@ -44,6 +44,7 @@ package org.netbeans.modules.nodejs.json;
 import java.io.IOException;
 import java.util.Map;
 import java.io.InputStream;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.netbeans.modules.nodejs.json.SimpleJSONParser.JsonException;
@@ -56,7 +57,7 @@ public class SimpleJSONParserTest {
 
     @Test
     public void testParse() throws IOException, JsonException {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             parseJSON("package_" + i + ".json");
         }
         for (int i = 0; i < 4; i++) {
@@ -67,6 +68,24 @@ public class SimpleJSONParserTest {
                 System.out.println(e.getMessage());
             }
         }
+    }
+    
+    @Test
+    public void testIntAndBool() throws Exception {
+        String t = "{ \"foo\": 23, \"bar\": true, \"baz\" : [5,10,15,20], \"quux\": [true,false,false,true]  }";
+        Map<String,Object> m = new SimpleJSONParser().parse(t);
+        assertNotNull(m.get("foo"));
+        assertNotNull(m.get("bar"));
+        assertNotNull(m.get("baz"));
+        assertNotNull(m.get("quux"));
+        assertTrue (m.get("foo") instanceof Integer);
+        assertTrue (m.get("bar") instanceof Boolean);
+        assertTrue (m.get("baz") instanceof List);
+        assertTrue (m.get("baz") instanceof List);
+        
+        CharSequence nue = new SimpleJSONParser().toJSON(m);
+        Map<String,Object> m1 = new SimpleJSONParser().parse(nue);
+        assertEquals(m, m1);
     }
 
     private void parseJSON(String what) throws IOException, JsonException {

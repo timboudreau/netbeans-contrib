@@ -45,17 +45,24 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -78,13 +85,16 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
+import org.openide.util.NbCollections;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
@@ -96,6 +106,9 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
 
     private final ChangeSupport supp = new ChangeSupport(this);
     private final Project project;
+
+    private static final String[] builtInNodeLibs = new String[]{"assert", "buffer", "buffer_ieee754", "child_process", "cluster", "console", "constants", "crypto", "dgram", "dns", "events", "freelist", "fs", "http", "https", "module", "net", "os", "path", "punycode", "querystring", "readline", "repl", "stream", "string_decoder", "sys", "timers", "tls", "tty", "url", "util", "vm", "zlib"};
+    public static final Pattern CHECK_FOR_REQUIRE = Pattern.compile("require\\s??\\(\\s??['\"](.*?)['\"]\\s??\\)", 40);
 
     public NodeProjectSourceNodeFactory(Project p) {
         this.project = p;
@@ -110,13 +123,18 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         return new NodeProjectSourceNodeFactory(p);
     }
 
-    @Override
     public List<Key> keys() {
         List<Key> keys = new ArrayList<Key>();
-        
+
         FileObject libFolder = project.getProjectDirectory().getFileObject("node_modules");
         VisibilityQuery q = VisibilityQuery.getDefault();
-        for (FileObject fo : project.getProjectDirectory().getChildren()) {
+        FileObject[] files = this.project.getProjectDirectory().getChildren();
+        Arrays.sort(files, new FOComparator());
+        List<FileObject> flds = new LinkedList();
+        for (FileObject fo : files) {
+            if (fo.equals(libFolder)) {
+                continue;
+            }
             if (q.isVisible(fo)) {
                 if (fo.isData()) {
                     keys.add(new Key(KeyTypes.SOURCE, fo));
@@ -124,16 +142,20 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                     if (fo.getName().equals("package.json") || fo.equals(libFolder)) {
                         continue;
                     }
-                    keys.add(new Key(KeyTypes.SOURCE, fo));
+                    flds.add(fo);
                 }
             }
         }
-        //now add libraries
+        Map<String, List<FileObject>> otherLibs = findOtherModules(this.project.getProjectDirectory());
+
         if (libFolder != null) {
-            List<Key> libFolders = new ArrayList<Key>();
+            List libFolders = new ArrayList();
             for (FileObject lib : libFolder.getChildren()) {
                 boolean visible = q.isVisible(lib);
-                if (visible && !"node_modules".equals(lib.getName()) && !"nbproject".equals(lib.getName()) && lib.isFolder()) {
+                if ((visible) && (!"node_modules".equals(lib.getName())) && (!"nbproject".equals(lib.getName())) && (lib.isFolder())) {
+                    if (otherLibs.containsKey(lib.getName())) {
+                        otherLibs.remove(lib.getName());
+                    }
                     Key key = new Key(KeyTypes.LIBRARY, lib);
                     key.direct = true;
                     keys.add(key);
@@ -141,6 +163,73 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                 }
             }
             keys.addAll(libFolders);
+        }
+        //XXX get this from "npm root"
+        File userHomeModules = new File(new File(System.getProperty("user.home")), "node_modules");
+        userHomeModules = (userHomeModules.exists()) && (userHomeModules.isDirectory()) ? userHomeModules : null;
+
+        //XXX get this from "npm root -g"
+        File libModules = new File("/usr/lib/node_modules");
+        libModules = (libModules.exists()) && (libModules.isDirectory()) ? libModules : null;
+
+        String src = DefaultExectable.get().getSourcesLocation();
+        File nodeSources = src == null ? null : new File(src);
+        File libDir = nodeSources == null ? null : new File(nodeSources, "lib");
+
+        for (String lib : otherLibs.keySet()) {
+            if ("./".equals(lib)) {
+                continue;
+            }
+            if (userHomeModules != null) {
+                File f = new File(userHomeModules, lib);
+                if ((f.exists()) && (f.isDirectory())) {
+                    Key key = new Key(KeyTypes.LIBRARY, FileUtil.toFileObject(FileUtil.normalizeFile(f)));
+                    key.direct = true;
+                    keys.add(key);
+                    continue;
+                }
+            }
+            if (libModules != null) {
+                File f = new File(libModules, lib);
+                if ((f.exists()) && (f.isDirectory())) {
+                    Key key = new Key(KeyTypes.LIBRARY, FileUtil.toFileObject(FileUtil.normalizeFile(f)));
+                    keys.add(key);
+                    continue;
+                }
+            }
+            if (libDir != null) {
+                File f = new File(libDir, lib + ".js");
+                if ((f.exists()) && (f.isFile()) && (f.canRead())) {
+                    Key key = new Key(KeyTypes.LIBRARY, FileUtil.toFileObject(FileUtil.normalizeFile(f)));
+                    keys.add(key);
+                    continue;
+                }
+            }
+            if (Arrays.binarySearch(builtInNodeLibs, lib) >= 0) {
+                Key key = new NodeProjectSourceNodeFactory.Key.BuiltInLibrary(lib);
+                keys.add(key);
+                key.direct = true;
+                continue;
+            }
+            Key.MissingLibrary key = new Key.MissingLibrary(lib);
+            List<FileObject> referencedBy = otherLibs.get(lib);
+            List<String> paths = new LinkedList<String>();
+            for (FileObject fo : referencedBy) {
+                if (FileUtil.isParentOf(project.getProjectDirectory(), fo)) {
+                    paths.add (FileUtil.getRelativePath(project.getProjectDirectory(), fo));
+                } else {
+                    paths.add(fo.getPath());
+                }
+            }
+            key.references = paths;
+            keys.add(key);
+        }
+
+        for (FileObject fo : flds) {
+            if (fo.getName().equals("node_modules")) {
+                continue;
+            }
+            keys.add(new Key(KeyTypes.SOURCE, fo));
         }
         return keys;
     }
@@ -150,7 +239,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         if (libs != null) {
             for (FileObject fo : libFolder.getChildren()) {
                 for (FileObject lib : fo.getChildren()) {
-                    if (!"node_modules".equals(lib.getName()) && !"nbproject".equals(lib.getName()) && lib.isFolder()) {
+                    if ((!"node_modules".equals(lib.getName())) && (!"nbproject".equals(lib.getName())) && (lib.isFolder())) {
                         boolean jsFound = false;
                         for (FileObject kid : lib.getChildren()) {
                             jsFound = "js".equals(kid.getExt());
@@ -170,6 +259,35 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         }
     }
 
+    private Map<String, List<FileObject>> findOtherModules(FileObject fld) {
+        Map<String, List<FileObject>> libs = new HashMap<String,List<FileObject>>();
+        assert (!EventQueue.isDispatchThread());
+        for (FileObject fo : NbCollections.iterable(fld.getChildren(true))) {
+            if (("js".equals(fo.getExt())) && (fo.isData()) && (fo.canRead())) {
+                checkForLibraries(fo, libs);
+            }
+        }
+        return libs;
+    }
+
+    private void checkForLibraries(FileObject jsFile,Map<String, List<FileObject>> all) {
+        try {
+            String text = jsFile.asText();
+            Matcher m = CHECK_FOR_REQUIRE.matcher(text);
+            while (m.find()) {
+//                all.add(m.group(1));
+                List<FileObject> l = all.get(m.group(1));
+                if (l == null) {
+                    l = new LinkedList<FileObject>();
+                    all.put(m.group(1), l);
+                }
+                l.add(jsFile);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(NodeProjectSourceNodeFactory.class.getName()).log(Level.INFO, jsFile.getPath(), ex);
+        }
+    }
+
     @Override
     public void addChangeListener(ChangeListener l) {
         supp.addChangeListener(l);
@@ -181,12 +299,39 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
     }
 
     @Override
-    public Node node(Key key) {
+    public Node node(final Key key) {
         switch (key.type) {
             case LIBRARY:
                 return new LibraryFilterNode(key);
             case SOURCE:
                 return new FilterNode(nodeFromKey(key));
+            case BUILT_IN_LIBRARY:
+                AbstractNode li = new AbstractNode(Children.LEAF);
+                li.setName(key.toString());
+                li.setDisplayName(key.toString());
+                li.setShortDescription("Built-in library '" + key + "'");
+                li.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png"); //NOI18N
+                return li;
+            case MISSING_LIBRARY:
+                AbstractNode an = new AbstractNode(Children.LEAF) {
+                    @Override
+                    public String getHtmlDisplayName() {
+                        return "<font color=\"#EE0000\">" + key; //NOI18N
+                    }
+                };
+                an.setName(key.toString());
+                an.setDisplayName(key.toString());
+                StringBuilder sb = new StringBuilder("<html>Missing library <b><i>" + key + "</i></b>");
+                if (key instanceof Key.MissingLibrary && ((Key.MissingLibrary) key).references != null && !((Key.MissingLibrary) key).references.isEmpty()) {
+                    sb.append("<p>Referenced By<br><ul>");
+                    for (String path : ((Key.MissingLibrary) key).references) {
+                        sb.append("<li>").append(path).append("</li>\n");
+                    }
+                    sb.append("</ul></pre></blockquote></html>");
+                }
+                an.setShortDescription(sb.toString());
+                an.setIconBaseWithExtension("org/netbeans/modules/nodejs/resources/libs.png");
+                return an;                
             default:
                 throw new AssertionError();
         }
@@ -232,7 +377,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         //do nothing
     }
 
-    static final class Key {
+    static class Key {
 
         private final KeyTypes type;
         private final FileObject fld;
@@ -244,14 +389,43 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         }
 
         public String toString() {
-            return type + " " + fld.getName() + (direct ? " direct" : " indirect");
+            return type + " " + fld.getName() + (direct ? " direct" : " indirect"); //NOI18N
         }
+        
+        static class BuiltInLibrary extends Key {
+            private final String name;
+            BuiltInLibrary(String name) {
+                super (KeyTypes.BUILT_IN_LIBRARY, null);
+                this.name = name;
+            }
+            
+            @Override
+            public String toString() {
+                return name;
+            }
+        }
+        
+        static class MissingLibrary extends Key {
+            private final String name;
+            private List<String> references;
+            MissingLibrary(String name) {
+                super (KeyTypes.MISSING_LIBRARY, null);
+                this.name = name;
+            }
+            
+            @Override
+            public String toString() {
+                return name;
+            }
+        }
+        
     }
 
     static enum KeyTypes {
-
         SOURCE,
-        LIBRARY
+        LIBRARY,
+        BUILT_IN_LIBRARY,
+        MISSING_LIBRARY
     }
 
     interface LibrariesFolderFinder {
@@ -431,13 +605,13 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         public String getHtmlDisplayName() {
             StringBuilder sb = new StringBuilder();
             if (!key.direct) {
-                sb.append("<font color='!controlShadow'>");
+                sb.append("<font color='!controlDkShadow'>");
             }
             sb.append(getDisplayName());
             if (version != null) {
                 sb.append(" <i><font color='#9999AA'> ").append(version).append("</i>");
                 if (!key.direct) {
-                    sb.append("<font color='!controlShadow'>");
+                    sb.append("<font color='!controlDkShadow'>");
                 }
             }
             if (!key.direct) {
@@ -681,6 +855,32 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         @Override
         public void fileAttributeChanged(FileAttributeEvent fe) {
             //do nothing
+        }
+    }
+    private static class FOComparator
+            implements Comparator<FileObject> {
+
+        public int compare(FileObject o1, FileObject o2) {
+            boolean aJs = ("js".equals(o1.getExt())) || ("json".equals(o1.getExt()));
+            boolean bJs = ("js".equals(o2.getExt())) || ("json".equals(o2.getExt()));
+
+            boolean aFld = o1.isFolder();
+            boolean bFld = o2.isFolder();
+
+            if (aJs == bJs) {
+                if (aFld == bFld) {
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+                if (aFld) {
+                    return 1;
+                }
+                return -1;
+            }
+
+            if (aJs) {
+                return -1;
+            }
+            return 1;
         }
     }
 }

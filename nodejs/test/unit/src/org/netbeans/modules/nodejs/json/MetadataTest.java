@@ -40,12 +40,15 @@
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.nodejs.json;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
 import org.netbeans.modules.nodejs.ProjectMetadataImpl;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.nodejs.ProjectMetadata;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
@@ -56,8 +59,19 @@ import org.openide.util.Lookup;
  */
 public class MetadataTest {
     Fake fake = new Fake();
-    ProjectMetadata impl = new ProjectMetadataImpl(fake);
+    ProjectMetadataImpl impl = new ProjectMetadataImpl(fake);
     
+    @Test
+    public void testLoading() {
+        Map m = impl.getMap();
+        System.out.println("GOT " + m);
+        assertNotNull(m);
+        assertFalse(m.isEmpty());
+        assertEquals("recon", impl.getValue("name"));
+        assertEquals("0.0.8", impl.getValue("version"));
+        assertEquals("git", impl.getValue("repository.type"));
+    }
+
     @Test
     public void test() {
         impl.setValue("name", "thing");
@@ -77,6 +91,25 @@ public class MetadataTest {
     
     static class Fake implements Project {
         FileObject root = FileUtil.createMemoryFileSystem().getRoot();
+        
+        Fake() {
+            try {
+                InputStream in = MetadataTest.class.getResourceAsStream("package_0.json");
+                try {
+                    FileObject fo = root.createData("package.json");
+                    OutputStream out = fo.getOutputStream();
+                    try {
+                        FileUtil.copy(in, out);
+                    } finally {
+                        out.close();
+                    }
+                } finally {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                throw new Error(ex);
+            }
+        }
 
         public FileObject getProjectDirectory() {
             return root;

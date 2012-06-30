@@ -45,6 +45,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +68,6 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem.AtomicAction;
 import org.openide.filesystems.FileUtil;
@@ -179,21 +179,23 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
                     return map;
                 }
             }
-            FileLock fileLock = fo.lock();
             try {
                 SimpleJSONParser p = new SimpleJSONParser(true); //permissive mode - will parse as much as it can
-                Map<String, Object> m = p.parse(fo);
-                ProjectMetadataImpl.this.hasErrors = err = p.hasErrors();
-                synchronized (this) {
-                    map = Collections.synchronizedMap(m);
-                    return map;
+                InputStream in = fo.getInputStream();
+                try {
+                    Map<String, Object> m = p.parse(fo);
+                    ProjectMetadataImpl.this.hasErrors = err = p.hasErrors();
+                    synchronized (this) {
+                        map = Collections.synchronizedMap(m);
+                        return map;
+                    }
+                } finally {
+                    in.close();
                 }
             } catch (JsonException ex) {
                 Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
                         "Bad package.json in " + fo.getPath(), ex);
                 return new LinkedHashMap<String, Object>();
-            } finally {
-                fileLock.releaseLock();
             }
         } finally {
             lock.unlock();
@@ -203,7 +205,7 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
         }
     }
 
-    private final Map<String, Object> getMap() {
+    public final Map<String, Object> getMap() {
         Map<String, Object> result = map;
         if (result == null) {
             synchronized (this) {
@@ -212,7 +214,9 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
         }
         if (result == null) {
             final FileObject fo = project.getProjectDirectory().getFileObject("package.json");
+            System.out.println("GOT FO " + fo);
             if (fo == null) {
+                System.err.println("No package.json");
                 return new LinkedHashMap<String, Object>();
             }
             if (!listening) {
@@ -220,12 +224,13 @@ public final class ProjectMetadataImpl extends FileChangeAdapter implements Proj
                 fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
             }
             try {
+                System.out.println("LOAD " + fo);
                 result = load(fo);
                 synchronized (this) {
                     map = result;
                 }
             } catch (IOException ioe) {
-                Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.INFO,
+                Logger.getLogger(ProjectMetadataImpl.class.getName()).log(Level.WARNING,
                         "Problems loading " + fo.getPath(), ioe);
                 result = new LinkedHashMap<String,Object>();
             }

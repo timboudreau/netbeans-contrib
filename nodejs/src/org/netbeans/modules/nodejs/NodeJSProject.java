@@ -129,7 +129,7 @@ public class NodeJSProject implements Project, ProjectConfiguration, ActionProvi
     private final NodeJsClassPathProvider classpath = new NodeJsClassPathProvider();
     private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
     private final Sources sources = new NodeJSProjectSources(this);
-    private final Lookup lookup = Lookups.fixed(this, new NodeJSProjectProperties(this), classpath, sources);
+    private final Lookup lookup = Lookups.fixed(this, new NodeJSProjectProperties(this), classpath, sources, new NodeJsEncodingQuery());
 
     @SuppressWarnings("LeakingThisInConstructor")
     NodeJSProject(FileObject dir, ProjectState state) {

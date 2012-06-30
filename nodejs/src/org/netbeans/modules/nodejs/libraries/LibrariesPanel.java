@@ -378,9 +378,9 @@ public class LibrariesPanel extends javax.swing.JPanel implements Runnable, Docu
             }
         }
     }
-    private static final Pattern p = Pattern.compile(
-            "(\\S+)\\s+(.*)=(\\S+)"); //NOI18N
-
+    public static final Pattern p = Pattern.compile(
+            "^(\\S+)\\s+(.*?)=(\\S+).*?$", Pattern.MULTILINE | Pattern.DOTALL); //NOI18N
+    
     private void publish(CharSequence seq) {
         final Matcher m = p.matcher(seq);
         Process p;

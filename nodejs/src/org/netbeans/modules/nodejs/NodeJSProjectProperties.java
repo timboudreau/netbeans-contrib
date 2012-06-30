@@ -194,8 +194,16 @@ public class NodeJSProjectProperties {
                 fo = project.getProjectDirectory().createData(".nbrun");
             }
             OutputStream out = fo.getOutputStream();
-            PrintStream ps = new PrintStream(out);
-            ps.println(args);
+            try {
+                PrintStream ps = new PrintStream(out);
+                try {
+                    ps.println(args);
+                } finally {
+                    ps.close();
+                }
+            } finally {
+                out.close();
+            }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }

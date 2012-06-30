@@ -274,12 +274,16 @@ public final class DefaultExectable extends NodeJSExecutable {
             Process p = b.start();
             try {
                 InputStream in = p.getInputStream();
-                p.waitFor();
-                if (p.exitValue() == 0) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    FileUtil.copy(in, out);
-                    String result = new String(out.toByteArray()).trim(); //trim off \n
-                    return result.length() == 0 ? null : result;
+                try {
+                    p.waitFor();
+                    if (p.exitValue() == 0) {
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        FileUtil.copy(in, out);
+                        String result = new String(out.toByteArray()).trim(); //trim off \n
+                        return result.length() == 0 ? null : result;
+                    }
+                } finally {
+                    in.close();
                 }
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);

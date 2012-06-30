@@ -107,11 +107,11 @@ public final class SimpleJSONParser {
     }
 
     public Map<String, Object> parse(FileObject in) throws JsonException, IOException {
-        return parse(in.asText());
+        return parse(in.asText("UTF-8"));
     }
 
     public Map<String, Object> parse(InputStream in) throws JsonException, IOException {
-        return parse(in, null);
+        return parse(in, "UTF-8");
     }
 
     public Map<String, Object> parse(InputStream in, String encoding) throws JsonException, IOException {
@@ -139,15 +139,15 @@ public final class SimpleJSONParser {
     private final class CharVisitor {
 
         StringBuilder sb = new StringBuilder();
-        S s = BEGIN;
-        Stack<S> awaits = new Stack<S>();
+        S s = S.BEGIN;
+        Stack<S> awaits = new Stack();
+        char lastChar;
+        S stateBeforeComment;
 
         void setState(S s, char c, int pos) {
             stateChange(this.s, s, c, pos);
             this.s = s;
         }
-        char lastChar;
-        S stateBeforeComment;
 
         void visitChar(char c, int pos, int line, State state) throws JsonException {
             if (c == '/' && s != IN_ARRAY_ELEMENT && s != IN_KEY && s != IN_VALUE && s != AWAIT_BEGIN_COMMENT && s != IN_COMMENT && s != IN_LINE_COMMENT) {
@@ -274,6 +274,26 @@ public final class SimpleJSONParser {
                                 setState(AWAITING_COMPOUND_VALUE, c, pos);
                                 state.enterCompoundValue();
                                 break;
+                            case 'f':
+                            case 't':
+                                sb.append(c);
+                                setState(IN_BOOLEAN_VALUE, c, pos);
+                                break;
+                            case '-':
+                            case '.':
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                sb.append(c);
+                                setState(IN_NUMERIC_VALUE, c, pos);
+                                break;
                             default:
                                 error("Expected '\"' or ':' to start value", c, line, pos);
                         }
@@ -294,6 +314,26 @@ public final class SimpleJSONParser {
                             case '"':
                                 setState(S.IN_ARRAY_ELEMENT, c, pos);
                                 break;
+                            case 'f':
+                            case 't':
+                                setState(IN_BOOLEAN_ARRAY_ELEMENT, c, pos);
+                                sb.append(c);
+                                break;
+                            case '-':
+                            case '.':
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                setState(IN_NUMERIC_ARRAY_ELEMENT, c, pos);
+                                sb.append(c);
+                                break;
                             case ']':
                                 setState(AFTER_VALUE, c, pos);
                                 state.exitArrayValue();
@@ -310,6 +350,124 @@ public final class SimpleJSONParser {
                             return;
                         }
                         sb.append(c);
+                        break;
+                    case IN_NUMERIC_ARRAY_ELEMENT:
+                        if ((Character.isWhitespace(c)) || (c == ',') || (c == ']')) {
+                            if (sb.length() > 0) {
+                                state.numericArrayElement(sb.toString());
+                                sb.setLength(0);
+                            }
+                            if (Character.isWhitespace(c)) {
+                                setState(AFTER_ARRAY_ELEMENT, c, pos);
+                            } else {
+                                setState(c == ']' ? AFTER_VALUE : AWAITING_ARRAY_ELEMENT, c, pos);
+                                if (c == ']') {
+                                    state.exitArrayValue();
+                                }
+                            }
+                            return;
+                        }
+                        if ((c != '.') && (c != '-') && (!Character.isDigit(c))) {
+                            error("Invalid character in numeric array element: ", c, line, pos);
+                        } else {
+                            sb.append(c);
+                        }
+
+                        break;
+                    case IN_BOOLEAN_ARRAY_ELEMENT:
+                        if ((Character.isWhitespace(c)) || (c == ',') || (c == ']')) {
+                            if (sb.length() > 0) {
+                                state.booleanArrayElement(sb.toString());
+                                sb.setLength(0);
+                            }
+                            if (Character.isWhitespace(c)) {
+                                setState(AFTER_ARRAY_ELEMENT, c, pos);
+                            } else {
+                                setState(c == ']' ? AFTER_VALUE : AWAITING_ARRAY_ELEMENT, c, pos);
+                                if (c == ']') {
+                                    state.exitArrayValue();
+                                }
+                            }
+                            return;
+                        }
+                        if ((!"true".startsWith(sb.toString())) && (!"false".startsWith(sb.toString()))) {
+                            error("Invalid character in boolean array element for '" + this.sb + "': ", c, line, pos);
+                        } else {
+                            sb.append(c);
+                        }
+
+                        break;
+                    case IN_NUMERIC_VALUE:
+                        if ((Character.isWhitespace(c)) || (c == ',')) {
+                            setState(AWAITING_KEY, c, pos);
+                            state.numberValue(sb.toString());
+                            sb.setLength(0);
+                            return;
+                        }
+                        if ((Character.isDigit(c)) || (c == '.') || (c == '-')) {
+                            if ((sb.indexOf(".") >= 0) && (c == '.')) {
+                                error("Extra decimal in number: ", c, line, pos);
+                            } else {
+                                sb.append(c);
+                            }
+                        } else {
+                            error("Invalid character in number: ", c, line, pos);
+                        }
+                        break;
+                    case IN_BOOLEAN_VALUE:
+                        if ((Character.isWhitespace(c)) || (c == ',')) {
+                            setState(AWAITING_KEY, c, pos);
+                            state.booleanValue(sb.toString());
+                            sb.setLength(0);
+                            return;
+                        }
+                        char lc = sb.length() == 0 ? '\000' : sb.charAt(sb.length() - 1);
+                        switch (c) {
+                            case 'r':
+                                if (lc != 't') {
+                                    error("Invalid character in boolean - lc=" + lc + ": " + this.sb, c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            case 'u':
+                                if (lc != 'r') {
+                                    error("Invalid character in boolean: " + this.sb + " lc is " + lc + " - ", c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            case 'e':
+                                if ((lc != 'u') && (lc != 's')) {
+                                    error("Invalid character in boolean: ", c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            case 'a':
+                                if (lc != 'f') {
+                                    error("Invalid character in boolean: ", c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            case 'l':
+                                if (lc != 'a') {
+                                    error("Invalid character in boolean: ", c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            case 's':
+                                if (lc != 'l') {
+                                    error("Invalid character in boolean: ", c, line, pos);
+                                } else {
+                                    sb.append(c);
+                                }
+                                break;
+                            default:
+                                error("Invalid character in boolean: ", c, line, pos);
+                        }
                         break;
                     case IN_VALUE:
                         if (c == '"') {
@@ -405,18 +563,21 @@ public final class SimpleJSONParser {
         }
 
         private void stateChange(S s, S to, char c, int pos) {
-//            System.out.println("from " + s + " to " + to + " " + c + " at " + pos);
         }
     }
 
-    enum S {
+    public enum S {
 
         AWAIT_BEGIN_COMMENT,
         IN_COMMENT,
         IN_LINE_COMMENT,
         IN_KEY,
         IN_VALUE,
+        IN_NUMERIC_VALUE,
+        IN_BOOLEAN_VALUE,
         IN_ARRAY_ELEMENT,
+        IN_BOOLEAN_ARRAY_ELEMENT,
+        IN_NUMERIC_ARRAY_ELEMENT,
         BEGIN,
         AWAITING_KEY,
         AWAITING_COMPOUND_VALUE,
@@ -469,6 +630,76 @@ public final class SimpleJSONParser {
             }
             return AWAITING_KEY;
         }
+        
+
+        private void numericArrayElement(String value) {
+            try {
+                String key = (String) this.currKey.peek();
+                List l = null;
+                if ((l == null) && (!this.currList.isEmpty())) {
+                    l = (List) this.currList.peek();
+                } else if (l == null) {
+                    throw new SimpleJSONParser.Internal("No array present for array value " + value);
+                }
+                l.add(toNumber(value));
+            } catch (NumberFormatException nfe) {
+                throw new SimpleJSONParser.Internal("Bad number '" + value + "'");
+            }
+        }
+
+        private void booleanArrayElement(String value) {
+            String key = (String) this.currKey.peek();
+            List l = null;
+            if ((l == null) && (!this.currList.isEmpty())) {
+                l = (List) this.currList.peek();
+            } else if (l == null) {
+                throw new SimpleJSONParser.Internal("No array present for array value " + value);
+            }
+            if ("true".equals(value)) {
+                l.add(Boolean.valueOf(true));
+            } else if ("false".equals(value)) {
+                l.add(Boolean.valueOf(false));
+            } else {
+                throw new SimpleJSONParser.Internal("Illegal boolean value '" + value + "'");
+            }
+        }
+        
+        private void booleanValue(String s) {
+            if ("true".equals(s)) {
+                String key = (String) this.currKey.pop();
+                this.curr.put(key, Boolean.TRUE);
+            } else if ("false".equals(s)) {
+                String key = (String) this.currKey.pop();
+                this.curr.put(key, Boolean.FALSE);
+            } else {
+                throw new SimpleJSONParser.Internal("Invalid boolean '" + s + "'");
+            }
+        }
+
+        private Number toNumber(String toString) {
+            Number n;
+            if (toString.indexOf(".") >= 0) {
+                n = Double.valueOf(Double.parseDouble(toString));
+                if (n.floatValue() == n.doubleValue()) {
+                    n = Float.valueOf(n.floatValue());
+                }
+            } else {
+                n = Long.valueOf(Long.parseLong(toString));
+                if (n.longValue() == n.intValue()) {
+                    n = Integer.valueOf(n.intValue());
+                }
+            }
+            return n;
+        }
+
+        private void numberValue(String toString) {
+            try {
+                String key = (String) this.currKey.pop();
+                this.curr.put(key, toNumber(toString));
+            } catch (NumberFormatException nfe) {
+                throw new SimpleJSONParser.Internal("Invalid number '" + toString + "'");
+            }
+        }        
 
         public void enterCompoundValue() {
             String key = currKey.isEmpty() ? null : currKey.peek();
@@ -543,16 +774,29 @@ public final class SimpleJSONParser {
         Arrays.fill(indentChars, ' ');
         String ind = new String(indentChars);
         String indl = ind + "    ";
-        sb.append('\n').append(ind).append('[').append('\n');
-        for (Iterator<Object> it = l.iterator(); it.hasNext();) {
+        boolean inline = l.isEmpty() || l.get(0) instanceof Boolean || l.get(0) instanceof Number;
+        if (!inline) {
+            sb.append('\n').append(ind);
+        }
+        sb.append('[');
+        if (!inline) {
+            sb.append('\n');
+        }
+        int ix = 0;
+        for (Iterator it = l.iterator(); it.hasNext();) {
             Object o = it.next();
             if (o instanceof Map) {
                 Map<String, Object> mm = (Map<String, Object>) o;
                 out(mm, sb, indent + 1);
             } else if (o instanceof List) {
                 out((List) o, sb, indent + 1);
-            } else if (o instanceof CharSequence) {
-                String s = ("" + o).replace("\"", "\\\"");
+            } else if (((o instanceof Number)) || ((o instanceof Boolean))) {
+                sb.append(o);
+                if (it.hasNext()) {
+                    sb.append(',');
+                }
+            } else if ((o instanceof CharSequence)) {
+                String s = new StringBuilder().append("").append(o).toString().replace("\"", "\\\"");
                 sb.append(indl).append('"').append(s).append('"');
                 if (it.hasNext()) {
                     sb.append(',');
@@ -569,8 +813,12 @@ public final class SimpleJSONParser {
                     reflectOut(o, sb, indent + 1);
                 }
             }
+            ix++;
         }
-        sb.append(ind).append(']');
+        if (!inline) {
+            sb.append(ind);
+        }
+        sb.append(']');
     }
 
     private static final void reflectOut(Object o, StringBuilder sb, int indent) {
@@ -657,6 +905,8 @@ public final class SimpleJSONParser {
                 out((Map<String, Object>) e.getValue(), sb, indent + 1);
                 sb.append(ind);
                 sb.append('}');
+            } else if (((e.getValue() instanceof Number)) || ((e.getValue() instanceof Boolean))) {
+                sb.append(e.getValue());
             } else if (e.getValue().getClass().isArray()) {
                 if (e.getValue().getClass().getComponentType().isPrimitive()) {
                     Object[] o = Utilities.toObjectArray(e.getValue());
