@@ -211,7 +211,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                 key.direct = true;
                 continue;
             }
-            if (lib.startsWith("./")) {
+            if (lib.startsWith("./") || lib.startsWith("../")) {
 //                FileObject fo = project.getProjectDirectory().getFileObject(lib + ".js");
 //                if (fo != null) {
                     continue;
