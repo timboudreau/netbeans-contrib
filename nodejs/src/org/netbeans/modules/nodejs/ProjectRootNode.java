@@ -44,16 +44,21 @@ package org.netbeans.modules.nodejs;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.api.extexecution.ExecutionDescriptor;
+import org.netbeans.api.extexecution.ExecutionService;
+import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.ProjectUtils;
@@ -75,7 +80,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
@@ -133,47 +137,42 @@ public class ProjectRootNode extends AbstractNode {
                 if (DialogDisplayer.getDefault().notify(dd).equals(DialogDescriptor.OK_OPTION)) {
                     final Set<String> libraries = new HashSet<String>(pn.getLibraries());
                     if (libraries.size() > 0) {
+                        final AtomicInteger jobs = new AtomicInteger();
                         RequestProcessor.getDefault().post(new Runnable() {
 
                             @Override
                             public void run() {
-                                ProgressHandle h = ProgressHandleFactory.createHandle(NbBundle.getMessage(ProjectRootNode.class,
+                                final ProgressHandle h = ProgressHandleFactory.createHandle(NbBundle.getMessage(ProjectRootNode.class,
                                         "MSG_RUNNING_NPM", libraries.size(), project.getDisplayName())); //NOI18N
+                                final int totalLibs = libraries.size();
                                 try {
-                                    h.start((libraries.size() * 2) + 1);
-                                    List<Process> p = new ArrayList<Process>();
-                                    int uc = 0;
-                                    try {
-                                        for (String lib : libraries) {
-                                            h.progress(lib, ++uc);
-                                            ProcessBuilder pb = new ProcessBuilder("npm", "install", lib); //NOI18N
-                                            pb.directory(FileUtil.toFile(project.getProjectDirectory()));
-                                            try {
-                                                Process proc = pb.start();
-                                                p.add(proc);
-                                            } catch (IOException ex) {
-                                                Exceptions.printStackTrace(ex);
+                                    h.start(totalLibs * 2);
+                                    for (String lib : libraries) {
+                                        int job = jobs.incrementAndGet();
+                                        ExternalProcessBuilder epb = new ExternalProcessBuilder("npm").addArgument("install").addArgument(lib).workingDirectory(FileUtil.toFile(project.getProjectDirectory()));
+                                        final String libraryName = lib;
+                                        ExecutionDescriptor des = new ExecutionDescriptor().controllable(true).showProgress(true).showSuspended(true).frontWindow(false).controllable(true).optionsPath("Advanced/Node").postExecution(new Runnable(){
+                                            @Override
+                                            public void run() {
+                                                int ct = jobs.decrementAndGet();
+                                                if (ct == 0) {
+                                                    h.finish();
+                                                    project.getProjectDirectory().refresh();
+                                                    FileObject fo = project.getProjectDirectory().getFileObject("node_modules"); //NOI18N
+                                                    if (fo != null) {
+                                                        fo.refresh();
+                                                    }
+                                                    Children ch = NodeFactorySupport.createCompositeChildren(project, "Project/NodeJS/Nodes"); //NOI18N
+                                                    setChildren(ch);
+                                                } else {
+                                                    h.progress(NbBundle.getMessage(ProjectRootNode.class, "PROGRESS_LIBS_REMAINING", totalLibs - ct), totalLibs - ct); //NOI18N
+                                                    h.setDisplayName(libraryName);
+                                                }
                                             }
-                                        }
-                                        int ct = libraries.size() + 1;
-                                        for (Process proc : p) {
-                                            try {
-                                                proc.waitFor();
-                                                h.progress(NbBundle.getMessage(ProjectRootNode.class, "PROGRESS_LIBS_REMAINING", ct--), ++uc); //NOI18N
-                                            } catch (InterruptedException ex) {
-                                                Logger.getLogger(ProjectRootNode.class.getName()).log(Level.INFO, null, ex);
-                                            }
-                                        }
-                                    } finally {
-                                        project.getProjectDirectory().refresh();
-                                        FileObject fo = project.getProjectDirectory().getFileObject("node_modules"); //NOI18N
-                                        if (fo != null) {
-                                            fo.refresh();
-                                        }
+                                        }).charset(Charset.forName("UTF-8")).frontWindowOnError(true);
+                                        ExecutionService service = ExecutionService.newService(epb, des, lib);
+                                        service.run();
                                     }
-                                    h.progress(NbBundle.getMessage(ProjectRootNode.class, "PROGRESS_REFRESH_PROJECT"), ++uc);
-                                    Children ch = NodeFactorySupport.createCompositeChildren(project, "Project/NodeJS/Nodes"); //NOI18N
-                                    setChildren(ch);
                                 } finally {
                                     h.finish();
                                 }

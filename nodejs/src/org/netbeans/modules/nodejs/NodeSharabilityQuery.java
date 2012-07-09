@@ -42,22 +42,25 @@
 package org.netbeans.modules.nodejs;
 
 import java.io.File;
-import org.netbeans.api.queries.SharabilityQuery;
-import org.netbeans.spi.queries.SharabilityQueryImplementation;
+import java.net.URI;
+import org.netbeans.api.queries.SharabilityQuery.Sharability;
+import org.netbeans.spi.queries.SharabilityQueryImplementation2;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tim Boudreau
  */
-@ServiceProvider(service=SharabilityQueryImplementation.class)
-public class NodeSharabilityQuery implements SharabilityQueryImplementation {
+@ServiceProvider(service=SharabilityQueryImplementation2.class)
+public class NodeSharabilityQuery implements SharabilityQueryImplementation2 {
 
     @Override
-    public int getSharability(File file) {
+    public Sharability getSharability(URI uri) {
+        File file = Utilities.toFile(uri);
         if (".nbrun".equals(file.getName()) && new File(file.getParent(), "package.json").exists()) {
-            return SharabilityQuery.NOT_SHARABLE;
+            return Sharability.NOT_SHARABLE;
         }
-        return SharabilityQuery.UNKNOWN;
+        return Sharability.UNKNOWN;
     }
 }
