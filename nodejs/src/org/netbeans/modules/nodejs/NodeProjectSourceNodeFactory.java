@@ -235,7 +235,7 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
         }
         Collections.sort(keys);
         keys.addAll(0, sources);
-        for (Iterator<Key> it=keys.iterator(); it.hasNext();) {
+        outer:        for (Iterator<Key> it=keys.iterator(); it.hasNext();) {
             Key k = it.next();
             if (k.type == KeyTypes.MISSING_LIBRARY) {
                 for (Key k1 : new LinkedList<Key>(keys)) {
@@ -244,11 +244,14 @@ public class NodeProjectSourceNodeFactory implements NodeFactory, NodeList<Key>,
                     }
                     if (k.toString().equals(k1.toString()) && k1.type != KeyTypes.MISSING_LIBRARY) {
                         it.remove();
+                        break outer;
                     } else if (k.type == k1.type && k.toString().equals(k1.toString())) {
                         it.remove();
+                        break outer;
                     }
                     if (k.fld != null && k1.fld != null && k.fld.equals(k1.fld)) {
                         it.remove();
+                        break outer;
                     }
                 }
             }
