@@ -50,10 +50,11 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
 import org.netbeans.modules.java.hints.spiimpl.RulesManager;
-import org.openide.awt.ActionRegistration;
+import org.netbeans.spi.java.hints.Hint.Kind;
+import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -71,6 +72,10 @@ public final class GenerateHintWiki implements ActionListener {
     private  static final String HINTS_FOLDER = "org-netbeans-modules-java-hints/rules/hints/";  // NOI18N
 
     public void actionPerformed(ActionEvent e) {
+        System.out.println(generateWiki());
+    }
+    
+    public static String generateWiki() {
         Map<String, String> since = readSinceData();
         Map<String, List<HintMetadata>> category2Hint = new TreeMap<String, List<HintMetadata>>();
 
@@ -88,6 +93,10 @@ public final class GenerateHintWiki implements ActionListener {
 
         StringWriter baseOut = new StringWriter();
         PrintWriter out = new PrintWriter(baseOut);
+        int totalHints = 0;
+        int devHints = 0;
+        int totalSuggestions = 0;
+        int devSuggestions = 0;
 
         for (Entry<String, List<HintMetadata>> categoryEntry : category2Hint.entrySet()) {
             out.println("===" + categoryEntry.getKey() + "===");
@@ -106,17 +115,32 @@ public final class GenerateHintWiki implements ActionListener {
 
                     if (sinceVersion != null) {
                         out.print(" '''Since " + sinceVersion + "'''");
+                    } else {
+                        out.print(" '''In NetBeans 6.8 or earlier'''");
                     }
                 } else {
                     out.print(" '''In current development version'''");
+                    if (hm.kind == Kind.INSPECTION) {
+                        devHints++;
+                    } else {
+                        devSuggestions++;
+                    }
                 }
                 out.println();
                 out.println();
+                if (hm.kind == Kind.INSPECTION) {
+                    totalHints++;
+                } else {
+                    totalSuggestions++;
+                }
             }
         }
 
         out.close();
-        System.err.println(baseOut.toString());
+        
+        return "There are " + totalHints + " total hints/inspections, " + devHints + " of them in current development version only.\n\n" +
+               "There are " + totalSuggestions + " total suggestions/actions, " + devSuggestions + " of them in current development version only.\n\n" +
+               baseOut.toString();
     }
 
     static String getFileObjectLocalizedName( FileObject fo ) {
