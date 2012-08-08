@@ -161,6 +161,8 @@ public class NodeImpl extends AbstractNode {
         return super.getOpenedIcon(type);
     }
 
+    private static final String CONSTRUCTOR_NAME = "<init>";
+    
     public static Node createBreadcrumbs(final CompilationInfo info, TreePath path) {
         final Trees trees = info.getTrees();
         final SourcePositions sp = trees.getSourcePositions();
@@ -176,7 +178,14 @@ public class NodeImpl extends AbstractNode {
                 case ANNOTATION_TYPE:
                     return new NodeImpl(tph, iconFor(info, path), ((ClassTree) leaf).getSimpleName().toString(), info.getFileObject(), pos);
                 case METHOD:
-                    return new NodeImpl(tph, iconFor(info, path), ((MethodTree) leaf).getName().toString(), info.getFileObject(), pos);
+                    MethodTree mt = (MethodTree) leaf;
+                    CharSequence name;
+                    if (mt.getName().contentEquals(CONSTRUCTOR_NAME)) {
+                        name = ((ClassTree) path.getParentPath().getLeaf()).getSimpleName();
+                    } else {
+                        name = mt.getName();
+                    }
+                    return new NodeImpl(tph, iconFor(info, path), name.toString(), info.getFileObject(), pos);
                 case VARIABLE:
                     return new NodeImpl(tph, iconFor(info, path), ((VariableTree) leaf).getName().toString(), info.getFileObject(), pos);
                 case CASE:
@@ -232,17 +241,13 @@ public class NodeImpl extends AbstractNode {
                 case SWITCH:
                     sb = new StringBuilder("switch "); //NOI18N
                     sb.append("<font color=").append(COLOR).append(">"); // NOI18N
-                    sb.append("("); //NOI18N
                     sb.append(escape(((SwitchTree) leaf).getExpression().toString()));
-                    sb.append(")"); //NOI18N
                     sb.append("</font>"); //NOI18N
                     return new NodeImpl(tph, null, sb.toString(), info.getFileObject(), (int) sp.getStartPosition(path.getCompilationUnit(), leaf));
                 case SYNCHRONIZED:
                     sb = new StringBuilder("synchronized "); //NOI18N
                     sb.append("<font color=").append(COLOR).append(">"); // NOI18N
-                    sb.append("("); //NOI18N
                     sb.append(escape(((SynchronizedTree) leaf).getExpression().toString()));
-                    sb.append(")"); //NOI18N
                     sb.append("</font>"); //NOI18N
                     return new NodeImpl(tph, null, sb.toString(), info.getFileObject(), (int) sp.getStartPosition(path.getCompilationUnit(), leaf));
                 case TRY:
@@ -305,6 +310,7 @@ public class NodeImpl extends AbstractNode {
                             @Override public Void scan(Tree node, TreePath p) {
                                 if (node == null) return null;
                                 p = new TreePath(p, node);
+                                if (cc.getTreeUtilities().isSynthetic(p)) return null;
                                 Node n = createBreadcrumbs(cc, p);
                                 if (n != null) {
                                     toPopulate.add(n);
@@ -312,6 +318,9 @@ public class NodeImpl extends AbstractNode {
                                     return super.scan(node, p);
                                 }
                                 return null;
+                            }
+                            @Override public Void visitMethod(MethodTree node, TreePath p) {
+                                return scan(node.getBody(), p);
                             }
                         }, tp);
                     }
