@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.CompilationInfo.CacheClearPolicy;
 import org.netbeans.api.java.source.JavaParserResultTask;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.support.CaretAwareJavaSourceTaskFactory;
@@ -60,6 +61,7 @@ import org.netbeans.modules.parsing.spi.Scheduler;
 import org.netbeans.modules.parsing.spi.SchedulerEvent;
 import org.netbeans.modules.parsing.spi.SchedulerTask;
 import org.netbeans.modules.parsing.spi.TaskFactory;
+import org.netbeans.modules.parsing.spi.TaskIndexingMode;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 
@@ -73,7 +75,7 @@ public final class BreadCrumbsScanningTask extends JavaParserResultTask {
     private final AtomicBoolean cancel = new AtomicBoolean();
 
     private BreadCrumbsScanningTask() {
-        super(Phase.RESOLVED);
+        super(Phase.RESOLVED, TaskIndexingMode.ALLOWED_DURING_SCAN);
     }
 
     @Override
@@ -113,9 +115,11 @@ public final class BreadCrumbsScanningTask extends JavaParserResultTask {
 
         Collections.reverse(pathList);
 
-        Node root = null;
-        Node lastNode = null;
+        Node root;
+        Node lastNode;
 
+        lastNode = root = (Node) info.getCachedValue(BreadCrumbsScanningTask.class);
+        
         for (TreePath curr : pathList) {
             if (root == null) {
                 lastNode = root = NodeImpl.createBreadcrumbs(info, curr);
@@ -136,6 +140,8 @@ public final class BreadCrumbsScanningTask extends JavaParserResultTask {
 
         manager.setRootContext(root);
         manager.setExploredContext(lastNode);
+        
+        info.putCachedValue(BreadCrumbsScanningTask.class, root, CacheClearPolicy.ON_CHANGE);
     }
 
     @Override
