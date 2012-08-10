@@ -79,7 +79,7 @@ import org.openide.nodes.Node;
 public class BreadCrumbComponent extends JComponent implements PropertyChangeListener {
 
     public BreadCrumbComponent() {
-        setPreferredSize(new Dimension(Integer.MAX_VALUE, 24));
+        setPreferredSize(new Dimension(0, /*XXX:*/24));
         addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 expand(e);
