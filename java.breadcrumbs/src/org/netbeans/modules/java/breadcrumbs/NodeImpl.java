@@ -67,13 +67,17 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.swing.Action;
 import javax.swing.Icon;
+import org.netbeans.api.actions.Openable;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.java.source.UiUtils;
 import org.netbeans.api.java.source.ui.ElementIcons;
+import org.openide.actions.OpenAction;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
@@ -98,7 +102,7 @@ public class NodeImpl extends AbstractNode {
 //    private OpenAction openAction;
 
     public NodeImpl(TreePathHandle tph, Image icon, String htmlDisplayName, FileObject fileObject, int pos) {
-        super(Children.create(new ChildrenFactoryImpl(tph), false), Lookups.fixed(tph, Integer.valueOf(pos)));
+        super(Children.create(new ChildrenFactoryImpl(tph), false), Lookups.fixed(tph, Integer.valueOf(pos), new OpenableImpl(fileObject, pos)));
         this.icon = icon;
         this.htmlDisplayName = htmlDisplayName;
 //        this.openAction = new OpenAction(fileObject, pos);
@@ -111,7 +115,7 @@ public class NodeImpl extends AbstractNode {
 
     @Override
     public Action getPreferredAction() {
-        return null;//openAction;
+        return OpenAction.get(OpenAction.class);
     }
 
     @Override
@@ -335,6 +339,23 @@ public class NodeImpl extends AbstractNode {
         @Override
         protected Node createNodeForKey(Node key) {
             return key;
+        }
+        
+    }
+    
+    private static final class OpenableImpl implements Openable, OpenCookie {
+
+        private final FileObject file;
+        private final int pos;
+
+        public OpenableImpl(FileObject file, int pos) {
+            this.file = file;
+            this.pos = pos;
+        }
+        
+        @Override
+        public void open() {
+            UiUtils.open(file, pos);
         }
         
     }

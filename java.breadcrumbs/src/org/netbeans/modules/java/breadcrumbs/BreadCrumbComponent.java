@@ -53,6 +53,7 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -60,6 +61,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -339,6 +341,23 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
                 }
             }
         }, AWTEvent.MOUSE_EVENT_MASK);
+        
+        expandManager.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override public void propertyChange(PropertyChangeEvent evt) {
+                if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
+                    Node[] selected = expandManager.getSelectedNodes();
+                    if (selected.length == 1) {
+                        Action action = selected[0].getPreferredAction();
+                        
+                        if (action != null) {
+                            action.actionPerformed(new ActionEvent(selected[0], 0, ""));
+                        }
+                        
+                        popup.hide();
+                    }
+                }
+            }
+        });
         
         popup.show();
     }
