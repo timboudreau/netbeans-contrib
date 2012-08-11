@@ -315,7 +315,26 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
         expanded.setBorder(new LineBorder(Color.BLACK, 1));
         expanded.add(new ListView() {
             {
-                list.setVisibleRowCount(Math.min(what.getChildren().getNodesCount(), MAX_ROWS_IN_POP_UP));
+                int nodesCount = what.getChildren().getNodesCount();
+                
+                if (nodesCount >= MAX_ROWS_IN_POP_UP) {
+                    list.setVisibleRowCount(MAX_ROWS_IN_POP_UP);
+                } else {
+                    list.setVisibleRowCount(nodesCount);
+                    
+                    NodeRenderer nr = new NodeRenderer();
+                    int i = 0;
+                    int width = getPreferredSize().width;
+                    
+                    for (Node n : what.getChildren().getNodes()) {
+                        if (nr.getListCellRendererComponent(list, n, i, false, false).getPreferredSize().width > width) {
+                            Dimension pref = getPreferredSize();
+                            pref.height += getHorizontalScrollBar().getPreferredSize().height;
+                            setPreferredSize(pref);
+                            break;
+                        }
+                    }
+                }
             }
         }, BorderLayout.CENTER);
         expandManager.setRootContext(what);
