@@ -346,20 +346,23 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
         expanded.validate();
         
         final Popup popup = PopupFactory.getSharedInstance().getPopup(this, expanded, place.x, place.y - expanded.getPreferredSize().height);
-        
-        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+        final AWTEventListener multicastListener = new AWTEventListener() {
             @Override public void eventDispatched(AWTEvent event) {
-                if (event instanceof MouseEvent && ((MouseEvent) event).getClickCount() > 0) {
-                    Object source = event.getSource();
-                    while (source instanceof Component) {
-                        if (source == expanded) return ; //accept
-                        source = ((Component) source).getParent();
+                    if (event instanceof MouseEvent && ((MouseEvent) event).getClickCount() > 0) {
+                        Object source = event.getSource();
+                        
+                        while (source instanceof Component) {
+                            if (source == expanded) return ; //accept
+                            source = ((Component) source).getParent();
+                        }
+                        
+                        popup.hide();
+                        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
                     }
-                    popup.hide();
-                    Toolkit.getDefaultToolkit().removeAWTEventListener(this);
-                }
             }
-        }, AWTEvent.MOUSE_EVENT_MASK);
+        };
+        
+        Toolkit.getDefaultToolkit().addAWTEventListener(multicastListener, AWTEvent.MOUSE_EVENT_MASK);
         
         expandManager.addPropertyChangeListener(new PropertyChangeListener() {
             @Override public void propertyChange(PropertyChangeEvent evt) {
@@ -373,6 +376,7 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
                         }
                         
                         popup.hide();
+                        Toolkit.getDefaultToolkit().removeAWTEventListener(multicastListener);
                     }
                 }
             }
