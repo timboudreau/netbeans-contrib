@@ -131,7 +131,7 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
             rendered.paint(g);
             g.translate(-x, -insetHeight);
 
-            double angleX = height / 4;
+            double angleX = height / 3;
 
             x += sizes[i];
             
@@ -170,7 +170,7 @@ public class BreadCrumbComponent extends JComponent implements PropertyChangeLis
             i++;
         }
 
-        double angleX = height / 4;
+        double angleX = height / 3;
         
         setPreferredSize(new Dimension((int) (xTotal + (nodes.length - 1) * (SEPARATOR_INSETS * 2 + angleX) + START_INSET), (int) (height + 2 * INSET_HEIGHT)));
     }
