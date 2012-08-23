@@ -123,9 +123,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
             <file name="jemmy.xml" url="jemmy.xml">
                 <attr name="displayName" bundlevalue="org.netbeans.modules.jemmysupport.Bundle#jemmy"/>
             </file>
-            <file name="jellytools.xml" url="jellytools.xml">
-                <attr name="displayName" bundlevalue="org.netbeans.modules.jemmysupport.Bundle#jellytools"/>
-            </file>
         </folder>
     </folder>
     <folder name="Templates">
