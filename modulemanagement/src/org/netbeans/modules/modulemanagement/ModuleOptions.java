@@ -41,22 +41,16 @@
 
 package org.netbeans.modules.modulemanagement;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.netbeans.api.autoupdate.*;
@@ -68,11 +62,6 @@ import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionGroups;
 import org.netbeans.spi.sendopts.OptionProcessor;
-import org.openide.filesystems.FileLock;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
-import org.openide.modules.ModuleInfo;
 import org.openide.util.*;
 
 import static org.netbeans.modules.modulemanagement.Bundle.*;
@@ -222,47 +211,8 @@ public class ModuleOptions extends OptionProcessor {
         support.doOperation(null);
     }
 
-    @NbBundle.Messages({
-        "MSG_UpdateNoMatch=Nothing to update. The pattern {0} has no match among available updates.",
-        "MSG_Update=Will update {0}@{1} to version {2}"
-    })
     private void updateModules(Env env, String[] pattern) throws CommandException {
-        Pattern[] pats = findMatcher(env, pattern);
-        
-        List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
-        OperationContainer<InstallSupport> operate = OperationContainer.createForInternalUpdate();
-        for (UpdateUnit uu : units) {
-            if (uu.getInstalled() == null) {
-                continue;
-            }
-            final List<UpdateElement> updates = uu.getAvailableUpdates();
-            if (updates.isEmpty()) {
-                continue;
-            }
-            if (!matches(uu.getCodeName(), pats)) {
-                continue;
-            }
-            final UpdateElement ue = updates.get(0);
-            env.getOutputStream().println(
-                Bundle.MSG_Update(uu.getCodeName(), uu.getInstalled().getSpecificationVersion(), ue.getSpecificationVersion()
-            ));
-            operate.add(ue);
-        }
-        final InstallSupport support = operate.getSupport();
-        if (support == null) {
-            env.getOutputStream().println(Bundle.MSG_UpdateNoMatch(Arrays.asList(pats)));
-            return;
-        }
-        try {
-            final Validator res1 = support.doDownload(null, true);
-            Installer res2 = support.doValidate(res1, null);
-            Restarter res3 = support.doInstall(res2, null);
-            if (res3 != null) {
-                support.doRestart(res3, null);
-            }
-        } catch (OperationException ex) {
-            throw (CommandException)new CommandException(33, ex.getMessage()).initCause(ex);
-        }
+        installModules(env, pattern, true);
     }
 
     @NbBundle.Messages({
@@ -292,15 +242,21 @@ public class ModuleOptions extends OptionProcessor {
         return false;
     }
 
+    private void install(Env env, String[] pattern) throws CommandException {
+        installModules(env, pattern, false);
+    }
+    
     @NbBundle.Messages({
         "MSG_Installing=Installing {0}@{1}",
-        "MSG_InstallNoMatch=Cannot install. No match for {0}."
+        "MSG_InstallNoMatch=Cannot install. No match for {0}.",
+        "MSG_UpdateNoMatch=Nothing to update. The pattern {0} has no match among available updates.",
+        "MSG_Update=Will update {0}@{1} to version {2}"
     })
-    private void install(Env env, String[] pattern) throws CommandException {
+    private void installModules(Env env, String[] pattern, boolean update) throws CommandException {
         Pattern[] pats = findMatcher(env, pattern);
 
         List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
-        OperationContainer<InstallSupport> operate = OperationContainer.createForInstall();
+        OperationContainer<OperationSupport> operate = OperationContainer.createForDirectInstall();
         for (UpdateUnit uu : units) {
             if (uu.getInstalled() != null) {
                 continue;
@@ -312,21 +268,29 @@ public class ModuleOptions extends OptionProcessor {
                 continue;
             }
             UpdateElement ue = uu.getAvailableUpdates().get(0);
-            env.getOutputStream().println(
+            if (update) {
+                env.getOutputStream().println(
+                    Bundle.MSG_Update(uu.getCodeName(), uu.getInstalled().getSpecificationVersion(), ue.getSpecificationVersion()));
+            } else {
+                env.getOutputStream().println(
                     Bundle.MSG_Installing(uu.getCodeName(), ue.getSpecificationVersion()));
+            }
             operate.add(ue);
         }
-        final InstallSupport support = operate.getSupport();
+        final OperationSupport support = operate.getSupport();
         if (support == null) {
-            env.getOutputStream().println(Bundle.MSG_InstallNoMatch(Arrays.asList(pats)));
+            if (update) {
+                env.getOutputStream().println(Bundle.MSG_UpdateNoMatch(Arrays.asList(pats)));
+            } else {
+                env.getOutputStream().println(Bundle.MSG_InstallNoMatch(Arrays.asList(pats)));
+            }
             return;
         }
         try {
-            final Validator res1 = support.doDownload(null, true);
-            Installer res2 = support.doValidate(res1, null);
-            Restarter res3 = support.doInstall(res2, null);
-            if (res3 != null) {
-                support.doRestart(res3, null);
+            Restarter restarter = support.doOperation(null);
+            assert restarter == null;
+            if (restarter != null) {
+                support.doRestart(restarter, null);
             }
         } catch (OperationException ex) {
             throw (CommandException) new CommandException(33, ex.getMessage()).initCause(ex);
