@@ -43,7 +43,6 @@ package org.netbeans.modules.modulemanagement;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,11 +50,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.netbeans.api.autoupdate.*;
 import org.netbeans.api.autoupdate.InstallSupport.Installer;
 import org.netbeans.api.autoupdate.InstallSupport.Validator;
+import org.netbeans.api.autoupdate.OperationContainer.OperationInfo;
 import org.netbeans.api.autoupdate.OperationSupport.Restarter;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
@@ -68,7 +69,7 @@ import static org.netbeans.modules.modulemanagement.Bundle.*;
 
 /**
  *
- * @author Jaroslav Tulach
+ * @author Jaroslav Tulach, Jiri Rechtacek
  */
 @org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.sendopts.OptionProcessor.class)
 public class ModuleOptions extends OptionProcessor {
@@ -80,6 +81,7 @@ public class ModuleOptions extends OptionProcessor {
     private Option enable;
     private Option update;
     private Option refresh;
+    private Option updateAll;
     private Option both;
     
     /** Creates a new instance of ModuleOptions */
@@ -88,7 +90,8 @@ public class ModuleOptions extends OptionProcessor {
 
     @NbBundle.Messages({
         "MSG_UpdateModules=Updates all or specified modules",
-        "MSG_RefreshModules=Refresh catalog of available modules"
+        "MSG_UpdateAll=Updates all modules",
+        "MSG_Refresh=Refresh all catalogs"
     })
     private Option init() {
         if (both != null) {
@@ -107,9 +110,11 @@ public class ModuleOptions extends OptionProcessor {
         update = Option.shortDescription(
             Option.additionalArguments(Option.NO_SHORT_NAME, "update"), b, "MSG_UpdateModules"); // NOI18N
         refresh = Option.shortDescription(
-            Option.additionalArguments(Option.NO_SHORT_NAME, "refresh"), b, "MSG_RefreshModules"); // NOI18N
+            Option.withoutArgument(Option.NO_SHORT_NAME, "refresh"), b, "MSG_Refresh"); // NOI18N
+        updateAll = Option.shortDescription(
+            Option.withoutArgument(Option.NO_SHORT_NAME, "update-all"), b, "MSG_UpdateAll"); // NOI18N
         
-        Option oper = OptionGroups.oneOf(list, install, disable, enable, update, refresh);
+        Option oper = OptionGroups.someOf(refresh, list, install, disable, enable, update, updateAll);
         Option modules = Option.withoutArgument(Option.NO_SHORT_NAME, "modules");
         both = OptionGroups.allOf(modules, oper);
         return both;
@@ -155,6 +160,10 @@ public class ModuleOptions extends OptionProcessor {
     }
 
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
+        if (optionValues.containsKey(refresh)) {
+            refresh(env);
+        }
+        
         if (optionValues.containsKey(list)) {
             listAllModules(env.getOutputStream());
         }
@@ -178,11 +187,11 @@ public class ModuleOptions extends OptionProcessor {
         } catch (OperationException ex) {
             throw initCause(new CommandException(4), ex);
         }
+        if (optionValues.containsKey(updateAll)) {
+            updateAll(env);
+        }
         if (optionValues.containsKey(update)) {
             updateModules(env, optionValues.get(update));
-        }
-        if (optionValues.containsKey(refresh)) {
-            refresh(env);
         }
     }
 
@@ -211,8 +220,61 @@ public class ModuleOptions extends OptionProcessor {
         support.doOperation(null);
     }
 
-    private void updateModules(Env env, String[] pattern) throws CommandException {
-        installModules(env, pattern, true);
+    @NbBundle.Messages({
+        "MSG_UpdateNoMatch=Nothing to update. The pattern {0} has no match among available updates.",
+        "MSG_Update=Will update {0}@{1} to version {2}"
+    })
+    private void updateModules(Env env, String... pattern) throws CommandException {
+        if (! initialized()) {
+            refresh(env);
+        }
+        Pattern[] pats = findMatcher(env, pattern);
+        
+        List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
+        OperationContainer<InstallSupport> operate = OperationContainer.createForInternalUpdate();
+        for (UpdateUnit uu : units) {
+            if (uu.getInstalled() == null) {
+                continue;
+            }
+            if (! uu.getInstalled().isEnabled()) {
+                continue;
+            }
+            final List<UpdateElement> updates = uu.getAvailableUpdates();
+            if (updates.isEmpty()) {
+                continue;
+            }
+            if (pattern.length > 0 && !matches(uu.getCodeName(), pats)) {
+                continue;
+            }
+            final UpdateElement ue = updates.get(0);
+            env.getOutputStream().println(
+                Bundle.MSG_Update(uu.getCodeName(), uu.getInstalled().getSpecificationVersion(), ue.getSpecificationVersion()
+            ));
+            if (operate.canBeAdded(uu, ue)) {
+                LOG.fine("  ... update " + uu.getInstalled() + " -> " + ue);
+                OperationInfo<InstallSupport> info = operate.add(ue);
+                if (info != null) {
+                    Set<UpdateElement> requiredElements = info.getRequiredElements();
+                    LOG.fine("      ... add required elements: " + requiredElements);
+                    operate.add(requiredElements);
+                }
+            }
+        }
+        final InstallSupport support = operate.getSupport();
+        if (support == null) {
+            env.getOutputStream().println(Bundle.MSG_UpdateNoMatch(pats == null ? null : Arrays.asList(pats)));
+            return;
+        }
+        try {
+            final Validator res1 = support.doDownload(null, null, false);
+            Installer res2 = support.doValidate(res1, null);
+            Restarter res3 = support.doInstall(res2, null);
+            if (res3 != null) {
+                support.doRestart(res3, null);
+            }
+        } catch (OperationException ex) {
+            throw (CommandException)new CommandException(33, ex.getMessage()).initCause(ex);
+        }
     }
 
     @NbBundle.Messages({
@@ -242,21 +304,19 @@ public class ModuleOptions extends OptionProcessor {
         return false;
     }
 
-    private void install(Env env, String[] pattern) throws CommandException {
-        installModules(env, pattern, false);
-    }
-    
     @NbBundle.Messages({
         "MSG_Installing=Installing {0}@{1}",
-        "MSG_InstallNoMatch=Cannot install. No match for {0}.",
-        "MSG_UpdateNoMatch=Nothing to update. The pattern {0} has no match among available updates.",
-        "MSG_Update=Will update {0}@{1} to version {2}"
+        "MSG_InstallNoMatch=Cannot install. No match for {0}."
     })
-    private void installModules(Env env, String[] pattern, boolean update) throws CommandException {
+    private void install(Env env, String... pattern) throws CommandException {
+        if (! initialized()) {
+            refresh(env);
+        }
+
         Pattern[] pats = findMatcher(env, pattern);
 
         List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
-        OperationContainer<OperationSupport> operate = OperationContainer.createForDirectInstall();
+        OperationContainer<InstallSupport> operate = OperationContainer.createForInstall();
         for (UpdateUnit uu : units) {
             if (uu.getInstalled() != null) {
                 continue;
@@ -268,34 +328,41 @@ public class ModuleOptions extends OptionProcessor {
                 continue;
             }
             UpdateElement ue = uu.getAvailableUpdates().get(0);
-            if (update) {
-                env.getOutputStream().println(
-                    Bundle.MSG_Update(uu.getCodeName(), uu.getInstalled().getSpecificationVersion(), ue.getSpecificationVersion()));
-            } else {
-                env.getOutputStream().println(
+            env.getOutputStream().println(
                     Bundle.MSG_Installing(uu.getCodeName(), ue.getSpecificationVersion()));
-            }
             operate.add(ue);
         }
-        final OperationSupport support = operate.getSupport();
+        final InstallSupport support = operate.getSupport();
         if (support == null) {
-            if (update) {
-                env.getOutputStream().println(Bundle.MSG_UpdateNoMatch(Arrays.asList(pats)));
-            } else {
-                env.getOutputStream().println(Bundle.MSG_InstallNoMatch(Arrays.asList(pats)));
-            }
+            env.getOutputStream().println(Bundle.MSG_InstallNoMatch(Arrays.asList(pats)));
             return;
         }
         try {
-            Restarter restarter = support.doOperation(null);
-            assert restarter == null;
-            if (restarter != null) {
-                support.doRestart(restarter, null);
+            final Validator res1 = support.doDownload(null, null, false);
+            Installer res2 = support.doValidate(res1, null);
+            Restarter res3 = support.doInstall(res2, null);
+            if (res3 != null) {
+                support.doRestart(res3, null);
             }
         } catch (OperationException ex) {
-            throw (CommandException) new CommandException(33, ex.getMessage()).initCause(ex);
+            // a hack
+            if (OperationException.ERROR_TYPE.INSTALL.equals(ex.getErrorType())) {
+                // probably timeout of loading, don't report now
+                env.getOutputStream().println(ex.getLocalizedMessage());
+            } else {
+                throw (CommandException) new CommandException(33, ex.getMessage()).initCause(ex);
+            }
         }
     }
+    
+    private void updateAll(Env env) throws CommandException {
+        updateModules(env);
+    }
 
+    private boolean initialized() {
+        Preferences pref = NbPreferences.root ().node ("/org/netbeans/modules/autoupdate");
+        long last = pref.getLong("lastCheckTime", -1);
+        return last != -1;
+    }    
+    
 }
-

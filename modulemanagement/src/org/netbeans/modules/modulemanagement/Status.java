@@ -87,7 +87,8 @@ final class Status {
     @NbBundle.Messages({
         "MSG_Enabled=Enabled",
         "MSG_Disabled=Installed",
-        "MSG_UpdateAvailable=Upgrade to {0}"
+        "MSG_UpdateAvailable=Upgrade to {0}",
+        "MSG_Unknown=Unknown state"
     })
     private static Status installed(UpdateUnit uu) {
         assert uu.getInstalled() != null;
@@ -97,7 +98,11 @@ final class Status {
         if (!updates.isEmpty()) {
             install = Bundle.MSG_UpdateAvailable(updates.get(0).getSpecificationVersion());
         } else {
-            install = mi.isEnabled() ? Bundle.MSG_Enabled() : Bundle.MSG_Disabled();
+            if (mi == null) {
+                install = Bundle.MSG_Unknown();
+            } else {
+                install = mi.isEnabled() ? Bundle.MSG_Enabled() : Bundle.MSG_Disabled();
+            }
         }
         
         return new Status(install);
