@@ -6,10 +6,12 @@
             <folder name="text">
                 <folder name="html">
                     <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                    <attr name="position" intvalue="500"/>
                 </folder>
                 <folder name="plain">
                     <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.shadow">
                         <attr name="originalFile" stringvalue="/Navigator/Panels/text/html/org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                        <attr name="position" intvalue="500"/>
                     </file>
                 </folder>
             </folder>
@@ -17,6 +19,7 @@
                 <folder name="unknown">
                     <file name="org-netbeans-modules-genericnavigator-GenericNavPanel.shadow">
                         <attr name="originalFile" stringvalue="/Navigator/Panels/text/html/org-netbeans-modules-genericnavigator-GenericNavPanel.instance"/>
+                        <attr name="position" intvalue="500"/>
                     </file>
                 </folder>
             </folder>
