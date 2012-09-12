@@ -55,7 +55,6 @@ import com.oracle.nashorn.ir.LabelNode;
 import com.oracle.nashorn.ir.LineNumberNode;
 import com.oracle.nashorn.ir.LiteralNode;
 import com.oracle.nashorn.ir.Node;
-import com.oracle.nashorn.ir.NodeVisitor;
 import com.oracle.nashorn.ir.ObjectNode;
 import com.oracle.nashorn.ir.PropertyNode;
 import com.oracle.nashorn.ir.ReferenceNode;
@@ -69,171 +68,324 @@ import com.oracle.nashorn.ir.UnaryNode;
 import com.oracle.nashorn.ir.VarNode;
 import com.oracle.nashorn.ir.WhileNode;
 import com.oracle.nashorn.ir.WithNode;
-import com.oracle.nashorn.parser.Token;
+import com.oracle.nashorn.ir.visitor.NodeVisitor;
 
 /**
  *
  * @author petr
  */
-public abstract class ScannerVisitor extends NodeVisitor {
+public abstract class ScannerVisitor extends  NodeVisitor {
     
 
     public abstract Node scanOnSet(Node node, boolean onset);
     
     @Override
-    public Node visit(AccessNode accessNode, boolean onset) {
-        return scanOnSet(accessNode, onset);
-    }
-    
-    
-
-    @Override
-    public Node visit(BinaryNode iNode, boolean onset) {
-        return scanOnSet(iNode, onset);
+    public Node enter(AccessNode accessNode) {
+        return scanOnSet(accessNode, true);
     }
 
     @Override
-    public Node visit(Block block, boolean onset) {
-        return scanOnSet(block, onset);
+    public Node enter(BinaryNode iNode) {
+        return scanOnSet(iNode, true);
     }
 
     @Override
-    public Node visit(BreakNode breakNode, boolean onset) {
-        return scanOnSet(breakNode, onset);
+    public Node enter(Block block) {
+        return scanOnSet(block, true);
     }
 
     @Override
-    public Node visit(CallNode callNode, boolean onset) {
-        return scanOnSet(callNode, onset);
+    public Node enter(BreakNode breakNode) {
+        return scanOnSet(breakNode, true);
     }
 
     @Override
-    public Node visit(CaseNode caseNode, boolean onset) {
-        return scanOnSet(caseNode, onset);
+    public Node enter(CallNode callNode) {
+        return scanOnSet(callNode, true);
     }
 
     @Override
-    public Node visit(CatchNode catchNode, boolean onset) {
-        return scanOnSet(catchNode, onset);
+    public Node enter(CaseNode caseNode) {
+        return scanOnSet(caseNode, true);
     }
 
     @Override
-    public Node visit(ContinueNode continueNode, boolean onset) {
-        return scanOnSet(continueNode, onset);
+    public Node enter(CatchNode catchNode) {
+        return scanOnSet(catchNode, true);
     }
 
     @Override
-    public Node visit(ExecuteNode executeNode, boolean onset) {
-        return scanOnSet(executeNode, onset);
+    public Node enter(ContinueNode continueNode) {
+        return scanOnSet(continueNode, true);
+    }
+
+    @Override
+    public Node enter(ExecuteNode executeNode) {
+        return scanOnSet(executeNode, true);
     }
 
 //    @Override
-//    public Node visit(ErrorNode iNode, boolean onset) {
-//        return scanOnSet(accessNode, onset);
+//    public Node enter(ErrorNode iNode) {
+//        return scanOnSet(accessNode, true);
 //    }
     
     @Override
-    public Node visit(ForNode forNode, boolean onset) {
-        return scanOnSet(forNode, onset);
+    public Node enter(ForNode forNode) {
+        return scanOnSet(forNode, true);
     }
 
     @Override
-    public Node visit(FunctionNode functionNode, boolean onset) {
-        return scanOnSet(functionNode, onset);
+    public Node enter(FunctionNode functionNode) {
+        return scanOnSet(functionNode, true);
     }
 
     @Override
-    public Node visit(IdentNode identNode, boolean onset) {
-        return scanOnSet(identNode, onset);
+    public Node enter(IdentNode identNode) {
+        return scanOnSet(identNode, true);
     }
 
     @Override
-    public Node visit(IfNode ifNode, boolean onset) {
-        return scanOnSet(ifNode, onset);
+    public Node enter(IfNode ifNode) {
+        return scanOnSet(ifNode, true);
     }
 
     @Override
-    public Node visit(IndexNode indexNode, boolean onset) {
-        return scanOnSet(indexNode, onset);
+    public Node enter(IndexNode indexNode) {
+        return scanOnSet(indexNode, true);
     }
 
     @Override
-    public Node visit(LabelNode labeledNode, boolean onset) {
-        return scanOnSet(labeledNode, onset);
+    public Node enter(LabelNode labeledNode) {
+        return scanOnSet(labeledNode, true);
     }
 
     @Override
-    public Node visit(LineNumberNode node, boolean onset) {
-        return scanOnSet(node, onset);
+    public Node enter(LineNumberNode node) {
+        return scanOnSet(node, true);
     }
 
     @Override
-    public Node visit(LiteralNode literalNode, boolean onset) {
-        return scanOnSet(literalNode, onset);
+    public Node enter(LiteralNode literalNode) {
+        return scanOnSet(literalNode, true);
     }
 
     @Override
-    public Node visit(ObjectNode objectNode, boolean onset) {
-        return scanOnSet(objectNode, onset);
+    public Node enter(ObjectNode objectNode) {
+        return scanOnSet(objectNode, true);
     }
 
     @Override
-    public Node visit(PropertyNode propertyNode, boolean onset) {
-        return scanOnSet(propertyNode, onset);
+    public Node enter(PropertyNode propertyNode) {
+        return scanOnSet(propertyNode, true);
     }
 
     @Override
-    public Node visit(ReferenceNode node, boolean onset) {
-        return scanOnSet(node, onset);
+    public Node enter(ReferenceNode node) {
+        return scanOnSet(node, true);
     }
 
     @Override
-    public Node visit(ReturnNode returnNode, boolean onset) {
-        return scanOnSet(returnNode, onset);
+    public Node enter(ReturnNode returnNode) {
+        return scanOnSet(returnNode, true);
     }
 
     @Override
-    public Node visit(RuntimeNode runtimeNode, boolean onset) {
-        return scanOnSet(runtimeNode, onset);
+    public Node enter(RuntimeNode runtimeNode) {
+        return scanOnSet(runtimeNode, true);
     }
 
     @Override
-    public Node visit(SwitchNode switchNode, boolean onset) {
-        return scanOnSet(switchNode, onset);
+    public Node enter(SwitchNode switchNode) {
+        return scanOnSet(switchNode, true);
     }
 
     @Override
-    public Node visit(TernaryNode ternaryNode, boolean onset) {
-        return scanOnSet(ternaryNode, onset);
+    public Node enter(TernaryNode ternaryNode) {
+        return scanOnSet(ternaryNode, true);
     }
 
     @Override
-    public Node visit(ThrowNode throwNode, boolean onset) {
-        return scanOnSet(throwNode, onset);
+    public Node enter(ThrowNode throwNode) {
+        return scanOnSet(throwNode, true);
     }
 
     @Override
-    public Node visit(TryNode tryNode, boolean onset) {
-        return scanOnSet(tryNode, onset);
+    public Node enter(TryNode tryNode) {
+        return scanOnSet(tryNode, true);
     }
 
     @Override
-    public Node visit(UnaryNode unaryNode, boolean onset) {
-        return scanOnSet(unaryNode, onset);
+    public Node enter(UnaryNode unaryNode) {
+        return scanOnSet(unaryNode, true);
     }
 
     @Override
-    public Node visit(VarNode varNode, boolean onset) {
-        return scanOnSet(varNode, onset);
+    public Node enter(VarNode varNode) {
+        return scanOnSet(varNode, true);
     }
 
     @Override
-    public Node visit(WhileNode whileNode, boolean onset) {
-        return scanOnSet(whileNode, onset);
+    public Node enter(WhileNode whileNode) {
+        return scanOnSet(whileNode, true);
     }
 
     @Override
-    public Node visit(WithNode withNode, boolean onset) {
-        return scanOnSet(withNode, onset);
+    public Node enter(WithNode withNode) {
+        return scanOnSet(withNode, true);
+    }
+
+    @Override
+    public Node leave(AccessNode accessNode) {
+        return scanOnSet(accessNode, false);
+    }
+
+    @Override
+    public Node leave(BinaryNode iNode) {
+        return scanOnSet(iNode, false);
+    }
+
+    @Override
+    public Node leave(Block block) {
+        return scanOnSet(block, false);
+    }
+
+    @Override
+    public Node leave(BreakNode breakNode) {
+        return scanOnSet(breakNode, false);
+    }
+
+    @Override
+    public Node leave(CallNode callNode) {
+        return scanOnSet(callNode, false);
+    }
+
+    @Override
+    public Node leave(CaseNode caseNode) {
+        return scanOnSet(caseNode, false);
+    }
+
+    @Override
+    public Node leave(CatchNode catchNode) {
+        return scanOnSet(catchNode, false);
+    }
+
+    @Override
+    public Node leave(ContinueNode continueNode) {
+        return scanOnSet(continueNode, false);
+    }
+
+    @Override
+    public Node leave(ExecuteNode executeNode) {
+        return scanOnSet(executeNode, false);
+    }
+
+//    @Override
+//    public Node leave(ErrorNode iNode) {
+//        return scanOnSet(accessNode, false);
+//    }
+
+    @Override
+    public Node leave(ForNode forNode) {
+        return scanOnSet(forNode, false);
+    }
+
+    @Override
+    public Node leave(FunctionNode functionNode) {
+        return scanOnSet(functionNode, false);
+    }
+
+    @Override
+    public Node leave(IdentNode identNode) {
+        return scanOnSet(identNode, false);
+    }
+
+    @Override
+    public Node leave(IfNode ifNode) {
+        return scanOnSet(ifNode, false);
+    }
+
+    @Override
+    public Node leave(IndexNode indexNode) {
+        return scanOnSet(indexNode, false);
+    }
+
+    @Override
+    public Node leave(LabelNode labeledNode) {
+        return scanOnSet(labeledNode, false);
+    }
+
+    @Override
+    public Node leave(LineNumberNode node) {
+        return scanOnSet(node, false);
+    }
+
+    @Override
+    public Node leave(LiteralNode literalNode) {
+        return scanOnSet(literalNode, false);
+    }
+
+    @Override
+    public Node leave(ObjectNode objectNode) {
+        return scanOnSet(objectNode, false);
+    }
+
+    @Override
+    public Node leave(PropertyNode propertyNode) {
+        return scanOnSet(propertyNode, false);
+    }
+
+    @Override
+    public Node leave(ReferenceNode node) {
+        return scanOnSet(node, false);
+    }
+
+    @Override
+    public Node leave(ReturnNode returnNode) {
+        return scanOnSet(returnNode, false);
+    }
+
+    @Override
+    public Node leave(RuntimeNode runtimeNode) {
+        return scanOnSet(runtimeNode, false);
+    }
+
+    @Override
+    public Node leave(SwitchNode switchNode) {
+        return scanOnSet(switchNode, false);
+    }
+
+    @Override
+    public Node leave(TernaryNode ternaryNode) {
+        return scanOnSet(ternaryNode, false);
+    }
+
+    @Override
+    public Node leave(ThrowNode throwNode) {
+        return scanOnSet(throwNode, false);
+    }
+
+    @Override
+    public Node leave(TryNode tryNode) {
+        return scanOnSet(tryNode, false);
+    }
+
+    @Override
+    public Node leave(UnaryNode unaryNode) {
+        return scanOnSet(unaryNode, false);
+    }
+
+    @Override
+    public Node leave(VarNode varNode) {
+        return scanOnSet(varNode, false);
+    }
+
+    @Override
+    public Node leave(WhileNode whileNode) {
+        return scanOnSet(whileNode, false);
+    }
+
+    @Override
+    public Node leave(WithNode withNode) {
+        return scanOnSet(withNode, false);
     }
 }

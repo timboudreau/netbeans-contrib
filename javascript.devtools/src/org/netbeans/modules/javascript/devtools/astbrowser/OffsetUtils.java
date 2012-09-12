@@ -86,183 +86,179 @@ public class OffsetUtils {
         return new int[]{visitor.minOffset, visitor.maxOffset};
     }
     
-    private static class OffsetFinder extends com.oracle.nashorn.ir.NodeVisitor {
+    private static class OffsetFinder extends com.oracle.nashorn.ir.visitor.NodeVisitor {
         protected int minOffset = Integer.MAX_VALUE;
         protected int maxOffset = -1;
         
-        private Node findOffsets(Node node, boolean onset) {
-            if(onset) {
-                int min = node.position();
-                int max = min + node.length();
-                if (minOffset > min) {
-                    minOffset = min;
-                }
-                if (maxOffset < max) {
-                    maxOffset = max;
-                }
-            } 
+        private Node findOffsets(Node node) {
+            int min = node.position();
+            int max = min + node.length();
+            if (minOffset > min) {
+                minOffset = min;
+            }
+            if (maxOffset < max) {
+                maxOffset = max;
+            }
             return node;
             
         }
         
         @Override
-        public Node visit(AccessNode accessNode, boolean onset) {
-            return findOffsets(accessNode, onset);
+        public Node enter(AccessNode accessNode) {
+            return findOffsets(accessNode);
         }
 
         @Override
-        public Node visit(BinaryNode binaryNode, boolean onset) {
-            return findOffsets(binaryNode, onset);
+        public Node enter(BinaryNode binaryNode) {
+            return findOffsets(binaryNode);
         }
 
         @Override
-        public Node visit(Block block, boolean onset) {
-            return findOffsets(block, onset);
+        public Node enter(Block block) {
+            return findOffsets(block);
         }
 
         @Override
-        public Node visit(BreakNode breakNode, boolean onset) {
-            return findOffsets(breakNode, onset);
+        public Node enter(BreakNode breakNode) {
+            return findOffsets(breakNode);
         }
 
         @Override
-        public Node visit(CallNode callNode, boolean onset) {
-            return findOffsets(callNode, onset);
+        public Node enter(CallNode callNode) {
+            return findOffsets(callNode);
         }
 
         @Override
-        public Node visit(CaseNode caseNode, boolean onset) {
-            return findOffsets(caseNode, onset);
+        public Node enter(CaseNode caseNode) {
+            return findOffsets(caseNode);
         }
 
         @Override
-        public Node visit(CatchNode catchNode, boolean onset) {
-            return findOffsets(catchNode, onset);
+        public Node enter(CatchNode catchNode) {
+            return findOffsets(catchNode);
         }
 
         @Override
-        public Node visit(ContinueNode continueNode, boolean onset) {
-            return findOffsets(continueNode, onset);
+        public Node enter(ContinueNode continueNode) {
+            return findOffsets(continueNode);
         }
 
         @Override
-        public Node visit(ExecuteNode executeNode, boolean onset) {
-            return findOffsets(executeNode, onset);
+        public Node enter(ExecuteNode executeNode) {
+            return findOffsets(executeNode);
         }
 
         @Override
-        public Node visit(ForNode forNode, boolean onset) {
-            return findOffsets(forNode, onset);
+        public Node enter(ForNode forNode) {
+            return findOffsets(forNode);
         }
 
         @Override
-        public Node visit(FunctionNode functionNode, boolean onset) {
-            if (onset) {
-                int min = Token.descPosition(functionNode.getFirstToken());
-                int max = Token.descPosition(functionNode.getLastToken()) + Token.descLength(functionNode.getLastToken());
-                if (minOffset > min) {
-                    minOffset = min;
-                }
-                if (maxOffset < max) {
-                    maxOffset = max;
-                } 
+        public Node enter(FunctionNode functionNode) {
+            int min = Token.descPosition(functionNode.getFirstToken());
+            int max = Token.descPosition(functionNode.getLastToken()) + Token.descLength(functionNode.getLastToken());
+            if (minOffset > min) {
+                minOffset = min;
             }
-            return findOffsets(functionNode, onset);
+            if (maxOffset < max) {
+                maxOffset = max;
+            } 
+            return findOffsets(functionNode);
         }
 
         @Override
-        public Node visit(IdentNode identNode, boolean onset) {
-            return findOffsets(identNode, onset);
+        public Node enter(IdentNode identNode) {
+            return findOffsets(identNode);
         }
 
         @Override
-        public Node visit(IfNode ifNode, boolean onset) {
-            return findOffsets(ifNode, onset);
+        public Node enter(IfNode ifNode) {
+            return findOffsets(ifNode);
         }
 
         @Override
-        public Node visit(IndexNode indexNode, boolean onset) {
-            return findOffsets(indexNode, onset);
+        public Node enter(IndexNode indexNode) {
+            return findOffsets(indexNode);
         }
 
         @Override
-        public Node visit(LabelNode labeledNode, boolean onset) {
-            return findOffsets(labeledNode, onset);
+        public Node enter(LabelNode labeledNode) {
+            return findOffsets(labeledNode);
         }
 
         @Override
-        public Node visit(LineNumberNode lineNumberNode, boolean onset) {
-            return findOffsets(lineNumberNode, onset);
+        public Node enter(LineNumberNode lineNumberNode) {
+            return findOffsets(lineNumberNode);
         }
 
         @Override
-        public Node visit(LiteralNode literalNode, boolean onset) {
-            return findOffsets(literalNode, onset);
+        public Node enter(LiteralNode literalNode) {
+            return findOffsets(literalNode);
         }
 
         @Override
-        public Node visit(ObjectNode objectNode, boolean onset) {
-            return findOffsets(objectNode, onset);
+        public Node enter(ObjectNode objectNode) {
+            return findOffsets(objectNode);
         }
 
         @Override
-        public Node visit(PropertyNode propertyNode, boolean onset) {
-            return findOffsets(propertyNode, onset);
+        public Node enter(PropertyNode propertyNode) {
+            return findOffsets(propertyNode);
         }
 
         @Override
-        public Node visit(ReferenceNode referenceNode, boolean onset) {
-            return findOffsets(referenceNode, onset);
+        public Node enter(ReferenceNode referenceNode) {
+            return findOffsets(referenceNode);
         }
 
         @Override
-        public Node visit(ReturnNode returnNode, boolean onset) {
-            return findOffsets(returnNode, onset);
+        public Node enter(ReturnNode returnNode) {
+            return findOffsets(returnNode);
         }
 
         @Override
-        public Node visit(RuntimeNode runtimeNode, boolean onset) {
-            return findOffsets(runtimeNode, onset);
+        public Node enter(RuntimeNode runtimeNode) {
+            return findOffsets(runtimeNode);
         }
 
         @Override
-        public Node visit(SwitchNode switchNode, boolean onset) {
-            return findOffsets(switchNode, onset);
+        public Node enter(SwitchNode switchNode) {
+            return findOffsets(switchNode);
         }
 
         @Override
-        public Node visit(TernaryNode ternaryNode, boolean onset) {
-            return findOffsets(ternaryNode, onset);
+        public Node enter(TernaryNode ternaryNode) {
+            return findOffsets(ternaryNode);
         }
 
         @Override
-        public Node visit(ThrowNode throwNode, boolean onset) {
-            return findOffsets(throwNode, onset);
+        public Node enter(ThrowNode throwNode) {
+            return findOffsets(throwNode);
         }
 
         @Override
-        public Node visit(TryNode tryNode, boolean onset) {
-            return findOffsets(tryNode, onset);
+        public Node enter(TryNode tryNode) {
+            return findOffsets(tryNode);
         }
 
         @Override
-        public Node visit(UnaryNode unaryNode, boolean onset) {
-            return findOffsets(unaryNode, onset);
+        public Node enter(UnaryNode unaryNode) {
+            return findOffsets(unaryNode);
         }
 
         @Override
-        public Node visit(VarNode varNode, boolean onset) {
-            return findOffsets(varNode, onset);
+        public Node enter(VarNode varNode) {
+            return findOffsets(varNode);
         }
 
         @Override
-        public Node visit(WhileNode whileNode, boolean onset) {
-            return findOffsets(whileNode, onset);
+        public Node enter(WhileNode whileNode) {
+            return findOffsets(whileNode);
         }
 
         @Override
-        public Node visit(WithNode withNode, boolean onset) {
-            return findOffsets(withNode, onset);
+        public Node enter(WithNode withNode) {
+            return findOffsets(withNode);
         }
         
         

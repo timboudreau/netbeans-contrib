@@ -55,7 +55,6 @@ import com.oracle.nashorn.ir.LabelNode;
 import com.oracle.nashorn.ir.LineNumberNode;
 import com.oracle.nashorn.ir.LiteralNode;
 import com.oracle.nashorn.ir.Node;
-import com.oracle.nashorn.ir.NodeVisitor;
 import com.oracle.nashorn.ir.ObjectNode;
 import com.oracle.nashorn.ir.PropertyNode;
 import com.oracle.nashorn.ir.ReferenceNode;
@@ -69,6 +68,7 @@ import com.oracle.nashorn.ir.UnaryNode;
 import com.oracle.nashorn.ir.VarNode;
 import com.oracle.nashorn.ir.WhileNode;
 import com.oracle.nashorn.ir.WithNode;
+import com.oracle.nashorn.ir.visitor.NodeVisitor;
 import com.oracle.nashorn.parser.Token;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,66 +127,106 @@ public class SimpleTreeNodeVisitor extends NodeVisitor {
     
     
     @Override
-    public Node visit(AccessNode accessNode, boolean onset) {
-        return notComplete(accessNode, onset);
+    public Node enter(AccessNode accessNode) {
+        return notComplete(accessNode, true);
     }
 
     @Override
-    public Node visit(BinaryNode iNode, boolean onset) {
-        if (onset) {
+    public Node leave(AccessNode accessNode) {
+        return notComplete(accessNode, false);
+    }
+
+    @Override
+    public Node enter(BinaryNode iNode) {
 //            int[] offsets = OffsetUtils.getOffsets(iNode);
-            int[] offsets = new int[]{iNode.getStart(), iNode.getFinish()};
-            TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
-                iNode.getClass().getSimpleName() + " " + iNode.tokenType().getName(),
-                offsets[0], offsets[1]);
-            parentNode.addChild(adapter);
-            parents.add(parentNode);
-            parentNode = adapter;
-            
-        } else {
-            parentNode = parents.remove(parents.size() - 1);
-            
-        }
+        int[] offsets = new int[]{iNode.getStart(), iNode.getFinish()};
+        TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
+            iNode.getClass().getSimpleName() + " " + iNode.tokenType().getName(),
+            offsets[0], offsets[1]);
+        parentNode.addChild(adapter);
+        parents.add(parentNode);
+        parentNode = adapter;
         return iNode;
     }
 
     @Override
-    public Node visit(Block block, boolean onset) {
-        return notComplete(block, onset);
+    public Node leave(BinaryNode iNode) {
+        parentNode = parents.remove(parents.size() - 1);
+        return iNode;
     }
 
     @Override
-    public Node visit(BreakNode breakNode, boolean onset) {
-        return notComplete(breakNode, onset);
+    public Node enter(Block block) {
+        return notComplete(block, true);
     }
 
     @Override
-    public Node visit(CallNode callNode, boolean onset) {
-        return notComplete(callNode, onset);
+    public Node leave(Block block) {
+        return notComplete(block, false);
     }
 
     @Override
-    public Node visit(CaseNode caseNode, boolean onset) {
-        return notComplete(caseNode, onset);
+    public Node enter(BreakNode breakNode) {
+        return notComplete(breakNode, true);
     }
 
     @Override
-    public Node visit(CatchNode catchNode, boolean onset) {
-        return notComplete(catchNode, onset);
+    public Node leave(BreakNode breakNode) {
+        return notComplete(breakNode, false);
     }
 
     @Override
-    public Node visit(ContinueNode continueNode, boolean onset) {
-        return notComplete(continueNode, onset);
+    public Node enter(CallNode callNode) {
+        return notComplete(callNode, true);
     }
 
     @Override
-    public Node visit(ExecuteNode executeNode, boolean onset) {
-        return notComplete(executeNode, onset);
+    public Node leave(CallNode callNode) {
+        return notComplete(callNode, false);
+    }
+
+    @Override
+    public Node enter(CaseNode caseNode) {
+        return notComplete(caseNode, true);
+    }
+
+    @Override
+    public Node leave(CaseNode caseNode) {
+        return notComplete(caseNode, false);
+    }
+
+    @Override
+    public Node enter(CatchNode catchNode) {
+        return notComplete(catchNode, true);
+    }
+
+    @Override
+    public Node leave(CatchNode catchNode) {
+        return notComplete(catchNode, false);
+    }
+
+    @Override
+    public Node enter(ContinueNode continueNode) {
+        return notComplete(continueNode, true);
+    }
+
+    @Override
+    public Node leave(ContinueNode continueNode) {
+        return notComplete(continueNode, false);
+    }
+
+    @Override
+    public Node enter(ExecuteNode executeNode) {
+        return notComplete(executeNode, true);
+    }
+
+    @Override
+    public Node leave(ExecuteNode executeNode) {
+        return notComplete(executeNode, false);
     }
 
 //    @Override
-//    public Node visit(ErrorNode iNode, boolean onset) {
+//    public Node enter(ErrorNode iNode) {
 //        if (onset) {
 //            int[] offsets = new int[]{iNode.getStart(), iNode.getFinish()};
 //            TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode,
@@ -207,160 +247,252 @@ public class SimpleTreeNodeVisitor extends NodeVisitor {
     
 
     @Override
-    public Node visit(ForNode forNode, boolean onset) {
-        return notComplete(forNode, onset);
+    public Node enter(ForNode forNode) {
+        return notComplete(forNode, true);
+    }
+    @Override
+    public Node leave(ForNode forNode) {
+        return notComplete(forNode, false);
     }
 
     @Override
-    public Node visit(FunctionNode functionNode, boolean onset) {
-        if (onset) {
-            TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
-                functionNode.getClass().getSimpleName() + " <b>" + functionNode.getName() + "</b>",
-                "<html>Name: " + functionNode.getName() +"<br/>"
-                    + "Kind: " + functionNode.getKind().toString() +"<br/>"
-                    + "</html>",
-                   Token.descPosition(functionNode.getFirstToken()), Token.descPosition(functionNode.getLastToken()) + Token.descLength(functionNode.getLastToken()));
-                //(int)functionNode.position(), (int)(functionNode.position() + functionNode.length()));
-            parentNode.addChild(adapter);
-            parents.add(parentNode);
-            parentNode = adapter;
+    public Node enter(FunctionNode functionNode) {
+        TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
+            functionNode.getClass().getSimpleName() + " <b>" + functionNode.getName() + "</b>",
+            "<html>Name: " + functionNode.getName() +"<br/>"
+                + "Kind: " + functionNode.getKind().toString() +"<br/>"
+                + "</html>",
+               Token.descPosition(functionNode.getFirstToken()), Token.descPosition(functionNode.getLastToken()) + Token.descLength(functionNode.getLastToken()));
+            //(int)functionNode.position(), (int)(functionNode.position() + functionNode.length()));
+        parentNode.addChild(adapter);
+        parents.add(parentNode);
+        parentNode = adapter;
 //            parentNode.addChild(new TreeASTNodeAdapter(parentNode,
 //                    "Name: " + functionNode.getName(),
 //                    0,0));
-        } else {
-            parentNode = parents.remove(parents.size() - 1);
-        }
         return functionNode;
     }
 
     @Override
-    public Node visit(IdentNode identNode, boolean onset) {
-        if (onset) {
-            int[] offsets = new int[]{identNode.getStart(), identNode.getFinish()};
-            TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
-                identNode.getClass().getSimpleName() + " <b>" + identNode.getName() + "</b>",
-                offsets[0], offsets[1]);
-            parentNode.addChild(adapter);
-            parents.add(parentNode);
-            parentNode = adapter;
-//            return super.visit(identNode, onset);
-        } else {
-            parentNode = parents.remove(parents.size() - 1);
-//            return null;
-        }
+    public Node leave(FunctionNode functionNode) {
+        parentNode = parents.remove(parents.size() - 1);
+        return functionNode;
+    }
+
+    @Override
+    public Node enter(IdentNode identNode) {
+        int[] offsets = new int[]{identNode.getStart(), identNode.getFinish()};
+        TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
+            identNode.getClass().getSimpleName() + " <b>" + identNode.getName() + "</b>",
+            offsets[0], offsets[1]);
+        parentNode.addChild(adapter);
+        parents.add(parentNode);
+        parentNode = adapter;
+//            return super.visit(identNode, true);
         return identNode;
     }
 
     @Override
-    public Node visit(IfNode ifNode, boolean onset) {
-        return notComplete(ifNode, onset);
+    public Node leave(IdentNode identNode) {
+        parentNode = parents.remove(parents.size() - 1);
+        return identNode;
     }
 
     @Override
-    public Node visit(IndexNode indexNode, boolean onset) {
-        return notComplete(indexNode, onset);
+    public Node enter(IfNode ifNode) {
+        return notComplete(ifNode, true);
     }
 
     @Override
-    public Node visit(LabelNode labeledNode, boolean onset) {
-        return notComplete(labeledNode, onset);
+    public Node leave(IfNode ifNode) {
+        return notComplete(ifNode, false);
     }
 
     @Override
-    public Node visit(LineNumberNode node, boolean onset) {
-        return visitSimpleNode(node, "", "Line number: " + node.getLineNumber(), onset);
+    public Node enter(IndexNode indexNode) {
+        return notComplete(indexNode, true);
     }
 
     @Override
-    public Node visit(LiteralNode literalNode, boolean onset) {
-        return notComplete(literalNode, onset);
+    public Node leave(IndexNode indexNode) {
+        return notComplete(indexNode, false);
     }
 
     @Override
-    public Node visit(ObjectNode objectNode, boolean onset) {
-        return notComplete(objectNode, onset);
+    public Node enter(LabelNode labeledNode) {
+        return notComplete(labeledNode, true);
     }
 
     @Override
-    public Node visit(PropertyNode propertyNode, boolean onset) {
-        return notComplete(propertyNode, onset);
+    public Node leave(LabelNode labeledNode) {
+        return notComplete(labeledNode, false);
     }
 
     @Override
-    public Node visit(ReferenceNode node, boolean onset) {
-        if (onset) {
-            int[] offsets = OffsetUtils.getOffsets(node);
-            TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
-                node.getClass().getSimpleName(),
-                offsets[0], offsets[1]);
-            parentNode.addChild(adapter);
-            parents.add(parentNode);
-            parentNode = adapter;
-            Object ref = node.getReference();
-            if (ref != null) {
-                if (ref instanceof FunctionNode) {
-                    //((FunctionNode)ref).accept(this);
-                }
-                else 
-                    adapter.addChild(new TreeCreator.TreeASTNodeAdapter(parentNode,
-                        "<font color='gray'>" + ref.getClass().getSimpleName() + "</font>"));
+    public Node enter(LineNumberNode node) {
+        return visitSimpleNode(node, "", "Line number: " + node.getLineNumber(), true);
+    }
+
+    @Override
+    public Node leave(LineNumberNode node) {
+        return visitSimpleNode(node, "", "Line number: " + node.getLineNumber(), true);
+    }
+
+    @Override
+    public Node enter(LiteralNode literalNode) {
+        return notComplete(literalNode, true);
+    }
+
+    @Override
+    public Node leave(LiteralNode literalNode) {
+        return notComplete(literalNode, false);
+    }
+
+    @Override
+    public Node enter(ObjectNode objectNode) {
+        return notComplete(objectNode, true);
+    }
+
+    @Override
+    public Node leave(ObjectNode objectNode) {
+        return notComplete(objectNode, false);
+    }
+
+    @Override
+    public Node enter(PropertyNode propertyNode) {
+        return notComplete(propertyNode, true);
+    }
+
+    @Override
+    public Node leave(PropertyNode propertyNode) {
+        return notComplete(propertyNode, false);
+    }
+
+    @Override
+    public Node enter(ReferenceNode node) {
+        int[] offsets = OffsetUtils.getOffsets(node);
+        TreeCreator.TreeASTNodeAdapter adapter = new TreeCreator.TreeASTNodeAdapter(parentNode,
+            node.getClass().getSimpleName(),
+            offsets[0], offsets[1]);
+        parentNode.addChild(adapter);
+        parents.add(parentNode);
+        parentNode = adapter;
+        Object ref = node.getReference();
+        if (ref != null) {
+            if (ref instanceof FunctionNode) {
+                //((FunctionNode)ref).accept(this);
             }
-//            return node;
-        } else {
-            parentNode = parents.remove(parents.size() - 1);
-//            return null;
+            else 
+                adapter.addChild(new TreeCreator.TreeASTNodeAdapter(parentNode,
+                    "<font color='gray'>" + ref.getClass().getSimpleName() + "</font>"));
         }
         return node;
     }
 
     @Override
-    public Node visit(ReturnNode returnNode, boolean onset) {
-        return notComplete(returnNode, onset);
+    public Node leave(ReferenceNode node) {
+        parentNode = parents.remove(parents.size() - 1);
+        return node;
     }
 
     @Override
-    public Node visit(RuntimeNode runtimeNode, boolean onset) {
-        return notComplete(runtimeNode, onset);
+    public Node enter(ReturnNode returnNode) {
+        return notComplete(returnNode, true);
     }
 
     @Override
-    public Node visit(SwitchNode switchNode, boolean onset) {
-        return notComplete(switchNode, onset);
+    public Node leave(ReturnNode returnNode) {
+        return notComplete(returnNode, false);
     }
 
     @Override
-    public Node visit(TernaryNode ternaryNode, boolean onset) {
-        return notComplete(ternaryNode, onset);
+    public Node enter(RuntimeNode runtimeNode) {
+        return notComplete(runtimeNode, true);
     }
 
     @Override
-    public Node visit(ThrowNode throwNode, boolean onset) {
-        return notComplete(throwNode, onset);
+    public Node leave(RuntimeNode runtimeNode) {
+        return notComplete(runtimeNode, false);
     }
 
     @Override
-    public Node visit(TryNode tryNode, boolean onset) {
-        return notComplete(tryNode, onset);
+    public Node enter(SwitchNode switchNode) {
+        return notComplete(switchNode, true);
     }
 
     @Override
-    public Node visit(UnaryNode unaryNode, boolean onset) {
-        return notComplete(unaryNode, onset);
+    public Node leave(SwitchNode switchNode) {
+        return notComplete(switchNode, false);
     }
 
     @Override
-    public Node visit(VarNode varNode, boolean onset) {
-        return notComplete(varNode, onset);
+    public Node enter(TernaryNode ternaryNode) {
+        return notComplete(ternaryNode, true);
     }
 
     @Override
-    public Node visit(WhileNode whileNode, boolean onset) {
-        return notComplete(whileNode, onset);
+    public Node leave(TernaryNode ternaryNode) {
+        return notComplete(ternaryNode, false);
     }
 
     @Override
-    public Node visit(WithNode withNode, boolean onset) {
-        return notComplete(withNode, onset);
+    public Node enter(ThrowNode throwNode) {
+        return notComplete(throwNode, true);
+    }
+
+    @Override
+    public Node leave(ThrowNode throwNode) {
+        return notComplete(throwNode, false);
+    }
+
+    @Override
+    public Node enter(TryNode tryNode) {
+        return notComplete(tryNode, true);
+    }
+
+    @Override
+    public Node leave(TryNode tryNode) {
+        return notComplete(tryNode, false);
+    }
+
+    @Override
+    public Node enter(UnaryNode unaryNode) {
+        return notComplete(unaryNode, true);
+    }
+
+    @Override
+    public Node leave(UnaryNode unaryNode) {
+        return notComplete(unaryNode, false);
+    }
+
+    @Override
+    public Node enter(VarNode varNode) {
+        return notComplete(varNode, true);
+    }
+
+    @Override
+    public Node leave(VarNode varNode) {
+        return notComplete(varNode, false);
+    }
+
+    @Override
+    public Node enter(WhileNode whileNode) {
+        return notComplete(whileNode, true);
+    }
+
+    @Override
+    public Node leave(WhileNode whileNode) {
+        return notComplete(whileNode, false);
+    }
+
+    @Override
+    public Node enter(WithNode withNode) {
+        return notComplete(withNode, true);
+    }
+
+    @Override
+    public Node leave(WithNode withNode) {
+        return notComplete(withNode, false);
     }
     
 }

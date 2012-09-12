@@ -451,7 +451,7 @@ public class AstViewer extends TopComponent {
             //"--print-parse=true",    
             "--debug-lines=false",
             "--print-symbols=true", 
-            "--dump-ir-graph=true", 
+//            "--dump-ir-graph=true",
             "--print-symbols=true"});
         end = System.currentTimeMillis();
 //        System.out.println("Nashron creating options: " + (end - start));

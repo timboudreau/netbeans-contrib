@@ -55,7 +55,6 @@ import com.oracle.nashorn.ir.LabelNode;
 import com.oracle.nashorn.ir.LineNumberNode;
 import com.oracle.nashorn.ir.LiteralNode;
 import com.oracle.nashorn.ir.Node;
-import com.oracle.nashorn.ir.NodeVisitor;
 import com.oracle.nashorn.ir.ObjectNode;
 import com.oracle.nashorn.ir.PropertyNode;
 import com.oracle.nashorn.ir.ReferenceNode;
@@ -69,6 +68,7 @@ import com.oracle.nashorn.ir.UnaryNode;
 import com.oracle.nashorn.ir.VarNode;
 import com.oracle.nashorn.ir.WhileNode;
 import com.oracle.nashorn.ir.WithNode;
+import com.oracle.nashorn.ir.visitor.NodeVisitor;
 
 /**
  *
@@ -81,183 +81,183 @@ public class DefaultScanner extends NodeVisitor {
     }
     
     @Override
-    public Node visit(AccessNode accessNode, boolean onset) {
+    public Node enter(AccessNode accessNode) {
         scan(accessNode);
-        return super.visit(accessNode, onset);
+        return super.enter(accessNode);
     }
 
     @Override
-    public Node visit(BinaryNode binaryNode, boolean onset) {
+    public Node enter(BinaryNode binaryNode) {
         scan(binaryNode);
-        return super.visit(binaryNode, onset);
+        return super.enter(binaryNode);
     }
 
     @Override
-    public Node visit(Block block, boolean onset) {
+    public Node enter(Block block) {
         scan(block);
-        return super.visit(block, onset);
+        return super.enter(block);
     }
 
     @Override
-    public Node visit(BreakNode breakNode, boolean onset) {
+    public Node enter(BreakNode breakNode) {
         scan(breakNode);
-        return super.visit(breakNode, onset);
+        return super.enter(breakNode);
     }
 
     @Override
-    public Node visit(CallNode callNode, boolean onset) {
+    public Node enter(CallNode callNode) {
         scan(callNode);
-        return super.visit(callNode, onset);
+        return super.enter(callNode);
     }
 
     @Override
-    public Node visit(CaseNode caseNode, boolean onset) {
+    public Node enter(CaseNode caseNode) {
         scan(caseNode);
-        return super.visit(caseNode, onset);
+        return super.enter(caseNode);
     }
 
     @Override
-    public Node visit(CatchNode catchNode, boolean onset) {
+    public Node enter(CatchNode catchNode) {
         scan(catchNode);
-        return super.visit(catchNode, onset);
+        return super.enter(catchNode);
     }
 
     @Override
-    public Node visit(ContinueNode continueNode, boolean onset) {
+    public Node enter(ContinueNode continueNode) {
         scan(continueNode);
-        return super.visit(continueNode, onset);
+        return super.enter(continueNode);
     }
 
     @Override
-    public Node visit(ExecuteNode executeNode, boolean onset) {
+    public Node enter(ExecuteNode executeNode) {
         scan(executeNode);
-        return super.visit(executeNode, onset);
+        return super.enter(executeNode);
     }
 
     @Override
-    public Node visit(ForNode forNode, boolean onset) {
+    public Node enter(ForNode forNode) {
         scan(forNode);
-        return super.visit(forNode, onset);
+        return super.enter(forNode);
     }
 
     @Override
-    public Node visit(FunctionNode functionNode, boolean onset) {
+    public Node enter(FunctionNode functionNode) {
         scan(functionNode);
-        return super.visit(functionNode, onset);
+        return super.enter(functionNode);
     }
 
     @Override
-    public Node visit(IdentNode identNode, boolean onset) {
+    public Node enter(IdentNode identNode) {
         scan(identNode);
-        return super.visit(identNode, onset);
+        return super.enter(identNode);
     }
 
     @Override
-    public Node visit(IfNode ifNode, boolean onset) {
+    public Node enter(IfNode ifNode) {
         scan(ifNode);
-        return super.visit(ifNode, onset);
+        return super.enter(ifNode);
     }
 
     @Override
-    public Node visit(IndexNode indexNode, boolean onset) {
+    public Node enter(IndexNode indexNode) {
         scan(indexNode);
-        return super.visit(indexNode, onset);
+        return super.enter(indexNode);
     }
 
     @Override
-    public Node visit(LabelNode labeledNode, boolean onset) {
+    public Node enter(LabelNode labeledNode) {
         scan(labeledNode);
-        return super.visit(labeledNode, onset);
+        return super.enter(labeledNode);
     }
 
     @Override
-    public Node visit(LineNumberNode lineNumberNode, boolean onset) {
+    public Node enter(LineNumberNode lineNumberNode) {
         scan(lineNumberNode);
-        return super.visit(lineNumberNode, onset);
+        return super.enter(lineNumberNode);
     }
 
     @Override
-    public Node visit(LiteralNode literalNode, boolean onset) {
+    public Node enter(LiteralNode literalNode) {
         scan(literalNode);
-        return super.visit(literalNode, onset);
+        return super.enter(literalNode);
     }
 
     @Override
-    public Node visit(ObjectNode objectNode, boolean onset) {
+    public Node enter(ObjectNode objectNode) {
         scan(objectNode);
-        return super.visit(objectNode, onset);
+        return super.enter(objectNode);
     }
 
     @Override
-    public Node visit(PropertyNode propertyNode, boolean onset) {
+    public Node enter(PropertyNode propertyNode) {
         scan(propertyNode);
-        return super.visit(propertyNode, onset);
+        return super.enter(propertyNode);
     }
 
     @Override
-    public Node visit(ReferenceNode referenceNode, boolean onset) {
+    public Node enter(ReferenceNode referenceNode) {
         scan(referenceNode);
-        return super.visit(referenceNode, onset);
+        return super.enter(referenceNode);
     }
 
     @Override
-    public Node visit(ReturnNode returnNode, boolean onset) {
+    public Node enter(ReturnNode returnNode) {
         scan(returnNode);
-        return super.visit(returnNode, onset);
+        return super.enter(returnNode);
     }
 
     @Override
-    public Node visit(RuntimeNode runtimeNode, boolean onset) {
+    public Node enter(RuntimeNode runtimeNode) {
         scan(runtimeNode);
-        return super.visit(runtimeNode, onset);
+        return super.enter(runtimeNode);
     }
 
     @Override
-    public Node visit(SwitchNode switchNode, boolean onset) {
+    public Node enter(SwitchNode switchNode) {
         scan(switchNode);
-        return super.visit(switchNode, onset);
+        return super.enter(switchNode);
     }
 
     @Override
-    public Node visit(TernaryNode ternaryNode, boolean onset) {
+    public Node enter(TernaryNode ternaryNode) {
         scan(ternaryNode);
-        return super.visit(ternaryNode, onset);
+        return super.enter(ternaryNode);
     }
 
     @Override
-    public Node visit(ThrowNode throwNode, boolean onset) {
+    public Node enter(ThrowNode throwNode) {
         scan(throwNode);
-        return super.visit(throwNode, onset);
+        return super.enter(throwNode);
     }
 
     @Override
-    public Node visit(TryNode tryNode, boolean onset) {
+    public Node enter(TryNode tryNode) {
         scan(tryNode);
-        return super.visit(tryNode, onset);
+        return super.enter(tryNode);
     }
 
     @Override
-    public Node visit(UnaryNode unaryNode, boolean onset) {
+    public Node enter(UnaryNode unaryNode) {
         scan(unaryNode);
-        return super.visit(unaryNode, onset);
+        return super.enter(unaryNode);
     }
 
     @Override
-    public Node visit(VarNode varNode, boolean onset) {
+    public Node enter(VarNode varNode) {
         scan(varNode);
-        return super.visit(varNode, onset);
+        return super.enter(varNode);
     }
 
     @Override
-    public Node visit(WhileNode whileNode, boolean onset) {
+    public Node enter(WhileNode whileNode) {
         scan(whileNode);
-        return super.visit(whileNode, onset);
+        return super.enter(whileNode);
     }
 
     @Override
-    public Node visit(WithNode withNode, boolean onset) {
+    public Node enter(WithNode withNode) {
         scan(withNode);
-        return super.visit(withNode, onset);
+        return super.enter(withNode);
     }
    
 }
