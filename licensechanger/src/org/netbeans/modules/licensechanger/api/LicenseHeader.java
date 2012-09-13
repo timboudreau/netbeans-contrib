@@ -58,7 +58,7 @@ public final class LicenseHeader {
     public static LicenseHeader fromFileObject(FileObject file, String licenseName, boolean isNetBeansTemplate) {
         String name = licenseName==null?file.getName():licenseName;
         String content;
-        InputStream in;
+        InputStream in = null;
         try {
             in = new BufferedInputStream(file.getInputStream());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -69,6 +69,14 @@ public final class LicenseHeader {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             return null;
+        } finally {
+            try {
+                if(in!=null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
     
@@ -110,7 +118,9 @@ public final class LicenseHeader {
             Exceptions.printStackTrace(ex);
         } finally {
             try {
-                bos.close();
+                if(bos!=null) {
+                    bos.close();
+                }
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
