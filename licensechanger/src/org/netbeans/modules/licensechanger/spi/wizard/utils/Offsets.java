@@ -37,37 +37,26 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.licensechanger.api;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 /**
  *
  * @author Tim Boudreau
  */
-public abstract class RegexpFileHandler extends FileHandler {
-    private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
-        this.pattern = pattern;
+public final class Offsets {
+    private final int start;
+    private final int end;
+
+    public Offsets(int start, int end) {
+        this.start = start;
+        this.end = end;
     }
 
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
-        }
+    public int getEnd() {
+        return end;
     }
 
+    public int getStart() {
+        return start;
+    }
 }

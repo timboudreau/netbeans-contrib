@@ -37,37 +37,40 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.openide.explorer.view.CheckableNode;
 
 /**
- *
- * @author Tim Boudreau
+ * Implements {@see CheckableNode} to allow display and 
+ * use of checkable nodes in views.
+ * 
+ * @author Nils Hoffmann
  */
-public abstract class RegexpFileHandler extends FileHandler {
-    private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
-        this.pattern = pattern;
+public class CheckableNodeCapability implements CheckableNode {
+
+    private boolean checkable = true;
+    private boolean checkEnabled = true;
+    private boolean selected = true;
+    
+    @Override
+    public boolean isCheckable() {
+        return checkable;
     }
 
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
-        }
+    @Override
+    public boolean isCheckEnabled() {
+        return checkEnabled;
     }
 
+    @Override
+    public Boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public void setSelected(Boolean selected) {
+        this.selected = selected.booleanValue();
+    }
+    
 }

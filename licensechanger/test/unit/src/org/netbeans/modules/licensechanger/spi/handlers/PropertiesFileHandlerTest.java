@@ -37,37 +37,43 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.netbeans.modules.licensechanger.spi.handlers.PropertiesFileHandler;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Tim Boudreau
  */
-public abstract class RegexpFileHandler extends FileHandler {
-    private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
-        this.pattern = pattern;
-    }
+public class PropertiesFileHandlerTest {
 
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
+    @Test
+    public void testStuff() throws Exception {
+        System.out.println("testStuff");
+        String golden = getGolden();
+        String license = JavaFileHandlerTest.getLicense();
+        for (int i=1; i <= 4; i++) {
+            testOneVersion (golden, license, "props_" + i + ".txt");
         }
+        assertEquals (0, 0);
     }
 
+    private void testOneVersion(String golden, String license, String filename) throws Exception {
+        System.out.println("Test " + filename);
+        PropertiesFileHandler instance = new PropertiesFileHandler();
+        String original = JavaFileHandlerTest.readFile (filename);
+        String processed = instance.transform(original, license);
+//        if (!original.equals(processed)) {
+//            System.out.println("************************************");
+//            System.out.println(processed);
+//            System.out.println("************************************");
+//        }
+        JavaFileHandlerTest.assertEqualsLineByLine (golden, processed, filename);
+    }
+
+    private static String getGolden() throws Exception {
+        return JavaFileHandlerTest.readFile ("props_golden.txt");
+    }
 }

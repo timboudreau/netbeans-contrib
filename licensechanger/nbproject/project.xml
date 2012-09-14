@@ -4,14 +4,49 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.licensechanger</code-name-base>
+            <standalone/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.jdesktop.layout</code-name-base>
+                    <code-name-base>org.netbeans.api.progress</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.7</specification-version>
+                        <specification-version>1.26.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.freemarker</code-name-base>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>2.17.1.238</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.diff</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.35.1.42.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.40.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectuiapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.53.1.8</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -20,7 +55,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.14</specification-version>
+                        <specification-version>1.25.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -28,7 +63,15 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.6</specification-version>
+                        <specification-version>7.39.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.dialogs</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>7.23.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -36,7 +79,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.18</specification-version>
+                        <specification-version>6.40.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -44,7 +87,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.21</specification-version>
+                        <specification-version>7.53.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -52,7 +95,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.5</specification-version>
+                        <specification-version>7.32.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -60,7 +103,15 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.8</specification-version>
+                        <specification-version>7.25.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.text</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.43.3</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -68,7 +119,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>8.0</specification-version>
+                        <specification-version>8.19.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -76,7 +127,15 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>8.0</specification-version>
+                        <specification-version>8.11.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.windows</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.48.2</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
@@ -87,15 +146,16 @@
                         <code-name-base>org.netbeans.libs.junit4</code-name-base>
                         <compile-dependency/>
                     </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.nbjunit</code-name-base>
+                        <recursive/>
+                        <compile-dependency/>
+                    </test-dependency>
                 </test-type>
             </test-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.licensechanger.api</package>
             </public-packages>
-            <class-path-extension>
-                <runtime-relative-path>ext/wizard.java.net.264.jar</runtime-relative-path>
-                <binary-origin>external/wizard.java.net.264.jar</binary-origin>
-            </class-path-extension>
         </data>
     </configuration>
 </project>

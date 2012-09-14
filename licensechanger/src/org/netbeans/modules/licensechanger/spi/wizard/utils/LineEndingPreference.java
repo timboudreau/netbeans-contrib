@@ -37,37 +37,41 @@
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.openide.util.Utilities;
 
 /**
+ * User preference for line ending conversion
  *
  * @author Tim Boudreau
  */
-public abstract class RegexpFileHandler extends FileHandler {
-    private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
-        this.pattern = pattern;
-    }
-
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
+public enum LineEndingPreference {
+    FORCE_CRLF,
+    NO_CHANGE,
+    FORCE_NEWLINE,
+    SYSTEM_DEFAULT;
+    
+    public static String convertLineEndings (LineEndingPreference pref, String old, String nue) {
+        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
+        switch (pref) {
+            case FORCE_CRLF :
+                return Utilities.replaceString(nue, "\n", "\r\n"); //NOI18N
+            case FORCE_NEWLINE :
+                //We already converted everything to newline only on load
+                return nue;
+            case NO_CHANGE :
+                return oldHasCrlf ? Utilities.replaceString(nue, "\n", "\r\n") : //NOI18N
+                    nue;
+            case SYSTEM_DEFAULT :
+                String sep = System.getProperty( "line.separator" ); //NOI18N
+                if ("\n".equals(sep)) {
+                    return nue;
+                } else {
+                    return Utilities.replaceString (nue, "\n", sep); //NOI18N
+                }
+            default :
+                throw new AssertionError();
         }
     }
-
 }

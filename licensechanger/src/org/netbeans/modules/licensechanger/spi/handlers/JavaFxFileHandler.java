@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,40 +34,24 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
-/**
- *
- * @author Tim Boudreau
- */
-public abstract class RegexpFileHandler extends FileHandler {
-    private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
-        this.pattern = pattern;
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+public class JavaFxFileHandler extends JavaFileHandler {
+    @Override
+    public String getDisplayName() {
+        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
     }
 
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
-        }
+    @Override
+    public boolean match(FileObject file) {
+        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
     }
-
 }
+
