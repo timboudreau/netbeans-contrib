@@ -39,11 +39,10 @@
 
 package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.awt.Component;
 import java.io.CharConversionException;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.api.Customizable;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
 import org.openide.filesystems.FileObject;
@@ -156,7 +155,7 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
     }
 
     @Override
-    public String transform(String origText, String licenseText) {
+    public String transform(String origText, String licenseText, Map<String,Object> bindings) {
         String[] lines = splitIntoLines(origText);
         XmlDeclarationLocator v = new XmlDeclarationLocator();
         for (int i=0; i < lines.length; i++) {
@@ -170,7 +169,7 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
             origText = sb.toString();
         }
 //        String license = escape (licenseText);
-        String license = resolveLicenseTemplate(licenseText);
+        String license = resolveLicenseTemplate(licenseText, bindings);
         license = "\n" + license;
         StringBuilder sb = new StringBuilder (origText);
         Offsets o = getReplaceOffsets(sb);

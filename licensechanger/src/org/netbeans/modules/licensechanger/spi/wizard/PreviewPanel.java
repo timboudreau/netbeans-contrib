@@ -46,7 +46,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -81,6 +81,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
     private ItemLoader loader;
     private String licenseText;
     private Diff diff;
+    private Map<String, Object> properties;
 
     public PreviewPanel() {
         diff = Diff.getDefault();
@@ -123,6 +124,10 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
     public void setLicenseText(String licenseText) {
         this.licenseText = licenseText;
         firePropertyChange(WizardProperties.KEY_LICENSE_TEXT, null, this.licenseText);
+    }
+    
+    void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
 
     /** This method is called from within the constructor to
@@ -202,6 +207,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
                 if (item != null) {
                     setFileItem(item);
                     // XXX use FileUtil.getFileDisplayName rather than FileObject.getPath
+                    
                     jLabel3.setText (item.getFile().getPath());
                 } else {
 //                    before.setText("");
@@ -347,7 +353,9 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         }
 
         private String transform(String beforeText, FileHandler handler) {
-            return handler.transform(beforeText, licenseText);
+            return handler.transform(beforeText, licenseText, 
+                    properties == null ? Collections.<String,Object>emptyMap() : 
+                    properties);
         }
     }
 }

@@ -122,6 +122,7 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
         if(license!=null) {
             getComponent().setLicenseText(license);
         }
+        getComponent().setProperties(wiz.getProperties());
         Set<FileHandler> fileHandler = (Set<FileHandler>)wiz.getProperty(WizardProperties.KEY_FILE_HANDLERS);
         Set<FileObject> folders = (Set<FileObject>)wiz.getProperty(WizardProperties.KEY_FOLDERS);
         if(fileHandler!=null && folders != null) {

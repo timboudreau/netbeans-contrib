@@ -44,7 +44,7 @@ package org.netbeans.modules.licensechanger.spi.wizard.utils;
  * 
  * @author Nils Hoffmann
  */
-public class WizardProperties {
+public final class WizardProperties {
 
     public static final String KEY_FILE_HANDLERS = "fileHandlers";
     public static final String KEY_ITEMS = "fileItems";
@@ -57,4 +57,6 @@ public class WizardProperties {
     public static final String PROP_ENDING = "ending";
     public static final String KEY_ENDING = "line_terminator";
     public static final String KEY_PROJECT = "project";
+    public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
+    private WizardProperties(){}
 }

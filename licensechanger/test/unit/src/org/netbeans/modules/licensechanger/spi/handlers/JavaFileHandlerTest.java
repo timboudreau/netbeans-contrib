@@ -41,6 +41,8 @@ package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Map;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.netbeans.modules.licensechanger.api.FileHandler;
@@ -52,6 +54,8 @@ import org.openide.util.Utilities;
  * @author Tim Boudreau
  */
 public class JavaFileHandlerTest {
+    
+    private final Map<String,Object> props = Collections.emptyMap();
 
     @Test
     public void testStuff() throws Exception {
@@ -68,7 +72,7 @@ public class JavaFileHandlerTest {
         System.out.println("Test " + filename);
         JavaFileHandler instance = new JavaFileHandler();
         String original = readFile (filename);
-        String processed = instance.transform(original, license);
+        String processed = instance.transform(original, license, props);
         assertEqualsLineByLine (golden, processed, filename);
     }
 

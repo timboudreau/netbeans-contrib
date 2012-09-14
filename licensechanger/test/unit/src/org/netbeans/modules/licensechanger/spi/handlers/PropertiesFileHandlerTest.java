@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.licensechanger.spi.handlers;
 
+import java.util.Collections;
+import java.util.Map;
 import org.netbeans.modules.licensechanger.spi.handlers.PropertiesFileHandler;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -48,6 +50,7 @@ import static org.junit.Assert.*;
  * @author Tim Boudreau
  */
 public class PropertiesFileHandlerTest {
+    private final Map<String,Object> props = Collections.emptyMap();
 
     @Test
     public void testStuff() throws Exception {
@@ -64,7 +67,7 @@ public class PropertiesFileHandlerTest {
         System.out.println("Test " + filename);
         PropertiesFileHandler instance = new PropertiesFileHandler();
         String original = JavaFileHandlerTest.readFile (filename);
-        String processed = instance.transform(original, license);
+        String processed = instance.transform(original, license, props);
 //        if (!original.equals(processed)) {
 //            System.out.println("************************************");
 //            System.out.println(processed);

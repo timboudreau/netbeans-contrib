@@ -43,6 +43,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +52,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -91,7 +93,7 @@ public abstract class FileHandler {
      * @return the resolved licenseText
      * @throws RuntimeException
      */
-    public String resolveLicenseTemplate(String licenseText) throws RuntimeException {
+    public String resolveLicenseTemplate(String licenseText, Map<String, Object> additionalBindings) throws RuntimeException {
         if (licenseText.contains("${licenseFirst}") && licenseText.contains("${licensePrefix}") && licenseText.contains("${licenseLast}")) {
             System.out.println("License is a freemarker template!");
             //freemarker template
@@ -103,27 +105,36 @@ public abstract class FileHandler {
                 Properties props = new Properties();
                 try {
                     props.load(licenseTemplates.getInputStream());
-                    for (String key : props.stringPropertyNames()) {
-                        bindings.put(key, props.getProperty(key));
-                    }
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                     throw new RuntimeException(ex);
+                }
+                for (String key : props.stringPropertyNames()) {
+                    bindings.put(key, props.getProperty(key));
+                }
+                String copyrightHolder = props.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
+                if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
+                    bindings.put("user", copyrightHolder);
                 }
                 bindings.put("licenseFirst", licenseFirst());
                 bindings.put("licensePrefix", licensePrefix());
                 bindings.put("licenseLast", licenseLast());
                 bindings.put("date", new Date());
+                for (Map.Entry<String,Object> e : additionalBindings.entrySet()) {
+                    bindings.put (e.getKey(), e.getValue());
+                }
                 if (props.containsKey("project.organization")) {
                     Project project = new Project(props.getProperty("project.organization"));
                     System.out.println("Using project.organization: " + props.getProperty("project.organization"));
                     bindings.put("project", project);
                     bindings.put("user", null);
                 } else {
-                    String user = props.getProperty("user", System.getProperty("user.name"));
+                    Object user = additionalBindings.containsKey(WizardProperties.KEY_COPYRIGHT_HOLDER) ? additionalBindings.get(WizardProperties.KEY_COPYRIGHT_HOLDER) : props.getProperty("user", System.getProperty("user.name"));
                     System.out.println("Using user: " + user);
                     bindings.put("project", new Project(null));
-                    bindings.put("user", user);
+                    if (!bindings.containsKey("user")) {
+                        bindings.put("user", user);
+                    }
                 }
                 StringWriter writer = new StringWriter();
                 try {
@@ -148,11 +159,11 @@ public abstract class FileHandler {
         }
     }
 
-    public String transform(String origText, String licenseText) {
+    public String transform(String origText, String licenseText, Map<String, Object> bindings) {
         Offsets offsets = getReplaceOffsets(origText);
         System.err.println("Will delete from " + offsets.getStart() + " to " + offsets.getEnd());
         StringBuilder after = new StringBuilder(origText);
-        String escaped = resolveLicenseTemplate(licenseText);
+        String escaped = resolveLicenseTemplate(licenseText, bindings);
         after.delete(offsets.getStart(), offsets.getEnd());
         after.insert(offsets.getStart(), escaped);
         return after.toString();

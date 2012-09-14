@@ -40,12 +40,10 @@ package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Properties;
 import java.util.Set;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.*;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel;
 import org.openide.WizardDescriptor;
@@ -81,12 +79,11 @@ public class LicenseChangerRunnable implements Runnable {
                 handle.progress(item.getFile().getNameExt(), ix);
                 try {
                     String content = FileLoader.loadFile(item.file);
-                    String nue = item.handler.transform(content, licenseText);
+                    String nue = item.handler.transform(content, licenseText, wizard.getProperties());
                     LineEndingPreference pref = LineEndingsPanel.getLineEndingPrefs();
                     nue = LineEndingPreference.convertLineEndings(pref, content, nue);
 
                     enc = FileEncodingQuery.getEncoding(item.file);
-                    BufferedOutputStream out = new BufferedOutputStream(item.file.getOutputStream());
                     byte[] bytes;
                     try {
                         bytes = nue.getBytes(enc.name());
@@ -95,6 +92,7 @@ public class LicenseChangerRunnable implements Runnable {
                         bytes = nue.getBytes(FileEncodingQuery.getDefaultEncoding().name());
                     }
                     ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                    BufferedOutputStream out = new BufferedOutputStream(item.file.getOutputStream());
                     try {
                         FileUtil.copy(in, out);
                     } finally {
@@ -126,15 +124,20 @@ public class LicenseChangerRunnable implements Runnable {
                                         try {
                                             InputStream istream = projectProps.getInputStream();
                                             EditableProperties props = new EditableProperties(true);
-                                            props.load(istream);
-                                            istream.close();
+                                            try {
+                                                props.load(istream);
+                                            } finally {
+                                                istream.close();
+                                            }
                                             props.setProperty("project.license", licenseName);
                                             OutputStream ostream = projectProps.getOutputStream();
-                                            props.store(ostream);
-                                            ostream.close();
+                                            try {
+                                                props.store(ostream);
+                                            } finally {
+                                                ostream.close();
+                                            }
                                         } catch (IOException ex) {
                                             Exceptions.printStackTrace(ex);
-                                        } finally {
                                         }
                                     }
                                 });

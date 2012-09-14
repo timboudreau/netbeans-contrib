@@ -47,6 +47,7 @@ import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbPreferences;
 
 /**
  * 
@@ -112,6 +113,11 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         wiz.putProperty(WizardProperties.KEY_FILE_HANDLERS, getComponent().getFileHandlers());
+        String copyrightHolder = getComponent().getCopyrightHolder();
+        if (copyrightHolder != null && !copyrightHolder.isEmpty()) {
+            wiz.putProperty(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
+            NbPreferences.forModule(ChooseFileTypesWizardPanel.class).put(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
+        }
     }
 
     @Override

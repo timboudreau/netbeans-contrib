@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.licensechanger.spi.handlers;
 
+import java.util.Collections;
+import java.util.Map;
 import org.netbeans.modules.licensechanger.spi.handlers.XmlFileHandler;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -51,6 +53,8 @@ import static org.junit.Assert.*;
  * @author Tim Boudreau
  */
 public class XmlFileHandlerTest {
+    private final Map<String,Object> props = Collections.emptyMap();
+    
     @Test
     public void testDeclarationFinder() throws Exception {
         String xml = getGolden();
@@ -93,7 +97,7 @@ public class XmlFileHandlerTest {
         System.out.println("Test " + filename);
         XmlFileHandler instance = new XmlFileHandler();
         String original = JavaFileHandlerTest.readFile (filename);
-        String processed = instance.transform(original, license);
+        String processed = instance.transform(original, license, props);
         assertEqualsLineByLine (golden, processed, filename);
     }
 
