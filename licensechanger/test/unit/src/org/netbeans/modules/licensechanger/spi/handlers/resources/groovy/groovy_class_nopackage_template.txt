@@ -1,0 +1,11 @@
+/**
+ * Groovy allows classes without explicit package.
+ * @author Nils Hoffmann
+ */
+public class Yodeling {
+    Boolean traditional
+    
+    void yodle() {
+        println (traditional?"Holla-ha-iittiie!":"Oh-di-lay-ee-ay, di-lay-dee-oh, de-lay-ee")
+    }
+}
