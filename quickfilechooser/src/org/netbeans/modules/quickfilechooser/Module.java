@@ -49,8 +49,11 @@ import org.openide.modules.ModuleInstall;
  */
 public class Module extends ModuleInstall {
 
+    /** @see org.netbeans.swing.dirchooser.Module#FORCE_STANDARD_CHOOSER */
+    private static final String FORCE_STANDARD_CHOOSER = "standard-file-chooser";
+
     public void restored() {
-        super.restored();
+        System.setProperty(FORCE_STANDARD_CHOOSER, "true");
         Install.install();
     }
 
