@@ -104,11 +104,13 @@ public class TodoAnnotationProvider implements AnnotationProvider {
          final List<Annotation> annotations =
                new ArrayList<Annotation>();
          final BaseDocument doc = documentFor(dataObj);
-         for (Annotatable annotatable : parse(doc)) {
-            final TodoAnnotation ann =
-                  new TodoAnnotation(annotatable.getText());
-            ann.attach(annotatable);
-            annotations.add(ann);
+         if (doc != null) { // #219198
+              for (Annotatable annotatable : parse(doc)) {
+                  final TodoAnnotation ann =
+                          new TodoAnnotation(annotatable.getText());
+                  ann.attach(annotatable);
+                  annotations.add(ann);
+              }
          }
          file2annotation.put(fo, annotations);
       } catch (BadLocationException ex) {
@@ -123,6 +125,9 @@ public class TodoAnnotationProvider implements AnnotationProvider {
 
    private static BaseDocument documentFor(final DataObject ob) {
       try {
+         if (!ob.isValid()) { // #219198
+            return null;
+         }
          EditorCookie ck = ob.getCookie(EditorCookie.class);
          if (ck != null) {
             return (BaseDocument)ck.openDocument();
