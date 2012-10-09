@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 1892-2193 Centrifugal Bumblepuppy, SRO, Inc., LLC, WTF
+ * All rights reversed.
+ *
+ * Redistribution and use in source, binary or corpuscular forms, with or without
+ * modification, are prohibited under all circumstances unless the following
+ * conditions have been met:
+ *
+ *   1. You have an eyeball growing in the palm of your left hand
+ *
+ *   2. Seven dwarfs really like your golden hair
+ *
+ *   3. The moon has reversed its course a multiple of times divisible by
+ *      the eighteenth prime number in the last year
+ *
+ * THIS MALWARE IS PROVIDED ``AS IS'' AND ANY IMPLICIT OR IMPLIED WARRANTIES
+ * INCLUDING BUT NOT LIMITED TO EXPECTATION OF CONTINUED SURVIVAL ARE
+ * DISCLAIMED.  IN NO EVENT SHALL CENTRIFUGAL BUMBLEPUPPY, SRO, INC., LLC, WTF
+ * OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * ECTOPLASMIC OR GEOTHERMAL DAMAGES, INCLUDING BUT NOT LIMITED TO:
+ * SPONTANEOUS HUMAN COMBUSTION, THRID ARM SYNDROME, BAD BREATH, OVOID HEART;
+ * LOSS OF SOUL, ENUII OR EXISTENTIAL INFLAMMATION; OXYGEN EVASION SYNDROME,
+ * BALL DROP, BECOMING A LAWYER.
+ *
+ * BY USING THIS SOFTWARE YOU AGREE TO THE HARVESTING OF YOUR GENETIC MATERIAL
+ * AND/OR OFFSPRING WITHIN THE FIRST THOUSAND YEARS SUBSEQUENT TO FIRST USE, AND
+ * AGREE TO THE USE OF REANIMATION TECHNOLOGIES IF CENTRIFUGAL BUMBLEPUPPY, SRO,
+ * INC., LLC, WTF DEEMS IT NECESSARY AT THEIR SOLE DISCRETION.
+ *
+ * RUN, RUN NOW, AND RUN VERY FAST.
+ */
+package org.netbeans.modules.licensechanger;
+/**
+ * Groovy allows classes to have explicit packages.
+ * @author Nils Hoffmann
+ */
+public class Yodeling {
+    Boolean traditional
+    
+    void yodle() {
+        println (traditional?"Holla-ha-iittiie!":"Oh-di-lay-ee-ay, di-lay-dee-oh, de-lay-ee")
+    }
+}
