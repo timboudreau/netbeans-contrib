@@ -110,6 +110,9 @@ public final class GenerateHintWiki implements ActionListener {
             for (HintMetadata hm : categoryEntry.getValue()) {
                 out.println(";" + hm.displayName);
                 out.print(":" + hm.description);
+                if (!hm.enabled) {
+                    out.print(" '''Disabled by default'''");
+                }
                 if (since.containsKey(hm.id)) {
                     String sinceVersion = since.get(hm.id);
 
