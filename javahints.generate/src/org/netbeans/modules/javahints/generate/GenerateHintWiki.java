@@ -108,10 +108,11 @@ public final class GenerateHintWiki implements ActionListener {
             });
 
             for (HintMetadata hm : categoryEntry.getValue()) {
-                out.println(";" + hm.displayName);
+                out.print(";" + hm.displayName);
                 if (!hm.enabled) {
-                    out.println("<span style='padding-left: 3em;font-size: 80%;color: #204a87'>[ Disabled by default ]</span>");
+                    out.print("<span style='padding-left: 3em;font-size: 80%;color: #204a87'>[ Disabled by default ]</span>");
                 }
+                out.println();
                 out.print(":" + hm.description);
                 out.print("<span style='padding-left: 1em; font-size: 90%'>");
                 if (since.containsKey(hm.id)) {
