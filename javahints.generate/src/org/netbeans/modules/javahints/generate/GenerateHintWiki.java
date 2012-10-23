@@ -108,7 +108,7 @@ public final class GenerateHintWiki implements ActionListener {
             });
 
             for (HintMetadata hm : categoryEntry.getValue()) {
-                out.print(";" + hm.displayName);
+                out.print(";'''" + hm.displayName + "'''");
                 if (!hm.enabled) {
                     out.print("<span style='padding-left: 3em;font-size: 80%;color: #204a87'>[ Disabled by default ]</span>");
                 }
