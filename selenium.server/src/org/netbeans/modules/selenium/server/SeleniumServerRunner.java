@@ -116,6 +116,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             }
             switch (action) {
                 case START:
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 case STOP:
@@ -123,12 +124,14 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
                     break;
                 case RESTART:
                     callSeleniumServerMethod("stop");
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 case RELOAD:
                     callSeleniumServerMethod("stop");
                     server = null;
                     initializeServer();
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 default:
@@ -202,6 +205,15 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 						remoteControlConfigurationInstance, ffProfileDir);
 				}
 		}
+        String userExtensionsString = ip.getString(SeleniumProperties.USER_EXTENSIONS, ""); //NOI18N
+        if (!userExtensionsString.isEmpty()) {
+            File userExtensionFile = new File(userExtensionsString);
+            if (userExtensionFile.exists()) {
+                remoteControlConfiguration.getMethod("setUserExtensions", File.class).invoke( //NOI18N
+                        remoteControlConfigurationInstance, userExtensionFile);
+            }
+        }
+        
         server = seleniumServer.getConstructor(remoteControlConfiguration).
                 newInstance(remoteControlConfigurationInstance);
     }
