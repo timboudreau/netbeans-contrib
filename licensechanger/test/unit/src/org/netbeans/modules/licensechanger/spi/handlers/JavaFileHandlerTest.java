@@ -47,7 +47,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -122,8 +121,7 @@ public class JavaFileHandlerTest {
             out.close();
         }
         String result = new String (out.toByteArray(), "UTF-8");
-        result = Utilities.replaceString(result, "\r\n", "\n");
-        return result;
+        return result.replace("\r\n", "\n");
     }
  
 }

@@ -41,7 +41,6 @@ package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.util.Collections;
 import java.util.Map;
-import org.netbeans.modules.licensechanger.spi.handlers.PropertiesFileHandler;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

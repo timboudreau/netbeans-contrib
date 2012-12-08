@@ -42,7 +42,6 @@ package org.netbeans.modules.licensechanger.spi.wizard.utils;
 import java.awt.EventQueue;
 import java.util.List;
 import javax.swing.Action;
-import org.netbeans.api.queries.VisibilityQuery;
 import org.openide.explorer.view.CheckableNode;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;

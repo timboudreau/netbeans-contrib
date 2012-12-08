@@ -41,7 +41,6 @@ package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.util.Collections;
 import java.util.Map;
-import org.netbeans.modules.licensechanger.spi.handlers.XmlFileHandler;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import org.junit.Test;

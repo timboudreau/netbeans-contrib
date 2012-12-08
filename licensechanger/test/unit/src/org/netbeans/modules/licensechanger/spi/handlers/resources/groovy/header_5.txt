@@ -1,3 +1,4 @@
 //This is another kind of license comment
 //We should make sure it catches this too
 //We really want to get rid of all stuff before the package statement
+

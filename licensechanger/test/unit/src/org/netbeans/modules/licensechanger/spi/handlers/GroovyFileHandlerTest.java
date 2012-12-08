@@ -47,10 +47,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
-import org.openide.util.Utilities;
 
 /**
+ * Test cases for groovy license replacement.
  *
  * @author Nils Hoffmann
  */
@@ -95,7 +94,6 @@ public class GroovyFileHandlerTest {
     }
 
     private void testOneVersion(String golden, String license, String original) throws Exception {
-        
         GroovyFileHandler instance = new GroovyFileHandler();
         String processed = instance.transform(original, license, props);
         assertEqualsLineByLine (golden, processed);
@@ -106,31 +104,10 @@ public class GroovyFileHandlerTest {
         String[] p = FileHandler.splitIntoLines(processed);
         for (int i=0; i < Math.min (g.length, p.length); i++) {
             if(!g[i].equals(p[i])) {
-                System.out.println("Golden:");
-                System.out.println(golden);
-                System.out.println("Processed:");
-                System.out.println(processed);
                 assertEquals ("Difference between files at line " + i + "\n", g[i], p[i]);
             }
         }
     }
-
-
-//    static void assertEqualsLineByLine (String golden, String processed, String filename) {
-//        StringTokenizer a = new StringTokenizer (golden, "\n");
-//        StringTokenizer b = new StringTokenizer (processed, "\n");
-//        int ix = 0;
-//        while (a.hasMoreTokens() && b.hasMoreTokens()) {
-//            String as = a.nextToken();
-//            String bs = b.nextToken();
-//            if (!as.equals(bs)) {
-//                System.err.println("PROCESSED OUTPUT ");
-//            }
-//            assertEquals ("Difference in " + filename + " at line " + ix + "\n", as, bs);
-//            ix++;
-//        }
-//
-//    }
 
     private static String merge(String header, String template) throws Exception {
         StringBuilder sb = new StringBuilder();
@@ -160,8 +137,7 @@ public class GroovyFileHandlerTest {
             out.close();
         }
         String result = new String (out.toByteArray(), "UTF-8");
-        result = Utilities.replaceString(result, "\r\n", "\n");
-        return result;
+        return result.replace("\r\n", "\n");
     }
  
 }
