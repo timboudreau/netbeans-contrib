@@ -10,8 +10,12 @@
  * License. You can obtain a copy of the License at
  * http://www.netbeans.org/cddl-gplv2.html
  * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
+ * specific language governing permissions and limitations under the */
+
+//BLAH BLAH BLAH
+//BLAH BLAH BLAH
+
+     /* License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
  * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
  * particular file as subject to the "Classpath" exception as provided
@@ -36,46 +40,10 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
-package org.netbeans.modules.licensechanger.spi.handlers;
-
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-/**
- *
- * @author Tim Boudreau
+/* Created on March 14, 2009 
+ * by some IDE or other
  */
-public class PropertiesFileHandlerTest {
-    private final Map<String,Object> props = Collections.emptyMap();
 
-    @Test
-    public void testStuff() throws Exception {
-        System.out.println("testStuff");
-        String golden = getGolden();
-        String license = JavaFileHandlerTest.getLicense();
-        for (int i=1; i <= 4; i++) {
-            testOneVersion (golden, license, "props_" + i + ".txt");
-        }
-        assertEquals (0, 0);
-    }
+//blah blah blah
+//blah blah blah
 
-    private void testOneVersion(String golden, String license, String filename) throws Exception {
-        System.out.println("Test " + filename);
-        PropertiesFileHandler instance = new PropertiesFileHandler();
-        String original = JavaFileHandlerTest.readFile (filename);
-        String processed = instance.transform(original, license, props);
-//        if (!original.equals(processed)) {
-//            System.out.println("************************************");
-//            System.out.println(processed);
-//            System.out.println("************************************");
-//        }
-        JavaFileHandlerTest.assertEqualsLineByLine (golden, processed, filename);
-    }
-
-    private static String getGolden() throws Exception {
-        return JavaFileHandlerTest.readFile ("props_golden.txt");
-    }
-}
