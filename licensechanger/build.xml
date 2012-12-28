@@ -2,5 +2,4 @@
 <project basedir="." default="netbeans" name="contrib/licensechanger">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
-
 </project>

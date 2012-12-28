@@ -39,8 +39,6 @@
 
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
-import org.openide.util.Utilities;
-
 /**
  * User preference for line ending conversion
  *
@@ -56,19 +54,19 @@ public enum LineEndingPreference {
         boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
         switch (pref) {
             case FORCE_CRLF :
-                return Utilities.replaceString(nue, "\n", "\r\n"); //NOI18N
+                return nue.replaceAll("\n", "\r\n"); //NOI18N
             case FORCE_NEWLINE :
                 //We already converted everything to newline only on load
                 return nue;
             case NO_CHANGE :
-                return oldHasCrlf ? Utilities.replaceString(nue, "\n", "\r\n") : //NOI18N
+                return oldHasCrlf ? nue.replaceAll("\n", "\r\n") : //NOI18N
                     nue;
             case SYSTEM_DEFAULT :
                 String sep = System.getProperty( "line.separator" ); //NOI18N
                 if ("\n".equals(sep)) {
                     return nue;
                 } else {
-                    return Utilities.replaceString (nue, "\n", sep); //NOI18N
+                      return nue.replaceAll("\n", sep);//NOI18N
                 }
             default :
                 throw new AssertionError();

@@ -1,7 +1,10 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2012 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -13,9 +16,9 @@
  * specific language governing permissions and limitations under the
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
+ * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
@@ -34,48 +37,27 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2012 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
- *
- * @author Tim Boudreau
+ * Service Provider implementation for files with mime-type text/x-groovy.
+ * 
+ * @author Nils Hoffmann
  */
-public class PropertiesFileHandlerTest {
-    private final Map<String,Object> props = Collections.emptyMap();
-
-    @Test
-    public void testStuff() throws Exception {
-        System.out.println("testStuff");
-        String golden = getGolden();
-        String license = JavaFileHandlerTest.getLicense();
-        for (int i=1; i <= 4; i++) {
-            testOneVersion (golden, license, "props_" + i + ".txt");
-        }
-        assertEquals (0, 0);
+@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+public class GroovyFileHandler extends JavaFileHandler {
+    @Override
+    public String getDisplayName() {
+        return NbBundle.getMessage(GroovyFileHandler.class, "NAME_GROOVY_FILES"); //NOI18N
     }
 
-    private void testOneVersion(String golden, String license, String filename) throws Exception {
-        System.out.println("Test " + filename);
-        PropertiesFileHandler instance = new PropertiesFileHandler();
-        String original = JavaFileHandlerTest.readFile (filename);
-        String processed = instance.transform(original, license, props);
-//        if (!original.equals(processed)) {
-//            System.out.println("************************************");
-//            System.out.println(processed);
-//            System.out.println("************************************");
-//        }
-        JavaFileHandlerTest.assertEqualsLineByLine (golden, processed, filename);
-    }
-
-    private static String getGolden() throws Exception {
-        return JavaFileHandlerTest.readFile ("props_golden.txt");
+    @Override
+    public boolean match(FileObject file) {
+        return "text/x-groovy".equals(file.getMIMEType()); //NOI18N
     }
 }

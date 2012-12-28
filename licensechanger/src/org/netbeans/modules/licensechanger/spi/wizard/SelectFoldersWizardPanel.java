@@ -116,11 +116,14 @@ public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPane
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
+        @SuppressWarnings("unchecked")
         Set<FileObject> folders = (Set<FileObject>)wiz.getProperty(WizardProperties.KEY_FOLDERS);
         if(folders==null || folders.isEmpty()) {
             Object obj = wiz.getProperty(WizardProperties.KEY_ROOT_FILES);
             if(obj!=null) {
-                getComponent().setRootFiles((Set<FileObject>)obj);
+                @SuppressWarnings("unchecked")
+                Set<FileObject> sobj = (Set<FileObject>)obj;
+                getComponent().setRootFiles(sobj);
             }
         }else{
             getComponent().setRootFiles(folders);

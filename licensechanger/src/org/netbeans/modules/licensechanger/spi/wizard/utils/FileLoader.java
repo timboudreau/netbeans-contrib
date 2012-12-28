@@ -48,7 +48,6 @@ import java.nio.charset.Charset;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Utilities;
 
 /**
  * @author Tim Boudreau
@@ -66,7 +65,7 @@ public class FileLoader {
                 String sep = System.getProperty ("line.separator");
                 //Convert everything internally to use \n
                 if (!"\n".equals(sep) && sep != null) {
-                    return Utilities.replaceString(result, sep, "\n");
+                    return result.replaceAll(sep, "\n");
                 } else {
                     return result;
                 }

@@ -68,6 +68,7 @@ public class LicenseChangerRunnable implements Runnable {
     public void run() {
         ProgressHandle handle = ProgressHandleFactory.createHandle("Changing license headers");
         try {
+            @SuppressWarnings("unchecked")
             Set<FileChildren.FileItem> items = (Set<FileChildren.FileItem>) wizard.getProperty(WizardProperties.KEY_ITEMS);
             final String licenseText = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_TEXT);
             final String licenseName = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_NAME);

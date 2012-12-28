@@ -118,12 +118,15 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
+        @SuppressWarnings("unchecked")
         String license = (String)wiz.getProperty(WizardProperties.KEY_LICENSE_TEXT);
         if(license!=null) {
             getComponent().setLicenseText(license);
         }
         getComponent().setProperties(wiz.getProperties());
+        @SuppressWarnings("unchecked")
         Set<FileHandler> fileHandler = (Set<FileHandler>)wiz.getProperty(WizardProperties.KEY_FILE_HANDLERS);
+        @SuppressWarnings("unchecked")
         Set<FileObject> folders = (Set<FileObject>)wiz.getProperty(WizardProperties.KEY_FOLDERS);
         if(fileHandler!=null && folders != null) {
             getComponent().setFolders(folders, fileHandler);
@@ -139,7 +142,7 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
     @Override
     public void validate() throws WizardValidationException {
         valid = true;
-        Set<FileItem> keyItems = (Set<FileItem>)getComponent().getSelectedItems();
+        Set<FileItem> keyItems = getComponent().getSelectedItems();
         
         if(keyItems==null || keyItems.isEmpty()) {
             valid = false;

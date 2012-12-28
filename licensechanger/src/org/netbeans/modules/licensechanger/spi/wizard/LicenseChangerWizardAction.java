@@ -69,7 +69,7 @@ import org.openide.util.*;
 id = "org.netbeans.modules.licensechanger.wizard.LicenseChangerWizardAction")
 @ActionRegistration(
     displayName = "#CTL_LicenseChangerWizardAction")
-@ActionReference(path = "Loaders/folder/any/Actions", position = 1550)
+@ActionReference(path = "Loaders/folder/any/Actions", position = 951)
 @NbBundle.Messages("CTL_LicenseChangerWizardAction=Change License Header")
 public final class LicenseChangerWizardAction implements ActionListener {
 
