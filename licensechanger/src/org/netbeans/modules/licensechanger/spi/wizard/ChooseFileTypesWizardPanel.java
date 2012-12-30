@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.beans.PropertyChangeEvent;
@@ -50,7 +49,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
 
 /**
- * 
+ *
  * @author Nils Hoffmann
  */
 public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
@@ -89,17 +88,17 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
     public boolean isValid() {
         return valid;
     }
-    
+
     @Override
     public void addChangeListener(ChangeListener l) {
         cs.addChangeListener(l);
     }
-    
+
     @Override
     public void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
         cs.fireChange();
@@ -108,6 +107,16 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
+        Boolean storeInUserProperties = (Boolean) wiz.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES);
+        ChooseFileTypesPanel panel = getComponent();
+        if (storeInUserProperties != null) {
+            panel.setStoreInUserProperties(storeInUserProperties);
+        }
+        String copyrightHolder = (String) wiz.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
+        if (copyrightHolder == null) {
+            copyrightHolder = NbPreferences.forModule(ChooseFileTypesWizardPanel.class).get(WizardProperties.KEY_COPYRIGHT_HOLDER, "");
+        }
+        panel.setCopyrightHolder(copyrightHolder);
     }
 
     @Override
@@ -118,11 +127,11 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
             wiz.putProperty(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
             NbPreferences.forModule(ChooseFileTypesWizardPanel.class).put(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
         }
+        wiz.putProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES, Boolean.valueOf(getComponent().isStoreInUserProperties()));
     }
 
     @Override
     public void validate() throws WizardValidationException {
         valid = true;
     }
-
 }

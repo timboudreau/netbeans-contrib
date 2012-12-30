@@ -40,12 +40,17 @@ package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Set;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.*;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel;
+import org.netbeans.modules.maven.model.ModelOperation;
+import org.netbeans.modules.maven.model.Utilities;
+import org.netbeans.modules.maven.model.pom.POMModel;
+import org.netbeans.modules.maven.model.pom.Properties;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileUtil;
@@ -68,6 +73,49 @@ public class LicenseChangerRunnable implements Runnable {
     public void run() {
         ProgressHandle handle = ProgressHandleFactory.createHandle("Changing license headers");
         try {
+
+            if ((Boolean) wizard.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES)) {
+                ProjectManager.mutex().writeAccess(new Runnable() {
+                    @Override
+                    public void run() {
+                        String copyrightHolder = (String) wizard.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
+                        if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
+                            try {
+                                //store value of copyright holder in User.properties
+                                FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
+                                java.util.Properties props = new java.util.Properties();
+                                InputStream in = null;
+                                try {
+                                    in = userProperties.getInputStream();
+                                    props.load(in);
+                                } catch (IOException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                    throw new RuntimeException(ex);
+                                } finally {
+                                    if(in!=null) {
+                                        in.close();
+                                    }
+                                }
+                                props.setProperty("user", copyrightHolder);
+                                OutputStream out = null;
+                                try {
+                                    out = userProperties.getOutputStream();
+                                    props.store(out, "Updated user by licensechanger plugin.");
+                                } catch (IOException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                    throw new RuntimeException(ex);
+                                } finally {
+                                    if(out!=null) {
+                                        out.close();
+                                    }
+                                }
+                            } catch (IOException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        }
+                    }
+                });
+            }
             @SuppressWarnings("unchecked")
             Set<FileChildren.FileItem> items = (Set<FileChildren.FileItem>) wizard.getProperty(WizardProperties.KEY_ITEMS);
             final String licenseText = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_TEXT);
@@ -119,7 +167,6 @@ public class LicenseChangerRunnable implements Runnable {
                             if (hasProjectProperties) {
                                 System.out.println("Found project.properties at " + projectProps.getPath());
                                 ProjectManager.mutex().writeAccess(new Runnable() {
-
                                     @Override
                                     public void run() {
                                         try {
@@ -145,14 +192,26 @@ public class LicenseChangerRunnable implements Runnable {
 
                             }
                         } else {
-                            //TODO implement handling of maven-based projects and others
                             //check for pom.xml
                             FileObject pom = group.getRootFolder().getFileObject("pom.xml");
                             if (pom != null) {
                                 System.out.println("Found maven pom.xml at " + pom.getPath());
                                 //found pom-based maven project
-                                String netbeansHintLicense = "<netbeans.hint.license>" + licenseName + "</netbeans.hint.license>";
-                                System.out.println("Please add " + netbeansHintLicense + " within your pom.xml <properties> section!");
+//                                String netbeansHintLicense = "<netbeans.hint.license>" + licenseName + "</netbeans.hint.license>";
+//                                System.out.println("Please add " + netbeansHintLicense + " within your pom.xml <properties> section!");
+                                Utilities.performPOMModelOperations(pom, Arrays.asList(new ModelOperation<POMModel>() {
+                                    @Override
+                                    public void performOperation(POMModel model) {
+                                        Properties props = model.getProject().getProperties();
+                                        if (props == null) {
+                                            props = model.getFactory().createProperties();
+                                            props.setProperty("netbeans.hint.license", licenseName);
+                                            model.getProject().setProperties(props);
+                                        } else {
+                                            props.setProperty("netbeans.hint.license", licenseName);
+                                        }
+                                    }
+                                }));
                             }
                         }
                     } catch (IOException ex) {

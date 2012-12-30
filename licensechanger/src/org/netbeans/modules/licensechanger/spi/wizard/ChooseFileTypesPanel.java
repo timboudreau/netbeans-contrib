@@ -53,11 +53,10 @@ import java.util.Set;
 import org.netbeans.modules.licensechanger.api.Customizable;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.CheckableNodeCapability;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.CheckboxListView;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.NodeCheckObserver;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
+import org.openide.explorer.view.OutlineView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
@@ -65,13 +64,17 @@ import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 import org.openide.util.lookup.Lookups;
+import static org.netbeans.modules.licensechanger.spi.wizard.Bundle.*;
+import org.openide.util.NbBundle;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring)
  */
-public class ChooseFileTypesPanel extends javax.swing.JPanel implements ExplorerManager.Provider, PropertyChangeListener, NodeCheckObserver {
+@Messages("ChooseFileTypesPanel.jScrollPane1.nodeHeaderLabel=File Type")
+public class ChooseFileTypesPanel extends javax.swing.JPanel implements ExplorerManager.Provider, PropertyChangeListener {
     private final ExplorerManager mgr = new ExplorerManager();
 
     public ChooseFileTypesPanel() {
@@ -83,13 +86,14 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
             copyrightHolderField.setText(copyrightHolder);
         }
         mgr.setRootContext(new AbstractNode (Children.create(new FileHandlerChildren(), false)));
-        ((CheckboxListView) jScrollPane1).setNodeCheckObserver(this);
-        ((CheckboxListView) jScrollPane1).setListEnabled(true);
-        ((CheckboxListView) jScrollPane1).setCheckboxesEnabled(true);
-        ((CheckboxListView) jScrollPane1).setCheckboxesVisible(true);
+//        ((CheckboxListView) jScrollPane1).setNodeCheckObserver(this);
+//        ((CheckboxListView) jScrollPane1).setListEnabled(true);
+//        ((CheckboxListView) jScrollPane1).setCheckboxesEnabled(true);
+//        ((CheckboxListView) jScrollPane1).setCheckboxesVisible(true);
         mgr.addPropertyChangeListener(this);
         setName("Choose File Types");
         updateMap();
+        updateView();
     }
 
     private void updateMap() {
@@ -106,18 +110,14 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new CheckboxListView();
+        jScrollPane1 = new OutlineView();
         customizerPanel = new javax.swing.JPanel();
         noCustomizerLabel = new javax.swing.JLabel();
         lineEndingsPanel1 = new org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel();
         licensePropertiesPanel = new javax.swing.JPanel();
         copyrightHolderLabel = new javax.swing.JLabel();
         copyrightHolderField = new javax.swing.JTextField();
-
-        jLabel1.setFont(jLabel1.getFont().deriveFont(jLabel1.getFont().getStyle() | java.awt.Font.BOLD));
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "ChooseFileTypesPanel.jLabel1.text")); // NOI18N
-        jLabel1.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(0, 0, 0)));
+        storeInUserProperties = new javax.swing.JCheckBox();
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("controlShadow")));
 
@@ -142,6 +142,8 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
             }
         });
 
+        storeInUserProperties.setText(org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "ChooseFileTypesPanel.storeInUserProperties.text")); // NOI18N
+
         javax.swing.GroupLayout licensePropertiesPanelLayout = new javax.swing.GroupLayout(licensePropertiesPanel);
         licensePropertiesPanel.setLayout(licensePropertiesPanelLayout);
         licensePropertiesPanelLayout.setHorizontalGroup(
@@ -149,10 +151,11 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
             .addGroup(licensePropertiesPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(licensePropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(copyrightHolderField)
                     .addGroup(licensePropertiesPanelLayout.createSequentialGroup()
                         .addComponent(copyrightHolderLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(copyrightHolderField))
+                    .addComponent(storeInUserProperties, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         licensePropertiesPanelLayout.setVerticalGroup(
@@ -162,6 +165,8 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
                 .addComponent(copyrightHolderLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(copyrightHolderField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(storeInUserProperties)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -173,7 +178,6 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 804, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(customizerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -186,9 +190,7 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(customizerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
@@ -199,7 +201,6 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
                 .addContainerGap())
         );
 
-        jLabel1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "ChooseFileTypesPanel.customizerPanel.border.title")); // NOI18N
         customizerPanel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "ChooseFileTypesPanel.customizerPanel.border.title")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
@@ -212,11 +213,11 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
     private javax.swing.JTextField copyrightHolderField;
     private javax.swing.JLabel copyrightHolderLabel;
     private javax.swing.JPanel customizerPanel;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel licensePropertiesPanel;
     private org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel lineEndingsPanel1;
     private javax.swing.JLabel noCustomizerLabel;
+    private javax.swing.JCheckBox storeInUserProperties;
     // End of variables declaration//GEN-END:variables
     
     @Override
@@ -242,19 +243,31 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
             updateCustomizer (n.length == 1 ? n[0].getLookup().lookup(Customizable.class) : null);
         }
     }
-
-    @Override
-    public void onNodeChecked(Node node) {
-        updateMap();
-    }
-
-    @Override
-    public void onNodeUnchecked(Node node) {
-        updateMap();
-    }
     
     public String getCopyrightHolder() {
         return copyrightHolderField.getText();
+    }
+    
+    public void setCopyrightHolder(String copyrightHolder) {
+        copyrightHolderField.setText(copyrightHolder);
+    }
+
+    public boolean isStoreInUserProperties() {
+        return storeInUserProperties.isSelected();
+    }
+    
+    public void setStoreInUserProperties(boolean b) {
+        storeInUserProperties.setSelected(b);
+    }
+
+    private void updateView() {
+        OutlineView ov = (OutlineView)jScrollPane1;
+        ov.getOutline().setRootVisible(false);
+        ov.setPopupAllowed(false);
+        ov.setTreeSortable(false);
+        ov.getOutline().setShowGrid(false);
+        String headerName = ChooseFileTypesPanel_jScrollPane1_nodeHeaderLabel(); // NOI18N
+        ov.getOutline().getTableHeader().getColumnModel().getColumn(0).setHeaderValue(headerName);
     }
 
     private static final class FileHandlerChildren extends ChildFactory<FileHandler> {

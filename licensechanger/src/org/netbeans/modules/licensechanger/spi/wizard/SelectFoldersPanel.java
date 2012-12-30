@@ -36,54 +36,54 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.CheckboxListView;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.FolderChildren;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.NodeCheckObserver;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
+import org.openide.explorer.view.OutlineView;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import static org.netbeans.modules.licensechanger.spi.wizard.Bundle.*;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring)
  */
-public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerManager.Provider, NodeCheckObserver {
+@Messages("SelectFoldersPanel.jScrollPane1.nodeHeaderLabel=Folders")
+public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerManager.Provider {
 
     private final ExplorerManager mgr = new ExplorerManager();
 
     public SelectFoldersPanel() {
         initComponents();
-        view().setNodeCheckObserver(this);
-        setName("Select Folders");
+        updateView();
     }
 
     private void updateFolders() {
         Set<FileObject> folders = getSelectedFolders();
-        System.out.println("Selected folders: "+folders);
+        System.out.println("Selected folders: " + folders);
         firePropertyChange(WizardProperties.KEY_FOLDERS, null, folders);
     }
 
     private void enableUI() {
-        view().setCheckboxesVisible(true);
-        view().setCheckboxesEnabled(true);
+//        view().setCheckboxesVisible(true);
+//        view().setCheckboxesEnabled(true);
         jLabel1.setEnabled(true);
-        view().setListEnabled(true);
+//        view().setListEnabled(true);
+        updateView();
     }
 
-    private CheckboxListView view() {
-        return (CheckboxListView) jScrollPane1;
-    }
-
+//    private CheckboxListView view() {
+//        return (CheckboxListView) jScrollPane1;
+//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -93,7 +93,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new CheckboxListView();
+        jScrollPane1 = new OutlineView();
         jLabel1 = new javax.swing.JLabel();
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("controlShadow")));
@@ -131,16 +131,6 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         return mgr;
     }
 
-    @Override
-    public void onNodeChecked(Node node) {
-        updateFolders();
-    }
-
-    @Override
-    public void onNodeUnchecked(Node node) {
-        updateFolders();
-    }
-
     public void setRootFiles(Set<FileObject> roots) {
         AbstractNode root = new AbstractNode(Children.create(new FolderChildren(roots.toArray(new FileObject[roots.size()])) {
             @Override
@@ -152,7 +142,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         mgr.setRootContext(root);
         firePropertyChange("rootFiles", null, roots);
     }
-    
+
     public Set<FileObject> getSelectedFolders() {
         Set<FileObject> folders = new HashSet<FileObject>();
         for (Node n : mgr.getRootContext().getChildren().getNodes(true)) {
@@ -165,5 +155,16 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
             }
         }
         return folders;
+    }
+
+    private void updateView() {
+        //        view().setNodeCheckObserver(this);
+        OutlineView ov = (OutlineView) jScrollPane1;
+        ov.getOutline().setRootVisible(false);
+        ov.setPopupAllowed(false);
+        ov.setTreeSortable(false);
+        ov.setName("Selected Folders");
+        String headerName = SelectFoldersPanel_jScrollPane1_nodeHeaderLabel(); // NOI18N
+        ov.getOutline().getTableHeader().getColumnModel().getColumn(0).setHeaderValue(headerName);
     }
 }

@@ -58,5 +58,6 @@ public final class WizardProperties {
     public static final String KEY_ENDING = "line_terminator";
     public static final String KEY_PROJECT = "project";
     public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
+    public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
     private WizardProperties(){}
 }

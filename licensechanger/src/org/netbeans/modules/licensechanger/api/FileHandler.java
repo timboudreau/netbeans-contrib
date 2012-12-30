@@ -39,7 +39,10 @@
 package org.netbeans.modules.licensechanger.api;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +51,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -60,7 +64,8 @@ import org.openide.util.Exceptions;
 /**
  *
  * @author Tim Boudreau
- * @author Nils Hoffmann (Refactoring, Freemarker Variables, resolveLicenseTemplate)
+ * @author Nils Hoffmann (Refactoring, Freemarker Variables,
+ * resolveLicenseTemplate)
  */
 public abstract class FileHandler {
 
@@ -81,56 +86,75 @@ public abstract class FileHandler {
     protected abstract String licenseLast();
 
     /**
-     * Uses the freemarker template engine to resolve the licenseText. If no
-     * freemarker script engine is found, a {@link RuntimeException} is thrown.
-     * This method will access user information under {@code Templates/Properties/User.properties}
-     * in order to resolve various tokens, e.g. 'user'. If that file does not
-     * exist, a {@link RuntimeException} will be thrown, wrapping the original {@link IOException}.
-     * Should the freemarker engine encounter a {@link ScriptException}, this
-     * will also be wrapped in a {@link RuntimeException}.
+     * <p>Uses the freemarker template engine to resolve the licenseText.</p>
+     * 
+     * <p>If no freemarker script engine is found, a {@link RuntimeException} is thrown.</p>
+     * 
+     * <p>This method will access user information under
+     * {@code Templates/Properties/User.properties} in order to resolve various
+     * tokens, e.g. 'user'. If that file does not exist, a
+     * {@link RuntimeException} will be thrown, wrapping the original
+     * {@link IOException}. Should the freemarker engine encounter a
+     * {@link ScriptException}, this will also be wrapped in a
+     * {@link RuntimeException}.</p>
+     * 
+     * <p>The additionalBindings parameter may be used to supplement or override the information 
+     * retrieved from <code>User.properties</code>.</p>
+     * 
+     * <p>The implementation will look for tokens <code>${licenseFirst}</code>, <code>${licensePrefix}</code>, and 
+     * <code>${licenseLast}</code> to determine whether the licenseText has already been interpolated or if it needs
+     * escaping.
      *
-     * @param licenseText
+     * @param licenseText the license test with freemarker template tokens
+     * @param additionalBindings additional binding values for freemarker interpolation
      * @return the resolved licenseText
      * @throws RuntimeException
      */
     public String resolveLicenseTemplate(String licenseText, Map<String, Object> additionalBindings) throws RuntimeException {
-        if (licenseText.contains("${licenseFirst}") && licenseText.contains("${licensePrefix}") && licenseText.contains("${licenseLast}")) {
+        if (licenseText.contains("${") || (licenseText.contains("${licenseFirst}") && licenseText.contains("${licensePrefix}") && licenseText.contains("${licenseLast}"))) {
             System.out.println("License is a freemarker template!");
             //freemarker template
             ScriptEngineManager sem = new ScriptEngineManager();
             ScriptEngine se = sem.getEngineByName("freemarker");
             if (se != null) {
                 Bindings bindings = se.createBindings();
-                FileObject licenseTemplates = FileUtil.getConfigFile("Templates/Properties/User.properties");
+                FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
                 Properties props = new Properties();
+                InputStream in = null;
                 try {
-                    props.load(licenseTemplates.getInputStream());
+                    in = userProperties.getInputStream();
+                    props.load(in);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                     throw new RuntimeException(ex);
+                } finally {
+                    try {
+                        if(in!=null) {
+                            in.close();
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                        throw new RuntimeException(ex);
+                    }
                 }
                 for (String key : props.stringPropertyNames()) {
                     bindings.put(key, props.getProperty(key));
-                }
-                String copyrightHolder = props.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
-                if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
-                    bindings.put("user", copyrightHolder);
                 }
                 bindings.put("licenseFirst", licenseFirst());
                 bindings.put("licensePrefix", licensePrefix());
                 bindings.put("licenseLast", licenseLast());
                 bindings.put("date", new Date());
-                for (Map.Entry<String,Object> e : additionalBindings.entrySet()) {
-                    bindings.put (e.getKey(), e.getValue());
+                for (Map.Entry<String, Object> e : additionalBindings.entrySet()) {
+                    bindings.put(e.getKey(), e.getValue());
                 }
+                String user = additionalBindings.containsKey(WizardProperties.KEY_COPYRIGHT_HOLDER) ? (String)additionalBindings.get(WizardProperties.KEY_COPYRIGHT_HOLDER) : props.getProperty("user", System.getProperty("user.name"));
+                System.out.println("Using user: " + user);
                 if (props.containsKey("project.organization")) {
                     Project project = new Project(props.getProperty("project.organization"));
                     System.out.println("Using project.organization: " + props.getProperty("project.organization"));
                     bindings.put("project", project);
-                    bindings.put("user", null);
+                    bindings.put("user", user);
                 } else {
-                    Object user = additionalBindings.containsKey(WizardProperties.KEY_COPYRIGHT_HOLDER) ? additionalBindings.get(WizardProperties.KEY_COPYRIGHT_HOLDER) : props.getProperty("user", System.getProperty("user.name"));
-                    System.out.println("Using user: " + user);
                     bindings.put("project", new Project(null));
                     if (!bindings.containsKey("user")) {
                         bindings.put("user", user);
@@ -171,15 +195,21 @@ public abstract class FileHandler {
 
     /**
      * Freemarker expects project.organization to be the field 'organization' in
-     * an object. This provided a thin wrapper for that.
+     * an object. This provides a thin wrapper for that. Class must be public to 
+     * be accessible by freemarker.
      */
-    private class Project {
+    public class Project {
 
-        public String organization;
+        private final String organization;
 
         public Project(String organization) {
             this.organization = organization;
         }
+        
+        public String getOrganization() {
+            return this.organization;
+        }
+        
     }
     static Pattern p = Pattern.compile("(.*?)\\n|\\z", Pattern.UNIX_LINES);
 

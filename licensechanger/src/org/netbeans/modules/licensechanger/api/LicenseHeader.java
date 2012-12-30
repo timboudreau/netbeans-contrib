@@ -46,6 +46,8 @@ import java.util.LinkedList;
 import java.util.List;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
@@ -55,8 +57,27 @@ import org.openide.util.Exceptions;
  */
 public final class LicenseHeader {
  
+    /**
+     * <p>Creates a <code>LicenseHeader</code> from a given <code>FileObject</code>.</p>
+     * 
+     * <p>If the passed in <code>licenseName</code> is <em>null</em>, the name is inferred 
+     * from the <code>FileObject</code>'s name. According to NetBeans conventions, license
+     * file names start with a prefixed <em>license-</em> before the actual license abbreviation,
+     * e.g. <em>epl10</em> for the Eclipse public license version 1.0.</p>
+     * 
+     * @param file
+     * @param licenseName
+     * @param netBeansTemplate
+     * @return 
+     */
     public static LicenseHeader fromFileObject(FileObject file, String licenseName, boolean isNetBeansTemplate) {
-        String name = licenseName==null?file.getName():licenseName;
+        String name;
+        if(licenseName==null) {
+            name = file.getName();
+            name = name.substring("license-".length());
+        }else{
+            name = licenseName;
+        }
         String content;
         InputStream in = null;
         try {
@@ -98,7 +119,7 @@ public final class LicenseHeader {
             if(licenseHeader.getLicenseHeader() == null || licenseHeader.getLicenseHeader().isEmpty()) {
                 System.err.println("License file "+name+" seems to be empty! Skipping...");
             }else{
-                licenseHeader.setIsNetBeansTemplate(true);
+                licenseHeader.setNetBeansTemplate(true);
                 templateLicenses.add(licenseHeader);
             }
         }
@@ -113,7 +134,7 @@ public final class LicenseHeader {
             FileObject templateFile = licenseTemplates.createData(filename);
             bos = new BufferedWriter(new OutputStreamWriter(templateFile.getOutputStream(),Charset.forName("UTF-8")));
             bos.write(header.getLicenseHeader());
-            header.setIsNetBeansTemplate(true);
+            header.setNetBeansTemplate(true);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         } finally {
@@ -130,13 +151,13 @@ public final class LicenseHeader {
     private final String name;
     private final String licenseHeader;
     private final FileObject fo;
-    private boolean isNetBeansTemplate = false;
+    private boolean netBeansTemplate = false;
 
-    private LicenseHeader(String name, String licenseHeader, FileObject fo, boolean isNetBeansTemplate) {
+    private LicenseHeader(String name, String licenseHeader, FileObject fo, boolean netBeansTemplate) {
         this.name = name;
         this.licenseHeader = licenseHeader;
         this.fo = fo;
-        this.isNetBeansTemplate = isNetBeansTemplate;
+        this.netBeansTemplate = netBeansTemplate;
     }
     
     public String getName() {
@@ -151,16 +172,21 @@ public final class LicenseHeader {
         return this.fo;
     }
 
-    public boolean isIsNetBeansTemplate() {
-        return isNetBeansTemplate;
+    public boolean isNetBeansTemplate() {
+        return netBeansTemplate;
     }
 
-    public void setIsNetBeansTemplate(boolean isNetBeansTemplate) {
-        this.isNetBeansTemplate = isNetBeansTemplate;
+    public void setNetBeansTemplate(boolean netBeansTemplate) {
+        this.netBeansTemplate = netBeansTemplate;
     }
 
     @Override
     public String toString() {
+        try {
+            return DataObject.find(getFileObject()).getNodeDelegate().getDisplayName();
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         return name;
     }
     
