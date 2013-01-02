@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.awt.Component;
@@ -55,6 +54,7 @@ import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -62,6 +62,7 @@ import org.openide.util.*;
 
 /**
  * Context-sensitive action to launch the license header change wizard.
+ *
  * @author Nils Hoffmann
  */
 @ActionID(
@@ -69,16 +70,31 @@ import org.openide.util.*;
 id = "org.netbeans.modules.licensechanger.wizard.LicenseChangerWizardAction")
 @ActionRegistration(
     displayName = "#CTL_LicenseChangerWizardAction")
-@ActionReference(path = "Loaders/folder/any/Actions", position = 951)
+@ActionReferences(
+//    @ActionReference(path = "Loaders/folder/any/Actions", position = 951)
+@ActionReference(path = "UI/ToolActions/Files", position = 951))
 @NbBundle.Messages("CTL_LicenseChangerWizardAction=Change License Header")
 public final class LicenseChangerWizardAction implements ActionListener {
 
     private List<DataObject> context;
-    
+
     public LicenseChangerWizardAction(List<DataObject> context) {
         this.context = context;
     }
-    
+
+    /**
+     * Used to return the parent folder of a file or the folder itself.
+     *
+     * @param fo
+     * @return
+     */
+    private FileObject addFileObject(FileObject fo) {
+        if (fo.isFolder()) {
+            return fo;
+        }
+        return fo.getParent();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Set<FileObject> files = new HashSet<FileObject>();
@@ -86,20 +102,20 @@ public final class LicenseChangerWizardAction implements ActionListener {
         for (DataObject ob : context) {
             FileObject fo = ob.getPrimaryFile();
             Project proj = FileOwnerQuery.getOwner(fo);
-            if(owningProject == null) {
+            if (owningProject == null) {
                 owningProject = proj;
                 //TODO implement better exclusion of build directories 
-                files.add (fo);
+                files.add(addFileObject(fo));
             } else {
-                if(owningProject.equals(proj)) {
-                    files.add(fo);
+                if (owningProject.equals(proj)) {
+                    files.add(addFileObject(fo));
                 } else {
                     Exceptions.printStackTrace(new IllegalStateException("Can only handle folders below one project!"));
                     return;
                 }
             }
         }
-        
+
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
         panels.add(new ChooseFileTypesWizardPanel());
         panels.add(new LicenseChooserWizardPanel());
@@ -122,7 +138,7 @@ public final class LicenseChangerWizardAction implements ActionListener {
         WizardDescriptor wiz = new WizardDescriptor(new WizardDescriptor.ArrayIterator<WizardDescriptor>(panels));
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wiz.setTitleFormat(new MessageFormat("{0}"));
-        wiz.setTitle("Change licenses");
+        wiz.setTitle("Change License Headers");
         wiz.putProperty(WizardProperties.KEY_ROOT_FILES, files);
         wiz.putProperty(WizardProperties.KEY_PROJECT, owningProject);
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {

@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import java.awt.EventQueue;
@@ -64,12 +63,13 @@ import org.openide.util.lookup.ProxyLookup;
  * @author Nils Hoffmann (changed to use CheckableNodeCapability)
  */
 public abstract class FolderChildren extends ChildFactory.Detachable<FileObject> implements Runnable {
+
     private FileObject[] roots;
     volatile int keyCount = 0;
     private int nodeCount = 0;
     private volatile boolean cancelled = false;
 
-    public FolderChildren (FileObject[] roots) {
+    public FolderChildren(FileObject[] roots) {
         this.roots = roots;
     }
 
@@ -94,12 +94,12 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
         cancelled = true;
     }
 
-    private boolean shouldSkipFolder (FileObject folder) {
+    private boolean shouldSkipFolder(FileObject folder) {
         // XXX use VisibilityQuery instead
         String path = folder.getPath();
-        return path.contains(".svn") || path.contains(".cvs") || path.contains(".hg") ||
-                path.endsWith(".svn") || path.endsWith(".cvs") || path.endsWith(".hg") ||
-                path.contains("target") || path.endsWith("target") || path.contains("build") || path.endsWith("build");
+        return path.contains(".svn") || path.contains(".cvs") || path.contains(".hg")
+                || path.endsWith(".svn") || path.endsWith(".cvs") || path.endsWith(".hg")
+                || path.contains("target") || path.endsWith("target") || path.contains("build") || path.endsWith("build");
     }
 
     @Override
@@ -149,9 +149,10 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
     }
 
     private static final class FN extends FilterNode {
+
         FN(Node orig, FileObject f) {
-            super (orig, Children.LEAF, new ProxyLookup(
-                    Lookups.fixed(f,new CheckableNodeCapability()),
+            super(orig, Children.LEAF, new ProxyLookup(
+                    Lookups.fixed(f, new CheckableNodeCapability()),
                     orig.getLookup()));
             disableDelegation(DELEGATE_GET_ACTIONS);
             disableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);
@@ -163,13 +164,12 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
             disableDelegation(DELEGATE_GET_NAME);
             String p = f.getPath();
             // XXX this is a pretty arbitrary list... maybe check SharabilityQuery?
-            if (!p.endsWith("nbproject") &&
-                !p.endsWith("nbproject/private")) { //NOI18N
+            if (!p.endsWith("nbproject")
+                    && !p.endsWith("nbproject/private")) { //NOI18N
 //                setValue (CheckboxListView.SELECTED, Boolean.TRUE);
-                    
-            }else{
+            } else {
                 CheckableNode cn = getLookup().lookup(CheckableNode.class);
-                if(cn!=null) {
+                if (cn != null) {
                     cn.setSelected(false);
                 }
             }

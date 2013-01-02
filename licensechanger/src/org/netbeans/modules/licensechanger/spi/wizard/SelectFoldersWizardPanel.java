@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.beans.PropertyChangeEvent;
@@ -51,7 +50,7 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
 /**
- * 
+ *
  * @author Nils Hoffmann
  */
 public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
@@ -90,24 +89,24 @@ public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPane
     public boolean isValid() {
         return valid;
     }
-    
+
     @Override
     public void addChangeListener(ChangeListener l) {
         cs.addChangeListener(l);
     }
-    
+
     @Override
     public void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
         cs.fireChange();
-        try{
+        try {
             validate();
-        }catch(WizardValidationException ex) {
-            if(wiz!=null) {
+        } catch (WizardValidationException ex) {
+            if (wiz != null) {
                 wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ex.getMessage());
             }
         }
@@ -117,15 +116,15 @@ public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPane
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
         @SuppressWarnings("unchecked")
-        Set<FileObject> folders = (Set<FileObject>)wiz.getProperty(WizardProperties.KEY_FOLDERS);
-        if(folders==null || folders.isEmpty()) {
+        Set<FileObject> folders = (Set<FileObject>) wiz.getProperty(WizardProperties.KEY_FOLDERS);
+        if (folders == null || folders.isEmpty()) {
             Object obj = wiz.getProperty(WizardProperties.KEY_ROOT_FILES);
-            if(obj!=null) {
+            if (obj != null) {
                 @SuppressWarnings("unchecked")
-                Set<FileObject> sobj = (Set<FileObject>)obj;
+                Set<FileObject> sobj = (Set<FileObject>) obj;
                 getComponent().setRootFiles(sobj);
             }
-        }else{
+        } else {
             getComponent().setRootFiles(folders);
         }
     }
@@ -140,11 +139,11 @@ public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPane
     public void validate() throws WizardValidationException {
         valid = true;
         Set<FileObject> folders = getComponent().getSelectedFolders();
-        if(folders==null || folders.isEmpty()) {
+        if (folders == null || folders.isEmpty()) {
             valid = false;
             throw new WizardValidationException(component, "Please select at least one folder!", null);
         }
-        if(wiz!=null) {
+        if (wiz != null) {
             wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);

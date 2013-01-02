@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import org.netbeans.modules.licensechanger.api.FileHandler;
@@ -49,17 +48,17 @@ import org.openide.util.NbBundle;
  *
  * @author Tim Boudreau
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
 public class PropertiesFileHandler extends FileHandler {
 
     @Override
     public String getDisplayName() {
-        return NbBundle.getMessage (JavaFileHandler.class, "NAME_PROPERTIES_FILES"); //NOI18N
+        return NbBundle.getMessage(JavaFileHandler.class, "NAME_PROPERTIES_FILES"); //NOI18N
     }
 
     @Override
     public boolean match(FileObject file) {
-        return "properties".equals (file.getExt());
+        return "properties".equals(file.getExt());
     }
 
     @Override
@@ -67,8 +66,8 @@ public class PropertiesFileHandler extends FileHandler {
         String n = file.getNameExt();
         return "project.properties".equals(n) || "private.properties".equals(n) || //NOI18N
                 "platform-private.properties".equals(n) || "genfiles.properties".equals(n)
-                || "config.properties".equals(n) || "nblibraries-private.properties".equals(n) ||
-                "nblibraries.properties".equals(n); //NOI18N
+                || "config.properties".equals(n) || "nblibraries-private.properties".equals(n)
+                || "nblibraries.properties".equals(n); //NOI18N
     }
 
     @Override
@@ -85,7 +84,7 @@ public class PropertiesFileHandler extends FileHandler {
                 break;
             }
         }
-        return new Offsets (0, end);
+        return new Offsets(0, end);
     }
 
     @Override
@@ -95,12 +94,12 @@ public class PropertiesFileHandler extends FileHandler {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             if (line.trim().length() == 0) {
-                sb.append ("#");
+                sb.append("#");
             } else {
-                sb.append ("# ");
-                sb.append (line);
+                sb.append("# ");
+                sb.append(line);
             }
-            sb.append ("\n");
+            sb.append("\n");
         }
         return sb.toString();
     }

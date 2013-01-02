@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.io.CharConversionException;
@@ -55,23 +54,23 @@ import org.openide.xml.XMLUtil;
  *
  * @author Tim Boudreau
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class XmlFileHandler extends FileHandler{// implements Customizable {
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
+public class XmlFileHandler extends FileHandler {// implements Customizable {
 
     @Override
     public boolean match(FileObject file) {
         String ext = file.getExt();
         String mime = file.getMIMEType();
-        return "xml".equals (file.getExt()) || "text/xml".equals(mime) ||
-                "application/xml".equals(mime) || mime.endsWith("+xml");
+        return "xml".equals(file.getExt()) || "text/xml".equals(mime)
+                || "application/xml".equals(mime) || mime.endsWith("+xml");
     }
 
     @Override
     public boolean shouldSkipFile(FileObject file) {
         String n = file.getNameExt();
-        return "project.xml".equals(n) ||
-                "private.xml".equals(n) || "build.xml".equals(n) ||
-                "build-impl.xml".equals(n) || "pom.xml".equals(n);
+        return "project.xml".equals(n)
+                || "private.xml".equals(n) || "build.xml".equals(n)
+                || "build-impl.xml".equals(n) || "pom.xml".equals(n);
     }
 
     @Override
@@ -83,13 +82,13 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
     protected Offsets getReplaceOffsets(CharSequence seq) {
         String[] lines = splitIntoLines(seq);
         LineVisitor v = new LineVisitor();
-        for (int i=0; i < lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             if (!v.visitLine(line)) {
                 break;
             }
         }
-        return new Offsets (v.start, v.delCount);
+        return new Offsets(v.start, v.delCount);
     }
 
     @Override
@@ -101,19 +100,17 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
         }
         return "<!--\n" + licenseText + "\n-->\n";
     }
-
-    static Pattern xmlDeclaration = Pattern.compile ("(<\\?xml.*?\\?>)");
+    static Pattern xmlDeclaration = Pattern.compile("(<\\?xml.*?\\?>)");
 
 //    @Override
 //    public Component getCustomizer() {
 //        return new XmlHandlerCustomizer();
 //    }
-
     public static boolean isInsertAtTopOfFile() {
         return NbPreferences.forModule(XmlFileHandler.class).getBoolean("atTop", false);
     }
 
-    public static void setInsertAtTopOfFile (boolean val) {
+    public static void setInsertAtTopOfFile(boolean val) {
         NbPreferences.forModule(XmlFileHandler.class).putBoolean("atTop", val);
     }
 
@@ -133,11 +130,13 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
     }
 
     private static final class XmlDeclarationLocator {
+
         int declarationStartIndex;
         int declarationEndIndex;
         boolean isMidLine;
+
         public boolean visitLine(String line) {
-            Matcher m = xmlDeclaration.matcher (line);
+            Matcher m = xmlDeclaration.matcher(line);
             if (m.find()) {
                 declarationStartIndex += m.start(1);
                 declarationEndIndex = declarationStartIndex + m.end(1);
@@ -155,28 +154,28 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
     }
 
     @Override
-    public String transform(String origText, String licenseText, Map<String,Object> bindings) {
+    public String transform(String origText, String licenseText, Map<String, Object> bindings) {
         String[] lines = splitIntoLines(origText);
         XmlDeclarationLocator v = new XmlDeclarationLocator();
-        for (int i=0; i < lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             if (!v.visitLine(lines[i])) {
                 break;
             }
         }
         if (v.foundDeclaration()) {
-            StringBuilder sb = new StringBuilder (origText);
+            StringBuilder sb = new StringBuilder(origText);
             sb.delete(0, v.declarationStartIndex);
             origText = sb.toString();
         }
 //        String license = escape (licenseText);
         String license = resolveLicenseTemplate(licenseText, bindings);
         license = "\n" + license;
-        StringBuilder sb = new StringBuilder (origText);
+        StringBuilder sb = new StringBuilder(origText);
         Offsets o = getReplaceOffsets(sb);
         sb.delete(o.getStart(), o.getEnd());
         lines = splitIntoLines(origText);
         v = new XmlDeclarationLocator();
-        for (int i=0; i < lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             if (!v.visitLine(lines[i])) {
                 break;
             }
@@ -189,13 +188,13 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
         return sb.toString();
     }
 
-
-
     private static final class LineVisitor {
+
         private boolean inComment;
         int delCount;
         int start;
-        public boolean visitLine (String line) {
+
+        public boolean visitLine(String line) {
             if (start == 0) {
                 if (line.trim().startsWith("<?xml ")) {
                     start += line.length() + 1;
@@ -207,11 +206,11 @@ public class XmlFileHandler extends FileHandler{// implements Customizable {
             if (trimmed.startsWith("<!--") && trimmed.endsWith("-->")) {
                 return visitCommentLine(line);
             } else if (trimmed.length() == 0) {
-                return visitEmptyLine (line);
+                return visitEmptyLine(line);
             } else if (inComment) {
-                return visitLineInComment (line);
+                return visitLineInComment(line);
             } else {
-                return visitLineAndTestForComment (line);
+                return visitLineAndTestForComment(line);
             }
         }
 

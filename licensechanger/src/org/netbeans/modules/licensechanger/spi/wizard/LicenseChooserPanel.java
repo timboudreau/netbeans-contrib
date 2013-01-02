@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.awt.Component;
@@ -165,9 +164,9 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
             DefaultComboBoxModel dcbm = (DefaultComboBoxModel) selectLicense.getModel();
             LicenseHeader lh = LicenseHeader.fromFile(f);
             LicenseHeader.addAsNetBeansTemplate(lh);
-            for(LicenseHeader header:LicenseHeader.fromTemplates()) {
-                if(header.getName().equals(lh.getName())) {
-                    System.out.println("Found newly added template!");
+            for (LicenseHeader header : LicenseHeader.fromTemplates()) {
+                if (header.getName().equals(lh.getName())) {
+//                    System.out.println("Found newly added template!");
                     dcbm.addElement(header);
                     dcbm.setSelectedItem(header);
                     loadLicenseFromResource(header);
@@ -203,7 +202,7 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
     private void initLicenses() throws IOException {
         assert !EventQueue.isDispatchThread();
         final DefaultComboBoxModel mdl = new DefaultComboBoxModel();
-        for(LicenseHeader header:LicenseHeader.fromTemplates()) {
+        for (LicenseHeader header : LicenseHeader.fromTemplates()) {
             mdl.addElement(header);
         }
         EventQueue.invokeLater(new Runnable() {
@@ -236,26 +235,25 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
     public String getLicenseText() {
         return licenseText.getText();
     }
-    
+
     public String getLicenseName() {
         Object obj = selectLicense.getSelectedItem();
-        if(obj!= null && obj instanceof LicenseHeader) {
-            LicenseHeader header = (LicenseHeader)obj;
+        if (obj != null && obj instanceof LicenseHeader) {
+            LicenseHeader header = (LicenseHeader) obj;
             return header.getName();
         }
         return null;
     }
-    
+
     public boolean isUpdateDefaultProjectLicense() {
         return updateDefaultProjectLicense.isSelected();
     }
-    
+
     public void setUpdateDefaultProjectLicense(boolean b) {
         updateDefaultProjectLicense.setSelected(b);
     }
 
     private void updateLicense() {
-        System.out.println("Update license called");
         licenseText.setEditable(false);
         String txt = licenseText.getText();
         if (!txt.endsWith("\n")) {
@@ -286,7 +284,7 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
         ResourceLoader(LicenseHeader header) {
             this.header = header;
         }
-        
+
         @Override
         public void run() {
             licenseText.setText(header.getLicenseHeader());

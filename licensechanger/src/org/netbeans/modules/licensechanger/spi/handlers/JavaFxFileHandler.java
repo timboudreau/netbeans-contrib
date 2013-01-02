@@ -36,14 +36,14 @@
  *
  * Portions Copyrighted 2010 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
 public class JavaFxFileHandler extends JavaFileHandler {
+
     @Override
     public String getDisplayName() {
         return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
@@ -54,4 +54,3 @@ public class JavaFxFileHandler extends JavaFileHandler {
         return "text/x-fx".equals(file.getMIMEType()); //NOI18N
     }
 }
-

@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.beans.PropertyChangeEvent;
@@ -53,10 +52,10 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
 /**
- * 
+ *
  * @author Nils Hoffmann
  */
-public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener{
+public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
 
     /**
      * The visual component that displays this panel. If you need to access the
@@ -92,24 +91,24 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
     public boolean isValid() {
         return valid;
     }
-    
+
     @Override
     public void addChangeListener(ChangeListener l) {
         cs.addChangeListener(l);
     }
-    
+
     @Override
     public void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
         cs.fireChange();
         try {
             validate();
         } catch (WizardValidationException ex) {
-            if(wiz!=null) {
+            if (wiz != null) {
                 wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ex.getMessage());
             }
         }
@@ -119,16 +118,16 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
         @SuppressWarnings("unchecked")
-        String license = (String)wiz.getProperty(WizardProperties.KEY_LICENSE_TEXT);
-        if(license!=null) {
+        String license = (String) wiz.getProperty(WizardProperties.KEY_LICENSE_TEXT);
+        if (license != null) {
             getComponent().setLicenseText(license);
         }
         getComponent().setProperties(wiz.getProperties());
         @SuppressWarnings("unchecked")
-        Set<FileHandler> fileHandler = (Set<FileHandler>)wiz.getProperty(WizardProperties.KEY_FILE_HANDLERS);
+        Set<FileHandler> fileHandler = (Set<FileHandler>) wiz.getProperty(WizardProperties.KEY_FILE_HANDLERS);
         @SuppressWarnings("unchecked")
-        Set<FileObject> folders = (Set<FileObject>)wiz.getProperty(WizardProperties.KEY_FOLDERS);
-        if(fileHandler!=null && folders != null) {
+        Set<FileObject> folders = (Set<FileObject>) wiz.getProperty(WizardProperties.KEY_FOLDERS);
+        if (fileHandler != null && folders != null) {
             getComponent().setFolders(folders, fileHandler);
         }
         wiz.putProperty(WizardProperties.KEY_ITEMS, null);
@@ -143,12 +142,12 @@ public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<Wiza
     public void validate() throws WizardValidationException {
         valid = true;
         Set<FileItem> keyItems = getComponent().getSelectedItems();
-        
-        if(keyItems==null || keyItems.isEmpty()) {
+
+        if (keyItems == null || keyItems.isEmpty()) {
             valid = false;
             throw new WizardValidationException(component, "Please select at least one file!", null);
         }
-        if(wiz!=null) {
+        if (wiz != null) {
             wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);

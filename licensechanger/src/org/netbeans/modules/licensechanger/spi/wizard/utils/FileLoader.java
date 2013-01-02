@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import java.io.BufferedInputStream;
@@ -54,6 +53,7 @@ import org.openide.filesystems.FileUtil;
  * @author Nils Hoffmann (Refactoring)
  */
 public class FileLoader {
+
     public static String loadFile(FileObject file) throws IOException {
         Charset encoding = FileEncodingQuery.getEncoding(file);
         InputStream in = new BufferedInputStream(file.getInputStream());
@@ -62,7 +62,7 @@ public class FileLoader {
             FileUtil.copy(in, out);
             try {
                 String result = new String(out.toByteArray(), encoding.name());
-                String sep = System.getProperty ("line.separator");
+                String sep = System.getProperty("line.separator");
                 //Convert everything internally to use \n
                 if (!"\n".equals(sep) && sep != null) {
                     return result.replaceAll(sep, "\n");

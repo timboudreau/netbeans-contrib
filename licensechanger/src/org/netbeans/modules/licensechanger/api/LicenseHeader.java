@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.api;
 
 import java.io.*;
@@ -51,31 +50,36 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
- * License header resource/file abstraction class with static 
- * methods to load a license header from file or registered license template.
+ * License header resource/file abstraction class with static methods to load a
+ * license header from file or registered license template.
+ *
  * @author Nils Hoffmann
  */
 public final class LicenseHeader {
- 
+
     /**
-     * <p>Creates a <code>LicenseHeader</code> from a given <code>FileObject</code>.</p>
-     * 
-     * <p>If the passed in <code>licenseName</code> is <em>null</em>, the name is inferred 
-     * from the <code>FileObject</code>'s name. According to NetBeans conventions, license
-     * file names start with a prefixed <em>license-</em> before the actual license abbreviation,
-     * e.g. <em>epl10</em> for the Eclipse public license version 1.0.</p>
-     * 
+     * <p>Creates a
+     * <code>LicenseHeader</code> from a given
+     * <code>FileObject</code>.</p>
+     *
+     * <p>If the passed in
+     * <code>licenseName</code> is <em>null</em>, the name is inferred from the
+     * <code>FileObject</code>'s name. According to NetBeans conventions,
+     * license file names start with a prefixed <em>license-</em> before the
+     * actual license abbreviation, e.g. <em>epl10</em> for the Eclipse public
+     * license version 1.0.</p>
+     *
      * @param file
      * @param licenseName
      * @param netBeansTemplate
-     * @return 
+     * @return
      */
     public static LicenseHeader fromFileObject(FileObject file, String licenseName, boolean isNetBeansTemplate) {
         String name;
-        if(licenseName==null) {
+        if (licenseName == null) {
             name = file.getName();
             name = name.substring("license-".length());
-        }else{
+        } else {
             name = licenseName;
         }
         String content;
@@ -92,7 +96,7 @@ public final class LicenseHeader {
             return null;
         } finally {
             try {
-                if(in!=null) {
+                if (in != null) {
                     in.close();
                 }
             } catch (IOException ex) {
@@ -100,46 +104,46 @@ public final class LicenseHeader {
             }
         }
     }
-    
+
     public static LicenseHeader fromFileObject(FileObject file, String licenseName) {
         return fromFileObject(file, licenseName, false);
     }
-    
+
     public static LicenseHeader fromFile(File file) {
-        return fromFileObject(FileUtil.toFileObject(file),null);
+        return fromFileObject(FileUtil.toFileObject(file), null);
     }
-    
+
     public static Collection<? extends LicenseHeader> fromTemplates() {
         FileObject licenseTemplates = FileUtil.getConfigFile("Templates/Licenses");
         List<LicenseHeader> templateLicenses = new LinkedList<LicenseHeader>();
-        for(FileObject license:licenseTemplates.getChildren()) {
+        for (FileObject license : licenseTemplates.getChildren()) {
             String name = license.getName();
             name = name.substring("license-".length());
-            LicenseHeader licenseHeader = LicenseHeader.fromFileObject(license,name,true);
-            if(licenseHeader.getLicenseHeader() == null || licenseHeader.getLicenseHeader().isEmpty()) {
-                System.err.println("License file "+name+" seems to be empty! Skipping...");
-            }else{
+            LicenseHeader licenseHeader = LicenseHeader.fromFileObject(license, name, true);
+            if (licenseHeader.getLicenseHeader() == null || licenseHeader.getLicenseHeader().isEmpty()) {
+                System.err.println("License file " + name + " seems to be empty! Skipping...");
+            } else {
                 licenseHeader.setNetBeansTemplate(true);
                 templateLicenses.add(licenseHeader);
             }
         }
         return templateLicenses;
     }
-    
+
     public static void addAsNetBeansTemplate(LicenseHeader header) {
-        String filename = "license-"+header.getName()+".txt";
+        String filename = "license-" + header.getName() + ".txt";
         FileObject licenseTemplates = FileUtil.getConfigFile("Templates/Licenses");
         BufferedWriter bos = null;
         try {
             FileObject templateFile = licenseTemplates.createData(filename);
-            bos = new BufferedWriter(new OutputStreamWriter(templateFile.getOutputStream(),Charset.forName("UTF-8")));
+            bos = new BufferedWriter(new OutputStreamWriter(templateFile.getOutputStream(), Charset.forName("UTF-8")));
             bos.write(header.getLicenseHeader());
             header.setNetBeansTemplate(true);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         } finally {
             try {
-                if(bos!=null) {
+                if (bos != null) {
                     bos.close();
                 }
             } catch (IOException ex) {
@@ -147,7 +151,6 @@ public final class LicenseHeader {
             }
         }
     }
-    
     private final String name;
     private final String licenseHeader;
     private final FileObject fo;
@@ -159,11 +162,11 @@ public final class LicenseHeader {
         this.fo = fo;
         this.netBeansTemplate = netBeansTemplate;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public String getLicenseHeader() {
         return licenseHeader;
     }
@@ -189,5 +192,4 @@ public final class LicenseHeader {
         }
         return name;
     }
-    
 }

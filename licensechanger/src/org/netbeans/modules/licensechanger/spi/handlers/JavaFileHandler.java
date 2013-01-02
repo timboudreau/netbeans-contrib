@@ -47,7 +47,7 @@ import org.openide.util.NbBundle;
  *
  * @author Tim Boudreau
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
 public class JavaFileHandler extends FileHandler {
 
     @Override
@@ -69,13 +69,13 @@ public class JavaFileHandler extends FileHandler {
     protected Offsets getReplaceOffsets(CharSequence seq) {
         String[] lines = splitIntoLines(seq);
         LineVisitor v = new LineVisitor();
-        for (int i=0; i < lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             if (!v.visitLine(line)) {
                 break;
             }
         }
-        return new Offsets (0, v.delCount);
+        return new Offsets(0, v.delCount);
     }
 
     @Override
@@ -94,18 +94,20 @@ public class JavaFileHandler extends FileHandler {
     }
 
     private static final class LineVisitor {
+
         private boolean inComment;
         int delCount;
-        public boolean visitLine (String line) {
+
+        public boolean visitLine(String line) {
             String trimmed = line.trim();
             if (trimmed.startsWith("//") || trimmed.startsWith("/*") && trimmed.endsWith("*/")) {
                 return visitCommentLine(line);
             } else if (trimmed.length() == 0) {
-                return visitEmptyLine (line);
+                return visitEmptyLine(line);
             } else if (inComment) {
-                return visitLineInComment (line);
+                return visitLineInComment(line);
             } else {
-                return visitLineAndTestForComment (line);
+                return visitLineAndTestForComment(line);
             }
         }
 
@@ -144,7 +146,6 @@ public class JavaFileHandler extends FileHandler {
             }
         }
     }
-
 
 //    @Override
 //    protected Offsets getReplaceOffsets(CharSequence seq) {
@@ -191,20 +192,19 @@ public class JavaFileHandler extends FileHandler {
 //        }
 //        return new Offsets(0, end2);
 //    }
-
     @Override
     protected String escape(String licenseText) {
         StringBuilder sb = new StringBuilder(licenseText.length() + 30);
-        String[] lines = splitIntoLines (licenseText);
-        sb.append ("/*\n");
+        String[] lines = splitIntoLines(licenseText);
+        sb.append("/*\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             boolean empty = line.trim().length() == 0;
             if (empty) {
-                sb.append (" *");
+                sb.append(" *");
             } else {
-                sb.append (" * ");
-                sb.append (line);
+                sb.append(" * ");
+                sb.append(line);
             }
             sb.append("\n");
         }

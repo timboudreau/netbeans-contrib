@@ -36,12 +36,11 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 /**
  * Central class for Wizard-related property keys.
- * 
+ *
  * @author Nils Hoffmann
  */
 public final class WizardProperties {
@@ -59,5 +58,7 @@ public final class WizardProperties {
     public static final String KEY_PROJECT = "project";
     public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
     public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
-    private WizardProperties(){}
+
+    private WizardProperties() {
+    }
 }

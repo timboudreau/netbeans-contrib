@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import java.util.Collection;
@@ -92,8 +91,8 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
                             DataObject dob = DataObject.find(fo);
                             FileItem item = new FileItem(h, fo);
                             items.add(item);
-                            FN fn = new FN (dob.getNodeDelegate(), item);
-                            boolean shouldChange =  !h.shouldSkipFile(fo);
+                            FN fn = new FN(dob.getNodeDelegate(), item);
+                            boolean shouldChange = !h.shouldSkipFile(fo);
                             result.add(fn);
 //                            fn.setValue (CheckboxListView.SELECTED, shouldChange);
                             break;
@@ -130,7 +129,7 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
 
         FN(Node orig, FileItem item) {
             super(orig, Children.LEAF, new ProxyLookup(
-                    Lookups.fixed(item,new CheckableNodeCapability()),
+                    Lookups.fixed(item, new CheckableNodeCapability()),
                     orig.getLookup()));
             disableDelegation(DELEGATE_GET_ACTIONS);
             disableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);

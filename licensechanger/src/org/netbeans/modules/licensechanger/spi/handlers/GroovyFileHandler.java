@@ -46,11 +46,12 @@ import org.openide.util.NbBundle;
 
 /**
  * Service Provider implementation for files with mime-type text/x-groovy.
- * 
+ *
  * @author Nils Hoffmann
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.modules.licensechanger.api.FileHandler.class)
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
 public class GroovyFileHandler extends JavaFileHandler {
+
     @Override
     public String getDisplayName() {
         return NbBundle.getMessage(GroovyFileHandler.class, "NAME_GROOVY_FILES"); //NOI18N

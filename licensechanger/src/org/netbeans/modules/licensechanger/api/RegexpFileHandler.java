@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.api;
 
 import java.util.regex.Matcher;
@@ -48,8 +47,10 @@ import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
  * @author Tim Boudreau
  */
 public abstract class RegexpFileHandler extends FileHandler {
+
     private final Pattern pattern;
-    public RegexpFileHandler (Pattern pattern) {
+
+    public RegexpFileHandler(Pattern pattern) {
         this.pattern = pattern;
     }
 
@@ -61,13 +62,12 @@ public abstract class RegexpFileHandler extends FileHandler {
                 int end = m.end(1);
                 return new Offsets(start, end);
             } else {
-                throw new IllegalStateException ("Regexp " + pattern.pattern()
+                throw new IllegalStateException("Regexp " + pattern.pattern()
                         + " gets groupCount " + m.groupCount());
             }
         } else {
-            throw new IllegalStateException ("Regexp " + pattern.pattern() +
-                    " could find match in " + seq);
+            throw new IllegalStateException("Regexp " + pattern.pattern()
+                    + " could find match in " + seq);
         }
     }
-
 }

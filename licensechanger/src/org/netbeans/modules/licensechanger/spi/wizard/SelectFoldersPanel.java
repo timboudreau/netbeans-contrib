@@ -38,10 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.spi.wizard;
 
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.FolderChildren;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
 import org.openide.explorer.view.OutlineView;
@@ -49,41 +51,33 @@ import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import static org.netbeans.modules.licensechanger.spi.wizard.Bundle.*;
-import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring)
  */
-@Messages("SelectFoldersPanel.jScrollPane1.nodeHeaderLabel=Folders")
 public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerManager.Provider {
-
+    
     private final ExplorerManager mgr = new ExplorerManager();
-
+    
     public SelectFoldersPanel() {
         initComponents();
         updateView();
+        setName("Select Folders");
     }
-
+    
     private void updateFolders() {
         Set<FileObject> folders = getSelectedFolders();
-        System.out.println("Selected folders: " + folders);
+//        System.out.println("Selected folders: " + folders);
         firePropertyChange(WizardProperties.KEY_FOLDERS, null, folders);
     }
-
+    
     private void enableUI() {
-//        view().setCheckboxesVisible(true);
-//        view().setCheckboxesEnabled(true);
         jLabel1.setEnabled(true);
-//        view().setListEnabled(true);
         updateView();
     }
 
-//    private CheckboxListView view() {
-//        return (CheckboxListView) jScrollPane1;
-//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -130,7 +124,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
     public ExplorerManager getExplorerManager() {
         return mgr;
     }
-
+    
     public void setRootFiles(Set<FileObject> roots) {
         AbstractNode root = new AbstractNode(Children.create(new FolderChildren(roots.toArray(new FileObject[roots.size()])) {
             @Override
@@ -142,9 +136,14 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         mgr.setRootContext(root);
         firePropertyChange("rootFiles", null, roots);
     }
-
+    
     public Set<FileObject> getSelectedFolders() {
-        Set<FileObject> folders = new HashSet<FileObject>();
+        Set<FileObject> folders = new TreeSet<FileObject>(new Comparator<FileObject>() {
+            @Override
+            public int compare(FileObject t, FileObject t1) {
+                return t.getPath().compareTo(t1.getPath());
+            }
+        });
         for (Node n : mgr.getRootContext().getChildren().getNodes(true)) {
             CheckableNode cn = n.getLookup().lookup(CheckableNode.class);
             if (cn != null && cn.isSelected()) {
@@ -156,15 +155,14 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         }
         return folders;
     }
-
+    
     private void updateView() {
-        //        view().setNodeCheckObserver(this);
         OutlineView ov = (OutlineView) jScrollPane1;
         ov.getOutline().setRootVisible(false);
         ov.setPopupAllowed(false);
         ov.setTreeSortable(false);
-        ov.setName("Selected Folders");
-        String headerName = SelectFoldersPanel_jScrollPane1_nodeHeaderLabel(); // NOI18N
-        ov.getOutline().getTableHeader().getColumnModel().getColumn(0).setHeaderValue(headerName);
+        String headerName = org.openide.util.NbBundle.getMessage(SelectFoldersPanel.class, "SelectFoldersPanel.nodesLabel.text"); // NOI18N
+        ((DefaultOutlineModel) ov.getOutline().getOutlineModel()).setNodesColumnLabel(headerName);
+        setName("Select Folders");
     }
 }

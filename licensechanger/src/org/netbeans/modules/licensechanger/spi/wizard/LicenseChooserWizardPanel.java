@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard;
 
 import java.beans.PropertyChangeEvent;
@@ -49,7 +48,7 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
 /**
- * 
+ *
  * @author Nils Hoffmann
  */
 public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
@@ -75,7 +74,7 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
         }
         return component;
     }
-    
+
     @Override
     public HelpCtx getHelp() {
         // Show no Help button for this panel:
@@ -83,34 +82,34 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
         // If you have context help:
         // return new HelpCtx("help.key.here");
     }
-    
+
     @Override
     public boolean isValid() {
         return valid;
     }
-    
+
     @Override
     public void addChangeListener(ChangeListener l) {
         cs.addChangeListener(l);
     }
-    
+
     @Override
     public void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
         cs.fireChange();
-        try{
+        try {
             validate();
-        }catch(WizardValidationException ex) {
-            if(wiz!=null) {
+        } catch (WizardValidationException ex) {
+            if (wiz != null) {
                 wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, "Please select a license!");
             }
         }
     }
-    
+
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
@@ -118,12 +117,12 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
         if (obj != null && obj instanceof String) {
             getComponent().setLicenseText((String) obj);
         }
-        Boolean b = (Boolean)wiz.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
-        if(b != null) {
+        Boolean b = (Boolean) wiz.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
+        if (b != null) {
             getComponent().setUpdateDefaultProjectLicense(b);
         }
     }
-    
+
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         wiz.putProperty(WizardProperties.KEY_LICENSE_TEXT, getComponent().getLicenseText());
@@ -134,16 +133,15 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
     @Override
     public void validate() throws WizardValidationException {
         valid = true;
-        if (getComponent().getLicenseText() == null ||
-            getComponent().getLicenseText().equals(WizardProperties.VALUE_DEFAULT_LICENSE_TEXT)) {
+        if (getComponent().getLicenseText() == null
+                || getComponent().getLicenseText().equals(WizardProperties.VALUE_DEFAULT_LICENSE_TEXT)) {
             valid = false;
             throw new WizardValidationException(component, "Please select a license!", null);
         }
-        if(wiz!=null) {
+        if (wiz != null) {
             wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE, null);
             wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);
         }
     }
-
 }

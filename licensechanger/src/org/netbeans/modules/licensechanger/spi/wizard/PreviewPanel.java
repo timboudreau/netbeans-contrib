@@ -57,6 +57,7 @@ import org.netbeans.modules.licensechanger.spi.wizard.utils.FileChildren;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.FileChildren.FileItem;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.FileLoader;
 import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
 import org.openide.explorer.view.OutlineView;
@@ -67,15 +68,12 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;
-import static org.netbeans.modules.licensechanger.spi.wizard.Bundle.*;
-import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring, Diff API inclusion)
  */
-@Messages("PreviewPanel.fileList.nodeHeaderLabel=Selected Files")
 public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.Provider, PropertyChangeListener {
 
     private final ExplorerManager mgr = new ExplorerManager();
@@ -91,23 +89,21 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         jLabel3.setText("  ");
         updateView();
     }
-    
+
     private void updateView() {
         OutlineView ov = (OutlineView) fileList;
         ov.getOutline().setRootVisible(false);
         ov.setPopupAllowed(false);
         ov.setTreeSortable(false);
         ov.getOutline().setShowGrid(false);
-        String headerName = PreviewPanel_fileList_nodeHeaderLabel(); // NOI18N
-        ov.getOutline().getTableHeader().getColumnModel().getColumn(0).setHeaderValue(headerName);
+        String headerName = org.openide.util.NbBundle.getMessage(PreviewPanel.class, "PreviewPanel.nodesLabel.text"); // NOI18N
+        ((DefaultOutlineModel) ov.getOutline().getOutlineModel()).setNodesColumnLabel(headerName);
+        setName("Preview Changes");
     }
 
     public void setFolders(Set<FileObject> folders, Set<FileHandler> fileHandler) {
         Children kids = Children.create(new FileChildren(folders, fileHandler), true);
         mgr.setRootContext(new AbstractNode(kids));
-//        view().setCheckboxesVisible(true);
-//        view().setCheckboxesEnabled(true);
-//        view().setListEnabled(true);
         updateView();
         updateItems();
     }
@@ -128,9 +124,6 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         firePropertyChange(WizardProperties.KEY_ITEMS, null, s);
     }
 
-//    private CheckboxListView view() {
-//        return (CheckboxListView) fileList;
-//    }
     public void setLicenseText(String licenseText) {
         this.licenseText = licenseText;
         firePropertyChange(WizardProperties.KEY_LICENSE_TEXT, null, this.licenseText);

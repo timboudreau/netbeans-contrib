@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.io.ByteArrayOutputStream;
@@ -54,39 +53,39 @@ import org.openide.filesystems.FileUtil;
  * @author Nils Hoffmann
  */
 public class GroovyFileHandlerTest {
-    
-    private final Map<String,Object> props = Collections.emptyMap();
+
+    private final Map<String, Object> props = Collections.emptyMap();
 
     void runTest(String infix) throws Exception {
         String golden = getGolden(infix);
         String license = getLicense();
-        for (int i=1; i <= 12; i++) {
-            String header = "resources/groovy/header_"+i+".txt";
-            String template = "resources/groovy/groovy_"+infix+"_template.txt";
-            System.out.println("Test "+" header_" + i+".txt with groovy_"+infix+"_template.txt");
-            testOneVersion(golden, license, merge(header,template));
+        for (int i = 1; i <= 12; i++) {
+            String header = "resources/groovy/header_" + i + ".txt";
+            String template = "resources/groovy/groovy_" + infix + "_template.txt";
+            System.out.println("Test " + " header_" + i + ".txt with groovy_" + infix + "_template.txt");
+            testOneVersion(golden, license, merge(header, template));
         }
     }
-    
+
     @Test
     public void testGroovyClass() throws Exception {
         System.out.println("testGroovyClass");
         runTest("class");
     }
-    
+
     /**
      * FIXME This test currently fails due to the removal of the author comment.
      * This is probably intended, but might prove to be a bug for groovy files,
      * as it would unexpectedly remove comments.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
-    @Test(expected=AssertionError.class)
+    @Test(expected = AssertionError.class)
     public void testGroovyClassNoPackage() throws Exception {
         System.out.println("testGroovyClassNoPackage");
         runTest("class_nopackage");
     }
-    
+
     @Test
     public void testGroovyScript() throws Exception {
         System.out.println("testGroovyScript");
@@ -96,15 +95,15 @@ public class GroovyFileHandlerTest {
     private void testOneVersion(String golden, String license, String original) throws Exception {
         GroovyFileHandler instance = new GroovyFileHandler();
         String processed = instance.transform(original, license, props);
-        assertEqualsLineByLine (golden, processed);
+        assertEqualsLineByLine(golden, processed);
     }
 
-    static void assertEqualsLineByLine (String golden, String processed) {
+    static void assertEqualsLineByLine(String golden, String processed) {
         String[] g = FileHandler.splitIntoLines(golden);
         String[] p = FileHandler.splitIntoLines(processed);
-        for (int i=0; i < Math.min (g.length, p.length); i++) {
-            if(!g[i].equals(p[i])) {
-                assertEquals ("Difference between files at line " + i + "\n", g[i], p[i]);
+        for (int i = 0; i < Math.min(g.length, p.length); i++) {
+            if (!g[i].equals(p[i])) {
+                assertEquals("Difference between files at line " + i + "\n", g[i], p[i]);
             }
         }
     }
@@ -115,29 +114,28 @@ public class GroovyFileHandlerTest {
         sb.append(readFile(template));
         return sb.toString();
     }
-    
+
     private static String getGolden(String infix) throws Exception {
-        return readFile ("resources/groovy/groovy_"+infix+"_golden.txt");
+        return readFile("resources/groovy/groovy_" + infix + "_golden.txt");
     }
 
     static String getLicense() throws Exception {
-        return readFile ("fake_license.txt");
+        return readFile("fake_license.txt");
     }
 
-    static String readFile (String name) throws Exception {
+    static String readFile(String name) throws Exception {
         InputStream in = GroovyFileHandlerTest.class.getResourceAsStream(name);
         if (in == null) {
-            fail ("No input stream for " + name);
+            fail("No input stream for " + name);
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            FileUtil.copy (in, out);
+            FileUtil.copy(in, out);
         } finally {
             in.close();
             out.close();
         }
-        String result = new String (out.toByteArray(), "UTF-8");
+        String result = new String(out.toByteArray(), "UTF-8");
         return result.replace("\r\n", "\n");
     }
- 
 }

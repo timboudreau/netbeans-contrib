@@ -36,15 +36,14 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.wizard.utils;
 
 import org.openide.explorer.view.CheckableNode;
 
 /**
- * Implements {@see CheckableNode} to allow display and 
- * use of checkable nodes in views.
- * 
+ * Implements {@link CheckableNode} to allow display and use of checkable nodes
+ * in views.
+ *
  * @author Nils Hoffmann
  */
 public class CheckableNodeCapability implements CheckableNode {
@@ -52,7 +51,7 @@ public class CheckableNodeCapability implements CheckableNode {
     private boolean checkable = true;
     private boolean checkEnabled = true;
     private boolean selected = true;
-    
+
     @Override
     public boolean isCheckable() {
         return checkable;
@@ -72,5 +71,4 @@ public class CheckableNodeCapability implements CheckableNode {
     public void setSelected(Boolean selected) {
         this.selected = selected.booleanValue();
     }
-    
 }

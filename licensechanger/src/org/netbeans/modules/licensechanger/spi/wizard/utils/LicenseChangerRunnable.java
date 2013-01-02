@@ -53,7 +53,6 @@ import org.netbeans.modules.maven.model.pom.POMModel;
 import org.netbeans.modules.maven.model.pom.Properties;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.*;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.EditableProperties;
 import org.openide.util.Exceptions;
 
@@ -92,7 +91,7 @@ public class LicenseChangerRunnable implements Runnable {
                                     Exceptions.printStackTrace(ex);
                                     throw new RuntimeException(ex);
                                 } finally {
-                                    if(in!=null) {
+                                    if (in != null) {
                                         in.close();
                                     }
                                 }
@@ -105,7 +104,7 @@ public class LicenseChangerRunnable implements Runnable {
                                     Exceptions.printStackTrace(ex);
                                     throw new RuntimeException(ex);
                                 } finally {
-                                    if(out!=null) {
+                                    if (out != null) {
                                         out.close();
                                     }
                                 }
@@ -155,7 +154,7 @@ public class LicenseChangerRunnable implements Runnable {
             }
             Boolean updateProjectLicense = (Boolean) wizard.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
             if (updateProjectLicense) {
-                System.out.println("Updating default license header!");
+//                System.out.println("Updating default license header!");
                 Project project = (Project) wizard.getProperty(WizardProperties.KEY_PROJECT);
                 Sources source = ProjectUtils.getSources(project);
                 for (SourceGroup group : source.getSourceGroups(Sources.TYPE_GENERIC)) {
@@ -165,7 +164,7 @@ public class LicenseChangerRunnable implements Runnable {
                             final FileObject projectProps = FileUtil.createData(nbprojectDir, "project.properties");
                             boolean hasProjectProperties = group.contains(projectProps);
                             if (hasProjectProperties) {
-                                System.out.println("Found project.properties at " + projectProps.getPath());
+//                                System.out.println("Found project.properties at " + projectProps.getPath());
                                 ProjectManager.mutex().writeAccess(new Runnable() {
                                     @Override
                                     public void run() {
@@ -195,7 +194,7 @@ public class LicenseChangerRunnable implements Runnable {
                             //check for pom.xml
                             FileObject pom = group.getRootFolder().getFileObject("pom.xml");
                             if (pom != null) {
-                                System.out.println("Found maven pom.xml at " + pom.getPath());
+//                                System.out.println("Found maven pom.xml at " + pom.getPath());
                                 //found pom-based maven project
 //                                String netbeansHintLicense = "<netbeans.hint.license>" + licenseName + "</netbeans.hint.license>";
 //                                System.out.println("Please add " + netbeansHintLicense + " within your pom.xml <properties> section!");

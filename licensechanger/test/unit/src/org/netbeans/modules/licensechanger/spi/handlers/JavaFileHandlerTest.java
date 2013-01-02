@@ -36,7 +36,6 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.io.ByteArrayOutputStream;
@@ -53,15 +52,15 @@ import org.openide.filesystems.FileUtil;
  * @author Tim Boudreau
  */
 public class JavaFileHandlerTest {
-    
-    private final Map<String,Object> props = Collections.emptyMap();
+
+    private final Map<String, Object> props = Collections.emptyMap();
 
     @Test
     public void testStuff() throws Exception {
         System.out.println("testStuff");
         String golden = getGolden();
         String license = getLicense();
-        for (int i=1; i <= 12; i++) {
+        for (int i = 1; i <= 12; i++) {
             String filename = "java_" + i + ".txt";
             testOneVersion(golden, license, filename);
         }
@@ -70,19 +69,18 @@ public class JavaFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         JavaFileHandler instance = new JavaFileHandler();
-        String original = readFile (filename);
+        String original = readFile(filename);
         String processed = instance.transform(original, license, props);
-        assertEqualsLineByLine (golden, processed, filename);
+        assertEqualsLineByLine(golden, processed, filename);
     }
 
-    static void assertEqualsLineByLine (String golden, String processed, String filename) {
+    static void assertEqualsLineByLine(String golden, String processed, String filename) {
         String[] g = FileHandler.splitIntoLines(golden);
         String[] p = FileHandler.splitIntoLines(processed);
-        for (int i=0; i < Math.min (g.length, p.length); i++) {
-            assertEquals ("Difference in " + filename + " at line " + i + "\n", g[i], p[i]);
+        for (int i = 0; i < Math.min(g.length, p.length); i++) {
+            assertEquals("Difference in " + filename + " at line " + i + "\n", g[i], p[i]);
         }
     }
-
 
 //    static void assertEqualsLineByLine (String golden, String processed, String filename) {
 //        StringTokenizer a = new StringTokenizer (golden, "\n");
@@ -99,29 +97,27 @@ public class JavaFileHandlerTest {
 //        }
 //
 //    }
-
     private static String getGolden() throws Exception {
-        return readFile ("java_golden.txt");
+        return readFile("java_golden.txt");
     }
 
     static String getLicense() throws Exception {
-        return readFile ("fake_license.txt");
+        return readFile("fake_license.txt");
     }
 
-    static String readFile (String name) throws Exception {
+    static String readFile(String name) throws Exception {
         InputStream in = JavaFileHandlerTest.class.getResourceAsStream(name);
         if (in == null) {
-            fail ("No input stream for " + name);
+            fail("No input stream for " + name);
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            FileUtil.copy (in, out);
+            FileUtil.copy(in, out);
         } finally {
             in.close();
             out.close();
         }
-        String result = new String (out.toByteArray(), "UTF-8");
+        String result = new String(out.toByteArray(), "UTF-8");
         return result.replace("\r\n", "\n");
     }
- 
 }
