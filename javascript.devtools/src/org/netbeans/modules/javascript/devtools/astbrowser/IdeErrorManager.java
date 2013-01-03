@@ -37,8 +37,9 @@
  */
 package org.netbeans.modules.javascript.devtools.astbrowser;
 
-import com.oracle.nashorn.runtime.ErrorManager;
-import com.oracle.nashorn.runtime.Source;
+import jdk.nashorn.internal.runtime.ErrorManager;
+import jdk.nashorn.internal.runtime.ParserException;
+import jdk.nashorn.internal.runtime.Source;
 
 /**
  *
@@ -57,15 +58,10 @@ public class IdeErrorManager extends ErrorManager {
     }
 
     @Override
-    public void error(String message, Source source, long token) {
-        System.out.println("Ierror with source and token: " + message);
-        super.error(message, source, token);
-    }
-
-    @Override
-    public void error(String message, Source source, int line, int column, long token) {
-        System.out.println("Ierror line, column, token: " + message);
-        super.error(message, source, line, column, token);
+    public void error(ParserException e) {
+        System.out.println("Ierror: ");
+        e.printStackTrace(System.out);
+        super.error(e);
     }
 
     @Override
@@ -75,16 +71,11 @@ public class IdeErrorManager extends ErrorManager {
     }
 
     @Override
-    public void warning(String message, Source source, long token) {
-        System.out.println("Iwarning, source, token: " + message);
-        super.warning(message, source, token);
+    public void warning(ParserException e) {
+        System.out.println("Iwarning: ");
+        e.printStackTrace(System.out);
+        super.warning(e);
     }
 
-    @Override
-    public void warning(String message, Source source, int line, int column, long token) {
-        System.out.println("Iwarning, source, line, column, token: " + message);
-        super.warning(message, source, line, column, token);
-    }
-    
-    
+
 }

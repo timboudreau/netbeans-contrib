@@ -40,8 +40,8 @@
  */
 package org.netbeans.modules.javascript.devtools.astbrowser;
 
-import com.oracle.nashorn.ir.FunctionNode;
-import com.oracle.nashorn.ir.Node;
+import jdk.nashorn.internal.ir.FunctionNode;
+import jdk.nashorn.internal.ir.Node;
 import java.awt.Color;
 import java.util.Set;
 

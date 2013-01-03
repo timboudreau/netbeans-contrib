@@ -40,7 +40,7 @@
  */
 package org.netbeans.modules.javascript.devtools.astbrowser;
 
-import com.oracle.nashorn.ir.FunctionNode;
+import jdk.nashorn.internal.ir.FunctionNode;
 
 import java.awt.*;
 import java.io.File;
@@ -439,13 +439,13 @@ public class AstViewer extends TopComponent {
     private static final boolean SCRIPTING =
             Boolean.valueOf(System.getProperty("parsertest.scripting"));
     
-    protected com.oracle.nashorn.ir.FunctionNode parseNashron(String text) {
+    protected jdk.nashorn.internal.ir.FunctionNode parseNashron(String text) {
         long start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.Source source = new com.oracle.nashorn.runtime.Source("test", text);
+        jdk.nashorn.internal.runtime.Source source = new jdk.nashorn.internal.runtime.Source("test", text);
         long end = System.currentTimeMillis();
 //        System.out.println("Nashron creating source: " + (end - start));
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.options.Options options = new com.oracle.nashorn.runtime.options.Options("nashorn");
+        jdk.nashorn.internal.runtime.options.Options options = new jdk.nashorn.internal.runtime.options.Options("nashorn");
         options.process(new String[]{
             "--parse-only=true", 
             //"--print-parse=true",    
@@ -458,31 +458,31 @@ public class AstViewer extends TopComponent {
         //options._scripting = SCRIPTING;
         
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.ErrorManager errors = new IdeErrorManager();
+        jdk.nashorn.internal.runtime.ErrorManager errors = new IdeErrorManager();
         errors.setLimit(100);
         end = System.currentTimeMillis();
 //        System.out.println("Nashron creating errors: " + (end - start));
         
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.Context contextN = new com.oracle.nashorn.runtime.Context(options, errors);
-        com.oracle.nashorn.runtime.Context.setContext(contextN);
+        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors);
+        //jdk.nashorn.internal.runtime.Context.setContext(contextN);
         //contextN.setGlobal(new com.oracle.nashorn.objects.Global(contextN));
         end = System.currentTimeMillis();
 //        System.out.println("Nashron creating context: " + (end - start));
         start = System.currentTimeMillis();
 
-        com.oracle.nashorn.codegen.Compiler compiler = new com.oracle.nashorn.codegen.Compiler(source, contextN);
+        jdk.nashorn.internal.codegen.Compiler compiler = jdk.nashorn.internal.codegen.Compiler.compiler(source, contextN);
         
         end = System.currentTimeMillis();
 //        System.out.println("Nashron creating compiler: " + (end - start));
         start = System.currentTimeMillis();
-        com.oracle.nashorn.parser.Parser parser = new com.oracle.nashorn.parser.Parser(compiler);
-        com.oracle.nashorn.ir.FunctionNode node = parser.parse(com.oracle.nashorn.codegen.CompilerConstants.runScriptName);
+        jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(compiler);
+        jdk.nashorn.internal.ir.FunctionNode node = parser.parse(jdk.nashorn.internal.codegen.CompilerConstants.RUN_SCRIPT.tag());
         //node.accept(new com.oracle.nashorn.codegen.Lower(compiler));
         end = System.currentTimeMillis();
         System.out.println("Nashron parsing: " + (end - start) + "ms");
-        System.out.println("Errors: " + errors.getNumErrors());
-        System.out.println("Warnings: " + errors.getNumWarnings());
+        System.out.println("Errors: " + errors.getNumberOfErrors());
+        System.out.println("Warnings: " + errors.getNumberOfWarnings());
         
         
         return node;
@@ -750,9 +750,9 @@ public class AstViewer extends TopComponent {
     
     protected long parseNashronPerformance(Snapshot snapshot) {
         long start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.Source source = new com.oracle.nashorn.runtime.Source("test", snapshot.getText().toString());
+        jdk.nashorn.internal.runtime.Source source = new jdk.nashorn.internal.runtime.Source("test", snapshot.getText().toString());
         start = System.currentTimeMillis();
-        com.oracle.nashorn.runtime.options.Options options = new com.oracle.nashorn.runtime.options.Options("nashorn");
+        jdk.nashorn.internal.runtime.options.Options options = new jdk.nashorn.internal.runtime.options.Options("nashorn");
         options.process(new String[]{
             "--parse-only=true", 
             //"--print-parse=true",    
@@ -761,14 +761,14 @@ public class AstViewer extends TopComponent {
             "--dump-ir-graph=true", 
             "--print-symbols=true"});
 
-        com.oracle.nashorn.runtime.ErrorManager errors = new IdeErrorManager();
+        jdk.nashorn.internal.runtime.ErrorManager errors = new IdeErrorManager();
         errors.setLimit(100);
-        com.oracle.nashorn.runtime.Context contextN = new com.oracle.nashorn.runtime.Context(options, errors);
-        com.oracle.nashorn.runtime.Context.setContext(contextN);
+        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors);
+        //jdk.nashorn.internal.runtime.Context.setContext(contextN);
 
-        com.oracle.nashorn.codegen.Compiler compiler = new com.oracle.nashorn.codegen.Compiler(source, contextN);
-        com.oracle.nashorn.parser.Parser parser = new com.oracle.nashorn.parser.Parser(compiler);
-        com.oracle.nashorn.ir.FunctionNode node = parser.parse(com.oracle.nashorn.codegen.CompilerConstants.runScriptName);
+        jdk.nashorn.internal.codegen.Compiler compiler = jdk.nashorn.internal.codegen.Compiler.compiler(source, contextN);
+        jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(compiler);
+        jdk.nashorn.internal.ir.FunctionNode node = parser.parse(jdk.nashorn.internal.codegen.CompilerConstants.RUN_SCRIPT.tag());
 
         long end = System.currentTimeMillis();
         return end - start;

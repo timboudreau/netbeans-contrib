@@ -37,8 +37,8 @@
  */
 package org.netbeans.modules.javascript.devtools.astbrowser;
 
-import com.oracle.nashorn.ir.IdentNode;
-import com.oracle.nashorn.ir.Node;
+import jdk.nashorn.internal.ir.IdentNode;
+import jdk.nashorn.internal.ir.Node;
 import java.util.ArrayList;
 
 /**
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 public class CheckOffsetIntegrityVisitor extends ScannerVisitor {
 
     private int wrongOffset = -1;
-    private com.oracle.nashorn.ir.Node parentNode;
+    private jdk.nashorn.internal.ir.Node parentNode;
     
     private ArrayList<Node> parents = new ArrayList<Node>();
 
@@ -56,7 +56,7 @@ public class CheckOffsetIntegrityVisitor extends ScannerVisitor {
      * 
      * @return if -1, no wrong offset
      */
-    public int checkOffset(com.oracle.nashorn.ir.Node inode) {
+    public int checkOffset(jdk.nashorn.internal.ir.Node inode) {
         parentNode = inode;
         inode.accept(this);
         return wrongOffset;

@@ -173,7 +173,7 @@ public class TreeCreator {
         }
     }
 
-    public TreeNode createTree(com.oracle.nashorn.ir.Node node, boolean detailed) {
+    public TreeNode createTree(jdk.nashorn.internal.ir.Node node, boolean detailed) {
         //System.out.println((new PrintVisitor()).toString(node));
         if (!detailed) {
             parentNode = new TreeASTNodeAdapter(null, "Nashorn Parser output");
