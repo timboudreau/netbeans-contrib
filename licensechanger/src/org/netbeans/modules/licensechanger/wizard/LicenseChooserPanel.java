@@ -109,6 +109,8 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
 
         updateDefaultProjectLicense.setText(org.openide.util.NbBundle.getMessage(LicenseChooserPanel.class, "LicenseChooserPanel.updateDefaultProjectLicense.text")); // NOI18N
 
+        jScrollPane2.setMaximumSize(getSize());
+
         licenseText.setEditable(false);
         jScrollPane2.setViewportView(licenseText);
         licenseText.setContentType("text/plain");
@@ -120,7 +122,7 @@ public class LicenseChooserPanel extends javax.swing.JPanel implements Runnable,
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(chooseLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)

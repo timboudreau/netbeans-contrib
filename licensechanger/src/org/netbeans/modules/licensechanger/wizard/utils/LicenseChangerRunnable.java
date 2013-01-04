@@ -80,33 +80,20 @@ public class LicenseChangerRunnable implements Runnable {
                         String copyrightHolder = (String) wizard.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
                         if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
                             try {
-                                //store value of copyright holder in User.properties
                                 FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
-                                java.util.Properties props = new java.util.Properties();
-                                InputStream in = null;
+                                InputStream istream = userProperties.getInputStream();
+                                EditableProperties props = new EditableProperties(true);
                                 try {
-                                    in = userProperties.getInputStream();
-                                    props.load(in);
-                                } catch (IOException ex) {
-                                    Exceptions.printStackTrace(ex);
-                                    throw new RuntimeException(ex);
+                                    props.load(istream);
                                 } finally {
-                                    if (in != null) {
-                                        in.close();
-                                    }
+                                    istream.close();
                                 }
                                 props.setProperty("user", copyrightHolder);
-                                OutputStream out = null;
+                                OutputStream ostream = userProperties.getOutputStream();
                                 try {
-                                    out = userProperties.getOutputStream();
-                                    props.store(out, "Updated user by licensechanger plugin.");
-                                } catch (IOException ex) {
-                                    Exceptions.printStackTrace(ex);
-                                    throw new RuntimeException(ex);
+                                    props.store(ostream);
                                 } finally {
-                                    if (out != null) {
-                                        out.close();
-                                    }
+                                    ostream.close();
                                 }
                             } catch (IOException ex) {
                                 Exceptions.printStackTrace(ex);

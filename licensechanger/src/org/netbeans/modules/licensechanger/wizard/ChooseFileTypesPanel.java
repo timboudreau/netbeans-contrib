@@ -258,7 +258,7 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
         ov.setPopupAllowed(false);
         ov.setTreeSortable(false);
         ov.getOutline().setShowGrid(false);
-        String headerName = org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "SelectFoldersPanel.nodesLabel.text"); // NOI18N
+        String headerName = org.openide.util.NbBundle.getMessage(ChooseFileTypesPanel.class, "ChooseFileTypesPanel.nodesLabel.text"); // NOI18N
         ((DefaultOutlineModel) ov.getOutline().getOutlineModel()).setNodesColumnLabel(headerName);
         setName("Choose File Types");
     }
