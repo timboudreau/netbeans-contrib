@@ -38,14 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import static org.netbeans.modules.licensechanger.TestUtils.*;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -69,7 +67,7 @@ public class JavaFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         JavaFileHandler instance = new JavaFileHandler();
-        String original = readFile(filename);
+        String original = readFile(JavaFileHandlerTest.class,filename);
         String processed = instance.transform(original, license, props);
         assertEqualsLineByLine(golden, processed, filename);
     }
@@ -98,26 +96,6 @@ public class JavaFileHandlerTest {
 //
 //    }
     private static String getGolden() throws Exception {
-        return readFile("java_golden.txt");
-    }
-
-    static String getLicense() throws Exception {
-        return readFile("fake_license.txt");
-    }
-
-    static String readFile(String name) throws Exception {
-        InputStream in = JavaFileHandlerTest.class.getResourceAsStream(name);
-        if (in == null) {
-            fail("No input stream for " + name);
-        }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            FileUtil.copy(in, out);
-        } finally {
-            in.close();
-            out.close();
-        }
-        String result = new String(out.toByteArray(), "UTF-8");
-        return result.replace("\r\n", "\n");
+        return readFile(JavaFileHandlerTest.class,"java_golden.txt");
     }
 }

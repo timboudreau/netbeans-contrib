@@ -1,7 +1,10 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -13,9 +16,9 @@
  * specific language governing permissions and limitations under the
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
+ * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
@@ -34,31 +37,26 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
+package org.netbeans.modules.licensechanger.freemarker;
 
 /**
- * Central class for Wizard-related property keys.
- *
+ * Freemarker expects project.organization to be the field 'organization' in an
+ * object. This provides a thin wrapper for that. Class must be public to be
+ * accessible by freemarker.
+ * 
  * @author Nils Hoffmann
  */
-public final class WizardProperties {
+public class Project {
 
-    public static final String KEY_FILE_HANDLERS = "fileHandlers";
-    public static final String KEY_ITEMS = "fileItems";
-    public static final String KEY_LICENSE_TEXT = "licenseText";
-    public static final String KEY_LICENSE_NAME = "licenseName";
-    public static final String KEY_ROOT_FILES = "rootFiles";
-    public static final String KEY_FOLDERS = "folders";
-    public static final String KEY_UPDATE_DEFAULT_PROJECT_LICENSE = "updateDefaultProjectLicense";
-    public static final String VALUE_DEFAULT_LICENSE_TEXT = "No License";
-    public static final String PROP_ENDING = "ending";
-    public static final String KEY_ENDING = "line_terminator";
-    public static final String KEY_PROJECT = "project";
-    public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
-    public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
+    private final String organization;
 
-    private WizardProperties() {
+    public Project(String organization) {
+        this.organization = organization;
+    }
+
+    public String getOrganization() {
+        return this.organization;
     }
 }

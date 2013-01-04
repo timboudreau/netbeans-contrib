@@ -36,14 +36,16 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Set;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
+import org.openide.filesystems.FileObject;
 import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
@@ -51,13 +53,13 @@ import org.openide.util.HelpCtx;
  *
  * @author Nils Hoffmann
  */
-public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
+public class SelectFoldersWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
 
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private LicenseChooserPanel component;
+    private SelectFoldersPanel component;
     private WizardDescriptor wiz;
     private boolean valid = false;
     private ChangeSupport cs = new ChangeSupport(this);
@@ -67,9 +69,9 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
     // but never displayed, or not all panels are displayed, it is better to
     // create only those which really need to be visible.
     @Override
-    public LicenseChooserPanel getComponent() {
+    public SelectFoldersPanel getComponent() {
         if (component == null) {
-            component = new LicenseChooserPanel();
+            component = new SelectFoldersPanel();
             component.addPropertyChangeListener(this);
         }
         return component;
@@ -105,7 +107,7 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
             validate();
         } catch (WizardValidationException ex) {
             if (wiz != null) {
-                wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, "Please select a license!");
+                wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ex.getMessage());
             }
         }
     }
@@ -113,30 +115,33 @@ public class LicenseChooserWizardPanel implements WizardDescriptor.ValidatingPan
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
-        Object obj = wiz.getProperty(WizardProperties.KEY_LICENSE_TEXT);
-        if (obj != null && obj instanceof String) {
-            getComponent().setLicenseText((String) obj);
-        }
-        Boolean b = (Boolean) wiz.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
-        if (b != null) {
-            getComponent().setUpdateDefaultProjectLicense(b);
+        @SuppressWarnings("unchecked")
+        Set<FileObject> folders = (Set<FileObject>) wiz.getProperty(WizardProperties.KEY_FOLDERS);
+        if (folders == null || folders.isEmpty()) {
+            Object obj = wiz.getProperty(WizardProperties.KEY_ROOT_FILES);
+            if (obj != null) {
+                @SuppressWarnings("unchecked")
+                Set<FileObject> sobj = (Set<FileObject>) obj;
+                getComponent().setRootFiles(sobj);
+            }
+        } else {
+            getComponent().setRootFiles(folders);
         }
     }
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
-        wiz.putProperty(WizardProperties.KEY_LICENSE_TEXT, getComponent().getLicenseText());
-        wiz.putProperty(WizardProperties.KEY_LICENSE_NAME, getComponent().getLicenseName());
-        wiz.putProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE, Boolean.valueOf(getComponent().isUpdateDefaultProjectLicense()));
+        Set<FileObject> folders = getComponent().getSelectedFolders();
+        wiz.putProperty(WizardProperties.KEY_FOLDERS, folders);
     }
 
     @Override
     public void validate() throws WizardValidationException {
         valid = true;
-        if (getComponent().getLicenseText() == null
-                || getComponent().getLicenseText().equals(WizardProperties.VALUE_DEFAULT_LICENSE_TEXT)) {
+        Set<FileObject> folders = getComponent().getSelectedFolders();
+        if (folders == null || folders.isEmpty()) {
             valid = false;
-            throw new WizardValidationException(component, "Please select a license!", null);
+            throw new WizardValidationException(component, "Please select at least one folder!", null);
         }
         if (wiz != null) {
             wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, null);

@@ -52,8 +52,8 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.freemarker.Project;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -106,7 +106,7 @@ public abstract class FileHandler {
      * <code>${licenseLast}</code> to determine whether the licenseText has
      * already been interpolated or if it needs escaping.
      *
-     * @param licenseText the license test with freemarker template tokens
+     * @param licenseText the license text with freemarker template tokens
      * @param additionalBindings additional binding values for freemarker
      * interpolation
      * @return the resolved licenseText
@@ -195,23 +195,6 @@ public abstract class FileHandler {
         return after.toString();
     }
 
-    /**
-     * Freemarker expects project.organization to be the field 'organization' in
-     * an object. This provides a thin wrapper for that. Class must be public to
-     * be accessible by freemarker.
-     */
-    public class Project {
-
-        private final String organization;
-
-        public Project(String organization) {
-            this.organization = organization;
-        }
-
-        public String getOrganization() {
-            return this.organization;
-        }
-    }
     static Pattern p = Pattern.compile("(.*?)\\n|\\z", Pattern.UNIX_LINES);
 
     public static String[] splitIntoLines(CharSequence content) {

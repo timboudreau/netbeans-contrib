@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
 import org.netbeans.api.project.*;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.LicenseChangerRunnable;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.LicenseChangerRunnable;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.awt.ActionID;

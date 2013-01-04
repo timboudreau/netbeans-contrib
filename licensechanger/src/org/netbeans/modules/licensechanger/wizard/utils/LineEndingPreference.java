@@ -36,45 +36,40 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import org.netbeans.api.queries.FileEncodingQuery;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
 /**
+ * User preference for line ending conversion
+ *
  * @author Tim Boudreau
- * @author Nils Hoffmann (Refactoring)
  */
-public class FileLoader {
+public enum LineEndingPreference {
 
-    public static String loadFile(FileObject file) throws IOException {
-        Charset encoding = FileEncodingQuery.getEncoding(file);
-        InputStream in = new BufferedInputStream(file.getInputStream());
-        ByteArrayOutputStream out = new ByteArrayOutputStream((int) file.getSize());
-        try {
-            FileUtil.copy(in, out);
-            try {
-                String result = new String(out.toByteArray(), encoding.name());
-                String sep = System.getProperty("line.separator");
-                //Convert everything internally to use \n
-                if (!"\n".equals(sep) && sep != null) {
-                    return result.replaceAll(sep, "\n");
+    FORCE_CRLF,
+    NO_CHANGE,
+    FORCE_NEWLINE,
+    SYSTEM_DEFAULT;
+
+    public static String convertLineEndings(LineEndingPreference pref, String old, String nue) {
+        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
+        switch (pref) {
+            case FORCE_CRLF:
+                return nue.replaceAll("\n", "\r\n"); //NOI18N
+            case FORCE_NEWLINE:
+                //We already converted everything to newline only on load
+                return nue;
+            case NO_CHANGE:
+                return oldHasCrlf ? nue.replaceAll("\n", "\r\n") : //NOI18N
+                        nue;
+            case SYSTEM_DEFAULT:
+                String sep = System.getProperty("line.separator"); //NOI18N
+                if ("\n".equals(sep)) {
+                    return nue;
                 } else {
-                    return result;
+                    return nue.replaceAll("\n", sep);//NOI18N
                 }
-            } catch (UnsupportedEncodingException q) {
-                return new String(out.toByteArray(), FileEncodingQuery.getDefaultEncoding().name());
-            }
-        } finally {
-            in.close();
-            out.close();
+            default:
+                throw new AssertionError();
         }
     }
 }

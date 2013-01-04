@@ -39,7 +39,7 @@
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.netbeans.modules.licensechanger.api.Offsets;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 

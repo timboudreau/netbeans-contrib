@@ -42,11 +42,11 @@
  *
  * Created on Mar 20, 2009, 12:33:04 AM
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import javax.swing.JRadioButton;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.LineEndingPreference;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.LineEndingPreference;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.util.NbPreferences;
 
 /**

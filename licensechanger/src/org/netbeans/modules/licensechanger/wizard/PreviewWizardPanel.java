@@ -36,29 +36,32 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Set;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.api.FileHandler;
+import org.netbeans.modules.licensechanger.wizard.utils.FileChildren.FileItem;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
+import org.openide.filesystems.FileObject;
 import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
-import org.openide.util.NbPreferences;
 
 /**
  *
  * @author Nils Hoffmann
  */
-public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
+public class PreviewWizardPanel implements WizardDescriptor.ValidatingPanel<WizardDescriptor>, PropertyChangeListener {
 
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private ChooseFileTypesPanel component;
+    private PreviewPanel component;
     private WizardDescriptor wiz;
     private boolean valid = true;
     private ChangeSupport cs = new ChangeSupport(this);
@@ -68,9 +71,9 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
     // but never displayed, or not all panels are displayed, it is better to
     // create only those which really need to be visible.
     @Override
-    public ChooseFileTypesPanel getComponent() {
+    public PreviewPanel getComponent() {
         if (component == null) {
-            component = new ChooseFileTypesPanel();
+            component = new PreviewPanel();
             component.addPropertyChangeListener(this);
         }
         return component;
@@ -102,36 +105,52 @@ public class ChooseFileTypesWizardPanel implements WizardDescriptor.ValidatingPa
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
         cs.fireChange();
+        try {
+            validate();
+        } catch (WizardValidationException ex) {
+            if (wiz != null) {
+                wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, ex.getMessage());
+            }
+        }
     }
 
     @Override
     public void readSettings(WizardDescriptor wiz) {
         this.wiz = wiz;
-        Boolean storeInUserProperties = (Boolean) wiz.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES);
-        ChooseFileTypesPanel panel = getComponent();
-        if (storeInUserProperties != null) {
-            panel.setStoreInUserProperties(storeInUserProperties);
+        @SuppressWarnings("unchecked")
+        String license = (String) wiz.getProperty(WizardProperties.KEY_LICENSE_TEXT);
+        if (license != null) {
+            getComponent().setLicenseText(license);
         }
-        String copyrightHolder = (String) wiz.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
-        if (copyrightHolder == null) {
-            copyrightHolder = NbPreferences.forModule(ChooseFileTypesWizardPanel.class).get(WizardProperties.KEY_COPYRIGHT_HOLDER, "");
+        getComponent().setProperties(wiz.getProperties());
+        @SuppressWarnings("unchecked")
+        Set<FileHandler> fileHandler = (Set<FileHandler>) wiz.getProperty(WizardProperties.KEY_FILE_HANDLERS);
+        @SuppressWarnings("unchecked")
+        Set<FileObject> folders = (Set<FileObject>) wiz.getProperty(WizardProperties.KEY_FOLDERS);
+        if (fileHandler != null && folders != null) {
+            getComponent().setFolders(folders, fileHandler);
         }
-        panel.setCopyrightHolder(copyrightHolder);
+        wiz.putProperty(WizardProperties.KEY_ITEMS, null);
     }
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
-        wiz.putProperty(WizardProperties.KEY_FILE_HANDLERS, getComponent().getFileHandlers());
-        String copyrightHolder = getComponent().getCopyrightHolder();
-        if (copyrightHolder != null && !copyrightHolder.isEmpty()) {
-            wiz.putProperty(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
-            NbPreferences.forModule(ChooseFileTypesWizardPanel.class).put(WizardProperties.KEY_COPYRIGHT_HOLDER, copyrightHolder);
-        }
-        wiz.putProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES, Boolean.valueOf(getComponent().isStoreInUserProperties()));
+        wiz.putProperty(WizardProperties.KEY_ITEMS, getComponent().getSelectedItems());
     }
 
     @Override
     public void validate() throws WizardValidationException {
         valid = true;
+        Set<FileItem> keyItems = getComponent().getSelectedItems();
+
+        if (keyItems == null || keyItems.isEmpty()) {
+            valid = false;
+            throw new WizardValidationException(component, "Please select at least one file!", null);
+        }
+        if (wiz != null) {
+            wiz.putProperty(WizardDescriptor.PROP_INFO_MESSAGE, null);
+            wiz.putProperty(WizardDescriptor.PROP_WARNING_MESSAGE, null);
+            wiz.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, null);
+        }
     }
 }

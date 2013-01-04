@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -46,7 +46,7 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.*;
 import org.netbeans.api.queries.FileEncodingQuery;
-import org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel;
+import org.netbeans.modules.licensechanger.wizard.LineEndingsPanel;
 import org.netbeans.modules.maven.model.ModelOperation;
 import org.netbeans.modules.maven.model.Utilities;
 import org.netbeans.modules.maven.model.pom.POMModel;

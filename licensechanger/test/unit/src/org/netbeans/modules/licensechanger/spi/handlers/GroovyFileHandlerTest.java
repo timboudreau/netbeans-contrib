@@ -38,14 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.spi.handlers;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import static org.netbeans.modules.licensechanger.TestUtils.*;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.openide.filesystems.FileUtil;
 
 /**
  * Test cases for groovy license replacement.
@@ -110,32 +108,12 @@ public class GroovyFileHandlerTest {
 
     private static String merge(String header, String template) throws Exception {
         StringBuilder sb = new StringBuilder();
-        sb.append(readFile(header));
-        sb.append(readFile(template));
+        sb.append(readFile(GroovyFileHandlerTest.class,header));
+        sb.append(readFile(GroovyFileHandlerTest.class,template));
         return sb.toString();
     }
 
     private static String getGolden(String infix) throws Exception {
-        return readFile("resources/groovy/groovy_" + infix + "_golden.txt");
-    }
-
-    static String getLicense() throws Exception {
-        return readFile("fake_license.txt");
-    }
-
-    static String readFile(String name) throws Exception {
-        InputStream in = GroovyFileHandlerTest.class.getResourceAsStream(name);
-        if (in == null) {
-            fail("No input stream for " + name);
-        }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            FileUtil.copy(in, out);
-        } finally {
-            in.close();
-            out.close();
-        }
-        String result = new String(out.toByteArray(), "UTF-8");
-        return result.replace("\r\n", "\n");
+        return readFile(GroovyFileHandlerTest.class,"resources/groovy/groovy_" + infix + "_golden.txt");
     }
 }

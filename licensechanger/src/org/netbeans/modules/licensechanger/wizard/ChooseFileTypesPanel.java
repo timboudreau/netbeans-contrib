@@ -42,7 +42,7 @@
  *
  * Created on Mar 20, 2009, 1:14:43 AM
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -53,8 +53,8 @@ import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.licensechanger.api.Customizable;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.CheckableNodeCapability;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.CheckableNodeCapability;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
@@ -107,7 +107,7 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
         jScrollPane1 = new OutlineView();
         customizerPanel = new javax.swing.JPanel();
         noCustomizerLabel = new javax.swing.JLabel();
-        lineEndingsPanel1 = new org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel();
+        lineEndingsPanel1 = new org.netbeans.modules.licensechanger.wizard.LineEndingsPanel();
         licensePropertiesPanel = new javax.swing.JPanel();
         copyrightHolderLabel = new javax.swing.JLabel();
         copyrightHolderField = new javax.swing.JTextField();
@@ -207,7 +207,7 @@ public class ChooseFileTypesPanel extends javax.swing.JPanel implements Explorer
     private javax.swing.JPanel customizerPanel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel licensePropertiesPanel;
-    private org.netbeans.modules.licensechanger.spi.wizard.LineEndingsPanel lineEndingsPanel1;
+    private org.netbeans.modules.licensechanger.wizard.LineEndingsPanel lineEndingsPanel1;
     private javax.swing.JLabel noCustomizerLabel;
     private javax.swing.JCheckBox storeInUserProperties;
     // End of variables declaration//GEN-END:variables

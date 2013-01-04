@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
 import java.awt.EventQueue;
 import java.util.List;

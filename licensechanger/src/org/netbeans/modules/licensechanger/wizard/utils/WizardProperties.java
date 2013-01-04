@@ -36,47 +36,29 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
-
-import java.util.Collections;
-import java.util.Map;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import static org.netbeans.modules.licensechanger.TestUtils.*;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
 /**
+ * Central class for Wizard-related property keys.
  *
- * @author Tim Boudreau
+ * @author Nils Hoffmann
  */
-public class PropertiesFileHandlerTest {
+public final class WizardProperties {
 
-    private final Map<String, Object> props = Collections.emptyMap();
+    public static final String KEY_FILE_HANDLERS = "fileHandlers";
+    public static final String KEY_ITEMS = "fileItems";
+    public static final String KEY_LICENSE_TEXT = "licenseText";
+    public static final String KEY_LICENSE_NAME = "licenseName";
+    public static final String KEY_ROOT_FILES = "rootFiles";
+    public static final String KEY_FOLDERS = "folders";
+    public static final String KEY_UPDATE_DEFAULT_PROJECT_LICENSE = "updateDefaultProjectLicense";
+    public static final String VALUE_DEFAULT_LICENSE_TEXT = "No License";
+    public static final String PROP_ENDING = "ending";
+    public static final String KEY_ENDING = "line_terminator";
+    public static final String KEY_PROJECT = "project";
+    public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
+    public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
 
-    @Test
-    public void testStuff() throws Exception {
-        System.out.println("testStuff");
-        String golden = getGolden();
-        String license = getLicense();
-        for (int i = 1; i <= 4; i++) {
-            testOneVersion(golden, license, "props_" + i + ".txt");
-        }
-        assertEquals(0, 0);
-    }
-
-    private void testOneVersion(String golden, String license, String filename) throws Exception {
-        System.out.println("Test " + filename);
-        PropertiesFileHandler instance = new PropertiesFileHandler();
-        String original = readFile(PropertiesFileHandlerTest.class,filename);
-        String processed = instance.transform(original, license, props);
-//        if (!original.equals(processed)) {
-//            System.out.println("************************************");
-//            System.out.println(processed);
-//            System.out.println("************************************");
-//        }
-        JavaFileHandlerTest.assertEqualsLineByLine(golden, processed, filename);
-    }
-
-    private static String getGolden() throws Exception {
-        return readFile(PropertiesFileHandlerTest.class,"props_golden.txt");
+    private WizardProperties() {
     }
 }

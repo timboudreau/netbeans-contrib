@@ -45,6 +45,7 @@ import java.util.regex.Matcher;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.netbeans.modules.licensechanger.api.FileHandler;
+import static org.netbeans.modules.licensechanger.TestUtils.*;
 
 /**
  *
@@ -60,7 +61,7 @@ public class XmlFileHandlerTest {
         assertDeclarationFound(xml, "xml_golden.txt");
         for (int i = 1; i <= 8; i++) {
             String filename = "xml_" + i + ".txt";
-            String content = JavaFileHandlerTest.readFile(filename);
+            String content = readFile(XmlFileHandlerTest.class, filename);
             assertDeclarationFound(content, filename);
         }
     }
@@ -85,7 +86,7 @@ public class XmlFileHandlerTest {
     public void testStuff() throws Exception {
         System.out.println("testStuff");
         String golden = getGolden();
-        String license = JavaFileHandlerTest.getLicense();
+        String license = getLicense();
         for (int i = 1; i <= 8; i++) {
             String filename = "xml_" + i + ".txt";
             testOneVersion(golden, license, filename);
@@ -95,7 +96,7 @@ public class XmlFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         XmlFileHandler instance = new XmlFileHandler();
-        String original = JavaFileHandlerTest.readFile(filename);
+        String original = readFile(XmlFileHandlerTest.class, filename);
         String processed = instance.transform(original, license, props);
         assertEqualsLineByLine(golden, processed, filename);
     }
@@ -117,6 +118,6 @@ public class XmlFileHandlerTest {
     }
 
     private static String getGolden() throws Exception {
-        return JavaFileHandlerTest.readFile("xml_golden.txt");
+        return readFile(XmlFileHandlerTest.class, "xml_golden.txt");
     }
 }

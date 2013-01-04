@@ -36,40 +36,27 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
+package org.netbeans.modules.licensechanger.api;
 
 /**
- * User preference for line ending conversion
  *
  * @author Tim Boudreau
  */
-public enum LineEndingPreference {
+public final class Offsets {
 
-    FORCE_CRLF,
-    NO_CHANGE,
-    FORCE_NEWLINE,
-    SYSTEM_DEFAULT;
+    private final int start;
+    private final int end;
 
-    public static String convertLineEndings(LineEndingPreference pref, String old, String nue) {
-        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
-        switch (pref) {
-            case FORCE_CRLF:
-                return nue.replaceAll("\n", "\r\n"); //NOI18N
-            case FORCE_NEWLINE:
-                //We already converted everything to newline only on load
-                return nue;
-            case NO_CHANGE:
-                return oldHasCrlf ? nue.replaceAll("\n", "\r\n") : //NOI18N
-                        nue;
-            case SYSTEM_DEFAULT:
-                String sep = System.getProperty("line.separator"); //NOI18N
-                if ("\n".equals(sep)) {
-                    return nue;
-                } else {
-                    return nue.replaceAll("\n", sep);//NOI18N
-                }
-            default:
-                throw new AssertionError();
-        }
+    public Offsets(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public int getStart() {
+        return start;
     }
 }

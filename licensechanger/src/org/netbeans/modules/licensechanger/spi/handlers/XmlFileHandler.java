@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
+import org.netbeans.modules.licensechanger.api.Offsets;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;

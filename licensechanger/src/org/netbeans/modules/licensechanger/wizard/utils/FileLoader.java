@@ -36,27 +36,45 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard.utils;
+package org.netbeans.modules.licensechanger.wizard.utils;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import org.netbeans.api.queries.FileEncodingQuery;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
- *
  * @author Tim Boudreau
+ * @author Nils Hoffmann (Refactoring)
  */
-public final class Offsets {
+public class FileLoader {
 
-    private final int start;
-    private final int end;
-
-    public Offsets(int start, int end) {
-        this.start = start;
-        this.end = end;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public int getStart() {
-        return start;
+    public static String loadFile(FileObject file) throws IOException {
+        Charset encoding = FileEncodingQuery.getEncoding(file);
+        InputStream in = new BufferedInputStream(file.getInputStream());
+        ByteArrayOutputStream out = new ByteArrayOutputStream((int) file.getSize());
+        try {
+            FileUtil.copy(in, out);
+            try {
+                String result = new String(out.toByteArray(), encoding.name());
+                String sep = System.getProperty("line.separator");
+                //Convert everything internally to use \n
+                if (!"\n".equals(sep) && sep != null) {
+                    return result.replaceAll(sep, "\n");
+                } else {
+                    return result;
+                }
+            } catch (UnsupportedEncodingException q) {
+                return new String(out.toByteArray(), FileEncodingQuery.getDefaultEncoding().name());
+            }
+        } finally {
+            in.close();
+            out.close();
+        }
     }
 }

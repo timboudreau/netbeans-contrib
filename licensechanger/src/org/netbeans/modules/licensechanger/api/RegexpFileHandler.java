@@ -40,7 +40,6 @@ package org.netbeans.modules.licensechanger.api;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.Offsets;
 
 /**
  *

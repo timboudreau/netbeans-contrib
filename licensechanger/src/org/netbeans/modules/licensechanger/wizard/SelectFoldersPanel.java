@@ -36,13 +36,13 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.FolderChildren;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.FolderChildren;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;

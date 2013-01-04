@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.wizard;
+package org.netbeans.modules.licensechanger.wizard;
 
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
@@ -53,10 +53,10 @@ import org.netbeans.api.diff.Diff;
 import org.netbeans.api.diff.DiffView;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.FileChildren;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.FileChildren.FileItem;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.FileLoader;
-import org.netbeans.modules.licensechanger.spi.wizard.utils.WizardProperties;
+import org.netbeans.modules.licensechanger.wizard.utils.FileChildren;
+import org.netbeans.modules.licensechanger.wizard.utils.FileChildren.FileItem;
+import org.netbeans.modules.licensechanger.wizard.utils.FileLoader;
+import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
@@ -161,7 +161,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         );
         diffPanelLayout.setVerticalGroup(
             diffPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 190, Short.MAX_VALUE)
+            .addGap(0, 178, Short.MAX_VALUE)
         );
 
         jSplitPane1.setRightComponent(diffPanel);
