@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.nimbus.theme/1
+OpenIDE-Module: org.netbeans.modules.nimbus.theme/1
 OpenIDE-Module-Implementation-Version: 1
-OpenIDE-Module-Install: org/netbeans/nimbus/theme/Installer.class
-OpenIDE-Module-Localizing-Bundle: org/netbeans/nimbus/theme/Bundle.properties
+OpenIDE-Module-Install: org/netbeans/modules/nimbus/theme/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/nimbus/theme/Bundle.properties
 
