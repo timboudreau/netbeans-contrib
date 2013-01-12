@@ -41,52 +41,45 @@
  */
 package org.netbeans.modules.antlr.editor;
 
-import org.netbeans.core.spi.multiview.MultiViewElement;
-import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
-import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
-import org.netbeans.modules.csl.spi.LanguageRegistration;
-import org.netbeans.modules.parsing.spi.indexing.PathRecognizerRegistration;
-import org.openide.filesystems.MIMEResolver;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import junit.framework.TestCase;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 
 /**
  *
  * @author marekfukala
  */
-@NbBundle.Messages({
-    "language.displaname=ANTLR Editor"
-    }) 
-@LanguageRegistration(mimeType = "text/antlr", useMultiview = true)
-@PathRecognizerRegistration(mimeTypes = "text/antlr", libraryPathIds = {}, binaryLibraryPathIds = {}) //NOI18N
-public class AntlrCslLanguage extends DefaultLanguageConfig {
- 
-    @MIMEResolver.ExtensionRegistration(
-        extension={ "g" },
-        displayName="#AntlrResolver",
-        mimeType="text/antlr",
-        position=1111
-    )
-    @NbBundle.Messages("AntlrResolver=ANTLR Files")
-     @MultiViewElement.Registration(displayName = "#LBL_AntlrEditorTab",
-        iconBase = "org/netbeans/modules/antlr/editor/build.png",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-        preferredID = "antlr.source",
-        mimeType = "text/antlr",
-        position = 1)
-    public static MultiViewEditorElement createMultiViewEditorElement(Lookup context) {
-        return new MultiViewEditorElement(context);
+public class NbAntlrLexerTest extends TestCase {
+    
+    public NbAntlrLexerTest(String testName) {
+        super(testName);
     }
-   
-    @Override
-    public org.netbeans.api.lexer.Language getLexerLanguage() {
-        return AntlrTokenId.language();
-    }
-  
-    @Override
-    public String getDisplayName() {
-        return Bundle.language_displaname();
+
+     public void test146930() {
+//        TokenHierarchy th = TokenHierarchy.create("<<body>", HTMLTokenId.language());
+//        TokenSequence ts = th.tokenSequence();
+//        ts.moveStart();
+//
+//        assertTrue(ts.moveNext());
+//        assertEquals("<", ts.token().text().toString());
+//        assertEquals(HTMLTokenId.TEXT, ts.token().id());
+//
+//        assertTrue(ts.moveNext());
+//        assertEquals("<", ts.token().text().toString());
+//        assertEquals(HTMLTokenId.TAG_OPEN_SYMBOL, ts.token().id());
+//
+//        assertTrue(ts.moveNext());
+//        assertEquals("body", ts.token().text().toString());
+//        assertEquals(HTMLTokenId.TAG_OPEN, ts.token().id());
+//
+//        assertTrue(ts.moveNext());
+//        assertEquals(">", ts.token().text().toString());
+//        assertEquals(HTMLTokenId.TAG_CLOSE_SYMBOL, ts.token().id());
+//
+//        assertFalse(ts.moveNext());
     }
     
 }
