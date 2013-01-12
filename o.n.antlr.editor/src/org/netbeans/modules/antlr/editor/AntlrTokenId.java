@@ -120,8 +120,38 @@ public enum AntlrTokenId implements TokenId {
     NESTED_ACTION(ANTLRv3Lexer.NESTED_ACTION, OTHERS),
     ACTION_ESC(ANTLRv3Lexer.ACTION_ESC, OTHERS),
     WS_LOOP(ANTLRv3Lexer.WS_LOOP, OTHERS),
-    WS(ANTLRv3Lexer.WS, OTHERS);
+    WS(ANTLRv3Lexer.WS, OTHERS),
     
+    
+    T__65(ANTLRv3Lexer.T__65, OTHERS),
+    T__66(ANTLRv3Lexer.T__66, OTHERS),
+    T__67(ANTLRv3Lexer.T__67, OTHERS),
+    T__68(ANTLRv3Lexer.T__68, OTHERS),
+    T__69(ANTLRv3Lexer.T__69, OTHERS),
+    T__70(ANTLRv3Lexer.T__70, OTHERS),
+    T__71(ANTLRv3Lexer.T__71, OTHERS),
+    T__72(ANTLRv3Lexer.T__72, OTHERS),
+    T__73(ANTLRv3Lexer.T__73, OTHERS),
+    T__74(ANTLRv3Lexer.T__74, OTHERS),
+    T__75(ANTLRv3Lexer.T__75, OTHERS),
+    T__76(ANTLRv3Lexer.T__76, OTHERS),
+    T__77(ANTLRv3Lexer.T__77, OTHERS),
+    T__78(ANTLRv3Lexer.T__78, OTHERS),
+    T__79(ANTLRv3Lexer.T__79, OTHERS),
+    T__80(ANTLRv3Lexer.T__80, OTHERS),
+    T__81(ANTLRv3Lexer.T__81, OTHERS),
+    T__82(ANTLRv3Lexer.T__82, OTHERS),
+    T__83(ANTLRv3Lexer.T__83, OTHERS),
+    T__84(ANTLRv3Lexer.T__84, OTHERS),
+    T__85(ANTLRv3Lexer.T__85, OTHERS),
+    T__86(ANTLRv3Lexer.T__86, OTHERS),
+    T__87(ANTLRv3Lexer.T__87, OTHERS),
+    T__88(ANTLRv3Lexer.T__88, OTHERS),
+    T__89(ANTLRv3Lexer.T__89, OTHERS),
+    T__90(ANTLRv3Lexer.T__90, OTHERS),
+    T__91(ANTLRv3Lexer.T__91, OTHERS),
+    T__92(ANTLRv3Lexer.T__92, OTHERS),
+    T__93(ANTLRv3Lexer.T__93, OTHERS);
     private static final Map<Integer, AntlrTokenId> codesMap = new HashMap<Integer, AntlrTokenId>();
 
     static {
@@ -131,7 +161,9 @@ public enum AntlrTokenId implements TokenId {
     }
 
     public static AntlrTokenId forTokenTypeCode(int tokenTypeCode) {
-        return codesMap.get(tokenTypeCode);
+        AntlrTokenId tid = codesMap.get(tokenTypeCode);
+        assert tid != null : "No AntlrTokenId found for ANLR token code " + tokenTypeCode;
+        return tid;
     }
     private final AntlrTokenIdCategory primaryCategory;
     private final int code;

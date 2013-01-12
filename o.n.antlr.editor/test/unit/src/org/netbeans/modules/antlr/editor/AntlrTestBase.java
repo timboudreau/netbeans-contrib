@@ -41,43 +41,31 @@
  */
 package org.netbeans.modules.antlr.editor;
 
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.csl.api.test.CslTestBase;
+import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author marekfukala
  */
-public class NbAntlrLexerTest extends AntlrTestBase {
+public class AntlrTestBase extends CslTestBase {
 
-    public NbAntlrLexerTest(String testName) {
+    public AntlrTestBase(String testName) {
         super(testName);
     }
 
-    public void testLexAntlrGrammar() {
-        FileObject testFile = getTestFile("testfiles/ANTLRv3.g");
-        final BaseDocument document = getDocument(testFile);
+    @Override
+    protected DefaultLanguageConfig getPreferredLanguage() {
+        return new AntlrCslLanguage();
+    }
 
-        document.render(new Runnable() {
-
-            @Override
-            public void run() {
-                TokenHierarchy th = TokenHierarchy.get(document);
-                assertNotNull(th);
-                TokenSequence<AntlrTokenId> ts = th.tokenSequence(AntlrTokenId.language());
-                ts.moveStart();
-                
-                while(ts.moveNext()) {
-                    Token<AntlrTokenId> t = ts.token();
-                    System.out.println("'" + t.text() + "', " + t.id());
-                }
-            }
-            
-        });
-
+    @Override
+    protected String getPreferredMimeType() {
+        return "text/antlr";
     }
     
 }
