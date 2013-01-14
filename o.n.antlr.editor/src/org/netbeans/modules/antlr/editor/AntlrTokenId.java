@@ -50,7 +50,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import static org.netbeans.modules.antlr.editor.AntlrTokenIdCategory.*;
-import org.netbeans.antlr.editor.gen.ANTLRv3Lexer;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
 
 /**
  * Token ids of CSS language

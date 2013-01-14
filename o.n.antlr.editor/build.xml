@@ -18,6 +18,19 @@
                 <pathelement location="${antlr.jar}"/>
             </classpath>
         </java>
+        
+        <java classname="org.antlr.Tool" fork="true" failonerror="true">
+            <!-- use -debug option so the generated parser allows to register an DebugEventListener and hence allow to build a parse tree -->
+            <arg value="-debug"/> 
+            <arg value="-verbose"/>
+            <arg value="-o"/>
+            <arg path="src/org/netbeans/modules/antlr/editor/gen"/>
+            <arg path="src/org/netbeans/modules/antlr/editor/ANTLRv3Tree.g"/>                
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <pathelement location="${antlr.jar}"/>
+            </classpath>
+        </java>
     </target>
     
 </project>

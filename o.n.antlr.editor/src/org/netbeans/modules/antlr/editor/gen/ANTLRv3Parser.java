@@ -1,6 +1,6 @@
-// $ANTLR 3.3 Nov 30, 2010 12:50:56 /Volumes/Mercurial/web-main/contrib/o.n.antlr.editor/src/org/netbeans/modules/antlr/editor/ANTLRv3.g 2013-01-11 15:01:26
+// $ANTLR 3.3 Nov 30, 2010 12:50:56 /Volumes/Mercurial/web-main/contrib/o.n.antlr.editor/src/org/netbeans/modules/antlr/editor/ANTLRv3.g 2013-01-14 14:05:30
 
-package org.netbeans.antlr.editor.gen;
+package org.netbeans.modules.antlr.editor.gen;
 
 
 import org.antlr.runtime.*;
@@ -115,17 +115,17 @@ public class ANTLRv3Parser extends DebugParser {
     // delegators
 
     public static final String[] ruleNames = new String[] {
-        "invalidRule", "elementNoOptionSpec", "ruleAction", "synpred2_ANTLRv3", 
-        "rewrite_tree_ebnf", "id", "rule", "treeSpec", "rewrite_template", 
-        "tokensSpec", "ebnfSuffix", "alternative", "notTerminal", "terminal", 
-        "ruleScopeSpec", "notSet", "range", "ebnf", "rewrite_alternative", 
-        "rewrite_template_ref", "rewrite_tree_block", "option", "exceptionHandler", 
-        "synpred1_ANTLRv3", "rewrite_template_args", "throwsSpec", "actionScopeName", 
-        "finallyClause", "rewrite_tree_element", "rewrite_tree_alternative", 
-        "optionsSpec", "rewrite_template_arg", "tokenSpec", "attrScope", 
-        "altList", "exceptionGroup", "atom", "rewrite_tree", "element", 
-        "rewrite_tree_atom", "rewrite_indirect_template_head", "grammarDef", 
-        "block", "rewrite", "optionValue", "action"
+        "invalidRule", "ebnf", "finallyClause", "notSet", "option", "attrScope", 
+        "element", "tokensSpec", "treeSpec", "ruleScopeSpec", "tokenSpec", 
+        "rewrite_tree_ebnf", "optionsSpec", "rewrite_template_ref", "throwsSpec", 
+        "exceptionGroup", "ebnfSuffix", "rewrite_alternative", "rewrite_tree", 
+        "synpred1_ANTLRv3", "elementNoOptionSpec", "block", "rule", "rewrite_template", 
+        "rewrite_tree_alternative", "terminal", "rewrite_tree_block", "range", 
+        "rewrite_tree_atom", "altList", "rewrite_template_arg", "rewrite", 
+        "action", "rewrite_tree_element", "ruleAction", "grammarDef", "synpred2_ANTLRv3", 
+        "actionScopeName", "id", "rewrite_template_args", "notTerminal", 
+        "optionValue", "alternative", "atom", "rewrite_indirect_template_head", 
+        "exceptionHandler"
     };
     public static final boolean[] decisionCanBacktrack = new boolean[] {
         false, // invalid decision
@@ -610,7 +610,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: tokensSpec, DOC_COMMENT, rule, action, optionsSpec, id, attrScope
+            // elements: optionsSpec, action, tokensSpec, attrScope, id, rule, DOC_COMMENT
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1015,7 +1015,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: lit, TOKEN_REF, 71
+                    // elements: TOKEN_REF, lit, 71
                     // token labels: lit
                     // rule labels: retval
                     // token list labels: 
@@ -1169,7 +1169,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: ACTION, SCOPE, id
+            // elements: id, ACTION, SCOPE
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1348,7 +1348,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: ACTION, id, 72, actionScopeName
+            // elements: 72, ACTION, id, actionScopeName
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1695,7 +1695,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: OPTIONS, option
+            // elements: option, OPTIONS
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1818,7 +1818,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: 71, optionValue, id
+            // elements: id, optionValue, 71
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -2613,7 +2613,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: ruleAction, arg, optionsSpec, ruleScopeSpec, id, altList, exceptionGroup, rt
+            // elements: ruleScopeSpec, arg, altList, exceptionGroup, ruleAction, rt, id, optionsSpec
             // token labels: arg, rt
             // rule labels: retval
             // token list labels: 
@@ -2802,7 +2802,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: id, 72, ACTION
+            // elements: ACTION, id, 72
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -3245,7 +3245,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: SCOPE, id
+                    // elements: id, SCOPE
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -3622,7 +3622,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: rewrite, optionsSpec, alternative
+            // elements: optionsSpec, alternative, rewrite
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -3821,7 +3821,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: rewrite, alternative
+            // elements: alternative, rewrite
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -4463,7 +4463,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: 86, ACTION
+            // elements: ACTION, 86
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -4778,7 +4778,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                             // AST REWRITE
-                            // elements: ebnfSuffix, labelOp, atom, id
+                            // elements: atom, labelOp, id, ebnfSuffix
                             // token labels: labelOp
                             // rule labels: retval
                             // token list labels: 
@@ -4853,7 +4853,7 @@ public class ANTLRv3Parser extends DebugParser {
                             {
 
                             // AST REWRITE
-                            // elements: atom, labelOp, id
+                            // elements: id, atom, labelOp
                             // token labels: labelOp
                             // rule labels: retval
                             // token list labels: 
@@ -5006,7 +5006,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                             // AST REWRITE
-                            // elements: labelOp, ebnfSuffix, block, id
+                            // elements: id, ebnfSuffix, block, labelOp
                             // token labels: labelOp
                             // rule labels: retval
                             // token list labels: 
@@ -5174,7 +5174,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                             // AST REWRITE
-                            // elements: ebnfSuffix, atom
+                            // elements: atom, ebnfSuffix
                             // token labels: 
                             // rule labels: retval
                             // token list labels: 
@@ -5451,7 +5451,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                             // AST REWRITE
-                            // elements: ebnfSuffix, treeSpec
+                            // elements: treeSpec, ebnfSuffix
                             // token labels: 
                             // rule labels: retval
                             // token list labels: 
@@ -5944,7 +5944,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                             // AST REWRITE
-                            // elements: notSet, op
+                            // elements: op, notSet
                             // token labels: op
                             // rule labels: retval
                             // token list labels: 
@@ -6132,7 +6132,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: op, op, RULE_REF, arg, RULE_REF, RULE_REF, RULE_REF, arg
+                    // elements: RULE_REF, op, arg, RULE_REF, arg, op, RULE_REF, RULE_REF
                     // token labels: arg, op
                     // rule labels: retval
                     // token list labels: 
@@ -6314,7 +6314,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: 89, notTerminal
+                    // elements: notTerminal, 89
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -6360,7 +6360,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: block, 89
+                    // elements: 89, block
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -6999,7 +6999,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: c1, c2
+            // elements: c2, c1
             // token labels: c1, c2
             // rule labels: retval
             // token list labels: 
@@ -7393,7 +7393,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: ROOT, terminal
+                    // elements: terminal, ROOT
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -7917,7 +7917,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: predicated, last, preds, rew2, rew
+                    // elements: predicated, preds, last, rew, rew2
                     // token labels: rew2
                     // rule labels: retval, last
                     // token list labels: rew, preds
@@ -9271,7 +9271,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: rewrite_tree_element, rewrite_tree_atom
+            // elements: rewrite_tree_atom, rewrite_tree_element
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -9479,7 +9479,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
                     // AST REWRITE
-                    // elements: id, str, rewrite_template_args
+                    // elements: rewrite_template_args, str, id
                     // token labels: str
                     // rule labels: retval
                     // token list labels: 
@@ -9791,7 +9791,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: ACTION, rewrite_template_args
+            // elements: rewrite_template_args, ACTION
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -10114,7 +10114,7 @@ public class ANTLRv3Parser extends DebugParser {
 
 
             // AST REWRITE
-            // elements: ACTION, id
+            // elements: id, ACTION
             // token labels: 
             // rule labels: retval
             // token list labels: 

@@ -77,10 +77,10 @@ tokens {
 }
 
 @lexer::header {
-package org.netbeans.antlr.editor.gen;
+package org.netbeans.modules.antlr.editor.gen;
 }
 @header {
-package org.netbeans.antlr.editor.gen;
+package org.netbeans.modules.antlr.editor.gen;
 }
 @members {
 	int gtype;

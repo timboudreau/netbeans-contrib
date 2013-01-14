@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,51 +34,89 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.antlr.editor;
 
-import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
-import org.netbeans.spi.lexer.Lexer;
-import org.netbeans.spi.lexer.LexerRestartInfo;
-import org.netbeans.spi.lexer.TokenFactory;
+import java.util.Collections;
+import java.util.List;
+import org.antlr.runtime.tree.ParseTree;
+import org.antlr.runtime.tree.Tree;
 
 /**
- * antlr lexer
  *
- * @author Marek Fukala
- * @version 1.00
+ * @author marekfukala
  */
-public class NbAntlrLexer implements Lexer<AntlrTokenId> {
+public abstract class AbstractParseTreeNode extends ParseTree implements Node {
 
-    private final TokenFactory<AntlrTokenId> tokenFactory;
-    private ANTLRv3Lexer antlrLexer;
-
-    @Override
-    public Object state() {
-        return null; //stateless
+    Tree parent;
+    
+    private CharSequence source;
+    
+    public AbstractParseTreeNode(CharSequence source) {
+        super(null);
+        this.source = source;
     }
 
-    public NbAntlrLexer(LexerRestartInfo<AntlrTokenId> info) {
-        tokenFactory = info.tokenFactory();
-        antlrLexer = new ExtANTLRv3Lexer(new NbLexerCharStream(info));
+    protected CharSequence getSource() {
+        return source;
     }
 
     @Override
-    public Token<AntlrTokenId> nextToken() {
-        org.antlr.runtime.Token token = antlrLexer.nextToken();
-        int tokenTypeCode = token.getType();
-        AntlrTokenId tokenId = AntlrTokenId.forTokenTypeCode(tokenTypeCode);
-        
-        if(tokenId == AntlrTokenId.EOF) {
-            return null; //end of input
-        } else {
-            return tokenFactory.createToken(tokenId);
+    public CharSequence image() {
+        return getSource().subSequence(from(), to());
+    }
+    
+    public boolean deleteChild(AbstractParseTreeNode node) {
+        if (children == null) {
+            return false;
         }
+        int childIndex = children.indexOf(node);
+        if (childIndex == -1) {
+            return false; //no such node
+        }
+
+        return super.deleteChild(childIndex) != null;
+    }
+
+    /** BaseTree doesn't track parent pointers. */
+    @Override
+    public Tree getParent() {
+        return parent;
     }
 
     @Override
-    public void release() {
-        antlrLexer = null;
+    public void setParent(Tree t) {
+        this.parent = t;
     }
+
+    @Override
+    @SuppressWarnings(value="unchecked") //antlr 3.3 does not use generics
+    public List<Node> children() {
+        List ch = getChildren();
+        return ch == null 
+                ? Collections.<Node>emptyList() 
+                : ch;
+    }
+
+    @Override
+    public Node parent() {
+        return (Node)getParent();
+    }
+    
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append(type())
+                .append('(')
+                .append(from())
+                .append('-')
+                .append(to())
+                .append(')')
+                .toString();
+    }
+
 }
