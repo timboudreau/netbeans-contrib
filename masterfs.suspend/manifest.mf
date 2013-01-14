@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.masterfs.suspend
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/masterfs/suspend/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
