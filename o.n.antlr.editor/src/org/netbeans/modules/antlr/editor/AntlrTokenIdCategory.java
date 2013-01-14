@@ -47,7 +47,14 @@ package org.netbeans.modules.antlr.editor;
  */
 public enum AntlrTokenIdCategory {
     
-    KEYWORDS, ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS, STRINGS, 
-    SEPARATORS, OPERATORS, COMMENTS;
+    TOKENS,
+    RULES,
+    
+    STRINGS,
+    KEYWORDS, 
+    OPERATORS,
+    COMMENTS,
+    
+    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
     
 }
