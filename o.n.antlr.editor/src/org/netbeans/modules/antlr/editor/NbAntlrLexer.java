@@ -44,10 +44,10 @@
 package org.netbeans.modules.antlr.editor;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
-import org.netbeans.antlr.editor.gen.ANTLRv3Lexer;
 
 /**
  * antlr lexer

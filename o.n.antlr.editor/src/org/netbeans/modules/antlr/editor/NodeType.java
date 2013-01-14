@@ -7,9 +7,9 @@
  * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
+ * General Public License Version 2 only (GPL) or the Common
+ * Development and Distribution License(CDDL) (collectively, the
+ * License). You may not use this file except in compliance with the
  * License. You can obtain a copy of the License at
  * http://www.netbeans.org/cddl-gplv2.html
  * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
@@ -17,12 +17,12 @@
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
  * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
+ * particular file as subject to the Classpath exception as provided
  * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
+ * Portions Copyrighted [year] [name of copyright owner]
  *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
@@ -42,19 +42,27 @@
 package org.netbeans.modules.antlr.editor;
 
 /**
+ * Node types for all the CSS3 ANTLR grammar elements.
+ * 
+ * This enum must keep in sync with the ANTLR grammar set of rules!!!
  *
- * @author marekfukala
+ * @author mfukala@netbeans.org
  */
-public enum AntlrTokenIdCategory {
-    
-    TOKENS,
-    RULES,
-    
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
-    
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+public enum NodeType {
+
+    root,
+    token,
+   
+    invalidRule, ebnf, finallyClause, notSet, option, attrScope, 
+        element, tokensSpec, treeSpec, ruleScopeSpec, tokenSpec, 
+        rewrite_tree_ebnf, optionsSpec, rewrite_template_ref, throwsSpec, 
+        exceptionGroup, ebnfSuffix, rewrite_alternative, rewrite_tree, 
+        synpred1_ANTLRv3, elementNoOptionSpec, block, rule, rewrite_template, 
+        rewrite_tree_alternative, terminal, rewrite_tree_block, range, 
+        rewrite_tree_atom, altList, rewrite_template_arg, rewrite, 
+        action, rewrite_tree_element, ruleAction, grammarDef, synpred2_ANTLRv3, 
+        actionScopeName, id, rewrite_template_args, notTerminal, 
+        optionValue, alternative, atom, rewrite_indirect_template_head, 
+        exceptionHandler
     
 }

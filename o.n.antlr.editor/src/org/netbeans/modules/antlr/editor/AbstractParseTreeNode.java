@@ -41,20 +41,82 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import java.util.Collections;
+import java.util.List;
+import org.antlr.runtime.tree.ParseTree;
+import org.antlr.runtime.tree.Tree;
+
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
+public abstract class AbstractParseTreeNode extends ParseTree implements Node {
+
+    Tree parent;
     
-    TOKENS,
-    RULES,
+    private CharSequence source;
     
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
+    public AbstractParseTreeNode(CharSequence source) {
+        super(null);
+        this.source = source;
+    }
+
+    protected CharSequence getSource() {
+        return source;
+    }
+
+    @Override
+    public CharSequence image() {
+        return getSource().subSequence(from(), to());
+    }
     
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+    public boolean deleteChild(AbstractParseTreeNode node) {
+        if (children == null) {
+            return false;
+        }
+        int childIndex = children.indexOf(node);
+        if (childIndex == -1) {
+            return false; //no such node
+        }
+
+        return super.deleteChild(childIndex) != null;
+    }
+
+    /** BaseTree doesn't track parent pointers. */
+    @Override
+    public Tree getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(Tree t) {
+        this.parent = t;
+    }
+
+    @Override
+    @SuppressWarnings(value="unchecked") //antlr 3.3 does not use generics
+    public List<Node> children() {
+        List ch = getChildren();
+        return ch == null 
+                ? Collections.<Node>emptyList() 
+                : ch;
+    }
+
+    @Override
+    public Node parent() {
+        return (Node)getParent();
+    }
     
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append(type())
+                .append('(')
+                .append(from())
+                .append('-')
+                .append(to())
+                .append(')')
+                .toString();
+    }
+
 }

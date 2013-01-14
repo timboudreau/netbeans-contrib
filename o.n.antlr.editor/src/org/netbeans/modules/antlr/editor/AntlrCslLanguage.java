@@ -43,8 +43,10 @@ package org.netbeans.modules.antlr.editor;
 
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.csl.spi.LanguageRegistration;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.PathRecognizerRegistration;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.util.Lookup;
@@ -88,5 +90,21 @@ public class AntlrCslLanguage extends DefaultLanguageConfig {
     public String getDisplayName() {
         return Bundle.language_displaname();
     }
+    
+    @Override
+    public Parser getParser() {
+        return new NbAntlrParser();
+    }
+
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
+
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new AntlrStructureScanner();
+    }
+    
     
 }

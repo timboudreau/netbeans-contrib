@@ -1,6 +1,6 @@
-// $ANTLR 3.3 Nov 30, 2010 12:50:56 /Volumes/Mercurial/web-main/contrib/o.n.antlr.editor/src/org/netbeans/modules/antlr/editor/ANTLRv3.g 2013-01-11 15:01:27
+// $ANTLR 3.3 Nov 30, 2010 12:50:56 /Volumes/Mercurial/web-main/contrib/o.n.antlr.editor/src/org/netbeans/modules/antlr/editor/ANTLRv3.g 2013-01-14 14:05:31
 
-package org.netbeans.antlr.editor.gen;
+package org.netbeans.modules.antlr.editor.gen;
 
 
 import org.antlr.runtime.*;

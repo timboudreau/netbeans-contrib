@@ -41,20 +41,77 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import org.antlr.runtime.tree.CommonTree;
+import org.netbeans.modules.csl.api.Error;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.parsing.api.Snapshot;
+
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
+public class NbAntlrParserResult extends ParserResult {
+
+    public static boolean IN_UNIT_TESTS = false;
     
-    TOKENS,
-    RULES,
+    private Node parseTree;
     
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
+    public NbAntlrParserResult(Snapshot snapshot, Node parseTree /*, List<ProblemDescription> diagnostics*/) {
+        super(snapshot);
+        assert parseTree != null;
+        this.parseTree = parseTree;
+//        this.diagnostics = diagnostics;
+    }
+
+    @Override
+    protected void invalidate() {
+        //as CSL features uses the parser result out of the parsing task,
+        //the invalidation needs to be disabled until fixed.
+        
+//        if(IN_UNIT_TESTS) {
+//            return ; //some simplification - do not invalidate the result in unit tests
+//        }
+//        parseTree = null;
+//        diagnostics = null;
+    }
+
+    public Node getParseTree() {
+        if(parseTree == null) {
+            throw new IllegalStateException("Already invalidated parser result, you are likely trying to use it outside of the parsing task runnable!"); //NOI18N
+        }
+        return parseTree;
+    }
     
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+//    /**
+//     * Gets lexer / parser diagnostics w/o additional issues 
+//     * possibly added by {@link ExtendedDiagnosticsProvider}.
+//     */
+//    public List<ProblemDescription> getParserDiagnostics() {
+//        return diagnostics;
+//    }
+
+    @Override
+    public List<? extends Error> getDiagnostics() {
+//        return ErrorsProviderQuery.getExtendedDiagnostics(this);
+        return Collections.emptyList();
+    }
+    
+//    public <T> T getProperty(Class<T> type) {
+//        if(properties == null) {
+//            return null;
+//        } else {
+//            return (T)properties.get(type);
+//        }
+//    }
+//    
+//    public <T> void setProperty(Class<T> type, T value) {
+//        if(properties == null) {
+//            properties = new HashMap();
+//        }
+//        properties.put(type, value);
+//    }
     
 }

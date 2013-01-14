@@ -41,20 +41,28 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
+ * Node of the css source parse tree.
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
+public interface Node {
     
-    TOKENS,
-    RULES,
+    public int from();
+
+    public int to();
     
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
+    public String name();
+
+    public NodeType type();
     
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+    public List<Node> children();
+    
+    public Node parent();
+    
+    public CharSequence image();
     
 }

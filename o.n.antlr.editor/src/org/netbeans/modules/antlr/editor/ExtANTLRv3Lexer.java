@@ -41,11 +41,8 @@
  */
 package org.netbeans.modules.antlr.editor;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.antlr.runtime.*;
-import org.openide.util.NbBundle;
-import org.netbeans.antlr.editor.gen.*;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
 
 /**
  * Note: Funny aspect of the ANTLR lexer is that it doesn't create any kind of

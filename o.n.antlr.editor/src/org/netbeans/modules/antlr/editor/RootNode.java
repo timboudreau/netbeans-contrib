@@ -41,20 +41,25 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
+public class RootNode extends RuleNode {
+
+    public RootNode(CharSequence source) {
+        super(NodeType.root, source);
+    }
     
-    TOKENS,
-    RULES,
-    
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
-    
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+    @Override
+    public int from() {
+        return 0;
+    }
+
+    @Override
+    public int to() {
+        return getSource().length();
+    }
     
 }

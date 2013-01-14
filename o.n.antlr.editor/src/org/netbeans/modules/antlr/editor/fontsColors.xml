@@ -47,7 +47,24 @@ made subject to such option by the copyright holder.
 
 <fontscolors>
     
+    <fontcolor  name="whitespaces" default="default"/>
+    <fontcolor  name="comments" default="comment"/>
+    
+    <fontcolor name="tokens" foreColor="007c00"> 
+    </fontcolor>
+    
+    <fontcolor name="rules" default="identifier">
+        <font style="bold" />
+    </fontcolor>
     
     
+    <fontcolor name="strings" default="string"/>
+    
+    <fontcolor name="others" default="default"/>    
+    <fontcolor name="braces" default="separator"/>
+    <fontcolor name="operators" default="operator"/>
+    
+    <fontcolor name="keywords" default="keyword"/>
+    <fontcolor name="numbers" default="number"/>
     
 </fontscolors>

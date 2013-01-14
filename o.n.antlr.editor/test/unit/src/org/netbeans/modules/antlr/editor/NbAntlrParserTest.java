@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,24 +37,41 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2011 Sun Microsystems, Inc.
+ * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.antlr.editor;
+
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.spi.ParseException;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
-    
-    TOKENS,
-    RULES,
-    
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
-    
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+public class NbAntlrParserTest extends AntlrTestBase {
+
+    public NbAntlrParserTest(String testName) {
+        super(testName);
+    }
+
+    public void testParserBasic() throws ParseException {
+        FileObject testFile = getTestFile("testfiles/ANTLRv3.g");
+
+        Source s = Source.create(testFile);
+        Snapshot snap = s.createSnapshot();
+        NbAntlrParser parser = new NbAntlrParser();
+        parser.parse(snap, null, null);
+        
+        NbAntlrParserResult result = (NbAntlrParserResult)parser.getResult(null);
+        assertNotNull(result);
+        
+        Node parseTree = result.getParseTree();
+        assertNotNull(parseTree);
+        
+        NodeUtil.dumpTree(parseTree);
+       
+    }
     
 }

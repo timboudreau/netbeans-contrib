@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,24 +37,41 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2011 Sun Microsystems, Inc.
+ * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.antlr.editor;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.api.StructureItem;
+import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.ParserResult;
 
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
-    
-    TOKENS,
-    RULES,
-    
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
-    
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+public class AntlrStructureScanner implements StructureScanner {
+
+    @Override
+    public List<? extends StructureItem> scan(ParserResult info) {
+        NbAntlrParserResult result = (NbAntlrParserResult)info;
+        
+        
+        
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, List<OffsetRange>> folds(ParserResult info) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        return null;
+    }
     
 }

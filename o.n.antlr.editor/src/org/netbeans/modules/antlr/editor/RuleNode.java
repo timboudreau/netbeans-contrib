@@ -41,20 +41,51 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import org.antlr.runtime.CommonToken;
+
 /**
  *
  * @author marekfukala
  */
-public enum AntlrTokenIdCategory {
+public class RuleNode extends AbstractParseTreeNode {
     
-    TOKENS,
-    RULES,
+    private NodeType rule;
+    int from = -1, to = -1;
     
-    STRINGS,
-    KEYWORDS, 
-    OPERATORS,
-    COMMENTS,
+    RuleNode(NodeType rule, CharSequence source) {
+        super(source);
+        this.rule = rule;
+    }
     
-    ERRORS, OTHERS, NUMBERS, WHITESPACES, BRACES, IDENTIFIERS ;
+    //used by NbParseTreeBuilder
+    void setFirstToken(CommonToken token) {
+        assert token != null : "Attempting to set null first token in rule " + name();
+        this.from = CommonTokenUtil.getCommonTokenOffsetRange(token)[0];
+    }
     
+    void setLastToken(CommonToken token) {
+        assert token != null : "Attempting to set null last token in rule " + name();
+        this.to = CommonTokenUtil.getCommonTokenOffsetRange(token)[1];
+    }
+
+    @Override
+    public int from() {
+        return from;
+    }
+
+    @Override
+    public int to() {
+        return to;
+    }
+
+    @Override
+    public NodeType type() {
+        return rule;
+    }
+
+    @Override
+    public String name() {
+        return type().name();
+    }
+
 }
