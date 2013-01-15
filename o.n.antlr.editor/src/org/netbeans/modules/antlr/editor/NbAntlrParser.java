@@ -41,21 +41,15 @@
  */
 package org.netbeans.modules.antlr.editor;
 
-import java.io.PrintWriter;
 import java.util.Collection;
 import javax.swing.event.ChangeListener;
 import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.debug.ParseTreeBuilder;
 import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.antlr.runtime.tree.Tree;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
 import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
-import org.netbeans.modules.antlr.editor.gen.ANTLRv3Tree;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Task;
@@ -79,59 +73,17 @@ public class NbAntlrParser extends Parser {
         CharSequence input = snapshot.getText();
 
         try {
-            ANTLRv3Lexer lex = new ANTLRv3Lexer(new ANTLRStringStream(input.toString()) {
-                @Override
-                public int LA(int i) {
-                    if (i == 0) {
-                        return 0; // undefined
-                    }
-                    if (i < 0) {
-                        i++; // e.g., translate LA(-1) to use offset 0
-                    }
-
-                    if ((p + i - 1) >= n) {
-
-                        return CharStream.EOF;
-                    }
-                    return Character.toUpperCase(data[p + i - 1]);
-                }
-            });
-
+            ANTLRv3Lexer lex = new ANTLRv3Lexer(new ANTLRStringStream(input.toString()));
             CommonTokenStream tokens = new CommonTokenStream(lex);
-            NbParseTreeBuilder builder = new NbParseTreeBuilder(snapshot.getText());
-            ANTLRv3Parser g = new ANTLRv3Parser(tokens, builder);
-            g.grammarDef(); //parse
-            
-            return new NbAntlrParserResult(snapshot, builder.getTree());
+            ANTLRv3Parser parser = new ANTLRv3Parser(tokens, null);
+            CommonTree tree = (CommonTree) parser.grammarDef().getTree();
+            return new NbAntlrParserResult(snapshot, tree);
         } catch (RecognitionException ex) {
             throw new ParseException(String.format("Error parsing %s snapshot.", snapshot), ex); //NOI18N
         }
     }
-//
-//    public static void dumpTree(Tree node) {
-//        PrintWriter pw = new PrintWriter(System.out);
-//        dumpTree(node, pw);
-//        pw.flush();
-//    }
-//
-//    public static void dumpTree(Tree node, PrintWriter pw) {
-//        dump(node, 0, pw);
-//
-//    }
-//
-//    private static int x = 0;
-//    
-//    private static void dump(Tree tree, int level, PrintWriter pw) {
-//        for (int i = 0; i < level; i++) {
-//            pw.print("    ");
-//        }
-//        pw.print(x++ + tree.toString());
-//        pw.println();
-//        for (int i = 0; i < tree.getChildCount(); i++) {
-//            Tree child = tree.getChild(i);
-//            dump(child, level + 1, pw);
-//        }
-//    }
+
+   
 
     @Override
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {

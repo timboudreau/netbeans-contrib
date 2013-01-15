@@ -43,7 +43,6 @@ package org.netbeans.modules.antlr.editor;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.antlr.runtime.tree.CommonTree;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.spi.ParserResult;
@@ -57,9 +56,9 @@ public class NbAntlrParserResult extends ParserResult {
 
     public static boolean IN_UNIT_TESTS = false;
     
-    private Node parseTree;
+    private CommonTree parseTree;
     
-    public NbAntlrParserResult(Snapshot snapshot, Node parseTree /*, List<ProblemDescription> diagnostics*/) {
+    public NbAntlrParserResult(Snapshot snapshot, CommonTree parseTree /*, List<ProblemDescription> diagnostics*/) {
         super(snapshot);
         assert parseTree != null;
         this.parseTree = parseTree;
@@ -70,15 +69,11 @@ public class NbAntlrParserResult extends ParserResult {
     protected void invalidate() {
         //as CSL features uses the parser result out of the parsing task,
         //the invalidation needs to be disabled until fixed.
-        
-//        if(IN_UNIT_TESTS) {
-//            return ; //some simplification - do not invalidate the result in unit tests
-//        }
-//        parseTree = null;
-//        diagnostics = null;
+        //        parseTree = null;
+        //        diagnostics = null;
     }
 
-    public Node getParseTree() {
+    public CommonTree getParseTree() {
         if(parseTree == null) {
             throw new IllegalStateException("Already invalidated parser result, you are likely trying to use it outside of the parsing task runnable!"); //NOI18N
         }

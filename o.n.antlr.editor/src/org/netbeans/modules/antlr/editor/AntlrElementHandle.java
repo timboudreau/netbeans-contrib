@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -23,7 +23,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -34,35 +34,76 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
- * Portions Copyrighted 2011 Sun Microsystems, Inc.
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.antlr.editor;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import org.netbeans.modules.csl.api.ElementHandle;
+import org.netbeans.modules.csl.api.ElementKind;
+import org.netbeans.modules.csl.api.Modifier;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.csl.spi.ParserResult;
+import org.openide.filesystems.FileObject;
 
 /**
- * Node of the css source parse tree.
  *
- * @author marekfukala
+ * @author mfukala@netbeans.org
  */
-public interface Node {
-    
-    public int from();
+public class AntlrElementHandle implements ElementHandle {
 
-    public int to();
-    
-    public String name();
+    private FileObject file;
+    private CharSequence name;
+    private OffsetRange range;
 
-    public NodeType type();
-    
-    public List<Node> children();
-    
-    public Node parent();
-    
-    public CharSequence image();
-    
+    public AntlrElementHandle(FileObject file, CharSequence name, OffsetRange range) {
+        this.file = file;
+        this.name = name;
+        this.range = range;
+    }
+
+    @Override
+    public String getName() {
+        return name.toString();
+    }
+
+    @Override
+    public FileObject getFileObject() {
+        return file;
+    }
+
+    @Override
+    public String getMimeType() {
+        return "text/antlr";
+    }
+
+    @Override
+    public String getIn() {
+        return null;
+    }
+
+    @Override
+    public ElementKind getKind() {
+        return ElementKind.RULE;
+    }
+
+    @Override
+    public Set<Modifier> getModifiers() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public boolean signatureEquals(ElementHandle handle) {
+        return false;
+    }
+
+    @Override
+    public OffsetRange getOffsetRange(ParserResult result) {
+        return range; //XXX this is bad - fix!!!
+    }
+
 }
