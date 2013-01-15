@@ -80,7 +80,16 @@ public class AntlrStructureScanner implements StructureScanner {
                         assert id.getType() == ANTLRv3Parser.ID;
                         
                         CommonToken ct = (CommonToken)id.getToken();
-                        items.add(new AntlrStructureItem(file, ct.getText(), new OffsetRange(ct.getStartIndex(), ct.getStopIndex() + 1)));
+                        String text = ct.getText();
+                        
+                        //XXX fix the token/gr.rule recognition!!! 
+                        if(Character.isUpperCase(text.charAt(0))) {
+                            //token 
+                            items.add(AntlrStructureItem.createTokenItem(file, ct.getText(), new OffsetRange(ct.getStartIndex(), ct.getStopIndex() + 1)));
+                        } else {
+                            //token 
+                            items.add(AntlrStructureItem.createRuleItem(file, ct.getText(), new OffsetRange(ct.getStartIndex(), ct.getStopIndex() + 1)));
+                        }
                         break;
                 }
                 return t;

@@ -61,11 +61,21 @@ public class AntlrStructureItem implements StructureItem {
     private FileObject file;
     private CharSequence name;
     private OffsetRange range;
+    private ElementKind kind;
 
-    AntlrStructureItem(FileObject file, CharSequence name, OffsetRange range) {
+    public static AntlrStructureItem createRuleItem(FileObject file, CharSequence name, OffsetRange range) {
+        return new AntlrStructureItem(file, name, range, ElementKind.METHOD );
+    }
+    
+    public static AntlrStructureItem createTokenItem(FileObject file, CharSequence name, OffsetRange range) {
+        return new AntlrStructureItem(file, name, range, ElementKind.FIELD );
+    }
+    
+    private AntlrStructureItem(FileObject file, CharSequence name, OffsetRange range, ElementKind kind) {
         this.file = file;
         this.name = name;
         this.range = range;
+        this.kind = kind;
     }
 
     @Override
@@ -90,7 +100,7 @@ public class AntlrStructureItem implements StructureItem {
 
     @Override
     public ElementKind getKind() {
-        return ElementKind.RULE;
+        return kind;
     }
 
     @Override
