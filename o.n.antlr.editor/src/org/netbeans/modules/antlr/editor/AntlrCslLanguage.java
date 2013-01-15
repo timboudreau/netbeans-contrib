@@ -46,6 +46,7 @@ import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.Formatter;
+import org.netbeans.modules.csl.api.InstantRenamer;
 import org.netbeans.modules.csl.api.OccurrencesFinder;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.csl.api.StructureScanner;
@@ -150,7 +151,10 @@ public class AntlrCslLanguage extends DefaultLanguageConfig {
     public boolean hasFormatter() {
         return true;
     }
-    
-    
-    
+
+    @Override
+    public InstantRenamer getInstantRenamer() {
+        return new AntlrInstantRenamer();
+    }
+        
 }
