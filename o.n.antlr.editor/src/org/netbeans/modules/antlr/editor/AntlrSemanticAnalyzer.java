@@ -41,75 +41,89 @@
  */
 package org.netbeans.modules.antlr.editor;
 
-import org.netbeans.core.spi.multiview.MultiViewElement;
-import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.TreeVisitor;
+import org.antlr.runtime.tree.TreeVisitorAction;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
+import org.netbeans.modules.csl.api.ColoringAttributes;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
-import org.netbeans.modules.csl.api.StructureScanner;
-import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
-import org.netbeans.modules.csl.spi.LanguageRegistration;
+import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.parsing.spi.Parser;
-import org.netbeans.modules.parsing.spi.indexing.PathRecognizerRegistration;
-import org.openide.filesystems.MIMEResolver;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
+import org.netbeans.modules.parsing.spi.Scheduler;
+import org.netbeans.modules.parsing.spi.SchedulerEvent;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author marekfukala
  */
-@NbBundle.Messages({
-    "language.displaname=ANTLR Editor"
-    }) 
-@LanguageRegistration(mimeType = "text/antlr", useMultiview = true)
-@PathRecognizerRegistration(mimeTypes = "text/antlr", libraryPathIds = {}, binaryLibraryPathIds = {}) //NOI18N
-public class AntlrCslLanguage extends DefaultLanguageConfig {
- 
-    @MIMEResolver.ExtensionRegistration(
-        extension={ "g" },
-        displayName="#AntlrResolver",
-        mimeType="text/antlr",
-        position=1111
-    )
-    @NbBundle.Messages("AntlrResolver=ANTLR Files")
-     @MultiViewElement.Registration(displayName = "#LBL_AntlrEditorTab",
-        iconBase = "org/netbeans/modules/antlr/editor/build.png",
-        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-        preferredID = "antlr.source",
-        mimeType = "text/antlr",
-        position = 1)
-    public static MultiViewEditorElement createMultiViewEditorElement(Lookup context) {
-        return new MultiViewEditorElement(context);
-    }
-   
+public class AntlrSemanticAnalyzer extends SemanticAnalyzer {
+
+    private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
+
     @Override
-    public org.netbeans.api.lexer.Language getLexerLanguage() {
-        return AntlrTokenId.language();
-    }
-  
-    @Override
-    public String getDisplayName() {
-        return Bundle.language_displaname();
-    }
-    
-    @Override
-    public Parser getParser() {
-        return new NbAntlrParser();
+    public Map<OffsetRange, Set<ColoringAttributes>> getHighlights() {
+        return semanticHighlights;
     }
 
     @Override
-    public boolean hasStructureScanner() {
-        return true;
+    public void cancel() {
     }
 
     @Override
-    public StructureScanner getStructureScanner() {
-        return new AntlrStructureScanner();
+    public void run(Parser.Result info, SchedulerEvent event) {
+        resume();
+
+        NbAntlrParserResult result = (NbAntlrParserResult) info;
+        semanticHighlights = new HashMap<OffsetRange, Set<ColoringAttributes>>();
+        
+        TreeVisitor visitor = new TreeVisitor();
+        visitor.visit(result.getParseTree(), new TreeVisitorAction() {
+            @Override
+            public Object pre(Object o) {
+                CommonTree t = (CommonTree) o;
+                switch(t.getType()) {
+                    case ANTLRv3Parser.RULE:
+                        //get next ID rule
+                        CommonTree id = (CommonTree) t.getChild(0);
+                        assert id.getType() == ANTLRv3Parser.ID;
+                        
+                        CommonToken ct = (CommonToken)id.getToken();
+                        OffsetRange range = Utils.getCommonTokenOffsetRange(ct);
+
+                        semanticHighlights.put(range, ColoringAttributes.METHOD_SET);
+                        
+                        break;
+                }
+                return t;
+            }
+
+            @Override
+            public Object post(Object o) {
+                CommonTree t = (CommonTree) o;
+                return t;
+            }
+        });
+
     }
 
     @Override
-    public SemanticAnalyzer getSemanticAnalyzer() {
-        return new AntlrSemanticAnalyzer();
+    public int getPriority() {
+        return 500; //higher means less important
     }
-    
+
+    @Override
+    public Class<? extends Scheduler> getSchedulerClass() {
+        return null;
+    }
+
+    private void resume() {
+    }
 }

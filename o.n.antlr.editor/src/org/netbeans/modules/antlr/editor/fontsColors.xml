@@ -54,9 +54,7 @@ made subject to such option by the copyright holder.
     </fontcolor>
     
     <fontcolor name="rules" default="identifier">
-        <font style="bold" />
     </fontcolor>
-    
     
     <fontcolor name="strings" default="string"/>
     
@@ -66,5 +64,9 @@ made subject to such option by the copyright holder.
     
     <fontcolor name="keywords" default="keyword"/>
     <fontcolor name="numbers" default="number"/>
+    
+    <fontcolor name="mod-method" default="identifier">
+         <font style="bold" />
+    </fontcolor>
     
 </fontscolors>

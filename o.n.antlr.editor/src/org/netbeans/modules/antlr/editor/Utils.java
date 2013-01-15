@@ -45,6 +45,7 @@ import java.io.PrintWriter;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.tree.Tree;
 import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
+import org.netbeans.modules.csl.api.OffsetRange;
 
 /**
  *
@@ -63,15 +64,15 @@ public class Utils {
      * @return two members array - arr[0] is the start offset, arr[1] is the end
      * offset
      */
-    public static int[] getCommonTokenOffsetRange(CommonToken token) {
+    public static OffsetRange getCommonTokenOffsetRange(CommonToken token) {
         if (token.getType() == CommonToken.EOF) {
             //"eof token" points at the end offset of the source, with zero length
-            return new int[]{token.getStartIndex(), token.getStopIndex()};
+            return new OffsetRange(token.getStartIndex(), token.getStopIndex());
         } else {
-            return new int[]{token.getStartIndex(), token.getStopIndex() + 1};
+            return new OffsetRange(token.getStartIndex(), token.getStopIndex() + 1);
         }
-
     }
+    
     
      public static void dumpTree(Tree node) {
         PrintWriter pw = new PrintWriter(System.out);
