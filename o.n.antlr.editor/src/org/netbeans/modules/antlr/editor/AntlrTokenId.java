@@ -174,6 +174,10 @@ public enum AntlrTokenId implements TokenId {
         this.code = code;
     }
 
+    public int getAntlrTokenId() {
+        return code;
+    }
+    
     /**
      * Gets a LanguageDescription describing a set of token ids that comprise
      * the given language.
