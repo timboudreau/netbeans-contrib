@@ -45,6 +45,7 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.DeclarationFinder;
+import org.netbeans.modules.csl.api.Formatter;
 import org.netbeans.modules.csl.api.OccurrencesFinder;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.csl.api.StructureScanner;
@@ -138,6 +139,16 @@ public class AntlrCslLanguage extends DefaultLanguageConfig {
     @Override
     public CodeCompletionHandler getCompletionHandler() {
         return new AntlrCompletionHandler();
+    }
+
+    @Override
+    public Formatter getFormatter() {
+        return new AntlrFormatter();
+    }
+
+    @Override
+    public boolean hasFormatter() {
+        return true;
     }
     
     
