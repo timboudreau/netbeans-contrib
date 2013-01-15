@@ -41,6 +41,10 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.TreeVisitor;
+import org.antlr.runtime.tree.TreeVisitorAction;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.spi.ParseException;
@@ -57,7 +61,9 @@ public class NbAntlrParserTest extends AntlrTestBase {
     }
 
     public void testParserBasic() throws ParseException {
-        FileObject testFile = getTestFile("testfiles/ANTLRv3.g");
+//        FileObject testFile = getTestFile("testfiles/ANTLRv3.g");
+//        FileObject testFile = getTestFile("testfiles/Css3.g");
+        FileObject testFile = getTestFile("testfiles/test.g");
 
         Source s = Source.create(testFile);
         Snapshot snap = s.createSnapshot();
@@ -67,11 +73,10 @@ public class NbAntlrParserTest extends AntlrTestBase {
         NbAntlrParserResult result = (NbAntlrParserResult)parser.getResult(null);
         assertNotNull(result);
         
-        Node parseTree = result.getParseTree();
+        CommonTree parseTree = result.getParseTree();
         assertNotNull(parseTree);
         
-        NodeUtil.dumpTree(parseTree);
-       
+//        Utils.dumpTree(parseTree);
     }
     
 }

@@ -41,13 +41,21 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
+import org.antlr.runtime.tree.TreeVisitor;
+import org.antlr.runtime.tree.TreeVisitorAction;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.ParserResult;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -57,11 +65,35 @@ public class AntlrStructureScanner implements StructureScanner {
 
     @Override
     public List<? extends StructureItem> scan(ParserResult info) {
-        NbAntlrParserResult result = (NbAntlrParserResult)info;
-        
-        
-        
-        return Collections.emptyList();
+        NbAntlrParserResult result = (NbAntlrParserResult) info;
+        final FileObject file = info.getSnapshot().getSource().getFileObject();
+        final List<StructureItem> items = new ArrayList<StructureItem>();
+        TreeVisitor visitor = new TreeVisitor();
+        visitor.visit(result.getParseTree(), new TreeVisitorAction() {
+            @Override
+            public Object pre(Object o) {
+                CommonTree t = (CommonTree) o;
+                switch(t.getType()) {
+                    case ANTLRv3Parser.RULE:
+                        //get next ID rule
+                        CommonTree id = (CommonTree) t.getChild(0);
+                        assert id.getType() == ANTLRv3Parser.ID;
+                        
+                        CommonToken ct = (CommonToken)id.getToken();
+                        items.add(new AntlrStructureItem(file, ct.getText(), new OffsetRange(ct.getStartIndex(), ct.getStopIndex() + 1)));
+                        break;
+                }
+                return t;
+            }
+
+            @Override
+            public Object post(Object o) {
+                CommonTree t = (CommonTree) o;
+                return t;
+            }
+        });
+
+        return items;
     }
 
     @Override

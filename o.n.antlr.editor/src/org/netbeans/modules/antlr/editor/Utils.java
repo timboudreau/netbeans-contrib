@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,86 +37,72 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2011 Sun Microsystems, Inc.
+ * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.antlr.editor;
 
-import java.util.Collections;
-import java.util.List;
-import org.antlr.runtime.tree.ParseTree;
+import java.io.PrintWriter;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.tree.Tree;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
 
 /**
  *
  * @author marekfukala
  */
-public abstract class AbstractParseTreeNode extends ParseTree implements Node {
-
-    Tree parent;
-    
-    private CharSequence source;
-    
-    public AbstractParseTreeNode(CharSequence source) {
-        super(null);
-        this.source = source;
-    }
-
-    protected CharSequence getSource() {
-        return source;
-    }
-
-    @Override
-    public CharSequence image() {
-        return getSource().subSequence(from(), to());
-    }
-    
-    public boolean deleteChild(AbstractParseTreeNode node) {
-        if (children == null) {
-            return false;
-        }
-        int childIndex = children.indexOf(node);
-        if (childIndex == -1) {
-            return false; //no such node
+public class Utils {
+ 
+    /**
+     * Returns a pointer to the start and end of the token image in the
+     * underlaying stream. The token.getStopIndex() points to the last character
+     * of the token which is a bit confusing.
+     *
+     * Use this method to get CommonToken's boundaries instead of using the
+     * getStart/StopIndex methods.
+     *
+     * @return two members array - arr[0] is the start offset, arr[1] is the end
+     * offset
+     */
+    public static int[] getCommonTokenOffsetRange(CommonToken token) {
+        if (token.getType() == CommonToken.EOF) {
+            //"eof token" points at the end offset of the source, with zero length
+            return new int[]{token.getStartIndex(), token.getStopIndex()};
+        } else {
+            return new int[]{token.getStartIndex(), token.getStopIndex() + 1};
         }
 
-        return super.deleteChild(childIndex) != null;
-    }
-
-    /** BaseTree doesn't track parent pointers. */
-    @Override
-    public Tree getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(Tree t) {
-        this.parent = t;
-    }
-
-    @Override
-    @SuppressWarnings(value="unchecked") //antlr 3.3 does not use generics
-    public List<Node> children() {
-        List ch = getChildren();
-        return ch == null 
-                ? Collections.<Node>emptyList() 
-                : ch;
-    }
-
-    @Override
-    public Node parent() {
-        return (Node)getParent();
     }
     
-    @Override
-    public String toString() {
-        return new StringBuilder()
-                .append(type())
-                .append('(')
-                .append(from())
-                .append('-')
-                .append(to())
-                .append(')')
-                .toString();
+     public static void dumpTree(Tree node) {
+        PrintWriter pw = new PrintWriter(System.out);
+        dumpTree(node, pw);
+        pw.flush();
     }
 
+    public static void dumpTree(Tree node, PrintWriter pw) {
+        dump(node, 0, pw);
+
+    }
+
+    private static void dump(Tree tree, int level, PrintWriter pw) {
+        for (int i = 0; i < level; i++) {
+            pw.print("    ");
+        }
+        pw.print(tree2String(tree));
+        pw.println();
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            Tree child = tree.getChild(i);
+            dump(child, level + 1, pw);
+        }
+    }
+    
+    public  static String tree2String(Tree t) {        
+        return String.format("type = %s, line = %s, fi = %s, ti = %s, text = %s", 
+                ANTLRv3Parser.tokenNames[t.getType()], 
+                t.getLine(), 
+                t.getTokenStartIndex(), 
+                t.getTokenStopIndex(), 
+                t.getText());
+    }
+    
 }
