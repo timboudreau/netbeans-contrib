@@ -16,4 +16,16 @@
             </folder>
         </folder>    
     </folder>
+    
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="antlr">
+                
+                <!-- GSF -->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/antlr/editor/build.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/antlr/editor/build.png"/>
+            </folder>
+        </folder>
+    </folder>
+    
 </filesystem>
