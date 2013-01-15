@@ -59,7 +59,7 @@ public class AntlrElementHandle implements ElementHandle {
     private FileObject file;
     private CharSequence name;
     private OffsetRange range;
-
+    
     public AntlrElementHandle(FileObject file, CharSequence name, OffsetRange range) {
         this.file = file;
         this.name = name;
@@ -88,7 +88,7 @@ public class AntlrElementHandle implements ElementHandle {
 
     @Override
     public ElementKind getKind() {
-        return ElementKind.RULE;
+        return Character.isUpperCase(getName().charAt(0)) ? ElementKind.FIELD : ElementKind.METHOD; //XXX fix the gr.rule vs token ref recognition !!!
     }
 
     @Override

@@ -43,6 +43,7 @@ package org.netbeans.modules.antlr.editor;
 
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.DeclarationFinder;
 import org.netbeans.modules.csl.api.OccurrencesFinder;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
@@ -128,5 +129,17 @@ public class AntlrCslLanguage extends DefaultLanguageConfig {
     public DeclarationFinder getDeclarationFinder() {
         return new AntlrDeclarationFinder();
     }
+
+    @Override
+    public String getLineCommentPrefix() {
+        return "//"; //NOI18N
+    }
+
+    @Override
+    public CodeCompletionHandler getCompletionHandler() {
+        return new AntlrCompletionHandler();
+    }
+    
+    
     
 }

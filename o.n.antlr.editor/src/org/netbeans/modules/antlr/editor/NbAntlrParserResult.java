@@ -41,10 +41,17 @@
  */
 package org.netbeans.modules.antlr.editor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.TreeVisitor;
+import org.antlr.runtime.tree.TreeVisitorAction;
+import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
+import org.netbeans.modules.csl.api.ColoringAttributes;
 import org.netbeans.modules.csl.api.Error;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.Snapshot;
 
@@ -55,9 +62,9 @@ import org.netbeans.modules.parsing.api.Snapshot;
 public class NbAntlrParserResult extends ParserResult {
 
     public static boolean IN_UNIT_TESTS = false;
-    
     private CommonTree parseTree;
-    
+    private List<String> ruleNames;
+
     public NbAntlrParserResult(Snapshot snapshot, CommonTree parseTree /*, List<ProblemDescription> diagnostics*/) {
         super(snapshot);
         assert parseTree != null;
@@ -74,12 +81,46 @@ public class NbAntlrParserResult extends ParserResult {
     }
 
     public CommonTree getParseTree() {
-        if(parseTree == null) {
+        if (parseTree == null) {
             throw new IllegalStateException("Already invalidated parser result, you are likely trying to use it outside of the parsing task runnable!"); //NOI18N
         }
         return parseTree;
     }
-    
+
+    public List<String> getRuleNames() {
+        if (ruleNames == null) {
+            ruleNames = new ArrayList<String>();
+
+            TreeVisitor visitor = new TreeVisitor();
+            visitor.visit(getParseTree(), new TreeVisitorAction() {
+                @Override
+                public Object pre(Object o) {
+                    CommonTree t = (CommonTree) o;
+                    switch (t.getType()) {
+                        case ANTLRv3Parser.RULE:
+                            //get next ID rule
+                            CommonTree id = (CommonTree) t.getChild(0);
+                            assert id.getType() == ANTLRv3Parser.ID;
+
+                            CommonToken ct = (CommonToken) id.getToken();
+                            ruleNames.add(ct.getText());
+                            break;
+                    }
+                    return t;
+                }
+
+                @Override
+                public Object post(Object o) {
+                    CommonTree t = (CommonTree) o;
+                    return t;
+                }
+            });
+
+
+        }
+        return ruleNames;
+    }
+
 //    /**
 //     * Gets lexer / parser diagnostics w/o additional issues 
 //     * possibly added by {@link ExtendedDiagnosticsProvider}.
@@ -87,13 +128,11 @@ public class NbAntlrParserResult extends ParserResult {
 //    public List<ProblemDescription> getParserDiagnostics() {
 //        return diagnostics;
 //    }
-
     @Override
     public List<? extends Error> getDiagnostics() {
 //        return ErrorsProviderQuery.getExtendedDiagnostics(this);
         return Collections.emptyList();
     }
-    
 //    public <T> T getProperty(Class<T> type) {
 //        if(properties == null) {
 //            return null;
@@ -108,5 +147,4 @@ public class NbAntlrParserResult extends ParserResult {
 //        }
 //        properties.put(type, value);
 //    }
-    
 }
