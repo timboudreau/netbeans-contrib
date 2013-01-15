@@ -46,6 +46,7 @@ import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.tree.Tree;
 import org.netbeans.modules.antlr.editor.gen.ANTLRv3Parser;
 import org.netbeans.modules.csl.api.OffsetRange;
+import org.openide.util.Parameters;
 
 /**
  *
@@ -53,6 +54,25 @@ import org.netbeans.modules.csl.api.OffsetRange;
  */
 public class Utils {
  
+     /** @param optimized - first sequence is lowercase, one call to Character.toLowerCase() only*/
+    public static boolean equals(CharSequence text1, CharSequence text2, boolean ignoreCase, boolean optimized) {
+        Parameters.notNull("text1", text1);
+        Parameters.notNull("text2", text2);
+        if (text1.length() != text2.length()) {
+            return false;
+        } else {
+            //compare content
+            for (int i = 0; i < text1.length(); i++) {
+                char ch1 = ignoreCase && !optimized ? Character.toLowerCase(text1.charAt(i)) : text1.charAt(i);
+                char ch2 = ignoreCase ? Character.toLowerCase(text2.charAt(i)) : text2.charAt(i);
+                if (ch1 != ch2) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    
     /**
      * Returns a pointer to the start and end of the token image in the
      * underlaying stream. The token.getStopIndex() points to the last character

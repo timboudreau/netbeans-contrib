@@ -69,4 +69,7 @@ made subject to such option by the copyright holder.
          <font style="bold" />
     </fontcolor>
     
+    <!--mark occurrences:-->
+    <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
+    
 </fontscolors>
