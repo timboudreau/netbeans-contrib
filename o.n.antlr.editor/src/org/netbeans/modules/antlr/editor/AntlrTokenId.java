@@ -58,6 +58,8 @@ import org.netbeans.modules.antlr.editor.gen.ANTLRv3Lexer;
  * @author Marek Fukala
  */
 public enum AntlrTokenId implements TokenId {
+    
+    ERROR(0, ERRORS), //???
 
     EOF(ANTLRv3Lexer.EOF, OTHERS),
     DOC_COMMENT(ANTLRv3Lexer.DOC_COMMENT, COMMENTS),
