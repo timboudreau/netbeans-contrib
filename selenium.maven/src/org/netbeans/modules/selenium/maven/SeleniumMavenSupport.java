@@ -111,7 +111,7 @@ final class SeleniumMavenSupport {
         public void performOperation(POMModel model) {
             Dependency dep = ModelUtils.checkModelDependency(model, SELENIUM_GROUP_ID, SELENIUM_ARTIFACT_ID, true);
             dep.setScope("test");
-            dep.setVersion("2.16.1");
+            dep.setVersion("2.28.0");
 
             org.netbeans.modules.maven.model.pom.Project p = model.getProject();
             Build bld = p.getBuild();

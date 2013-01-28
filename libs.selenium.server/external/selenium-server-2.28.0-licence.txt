@@ -1,10 +1,10 @@
-Name: selenium-server-2.16.1.jar
-Version: 2.16.1
-Description: Library for management of some selenium java client driver.
+Name: selenium-server-2.28.0.jar
+Version: 2.28.0
+Description: Selenium server .JAR.
 License: Apache_V20
 Origin: http://seleniumhq.org/download/
 
-Use of selenium-server-2.16.1.jar version 2.16.1 is governed by the terms of the license below:
+Use of selenium-server-2.28.0.jar version 2.28.0 is governed by the terms of the license below:
 
 
                                  Apache License
