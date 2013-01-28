@@ -45,11 +45,4 @@
             </file>
         </folder>
     </folder>
-    <folder name="org-netbeans-api-project-libraries">
-        <folder name="Libraries">
-            <file name="Selenium.xml" url="Selenium.xml">
-                <attr name="displayName" bundlevalue="org.netbeans.modules.selenium.Bundle#seleniumLibraryDisplayName"/>
-            </file>
-        </folder>
-    </folder>
 </filesystem>

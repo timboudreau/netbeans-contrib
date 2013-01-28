@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.selenium.server
 OpenIDE-Module-Layer: org/netbeans/modules/selenium/server/layer.xml
 OpenIDE-Module-Install: org/netbeans/modules/selenium/server/Installer.class
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/selenium/server/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.5
+OpenIDE-Module-Specification-Version: 1.6
 
