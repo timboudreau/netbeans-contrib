@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.selenium.binary
+OpenIDE-Module: org.netbeans.modules.libs.selenium
 OpenIDE-Module-Layer: org/netbeans/modules/selenium/binary/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/selenium/binary/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
