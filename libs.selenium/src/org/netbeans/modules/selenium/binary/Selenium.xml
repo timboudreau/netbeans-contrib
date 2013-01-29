@@ -7,51 +7,51 @@ and open the template in the editor.
 <library version="1.0">
     <name>Selenium</name>
     <type>j2se</type>
-    <localizing-bundle>org/netbeans/modules/selenium/Bundle</localizing-bundle>
+    <localizing-bundle>org/netbeans/modules/selenium/binary/Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/apache-mime4j-0.6.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/bsh-1.3.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/cglib-nodep-2.1_3.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-codec-1.6.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-collections-3.2.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-exec-1.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-io-2.2.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-jxpath-1.3.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-lang3-3.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/commons-logging-1.1.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/cssparser-0.9.7.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/guava-13.0.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/hamcrest-core-1.3.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/hamcrest-library-1.3.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/htmlunit-2.11.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/htmlunit-core-js-2.11.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/httpclient-4.2.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/httpcore-4.2.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/httpmime-4.2.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/ini4j-0.5.2.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/jcommander-1.29.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/jetty-websocket-8.1.8.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/jna-3.4.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/jna-platform-3.4.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/json-20080701.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/junit-dep-4.11.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/nekohtml-1.9.16.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/netty-3.5.7.Final.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/operadriver-1.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/phantomjsdriver-1.0.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/protobuf-java-2.4.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/sac-1.3.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/selenium-java-2.28.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/serializer-2.7.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/testng-6.8.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/xalan-2.7.1.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/xercesImpl-2.10.0.jar!/</resource>
-            <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium-client-2.28.0/xml-apis-1.4.01.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/apache-mime4j-0.6.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/bsh-1.3.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/cglib-nodep-2.1_3.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-codec-1.6.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-collections-3.2.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-exec-1.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-io-2.2.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-jxpath-1.3.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-lang3-3.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/commons-logging-1.1.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/cssparser-0.9.7.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/guava-13.0.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/hamcrest-core-1.3.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/hamcrest-library-1.3.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/htmlunit-2.11.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/htmlunit-core-js-2.11.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/httpclient-4.2.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/httpcore-4.2.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/httpmime-4.2.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/ini4j-0.5.2.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/jcommander-1.29.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/jetty-websocket-8.1.8.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/jna-3.4.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/jna-platform-3.4.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/json-20080701.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/junit-dep-4.11.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/nekohtml-1.9.16.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/netty-3.5.7.Final.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/operadriver-1.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/phantomjsdriver-1.0.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/protobuf-java-2.4.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/sac-1.3.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/selenium-java-2.28.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/serializer-2.7.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/testng-6.8.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/xalan-2.7.1.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/xercesImpl-2.10.0.jar!/</resource>
+            <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium-client-2.28.0/xml-apis-1.4.01.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
-        <resource>jar:nbinst://org.netbeans.modules.selenium/modules/ext/selenium/selenium-java-client-driver-sources-2.28.0.jar!</resource>
+        <resource>jar:nbinst://org.netbeans.modules.libs.selenium/modules/ext/selenium/selenium-java-client-driver-sources-2.28.0.jar!</resource>
     </volume>
 <!--    <volume>
         <type>maven-pom</type>
