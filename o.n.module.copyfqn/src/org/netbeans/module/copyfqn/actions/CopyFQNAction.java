@@ -202,7 +202,6 @@ public final class CopyFQNAction extends CookieAction {
         if (clipboard != null) {
             if (content == null) {
                 StatusDisplayer.getDefault().setStatusText("");
-                clipboard.setContents(null, null);
             } else {
                 StatusDisplayer.getDefault().setStatusText("Clipboard: " + content);
                 clipboard.setContents(new StringSelection(content), null);
