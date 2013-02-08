@@ -26,6 +26,13 @@
             <include name="pythonstubs/"/>
             <include name="jython-2.5.1/**/netbeans-index-*.zip"/>
         </patternset>
+        <property name="locales" value=""/>
+        <locfiles
+            cluster="${cluster.dir}" locales="${locales}" src="${nb_all}/l10n/src"
+            codenamebase="${code.name.base}"
+            patternset="module.l10n.files"
+            basefilesref="module.files"
+        />
     </target>   
 
     <target name="release" depends="init">

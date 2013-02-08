@@ -66,6 +66,7 @@ public class SeleniumProperties {
     public static final String START_ON_STARTUP = "Startup"; //NOI18N
     public static final String FIREFOX_PROFILE = "FirefoxProfile"; //NOI18N
     public static final String SINGLE_WINDOW = "SingleWindow"; //NOI18N
+    public static final String USER_EXTENSIONS = "UserExtensions"; //NOI18N
     
     private static InstanceProperties instanceProps;
     private static final String NAMESPACE = "Selenium server properties namespace"; //NOI18N
@@ -78,6 +79,7 @@ public class SeleniumProperties {
         set.put(new ServerBoolProperty(START_ON_STARTUP, props));
         set.put(new ServerStringProperty(FIREFOX_PROFILE, props));
         set.put(new ServerBoolProperty(SINGLE_WINDOW, props));
+        set.put(new ServerStringProperty(USER_EXTENSIONS, props));
         return sheet;
     }
 
@@ -121,6 +123,7 @@ public class SeleniumProperties {
                     instanceProps.putBoolean(START_ON_STARTUP, true);
                     instanceProps.putString(FIREFOX_PROFILE, ""); //NOI18N
                     instanceProps.putBoolean(SINGLE_WINDOW, false);
+                    instanceProps.putString(USER_EXTENSIONS, ""); //NOI18N
                     allProps.add(instanceProps);
                 }
             }

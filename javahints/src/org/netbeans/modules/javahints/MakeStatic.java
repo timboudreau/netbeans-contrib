@@ -80,6 +80,9 @@ public class MakeStatic implements ErrorRule<Void> {
 
     public List<Fix> run(final CompilationInfo info, String diagnosticKey, int offset, TreePath treePath, Data<Void> data) {
         Element el = info.getTrees().getElement(treePath);
+        
+        if (el == null) return null;
+        
         final TypeElement topLevel = info.getElementUtilities().outermostTypeElement(el);
 
         //XXX: necessary to verify that el is from the current comp. unit?

@@ -96,37 +96,37 @@ public class FmtSpaces extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(collapseSpacesCb, org.openide.util.NbBundle.getMessage(FmtSpaces.class, "FmtSpaces.collapseSpacesCb.text")); // NOI18N
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(addAroundOp)
-                    .add(layout.createSequentialGroup()
-                        .add(27, 27, 27)
-                        .add(removeInParam))
-                    .add(removeInParen)
-                    .add(addAfterComma)
-                    .add(removeBeforeSep)
-                    .add(collapseSpacesCb))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(addAroundOp)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(removeInParam))
+                    .addComponent(removeInParen)
+                    .addComponent(addAfterComma)
+                    .addComponent(removeBeforeSep)
+                    .addComponent(collapseSpacesCb))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(addAroundOp)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(removeInParam)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(removeInParen)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(addAfterComma)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(removeBeforeSep)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(collapseSpacesCb)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(addAroundOp)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeInParam)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeInParen)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addAfterComma)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeBeforeSep)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(collapseSpacesCb)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     

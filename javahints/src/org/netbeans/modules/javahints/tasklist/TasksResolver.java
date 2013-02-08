@@ -130,7 +130,7 @@ public class TasksResolver {
                     
                     List<? extends org.netbeans.spi.tasklist.Task> tasks = ComputeTasks.computeTasks(parameter, cancel);
 
-                    if (cancel.get()) return ;
+                    if (tasks == null || cancel.get()) return ;
                     
                     callback.setTasks(parameter.getFileObject(), tasks);
                     

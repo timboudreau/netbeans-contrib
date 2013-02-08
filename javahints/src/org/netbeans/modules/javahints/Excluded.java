@@ -93,11 +93,16 @@ public class Excluded extends AbstractHint {
         Trees trees = ci.getTrees();
         switch (t.getKind()) {
             case METHOD_INVOCATION:
+                Element e = trees.getElement(tp);
+                if (e == null) {
+                    fqn = null;
+                    break;
+                }
+                Element encl = e.getEnclosingElement();
                 if (isExcludeMethods()) {
-                    Element e = trees.getElement(tp);
-                    fqn = Utilities.getElementName(e.getEnclosingElement(), true) + "." + e.getSimpleName(); //NOI18N
+                    fqn = Utilities.getElementName(encl, true) + "." + e.getSimpleName(); //NOI18N
                 } else {
-                    fqn = Utilities.getElementName(trees.getElement(tp).getEnclosingElement(), true);
+                    fqn = Utilities.getElementName(encl, true);
                 }
                 break;
             case NEW_CLASS:

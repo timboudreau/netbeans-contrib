@@ -51,6 +51,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.sendopts.CommandException;
+import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
+import org.netbeans.modules.java.hints.spiimpl.RulesManager;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
@@ -66,7 +68,8 @@ import org.openide.util.lookup.ServiceProvider;
 public class OptionProcessorImpl extends OptionProcessor {
 
     private static final Option GENERATE_WIKI = Option.requiredArgument('g', "generate-wiki-text-and-exit");
-    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI));
+    private static final Option DUMP_HINTS = Option.requiredArgument('d', "dump-hint-ids-and-exit");
+    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI, DUMP_HINTS));
     
     @Override
     protected Set<Option> getOptions() {
@@ -75,14 +78,16 @@ public class OptionProcessorImpl extends OptionProcessor {
 
     @Override
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
+        boolean exit = false;
         if (optionValues.containsKey(GENERATE_WIKI)) {
+            exit = true;
+            
             OutputStream out = null;
             try {
                 String targetFilePath = optionValues.get(GENERATE_WIKI)[0];
                 File target = new File(env.getCurrentDirectory(), targetFilePath);
                 out = new BufferedOutputStream(new FileOutputStream(target));
                 out.write(GenerateHintWiki.generateWiki().getBytes("UTF-8"));
-                LifecycleManager.getDefault().exit();
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
@@ -93,6 +98,31 @@ public class OptionProcessorImpl extends OptionProcessor {
                 }
             }
         }
+        if (optionValues.containsKey(DUMP_HINTS)) {
+            exit = true;
+            
+            OutputStream out = null;
+            try {
+                String targetFilePath = optionValues.get(DUMP_HINTS)[0];
+                File target = new File(env.getCurrentDirectory(), targetFilePath);
+                out = new BufferedOutputStream(new FileOutputStream(target));
+                for (HintMetadata hm : RulesManager.getInstance().readHints(null, null, null).keySet()) {
+                    out.write(hm.id.getBytes("UTF-8"));
+                    out.write("\n".getBytes("UTF-8"));
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        
+        if (exit)
+            LifecycleManager.getDefault().exit();
     }
     
 }

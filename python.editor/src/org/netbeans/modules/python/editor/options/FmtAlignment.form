@@ -10,9 +10,10 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="true"/>
-    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
@@ -152,10 +153,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="nlWhileCheckBox">
@@ -168,10 +165,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="nlCatchCheckBox">
@@ -184,10 +177,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="nlFinallyCheckBox">
@@ -200,10 +189,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="nlModifiersCheckBox">
@@ -216,10 +201,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="multilineAlignmentLabel">
@@ -239,10 +220,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amCallArgsCheckBox">
@@ -255,10 +232,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amAnnotationArgsCheckBox">
@@ -271,10 +244,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amImplementsCheckBox1">
@@ -287,10 +256,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amThrowsCheckBox1">
@@ -303,10 +268,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amArrayInitCheckBox1">
@@ -319,10 +280,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amBinaryOpCheckBox1">
@@ -335,10 +292,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amTernaryOpCheckBox1">
@@ -351,10 +304,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amAssignCheckBox1">
@@ -367,10 +316,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amForCheckBox1">
@@ -383,10 +328,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="amParenthesizedCheckBox1">
@@ -399,10 +340,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JSeparator" name="jSeparator1">

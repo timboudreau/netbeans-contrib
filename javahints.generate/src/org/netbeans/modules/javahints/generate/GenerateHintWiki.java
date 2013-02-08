@@ -108,24 +108,30 @@ public final class GenerateHintWiki implements ActionListener {
             });
 
             for (HintMetadata hm : categoryEntry.getValue()) {
-                out.println(";" + hm.displayName);
+                out.print(";'''" + hm.displayName + "'''");
+                if (!hm.enabled) {
+                    out.print("<span style='padding-left: 3em;font-size: 80%;color: #204a87'>[ Disabled by default ]</span>");
+                }
+                out.println();
                 out.print(":" + hm.description);
+                out.print("<span style='padding-left: 1em; font-size: 90%'>");
                 if (since.containsKey(hm.id)) {
                     String sinceVersion = since.get(hm.id);
 
                     if (sinceVersion != null) {
-                        out.print(" '''Since " + sinceVersion + "'''");
+                        out.print(" ''Since " + sinceVersion + "''");
                     } else {
-                        out.print(" '''In NetBeans 6.8 or earlier'''");
+                        out.print(" ''In NetBeans 6.8 or earlier''");
                     }
                 } else {
-                    out.print(" '''In current development version'''");
+                    out.print(" ''In current development version''");
                     if (hm.kind == Kind.INSPECTION) {
                         devHints++;
                     } else {
                         devSuggestions++;
                     }
                 }
+                out.print("</span>");
                 out.println();
                 out.println();
                 if (hm.kind == Kind.INSPECTION) {

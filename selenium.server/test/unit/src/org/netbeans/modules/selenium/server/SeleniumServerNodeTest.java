@@ -147,7 +147,7 @@ public class SeleniumServerNodeTest {
 
         @Override
         public File locate(String relativePath, String codeNameBase, boolean localized) {
-            if (relativePath.equals("modules/ext/selenium/selenium-server-2.0.jar")) {
+            if (relativePath.equals(SeleniumServerRunner.SERVER_BINARY)) {
                 String path = System.getProperty("test.selenium.server.jar");
                 System.err.println(path);
                 assertNotNull("must set test.selenium.server.jar", path);

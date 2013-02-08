@@ -69,6 +69,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
     private boolean isRunning = false;
     private static Action action = null;
     private static Task latestTask = null;
+    protected static final String SERVER_BINARY = "modules/ext/selenium/selenium-server-2.28.0.jar";
 
     private SeleniumServerRunner() {
     }
@@ -116,6 +117,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
             }
             switch (action) {
                 case START:
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 case STOP:
@@ -123,12 +125,14 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
                     break;
                 case RESTART:
                     callSeleniumServerMethod("stop");
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 case RELOAD:
                     callSeleniumServerMethod("stop");
                     server = null;
                     initializeServer();
+                    callSeleniumServerMethod("boot");
                     callSeleniumServerMethod("start");
                     break;
                 default:
@@ -150,7 +154,7 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
         URL url = null;
         try {
             url = InstalledFileLocator.getDefault().locate(
-                        "modules/ext/selenium/selenium-server-2.16.1.jar", //NOI18N
+                        SERVER_BINARY, //NOI18N
                         null, //NOI18N
                         false).toURI().toURL();
         } catch (MalformedURLException ex) {
@@ -202,6 +206,15 @@ class SeleniumServerRunner implements Runnable, PropertyChangeListener {
 						remoteControlConfigurationInstance, ffProfileDir);
 				}
 		}
+        String userExtensionsString = ip.getString(SeleniumProperties.USER_EXTENSIONS, ""); //NOI18N
+        if (!userExtensionsString.isEmpty()) {
+            File userExtensionFile = new File(userExtensionsString);
+            if (userExtensionFile.exists()) {
+                remoteControlConfiguration.getMethod("setUserExtensions", File.class).invoke( //NOI18N
+                        remoteControlConfigurationInstance, userExtensionFile);
+            }
+        }
+        
         server = seleniumServer.getConstructor(remoteControlConfiguration).
                 newInstance(remoteControlConfigurationInstance);
     }

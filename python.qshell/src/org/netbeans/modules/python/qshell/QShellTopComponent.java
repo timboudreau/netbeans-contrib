@@ -42,7 +42,6 @@
 
 package org.netbeans.modules.python.qshell;
 
-import com.sun.java_cup.internal.terminal;
 import java.util.logging.Logger;
 import org.netbeans.modules.python.qshell.richexecution.Program;
 import org.openide.util.NbBundle;

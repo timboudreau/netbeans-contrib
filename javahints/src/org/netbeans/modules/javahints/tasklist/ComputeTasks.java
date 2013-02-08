@@ -61,6 +61,9 @@ public class ComputeTasks {
         }
 
         List<ErrorDescription> errors = new HintsInvoker(info, cancel).computeHints(info, hints);
+        
+        if (errors == null || cancel.get()) return null;
+        
         List<Task> result = new LinkedList<Task>();
 
         for (ErrorDescription e : errors) {

@@ -40,6 +40,7 @@
 package org.netbeans.modules.javahints;
 import com.sun.source.util.TreePath;
 import java.util.List;
+import java.util.Set;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.modules.java.hints.infrastructure.ErrorHintsTestBase;
 import org.netbeans.modules.javahints.MakeStatic.FixImpl;
@@ -192,6 +193,19 @@ public class MakeStaticTest extends ErrorHintsTestBase {
                        "}").replaceAll("[ \t\n]+", " "));
     }
     
+    public void test166988() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "public class Test {" +
+                            "    String rootDir = \"\";\n" +
+                            "    public static void main(String[] args) {\n" +
+                            "        if (args.length)\n" +
+                            "\n" +
+                            "        String[] foo = new File(rootDir).list(DirectoryFileFilter.DIRECTORY);\n" +
+                            "    }\n" +
+                            "}",
+                            -1);
+    }
+    
     @Override
     protected List<Fix> computeFixes(CompilationInfo info, int pos, TreePath path) throws Exception {
         return new MakeStatic().run(info, null, pos, path, null);
@@ -202,6 +216,11 @@ public class MakeStaticTest extends ErrorHintsTestBase {
         FixImpl fi = (FixImpl) f;
         
         return "FixImpl:" + fi.getName() + ":" + fi.isSafe();
+    }
+
+    @Override
+    protected Set<String> getSupportedErrorKeys() {
+        return new MakeStatic().getCodes();
     }
 
 }
