@@ -72,7 +72,13 @@ public class LicenseChangerRunnable implements Runnable {
     public void run() {
         ProgressHandle handle = ProgressHandleFactory.createHandle("Changing license headers");
         try {
-
+            /*
+             * If KEY_STORE_IN_USER_PROPERTIES==true, store copyright holder in 
+             * User.properties under key 'user' so that NetBeans new file template
+             * engine picks up the correct placeholder.
+             * 
+             * XXX Is there a way of doing this for an inidividual project only?
+             */
             if ((Boolean) wizard.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES)) {
                 ProjectManager.mutex().writeAccess(new Runnable() {
                     @Override
@@ -110,6 +116,9 @@ public class LicenseChangerRunnable implements Runnable {
             int max = items.size();
             handle.start(max);
             Charset enc;
+            /*
+             * Iterate and transform all selected files 
+             */
             for (FileChildren.FileItem item : items) {
                 handle.progress(item.getFile().getNameExt(), ix);
                 try {
@@ -139,19 +148,25 @@ public class LicenseChangerRunnable implements Runnable {
                 }
                 ix++;
             }
+            /*
+             * Check whether we should update the project license. Works for 
+             * ant-based and maven-based projects. 
+             
+             * XXX Gradle support is yet to be included :-).
+             */
             Boolean updateProjectLicense = (Boolean) wizard.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
             if (updateProjectLicense) {
-//                System.out.println("Updating default license header!");
                 Project project = (Project) wizard.getProperty(WizardProperties.KEY_PROJECT);
                 Sources source = ProjectUtils.getSources(project);
                 for (SourceGroup group : source.getSourceGroups(Sources.TYPE_GENERIC)) {
                     try {
+                        //can this be done more generic? 
                         FileObject nbprojectDir = group.getRootFolder().getFileObject("nbproject");
                         if (nbprojectDir != null) {
+                            //create if non-existent
                             final FileObject projectProps = FileUtil.createData(nbprojectDir, "project.properties");
                             boolean hasProjectProperties = group.contains(projectProps);
                             if (hasProjectProperties) {
-//                                System.out.println("Found project.properties at " + projectProps.getPath());
                                 ProjectManager.mutex().writeAccess(new Runnable() {
                                     @Override
                                     public void run() {
@@ -181,10 +196,8 @@ public class LicenseChangerRunnable implements Runnable {
                             //check for pom.xml
                             FileObject pom = group.getRootFolder().getFileObject("pom.xml");
                             if (pom != null) {
-//                                System.out.println("Found maven pom.xml at " + pom.getPath());
                                 //found pom-based maven project
-//                                String netbeansHintLicense = "<netbeans.hint.license>" + licenseName + "</netbeans.hint.license>";
-//                                System.out.println("Please add " + netbeansHintLicense + " within your pom.xml <properties> section!");
+                                // XXX do we need to use ProjectManager.mutex().writeAccess here too?
                                 Utilities.performPOMModelOperations(pom, Arrays.asList(new ModelOperation<POMModel>() {
                                     @Override
                                     public void performOperation(POMModel model) {

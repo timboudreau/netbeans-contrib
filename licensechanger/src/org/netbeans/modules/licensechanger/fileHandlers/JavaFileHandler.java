@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
 import org.netbeans.modules.licensechanger.api.FileHandler;
 import org.netbeans.modules.licensechanger.api.Offsets;

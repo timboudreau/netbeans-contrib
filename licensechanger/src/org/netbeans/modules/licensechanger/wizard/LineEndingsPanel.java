@@ -50,8 +50,9 @@ import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.util.NbPreferences;
 
 /**
- *
- * @author Administrator
+ * Controls the line ending applied to all processed source files.
+ * 
+ * @author Tim Boudreau
  */
 public class LineEndingsPanel extends javax.swing.JPanel {
 

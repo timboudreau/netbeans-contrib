@@ -70,8 +70,7 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
     public FileChildren(Set<FileObject> folders, Set<FileHandler> fileHandler) {
         assert folders != null;
         this.folders = new HashSet<FileObject>(folders);
-        allHandlers = fileHandler;//Lookup.getDefault().lookupAll(FileHandler.class);
-        //settings.put(WizardProperties.KEY_ITEMS, items);
+        allHandlers = fileHandler;
     }
 
     @Override
@@ -94,7 +93,6 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
                             FN fn = new FN(dob.getNodeDelegate(), item);
                             boolean shouldChange = !h.shouldSkipFile(fo);
                             result.add(fn);
-//                            fn.setValue (CheckboxListView.SELECTED, shouldChange);
                             break;
                         } catch (DataObjectNotFoundException ex) {
                             Exceptions.printStackTrace(ex);
@@ -139,7 +137,6 @@ public class FileChildren extends ChildFactory.Detachable<FileObject> {
             disableDelegation(DELEGATE_SET_VALUE);
             disableDelegation(DELEGATE_SET_NAME);
             disableDelegation(DELEGATE_GET_NAME);
-//            setValue(CheckboxListView.SELECTED, Boolean.TRUE);
             setName(item.file.getPath());
             setDisplayName(item.file.getPath());
             setShortDescription(item.file.getPath());

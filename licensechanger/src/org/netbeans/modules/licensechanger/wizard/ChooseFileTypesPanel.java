@@ -68,7 +68,8 @@ import org.openide.util.NbPreferences;
 import org.openide.util.lookup.Lookups;
 
 /**
- *
+ * Panel for selection of file types for license header update.
+ * 
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring)
  */

@@ -36,7 +36,7 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
 import java.io.CharConversionException;
 import java.util.Map;
@@ -100,7 +100,7 @@ public class XmlFileHandler extends FileHandler {// implements Customizable {
         }
         return "<!--\n" + licenseText + "\n-->\n";
     }
-    static Pattern xmlDeclaration = Pattern.compile("(<\\?xml.*?\\?>)");
+    public static Pattern xmlDeclaration = Pattern.compile("(<\\?xml.*?\\?>)");
 
 //    @Override
 //    public Component getCustomizer() {

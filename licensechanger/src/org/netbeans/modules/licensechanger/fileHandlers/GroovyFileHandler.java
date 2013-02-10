@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2012 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;

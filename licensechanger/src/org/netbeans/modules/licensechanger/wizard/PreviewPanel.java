@@ -45,14 +45,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.diff.Diff;
 import org.netbeans.api.diff.DiffView;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.modules.licensechanger.api.FileHandler;
+import org.netbeans.modules.licensechanger.wizard.utils.CheckableNodeCapability;
 import org.netbeans.modules.licensechanger.wizard.utils.FileChildren;
 import org.netbeans.modules.licensechanger.wizard.utils.FileChildren.FileItem;
 import org.netbeans.modules.licensechanger.wizard.utils.FileLoader;
@@ -62,14 +65,19 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.CheckableNode;
 import org.openide.explorer.view.OutlineView;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.RequestProcessor.Task;
+import org.openide.util.WeakListeners;
 
 /**
+ * Displays selected files before and after application of the new license
+ * header template. Users can manually deselect files to exclude them from being
+ * processed.
  *
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring, Diff API inclusion)
@@ -81,6 +89,7 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
     private String licenseText;
     private Diff diff;
     private Map<String, Object> properties;
+    private WeakReference<Node> currentNodeReference;
 
     public PreviewPanel() {
         diff = Diff.getDefault();
@@ -214,31 +223,63 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
             Node[] n = mgr.getSelectedNodes();
             if (n.length > 0) {
                 FileItem item = n[0].getLookup().lookup(FileItem.class);
+                CheckableNodeCapability cnc = n[0].getLookup().lookup(CheckableNodeCapability.class);
+                boolean transform = true;
+                if (cnc != null) {
+                    transform = cnc.isSelected();
+                    if (currentNodeReference != null) {
+                        Node currentNode = currentNodeReference.get();
+                        if (currentNode != null && !n[0].equals(currentNode)) {
+                            //remove property change listener 
+                            CheckableNodeCapability cncCurrent = currentNode.getLookup().lookup(CheckableNodeCapability.class);
+                            if (cncCurrent != null) {
+                                removePropertyChangeListener(this);
+                            }
+                        }
+                    }
+                    cnc.addPropertyChangeListener(WeakListeners.propertyChange(this, cnc));
+                    currentNodeReference = new WeakReference<Node>(n[0]);
+                }
+
                 if (item != null) {
-                    setFileItem(item);
+                    setFileItem(item, transform);
                     // XXX use FileUtil.getFileDisplayName rather than FileObject.getPath
 
-                    jLabel3.setText(item.getFile().getPath());
+                    jLabel3.setText(FileUtil.getFileDisplayName(item.getFile()));
                 } else {
-//                    before.setText("");
                     jLabel3.setText("  ");
                 }
             } else {
-//                before.setText("");
-//                after.setText("");
                 jLabel3.setText("  ");
             }
+        } else if (CheckableNodeCapability.PROP_SELECTED.equals(evt.getPropertyName())) {
+            if (currentNodeReference != null) {
+                Node currentNode = currentNodeReference.get();
+                if (currentNode != null) {
+                    //recreate preview for currentNode node
+                    CheckableNodeCapability cncCurrent = currentNode.getLookup().lookup(CheckableNodeCapability.class);
+                    boolean transform = true;
+                    if (cncCurrent != null) {
+                        transform = cncCurrent.isSelected();
+                        FileItem item = currentNode.getLookup().lookup(FileItem.class);
+                        if (item != null) {
+                            setFileItem(item, transform);
+                            // XXX use FileUtil.getFileDisplayName rather than FileObject.getPath
+
+                            jLabel3.setText(FileUtil.getFileDisplayName(item.getFile()));
+                        } else {
+                            jLabel3.setText("  ");
+                        }
+                    }
+                }
+            }
+
         }
     }
 
-    private void setFileItem(FileItem item) {
+    private void setFileItem(FileItem item, boolean isSelected) {
         if (item.getFile().isValid()) {
-            // XXX should use Diff API instead (like refactoring preview)
-//            before.setContentType("text/plain");
-//            after.setContentType("text/plain");
-//            before.setText("Loading " + item.getFile().getPath());
-//            after.setText("Loading " + item.getFile().getPath());
-            ItemLoader ldr = new ItemLoader(item);
+            ItemLoader ldr = new ItemLoader(item, isSelected);
             setLoader(ldr);
         }
     }
@@ -258,9 +299,11 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
         private final FileItem item;
         private volatile String beforeText = "Cancelled";
         private volatile String afterText = "Cancelled";
+        private final boolean transform;
 
-        public ItemLoader(FileItem item) {
+        public ItemLoader(FileItem item, boolean transform) {
             this.item = item;
+            this.transform = transform;
             task = RequestProcessor.getDefault().create(this);
         }
 
@@ -327,7 +370,11 @@ public class PreviewPanel extends javax.swing.JPanel implements ExplorerManager.
                         afterText = "";
                         return;
                     }
-                    afterText = transform(beforeText, item.getHandler());
+                    if (transform) {
+                        afterText = transform(beforeText, item.getHandler());
+                    } else {
+                        afterText = beforeText;
+                    }
                 } finally {
                     if (!cancelled) {
                         EventQueue.invokeLater(this);

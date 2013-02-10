@@ -54,7 +54,11 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
- *
+ * Panel displaying available license templates. Upon selection, the 
+ * raw license template text is displayed. Users can add custom licenses 
+ * from the file system. Users can set the currently selected project's default
+ * license.
+ * 
  * @author Tim Boudreau
  * @author Nils Hoffmann (Refactoring)
  */

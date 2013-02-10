@@ -36,8 +36,9 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
+import org.netbeans.modules.licensechanger.fileHandlers.XmlFileHandler;
 import java.util.Collections;
 import java.util.Map;
 import java.util.StringTokenizer;

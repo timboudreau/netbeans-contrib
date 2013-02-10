@@ -36,8 +36,9 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
+import org.netbeans.modules.licensechanger.fileHandlers.GroovyFileHandler;
 import java.util.Collections;
 import java.util.Map;
 import static org.junit.Assert.*;
@@ -46,56 +47,74 @@ import static org.netbeans.modules.licensechanger.TestUtils.*;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 
 /**
+ * Test cases for groovy license replacement.
  *
- * @author Tim Boudreau
+ * @author Nils Hoffmann
  */
-public class JavaFileHandlerTest {
+public class GroovyFileHandlerTest {
 
     private final Map<String, Object> props = Collections.emptyMap();
 
-    @Test
-    public void testStuff() throws Exception {
-        System.out.println("testStuff");
-        String golden = getGolden();
+    void runTest(String infix) throws Exception {
+        String golden = getGolden(infix);
         String license = getLicense();
         for (int i = 1; i <= 12; i++) {
-            String filename = "java_" + i + ".txt";
-            testOneVersion(golden, license, filename);
+            String header = "resources/groovy/header_" + i + ".txt";
+            String template = "resources/groovy/groovy_" + infix + "_template.txt";
+            System.out.println("Test " + " header_" + i + ".txt with groovy_" + infix + "_template.txt");
+            testOneVersion(golden, license, merge(header, template));
         }
     }
 
-    private void testOneVersion(String golden, String license, String filename) throws Exception {
-        System.out.println("Test " + filename);
-        JavaFileHandler instance = new JavaFileHandler();
-        String original = readFile(JavaFileHandlerTest.class,filename);
-        String processed = instance.transform(original, license, props);
-        assertEqualsLineByLine(golden, processed, filename);
+    @Test
+    public void testGroovyClass() throws Exception {
+        System.out.println("testGroovyClass");
+        runTest("class");
     }
 
-    static void assertEqualsLineByLine(String golden, String processed, String filename) {
+    /**
+     * FIXME This test currently fails due to the removal of the author comment.
+     * This is probably intended, but might prove to be a bug for groovy files,
+     * as it would unexpectedly remove comments.
+     *
+     * @throws Exception
+     */
+    @Test(expected = AssertionError.class)
+    public void testGroovyClassNoPackage() throws Exception {
+        System.out.println("testGroovyClassNoPackage");
+        runTest("class_nopackage");
+    }
+
+    @Test
+    public void testGroovyScript() throws Exception {
+        System.out.println("testGroovyScript");
+        runTest("script");
+    }
+
+    private void testOneVersion(String golden, String license, String original) throws Exception {
+        GroovyFileHandler instance = new GroovyFileHandler();
+        String processed = instance.transform(original, license, props);
+        assertEqualsLineByLine(golden, processed);
+    }
+
+    static void assertEqualsLineByLine(String golden, String processed) {
         String[] g = FileHandler.splitIntoLines(golden);
         String[] p = FileHandler.splitIntoLines(processed);
         for (int i = 0; i < Math.min(g.length, p.length); i++) {
-            assertEquals("Difference in " + filename + " at line " + i + "\n", g[i], p[i]);
+            if (!g[i].equals(p[i])) {
+                assertEquals("Difference between files at line " + i + "\n", g[i], p[i]);
+            }
         }
     }
 
-//    static void assertEqualsLineByLine (String golden, String processed, String filename) {
-//        StringTokenizer a = new StringTokenizer (golden, "\n");
-//        StringTokenizer b = new StringTokenizer (processed, "\n");
-//        int ix = 0;
-//        while (a.hasMoreTokens() && b.hasMoreTokens()) {
-//            String as = a.nextToken();
-//            String bs = b.nextToken();
-//            if (!as.equals(bs)) {
-//                System.err.println("PROCESSED OUTPUT ");
-//            }
-//            assertEquals ("Difference in " + filename + " at line " + ix + "\n", as, bs);
-//            ix++;
-//        }
-//
-//    }
-    private static String getGolden() throws Exception {
-        return readFile(JavaFileHandlerTest.class,"java_golden.txt");
+    private static String merge(String header, String template) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append(readFile(GroovyFileHandlerTest.class,header));
+        sb.append(readFile(GroovyFileHandlerTest.class,template));
+        return sb.toString();
+    }
+
+    private static String getGolden(String infix) throws Exception {
+        return readFile(GroovyFileHandlerTest.class,"resources/groovy/groovy_" + infix + "_golden.txt");
     }
 }

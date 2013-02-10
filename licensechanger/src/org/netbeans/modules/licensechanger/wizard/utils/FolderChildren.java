@@ -166,7 +166,6 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
             // XXX this is a pretty arbitrary list... maybe check SharabilityQuery?
             if (!p.endsWith("nbproject")
                     && !p.endsWith("nbproject/private")) { //NOI18N
-//                setValue (CheckboxListView.SELECTED, Boolean.TRUE);
             } else {
                 CheckableNode cn = getLookup().lookup(CheckableNode.class);
                 if (cn != null) {
