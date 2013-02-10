@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,23 +34,29 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.api;
 
-import org.openide.filesystems.FileObject;
-import org.openide.util.NbBundle;
+/**
+ *
+ * @author Tim Boudreau
+ */
+public final class Offsets {
 
-@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class JavaFxFileHandler extends JavaFileHandler {
+    private final int start;
+    private final int end;
 
-    @Override
-    public String getDisplayName() {
-        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
+    public Offsets(int start, int end) {
+        this.start = start;
+        this.end = end;
     }
 
-    @Override
-    public boolean match(FileObject file) {
-        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
+    public int getEnd() {
+        return end;
+    }
+
+    public int getStart() {
+        return start;
     }
 }

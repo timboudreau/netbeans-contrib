@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,23 +34,42 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
-import org.openide.filesystems.FileObject;
-import org.openide.util.NbBundle;
+/**
+ * User preference for line ending conversion
+ *
+ * @author Tim Boudreau
+ */
+public enum LineEndingPreference {
 
-@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class JavaFxFileHandler extends JavaFileHandler {
+    FORCE_CRLF,
+    NO_CHANGE,
+    FORCE_NEWLINE,
+    SYSTEM_DEFAULT;
 
-    @Override
-    public String getDisplayName() {
-        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
-    }
-
-    @Override
-    public boolean match(FileObject file) {
-        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
+    public static String convertLineEndings(LineEndingPreference pref, String old, String nue) {
+        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
+        switch (pref) {
+            case FORCE_CRLF:
+                return nue.replaceAll("\n", "\r\n"); //NOI18N
+            case FORCE_NEWLINE:
+                //We already converted everything to newline only on load
+                return nue;
+            case NO_CHANGE:
+                return oldHasCrlf ? nue.replaceAll("\n", "\r\n") : //NOI18N
+                        nue;
+            case SYSTEM_DEFAULT:
+                String sep = System.getProperty("line.separator"); //NOI18N
+                if ("\n".equals(sep)) {
+                    return nue;
+                } else {
+                    return nue.replaceAll("\n", sep);//NOI18N
+                }
+            default:
+                throw new AssertionError();
+        }
     }
 }

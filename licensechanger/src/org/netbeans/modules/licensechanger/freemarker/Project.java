@@ -1,7 +1,10 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -13,9 +16,9 @@
  * specific language governing permissions and limitations under the
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
+ * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
@@ -34,23 +37,26 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
+ * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.freemarker;
 
-import org.openide.filesystems.FileObject;
-import org.openide.util.NbBundle;
+/**
+ * Freemarker expects project.organization to be the field 'organization' in an
+ * object. This provides a thin wrapper for that. Class must be public to be
+ * accessible by freemarker.
+ * 
+ * @author Nils Hoffmann
+ */
+public class Project {
 
-@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class JavaFxFileHandler extends JavaFileHandler {
+    private final String organization;
 
-    @Override
-    public String getDisplayName() {
-        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
+    public Project(String organization) {
+        this.organization = organization;
     }
 
-    @Override
-    public boolean match(FileObject file) {
-        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
+    public String getOrganization() {
+        return this.organization;
     }
 }

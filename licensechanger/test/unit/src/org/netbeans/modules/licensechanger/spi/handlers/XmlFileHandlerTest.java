@@ -36,37 +36,37 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.util.Collections;
 import java.util.Map;
-import org.netbeans.modules.licensechanger.spi.handlers.XmlFileHandler;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.netbeans.modules.licensechanger.api.FileHandler;
-import static org.junit.Assert.*;
+import static org.netbeans.modules.licensechanger.TestUtils.*;
 
 /**
  *
  * @author Tim Boudreau
  */
 public class XmlFileHandlerTest {
-    private final Map<String,Object> props = Collections.emptyMap();
-    
+
+    private final Map<String, Object> props = Collections.emptyMap();
+
     @Test
     public void testDeclarationFinder() throws Exception {
         String xml = getGolden();
-        assertDeclarationFound (xml, "xml_golden.txt");
-        for (int i=1; i <= 8; i++) {
+        assertDeclarationFound(xml, "xml_golden.txt");
+        for (int i = 1; i <= 8; i++) {
             String filename = "xml_" + i + ".txt";
-            String content = JavaFileHandlerTest.readFile(filename);
+            String content = readFile(XmlFileHandlerTest.class, filename);
             assertDeclarationFound(content, filename);
         }
     }
 
-    private void assertDeclarationFound (String content, String filename) {
+    private void assertDeclarationFound(String content, String filename) {
         String[] lines = FileHandler.splitIntoLines(content);
         boolean found = false;
         for (int i = 0; i < lines.length; i++) {
@@ -79,15 +79,15 @@ public class XmlFileHandlerTest {
                 break;
             }
         }
-        assertTrue ("Did not find xml declaration in " + filename, found);
+        assertTrue("Did not find xml declaration in " + filename, found);
     }
 
     @Test
     public void testStuff() throws Exception {
         System.out.println("testStuff");
         String golden = getGolden();
-        String license = JavaFileHandlerTest.getLicense();
-        for (int i=1; i <= 8; i++) {
+        String license = getLicense();
+        for (int i = 1; i <= 8; i++) {
             String filename = "xml_" + i + ".txt";
             testOneVersion(golden, license, filename);
         }
@@ -96,14 +96,14 @@ public class XmlFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         XmlFileHandler instance = new XmlFileHandler();
-        String original = JavaFileHandlerTest.readFile (filename);
+        String original = readFile(XmlFileHandlerTest.class, filename);
         String processed = instance.transform(original, license, props);
-        assertEqualsLineByLine (golden, processed, filename);
+        assertEqualsLineByLine(golden, processed, filename);
     }
 
-    static void assertEqualsLineByLine (String golden, String processed, String filename) {
-        StringTokenizer a = new StringTokenizer (golden, "\n");
-        StringTokenizer b = new StringTokenizer (processed, "\n");
+    static void assertEqualsLineByLine(String golden, String processed, String filename) {
+        StringTokenizer a = new StringTokenizer(golden, "\n");
+        StringTokenizer b = new StringTokenizer(processed, "\n");
         int ix = 0;
         while (a.hasMoreTokens() && b.hasMoreTokens()) {
             String as = a.nextToken();
@@ -111,13 +111,13 @@ public class XmlFileHandlerTest {
             if (!as.equals(bs)) {
                 System.err.println("PROCESSED OUTPUT ");
             }
-            assertEquals ("Difference in " + filename + " at line " + ix + "\n", as, bs);
+            assertEquals("Difference in " + filename + " at line " + ix + "\n", as, bs);
             ix++;
         }
 
     }
 
     private static String getGolden() throws Exception {
-        return JavaFileHandlerTest.readFile ("xml_golden.txt");
+        return readFile(XmlFileHandlerTest.class, "xml_golden.txt");
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,23 +34,41 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
-import org.openide.filesystems.FileObject;
-import org.openide.util.NbBundle;
+import org.openide.explorer.view.CheckableNode;
 
-@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class JavaFxFileHandler extends JavaFileHandler {
+/**
+ * Implements {@link CheckableNode} to allow display and use of checkable nodes
+ * in views.
+ *
+ * @author Nils Hoffmann
+ */
+public class CheckableNodeCapability implements CheckableNode {
+
+    private boolean checkable = true;
+    private boolean checkEnabled = true;
+    private boolean selected = true;
 
     @Override
-    public String getDisplayName() {
-        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
+    public boolean isCheckable() {
+        return checkable;
     }
 
     @Override
-    public boolean match(FileObject file) {
-        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
+    public boolean isCheckEnabled() {
+        return checkEnabled;
+    }
+
+    @Override
+    public Boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public void setSelected(Boolean selected) {
+        this.selected = selected.booleanValue();
     }
 }

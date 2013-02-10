@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,23 +34,31 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
+ * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.spi.handlers;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
-import org.openide.filesystems.FileObject;
-import org.openide.util.NbBundle;
+/**
+ * Central class for Wizard-related property keys.
+ *
+ * @author Nils Hoffmann
+ */
+public final class WizardProperties {
 
-@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
-public class JavaFxFileHandler extends JavaFileHandler {
+    public static final String KEY_FILE_HANDLERS = "fileHandlers";
+    public static final String KEY_ITEMS = "fileItems";
+    public static final String KEY_LICENSE_TEXT = "licenseText";
+    public static final String KEY_LICENSE_NAME = "licenseName";
+    public static final String KEY_ROOT_FILES = "rootFiles";
+    public static final String KEY_FOLDERS = "folders";
+    public static final String KEY_UPDATE_DEFAULT_PROJECT_LICENSE = "updateDefaultProjectLicense";
+    public static final String VALUE_DEFAULT_LICENSE_TEXT = "No License";
+    public static final String PROP_ENDING = "ending";
+    public static final String KEY_ENDING = "line_terminator";
+    public static final String KEY_PROJECT = "project";
+    public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
+    public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
 
-    @Override
-    public String getDisplayName() {
-        return NbBundle.getMessage(JavaFxFileHandler.class, "NAME_JAVAFX_FILES"); //NOI18N
-    }
-
-    @Override
-    public boolean match(FileObject file) {
-        return "text/x-fx".equals(file.getMIMEType()); //NOI18N
+    private WizardProperties() {
     }
 }

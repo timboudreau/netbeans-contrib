@@ -36,47 +36,47 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.licensechanger.spi.handlers;
 
 import java.util.Collections;
 import java.util.Map;
-import org.netbeans.modules.licensechanger.spi.handlers.PropertiesFileHandler;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
+import static org.netbeans.modules.licensechanger.TestUtils.*;
 
 /**
  *
  * @author Tim Boudreau
  */
 public class PropertiesFileHandlerTest {
-    private final Map<String,Object> props = Collections.emptyMap();
+
+    private final Map<String, Object> props = Collections.emptyMap();
 
     @Test
     public void testStuff() throws Exception {
         System.out.println("testStuff");
         String golden = getGolden();
-        String license = JavaFileHandlerTest.getLicense();
-        for (int i=1; i <= 4; i++) {
-            testOneVersion (golden, license, "props_" + i + ".txt");
+        String license = getLicense();
+        for (int i = 1; i <= 4; i++) {
+            testOneVersion(golden, license, "props_" + i + ".txt");
         }
-        assertEquals (0, 0);
+        assertEquals(0, 0);
     }
 
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         PropertiesFileHandler instance = new PropertiesFileHandler();
-        String original = JavaFileHandlerTest.readFile (filename);
+        String original = readFile(PropertiesFileHandlerTest.class,filename);
         String processed = instance.transform(original, license, props);
 //        if (!original.equals(processed)) {
 //            System.out.println("************************************");
 //            System.out.println(processed);
 //            System.out.println("************************************");
 //        }
-        JavaFileHandlerTest.assertEqualsLineByLine (golden, processed, filename);
+        JavaFileHandlerTest.assertEqualsLineByLine(golden, processed, filename);
     }
 
     private static String getGolden() throws Exception {
-        return JavaFileHandlerTest.readFile ("props_golden.txt");
+        return readFile(PropertiesFileHandlerTest.class,"props_golden.txt");
     }
 }
