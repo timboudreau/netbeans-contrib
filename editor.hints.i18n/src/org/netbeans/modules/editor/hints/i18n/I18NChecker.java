@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2013 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2013 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -51,16 +51,13 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
@@ -77,37 +74,38 @@ import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
+import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.spi.editor.hints.Severity;
+import org.netbeans.spi.java.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.java.hints.Hint;
+import org.netbeans.spi.java.hints.Hint.Options;
+import org.netbeans.spi.java.hints.HintContext;
+import org.netbeans.spi.java.hints.TriggerTreeKind;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.NbDocument;
 import org.openide.util.NbBundle;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class I18NChecker extends AbstractHint {
+@Messages({
+    "DN_I18NChecker=I18N Checker",
+    "DESC_I18NChecker=I18N Checker",
+})
+@Hint(displayName="#DN_I18NChecker", description="#DESC_I18NChecker", category="general", severity=Severity.HINT, options=Options.QUERY)
+public class I18NChecker {
     
     static Logger LOG = Logger.getLogger(I18NChecker.class.getName());
     
-    private AtomicBoolean cancelled = new AtomicBoolean(false);
-    
-    public I18NChecker() {
-        super(true, true, HintSeverity.CURRENT_LINE_WARNING);
-    }
-
-    public void cancel() {
-        cancelled.set(true);
-    }
-
-    private boolean hashI18NComment(TokenHierarchy th, Document doc, long offset) throws BadLocationException {
+    private static boolean hashI18NComment(TokenHierarchy th, long offset) {
         TokenSequence ts = th.tokenSequence();
 
         ts.move((int) offset);
@@ -138,122 +136,94 @@ public class I18NChecker extends AbstractHint {
     
     private static final Set<String> LOCALIZING_METHODS = new HashSet<String>(Arrays.asList("getString", "getBundle", "getMessage"));
     
-    public List<ErrorDescription> run(CompilationInfo compilationInfo, TreePath treePath) {
-        if (isTest(compilationInfo.getFileObject()))
+    @TriggerTreeKind({Kind.STRING_LITERAL, Kind.PLUS})
+    public static ErrorDescription run(HintContext ctx) throws DataObjectNotFoundException {
+        CompilationInfo compilationInfo = ctx.getInfo();
+        FileObject javaFile = compilationInfo.getFileObject();
+        TreePath treePath = ctx.getPath();
+        
+        if (isTest(javaFile))
             return null;
         
         //TODO: generate unique 
-        try {
-            final DataObject od = DataObject.find(compilationInfo.getFileObject());
-            final Document doc = compilationInfo.getDocument();
-            
-            if (doc == null || treePath.getParentPath() == null || !getTreeKinds().contains(treePath.getLeaf().getKind())) {
-                return null;
-            }
-            
-            //check that the treePath is a "top-level" String expression:
-            TreePath expression = treePath;
-            
-            while (expression.getParentPath().getLeaf().getKind() == Kind.PLUS) {
-                expression = expression.getParentPath();
-            }
-            
-            if (expression != treePath) {
-                return null;
-            }
-            
-            //check for localized string:
-            if (checkParentKind(treePath, 1, Kind.METHOD_INVOCATION)) {
-                MethodInvocationTree mit = (MethodInvocationTree) treePath.getParentPath().getLeaf();
-                ExpressionTree  method = mit.getMethodSelect();
-                String methodName = null;
-                
-                switch (method.getKind()) {
-                    case MEMBER_SELECT:
-                        methodName = ((MemberSelectTree) method).getIdentifier().toString();
-                        break;
-                    case IDENTIFIER:
-                        methodName = ((IdentifierTree) method).getName().toString();
-                        break;
-                }
-                
-                if (LOCALIZING_METHODS.contains(methodName)) {
-                    return null;
-                }
-            }
-            
-            //@Annotation("..."):
-            if (checkParentKind(treePath, 1, Kind.ASSIGNMENT) && checkParentKind(treePath, 2, Kind.ANNOTATION)) {
-                return null;
-            }
-            
-            //@Annotation({"...", "..."}):
-            TreePath tp = treePath;
-            
-            while (tp != null) {
-                tp = tp.getParentPath();
-            }
-            if (checkParentKind(treePath, 1, Kind.NEW_ARRAY) && checkParentKind(treePath, 2, Kind.ASSIGNMENT) && checkParentKind(treePath, 3, Kind.ANNOTATION)) {
-                return null;
-            }
-            
-            final long hardCodedOffset = compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf());
-            if (hashI18NComment(compilationInfo.getTokenHierarchy(), doc, hardCodedOffset)) {
-                return null;
-            }
-            
-            if (hashI18NComment(compilationInfo.getTokenHierarchy(), doc, compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf()))) {
-                return null;
-            }
-            
-            BuildArgumentsVisitor v = new BuildArgumentsVisitor(compilationInfo);
-            
-            v.scan(treePath, null);
-            
-            final JavaI18nSupport support = new JavaI18nSupport(od);
-            final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties"); // NOI18N
-            final DataObject bundle = bundleFO != null ? DataObject.find(bundleFO) : null; //TODO: cast
-            
-            if (v.format.toString().length() == 0 || !v.wasLiteral) {
-                //ignore zero-length string literals and "plus" expressions without a literal
-                return null;
-            }
-            
-            Fix addToBundle = new AddToBundleFix(bundle, od, TreePathHandle.create(treePath, compilationInfo), support, v.format.toString(), v.arguments);
-            
-            Fix addNOI18N = new Fix() {
-                public String getText() {
-                    return NbBundle.getMessage(I18NChecker.class, "LBL_NoI18N");
-                }
-                
-                public ChangeInfo implement() {
-                    try {
-                        int line = NbDocument.findLineNumber((StyledDocument) doc, (int) hardCodedOffset);
-                        int writeOffset = NbDocument.findLineOffset((StyledDocument) doc, line + 1) - 1; //TODO: last line in the document not handled correctly
-                        
-                        doc.insertString(writeOffset, " // NOI18N", null); // NOI18N
-                    } catch (BadLocationException ex) {
-                        ErrorManager.getDefault().notify(ex);
-                    }
-                    return null;
-                }
-            };
-            
-            Severity severity = getSeverity().toEditorSeverity();
-            
-            final List<ErrorDescription> result = new ArrayList<ErrorDescription>();
-            
-            result.add(ErrorDescriptionFactory.createErrorDescription(severity, "Hardcoded String", Arrays.asList(new Fix[] {addToBundle, addNOI18N}), compilationInfo.getFileObject(), (int) hardCodedOffset, (int) hardCodedOffset));
-            
-            return result;
-        } catch (BadLocationException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
-        } catch (IndexOutOfBoundsException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
-        } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ex);
+        final DataObject od = DataObject.find(javaFile);
+
+        if (treePath.getParentPath() == null) {
+            return null;
         }
-        return null;
+
+        //check that the treePath is a "top-level" String expression:
+        TreePath expression = treePath;
+
+        while (expression.getParentPath().getLeaf().getKind() == Kind.PLUS) {
+            expression = expression.getParentPath();
+        }
+
+        if (expression != treePath) {
+            return null;
+        }
+
+        //check for localized string:
+        if (checkParentKind(treePath, 1, Kind.METHOD_INVOCATION)) {
+            MethodInvocationTree mit = (MethodInvocationTree) treePath.getParentPath().getLeaf();
+            ExpressionTree  method = mit.getMethodSelect();
+            String methodName = null;
+
+            switch (method.getKind()) {
+                case MEMBER_SELECT:
+                    methodName = ((MemberSelectTree) method).getIdentifier().toString();
+                    break;
+                case IDENTIFIER:
+                    methodName = ((IdentifierTree) method).getName().toString();
+                    break;
+            }
+
+            if (LOCALIZING_METHODS.contains(methodName)) {
+                return null;
+            }
+        }
+
+        //@Annotation("..."):
+        if (checkParentKind(treePath, 1, Kind.ASSIGNMENT) && checkParentKind(treePath, 2, Kind.ANNOTATION)) {
+            return null;
+        }
+
+        //@Annotation({"...", "..."}):
+        TreePath tp = treePath;
+
+        while (tp != null) {
+            tp = tp.getParentPath();
+        }
+        if (checkParentKind(treePath, 1, Kind.NEW_ARRAY) && checkParentKind(treePath, 2, Kind.ASSIGNMENT) && checkParentKind(treePath, 3, Kind.ANNOTATION)) {
+            return null;
+        }
+
+        final long hardCodedOffset = compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf());
+        if (hashI18NComment(compilationInfo.getTokenHierarchy(), hardCodedOffset)) {
+            return null;
+        }
+
+        if (hashI18NComment(compilationInfo.getTokenHierarchy(), compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf()))) {
+            return null;
+        }
+
+        BuildArgumentsVisitor v = new BuildArgumentsVisitor(compilationInfo);
+
+        v.scan(treePath, null);
+
+        final JavaI18nSupport support = new JavaI18nSupport(od);
+        final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties"); // NOI18N
+        final DataObject bundle = bundleFO != null ? DataObject.find(bundleFO) : null; //TODO: cast
+
+        if (v.format.toString().length() == 0 || !v.wasLiteral) {
+            //ignore zero-length string literals and "plus" expressions without a literal
+            return null;
+        }
+
+        Fix addToBundle = new AddToBundleFix(bundle, od, TreePathHandle.create(treePath, compilationInfo), support, v.format.toString(), v.arguments);
+        Fix addNOI18N = new AddNOI18NFix(javaFile, hardCodedOffset);
+
+        return ErrorDescriptionFactory.forTree(ctx, treePath, "Hardcoded String", addToBundle, addNOI18N);
     }
     
     private static class BuildArgumentsVisitor extends TreePathScanner<Void, Object> {
@@ -307,25 +277,9 @@ public class I18NChecker extends AbstractHint {
         
     }
     
-    public Set<Kind> getTreeKinds() {
-        return EnumSet.of(Kind.STRING_LITERAL, Kind.PLUS);
-    }
-
-    public String getId() {
-        return I18NChecker.class.getName();
-    }
-
-    public String getDisplayName() {
-        return "I18N Checker";
-    }
-
-    public String getDescription() {
-        return "I18N Checker";
-    }
-
-    private Map<FileObject, Boolean> isTest = new WeakHashMap<FileObject, Boolean>();
+    private static Map<FileObject, Boolean> isTest = new WeakHashMap<FileObject, Boolean>();
     
-    private synchronized boolean isTest(FileObject file) {
+    private static synchronized boolean isTest(FileObject file) {
         Boolean r = isTest.get(file);
         
         if (r != null) {
@@ -344,5 +298,37 @@ public class I18NChecker extends AbstractHint {
         
         isTest.put(file, r);
         return r;
+    }
+
+    private static class AddNOI18NFix implements Fix {
+
+        private final FileObject javaFile;
+        private final long hardCodedOffset;
+
+        public AddNOI18NFix(FileObject javaFile, long hardCodedOffset) {
+            this.javaFile = javaFile;
+            this.hardCodedOffset = hardCodedOffset;
+        }
+
+        public String getText() {
+            return NbBundle.getMessage(I18NChecker.class, "LBL_NoI18N");
+        }
+
+        public ChangeInfo implement() {
+            try {
+                Source s = Source.create(javaFile);
+                Document doc = s != null ? s.getDocument(true) : null;
+                
+                if (doc == null) return null;
+                
+                int line = NbDocument.findLineNumber((StyledDocument) doc, (int) hardCodedOffset);
+                int writeOffset = NbDocument.findLineOffset((StyledDocument) doc, line + 1) - 1; //TODO: last line in the document not handled correctly
+                
+                doc.insertString(writeOffset, " // NOI18N", null); // NOI18N
+            } catch (BadLocationException ex) {
+                ErrorManager.getDefault().notify(ex);
+            }
+            return null;
+        }
     }
 }

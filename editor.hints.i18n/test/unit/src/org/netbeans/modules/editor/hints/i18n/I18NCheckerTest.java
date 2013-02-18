@@ -40,99 +40,70 @@
  */
 package org.netbeans.modules.editor.hints.i18n;
 
-import com.sun.source.tree.Tree.Kind;
-import com.sun.source.util.TreePath;
-import java.util.List;
-import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.SourceUtilsTestUtil;
-import org.netbeans.modules.java.hints.infrastructure.TreeRuleTestBase;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.Fix;
-import org.openide.LifecycleManager;
+import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.java.hints.test.api.HintTest;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class I18NCheckerTest extends TreeRuleTestBase {
+public class I18NCheckerTest extends NbTestCase {
     
     public I18NCheckerTest(String testName) {
         super(testName);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        SourceUtilsTestUtil.prepareTest(new String[] {"org/netbeans/modules/java/editor/resources/layer.xml"}, new Object[0]);
-        AddToBundleFix.TESTS = true;
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        LifecycleManager.getDefault().saveAll();
-        super.tearDown();
-    }
-    
     public void testSimple() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {private String s = \"|s\";}", "0:52-0:52:hint:Hardcoded String");
+        performAnalysisTest("test/Test.java", "package test; public class Test {private String s = \"s\";}", "0:52-0:55:hint:Hardcoded String");
     }
     
     public void testSimpleNOI18N() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|s\";//NOI18N\n}");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";//NOI18N\n}");
     }
     
     public void testSimpleNoNOI18N() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|s\";\n//NOI18N}", "1:19-1:19:hint:Hardcoded String");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";\n//NOI18N\n}", "1:19-1:22:hint:Hardcoded String");
     }
     
     public void testAddToBundle() throws Exception {
-        performFixTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";}", 97 - 43, "1:19-1:19:hint:Hardcoded String", "A", "package test; import java.util.ResourceBundle; public class Test { private String s = ResourceBundle.getBundle(\"Bundle.properties\").getString(\"s\");}");
+        AddToBundleFix.TESTS = true;//XXX
+        HintTest.create()
+                .input("package test; public class Test {\nprivate String s = \"s\";}")
+                .run(I18NChecker.class)
+                .findWarning("1:19-1:22:hint:Hardcoded String")
+                .applyFix("Create new bundle and replace with localized string")
+                .assertOutput("package test; import java.util.ResourceBundle; public class Test { private String s = ResourceBundle.getBundle(\"Bundle.properties\").getString(\"s\");}");
     }
     
     public void testZeroLengthString() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|\";\n}");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"\";\n}");
     }
     
     public void testNoStringLiteral() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = s|2 + s2;}\n}");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = s2 + s2;}\n}");
     }
     
     public void testCompound1() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"x\" + s|2 + s2;}\n}", "1:47-1:47:hint:Hardcoded String");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"x\" + s2 + s2;}\n}", "1:47-1:60:hint:Hardcoded String");
     }
     
     public void testCompound2() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"\" + s|2 + s2;}\n}");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"\" + s2 + s2;}\n}");
     }
     
     public void testAnnotation1() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings(\"somet|hing\") public class Test {}\n}");
+        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings(\"something\") public class Test {}\n");
     }
     
     public void testAnnotation2() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings({\"somet|hing\", \"AAAA\"}) public class Test {}\n}");
+        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings({\"something\", \"AAAA\"}) public class Test {}\n");
     }
     
-    @Override
-    protected List<ErrorDescription> computeErrors(CompilationInfo info, TreePath path) {
-        if ("testNoStringLiteral".equals(getName()) || "testCompound1".equals(getName()) || "testCompound2".equals(getName())) {
-            while (path.getLeaf().getKind() != Kind.PLUS) {
-                path = path.getParentPath();
-            }
-            while (path.getParentPath().getLeaf().getKind() == Kind.PLUS) {
-                path = path.getParentPath();
-            }
-        }
-        return new I18NChecker().run(info, path);
-    }
-
-    @Override
-    protected String toDebugString(CompilationInfo info, Fix f) {
-        if (f instanceof AddToBundleFix) {
-            return "A";
-        }
-        
-        return super.toDebugString(info, f);
+    private void performAnalysisTest(String fileName, String code, String... golden) throws Exception {
+        HintTest.create()
+                .input(fileName, code)
+                .run(I18NChecker.class)
+                .assertWarnings(golden);
     }
     
 }
