@@ -49,6 +49,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
 import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
+import org.netbeans.modules.java.hints.spi.ErrorRule;
 import org.netbeans.modules.java.hints.spiimpl.RulesManager;
 import org.netbeans.spi.java.hints.Hint.Kind;
 import org.openide.awt.ActionID;
@@ -76,7 +77,7 @@ public final class GenerateHintWiki implements ActionListener {
     }
     
     public static String generateWiki() {
-        Map<String, String> since = readSinceData();
+        Map<String, String> since = readSinceData("rules");
         Map<String, List<HintMetadata>> category2Hint = new TreeMap<String, List<HintMetadata>>();
 
         for (HintMetadata hm : RulesManager.getInstance().readHints(null, null, null).keySet()) {
@@ -148,6 +149,59 @@ public final class GenerateHintWiki implements ActionListener {
                "There are " + totalSuggestions + " total suggestions/actions, " + devSuggestions + " of them in current development version only.\n\n" +
                baseOut.toString();
     }
+    
+    public static String generateErrorsWiki() {
+        Map<String, String> since = readSinceData("errors");
+        List<ErrorRule> sortedErrors = new ArrayList<ErrorRule>(listErrorFixes());
+        
+        Collections.sort(sortedErrors, new Comparator<ErrorRule>() {
+            @Override public int compare(ErrorRule o1, ErrorRule o2) {
+                return o1.getDisplayName().compareTo(o2.getDisplayName());
+            }
+        });
+
+        StringWriter baseOut = new StringWriter();
+        PrintWriter out = new PrintWriter(baseOut);
+        int totalFixes = 0;
+        int devFixs = 0;
+        
+        ResourceBundle rb = ResourceBundle.getBundle("com.sun.tools.javac.resources.compiler");
+
+        for (ErrorRule rule : sortedErrors) {
+            out.print(";'''" + rule.getDisplayName() + "'''");
+            out.println();
+            out.println(": handles the following errors:"); //there is no description for error rules:
+            for (Object errorCode : rule.getCodes()) {
+                try {
+                    out.println(": * " + rb.getString(errorCode.toString()).replace("\n", " "));
+                } catch (MissingResourceException ex) {
+                    //would be better to fix the fixes not to list obsolette keys, but better to be robust here
+                }
+            }
+            out.print(": <span style='padding-left: 1em; font-size: 90%'>");
+            if (since.containsKey(rule.getId())) {
+                String sinceVersion = since.get(rule.getId());
+
+                if (sinceVersion != null) {
+                    out.print(" ''Since " + sinceVersion + "''");
+                } else {
+                    out.print(" ''In NetBeans 7.2 or earlier''");
+                }
+            } else {
+                out.print(" ''In current development version''");
+                devFixs++;
+            }
+            out.print("</span>");
+            out.println();
+            out.println();
+            totalFixes++;
+        }
+
+        out.close();
+        
+        return "There are " + totalFixes + " total error fixes, " + devFixs + " of them in current development version only.\n\n" +
+               baseOut.toString();
+    }
 
     static String getFileObjectLocalizedName( FileObject fo ) {
         Object o = fo.getAttribute("SystemFileSystem.localizingBundle"); // NOI18N
@@ -165,8 +219,8 @@ public final class GenerateHintWiki implements ActionListener {
         return fo.getPath();
     }
 
-    private static Map<String, String> readSinceData() {
-        FileObject lists = FileUtil.getConfigFile("org-netbeans-modules-java-hints/rules/lists");
+    private static Map<String, String> readSinceData(String code) {
+        FileObject lists = FileUtil.getConfigFile("org-netbeans-modules-java-hints/" + code + "/lists");
 
         if (lists == null) return Collections.emptyMap();
 
@@ -188,5 +242,13 @@ public final class GenerateHintWiki implements ActionListener {
         }
 
         return result;
+    }
+    
+    public static Collection<? extends ErrorRule> listErrorFixes() {
+        Set<ErrorRule> errors = Collections.newSetFromMap(new IdentityHashMap<ErrorRule, Boolean>());
+        for (List<ErrorRule> rules : org.netbeans.modules.java.hints.legacy.spi.RulesManager.getInstance().getErrors("text/x-java").values()) {
+            errors.addAll(rules);
+        }
+        return errors;
     }
 }

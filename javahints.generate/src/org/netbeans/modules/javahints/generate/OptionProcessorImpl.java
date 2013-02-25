@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.modules.java.hints.providers.spi.HintMetadata;
+import org.netbeans.modules.java.hints.spi.ErrorRule;
 import org.netbeans.modules.java.hints.spiimpl.RulesManager;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -68,8 +69,10 @@ import org.openide.util.lookup.ServiceProvider;
 public class OptionProcessorImpl extends OptionProcessor {
 
     private static final Option GENERATE_WIKI = Option.requiredArgument('g', "generate-wiki-text-and-exit");
+    private static final Option GENERATE_ERRORS_WIKI = Option.requiredArgument('g', "generate-errors-wiki-text-and-exit");
     private static final Option DUMP_HINTS = Option.requiredArgument('d', "dump-hint-ids-and-exit");
-    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI, DUMP_HINTS));
+    private static final Option DUMP_ERRORS = Option.requiredArgument('d', "dump-error-ids-and-exit");
+    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI, GENERATE_ERRORS_WIKI, DUMP_HINTS, DUMP_ERRORS));
     
     @Override
     protected Set<Option> getOptions() {
@@ -98,6 +101,25 @@ public class OptionProcessorImpl extends OptionProcessor {
                 }
             }
         }
+        if (optionValues.containsKey(GENERATE_ERRORS_WIKI)) {
+            exit = true;
+            
+            OutputStream out = null;
+            try {
+                String targetFilePath = optionValues.get(GENERATE_ERRORS_WIKI)[0];
+                File target = new File(env.getCurrentDirectory(), targetFilePath);
+                out = new BufferedOutputStream(new FileOutputStream(target));
+                out.write(GenerateHintWiki.generateErrorsWiki().getBytes("UTF-8"));
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
         if (optionValues.containsKey(DUMP_HINTS)) {
             exit = true;
             
@@ -108,6 +130,28 @@ public class OptionProcessorImpl extends OptionProcessor {
                 out = new BufferedOutputStream(new FileOutputStream(target));
                 for (HintMetadata hm : RulesManager.getInstance().readHints(null, null, null).keySet()) {
                     out.write(hm.id.getBytes("UTF-8"));
+                    out.write("\n".getBytes("UTF-8"));
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        if (optionValues.containsKey(DUMP_ERRORS)) {
+            exit = true;
+            
+            OutputStream out = null;
+            try {
+                String targetFilePath = optionValues.get(DUMP_ERRORS)[0];
+                File target = new File(env.getCurrentDirectory(), targetFilePath);
+                out = new BufferedOutputStream(new FileOutputStream(target));
+                for (ErrorRule rule : GenerateHintWiki.listErrorFixes()) {
+                    out.write(rule.getId().getBytes("UTF-8"));
                     out.write("\n".getBytes("UTF-8"));
                 }
             } catch (IOException ex) {
