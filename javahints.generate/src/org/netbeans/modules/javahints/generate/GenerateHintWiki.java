@@ -185,7 +185,7 @@ public final class GenerateHintWiki implements ActionListener {
                 if (sinceVersion != null) {
                     out.print(" ''Since " + sinceVersion + "''");
                 } else {
-                    out.print(" ''In NetBeans 7.2 or earlier''");
+                    out.print(" ''In NetBeans 7.3 or earlier''");
                 }
             } else {
                 out.print(" ''In current development version''");
