@@ -36,37 +36,29 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.api;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
 /**
+ * Central class for Wizard-related property keys.
  *
- * @author Tim Boudreau
+ * @author Nils Hoffmann
  */
-public abstract class RegexpFileHandler extends FileHandler {
+public final class WizardProperties {
 
-    private final Pattern pattern;
+    public static final String KEY_FILE_HANDLERS = "fileHandlers";
+    public static final String KEY_ITEMS = "fileItems";
+    public static final String KEY_LICENSE_TEXT = "licenseText";
+    public static final String KEY_LICENSE_NAME = "licenseName";
+    public static final String KEY_ROOT_FILES = "rootFiles";
+    public static final String KEY_FOLDERS = "folders";
+    public static final String KEY_UPDATE_DEFAULT_PROJECT_LICENSE = "updateDefaultProjectLicense";
+    public static final String VALUE_DEFAULT_LICENSE_TEXT = "No License";
+    public static final String PROP_ENDING = "ending";
+    public static final String KEY_ENDING = "line_terminator";
+    public static final String KEY_PROJECT = "project";
+    public static final String KEY_COPYRIGHT_HOLDER = "project.organization";
+    public static final String KEY_STORE_IN_USER_PROPERTIES = "storeInUserProperties";
 
-    public RegexpFileHandler(Pattern pattern) {
-        this.pattern = pattern;
-    }
-
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException("Regexp " + pattern.pattern()
-                    + " could find match in " + seq);
-        }
+    private WizardProperties() {
     }
 }

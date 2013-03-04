@@ -36,37 +36,45 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.wizard.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import org.netbeans.api.queries.FileEncodingQuery;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
- *
  * @author Tim Boudreau
+ * @author Nils Hoffmann (Refactoring)
  */
-public abstract class RegexpFileHandler extends FileHandler {
+public class FileLoader {
 
-    private final Pattern pattern;
-
-    public RegexpFileHandler(Pattern pattern) {
-        this.pattern = pattern;
-    }
-
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
+    public static String loadFile(FileObject file) throws IOException {
+        Charset encoding = FileEncodingQuery.getEncoding(file);
+        InputStream in = new BufferedInputStream(file.getInputStream());
+        ByteArrayOutputStream out = new ByteArrayOutputStream((int) file.getSize());
+        try {
+            FileUtil.copy(in, out);
+            try {
+                String result = new String(out.toByteArray(), encoding.name());
+                String sep = System.getProperty("line.separator");
+                //Convert everything internally to use \n
+                if (!"\n".equals(sep) && sep != null) {
+                    return result.replaceAll(sep, "\n");
+                } else {
+                    return result;
+                }
+            } catch (UnsupportedEncodingException q) {
+                return new String(out.toByteArray(), FileEncodingQuery.getDefaultEncoding().name());
             }
-        } else {
-            throw new IllegalStateException("Regexp " + pattern.pattern()
-                    + " could find match in " + seq);
+        } finally {
+            in.close();
+            out.close();
         }
     }
 }
