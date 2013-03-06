@@ -464,7 +464,7 @@ public class AstViewer extends TopComponent {
 //        System.out.println("Nashron creating errors: " + (end - start));
         
         start = System.currentTimeMillis();
-        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors);
+        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors, AstViewer.class.getClassLoader());
         //jdk.nashorn.internal.runtime.Context.setContext(contextN);
         //contextN.setGlobal(new com.oracle.nashorn.objects.Global(contextN));
         end = System.currentTimeMillis();
@@ -763,7 +763,7 @@ public class AstViewer extends TopComponent {
 
         jdk.nashorn.internal.runtime.ErrorManager errors = new IdeErrorManager();
         errors.setLimit(100);
-        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors);
+        jdk.nashorn.internal.runtime.Context contextN = new jdk.nashorn.internal.runtime.Context(options, errors, AstViewer.class.getClassLoader());
         //jdk.nashorn.internal.runtime.Context.setContext(contextN);
 
         jdk.nashorn.internal.codegen.Compiler compiler = jdk.nashorn.internal.codegen.Compiler.compiler(source, contextN);
