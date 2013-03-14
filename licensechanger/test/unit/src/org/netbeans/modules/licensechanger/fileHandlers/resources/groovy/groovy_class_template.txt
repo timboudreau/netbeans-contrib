@@ -1,0 +1,13 @@
+package org.netbeans.modules.licensechanger;
+/**
+ * Groovy allows classes to have explicit packages.
+ * @author Nils Hoffmann
+ */
+public class Yodeling {
+    Boolean traditional
+    
+    void yodle() {
+        println (traditional?"Holla-ha-iittiie!":"Oh-di-lay-ee-ay, di-lay-dee-oh, de-lay-ee")
+    }
+}
+

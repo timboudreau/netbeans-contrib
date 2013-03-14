@@ -1,7 +1,10 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2012 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+ * Other names may be trademarks of their respective owners.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -13,9 +16,9 @@
  * specific language governing permissions and limitations under the
  * License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
+ * by Oracle in the GPL Version 2 section of the License file that
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
@@ -34,39 +37,28 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
+ * Portions Copyrighted 2012 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.api;
+package org.netbeans.modules.licensechanger.fileHandlers;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
+ * Service Provider implementation for files with mime-type text/x-groovy.
  *
- * @author Tim Boudreau
+ * @author Nils Hoffmann
  */
-public abstract class RegexpFileHandler extends FileHandler {
+@org.openide.util.lookup.ServiceProvider(service = org.netbeans.modules.licensechanger.api.FileHandler.class)
+public class GroovyFileHandler extends JavaFileHandler {
 
-    private final Pattern pattern;
-
-    public RegexpFileHandler(Pattern pattern) {
-        this.pattern = pattern;
+    @Override
+    public String getDisplayName() {
+        return NbBundle.getMessage(GroovyFileHandler.class, "NAME_GROOVY_FILES"); //NOI18N
     }
 
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException("Regexp " + pattern.pattern()
-                    + " could find match in " + seq);
-        }
+    @Override
+    public boolean match(FileObject file) {
+        return "text/x-groovy".equals(file.getMIMEType()); //NOI18N
     }
 }

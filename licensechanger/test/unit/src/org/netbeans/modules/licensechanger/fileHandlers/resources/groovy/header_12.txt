@@ -11,7 +11,10 @@
  * http://www.netbeans.org/cddl-gplv2.html
  * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
  * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
+*/
+//BLAH BLAH BLAH
+//BLAH BLAH BLAH
+     /* License.  When distributing the software, include this License Header
  * Notice in each file and include the License file at
  * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
  * particular file as subject to the "Classpath" exception as provided
@@ -36,37 +39,10 @@
  *
  * Portions Copyrighted 2009 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.licensechanger.api;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-/**
- *
- * @author Tim Boudreau
+/* Created on March 14, 2009 
+ * by some IDE or other
  */
-public abstract class RegexpFileHandler extends FileHandler {
 
-    private final Pattern pattern;
+//blah blah blah
+//blah blah blah
 
-    public RegexpFileHandler(Pattern pattern) {
-        this.pattern = pattern;
-    }
-
-    public final Offsets getOffsets(CharSequence seq) {
-        Matcher m = pattern.matcher(seq);
-        if (m.find()) {
-            if (m.groupCount() >= 2) {
-                int start = m.start(1);
-                int end = m.end(1);
-                return new Offsets(start, end);
-            } else {
-                throw new IllegalStateException("Regexp " + pattern.pattern()
-                        + " gets groupCount " + m.groupCount());
-            }
-        } else {
-            throw new IllegalStateException("Regexp " + pattern.pattern()
-                    + " could find match in " + seq);
-        }
-    }
-}
