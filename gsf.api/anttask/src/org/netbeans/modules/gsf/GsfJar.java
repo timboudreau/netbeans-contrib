@@ -635,7 +635,8 @@ public class GsfJar extends JarWithModuleAttributes {
             setFileAttribute(doc, sidebarFile, "position", "intvalue", "1200"); // NOI18N
 
             Element foldingFolder = mkdirs(doc, "Editors/" + mimeType + "/FoldManager"); // NOI18N
-            createFile(doc, foldingFolder, "org-netbeans-modules-gsfret-editor-fold-GsfFoldManagerFactory.instance"); // NOI18N
+            Element mgr = createFile(doc, foldingFolder, "org-netbeans-modules-gsfret-editor-fold-GsfFoldManagerFactory.instance"); // NOI18N
+            setFileAttribute(doc, mgr, "position", "intvalue", "900"); // NOI18N
         }
 
         // Highlighting Factories
