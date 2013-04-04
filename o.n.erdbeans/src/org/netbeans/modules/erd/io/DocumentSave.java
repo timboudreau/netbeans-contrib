@@ -43,9 +43,6 @@
 package org.netbeans.modules.erd.io;
 
 
-import com.sun.net.ssl.internal.ssl.Debug;
-import java.awt.Point;
-import java.beans.PropertyDescriptor;
 import org.openide.xml.XMLUtil;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -55,17 +52,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Attr;
 
-import java.util.HashSet;
 import java.util.Collection;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
-import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.modules.dbschema.SchemaElement;
-import org.netbeans.modules.dbschema.TableElement;
-import org.netbeans.modules.erd.graphics.ERDScene;
 import org.netbeans.modules.erd.model.ERDComponent;
-import org.netbeans.modules.erd.model.ERDDocument;
 import org.netbeans.modules.erd.model.component.TableDescriptor;
 
 public class DocumentSave {
