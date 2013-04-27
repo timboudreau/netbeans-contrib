@@ -53,14 +53,15 @@ public class ComputeTasks {
 
     public static List<? extends Task> computeTasks(CompilationInfo info, AtomicBoolean cancel) throws IOException {
         //TODO: move the hint computation to TaskResolver?
+        HintsSettings settings = HintsSettings.getSettingsFor(info.getFileObject());
         Collection<HintDescription> hints = new LinkedList<HintDescription>();
         for ( Entry<HintMetadata, ? extends Collection<? extends HintDescription>> e : RulesManager.getInstance().readHints(info, Collections.<ClassPath>emptyList(), new AtomicBoolean()).entrySet()) {
-            if (!HintsSettings.isEnabled(e.getKey()) || !HintsSettings.isShowInTaskList(e.getKey())) continue;
+            if (!settings.isEnabled(e.getKey())) continue;
 
             hints.addAll(e.getValue());
         }
 
-        List<ErrorDescription> errors = new HintsInvoker(info, cancel).computeHints(info, hints);
+        List<ErrorDescription> errors = new HintsInvoker(settings, cancel).computeHints(info, hints);
         
         if (errors == null || cancel.get()) return null;
         

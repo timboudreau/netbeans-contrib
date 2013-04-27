@@ -1,4 +1,5 @@
 Manifest-version: 1.0
 OpenIDE-Module: org.netbeans.modules.javahints/2
+OpenIDE-Module-Implementation-Version: 1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/javahints/resources/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/javahints/resources/layer.xml
