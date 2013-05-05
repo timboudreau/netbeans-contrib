@@ -51,9 +51,9 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.JavaSource.Priority;
 import org.netbeans.api.java.source.JavaSourceTaskFactory;
-import org.netbeans.modules.java.hints.infrastructure.Pair;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Pair;
 
 /**
  *
@@ -103,7 +103,7 @@ public class RunOnceFactory extends JavaSourceTaskFactory {
             LOG.log(Level.FINE, "addImpl({0}, {1})", new Object[] {FileUtil.getFileDisplayName(file), task.getClass().getName()});
         }
         
-        work.add(new Pair<FileObject, CancellableTask<CompilationInfo>>(file, task));
+        work.add(Pair.<FileObject, CancellableTask<CompilationInfo>>of(file, task));
         
         if (currentFile == null)
             next();
@@ -127,8 +127,8 @@ public class RunOnceFactory extends JavaSourceTaskFactory {
         
         Pair<FileObject, CancellableTask<CompilationInfo>> p = work.remove(0);
         
-        currentFile = p.getA();
-        task = p.getB();
+        currentFile = p.first();
+        task = p.second();
         
         fileObjectsChanged();
         
