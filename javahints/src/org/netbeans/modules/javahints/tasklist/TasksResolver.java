@@ -48,7 +48,6 @@ import org.netbeans.api.java.source.JavaSourceTaskFactory;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.modules.java.hints.infrastructure.Pair;
 import org.netbeans.spi.tasklist.PushTaskScanner.Callback;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
