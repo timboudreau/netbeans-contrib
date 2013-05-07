@@ -115,6 +115,8 @@ public class PythonIndex {
             Exceptions.printStackTrace(ioe);
 
             return false;
+        } catch (UnsupportedOperationException iuoe) {
+            return false;
         }
     }
 
