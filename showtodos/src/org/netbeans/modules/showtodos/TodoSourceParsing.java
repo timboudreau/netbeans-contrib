@@ -40,6 +40,8 @@ package org.netbeans.modules.showtodos;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
@@ -52,7 +54,6 @@ import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.tasklist.todo.settings.Settings;
 import org.openide.text.Annotatable;
 import org.openide.text.Line;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -121,7 +122,9 @@ final class TodoSourceParsing {
                }
             }
          } catch (BadLocationException e) {
-            Exceptions.printStackTrace(e);
+             // Document was edited during parsing. Can be ignored. See #229772.
+             Logger.getLogger(TodoSourceParsing.class.getName())
+                     .log(Level.INFO, null, e);
          }
       }
       return pairsPosition;
