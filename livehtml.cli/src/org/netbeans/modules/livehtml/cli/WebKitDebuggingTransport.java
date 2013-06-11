@@ -97,8 +97,6 @@ abstract class WebKitDebuggingTransport implements TransportImplementation, Runn
         LOGGER.log(Level.INFO, "toDebuggee: {0}", cmd);
         final PrintStream os = outputStream();
         os.println(cmd);
-        os.flush();
-        LOGGER.log(Level.INFO, "  flushed");
     }
 
     @Override
