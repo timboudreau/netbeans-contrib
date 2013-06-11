@@ -53,14 +53,14 @@ import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
-import org.netbeans.core.browser.webview.TransportImplementationWithURLToLoad;
 import org.netbeans.modules.web.webkit.debugging.spi.Command;
 import org.netbeans.modules.web.webkit.debugging.spi.Response;
 import org.netbeans.modules.web.webkit.debugging.spi.ResponseCallback;
+import org.netbeans.modules.web.webkit.debugging.spi.TransportImplementation;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 
-abstract class WebKitDebuggingTransport implements TransportImplementationWithURLToLoad, Runnable {
+abstract class WebKitDebuggingTransport implements TransportImplementation, Runnable {
     private ResponseCallback callback;
     private volatile String urlToLoad; // The url to be loaded to the browser
     
@@ -109,11 +109,6 @@ abstract class WebKitDebuggingTransport implements TransportImplementationWithUR
     @Override
     public String getConnectionName() {
         return "Local connection";
-    }
-    
-    @Override
-    public void setURLToLoad(String urlToLoad) {
-        this.urlToLoad = urlToLoad;
     }
     
     @Override
