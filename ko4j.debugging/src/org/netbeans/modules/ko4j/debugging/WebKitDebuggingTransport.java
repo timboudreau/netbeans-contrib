@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2012 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.livehtml.cli;
+package org.netbeans.modules.ko4j.debugging;
 
 import java.io.BufferedReader;
 import java.io.IOException;

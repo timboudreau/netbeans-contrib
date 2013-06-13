@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.livehtml.cli
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/livehtml/cli/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.2
-

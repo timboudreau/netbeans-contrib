@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.livehtml.cli;
+package org.netbeans.modules.ko4j.debugging;
 
 import java.io.Closeable;
 import java.io.File;

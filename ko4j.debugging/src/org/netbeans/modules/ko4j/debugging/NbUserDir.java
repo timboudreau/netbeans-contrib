@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.livehtml.cli;
+package org.netbeans.modules.ko4j.debugging;
 
 import java.io.File;
 import org.netbeans.modules.maven.api.execute.ExecutionContext;
