@@ -59,10 +59,10 @@ import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADVisualFormContainer;
 import org.netbeans.modules.form.ViewConverter;
 import org.netbeans.modules.form.VisualReplicator;
-
 import org.openide.windows.IOProvider;
-import org.openide.windows.OutputWriter;
+
 import org.openide.windows.Mode;
+import org.openide.windows.OutputWriter;
 import org.openide.windows.WindowManager;
 
 
