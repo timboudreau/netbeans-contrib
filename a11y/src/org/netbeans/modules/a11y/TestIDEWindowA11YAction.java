@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2013 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -47,21 +47,27 @@ import org.openide.util.HelpCtx;
 import org.openide.util.actions.NodeAction;
 
 import org.netbeans.a11y.tester.UIAccessibilityTester;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 
 /**
  * Accessibility test action. Testing windows from IDE.
  * @author  Marian.Mirilovic@Sun.Com
  */
+@ActionID(id = "org.netbeans.modules.a11y.TestIDEWindowA11YAction", category = "Tools")
+@ActionRegistration(lazy = false, displayName = "UI Accessibility Tester - testing IDE")
 public class TestIDEWindowA11YAction extends NodeAction {
 
     //private static final long serialVersionUID = ;
 
+    @Override
     protected void performAction(Node[] nodes) {
         UIAccessibilityTester at = UIAccessibilityTester.getInstance();
         at.setVisible(true);
         at.requestFocus();
     }
     
+    @Override
     public boolean enable(Node[] node) {
         return true;
     }
@@ -70,6 +76,7 @@ public class TestIDEWindowA11YAction extends NodeAction {
      *  Human presentable name of the action. This should be
      *  presented as an item in a menu.
      *  @return the name of the action */
+    @Override
     public String getName() {
         //return NbBundle.getBundle(TestIDEWindowA11YAction.class).getString("ACT_A11Y_IDE_Test"); // NOI18N
         return "UI Accessibility Tester - testing IDE";
@@ -77,6 +84,7 @@ public class TestIDEWindowA11YAction extends NodeAction {
     
     
     /** @return resource for the action icon */
+    @Override
     protected String iconResource() {
         return "org/netbeans/modules/a11y/resources/disabled.gif";
     }
@@ -84,13 +92,15 @@ public class TestIDEWindowA11YAction extends NodeAction {
     
     /** Help context where to find more about the action.
      * @return the help context for this action */
+    @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(TestIDEWindowA11YAction.class);
+        return new HelpCtx("org.netbeans.modules.a11y.TestIDEWindowA11YAction");
     }
     
     /** Fix issue 45833
      * Warning - org.netbeans.modules.a11y.TestIDEWindowA11YAction should override CallableSystemAction.asynchronous() to return false
      */
+    @Override
     protected boolean asynchronous() {
         return false;
     }
