@@ -156,7 +156,13 @@ public final class GenerateHintWiki implements ActionListener {
         
         Collections.sort(sortedErrors, new Comparator<ErrorRule>() {
             @Override public int compare(ErrorRule o1, ErrorRule o2) {
-                return o1.getDisplayName().compareTo(o2.getDisplayName());
+                int result = o1.getDisplayName().compareTo(o2.getDisplayName());
+                
+                if (result == 0) {
+                    result = o1.getId().compareTo(o2.getId());
+                }
+                
+                return result;
             }
         });
 
@@ -167,11 +173,13 @@ public final class GenerateHintWiki implements ActionListener {
         
         ResourceBundle rb = ResourceBundle.getBundle("com.sun.tools.javac.resources.compiler");
 
-        for (ErrorRule rule : sortedErrors) {
+        for (ErrorRule<?> rule : sortedErrors) {
             out.print(";'''" + rule.getDisplayName() + "'''");
             out.println();
             out.println(": handles the following errors:"); //there is no description for error rules:
-            for (Object errorCode : rule.getCodes()) {
+            List<String> errorCodes = new ArrayList<String>(rule.getCodes());
+            Collections.sort(errorCodes);
+            for (Object errorCode : errorCodes) {
                 try {
                     out.println(": * " + rb.getString(errorCode.toString()).replace("\n", " "));
                 } catch (MissingResourceException ex) {

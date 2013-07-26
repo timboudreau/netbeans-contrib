@@ -29,8 +29,6 @@
 		</file>
 	    </folder>
         </folder>
-    </folder>
-    <folder name="org-netbeans-modules-java-hints">
         <folder name="errors">
 	    <folder name="lists">
 		<file name="ERR73.hints" url="ERR73.hints">
