@@ -48,6 +48,7 @@ import org.openide.util.actions.NodeAction;
 
 import org.netbeans.a11y.tester.UIAccessibilityTester;
 import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 
 /**
@@ -56,6 +57,7 @@ import org.openide.awt.ActionRegistration;
  */
 @ActionID(id = "org.netbeans.modules.a11y.TestIDEWindowA11YAction", category = "Tools")
 @ActionRegistration(lazy = false, displayName = "UI Accessibility Tester - testing IDE")
+@ActionReference(path = "Toolbars/Tools", position = 2110)
 public class TestIDEWindowA11YAction extends NodeAction {
 
     //private static final long serialVersionUID = ;
