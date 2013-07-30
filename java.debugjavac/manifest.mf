@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.java.debugjavac
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/java/debugjavac/Bundle.properties
+OpenIDE-Module-Hide-Classpath-Packages: com.sun.javadoc.**, com.sun.source.**, javax.annotation.processing.**, javax.lang.model.**, javax.tools.**, com.sun.tools.**
