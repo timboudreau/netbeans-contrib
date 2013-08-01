@@ -56,7 +56,8 @@ import org.openide.util.NbBundle.Messages;
 @MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_DJava_LOADER",
         mimeType = "text/x-java-decompiled",
-        extension = {"djava"}
+        extension = {"djava"},
+        position = 999207
         )
 @DataObject.Registration(
         mimeType = "text/x-java-decompiled",
