@@ -41,25 +41,71 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
-import org.openide.filesystems.FileObject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerInput;
+import org.netbeans.spi.lexer.LexerRestartInfo;
+import org.netbeans.spi.lexer.TokenFactory;
 
 /**
  *
  * @author lahvac
  */
-public interface Decompiler {
-    public String id();
-    public String displayName();
-    public Result decompile(FileObject source);
+public class TopLevelLexer implements Lexer<TopLevelTokenId> {
     
-    public final class Result {
-        public final String compileErrors;
-        public final String decompiledOutput;
-        public final String decompiledMimeType;
-        public Result(String compileErrors, String decompiledOutput, String decompiledMimeType) {
-            this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
-            this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
-            this.decompiledMimeType = decompiledMimeType;
-        }
+    private static final Pattern SECTION_PATTERN = Pattern.compile("#Section\\(([^)]*)\\)[^\n]*\n");
+    private final TokenFactory<TopLevelTokenId> factory;
+    private final LexerInput input;
+    private TopLevelTokenId futureToken;
+
+    public TopLevelLexer(LexerRestartInfo<TopLevelTokenId> restart) {
+        this.factory = restart.tokenFactory();
+        this.input = restart.input();
+        this.futureToken = restart.state() != null ? (TopLevelTokenId) restart.state() : TopLevelTokenId.OTHER;
     }
+    
+    @Override
+    public Token<TopLevelTokenId> nextToken() {
+        StringBuilder text = new StringBuilder();
+        int read;
+        
+        while ((read = input.read()) != LexerInput.EOF) {
+            text.append((char) read);
+            
+            Matcher m = SECTION_PATTERN.matcher(text);
+            
+            if (m.find()) {
+                if (m.start() == 0) {
+                    String mimeType = m.group(1);
+                    
+                    switch (mimeType) {
+                        case "text/x-java": futureToken = TopLevelTokenId.JAVA; break;
+                        case "text/x-java-bytecode": futureToken = TopLevelTokenId.ASM; break;
+                        default: futureToken = TopLevelTokenId.OTHER; break;
+                    }
+                    
+                    return factory.createToken(TopLevelTokenId.SECTION_HEADER);
+                } else {
+                    input.backup(input.readLength() - m.start());
+                    break;
+                }
+            }
+        }
+        
+        if (input.readLength() > 0)
+            return factory.createToken(futureToken);
+        
+        return null;
+    }
+
+    @Override
+    public Object state() {
+        return futureToken;
+    }
+
+    @Override
+    public void release() {}
+    
 }

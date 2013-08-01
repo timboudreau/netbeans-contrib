@@ -41,25 +41,58 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
-import org.openide.filesystems.FileObject;
+import java.util.Arrays;
+import java.util.Collection;
+import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.api.lexer.InputAttributes;
+import org.netbeans.api.lexer.Language;
+import org.netbeans.api.lexer.LanguagePath;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenId;
+import org.netbeans.spi.lexer.EmbeddingPresence;
+import org.netbeans.spi.lexer.LanguageEmbedding;
+import org.netbeans.spi.lexer.LanguageHierarchy;
+import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerRestartInfo;
 
 /**
  *
  * @author lahvac
  */
-public interface Decompiler {
-    public String id();
-    public String displayName();
-    public Result decompile(FileObject source);
+public enum TopLevelTokenId implements TokenId {
+    SECTION_HEADER,
+    JAVA,
+    ASM,
+    OTHER;
+
+    @Override
+    public String primaryCategory() {
+        return this == SECTION_HEADER ? "comment" : "code";
+    }
     
-    public final class Result {
-        public final String compileErrors;
-        public final String decompiledOutput;
-        public final String decompiledMimeType;
-        public Result(String compileErrors, String decompiledOutput, String decompiledMimeType) {
-            this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
-            this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
-            this.decompiledMimeType = decompiledMimeType;
+    private static final Language<TopLevelTokenId> LANGUAGE = new LanguageHierarchy<TopLevelTokenId>() {
+        @Override protected Collection<TopLevelTokenId> createTokenIds() {
+            return Arrays.asList(TopLevelTokenId.values());
         }
+        @Override protected Lexer<TopLevelTokenId> createLexer(LexerRestartInfo<TopLevelTokenId> info) {
+            return new TopLevelLexer(info);
+        }
+        @Override protected String mimeType() {
+            return "text/x-java-decompiled";
+        }
+        @Override protected LanguageEmbedding<?> embedding(Token<TopLevelTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
+            switch (token.id()) {
+                case JAVA:
+                    return LanguageEmbedding.create(Language.find("text/x-java"), 0, 0);
+                default:
+                    return null;
+            }
+        }
+
+    }.language();
+    
+    @MimeRegistration(mimeType="text/x-java-decompiled", service=Language.class)
+    public static final Language<TopLevelTokenId> language() {
+        return LANGUAGE;
     }
 }

@@ -83,11 +83,12 @@ import org.openide.util.lookup.ServiceProvider;
 public class DecompilerImpl implements Decompiler {
 
     @Override
-    public String decompile(FileObject source) {
+    public Result decompile(FileObject source) {
         String code = Source.create(source).createSnapshot().getText().toString();
-        StringWriter w = new StringWriter();
+        StringWriter errors = new StringWriter();
+        StringWriter decompiled = new StringWriter();
         try {
-            final Map<String, byte[]> bytecode = compile(source, w, code);
+            final Map<String, byte[]> bytecode = compile(source, errors, code);
 
             if (!bytecode.isEmpty()) {
                 for (final Entry<String, byte[]> e : bytecode.entrySet()) {
@@ -102,7 +103,7 @@ public class DecompilerImpl implements Decompiler {
                     options.add("-verbose");
                     options.add(e.getKey());
                     t.handleOptions(options.toArray(new String[0]));
-                    t.getContext().put(PrintWriter.class, new PrintWriter(w));
+                    t.getContext().put(PrintWriter.class, new PrintWriter(decompiled));
                     ClassFileInfo cfi = t.read(new SimpleJavaFileObject(URI.create("mem://mem"), Kind.CLASS) {
                         @Override public InputStream openInputStream() throws IOException {
                             return new ByteArrayInputStream(e.getValue());
@@ -113,12 +114,12 @@ public class DecompilerImpl implements Decompiler {
                 }
             }
         } catch (IOException | ConstantPoolException ex) {
-            ex.printStackTrace(new PrintWriter(w));
-            Exceptions.printStackTrace(ex);
+            ex.printStackTrace(new PrintWriter(errors));
         } catch (BadArgs ex) {
             Exceptions.printStackTrace(ex);
         }
-        return w.toString();
+        
+        return new Result(errors.toString(), decompiled.toString(), "text/x-java-bytecode");
     }
     
     private static Map<String, byte[]> compile(FileObject source, final StringWriter errors, final String code) throws IOException {

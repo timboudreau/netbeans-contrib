@@ -58,6 +58,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationInfo;
@@ -68,6 +69,10 @@ import org.netbeans.api.java.source.support.EditorAwareJavaSourceTaskFactory;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.editor.GuardedDocument;
+import org.netbeans.modules.editor.NbEditorDocument;
+import org.netbeans.modules.editor.NbEditorKit;
+import org.netbeans.modules.java.debugjavac.Decompiler.Result;
 import org.netbeans.modules.parsing.spi.TaskIndexingMode;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.EditorCookie;
@@ -79,6 +84,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -103,7 +109,7 @@ public class DecompiledTab {
 
         if (result == null && create) {
             try {
-                FileObject decompiledFO = FileUtil.createMemoryFileSystem().getRoot().createData(source.getNameExt());
+                FileObject decompiledFO = FileUtil.createMemoryFileSystem().getRoot().createData(source.getName(), "djava");
 
                 decompiledFO.setAttribute(ATTR_DECOMPILED, Boolean.TRUE);
 
@@ -180,7 +186,7 @@ public class DecompiledTab {
     
     private static void doDecompileIntoDocument(FileObject source) {
         FileObject decompiled = findDecompiled(source, true);
-        Document doc = decompiledCodeDocument(source);
+        final Document doc = decompiledCodeDocument(source);
         
         if (doc == null || doc.getProperty(DECOMPILE_TAB_ACTIVE) != Boolean.TRUE) return ;
         
@@ -192,24 +198,38 @@ public class DecompiledTab {
                 return ;
             }
 
-            String decompiledCode;
+            final String decompiledCode;
             
             if (((CompilerDescription) compilerDescription).isValid()) {
                 Decompiler decompiler = findDecompiler((CompilerDescription) compilerDescription, (String) decompilerId);
-                decompiledCode = decompiler.decompile(source);
+                Result decompileResult = decompiler.decompile(source);
+                decompiledCode = (decompileResult.decompiledOutput != null ? "#Section(" + decompileResult.decompiledMimeType + ") Output:\n" + decompileResult.decompiledOutput + "\n" : "") +
+                                 (decompileResult.compileErrors != null ? "#Section(text/plaing) Processing Errors:\n" + decompileResult.compileErrors + "\n" : "");
             } else {
                 decompiledCode = "Unusable compiler";
             }
 
-            doc.remove(0, doc.getLength());
-            doc.insertString(0, decompiledCode, null);
+            NbDocument.runAtomic((StyledDocument) doc, new Runnable() {
+                @Override public void run() {
+                    try {
+                        doc.remove(0, doc.getLength());
+                        if (doc instanceof GuardedDocument) {
+                            ((GuardedDocument) doc).getGuardedBlockChain().removeEmptyBlocks();
+                        }
+                        doc.insertString(0, decompiledCode, null);
+                        if (doc instanceof GuardedDocument) {
+                            ((GuardedDocument) doc).getGuardedBlockChain().addBlock(0, doc.getLength(), true);
+                        }
+                    } catch (BadLocationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            });
             
             SaveCookie sc = DataObject.find(findDecompiled(source)).getLookup().lookup(SaveCookie.class);
             
             if (sc != null) sc.save();
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
@@ -229,7 +249,7 @@ public class DecompiledTab {
         final FileObject decompiled = findDecompiled(d.getPrimaryFile(), true);
         return new MultiViewElement() {
             private JEditorPane pane;
-            private JScrollPane scrollPane;
+            private JComponent scrollPane;
             private final FileChangeListener fileListener = new FileChangeAdapter() {
                 @Override public void fileAttributeChanged(FileAttributeEvent fe) {
                     doDecompileIntoDocument(d.getPrimaryFile());
@@ -239,10 +259,16 @@ public class DecompiledTab {
             public JComponent getVisualRepresentation() {
                 if (pane == null) {
                     pane = new JEditorPane();
+                    pane.setContentType("text/x-java-decompiled");
+                    pane.setEditorKit(new NbEditorKit() {
+                        @Override public String getContentType() {
+                            return "text/x-java-decompiled";
+                        }
+                    });
                     Document doc = decompiledCodeDocument(d.getPrimaryFile());
                     if (doc != null)
                         pane.setDocument(doc);
-                    scrollPane = new JScrollPane(pane);
+                    scrollPane = doc instanceof NbEditorDocument ? (JComponent) ((NbEditorDocument) doc).createEditor(pane) : new JScrollPane(pane);
                 }
                 return scrollPane;
             }
@@ -309,7 +335,7 @@ public class DecompiledTab {
 
             @Override
             public CloseOperationState canCloseElement() {
-                return null;
+                return CloseOperationState.STATE_OK;
             }
             
         };

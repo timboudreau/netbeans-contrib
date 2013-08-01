@@ -41,25 +41,39 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
+import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.MultiFileLoader;
+import org.openide.util.NbBundle.Messages;
 
-/**
- *
- * @author lahvac
- */
-public interface Decompiler {
-    public String id();
-    public String displayName();
-    public Result decompile(FileObject source);
-    
-    public final class Result {
-        public final String compileErrors;
-        public final String decompiledOutput;
-        public final String decompiledMimeType;
-        public Result(String compileErrors, String decompiledOutput, String decompiledMimeType) {
-            this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
-            this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
-            this.decompiledMimeType = decompiledMimeType;
-        }
+@Messages({
+    "LBL_DJava_LOADER=Files of DJava"
+})
+@MIMEResolver.ExtensionRegistration(
+        displayName = "#LBL_DJava_LOADER",
+        mimeType = "text/x-java-decompiled",
+        extension = {"djava"}
+        )
+@DataObject.Registration(
+        mimeType = "text/x-java-decompiled",
+//        iconBase = "SET/PATH/TO/ICON/HERE",
+        displayName = "#LBL_DJava_LOADER",
+        position = 300
+        )
+public class DJavaDataObject extends MultiDataObject {
+
+    public DJavaDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+        super(pf, loader);
+        registerEditor("text/x-java-decompiled", false);
     }
+
+    @Override
+    protected int associateLookup() {
+        return 1;
+    }
+
 }

@@ -74,28 +74,25 @@ import org.openide.util.lookup.ServiceProvider;
 public class DesugarDecompilerImpl implements Decompiler {
 
     @Override
-    public String decompile(FileObject source) {
+    public Result decompile(FileObject source) {
         final String code = Source.create(source).createSnapshot().getText().toString();
+        StringWriter errors = new StringWriter();
+        StringWriter decompiled = new StringWriter();
         
         try {
-            final StringWriter out = new StringWriter();
-            DiagnosticListener<JavaFileObject> errorsListener = Utilities.errorReportingDiagnosticListener(out);
+            DiagnosticListener<JavaFileObject> errorsListener = Utilities.errorReportingDiagnosticListener(errors);
             JavaFileObject file = Utilities.sourceFileObject(code);
             JavacTask task = JavacTool.create().getTask(null, 
                     null,
                     errorsListener, Utilities.commandLineParameters(source), null, Arrays.asList(file));
 
-            JavaCompilerOverride.preRegister(((JavacTaskImpl) task).getContext(), out);
+            JavaCompilerOverride.preRegister(((JavacTaskImpl) task).getContext(), decompiled);
             task.generate();
-
-            return out.toString();
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-            StringWriter w = new StringWriter();
-            PrintWriter pw = new PrintWriter(w);
-            ex.printStackTrace(pw);
-            return w.toString();
+            ex.printStackTrace(new PrintWriter(errors));
         }
+        
+        return new Result(errors.toString(), decompiled.toString(), "text/x-java");
     }
     
     @Override
@@ -129,7 +126,7 @@ public class DesugarDecompilerImpl implements Decompiler {
             if (first != null) {
                 out.write("package ");
                 out.write(first.fst.toplevel.pid.toString());
-                out.write("\n");
+                out.write(";\n");
 
                 boolean firstImport = true;
 
@@ -141,7 +138,7 @@ public class DesugarDecompilerImpl implements Decompiler {
                             out.write("static ");
                         }
                         out.write(importTree.getQualifiedIdentifier().toString());
-                        out.write("\n");
+                        out.write(";\n");
                         firstImport = false;
                     }
                 }
