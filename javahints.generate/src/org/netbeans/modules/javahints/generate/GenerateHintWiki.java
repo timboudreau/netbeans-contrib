@@ -259,4 +259,43 @@ public final class GenerateHintWiki implements ActionListener {
         }
         return errors;
     }
+    
+    public static String generateHintsJSON() {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        result.append("[\n");
+        
+        Map<String, String> seenNames = new HashMap<String, String>();
+        for (HintMetadata hm : RulesManager.getInstance().readHints(null, null, null).keySet()) {
+            if ("suggestions".equals(hm.category)) continue;
+            if ("errors".equals(hm.category)) continue;
+            if (!first) result.append(",");
+            first = false;
+            result.append("    {\n");
+            result.append("        \"displayName\": \"").append(hm.displayName.replace("\"", "\\\"")).append("\",\n");
+            result.append("        \"enabledByDefault\": ").append(hm.enabled).append(",\n");
+            result.append("        \"suppressWarningsKeys\": [");
+            
+            if (seenNames.containsKey(hm.displayName)) {
+                System.err.println("already seen: " + hm.displayName + " as: " + seenNames.get(hm.displayName));
+            } else {
+                seenNames.put(hm.displayName, hm.id);
+            }
+            
+            boolean firstSW = true;
+            
+            for (String sw : hm.suppressWarnings) {
+                if (sw == null || "".equals(sw)) continue;
+                if (!firstSW) result.append(",");
+                firstSW = false;
+                result.append("            \"").append(sw).append("\"");
+            }
+            result.append("\n        ]\n    }");
+        }
+        
+        result.append("\n]\n");
+        
+        return result.toString();
+    }
 }

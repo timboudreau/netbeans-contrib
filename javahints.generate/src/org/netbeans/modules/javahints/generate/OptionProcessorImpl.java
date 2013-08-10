@@ -70,9 +70,10 @@ public class OptionProcessorImpl extends OptionProcessor {
 
     private static final Option GENERATE_WIKI = Option.requiredArgument('g', "generate-wiki-text-and-exit");
     private static final Option GENERATE_ERRORS_WIKI = Option.requiredArgument('g', "generate-errors-wiki-text-and-exit");
+    private static final Option GENERATE_HINTS_JSON = Option.requiredArgument('g', "generate-hints-json-and-exit");
     private static final Option DUMP_HINTS = Option.requiredArgument('d', "dump-hint-ids-and-exit");
     private static final Option DUMP_ERRORS = Option.requiredArgument('d', "dump-error-ids-and-exit");
-    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI, GENERATE_ERRORS_WIKI, DUMP_HINTS, DUMP_ERRORS));
+    private static final Set<Option> OPTIONS = new HashSet<Option>(Arrays.asList(GENERATE_WIKI, GENERATE_ERRORS_WIKI, GENERATE_HINTS_JSON, DUMP_HINTS, DUMP_ERRORS));
     
     @Override
     protected Set<Option> getOptions() {
@@ -110,6 +111,25 @@ public class OptionProcessorImpl extends OptionProcessor {
                 File target = new File(env.getCurrentDirectory(), targetFilePath);
                 out = new BufferedOutputStream(new FileOutputStream(target));
                 out.write(GenerateHintWiki.generateErrorsWiki().getBytes("UTF-8"));
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        if (optionValues.containsKey(GENERATE_HINTS_JSON)) {
+            exit = true;
+            
+            OutputStream out = null;
+            try {
+                String targetFilePath = optionValues.get(GENERATE_HINTS_JSON)[0];
+                File target = new File(env.getCurrentDirectory(), targetFilePath);
+                out = new BufferedOutputStream(new FileOutputStream(target));
+                out.write(GenerateHintWiki.generateHintsJSON().getBytes("UTF-8"));
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
