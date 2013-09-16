@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="ClientSide">
+                <attr name="displayName" bundlevalue="org.netbeans.modules.project.htmljava.Bundle#HTMLJavaFolder"/>
+                <folder name="htmljava.project">
+                    <attr boolvalue="true" name="template"/>
+                    <attr bundlevalue="org.netbeans.modules.project.htmljava.Bundle#Hj_displayName" name="displayName"/>
+                    <attr name="iconBase" stringvalue="org/netbeans/modules/project/htmljava/Hj.png"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/project/htmljava/HjDescription.html"/>
+                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.project.htmljava.HjWizardIterator"/>
+                    <attr boolvalue="true" name="requireProject"/>
+                    <attr name="position" intvalue="53101"/>
+                    
+                    <!-- project files -->
+                    <file name="pom.xml" url="prj/pom.txt"/>
+                    <file name="nbactions.xml" url="prj/nbactions.xml"/>
+                    <file name="nbactions-bck2brwsr.xml" url="prj/nbactions-bck2brwsr.xml"/>
+                    <file name="nbactions-fxbrwsr.xml" url="prj/nbactions-fxbrwsr.xml"/>
+                    <folder name="src">
+                        <folder name="main">
+                            <folder name="assembly">
+                                <file name="html.java.net.xml" url="prj/html.java.net.xml"/>
+                                <file name="bck2brwsr.xml" url="prj/bck2brwsr.xml"/>
+                            </folder>
+                            <folder name="java">
+                                <folder name="pkg">
+                                    <file name="Main.java" url="prj/Main.src"/>
+                                    <file name="MainBrwsr.java" url="prj/MainBrwsr.src"/>
+                                    <file name="DataModel.java" url="prj/DataModel.src"/>
+                                </folder>
+                            </folder>
+                            <folder name="webapp">
+                                <folder name="pages">
+                                    <file name="index.html" url="prj/index.html"/>
+                                </folder>
+                            </folder>
+                        </folder>
+                        <folder name="test">
+                            <folder name="java">
+                                <folder name="pkg">
+                                    <file name="DataModelTest.java" url="prj/DataModelTest.src"/>
+                                </folder>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
