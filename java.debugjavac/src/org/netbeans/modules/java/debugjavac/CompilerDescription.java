@@ -41,11 +41,13 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.netbeans.api.java.platform.JavaPlatform;
@@ -53,57 +55,113 @@ import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author lahvac
  */
-public class CompilerDescription {
-    public final String displayName;
-    public final URL[] jars;
+public interface CompilerDescription {
+    public String getName();
+    public boolean isValid();
+    public Collection<? extends Decompiler> listDecompilers();
 
-    private CompilerDescription(String displayName, URL[] jars) {
-        this.displayName = displayName;
-        this.jars = jars;
-    }
+    public static class Factory {
+        public static Collection<? extends CompilerDescription> descriptions() {
+            List<CompilerDescription> result = new ArrayList<>();
 
-    public static Collection<? extends CompilerDescription> descriptions() {
-        List<CompilerDescription> result = new ArrayList<>();
-        
-        try {
-            result.add(new CompilerDescription("nb-javac", new URL[] {
-                InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-api.jar", null, false).toURI().toURL(),
-                InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-impl.jar", null, false).toURI().toURL()
-            }));
-        } catch (MalformedURLException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        for (JavaPlatform platform : JavaPlatformManager.getDefault().getInstalledPlatforms()) {
-            if (!"j2se".equals(platform.getSpecification().getName())) continue;
-            
-            for (FileObject installDir : platform.getInstallFolders()) {
-                FileObject toolsJar = installDir.getFileObject("lib/tools.jar");
-                FileObject rtJar = installDir.getFileObject("jre/lib/rt.jar");
-                
-                if (toolsJar != null && rtJar != null) {
-                    result.add(new CompilerDescription(platform.getDisplayName(), new URL[] {toolsJar.toURL(), rtJar.toURL()}));
+            try {
+                result.add(new LoaderBased("nb-javac", new URL[] {
+                    InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-api.jar", null, false).toURI().toURL(),
+                    InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-impl.jar", null, false).toURI().toURL()
+                }));
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            for (JavaPlatform platform : JavaPlatformManager.getDefault().getInstalledPlatforms()) {
+                if (!"j2se".equals(platform.getSpecification().getName())) continue;
+
+                for (FileObject installDir : platform.getInstallFolders()) {
+                    FileObject toolsJar = installDir.getFileObject("lib/tools.jar");
+                    FileObject rtJar = installDir.getFileObject("jre/lib/rt.jar");
+
+                    if (toolsJar != null && rtJar != null) {
+                        result.add(new LoaderBased(platform.getDisplayName(), new URL[] {toolsJar.toURL(), rtJar.toURL()}));
+                    }
                 }
             }
+
+            return result;
         }
         
-        return result;
-    }
-    
-    private final AtomicReference<Boolean> valid = new AtomicReference<>();
-    
-    public boolean isValid() {
-        Boolean val = valid.get();
-        
-        if (val == null) {
-            valid.set(val = DecompiledTab.isValid(this));
+        private static class LoaderBased implements CompilerDescription {
+            public final String displayName;
+            public final URL[] jars;
+
+            private LoaderBased(String displayName, URL[] jars) {
+                this.displayName = displayName;
+                this.jars = jars;
+            }
+
+            @Override
+            public String getName() {
+                return displayName;
+            }
+
+            private final AtomicReference<Boolean> valid = new AtomicReference<>();
+
+            public boolean isValid() {
+                Boolean val = valid.get();
+
+                if (val == null) {
+                    valid.set(val = isValidImpl());
+                }
+
+                return val;
+            }
+
+            private boolean isValidImpl() {
+                ClassLoader loader = getClassLoader();
+
+                if (loader == null) return false;
+
+                try {
+                    Class.forName("javax.tools.ToolProvider", true, loader);
+                    return true;
+                } catch (Throwable ex) {
+                    return false;
+                }
+            }
+
+            private ClassLoader classLoader;
+
+            private synchronized  ClassLoader getClassLoader() {
+                if (classLoader == null) {
+                    try {
+                        List<URL> urls = new ArrayList<>();
+
+                        urls.addAll(Arrays.asList(jars));
+                        urls.add(InstalledFileLocator.getDefault().locate("modules/ext/decompile.jar", null, false).toURI().toURL());
+
+                        classLoader = new URLClassLoader(urls.toArray(new URL[0]), DecompiledTab.class.getClassLoader());
+                    } catch (MalformedURLException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+
+                return classLoader;
+            }
+
+            public Collection<? extends Decompiler> listDecompilers() {
+                ClassLoader loader = getClassLoader();
+
+                if (loader == null) return Collections.emptyList();
+
+                return Lookups.metaInfServices(loader).lookupAll(Decompiler.class);
+            }
+
         }
-        
-        return val;
     }
+
 }

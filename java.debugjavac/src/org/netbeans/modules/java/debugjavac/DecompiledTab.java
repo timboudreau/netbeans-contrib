@@ -43,13 +43,6 @@ package org.netbeans.modules.java.debugjavac;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.swing.Action;
@@ -83,11 +76,9 @@ import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.modules.InstalledFileLocator;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.TopComponent;
 
@@ -134,56 +125,14 @@ public class DecompiledTab {
         }
     }
     
-    private static final Map<CompilerDescription, ClassLoader> compilerDescription2ClassLoader = new WeakHashMap<>();
-    
-    static boolean isValid(CompilerDescription compilerDescription) {
-        ClassLoader loader = classLoaderFor(compilerDescription);
-        
-        if (loader == null) return false;
-        
-        try {
-            Class.forName("javax.tools.ToolProvider", true, loader);
-            return true;
-        } catch (Throwable ex) {
-            return false;
-        }
-    }
-
-    private static ClassLoader classLoaderFor(CompilerDescription compilerDescription) {
-        ClassLoader loader = compilerDescription2ClassLoader.get(compilerDescription);
-        
-        if (loader == null) {
-            try {
-                List<URL> urls = new ArrayList<>();
-                
-                urls.addAll(Arrays.asList(compilerDescription.jars));
-                urls.add(InstalledFileLocator.getDefault().locate("modules/ext/decompile.jar", null, false).toURI().toURL());
-                
-                compilerDescription2ClassLoader.put(compilerDescription, loader = new URLClassLoader(urls.toArray(new URL[0]), DecompiledTab.class.getClassLoader()));
-            } catch (MalformedURLException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        
-        return loader;
-    }
-    
-    public static Collection<? extends Decompiler> listDecompilers(CompilerDescription compilerDescription) {
-        ClassLoader loader = classLoaderFor(compilerDescription);
-        
-        if (loader == null) return Collections.emptyList();
-        
-        return Lookups.metaInfServices(loader).lookupAll(Decompiler.class);
-    }
-    
     private static Decompiler findDecompiler(CompilerDescription compilerDescription, String id) throws MalformedURLException {
-        for (Decompiler decompiler : listDecompilers(compilerDescription)) {
+        for (Decompiler decompiler : compilerDescription.listDecompilers()) {
             if (id.equals(decompiler.id())) return decompiler;
         }
-        
+
         return null;
     }
-    
+
     private static void doDecompileIntoDocument(FileObject source) {
         FileObject decompiled = findDecompiled(source, true);
         final Document doc = decompiledCodeDocument(source);

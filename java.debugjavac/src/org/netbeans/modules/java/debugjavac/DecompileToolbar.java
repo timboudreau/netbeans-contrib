@@ -64,7 +64,7 @@ public class DecompileToolbar extends javax.swing.JPanel {
         initComponents();
         
         DefaultComboBoxModel<CompilerDescription> compilerModel = new DefaultComboBoxModel<>();
-        Collection<? extends CompilerDescription> compilerDescriptions = CompilerDescription.descriptions();
+        Collection<? extends CompilerDescription> compilerDescriptions = CompilerDescription.Factory.descriptions();
         
         for (CompilerDescription cd : compilerDescriptions) {
             compilerModel.addElement(cd);
@@ -76,7 +76,7 @@ public class DecompileToolbar extends javax.swing.JPanel {
                 if (value instanceof CompilerDescription) {
                     CompilerDescription compilerDescription = (CompilerDescription) value;
                     
-                    value = compilerDescription.displayName + (compilerDescription.isValid() ? "" : " - unusable");
+                    value = compilerDescription.getName() + (compilerDescription.isValid() ? "" : " - unusable");
                 }
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
@@ -97,7 +97,7 @@ public class DecompileToolbar extends javax.swing.JPanel {
         if (compilerDescriptions.size() > 0) {
             compiler.setSelectedIndex(0);
             
-            for (Decompiler decompiler : DecompiledTab.listDecompilers(compilerDescriptions.iterator().next())) {
+            for (Decompiler decompiler : compilerDescriptions.iterator().next().listDecompilers()) {
                 decompilerModel.addElement(decompiler);
                 decompilers.add(decompiler);
             }
