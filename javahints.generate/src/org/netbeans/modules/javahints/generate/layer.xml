@@ -39,6 +39,7 @@
 		    <attr name="position" intvalue="73" />
 		</file>
 		<file name="ERR74.hints" url="ERR74.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB74" />
 		    <attr name="position" intvalue="74" />
 		</file>
 	    </folder>
