@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.html.preview/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Install: org/netbeans/modules/html/preview/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/html/preview/Bundle.properties
+
