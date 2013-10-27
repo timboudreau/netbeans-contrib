@@ -61,30 +61,24 @@ import java.util.Queue;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import org.netbeans.modules.java.debugjavac.Decompiler;
-import org.netbeans.modules.parsing.api.Source;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lahvac
  */
-@ServiceProvider(service=Decompiler.class)
 public class DesugarDecompilerImpl implements Decompiler {
 
     @Override
-    public Result decompile(FileObject source) {
-        final String code = Source.create(source).createSnapshot().getText().toString();
+    public Result decompile(Input input) {
         StringWriter errors = new StringWriter();
         StringWriter decompiled = new StringWriter();
         
         try {
             DiagnosticListener<JavaFileObject> errorsListener = Utilities.errorReportingDiagnosticListener(errors);
-            JavaFileObject file = Utilities.sourceFileObject(code);
+            JavaFileObject file = Utilities.sourceFileObject(input.source);
             JavacTask task = JavacTool.create().getTask(null, 
                     null,
-                    errorsListener, Utilities.commandLineParameters(source), null, Arrays.asList(file));
+                    errorsListener, Utilities.augmentCommandLineParameters(input), null, Arrays.asList(file));
 
             JavaCompilerOverride.preRegister(((JavacTaskImpl) task).getContext(), decompiled);
             task.generate();
@@ -93,16 +87,6 @@ public class DesugarDecompilerImpl implements Decompiler {
         }
         
         return new Result(errors.toString(), decompiled.toString(), "text/x-java");
-    }
-    
-    @Override
-    public String id() {
-        return DesugarDecompilerImpl.class.getName();
-    }
-
-    @Override
-    public String displayName() {
-        return "Desugared source";
     }
     
     static class JavaCompilerOverride extends JavaCompiler {

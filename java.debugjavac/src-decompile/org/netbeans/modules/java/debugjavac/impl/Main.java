@@ -41,60 +41,36 @@
  */
 package org.netbeans.modules.java.debugjavac.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
-import javax.tools.SimpleJavaFileObject;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.ClassPath.PathConversionMode;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.queries.SourceLevelQuery;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import org.netbeans.modules.java.debugjavac.Decompiler.Input;
-import org.openide.filesystems.FileObject;
+import org.netbeans.modules.java.debugjavac.Decompiler.Result;
+import org.netbeans.modules.java.debugjavac.DecompilerDescription;
 
 /**
  *
  * @author lahvac
  */
-public class Utilities {
-    public static List<String> augmentCommandLineParameters(Input input) throws IOException {
-        try {
-            Class.forName("com.sun.tools.javac.comp.Repair");
-            List<String> augmentedParams = new ArrayList<>(input.params);
-            augmentedParams.add("-XDshouldStopPolicy=GENERATE");
-            return augmentedParams;
-        } catch (ClassNotFoundException ex) {
-            //OK
-            return input.params;
+public class Main {
+    public static void main(String... args) {
+        Input input;
+        
+        try (XMLDecoder decoder = new XMLDecoder(System.in)) {
+            input = (Input) decoder.readObject();
         }
-    }
-    
-    public static JavaFileObject sourceFileObject(final String code) {
-        return new SimpleJavaFileObject(URI.create("mem://mem"), Kind.SOURCE) {
-            @Override
-            public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-                return code;
-            }
-            @Override public boolean isNameCompatible(String simpleName, Kind kind) {
-                return true;
-            }
-        };
-    }
-    
-    public static DiagnosticListener<JavaFileObject> errorReportingDiagnosticListener(final StringWriter out) {
-        return new DiagnosticListener<JavaFileObject>() {
-            public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-                if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                    out.write(diagnostic.getMessage(null));
-                    out.write("\n");
+
+        String id = args[0];
+
+        for (DecompilerDescription desc : DecompilerDescription.getDecompilers()) {
+            if (id.equals(desc.id)) {
+                Result result = desc.createDecompiler(Main.class.getClassLoader()).decompile(input);
+                try (XMLEncoder enc = new XMLEncoder(System.out)) {
+                    enc.writeObject(result);
                 }
+                return ;
             }
-        };
+        }
+
+        throw new IllegalStateException("Cannot find: " + id);
     }
 }

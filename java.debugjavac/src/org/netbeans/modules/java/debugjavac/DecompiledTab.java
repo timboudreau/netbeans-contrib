@@ -41,6 +41,8 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Map;
@@ -49,10 +51,15 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -65,8 +72,14 @@ import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.editor.GuardedDocument;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorKit;
+import org.netbeans.modules.editor.NbEditorUtilities;
+import org.netbeans.modules.java.debugjavac.Decompiler.Input;
 import org.netbeans.modules.java.debugjavac.Decompiler.Result;
+import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.spi.TaskIndexingMode;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProviderFactory;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.SaveCookie;
@@ -79,6 +92,7 @@ import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.TopComponent;
 
@@ -89,7 +103,8 @@ import org.openide.windows.TopComponent;
 public class DecompiledTab {
 
     private static final String ATTR_DECOMPILED = "decompiled-temporary";
-    private static final Map<FileObject, FileObject> source2Decompiled = new WeakHashMap<FileObject, FileObject>();
+    private static final Map<FileObject, FileObject> source2Decompiled = new WeakHashMap<>();
+    private static final RequestProcessor DECOMPILE_RUNNER = new RequestProcessor(DecompiledTab.class.getName(), 1, false, false);
 
     public static synchronized FileObject findDecompiled(FileObject source) {
         return findDecompiled(source, true);
@@ -114,8 +129,15 @@ public class DecompiledTab {
     }
     
     private static @CheckForNull Document decompiledCodeDocument(FileObject file) {
+        return decompiledCodeDocument(file, true);
+    }
+
+    private static @CheckForNull Document decompiledCodeDocument(FileObject file, boolean create) {
         try {
-            FileObject decompiled = findDecompiled(file);
+            FileObject decompiled = findDecompiled(file, create);
+
+            if (decompiled == null) return null;
+            
             DataObject decompiledDO = DataObject.find(decompiled);
             EditorCookie ec = decompiledDO.getLookup().lookup(EditorCookie.class);
             return ec.openDocument();
@@ -125,12 +147,21 @@ public class DecompiledTab {
         }
     }
     
-    private static Decompiler findDecompiler(CompilerDescription compilerDescription, String id) throws MalformedURLException {
-        for (Decompiler decompiler : compilerDescription.listDecompilers()) {
-            if (id.equals(decompiler.id())) return decompiler;
+    private static DecompilerDescription findDecompiler(String id) throws MalformedURLException {
+        for (DecompilerDescription decompiler : DecompilerDescription.getDecompilers()) {
+            if (id.equals(decompiler.id)) return decompiler;
         }
 
         return null;
+    }
+
+    private static void decompileIntoDocumentLater(final FileObject source) {
+        DECOMPILE_RUNNER.post(new Runnable() {
+            @Override public void run() {
+                doDecompileIntoDocument(source);
+            }
+        });
+        
     }
 
     private static void doDecompileIntoDocument(FileObject source) {
@@ -141,7 +172,7 @@ public class DecompiledTab {
         
         try {
             Object compilerDescription = decompiled.getAttribute(CompilerDescription.class.getName());
-            Object decompilerId = decompiled.getAttribute(Decompiler.class.getName());
+            Object decompilerId = decompiled.getAttribute(DecompilerDescription.class.getName());
             
             if (!(compilerDescription instanceof CompilerDescription) || !(decompilerId instanceof String)) {
                 return ;
@@ -150,8 +181,10 @@ public class DecompiledTab {
             final String decompiledCode;
             
             if (((CompilerDescription) compilerDescription).isValid()) {
-                Decompiler decompiler = findDecompiler((CompilerDescription) compilerDescription, (String) decompilerId);
-                Result decompileResult = decompiler.decompile(source);
+                final String code = Source.create(source).createSnapshot().getText().toString();
+                UpToDateStatusProviderImpl.get(doc).update(UpToDateStatus.UP_TO_DATE_PROCESSING);
+                DecompilerDescription decompiler = findDecompiler((String) decompilerId);
+                Result decompileResult = ((CompilerDescription) compilerDescription).decompile(decompiler, new Input(code, Utilities.commandLineParameters(source)));
                 decompiledCode = (decompileResult.decompiledOutput != null ? "#Section(" + decompileResult.decompiledMimeType + ") Output:\n" + decompileResult.decompiledOutput + "\n" : "") +
                                  (decompileResult.compileErrors != null ? "#Section(text/plaing) Processing Errors:\n" + decompileResult.compileErrors + "\n" : "");
             } else {
@@ -178,6 +211,8 @@ public class DecompiledTab {
             SaveCookie sc = DataObject.find(findDecompiled(source)).getLookup().lookup(SaveCookie.class);
             
             if (sc != null) sc.save();
+
+            UpToDateStatusProviderImpl.get(doc).update(UpToDateStatus.UP_TO_DATE_OK);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -201,7 +236,7 @@ public class DecompiledTab {
             private JComponent scrollPane;
             private final FileChangeListener fileListener = new FileChangeAdapter() {
                 @Override public void fileAttributeChanged(FileAttributeEvent fe) {
-                    doDecompileIntoDocument(d.getPrimaryFile());
+                    decompileIntoDocumentLater(d.getPrimaryFile());
                 }
             };
             @Override
@@ -252,25 +287,25 @@ public class DecompiledTab {
 
             @Override
             public void componentShowing() {
+                Document doc = decompiledCodeDocument(d.getPrimaryFile());
+                if (doc != null) doc.putProperty(DECOMPILE_TAB_ACTIVE, true);
+                decompiled.addFileChangeListener(fileListener);
+                decompileIntoDocumentLater(d.getPrimaryFile());
             }
 
             @Override
             public void componentHidden() {
+                Document doc = decompiledCodeDocument(d.getPrimaryFile());
+                if (doc != null) doc.putProperty(DECOMPILE_TAB_ACTIVE, null);
+                decompiled.removeFileChangeListener(fileListener);
             }
 
             @Override
             public void componentActivated() {
-                Document doc = decompiledCodeDocument(d.getPrimaryFile());
-                if (doc != null) doc.putProperty(DECOMPILE_TAB_ACTIVE, true);
-                decompiled.addFileChangeListener(fileListener);
-                doDecompileIntoDocument(d.getPrimaryFile());//TODO: outside of AWT
             }
 
             @Override
             public void componentDeactivated() {
-                Document doc = decompiledCodeDocument(d.getPrimaryFile());
-                if (doc != null) doc.putProperty(DECOMPILE_TAB_ACTIVE, null);
-                decompiled.removeFileChangeListener(fileListener);
             }
 
             @Override
@@ -288,6 +323,59 @@ public class DecompiledTab {
             }
             
         };
+    }
+
+    static {
+        EditorRegistry.addPropertyChangeListener(new DocL());
+    }
+
+    private static final class DocL implements PropertyChangeListener, DocumentListener {
+
+        private Document lastFocused;
+
+        @Override public void propertyChange(PropertyChangeEvent evt) {
+            JTextComponent fc = EditorRegistry.focusedComponent();
+            Document doc = fc != null ? fc.getDocument() : null;
+
+            if (doc == lastFocused) return ;
+
+            if (lastFocused != null) {
+                lastFocused.removeDocumentListener(this);
+            }
+
+            if (doc != null) {
+                doc.addDocumentListener(this);
+            }
+
+            lastFocused = doc;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            update(e);
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            update(e);
+        }
+
+        private void update(DocumentEvent e) {
+            FileObject file = NbEditorUtilities.getFileObject(e.getDocument());
+
+            if (file == null) return ;
+
+            Document doc = decompiledCodeDocument(file, false);
+
+            if (doc == null) return ;
+
+            UpToDateStatusProviderImpl.get(doc).update(UpToDateStatus.UP_TO_DATE_DIRTY);
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+        }
+
     }
 
     private static final class Updater implements CancellableTask<CompilationInfo> {
@@ -331,5 +419,59 @@ public class DecompiledTab {
             return new Updater();
         }
 
+    }
+
+   @MimeRegistration(mimeType="text/x-java-decompiled", service=UpToDateStatusProviderFactory.class)
+     public static final class UpToDateStatusProviderFactoryImpl implements UpToDateStatusProviderFactory {
+        @Override public UpToDateStatusProvider createUpToDateStatusProvider(Document document) {
+            return UpToDateStatusProviderImpl.get(document);
+        }
+    }
+
+    private static final class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
+
+        public static UpToDateStatusProviderImpl get(Document doc) {
+            UpToDateStatusProviderImpl result = (UpToDateStatusProviderImpl) doc.getProperty(UpToDateStatusProviderImpl.class);
+
+            if (result == null) {
+                result = new UpToDateStatusProviderImpl(doc);
+            }
+
+            return result;
+        }
+
+        private final Document doc;
+
+        private UpToDateStatusProviderImpl(Document doc) {
+            this.doc = doc;
+        }
+
+        @Override
+        public UpToDateStatus getUpToDate() {
+            UpToDateStatus status = (UpToDateStatus) doc.getProperty(UpToDateStatusProviderImpl.class.getName() + "-status-value");
+
+            if (status == null) status = UpToDateStatus.UP_TO_DATE_DIRTY;
+
+            return status;
+        }
+
+        private void update(UpToDateStatus newValue) {
+            UpToDateStatus oldValue = getUpToDate();
+
+            doc.putProperty(UpToDateStatusProviderImpl.class.getName() + "-status-value", newValue);
+            firePropertyChange(PROP_UP_TO_DATE, oldValue, newValue);
+
+            //TODO: the event above does not always repaint the error stripe, workarounding:
+            NbDocument.runAtomic((StyledDocument) doc, new Runnable() {
+                @Override public void run() {
+                    try {
+                        doc.insertString(0, " ", null);
+                        doc.remove(0, 1);
+                    } catch (BadLocationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            });
+        }
     }
 }

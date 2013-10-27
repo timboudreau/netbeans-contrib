@@ -41,6 +41,14 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -52,10 +60,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.modules.java.debugjavac.Decompiler.Input;
+import org.netbeans.modules.java.debugjavac.Decompiler.Result;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
-import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -64,16 +74,23 @@ import org.openide.util.lookup.Lookups;
 public interface CompilerDescription {
     public String getName();
     public boolean isValid();
-    public Collection<? extends Decompiler> listDecompilers();
+    public Result decompile(DecompilerDescription decompiler, Input input);
 
     public static class Factory {
-        public static Collection<? extends CompilerDescription> descriptions() {
+        private static Collection<? extends CompilerDescription> descriptions;
+        public static synchronized Collection<? extends CompilerDescription> descriptions() {
+            if (descriptions != null) return descriptions;
+
+            File moduleJar = InstalledFileLocator.getDefault().locate("modules/org-netbeans-modules-java-debugjavac.jar", null, false);
+            File decompileJar = InstalledFileLocator.getDefault().locate("modules/ext/decompile.jar", null, false);
+
             List<CompilerDescription> result = new ArrayList<>();
 
             try {
                 result.add(new LoaderBased("nb-javac", new URL[] {
                     InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-api.jar", null, false).toURI().toURL(),
-                    InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-impl.jar", null, false).toURI().toURL()
+                    InstalledFileLocator.getDefault().locate("modules/ext/nb-javac-impl.jar", null, false).toURI().toURL(),
+                    decompileJar.toURI().toURL()
                 }));
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
@@ -84,15 +101,25 @@ public interface CompilerDescription {
 
                 for (FileObject installDir : platform.getInstallFolders()) {
                     FileObject toolsJar = installDir.getFileObject("lib/tools.jar");
-                    FileObject rtJar = installDir.getFileObject("jre/lib/rt.jar");
 
-                    if (toolsJar != null && rtJar != null) {
-                        result.add(new LoaderBased(platform.getDisplayName(), new URL[] {toolsJar.toURL(), rtJar.toURL()}));
+                    if (toolsJar != null) {
+                        result.add(new ExecCompilerDescription(platform, moduleJar, decompileJar, FileUtil.toFile(toolsJar)));
                     }
                 }
             }
 
-            return result;
+            return descriptions = Collections.unmodifiableList(result);
+        }
+
+        static {
+            JavaPlatformManager.getDefault().addPropertyChangeListener(new PropertyChangeListener() {
+                @Override public void propertyChange(PropertyChangeEvent evt) {
+                    synchronized (CompilerDescription.class) {
+                        descriptions = null;
+                        //TODO: should refresh the existing combos
+                    }
+                }
+            });
         }
         
         private static class LoaderBased implements CompilerDescription {
@@ -153,15 +180,70 @@ public interface CompilerDescription {
                 return classLoader;
             }
 
-            public Collection<? extends Decompiler> listDecompilers() {
+            @Override
+            public Result decompile(DecompilerDescription decompiler, Input input) {
                 ClassLoader loader = getClassLoader();
 
-                if (loader == null) return Collections.emptyList();
+                if (loader == null) return new Result("Internal error - cannot find ClassLoader.", null, null);
 
-                return Lookups.metaInfServices(loader).lookupAll(Decompiler.class);
+                return decompiler.createDecompiler(loader).decompile(input);
             }
 
         }
+
+        private static final class ExecCompilerDescription implements CompilerDescription {
+
+            private final JavaPlatform platform;
+            private final File moduleJar;
+            private final File decompilerJar;
+            private final File toolsJar;
+
+            public ExecCompilerDescription(JavaPlatform platform, File moduleJar, File decompilerJar, File toolsJar) {
+                this.platform = platform;
+                this.moduleJar = moduleJar;
+                this.decompilerJar = decompilerJar;
+                this.toolsJar = toolsJar;
+            }
+
+            @Override
+            public String getName() {
+                return platform.getDisplayName();
+            }
+
+            @Override
+            public boolean isValid() {
+                return true; //TODO
+            }
+
+            @Override
+            public Result decompile(DecompilerDescription decompiler, Input input) {
+                try {
+                    Process process = Runtime.getRuntime().exec(new String[] {
+                        FileUtil.toFile(platform.findTool("java")).getAbsolutePath(),
+                        "-Xbootclasspath/p:" + toolsJar.getAbsolutePath(),
+                        "-classpath",
+                        moduleJar.getAbsolutePath() + ":" + decompilerJar.getAbsolutePath(),
+                        "org.netbeans.modules.java.debugjavac.impl.Main",
+                        decompiler.id
+                    });
+                    try (XMLEncoder enc = new XMLEncoder(process.getOutputStream())) {
+                        enc.writeObject(input);
+                    }
+                    try (XMLDecoder decl = new XMLDecoder(process.getInputStream())) {
+                        return (Result) decl.readObject();
+                    }
+                } catch (IOException ex) {
+                    StringWriter exception = new StringWriter();
+                    try (PrintWriter exceptionPW = new PrintWriter(exception)) {
+                        ex.printStackTrace(exceptionPW);
+                    }
+                    return new Result(exception.toString(), null, null);
+                }
+                
+            }
+
+        }
+
     }
 
 }

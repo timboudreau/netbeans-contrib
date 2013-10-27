@@ -41,25 +41,98 @@
  */
 package org.netbeans.modules.java.debugjavac;
 
-import org.openide.filesystems.FileObject;
+import java.util.List;
 
 /**
  *
  * @author lahvac
  */
 public interface Decompiler {
-    public String id();
-    public String displayName();
-    public Result decompile(FileObject source);
-    
+    public Result decompile(Input input);
+
+    public final class Input {
+        public String source;
+        public List<String> params;
+
+        public Input() {
+        }
+
+        public Input(String source, List<String> params) {
+            this.source = source;
+            this.params = params;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(String source) {
+            this.source = source;
+        }
+
+        public List<String> getParams() {
+            return params;
+        }
+
+        public void setParams(List<String> params) {
+            this.params = params;
+        }
+
+    }
+//    public final class Input {
+//        public final String source;
+//        public final List<String> params;
+//        public Input(String source, List<String> params) {
+//            this.source = source;
+//            this.params = params;
+//        }
+//    }
     public final class Result {
-        public final String compileErrors;
-        public final String decompiledOutput;
-        public final String decompiledMimeType;
+        public String compileErrors;
+        public String decompiledOutput;
+        public String decompiledMimeType;
+
+        public Result() {
+        }
+
         public Result(String compileErrors, String decompiledOutput, String decompiledMimeType) {
             this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
             this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
             this.decompiledMimeType = decompiledMimeType;
         }
+
+        public String getCompileErrors() {
+            return compileErrors;
+        }
+
+        public void setCompileErrors(String compileErrors) {
+            this.compileErrors = compileErrors;
+        }
+
+        public String getDecompiledOutput() {
+            return decompiledOutput;
+        }
+
+        public void setDecompiledOutput(String decompiledOutput) {
+            this.decompiledOutput = decompiledOutput;
+        }
+
+        public String getDecompiledMimeType() {
+            return decompiledMimeType;
+        }
+
+        public void setDecompiledMimeType(String decompiledMimeType) {
+            this.decompiledMimeType = decompiledMimeType;
+        }
     }
+//    public final class Result {
+//        public final String compileErrors;
+//        public final String decompiledOutput;
+//        public final String decompiledMimeType;
+//        public Result(String compileErrors, String decompiledOutput, String decompiledMimeType) {
+//            this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
+//            this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
+//            this.decompiledMimeType = decompiledMimeType;
+//        }
+//    }
 }

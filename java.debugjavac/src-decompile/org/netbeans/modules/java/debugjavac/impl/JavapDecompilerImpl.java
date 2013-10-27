@@ -70,25 +70,20 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import org.netbeans.modules.java.debugjavac.Decompiler;
-import org.netbeans.modules.parsing.api.Source;
-import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author lahvac
  */
-@ServiceProvider(service=Decompiler.class)
-public class DecompilerImpl implements Decompiler {
+public class JavapDecompilerImpl implements Decompiler {
 
     @Override
-    public Result decompile(FileObject source) {
-        String code = Source.create(source).createSnapshot().getText().toString();
+    public Result decompile(Input input) {
         StringWriter errors = new StringWriter();
         StringWriter decompiled = new StringWriter();
         try {
-            final Map<String, byte[]> bytecode = compile(source, errors, code);
+            final Map<String, byte[]> bytecode = compile(input, errors);
 
             if (!bytecode.isEmpty()) {
                 for (final Entry<String, byte[]> e : bytecode.entrySet()) {
@@ -122,7 +117,7 @@ public class DecompilerImpl implements Decompiler {
         return new Result(errors.toString(), decompiled.toString(), "text/x-java-bytecode");
     }
     
-    private static Map<String, byte[]> compile(FileObject source, final StringWriter errors, final String code) throws IOException {
+    private static Map<String, byte[]> compile(Input input, final StringWriter errors) throws IOException {
         DiagnosticListener<JavaFileObject> errorsListener = Utilities.errorReportingDiagnosticListener(errors);
         StandardJavaFileManager sjfm = JavacTool.create().getStandardFileManager(errorsListener, null, null);
         final Map<String, ByteArrayOutputStream> class2BAOS = new HashMap<String, ByteArrayOutputStream>();
@@ -142,8 +137,8 @@ public class DecompilerImpl implements Decompiler {
             }
         };
 
-        JavaFileObject file = Utilities.sourceFileObject(code);
-        JavacTool.create().getTask(null, jfm, errorsListener, /*XXX:*/Utilities.commandLineParameters(source), null, Arrays.asList(file)).call();
+        JavaFileObject file = Utilities.sourceFileObject(input.source);
+        JavacTool.create().getTask(null, jfm, errorsListener, /*XXX:*/Utilities.augmentCommandLineParameters(input), null, Arrays.asList(file)).call();
 
         Map<String, byte[]> result = new HashMap<String, byte[]>();
 
@@ -152,16 +147,6 @@ public class DecompilerImpl implements Decompiler {
         }
 
         return result;
-    }
-    
-    @Override
-    public String id() {
-        return DecompilerImpl.class.getName();
-    }
-
-    @Override
-    public String displayName() {
-        return "javap";
     }
     
 }

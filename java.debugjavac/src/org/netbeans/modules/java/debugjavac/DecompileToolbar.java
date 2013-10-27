@@ -91,13 +91,13 @@ public class DecompileToolbar extends javax.swing.JPanel {
             }
         });
         
-        DefaultComboBoxModel<Decompiler> decompilerModel = new DefaultComboBoxModel<>();
-        List<Decompiler> decompilers = new ArrayList<>();
+        DefaultComboBoxModel<DecompilerDescription> decompilerModel = new DefaultComboBoxModel<>();
+        List<DecompilerDescription> decompilers = new ArrayList<>();
         
         if (compilerDescriptions.size() > 0) {
             compiler.setSelectedIndex(0);
             
-            for (Decompiler decompiler : compilerDescriptions.iterator().next().listDecompilers()) {
+            for (DecompilerDescription decompiler : DecompilerDescription.getDecompilers()) {
                 decompilerModel.addElement(decompiler);
                 decompilers.add(decompiler);
             }
@@ -106,14 +106,14 @@ public class DecompileToolbar extends javax.swing.JPanel {
         decompiler.setModel(decompilerModel);
         decompiler.setRenderer(new DefaultListCellRenderer() {
             @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                if (value instanceof Decompiler) value = ((Decompiler) value).displayName();
+                if (value instanceof DecompilerDescription) value = ((DecompilerDescription) value).displayName;
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
         });
         decompiler.addActionListener(new ActionListener() {
             @Override public void actionPerformed(ActionEvent e) {
                 try {
-                    source.setAttribute(Decompiler.class.getName(), ((Decompiler) decompiler.getSelectedItem()).id());
+                    source.setAttribute(DecompilerDescription.class.getName(), ((DecompilerDescription) decompiler.getSelectedItem()).id);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }

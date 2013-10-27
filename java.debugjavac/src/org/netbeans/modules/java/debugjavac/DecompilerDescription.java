@@ -39,62 +39,41 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.java.debugjavac.impl;
+package org.netbeans.modules.java.debugjavac;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
-import javax.tools.SimpleJavaFileObject;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.ClassPath.PathConversionMode;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.queries.SourceLevelQuery;
-import org.netbeans.modules.java.debugjavac.Decompiler.Input;
-import org.openide.filesystems.FileObject;
+import java.util.Arrays;
 
 /**
  *
  * @author lahvac
  */
-public class Utilities {
-    public static List<String> augmentCommandLineParameters(Input input) throws IOException {
+public final class DecompilerDescription {
+    public final String id;
+    public final String displayName;
+    public final String className;
+
+    private DecompilerDescription(String id, String displayName, String className) {
+        this.id = id;
+        this.displayName = displayName;
+        this.className = className;
+    }
+
+    public Decompiler createDecompiler(ClassLoader from) {
         try {
-            Class.forName("com.sun.tools.javac.comp.Repair");
-            List<String> augmentedParams = new ArrayList<>(input.params);
-            augmentedParams.add("-XDshouldStopPolicy=GENERATE");
-            return augmentedParams;
-        } catch (ClassNotFoundException ex) {
-            //OK
-            return input.params;
+            Class<?> loadClass = from.loadClass(className);
+
+            return Decompiler.class.cast(loadClass.newInstance());
+        } catch (ReflectiveOperationException ex) {
+            throw new IllegalStateException(ex);
         }
     }
-    
-    public static JavaFileObject sourceFileObject(final String code) {
-        return new SimpleJavaFileObject(URI.create("mem://mem"), Kind.SOURCE) {
-            @Override
-            public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-                return code;
-            }
-            @Override public boolean isNameCompatible(String simpleName, Kind kind) {
-                return true;
-            }
-        };
-    }
-    
-    public static DiagnosticListener<JavaFileObject> errorReportingDiagnosticListener(final StringWriter out) {
-        return new DiagnosticListener<JavaFileObject>() {
-            public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-                if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                    out.write(diagnostic.getMessage(null));
-                    out.write("\n");
-                }
-            }
-        };
+
+    private static final Iterable<? extends DecompilerDescription> DECOMPILERS = Arrays.asList(
+        new DecompilerDescription("javap", "javap", "org.netbeans.modules.java.debugjavac.impl.JavapDecompilerImpl"),
+        new DecompilerDescription("lower", "Desugared source", "org.netbeans.modules.java.debugjavac.impl.DesugarDecompilerImpl")
+    );
+
+    public static Iterable<? extends DecompilerDescription> getDecompilers() {
+        return DECOMPILERS;
     }
 }
