@@ -46,7 +46,14 @@ import java.io.File;
 import java.io.IOException;
 import org.glassfish.grizzly.PortRange;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
+import org.glassfish.grizzly.websockets.WebSocket;
+import org.glassfish.grizzly.websockets.WebSocketAddOn;
+import org.glassfish.grizzly.websockets.WebSocketApplication;
+import org.glassfish.grizzly.websockets.WebSocketEngine;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -81,6 +88,11 @@ public final class JavacServer {
             web4dew = index.getParent();
         }
         HttpServer h = HttpServer.createSimpleServer(web4dew, new PortRange(9000, 65535));
+        final WebSocketAddOn addon = new WebSocketAddOn();
+        for (NetworkListener listener : h.getListeners()) {
+            listener.registerAddOn(addon);
+        }
+        WebSocketEngine.getEngine().register("", "/javac", new JavacApplication());
         try {
             h.start();
             return h;
@@ -88,4 +100,19 @@ public final class JavacServer {
             throw new IllegalStateException(ex);
         }
     }
+    
+    private static class JavacApplication extends WebSocketApplication {
+
+        @Override
+        public void onMessage(WebSocket socket, String text) {
+            try {
+                String s = "{ \"status\" : \"Got a query!\"";
+                socket.send(s);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+    }
 }
+    

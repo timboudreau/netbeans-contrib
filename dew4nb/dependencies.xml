@@ -12,5 +12,20 @@
       <artifactId>grizzly-http-server</artifactId>
       <version>2.3.3</version>
     </dependency>
+    <dependency>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-websockets-server</artifactId>
+        <version>2.3.3</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-http-servlet</artifactId>
+        <version>2.3.3</version>
+    </dependency>    
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+    </dependency>
   </dependencies>
 </project>

@@ -293,9 +293,20 @@ function DevCtrl( $scope, $timeout, $http ) {
         return $scope.completions === null || $scope.completions.list === null || $scope.completions.list.length < 10;
     };
             
-    $scope.javac = {
-        "postMessage" : function() { alert('Post msg not implemented yet'); }
-    };
+    (function() {
+        var ws = new WebSocket("ws://" + window.location.host + "/javac");
+        var javac = $scope.javac = {
+            "postMessage" : function(msg) { console.log('Ignoring ' + msg); }
+        };
+        ws.onopen = function(ev) { 
+            alert('open ' + ev); 
+            javac.postMessage = function(msg) { ws.send(msg); };
+            javac.onmessage({ "data" : { "status" : "Connected!" } }); 
+        };
+        ws.onmessage = function(ev) { alert('msg: ' + ev); javac.onmessage(ev.data); };
+        ws.onerror = function(ev) { alert('Error: ' + ev); };
+        ws.onclose = function(ev) { alert('Close: ' + ev); };
+    })(this);
 
     var JAVA_WORD = /[\w$]+/;
     $scope.javaHint = function (editor, fn, options) {
