@@ -294,18 +294,29 @@ function DevCtrl( $scope, $timeout, $http ) {
     };
             
     (function() {
-        var ws = new WebSocket("ws://" + window.location.host + "/javac");
+        var url = "ws://" + window.location.host + "/javac";
+        var ws = new WebSocket(url);
         var javac = $scope.javac = {
-            "postMessage" : function(msg) { console.log('Ignoring ' + msg); }
+            "postMessage" : function(msg) { 
+                console.log('Ignoring ' + JSON.stringify(msg)); 
+            }
         };
         ws.onopen = function(ev) { 
-            alert('open ' + ev); 
-            javac.postMessage = function(msg) { ws.send(msg); };
+            console.log(url + ' opened'); 
+            javac.postMessage = function(msg) { 
+                ws.send(JSON.stringify(msg)); 
+            };
             javac.onmessage({ "data" : { "status" : "Connected!" } }); 
         };
-        ws.onmessage = function(ev) { alert('msg: ' + ev); javac.onmessage(ev.data); };
-        ws.onerror = function(ev) { alert('Error: ' + ev); };
-        ws.onclose = function(ev) { alert('Close: ' + ev); };
+        ws.onmessage = function(ev) { 
+            javac.onmessage(ev); 
+        };
+        ws.onerror = function(ev) { 
+            alert('Error: ' + ev); 
+        };
+        ws.onclose = function(ev) { 
+            console.log(url + ' closed: ' + ev); 
+        };
     })(this);
 
     var JAVA_WORD = /[\w$]+/;

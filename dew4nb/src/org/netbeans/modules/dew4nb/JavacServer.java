@@ -106,7 +106,7 @@ public final class JavacServer {
         @Override
         public void onMessage(WebSocket socket, String text) {
             try {
-                String s = "{ \"status\" : \"Got a query!\"";
+                String s = "{ \"status\" : \"Got a query!\" }";
                 socket.send(s);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
