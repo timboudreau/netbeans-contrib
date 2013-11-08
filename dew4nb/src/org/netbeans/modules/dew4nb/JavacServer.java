@@ -44,8 +44,6 @@ package org.netbeans.modules.dew4nb;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.glassfish.grizzly.PortRange;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.openide.modules.InstalledFileLocator;
@@ -77,8 +75,12 @@ public final class JavacServer {
     //
     
     private static HttpServer create() {
-        File index = InstalledFileLocator.getDefault().locate("web4dew/index.html", "org.netbeans.modules.dew4nb", true);
-        HttpServer h = HttpServer.createSimpleServer(index.getParent(), new PortRange(9000, 65535));
+        String web4dew = System.getProperty("web4dew");
+        if (web4dew == null) {
+            File index = InstalledFileLocator.getDefault().locate("web4dew/index.html", "org.netbeans.modules.dew4nb", true);
+            web4dew = index.getParent();
+        }
+        HttpServer h = HttpServer.createSimpleServer(web4dew, new PortRange(9000, 65535));
         try {
             h.start();
             return h;
