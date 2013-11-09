@@ -308,8 +308,11 @@ function DevCtrl( $scope, $timeout, $http ) {
             };
             javac.onmessage({ "data" : { "status" : "Connected!" } }); 
         };
-        ws.onmessage = function(ev) { 
-            javac.onmessage(ev); 
+        ws.onmessage = function(ev) {
+            var mev = {
+                "data" : JSON.parse(ev.data)
+            }
+            javac.onmessage(mev); 
         };
         ws.onerror = function(ev) { 
             alert('Error: ' + ev); 
