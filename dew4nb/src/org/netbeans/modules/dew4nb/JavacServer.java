@@ -47,6 +47,7 @@ import java.io.IOException;
 import org.glassfish.grizzly.PortRange;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.websockets.WebSocket;
 import org.glassfish.grizzly.websockets.WebSocketAddOn;
 import org.glassfish.grizzly.websockets.WebSocketApplication;
@@ -82,11 +83,15 @@ final class JavacServer {
     
     private static HttpServer create() {
         String web4dew = System.getProperty("web4dew");
+        HttpServer h = HttpServer.createSimpleServer(null, new PortRange(9000, 65535));
         if (web4dew == null) {
             File index = InstalledFileLocator.getDefault().locate("web4dew/index.html", "org.netbeans.modules.dew4nb", true);
-            web4dew = index.getParent();
+            h.getServerConfiguration().addHttpHandler(new StaticHttpHandler(index.getParent()), "/");
+        } else {
+            StaticHttpHandler sh = new StaticHttpHandler(web4dew);
+            sh.setFileCacheEnabled(false);
+            h.getServerConfiguration().addHttpHandler(sh, "/");
         }
-        HttpServer h = HttpServer.createSimpleServer(web4dew, new PortRange(9000, 65535));
         final WebSocketAddOn addon = new WebSocketAddOn();
         for (NetworkListener listener : h.getListeners()) {
             listener.registerAddOn(addon);
