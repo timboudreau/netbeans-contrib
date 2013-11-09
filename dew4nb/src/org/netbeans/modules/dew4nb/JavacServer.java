@@ -47,7 +47,6 @@ import java.io.IOException;
 import org.glassfish.grizzly.PortRange;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.websockets.WebSocket;
 import org.glassfish.grizzly.websockets.WebSocketAddOn;
 import org.glassfish.grizzly.websockets.WebSocketApplication;
@@ -55,11 +54,11 @@ import org.glassfish.grizzly.websockets.WebSocketEngine;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 
-/**
+/** HTTP and WebSocket server for answering Javac like queries.
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
-public final class JavacServer {
+final class JavacServer {
     private static JavacServer INSTANCE;
     private final HttpServer server;
     private JavacServer(HttpServer s) {
@@ -102,14 +101,20 @@ public final class JavacServer {
     }
     
     private static class JavacApplication extends WebSocketApplication {
+        private final JavacEndpoint endpoint;
+
+        JavacApplication() {
+            this.endpoint = JavacEndpoint.newCompiler();
+        }
 
         @Override
         public void onMessage(WebSocket socket, String text) {
             try {
-                String s = "{ \"status\" : \"Got a query!\" }";
-                socket.send(s);
+                JavacResult res = endpoint.doCompile(text);
+                socket.send(res.toString());
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
+                socket.send("{ \"status\" : \"" + ex.getMessage() + "\"");
             }
         }
 
