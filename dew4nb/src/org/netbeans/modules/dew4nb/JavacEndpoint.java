@@ -59,16 +59,16 @@ import org.openide.util.Lookup;
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
-final class JavacEndpoint {
+public final class JavacEndpoint {
     private JavacEndpoint() {
     }
     
-    static JavacEndpoint newCompiler() {
+    public static JavacEndpoint newCompiler() {
         return new JavacEndpoint();
     }
     
 
-    JavacResult doCompile(String query) throws IOException {
+    public JavacResult doCompile(String query) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(query.getBytes("UTF-8"));
         JavacQuery q = Models.parse(BrwsrCtx.findDefault(JavacQuery.class), JavacQuery.class, is);
         is.close();
