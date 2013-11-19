@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.remote.project.finder
+OpenIDE-Module-Install: org/netbeans/modules/remote/project/finder/Install.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/remote/project/finder/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
