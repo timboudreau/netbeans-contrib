@@ -40,11 +40,30 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.dew4nb.services;
 
-public enum JavacMessageType {
-    autocomplete,
-    types,
-    checkForErrors,
-    compile
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.dew4nb.JavacMessageType;
+import org.netbeans.modules.dew4nb.JavacQuery;
+import org.netbeans.modules.dew4nb.JavacTypeResult;
+import org.netbeans.modules.dew4nb.RequestHandler;
+import org.openide.util.lookup.ServiceProvider;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+@ServiceProvider(service = RequestHandler.class)
+public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
+    public TypeHandler() {
+        super(JavacMessageType.types, JavacQuery.class, JavacTypeResult.class);
+    }
+
+    @Override
+    protected boolean handle(
+        @NonNull final JavacQuery request,
+        @NonNull final JavacTypeResult response) {
+        
+        return true;
+    }
 }

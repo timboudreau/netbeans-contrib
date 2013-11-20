@@ -42,9 +42,12 @@
 
 package org.netbeans.modules.dew4nb;
 
-public enum JavacMessageType {
-    autocomplete,
-    types,
-    checkForErrors,
-    compile
+/**
+ *
+ * @author Tomas Zezula
+ */
+public enum Status {
+    success,
+    not_found,
+    runtime_error
 }

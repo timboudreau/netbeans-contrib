@@ -350,49 +350,51 @@ function DevCtrl( $scope, $timeout, $http ) {
         var editor = document.getElementById("editorJava").codeMirror;
         var obj = ev.data;
         $scope.status = obj.status;
-        if (obj.type === 'autocomplete') {
-            if (obj.completions) {
-                var list = obj.completions;
-                var from = editor.getCursor();
-                var to = editor.getCursor();
-                if ($scope.pendingJavaHintInfo) {
-                    var list;
-                    if ($scope.pendingJavaHintInfo.prefix) {
-                        var pref = $scope.pendingJavaHintInfo.prefix;
-                        list = [];
-                        for(var i = 0; i < obj.completions.length; ++i) {
-                            if (obj.completions[i].text.slice(0, pref.length) === pref)
-                                list[list.length] = obj.completions[i];
+        if (obj.status === "success") {
+            if (obj.type === 'autocomplete') {
+                if (obj.completions) {
+                    var list = obj.completions;
+                    var from = editor.getCursor();
+                    var to = editor.getCursor();
+                    if ($scope.pendingJavaHintInfo) {
+                        var list;
+                        if ($scope.pendingJavaHintInfo.prefix) {
+                            var pref = $scope.pendingJavaHintInfo.prefix;
+                            list = [];
+                            for(var i = 0; i < obj.completions.length; ++i) {
+                                if (obj.completions[i].text.slice(0, pref.length) === pref)
+                                    list[list.length] = obj.completions[i];
+                            }
                         }
+                        from = $scope.pendingJavaHintInfo.from;
+                        to = $scope.pendingJavaHintInfo.to;
+                        $scope.pendingJavaHintInfo.callback({list: list, from: from, to: to, more: null});
                     }
-                    from = $scope.pendingJavaHintInfo.from;
-                    to = $scope.pendingJavaHintInfo.to;
-                    $scope.pendingJavaHintInfo.callback({list: list, from: from, to: to, more: null});
-                } 
-                var showHint = list.length <= 10 ? null : function() {
-                    CodeMirror.showHint(editor, null, {async: true});
+                    var showHint = list.length <= 10 ? null : function() {
+                        CodeMirror.showHint(editor, null, {async: true});
+                    }
+                    $scope.completions = {list: list.slice(0, 10), from: from, to: to, more: showHint };
                 }
-                $scope.completions = {list: list.slice(0, 10), from: from, to: to, more: showHint };
-            }
-            $scope.pendingJavaHintInfo = null;
-        } else if (obj.type === "compile") {
-            $scope.errors = null;
-            editor.clearGutter("issues");
-            if (obj.classes !== null && obj.classes.length > 0) {
-                $scope.classes = obj.classes;
-                $scope.runWithClasses();
-            } else {
-                $scope.classes = null;
-                $scope.fail(obj.errors);
-            }
-        } else if (obj.type === "checkForErrors") {
-            if (obj.errors.length === 0) {
+                $scope.pendingJavaHintInfo = null;
+            } else if (obj.type === "compile") {
                 $scope.errors = null;
-                var editor = document.getElementById("editorJava").codeMirror;
                 editor.clearGutter("issues");
-            } else {
-                $scope.classes = null;
-                $scope.fail(obj.errors);
+                if (obj.classes !== null && obj.classes.length > 0) {
+                    $scope.classes = obj.classes;
+                    $scope.runWithClasses();
+                } else {
+                    $scope.classes = null;
+                    $scope.fail(obj.errors);
+                }
+            } else if (obj.type === "checkForErrors") {
+                if (obj.errors.length === 0) {
+                    $scope.errors = null;
+                    var editor = document.getElementById("editorJava").codeMirror;
+                    editor.clearGutter("issues");
+                } else {
+                    $scope.classes = null;
+                    $scope.fail(obj.errors);
+                }
             }
         }
         $scope.javac.running = false;
