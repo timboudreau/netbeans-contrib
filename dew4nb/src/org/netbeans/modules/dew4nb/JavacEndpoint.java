@@ -141,7 +141,9 @@ public final class JavacEndpoint {
     
     @Model(className = "CompletionItem", properties = {
         @Property(name = "text", type = String.class),
-        @Property(name = "displayText", type = String.class),
+        @Property(name = "displayName", type = String.class),
+        @Property(name = "extraText", type = String.class),
+        @Property(name = "rightText", type = String.class),
         @Property(name = "className", type = String.class),
     })
     static final class CompletionItemModel {

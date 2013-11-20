@@ -365,13 +365,31 @@ function DevCtrl( $scope, $timeout, $http ) {
                                 list[list.length] = obj.completions[i];
                         }
                     }
+                    var render = function(elt, data, cur) {
+                        var le = elt.appendChild(document.createElement("span"));
+                        le.className = "Java-hint-left";
+                        var name = le.appendChild(document.createElement("span"));
+                        name.className = "Java-hint-name";
+                        name.appendChild(document.createTextNode(cur.displayName || cur.text));
+                        if (cur.extraText) {
+                            le.appendChild(document.createTextNode(cur.extraText));
+                        }
+                        if (cur.rightText) {
+                            var re = elt.appendChild(document.createElement("span"));
+                            re.className="Java-hint-right";
+                            re.appendChild(document.createTextNode(cur.rightText));
+                        }
+                    };
+                    for(var i = 0; i < list.length; ++i) {
+                        list[i].render = render;
+                    }
                     from = $scope.pendingJavaHintInfo.from;
                     to = $scope.pendingJavaHintInfo.to;
                     $scope.pendingJavaHintInfo.callback({list: list, from: from, to: to, more: null});
                 } 
                 var showHint = list.length <= 10 ? null : function() {
                     CodeMirror.showHint(editor, null, {async: true});
-                }
+                };
                 $scope.completions = {list: list.slice(0, 10), from: from, to: to, more: showHint };
             }
             $scope.pendingJavaHintInfo = null;

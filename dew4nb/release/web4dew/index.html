@@ -107,7 +107,7 @@
                     <textarea id="editorJava" ui-codemirror='{ lineNumbers : true, mode : "text/x-java", theme : "elegant", matchBrackets : true, lineWrapping : true, gutters: ["CodeMirror-linenumbers", "issues"], extraKeys: {"Ctrl-Space": "autocomplete"} }' ng-model="java"></textarea>
                     <span ng-repeat="c in completions.list">
                         <button class="btn-info" ng-click="applyCompletion(c, completions)">
-                            <span ng-class="c.className">{{c.displayText}}</span>
+                            <span ng-class="c.className">{{c.displayName || c.text}}</span>
                         </button>
                     </span>
                     <span ng-hide="littleCompletions()">
