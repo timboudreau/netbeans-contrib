@@ -42,11 +42,25 @@
 
 package org.netbeans.modules.dew4nb.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.JavacQuery;
 import org.netbeans.modules.dew4nb.JavacTypeResult;
 import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.jumpto.common.Utils;
+import org.netbeans.modules.jumpto.type.TypeProviderAccessor;
+import org.netbeans.spi.jumpto.type.SearchType;
+import org.netbeans.spi.jumpto.type.TypeDescriptor;
+import org.netbeans.spi.jumpto.type.TypeProvider;
+import org.openide.util.Lookup;
+import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -63,7 +77,96 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
     protected boolean handle(
         @NonNull final JavacQuery request,
         @NonNull final JavacTypeResult response) {
-        
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("response", response);  //NOI18N
+        final JavacMessageType requestType = request.getType();
+        if (requestType != JavacMessageType.types) {
+            throw new IllegalStateException(String.valueOf(requestType));
+        }
+        final String text = request.getJava();
+        final Collection<? extends TypeProvider> typeProviders = getTypeProviders();
+        try {
+            final Collection<? extends TypeDescriptor> types = callTypeProviders(text, typeProviders);
+            for (TypeDescriptor td : types) {
+                response.getTypes().add(new org.netbeans.modules.dew4nb.TypeDescriptor(
+                    td.getSimpleName(),
+                    td.getContextName(),
+                    ""));   //NOI18N
+            }
+        } finally {
+            cleanTypeProviders(typeProviders);
+        }
         return true;
+    }
+
+    @NonNull
+    private static Collection<? extends TypeProvider> getTypeProviders() {
+        final List<TypeProvider> result = new ArrayList<>();
+        for (TypeProvider tp : Lookup.getDefault().lookupAll(TypeProvider.class)) {
+            result.add(tp);
+        }
+        return Collections.unmodifiableCollection(result);
+    }
+
+    @NonNull
+    private static Collection<? extends TypeDescriptor> callTypeProviders(
+            @NonNull final String text,
+            @NonNull final Collection<? extends TypeProvider> providers) {
+        Parameters.notNull("text", text);   //NOI18N
+        Parameters.notNull("providers", providers); //NOI18N
+        final Collection<TypeDescriptor> collector = new HashSet<>();
+        for (TypeProvider.Context ctx : createContext(text)) {
+            final TypeProvider.Result res = createResult(collector, ctx);
+            for (TypeProvider tp : providers) {
+                tp.computeTypeNames(ctx, res);
+            }
+        }
+        return Collections.unmodifiableCollection(collector);
+    }
+
+    private static void cleanTypeProviders(@NonNull Collection<? extends TypeProvider> providers) {
+        Parameters.notNull("providers", providers); //NOI18N
+        for (TypeProvider tp : providers) {
+            tp.cleanup();
+        }
+    }
+
+    @NonNull
+    private static Collection< ? extends TypeProvider.Context> createContext(@NonNull String text) {
+        Parameters.notNull("text", text);   //NOI18N
+        boolean exact = text.endsWith(" "); // NOI18N
+        text = text.trim();
+        if ( text.length() == 0) {
+            return Collections.<TypeProvider.Context>emptySet();
+        }
+        Collection<? extends TypeProvider.Context> contexts;
+        int wildcard = Utils.containsWildCard(text);
+        if (exact) {
+            contexts = Collections.singleton(
+                TypeProviderAccessor.DEFAULT.createContext(null, text, SearchType.CASE_INSENSITIVE_EXACT_NAME));
+        } else if ((Utils.isAllUpper(text) && text.length() > 1) || Utils.isCamelCase(text)) {
+            contexts = Arrays.asList(
+                new TypeProvider.Context[] {
+                    TypeProviderAccessor.DEFAULT.createContext(null, text, SearchType.CAMEL_CASE),
+                    TypeProviderAccessor.DEFAULT.createContext(null, text, SearchType.CASE_INSENSITIVE_PREFIX)});
+        } else if (wildcard != -1) {
+            text = Utils.removeNonNeededWildCards(text);
+            contexts = Collections.singleton(TypeProviderAccessor.DEFAULT.createContext(null, text, SearchType.CASE_INSENSITIVE_REGEXP));
+        } else {
+            contexts = Collections.singleton(TypeProviderAccessor.DEFAULT.createContext(null, text,SearchType.CASE_INSENSITIVE_PREFIX));
+        }
+        return contexts;
+    }
+
+    @NonNull
+    private static TypeProvider.Result createResult(
+            @NonNull final Collection<? super TypeDescriptor> collector,
+            @NonNull final TypeProvider.Context ctx) {
+        Parameters.notNull("collector", collector); //NOI18N
+        Parameters.notNull("ctx", ctx);   //NOI18N
+        return TypeProviderAccessor.DEFAULT.createResult(
+             collector,
+             new String[1],
+             ctx);
     }
 }
