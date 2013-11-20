@@ -43,7 +43,11 @@ package org.netbeans.modules.dew4nb;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.EnumMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -51,6 +55,9 @@ import net.java.html.BrwsrCtx;
 import net.java.html.json.Model;
 import net.java.html.json.Models;
 import net.java.html.json.Property;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.util.Lookup;
 
 
@@ -60,7 +67,15 @@ import org.openide.util.Lookup;
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
 public final class JavacEndpoint {
+
+    private static final Logger LOG = Logger.getLogger(JavacEndpoint.class.getName());
+    private final Object lock = new Object();
+    private final Lookup.Result<RequestHandler> result;
+    //@GuardedBy("lock")
+    private Map<JavacMessageType,RequestHandler> handlers;
+
     private JavacEndpoint() {
+        this.result = Lookup.getDefault().lookupResult(RequestHandler.class);
     }
     
     public static JavacEndpoint newCompiler() {
@@ -68,52 +83,132 @@ public final class JavacEndpoint {
     }
     
 
-    public JavacResult doCompile(String query) throws IOException {
+    @NonNull
+    public Object doCompile(String query) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(query.getBytes("UTF-8"));
         JavacQuery q = Models.parse(BrwsrCtx.findDefault(JavacQuery.class), JavacQuery.class, is);
         is.close();
         return doCompile(q);
     }
-    
-    public JavacResult doCompile(JavacQuery query) throws IOException {
-        
-        for (RequestHandler h : Lookup.getDefault().lookupAll(RequestHandler.class)) {
-            if (h.request == JavacQuery.class || h.response == JavacResult.class) {
-                JavacResult res = new JavacResult();
-                res.setType(query.getType());
-                res.setState(query.getState());
-                if (h.handle(query, res)) {
-                    return res;
+
+    @NonNull
+    public Object doCompile(JavacQuery query) throws IOException {
+        final JavacMessageType type = query.getType();
+        final RequestHandler h = type == null ? null : getHandleFor(type);
+        if (h != null) {
+            try {
+                final Object res = h.response.getDeclaredConstructor().newInstance();
+                try {
+                    final Method set = h.response.getDeclaredMethod("setType", JavacMessageType.class); //NOI18N
+                    set.invoke(res, query.getType());
+                } catch (NoSuchMethodException noSetter) {
+                    LOG.log(
+                        Level.WARNING,
+                        "The {0} has no type setter.",  //NOI18N
+                        res);
+                }
+                try {
+                    final Method set = h.response.getDeclaredMethod("setState", String.class);  //NOI18N
+                    set.invoke(res, query.getState());
+                } catch (NoSuchMethodException noSetter) {
+                    LOG.log(
+                        Level.WARNING,
+                        "The {0} has no state setter.", //NOI18N
+                        res);
+                }
+                return h.handle(query, res) ?
+                    res :
+                    error(Status.runtime_error, "Unhandled request", query);    //NOI18N
+            } catch (ReflectiveOperationException |
+                     IllegalArgumentException ex) {
+                return error(Status.runtime_error, ex.getMessage(), query);
+            }
+        }        
+        return error(Status.not_found, null, query);
+    }
+
+    @NonNull
+    public JavacFailure error (
+        @NonNull final Status status,
+        @NullAllowed final String message,
+        @NullAllowed final JavacQuery query) {
+        final JavacFailure fail = new JavacFailure();
+        fail.setStatus(status);
+        if (query != null) {
+            fail.setType(query.getType());
+            fail.setState(query.getState());
+        }
+        fail.setMessage(message == null ? "" : message);    //NOI18N
+        return fail;
+    }
+
+    @CheckForNull
+    private RequestHandler getHandleFor(@NonNull final JavacMessageType type) {
+        synchronized (lock) {
+            if (handlers == null) {
+                handlers = new EnumMap<>(JavacMessageType.class);
+                for (RequestHandler h : this.result.allInstances()) {
+                    assert h.type != null;
+                    assert h.request == JavacQuery.class;
+                    assert h.response != null;                                        
+                    handlers.put(h.type, h);
                 }
             }
+            return handlers.get(type);
         }
-        JavacResult res = new JavacResult();
-        res.setType(query.getType());
-        res.setState(query.getState());
-        res.setStatus("Nothing to do!");
-        return res;
     }
 
     @Model(className = "JavacQuery", properties = {
         @Property(name = "type", type = JavacMessageType.class),
         @Property(name = "state", type = String.class),
-        @Property(name = "html", type = String.class),
         @Property(name = "java", type = String.class),
         @Property(name = "offset", type = int.class)
     })
     static final class JavacQueryModel {
-    }
+    }    
 
-    @Model(className = "JavacResult", properties = {
+    @Model(className = "JavacCompletionResult", properties = {
+        @Property(name = "status", type = Status.class),
         @Property(name = "type", type = JavacMessageType.class),
         @Property(name = "state", type = String.class),
-        @Property(name = "status", type = String.class),
-        @Property(name = "errors", type = JavacError.class, array = true),
-        @Property(name = "classes", type = JavacClass.class, array = true),
         @Property(name = "completions", type = CompletionItem.class, array = true)
     })
-    static final class JavacResultModel {
+    static final class JavacCompletionResultModel {
     }
+
+    @Model(className = "JavacTypeResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "types", type = TypeDescriptor.class, array = true)
+    })
+    static final class JavacTypeResultModel {
+    }
+
+    @Model(className = "JavacFailure", properties = {
+        @Property(name="status", type=Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name="message", type=String.class)
+    })
+    static final class JavacFailureModel {
+    }
+
+
+
+
+//    @Model(className = "JavacResult", properties = {
+//        @Property(name = "type", type = JavacMessageType.class),
+//        @Property(name = "state", type = String.class),
+//        @Property(name = "status", type = String.class),
+//        @Property(name = "errors", type = JavacError.class, array = true),
+//        @Property(name = "classes", type = JavacClass.class, array = true),
+//        @Property(name = "completions", type = CompletionItem.class, array = true)
+//    })
+//    static final class JavacResultModel {
+//    }
+
+
 
     @Model(className = "JavacError", properties = {
         @Property(name = "col", type = long.class),
@@ -147,6 +242,14 @@ public final class JavacEndpoint {
         @Property(name = "className", type = String.class),
     })
     static final class CompletionItemModel {
+    }
+
+    @Model(className = "TypeDescriptor", properties = {
+        @Property(name = "simpleName", type = String.class),
+        @Property(name = "enclosingElement", type = String.class),
+        @Property(name = "resourceName", type = String.class),
+    })
+    static final class TypeDescriptorModel {
     }
     
 }
