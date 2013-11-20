@@ -43,8 +43,10 @@
 package org.netbeans.modules.dew4nb;
 
 import java.io.File;
+import java.io.IOException;
 import org.netbeans.modules.dew4nb.api.Server;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.Exceptions;
 
 /** HTTP and WebSocket server for answering Javac like queries.
  *
@@ -55,6 +57,11 @@ final class JavacServer {
     private final Server server;
     private JavacServer(Server s) {
         this.server = s;
+        try {
+            this.server.start();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
     
     public synchronized static JavacServer getDefault() {

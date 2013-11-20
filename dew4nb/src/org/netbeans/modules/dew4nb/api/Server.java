@@ -56,7 +56,7 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
 import org.glassfish.grizzly.websockets.WebSocketEngine;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.JavacEndpoint;
-import org.netbeans.modules.dew4nb.JavacResult;
+import org.netbeans.modules.dew4nb.Status;
 import org.openide.util.Exceptions;
 import org.openide.util.Pair;
 import org.openide.util.Parameters;
@@ -178,11 +178,13 @@ public final class Server {
         @Override
         public void onMessage(WebSocket socket, String text) {
             try {
-                JavacResult res = endpoint.doCompile(text);
-                socket.send(res.toString());
+                socket.send(endpoint.doCompile(text).toString());
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
-                socket.send("{ \"status\" : \"" + ex.getMessage() + "\"");
+                socket.send(endpoint.error(
+                    Status.runtime_error,
+                    ex.getMessage(),
+                    null).toString());
             }
         }
     }

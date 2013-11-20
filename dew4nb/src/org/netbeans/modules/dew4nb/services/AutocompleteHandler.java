@@ -44,25 +44,25 @@ package org.netbeans.modules.dew4nb.services;
 
 import java.util.logging.Logger;
 import org.netbeans.modules.dew4nb.CompletionItem;
+import org.netbeans.modules.dew4nb.JavacCompletionResult;
 import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.JavacResult;
 import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.Status;
 import org.openide.util.lookup.ServiceProvider;
 
 /** Sample, dummy handler.
  */
 @ServiceProvider(service = RequestHandler.class)
-public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacResult> {
+public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacCompletionResult> {
     private static final Logger LOG = Logger.getLogger(AutocompleteHandler.class.getName());
     public AutocompleteHandler() {
-        super(JavacMessageType.autocomplete, JavacQuery.class, JavacResult.class);
+        super(JavacMessageType.autocomplete, JavacQuery.class, JavacCompletionResult.class);
     }
 
     @Override
-    protected boolean handle(JavacQuery query, JavacResult res) {
+    protected boolean handle(JavacQuery query, JavacCompletionResult res) {
         String java = query.getJava();
-        String html = query.getHtml();
         int offset = query.getOffset();
 
 //        if (c == null || !java.equals(c.getJava())) {
@@ -76,7 +76,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacResult>
              }
              */
             res.getCompletions().add(new CompletionItem("Nothing", "Nic", "x.y.z.None"));
-            res.setStatus("Autocomplete finished.");
+            res.setStatus(Status.success);
             return true;
         }
         return false;
