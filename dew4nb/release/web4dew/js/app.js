@@ -362,7 +362,6 @@ function DevCtrl( $scope, $timeout, $http ) {
     CodeMirror.registerHelper("hint", "clike", $scope.javaHint);
 
     $scope.javac.onmessage = function(ev) {
-        var deferredMsg = null;
         var editor = document.getElementById("editorJava").codeMirror;
         var obj = ev.data;
         $scope.status = obj.status;
@@ -372,11 +371,10 @@ function DevCtrl( $scope, $timeout, $http ) {
             }
             if (obj.type === 'types') {
                 if (obj.types && obj.types.length > 0) {
-                    deferredMsg = {
+                    $scope.javac.postMessage({
                         type : "getfile",
                         context : obj.types[0].context
-                    };
-                    $scope.javac.postMessage(deferredMsg);
+                    });
                     return;
                 }
             } else if (obj.type === 'autocomplete') {

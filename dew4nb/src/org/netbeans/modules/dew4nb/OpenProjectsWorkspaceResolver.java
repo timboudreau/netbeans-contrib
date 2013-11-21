@@ -52,7 +52,6 @@ import java.util.WeakHashMap;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.impl.indexing.CacheFolder;
@@ -86,16 +85,13 @@ public class OpenProjectsWorkspaceResolver implements WorkspaceResolver {
     @Override
     @CheckForNull
     public FileObject resolveFile(
-            @NullAllowed final String user,
-            @NonNull final String workspace,
-            @NonNull final String path) {
-        Parameters.notNull("workspace", workspace); //NOI18N
-        Parameters.notNull("path", path);   //NOI18N
-        final FileObject srcRoot = getSourceRoot(workspace);
+            @NonNull final Context ctx) {
+        Parameters.notNull("ctx", ctx);   //NOI18N
+        final FileObject srcRoot = getSourceRoot(ctx.getWorkspace());
         if (srcRoot == null) {
             return null;
         }
-        return srcRoot.getFileObject(path);
+        return srcRoot.getFileObject(ctx.getPath());
     }
 
     @Override
@@ -111,7 +107,10 @@ public class OpenProjectsWorkspaceResolver implements WorkspaceResolver {
             return null;
         }
         final String path = FileUtil.getRelativePath(srcRoot, file);
-        return new Context("", workspaceId, path);
+        return new Context(
+            "", //NOI18N
+            workspaceId,
+            path);
     }
 
 

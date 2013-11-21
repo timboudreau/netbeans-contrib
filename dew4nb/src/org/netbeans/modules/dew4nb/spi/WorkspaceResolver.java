@@ -45,7 +45,6 @@ package org.netbeans.modules.dew4nb.spi;
 
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Parameters;
 
@@ -55,7 +54,7 @@ import org.openide.util.Parameters;
  */
 public interface WorkspaceResolver {
     @CheckForNull
-    FileObject resolveFile (@NullAllowed String user, @NonNull String worksapce, @NonNull String path);
+    FileObject resolveFile (@NonNull Context ctx);
 
     @CheckForNull
     Context resolveContext(@NonNull FileObject file);
@@ -67,9 +66,10 @@ public interface WorkspaceResolver {
         private final String path;
 
         public Context (
-            @NullAllowed final String user,
+            @NonNull final String user,
             @NonNull final String workspace,
             @NonNull final String path) {
+            Parameters.notNull("user", user);   //NOI18N
             Parameters.notNull("workspace", workspace); //NOI18N
             Parameters.notNull("path", path);   //NOI18N
             this.user = user;
@@ -77,7 +77,7 @@ public interface WorkspaceResolver {
             this.path = path;
         }
 
-        @CheckForNull
+        @NonNull
         public String getUser() {
             return user;
         }

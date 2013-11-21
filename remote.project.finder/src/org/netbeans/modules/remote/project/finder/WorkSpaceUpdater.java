@@ -51,6 +51,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -74,7 +75,7 @@ final class WorkSpaceUpdater implements Runnable {
     private static WorkSpaceUpdater instance;
     private final BlockingQueue<Callable<Boolean>> requests;
     private final Object lock = new Object();
-    private File workSpace;
+    private FileObject workSpace;
     private int maxDepth;
     //@GuardedBy("lock")
     private int state;
@@ -91,6 +92,11 @@ final class WorkSpaceUpdater implements Runnable {
         return instance;
     }
 
+    @CheckForNull
+    FileObject getRepository() {
+        return workSpace;
+    }
+
     void configure(
             @NonNull final File workSpace,
             final int depth) {
@@ -98,12 +104,16 @@ final class WorkSpaceUpdater implements Runnable {
         if (depth < 1) {
             throw new IllegalArgumentException(Integer.toString(depth));
         }
-        this.workSpace = workSpace;
+        this.workSpace = FileUtil.toFileObject(workSpace);
+        if (this.workSpace == null) {
+            throw new IllegalArgumentException(
+                "Cannot resolve workspace: " + workSpace.getAbsolutePath());    //NOI18N
+        }
         this.maxDepth = depth;
         LOG.log(
             Level.INFO,
             "Configuring workspace updater for: {0}",    //NOI18N
-            this.workSpace.getAbsolutePath());
+            FileUtil.getFileDisplayName(this.workSpace));
         moveState(1);
     }
 
@@ -170,15 +180,10 @@ final class WorkSpaceUpdater implements Runnable {
         private final int maxDepth;
 
         OpenWorkspace(
-                @NonNull final File workSpace,
+                @NonNull final FileObject workSpace,
                 final int maxDepth) {
             Parameters.notNull("workSpace", workSpace); //NOI18N
-            this.workSpace = FileUtil.toFileObject(workSpace);
-            if (this.workSpace == null) {
-                throw new IllegalArgumentException(String.format(
-                    "The % cannot be converted to FileObject.",
-                    workSpace.getAbsolutePath()));
-            }
+            this.workSpace = workSpace;
             this.maxDepth = maxDepth;
         }
 

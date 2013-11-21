@@ -40,57 +40,69 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.remote.project.finder;
 
-import java.io.IOException;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.FileContentResult;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
+import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Parameters;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service = RequestHandler.class)
-public class GetFileContentHandler extends RequestHandler<JavacQuery, FileContentResult>{
-    public GetFileContentHandler() {
-        super(JavacMessageType.getfile, JavacQuery.class, FileContentResult.class);
+public final class RepositoryWorkspaceResolver implements WorkspaceResolver {
+
+    // path format users/{user}/workspaces/{workspace}/projects
+    private static final Pattern LOCAL_PATH_PARSER = Pattern.compile(
+        "users/([^/]+)/workspaces/([^/]+)/(.*)");   //NOI18N
+    private static final String LOCAL_PATH_BUILDER =
+        "users/{0}/workspaces/{1}/{2}"; //NOI18N
+
+    public RepositoryWorkspaceResolver() {
     }
 
     @Override
-    protected boolean handle(JavacQuery request, FileContentResult response) {
-        Parameters.notNull("request", request); //NOI18N
-        Parameters.notNull("response", response);   //NOI18N
-        final Context ctx = request.getContext();
-        Status status = Status.success;
-        if (ctx != null) {
-            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
-            if(resolver == null) {
-                throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
-            }
-            final FileObject fo = resolver.resolveFile(new WorkspaceResolver.Context(
-                 ctx.getUser(),
-                 ctx.getWorkspace(),
-                 ctx.getPath()));
-            if (fo != null) {
-                try {
-                    response.setContent(fo.asText("UTF-8"));
-                } catch (IOException ex) {
-                    status = Status.runtime_error;
-                }
-            } else {
-                status = Status.not_found;
-            }
+    @CheckForNull
+    public FileObject resolveFile(
+        @NonNull final Context ctx) {
+        Parameters.notNull("ctx", ctx); //NOI18N
+        final FileObject repository = WorkSpaceUpdater.getDefault().getRepository();
+        if (repository == null) {
+            return null;
         }
-        response.setStatus(status);
-        return true;
+        return repository.getFileObject(MessageFormat.format(
+            LOCAL_PATH_BUILDER,
+            ctx.getUser(),
+            ctx.getWorkspace(),
+            ctx.getPath()));
     }
+
+    @Override
+    @CheckForNull
+    public Context resolveContext(@NonNull final FileObject file) {
+        Parameters.notNull("file", file);   //NOI18N
+        final FileObject repository = WorkSpaceUpdater.getDefault().getRepository();
+        if (repository == null) {
+            return null;
+        }
+        final String path = FileUtil.getRelativePath(repository, file);
+        if (path == null) {
+            return null;
+        }
+        final Matcher m = LOCAL_PATH_PARSER.matcher(path);
+        if (!m.matches()) {
+            return null;
+        }
+        return new Context(
+            m.group(1),
+            m.group(2),
+            m.group(3));
+    }
+
 }
