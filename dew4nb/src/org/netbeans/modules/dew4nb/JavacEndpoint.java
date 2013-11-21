@@ -161,6 +161,7 @@ public final class JavacEndpoint {
     @Model(className = "JavacQuery", properties = {
         @Property(name = "type", type = JavacMessageType.class),
         @Property(name = "state", type = String.class),
+        @Property(name = "context", type=Context.class),
         @Property(name = "java", type = String.class),
         @Property(name = "offset", type = int.class)
     })
@@ -194,7 +195,13 @@ public final class JavacEndpoint {
     static final class JavacFailureModel {
     }
 
-
+    @Model(className = "Context", properties = {
+        @Property(name="user", type=String.class),
+        @Property(name = "workspace", type = String.class),
+        @Property(name = "path", type = String.class)
+    })
+    static final class ContextModel {
+    }
 
 
 //    @Model(className = "JavacResult", properties = {
@@ -245,9 +252,9 @@ public final class JavacEndpoint {
     }
 
     @Model(className = "TypeDescriptor", properties = {
-        @Property(name = "simpleName", type = String.class),
-        @Property(name = "enclosingElement", type = String.class),
-        @Property(name = "resourceName", type = String.class),
+        @Property(name = "name", type = String.class),
+        @Property(name = "owner", type = String.class),
+        @Property(name = "context", type = Context.class),
     })
     static final class TypeDescriptorModel {
     }

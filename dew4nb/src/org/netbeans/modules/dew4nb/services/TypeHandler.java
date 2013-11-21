@@ -47,13 +47,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.dew4nb.Context;
 import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.JavacQuery;
 import org.netbeans.modules.dew4nb.JavacTypeResult;
 import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.jumpto.common.Utils;
 import org.netbeans.modules.jumpto.type.TypeProviderAccessor;
 import org.netbeans.spi.jumpto.type.SearchType;
@@ -87,11 +88,19 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
         final Collection<? extends TypeProvider> typeProviders = getTypeProviders();
         try {
             final Collection<? extends TypeDescriptor> types = callTypeProviders(text, typeProviders);
+            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+            if (resolver == null) {
+                throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
+            }
             for (TypeDescriptor td : types) {
-                response.getTypes().add(new org.netbeans.modules.dew4nb.TypeDescriptor(
-                    td.getSimpleName(),
-                    td.getContextName(),
-                    ""));   //NOI18N
+                final WorkspaceResolver.Context ctx = resolver.resolveContext(td.getFileObject());
+                if (ctx != null) {
+                    response.getTypes().add(
+                        new org.netbeans.modules.dew4nb.TypeDescriptor(
+                        td.getSimpleName(),
+                        td.getContextName(),
+                        apiToWire(ctx)));
+                }
             }
         } finally {
             cleanTypeProviders(typeProviders);
@@ -168,5 +177,10 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
              collector,
              new String[1],
              ctx);
+    }
+
+    private Context apiToWire(@NonNull WorkspaceResolver.Context ctx) {
+        Parameters.notNull("ctx", ctx); //NOI18N
+        return new Context(ctx.getUser(), ctx.getWorkspace(), ctx.getPath());
     }
 }
