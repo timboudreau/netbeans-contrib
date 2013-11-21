@@ -186,6 +186,16 @@ public final class JavacEndpoint {
     static final class JavacTypeResultModel {
     }
 
+
+    @Model(className = "FileContentResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "content", type = String.class)
+    })
+    static final class FileContentResultModel {
+    }
+
     @Model(className = "JavacFailure", properties = {
         @Property(name="status", type=Status.class),
         @Property(name = "type", type = JavacMessageType.class),

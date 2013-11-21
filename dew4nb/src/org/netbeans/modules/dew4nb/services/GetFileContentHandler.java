@@ -40,12 +40,57 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.dew4nb.services;
 
-public enum JavacMessageType {
-    autocomplete,
-    types,
-    checkForErrors,
-    compile,
-    getfile
+import java.io.IOException;
+import org.netbeans.modules.dew4nb.Context;
+import org.netbeans.modules.dew4nb.FileContentResult;
+import org.netbeans.modules.dew4nb.JavacMessageType;
+import org.netbeans.modules.dew4nb.JavacQuery;
+import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
+import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
+import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+@ServiceProvider(service = RequestHandler.class)
+public class GetFileContentHandler extends RequestHandler<JavacQuery, FileContentResult>{
+    public GetFileContentHandler() {
+        super(JavacMessageType.getfile, JavacQuery.class, FileContentResult.class);
+    }
+
+    @Override
+    protected boolean handle(JavacQuery request, FileContentResult response) {
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("response", response);   //NOI18N
+        final Context ctx = request.getContext();
+        Status status = Status.success;
+        if (ctx != null) {
+            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+            if(resolver == null) {
+                throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
+            }
+            final FileObject fo = resolver.resolveFile(
+                 ctx.getUser(),
+                 ctx.getWorkspace(),
+                 ctx.getPath());
+            if (fo != null) {
+                try {
+                    response.setContent(fo.asText("UTF-8"));
+                } catch (IOException ex) {
+                    status = Status.runtime_error;
+                }
+            } else {
+                status = Status.not_found;
+            }
+        }
+        response.setStatus(status);
+        return true;
+    }
 }

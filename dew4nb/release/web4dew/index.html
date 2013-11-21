@@ -69,7 +69,7 @@
                 <button ng-click="run()" ng-disabled="someErrors()" class="btn btn-warning">Run</button>
             </form>
             <div class="nav">
-                <input type="search" placeholder="Name of a class"/><button class="btn btn-warning">Goto!</button>
+                <input ng-model="gototype.value" type="search" placeholder="Name of a class"/><button ng-click="goto()" ng-disabled="noType()" class="btn btn-warning">Goto!</button>
             </div>
             <!-- form class="form form-horizontal pull-right">
                 <button class="btn btn-warning btn-small pull-right top" ng-click="post()">Rebuild</button>

@@ -54,6 +54,7 @@ import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.JavacQuery;
 import org.netbeans.modules.dew4nb.JavacTypeResult;
 import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.jumpto.common.Utils;
 import org.netbeans.modules.jumpto.type.TypeProviderAccessor;
@@ -105,6 +106,7 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
         } finally {
             cleanTypeProviders(typeProviders);
         }
+        response.setStatus(Status.success);
         return true;
     }
 

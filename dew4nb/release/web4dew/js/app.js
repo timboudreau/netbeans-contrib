@@ -278,9 +278,24 @@ function DevCtrl( $scope, $timeout, $http ) {
         e.innerHTML = html;
     };
 
+    $scope.goto = function() {
+        var type = $scope.gototype.value;
+        $scope.gototype.value="";
+        $scope.javac.running = true;
+        $scope.javac.postMessage({
+            type : "types",
+            java : type
+        });
+    };
+
+    $scope.noType = function() {        
+        return !$scope.gototype.value || $scope.javac.running;
+    };
+
     
     $scope.url = "http://hg.netbeans.org/main/contrib/dew4nb/";
     $scope.description = "Development Environment for Web";
+    $scope.gototype = {value : ""};
     
     if (!$scope.html) {
         $scope.html= templateHtml;  
@@ -347,11 +362,24 @@ function DevCtrl( $scope, $timeout, $http ) {
     CodeMirror.registerHelper("hint", "clike", $scope.javaHint);
 
     $scope.javac.onmessage = function(ev) {
+        var deferredMsg = null;
         var editor = document.getElementById("editorJava").codeMirror;
         var obj = ev.data;
         $scope.status = obj.status;
         if (obj.status === "success") {
-            if (obj.type === 'autocomplete') {
+            if (obj.type === 'getfile') {
+                editor.setValue(obj.content);
+            }
+            if (obj.type === 'types') {
+                if (obj.types && obj.types.length > 0) {
+                    deferredMsg = {
+                        type : "getfile",
+                        context : obj.types[0].context
+                    };
+                    $scope.javac.postMessage(deferredMsg);
+                    return;
+                }
+            } else if (obj.type === 'autocomplete') {
                 if (obj.completions) {
                     var list = obj.completions;
                     var from = editor.getCursor();
