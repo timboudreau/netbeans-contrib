@@ -295,7 +295,7 @@ function DevCtrl( $scope, $timeout, $http ) {
     
     $scope.url = "http://hg.netbeans.org/main/contrib/dew4nb/";
     $scope.description = "Development Environment for Web";
-    $scope.gototype = {value : ""};
+    $scope.gototype = {value : "", current : null};
     
     if (!$scope.html) {
         $scope.html= templateHtml;  
@@ -368,12 +368,16 @@ function DevCtrl( $scope, $timeout, $http ) {
         if (obj.status === "success") {
             if (obj.type === 'getfile') {
                 editor.setValue(obj.content);
+                $scope.javac.context = $scope.gototype.current;
+                $scope.gototype.current = null;
             }
             if (obj.type === 'types') {
                 if (obj.types && obj.types.length > 0) {
+                    var ctx  = obj.types[0].context;
+                    $scope.gototype.current = ctx;
                     $scope.javac.postMessage({
                         type : "getfile",
-                        context : obj.types[0].context
+                        context : ctx
                     });
                     return;
                 }
@@ -461,7 +465,12 @@ function DevCtrl( $scope, $timeout, $http ) {
             var off = editor.indexFromPos(t === 'autocomplete' && $scope.pendingJavaHintInfo ? 
                 $scope.pendingJavaHintInfo.from : editor.getCursor()
             );
-            $scope.javac.postMessage({ type : t, html : $scope.html, java : $scope.java, offset : off});
+            $scope.javac.postMessage({
+                type : t,
+                context : $scope.javac.context,
+                html : $scope.html,
+                java :$scope.java,
+                offset : off});
             $scope.javac.running = true;
             if ($scope.status.indexOf('Init') < 0) {
                 $scope.status = 'Compiling...';
