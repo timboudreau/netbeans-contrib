@@ -6,6 +6,21 @@
   <version>0.1-SNAPSHOT</version>
   <name>Dev Env 4 Web in Nb</name>
   <url>http://maven.apache.org</url>
+  <repositories>
+      <repository>
+          <id>netbeans</id>
+          <name>NetBeans</name>
+          <url>http://bits.netbeans.org/maven2/</url>
+      </repository>
+      <repository>
+          <id>bck2brwsr</id>
+          <name>Bck2Brwsr</name>
+          <url>https://maven.java.net/content/repositories/snapshots/</url>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+      </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.glassfish.grizzly</groupId>

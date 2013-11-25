@@ -50,6 +50,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.AnnotationValue;
@@ -72,10 +73,12 @@ import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.support.ReferencesCount;
 import org.netbeans.api.whitelist.WhiteListQuery;
 import org.netbeans.modules.dew4nb.CompletionItem;
+import org.netbeans.modules.dew4nb.Context;
 import org.netbeans.modules.dew4nb.JavacCompletionResult;
 import org.netbeans.modules.dew4nb.JavacQuery;
 import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.SourceProvider;
 import org.netbeans.modules.editor.java.JavaCompletionItem;
 import org.netbeans.modules.editor.java.JavaCompletionItemFactory;
 import org.netbeans.modules.editor.java.JavaCompletionProvider;
@@ -99,33 +102,33 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
     @Override
     protected boolean handle(JavacQuery query, JavacCompletionResult res) {
-        String java = query.getJava();
-        int offset = query.getOffset();
-
-        if (query.getType() == JavacMessageType.autocomplete) {
-            LOG.info("Autocomplete");
-            try {
-                FileSystem fs = FileUtil.createMemoryFileSystem();
-                FileObject fob = fs.getRoot().createData("Test", "java");
-                OutputStream os = fob.getOutputStream();
-                InputStream is = new ByteArrayInputStream(java.getBytes("UTF-8"));
-                FileUtil.copy(is, os);
-                os.close ();
-                is.close();
-                Source s = Source.create(fob);                
+        assert query.getType() == JavacMessageType.autocomplete;
+        final String java = query.getJava();
+        final int offset = query.getOffset();
+        final Context ctx = query.getContext();
+        LOG.log(
+            Level.INFO,
+            "Autocomplete  on {0}", //NOI18N
+            ctx == null ?
+                "<unknown>" :       //NOI18N
+                ctx.getPath());
+        Status status = Status.runtime_error;
+        try {
+            final Source s = SourceProvider.getInstance().getSource(ctx, java);
+            if (s != null) {
                 List<? extends org.netbeans.spi.editor.completion.CompletionItem> items = JavaCompletionProvider.query(s, CompletionProvider.COMPLETION_QUERY_TYPE, offset, offset, new Item.Factory());
                 for (org.netbeans.spi.editor.completion.CompletionItem item : items) {
                     if (item instanceof Item) {
                         res.getCompletions().add(((Item)item).toCompletionItem());
                     }
                 }
-                res.setStatus(Status.success);
-            } catch (Exception exception) {
-                res.setStatus(Status.runtime_error);
+                status = Status.success;
             }
-            return true;
+        } catch (Exception exception) {
+            //pass
         }
-        return false;
+        res.setStatus(status);
+        return true;        
     }
     
     private abstract static class Item extends JavaCompletionItem {

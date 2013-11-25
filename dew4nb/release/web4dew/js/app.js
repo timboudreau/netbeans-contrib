@@ -432,16 +432,16 @@ function DevCtrl( $scope, $timeout, $http ) {
                     $scope.runWithClasses();
                 } else {
                     $scope.classes = null;
-                    $scope.fail(obj.errors);
+                    $scope.fail(obj.diagnostics);
                 }
             } else if (obj.type === "checkForErrors") {
-                if (obj.errors.length === 0) {
+                if (obj.diagnostics.length === 0) {
                     $scope.errors = null;
                     var editor = document.getElementById("editorJava").codeMirror;
                     editor.clearGutter("issues");
                 } else {
                     $scope.classes = null;
-                    $scope.fail(obj.errors);
+                    $scope.fail(obj.diagnostics);
                 }
             }
         }

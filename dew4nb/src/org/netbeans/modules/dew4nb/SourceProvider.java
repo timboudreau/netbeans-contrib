@@ -43,40 +43,55 @@
 package org.netbeans.modules.dew4nb;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.SoftReference;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.api.Source;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.Parameters;
+import org.openide.util.Utilities;
 
 /**
  *
  * @author Tomas Zezula
  */
-final class SourceProvider {
+public final class SourceProvider {
 
     private static final Logger LOG = Logger.getLogger(SourceProvider.class.getName());
 
     //@GuardedBy("SourceProvider.class")
     private static SourceProvider instance;
-    private final FileSystem ramFs;
-    private final FileSystem tmpRamFs;
+    private final FileSystem tmpRamFs =
+        FileUtil.createMemoryFileSystem();
+    //@GuardedBy("retain")
+    private final Map<FileObject, R> retain
+        = Collections.synchronizedMap(new LinkedHashMap <FileObject,R>());
+
+    
 
     private SourceProvider() {
-        this.ramFs = FileUtil.createMemoryFileSystem();
-        this.tmpRamFs = FileUtil.createMemoryFileSystem();
     }
 
     @NonNull
@@ -88,11 +103,10 @@ final class SourceProvider {
     }
 
     @CheckForNull
-    Source getSource(
+    public Source getSource(
             @NullAllowed Context ctx,
             @NullAllowed String content) {
         FileObject file = null;
-        ClassPath bootPath = null, compilePath = null, srcPath = null;
         if (ctx != null) {
             final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
             if (resolver == null) {
@@ -101,68 +115,190 @@ final class SourceProvider {
                 file = resolver.resolveFile(new WorkspaceResolver.Context(
                     ctx.getUser(),
                     ctx.getWorkspace(),
-                    ctx.getPath()));
-                if (file != null) {
-                    bootPath = ClassPath.getClassPath(file, ClassPath.BOOT);
-                    compilePath = ClassPath.getClassPath(file, ClassPath.COMPILE);
-                    srcPath = ClassPath.getClassPath(file, ClassPath.SOURCE);
-                }
+                    ctx.getPath()));                
             }
         }
-        if (bootPath == null) {
-            bootPath = JavaPlatform.getDefault().getBootstrapLibraries();
+        boolean tmpFile = false;
+        if (file == null) {
+            file = createTempFile(content);
+            tmpFile = true;
         }
-        if (compilePath == null) {
-            compilePath = ClassPath.EMPTY;
-        }
-        if (srcPath == null) {
-            srcPath = ClassPath.EMPTY;
-        }        
-        final FileObject sourceFile = getSourceFile(srcPath, file, content);
-        if (sourceFile == null) {
+        if (file == null) {
             return null;
         }
-        final Source source = Source.create(sourceFile);
-        return source;
+        synchronized (retain) {
+            R r = retain.get(file);
+            Source src;
+            if (r == null || (src = r.get()) == null) {
+                src = Source.create(file);
+                r = tmpFile ?
+                    R.forTmp(src) :
+                    R.forRegular(src, retain);
+                retain.put(file, r);
+            }
+            update(src, content, tmpFile);
+            return src;
+        }
     }
 
     @CheckForNull
-    private FileObject getSourceFile(
-        @NonNull ClassPath srcPath,
-        @NullAllowed FileObject base,
-        @NullAllowed String content) {
-        if (content == null) {
-            return base;
-        } else {
-            final String path = base == null ?
-                null :
-                srcPath.getResourceName(base,'/', true);    //NOI18N
+    private FileObject createTempFile(String content) {
+        FileObject file = null;
+        if (content != null) {
             try {
-                final FileObject fo;
-                if (path == null) {
-                    fo = tmpRamFs.createTempFile(
-                        tmpRamFs.getRoot(),
-                        "", //NOI18N
-                        ".java",    //NOI18N
-                        true);
-                } else {
-                    fo = FileUtil.createData(
-                        ramFs.getRoot(),
-                        path);
-                }
-                final FileLock lck = fo.lock();
+                file = tmpRamFs.getRoot().createData(String.format("Test%d.java", System.nanoTime()));
+                final FileLock lck = file.lock();
                 try (
                    final ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes("UTF-8"));
-                   final OutputStream out = fo.getOutputStream(lck)) {
+                   final OutputStream out = file.getOutputStream(lck)) {
                     FileUtil.copy(in, out);
                 } finally {
                     lck.releaseLock();
                 }
-                return fo;
             } catch (IOException ioe) {
-                return null;
+                Exceptions.printStackTrace(ioe);
+                if (file != null) {
+                    try {
+                        file.delete();
+                    }catch (IOException rmIoe) {
+                        Exceptions.printStackTrace(rmIoe);
+                    } finally {
+                        file = null;
+                    }
+                }
             }
+        }
+        return file;
+    }
+
+    private void update(
+        @NonNull final Source source,
+        @NullAllowed final String content,
+        final boolean tmpFile) {
+        if (tmpFile) {
+            return;
+        }
+        if (content == null) {
+            try {
+                final DataObject dobj = DataObject.find(source.getFileObject());
+                final EditorCookie ec = dobj.getLookup().lookup(EditorCookie.class);
+                if (ec != null) {
+                    final Document doc = ec.getDocument();
+                    if (doc != null) {
+                        ec.close();
+                    }
+                }
+            } catch (DataObjectNotFoundException nfe) {
+                LOG.log(
+                    Level.INFO,
+                    "Cannot find DataObject: {0}",  //NOI18N
+                    FileUtil.getFileDisplayName(source.getFileObject()));
+            }
+
+        } else {
+            final Document doc = source.getDocument(true);
+            NbDocument.runAtomic(
+                (StyledDocument)doc,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            doc.remove(0, doc.getLength());
+                            doc.insertString(0, content, null);
+                        } catch (BadLocationException ble) {
+                            throw new IllegalStateException(ble);
+                        }
+                    }
+            });
         }
     }
 
+
+
+    private static final class R extends SoftReference<Source> implements Runnable {
+
+        @NonNull
+        static R forTmp(
+                @NonNull final Source src) {
+            Parameters.notNull("src", src); //NOI18N
+            final FileObject fo = src.getFileObject();
+            if (fo == null) {
+                throw new IllegalArgumentException("No file for Source:" + src);    //NOI18N
+            }
+            return new R (
+                src,
+                fo,
+                new Closeable() {
+                    @Override
+                    public void close() throws IOException {
+                        fo.delete();
+                    }
+                });
+        }
+
+        @NonNull
+        static R forRegular(
+            @NonNull final Source src,
+            @NonNull final Map<FileObject,R> active) {
+            Parameters.notNull("src", src);
+            Parameters.notNull("active", active);
+            final FileObject fo = src.getFileObject();
+            if (fo == null) {
+                throw  new IllegalAccessError("No file for Source: " + src);    //NOI18N
+            }
+            return new R(
+                src,
+                fo,
+                new Closeable() {
+                    @Override
+                    public void close() throws IOException {
+                        synchronized (active) {
+                            active.remove(fo);
+                        }
+                    }
+                });
+        }
+
+        private final FileObject file;
+        private final Closeable strategy;
+
+        private R(
+            @NonNull final Source src,
+            @NonNull final FileObject file,
+            @NonNull final Closeable strategy) {
+            super(src, Utilities.activeReferenceQueue());            
+            this.file = src.getFileObject();            
+            this.strategy = strategy;
+        }
+
+        @NonNull
+        FileObject getFileObject() {
+            return file;
+        }
+
+        @Override
+        public int hashCode() {
+            return file.hashCode();
+        }
+
+        @Override
+        public boolean equals(@NullAllowed final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof R)) {
+                return false;
+            }
+            return ((R)obj).file.equals(this.file);
+        }
+
+        @Override
+        public void run() {
+            try {
+                strategy.close();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }    
 }

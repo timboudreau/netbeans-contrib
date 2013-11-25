@@ -177,6 +177,15 @@ public final class JavacEndpoint {
     static final class JavacCompletionResultModel {
     }
 
+    @Model(className = "JavacDiagnosticsResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "diagnostics", type = JavacDiagnostic.class, array = true)
+    })
+    static final class JavacDiagnosticsResultModel {
+    }
+
     @Model(className = "JavacTypeResult", properties = {
         @Property(name = "status", type = Status.class),
         @Property(name = "type", type = JavacMessageType.class),
@@ -227,21 +236,13 @@ public final class JavacEndpoint {
 
 
 
-    @Model(className = "JavacError", properties = {
+    @Model(className = "JavacDiagnostic", properties = {
         @Property(name = "col", type = long.class),
         @Property(name = "line", type = long.class),
         @Property(name = "kind", type = Diagnostic.Kind.class),
         @Property(name = "msg", type = String.class)
     })
-    static final class JavacErrorModel {
-        static JavacError create(Diagnostic<? extends JavaFileObject> d) {
-            return new JavacError(
-                    d.getColumnNumber(),
-                    d.getLineNumber(),
-                    d.getKind(),
-                    d.getMessage(Locale.ENGLISH)
-            );
-        }
+    static final class JavacDiagnosticModel {        
     }
 
     @Model(className = "JavacClass", properties = {
