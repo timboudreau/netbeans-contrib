@@ -43,10 +43,11 @@
 package org.netbeans.modules.dew4nb;
 
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,8 +87,8 @@ public final class SourceProvider {
     private final FileSystem tmpRamFs =
         FileUtil.createMemoryFileSystem();
     //@GuardedBy("retain")
-    private final Map<FileObject, R> retain
-        = Collections.synchronizedMap(new LinkedHashMap <FileObject,R>());
+    private final Map<FileObject, Reference<Source>> retain
+        = Collections.synchronizedMap(new LinkedHashMap <FileObject,Reference<Source>>());
 
     
 
@@ -127,13 +128,13 @@ public final class SourceProvider {
             return null;
         }
         synchronized (retain) {
-            R r = retain.get(file);
+            Reference<Source> r = retain.get(file);
             Source src;
             if (r == null || (src = r.get()) == null) {
                 src = Source.create(file);
                 r = tmpFile ?
-                    R.forTmp(src) :
-                    R.forRegular(src, retain);
+                    new WR (src) :
+                    new SR (src, retain);
                 retain.put(file, r);
             }
             update(src, content, tmpFile);
@@ -215,65 +216,15 @@ public final class SourceProvider {
 
 
 
-    private static final class R extends SoftReference<Source> implements Runnable {
-
-        @NonNull
-        static R forTmp(
-                @NonNull final Source src) {
-            Parameters.notNull("src", src); //NOI18N
-            final FileObject fo = src.getFileObject();
-            if (fo == null) {
+    private static final class WR extends SoftReference<Source> implements Runnable {
+        private final FileObject file;
+        
+        WR(@NonNull final Source src) {
+            super(src, Utilities.activeReferenceQueue());
+            this.file = src.getFileObject();
+            if (this.file == null) {
                 throw new IllegalArgumentException("No file for Source:" + src);    //NOI18N
             }
-            return new R (
-                src,
-                fo,
-                new Closeable() {
-                    @Override
-                    public void close() throws IOException {
-                        fo.delete();
-                    }
-                });
-        }
-
-        @NonNull
-        static R forRegular(
-            @NonNull final Source src,
-            @NonNull final Map<FileObject,R> active) {
-            Parameters.notNull("src", src);
-            Parameters.notNull("active", active);
-            final FileObject fo = src.getFileObject();
-            if (fo == null) {
-                throw  new IllegalAccessError("No file for Source: " + src);    //NOI18N
-            }
-            return new R(
-                src,
-                fo,
-                new Closeable() {
-                    @Override
-                    public void close() throws IOException {
-                        synchronized (active) {
-                            active.remove(fo);
-                        }
-                    }
-                });
-        }
-
-        private final FileObject file;
-        private final Closeable strategy;
-
-        private R(
-            @NonNull final Source src,
-            @NonNull final FileObject file,
-            @NonNull final Closeable strategy) {
-            super(src, Utilities.activeReferenceQueue());            
-            this.file = src.getFileObject();            
-            this.strategy = strategy;
-        }
-
-        @NonNull
-        FileObject getFileObject() {
-            return file;
         }
 
         @Override
@@ -286,19 +237,72 @@ public final class SourceProvider {
             if (obj == this) {
                 return true;
             }
-            if (!(obj instanceof R)) {
+            if (!(obj instanceof SR)) {
                 return false;
             }
-            return ((R)obj).file.equals(this.file);
+            return ((SR)obj).file.equals(this.file);
         }
 
         @Override
         public void run() {
+            LOG.log(
+                Level.FINE,
+                "Clearing cache for temporary file: {0}",   //NOI18N
+                FileUtil.getFileDisplayName(this.file));
             try {
-                strategy.close();
+                this.file.delete();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+               LOG.log(
+                   Level.WARNING,
+                   "Cannot delete: {0}",    //NOI18N
+                   FileUtil.getFileDisplayName(file));
             }
         }
-    }    
+    }
+
+    private static final class SR extends WeakReference<Source> implements Runnable {
+
+        private final FileObject file;
+        private final Map<FileObject,Reference<Source>> active;
+
+
+        SR(
+            @NonNull final Source src,
+            @NonNull final Map<FileObject, Reference<Source>> active) {
+            super(src, Utilities.activeReferenceQueue());
+            this.file = src.getFileObject();
+            if (this.file == null) {
+                throw new IllegalArgumentException("No file for Source:" + src);    //NOI18N
+            }
+            Parameters.notNull("active", active);
+            this.active = active;
+        }
+
+        @Override
+        public int hashCode() {
+            return file.hashCode();
+        }
+
+        @Override
+        public boolean equals(@NullAllowed final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof SR)) {
+                return false;
+            }
+            return ((SR)obj).file.equals(this.file);
+        }
+
+        @Override
+        public void run() {
+            LOG.log(
+                Level.FINE,
+                "Clearing cache for permanent file: {0}",   //NOI18N
+                FileUtil.getFileDisplayName(this.file));
+            synchronized (active) {
+                active.remove(this.file);
+            }
+        }
+    }
 }
