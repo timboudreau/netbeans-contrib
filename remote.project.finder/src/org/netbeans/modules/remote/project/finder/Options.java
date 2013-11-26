@@ -61,7 +61,8 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = OptionProcessor.class)
 public final class Options extends OptionProcessor {
 
-    private static final int DEFAULT_DEPTH = 2;
+    private static final int WORKSPACE_DEPTH = 0;
+    private static final int DEFAULT_DEPTH_IN_WORKSPACE = 2;
 
     private static final Option WORK_SPACE = Option.requiredArgument(
         Option.NO_SHORT_NAME,
@@ -94,7 +95,7 @@ public final class Options extends OptionProcessor {
         if (!f.isDirectory() || !f.canRead()) {
             error(env, -2, "Workspace does not exist.");
         }
-        int depth = DEFAULT_DEPTH;
+        int depth = DEFAULT_DEPTH_IN_WORKSPACE;
         String[] depthStr = optionValues.get(DEPTH);
         if (depthStr != null) {
             if (depthStr.length != 1) {
@@ -109,7 +110,7 @@ public final class Options extends OptionProcessor {
                 error(env, -3, "Wrong workspace depth.");
             }
         }
-        WorkSpaceUpdater.getDefault().configure(f, depth);
+        WorkSpaceUpdater.getDefault().configure(f, WORKSPACE_DEPTH + depth);
     }
 
     private static void error(

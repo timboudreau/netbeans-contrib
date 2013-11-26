@@ -51,18 +51,20 @@ import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
+@ServiceProvider(service = WorkspaceResolver.class, position = 9_000)
 public final class RepositoryWorkspaceResolver implements WorkspaceResolver {
 
     // path format users/{user}/workspaces/{workspace}/projects
     private static final Pattern LOCAL_PATH_PARSER = Pattern.compile(
-        "users/([^/]+)/workspaces/([^/]+)/(.*)");   //NOI18N
+        "([^/]+)/(.*)");   //NOI18N
     private static final String LOCAL_PATH_BUILDER =
-        "users/{0}/workspaces/{1}/{2}"; //NOI18N
+        "{0}/{1}"; //NOI18N
 
     public RepositoryWorkspaceResolver() {
     }
@@ -77,8 +79,7 @@ public final class RepositoryWorkspaceResolver implements WorkspaceResolver {
             return null;
         }
         return repository.getFileObject(MessageFormat.format(
-            LOCAL_PATH_BUILDER,
-            ctx.getUser(),
+            LOCAL_PATH_BUILDER,            
             ctx.getWorkspace(),
             ctx.getPath()));
     }
@@ -100,9 +101,8 @@ public final class RepositoryWorkspaceResolver implements WorkspaceResolver {
             return null;
         }
         return new Context(
+            "",
             m.group(1),
-            m.group(2),
-            m.group(3));
-    }
-
+            m.group(2));
+    }   
 }
