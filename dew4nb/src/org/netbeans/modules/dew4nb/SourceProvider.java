@@ -204,8 +204,11 @@ public final class SourceProvider {
                     @Override
                     public void run() {
                         try {
-                            doc.remove(0, doc.getLength());
-                            doc.insertString(0, content, null);
+                            final String docContent = doc.getText(0, doc.getLength());
+                            if (!content.equals(docContent)) {
+                                doc.remove(0, doc.getLength());
+                                doc.insertString(0, content, null);
+                            }
                         } catch (BadLocationException ble) {
                             throw new IllegalStateException(ble);
                         }
