@@ -75,6 +75,7 @@ import org.openide.windows.WindowManager;
     "MSG_Resume=Resume (pending events: {0})"
 })
 public final class PauseAction implements ActionListener {
+    private static final RequestProcessor RP = new RequestProcessor("Pause Action");
 
     private static final Color FILL_COLOR = new Color( 128, 128, 128, 128 );
     @Override
@@ -109,7 +110,7 @@ public final class PauseAction implements ActionListener {
             private RequestProcessor.Task t;
             
             public C() {
-                t = RequestProcessor.getDefault().create(this);
+                t = RP.create(this);
                 t.schedule(1500);
             }
             
