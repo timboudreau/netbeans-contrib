@@ -1,6 +1,6 @@
 .Java-hint {
+  background-image: url("../img/java-hint-icons.png");
   background-repeat: no-repeat;
-  background-position: left center;
   padding-left: 20px;
   max-width: none;
 }  
@@ -21,116 +21,120 @@
 }
 .Keyword {
   color: rgb(0,0,153);
-  background-image: url("../img/java_keyword.png");
+  background-position: left -376px;
 }
 .Package {
   color: rgb(0,86,0);
-  background-image: url("../img/java_package.png");
+  background-position: left -586px;
 }
 .Class {
   color: rgb(86,0,0);
-  background-image: url("../img/java_class.png");
+  background-position: left -61px;
 }
 .Interface {
   color: rgb(64,64,64);
-  background-image: url("../img/java_interface.png");
+  background-position: left -355px;
 }
 .Enum {
   color: rgb(86,0,0);
-  background-image: url("../img/java_enum.png");
+  background-position: left -166px;
 }
 .AnnotationType {
   color: rgb(86,0,0);
-  background-image: url("../img/java_annotation_type.png");
+  background-position: left 2px;
 }
 .TypeParameter {
   color: black;
 }
-.LocalVarible {
+.LocalVariable {
   color: rgb(0,0,124);
-  background-image: url("../img/java_local_variable.png");
+  background-position: left -397px;
 }
 .Method {
   color: black;
-  background-image: url("../img/java_method.png");
+  background-position: left -418px;
 }
 .MethodPackage {
   color: black;
-  background-image: url("../img/java_method_package_private.png");
+  background-position: left -439px;
 }
 .MethodPrivate {
   color: black;
-  background-image: url("../img/java_method_private.png");
+  background-position: left -460px;
 }
 .MethodProtected {
   color: black;
-  background-image: url("../img/java_method_protected.png");
+  background-position: left -481px;
 }
 .MethodStatic {
   color: black;
-  background-image: url("../img/java_method_static.png");
+  background-position: left -502px;
 }
 .MethodStaticPackage {
   color: black;
-  background-image: url("../img/java_method_static_package_private.png");
+  background-position: left -523px;
 }
 .MethodStaticPrivate {
   color: black;
-  background-image: url("../img/java_method_static_private.png");
+  background-position: left -544px;
 }
 .MethodStaticProtected {
   color: black;
-  background-image: url("../img/java_method_static_protected.png.png");
+  background-position: left -565px;
 }
 .Field {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field.png");
+  background-position: left -187px;
 }
 .FieldPackage {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_package_private.png");
+  background-position: left -208px;
 }
 .FieldPrivate {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_private.png");
+  background-position: left -229px;
 }
 .FieldProtected {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_protected.png");
+  background-position: left -250px;
 }
 .FieldStatic {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_static.png");
+  background-position: left -271px;
 }
 .FieldStaticPackage {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_static_package_private.png");
+  background-position: left -292px;
 }
 .FieldStaticPrivate {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_static_private.png");
+  background-position: left -313px;
 }
 .FieldStaticProtected {
   color: rgb(0,134,24);
-  background-image: url("../img/java_field_static_protected.png");
+  background-position: left -334px;
 }
 .Constructor {
   color: rgb(178,139,0);
-  background-image: url("../img/java_constructor.png");
+  background-position: left -82px;
 }
 .ConstructorPackage {
   color: rgb(178,139,0);
-  background-image: url("../img/java_constructor_package_private.png");
+  background-position: left -103px;
 }
 .ConstructorPrivate {
   color: rgb(178,139,0);
-  background-image: url("../img/java_constructor_private.png");
+  background-position: left -124px;
 }
 .ConstructorProtected {
   color: rgb(178,139,0);
-  background-image: url("../img/java_constructor_protected.png");
+  background-position: left -145px;
 }
 .Attribute {
   color: rgb(64,64,64);
-  background-image: url("../img/java_attribute.png");
+  background-position: left -19px;
+}
+.AttributeValue {
+  color: rgb(64,64,64);
+  background-position: left -40px;
 }
