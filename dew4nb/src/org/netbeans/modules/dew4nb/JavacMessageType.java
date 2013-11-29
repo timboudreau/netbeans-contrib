@@ -45,6 +45,7 @@ package org.netbeans.modules.dew4nb;
 public enum JavacMessageType {
     autocomplete,
     types,
+    symbols,
     checkForErrors,
     compile,
     getfile
