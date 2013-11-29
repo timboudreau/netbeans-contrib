@@ -195,6 +195,15 @@ public final class JavacEndpoint {
     static final class JavacTypeResultModel {
     }
 
+    @Model(className = "JavacSymbolResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "symbols", type = TypeDescriptor.class, array = true)
+    })
+    static final class JavacSymbolResultModel {
+    }
+
 
     @Model(className = "FileContentResult", properties = {
         @Property(name = "status", type = Status.class),
