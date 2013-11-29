@@ -42,10 +42,8 @@
 
 package org.netbeans.modules.dew4nb.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -79,16 +77,14 @@ import org.netbeans.modules.dew4nb.JavacQuery;
 import org.netbeans.modules.dew4nb.JavacMessageType;
 import org.netbeans.modules.dew4nb.RequestHandler;
 import org.netbeans.modules.dew4nb.SourceProvider;
+import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.java.JavaCompletionItem;
 import org.netbeans.modules.editor.java.JavaCompletionItemFactory;
 import org.netbeans.modules.editor.java.JavaCompletionProvider;
 import org.netbeans.modules.editor.java.Utilities;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.spi.editor.completion.CompletionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
-import org.netbeans.modules.dew4nb.Status;
 import org.openide.util.lookup.ServiceProvider;
 
 /** Sample, code completion handler.
@@ -117,6 +113,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
             final Source s = SourceProvider.getInstance().getSource(ctx, java);
             if (s != null) {
                 List<? extends org.netbeans.spi.editor.completion.CompletionItem> items = JavaCompletionProvider.query(s, CompletionProvider.COMPLETION_QUERY_TYPE, offset, offset, new Item.Factory());
+                Collections.sort(items, CompletionItemComparator.BY_PRIORITY);
                 for (org.netbeans.spi.editor.completion.CompletionItem item : items) {
                     if (item instanceof Item) {
                         res.getCompletions().add(((Item)item).toCompletionItem());
