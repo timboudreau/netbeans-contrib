@@ -44,10 +44,14 @@ package org.netbeans.modules.dew4nb.services;
 
 import java.util.Collections;
 import java.util.Locale;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.tools.Diagnostic;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.dew4nb.Context;
 import org.netbeans.modules.dew4nb.JavacDiagnostic;
 import org.netbeans.modules.dew4nb.JavacDiagnosticsResult;
@@ -100,9 +104,10 @@ public class ErrorHandler extends RequestHandler<JavacQuery, JavacDiagnosticsRes
                                 final Parser.Result res = resultIterator.getParserResult();
                                 final CompilationController cc = CompilationController.get(res);
                                 cc.toPhase(JavaSource.Phase.UP_TO_DATE);
+                                final Document doc = cc.getDocument();
                                 for (Diagnostic<?> d : cc.getDiagnostics()) {
                                     response.getDiagnostics().add(
-                                        createJavacDiagnostic(d));
+                                        createJavacDiagnostic(d, doc));
                                 }
                             }
                         });
@@ -115,10 +120,20 @@ public class ErrorHandler extends RequestHandler<JavacQuery, JavacDiagnosticsRes
         return true;
     }
 
-    private static JavacDiagnostic createJavacDiagnostic(Diagnostic<?> d) {
+    private static JavacDiagnostic createJavacDiagnostic(Diagnostic<?> d, Document doc) {
+        long line = d.getLineNumber();
+        long col = d.getColumnNumber();
+        long len = d.getEndPosition() - d.getStartPosition();
+        if (len > 0 && doc instanceof BaseDocument) {
+            try {
+                line = Utilities.getLineOffset((BaseDocument) doc, (int) d.getStartPosition()) + 1;
+                col = Utilities.getVisualColumn((BaseDocument) doc, (int) d.getStartPosition()) + 1;
+            } catch (BadLocationException ble) {}
+        }
         return new JavacDiagnostic(
-                d.getColumnNumber(),
-                d.getLineNumber(),
+                col,
+                line,
+                len > 0 ? len : 0,
                 d.getKind(),
                 d.getMessage(Locale.ENGLISH)
         );

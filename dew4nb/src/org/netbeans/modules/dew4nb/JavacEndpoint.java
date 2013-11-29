@@ -239,6 +239,7 @@ public final class JavacEndpoint {
     @Model(className = "JavacDiagnostic", properties = {
         @Property(name = "col", type = long.class),
         @Property(name = "line", type = long.class),
+        @Property(name = "len", type = long.class),
         @Property(name = "kind", type = Diagnostic.Kind.class),
         @Property(name = "msg", type = String.class)
     })
