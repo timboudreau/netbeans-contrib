@@ -87,7 +87,7 @@ import org.netbeans.modules.form.FormDesigner;
 import org.netbeans.modules.form.FormEditor;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
-import org.netbeans.modules.form.FormEditorSupport;
+import org.netbeans.modules.nbform.FormEditorSupport;
 import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADComponent;
 import org.netbeans.modules.form.RADConnectionPropertyEditor.RADConnectionDesignValue;
