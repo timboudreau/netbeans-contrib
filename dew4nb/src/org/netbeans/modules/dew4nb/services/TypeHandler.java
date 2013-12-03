@@ -100,6 +100,7 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
                         new org.netbeans.modules.dew4nb.TypeDescriptor(
                         td.getSimpleName(),
                         td.getContextName(),
+                        "", //NOI18N
                         apiToWire(ctx)));
                 }
             }

@@ -50,6 +50,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.Context;
 import org.netbeans.modules.dew4nb.JavacMessageType;
@@ -59,6 +61,7 @@ import org.netbeans.modules.dew4nb.RequestHandler;
 import org.netbeans.modules.dew4nb.Status;
 import org.netbeans.modules.dew4nb.TypeDescriptor;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
+import org.netbeans.modules.java.source.ui.JavaSymbolDescriptor;
 import org.netbeans.modules.jumpto.common.HighlightingNameFormatter;
 import org.netbeans.modules.jumpto.common.Utils;
 import org.netbeans.modules.jumpto.symbol.SymbolProviderAccessor;
@@ -116,6 +119,7 @@ public class SymbolHandler extends RequestHandler<JavacQuery, JavacSymbolResult>
                                     SymbolProviderAccessor.DEFAULT.getHighlightText(symbol),
                                     false),
                                 symbol.getOwnerName(),
+                                getSymbolKind(symbol),
                                 new Context(
                                     ctx.getUser(),
                                     ctx.getWorkspace(),
@@ -130,6 +134,50 @@ public class SymbolHandler extends RequestHandler<JavacQuery, JavacSymbolResult>
         }
         response.setStatus(Status.success);
         return true;
+    }
+
+    @NonNull
+    private static String getSymbolKind (@NonNull final SymbolDescriptor symbol) {
+        final StringBuilder sb = new StringBuilder();
+        if (symbol instanceof JavaSymbolDescriptor) {
+            final JavaSymbolDescriptor javaSymbol = (JavaSymbolDescriptor) symbol;
+            final ElementKind kind = javaSymbol.getElementKind();
+            if (kind.isField()) {
+                sb.append("F"); //NOI18N
+            } else if (kind == ElementKind.CONSTRUCTOR || kind == ElementKind.METHOD) {
+                sb.append("M"); //NOI18N
+            } else if (kind == ElementKind.ANNOTATION_TYPE) {
+                sb.append("A"); //NOI18N
+            } else if (kind == ElementKind.ENUM) {
+                sb.append("E"); //NOI18N
+            } else if (kind == ElementKind.INTERFACE) {
+                sb.append("I"); //NOI18N
+            } else if (kind == ElementKind.CLASS) {
+                sb.append("C"); //NOI18N
+            }
+            if (sb.length()>0) {
+                final Collection<? extends Modifier> modifiers = javaSymbol.getModifiers();
+                int flags = 0;
+                for (Modifier m : modifiers) {
+                    switch (m) {
+                        case PUBLIC:
+                            flags |= java.lang.reflect.Modifier.PUBLIC;
+                            break;
+                        case PROTECTED:
+                            flags |= java.lang.reflect.Modifier.PROTECTED;
+                            break;
+                        case PRIVATE:
+                            flags |= java.lang.reflect.Modifier.PRIVATE;
+                            break;
+                        case STATIC:
+                            flags |= java.lang.reflect.Modifier.STATIC;
+                            break;
+                    }
+                }
+                sb.append(flags);
+            }
+        }
+        return sb.toString();
     }
 
     @NonNull

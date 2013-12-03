@@ -275,6 +275,7 @@ public final class JavacEndpoint {
     @Model(className = "TypeDescriptor", properties = {
         @Property(name = "name", type = String.class),
         @Property(name = "owner", type = String.class),
+        @Property(name = "flags", type = String.class),
         @Property(name = "context", type = Context.class),
     })
     static final class TypeDescriptorModel {
