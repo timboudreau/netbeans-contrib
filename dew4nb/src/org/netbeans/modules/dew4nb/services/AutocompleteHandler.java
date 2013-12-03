@@ -115,7 +115,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
                 List<? extends org.netbeans.spi.editor.completion.CompletionItem> items = JavaCompletionProvider.query(s, CompletionProvider.COMPLETION_QUERY_TYPE, offset, offset, new Item.Factory());
                 Collections.sort(items, CompletionItemComparator.BY_PRIORITY);
                 for (org.netbeans.spi.editor.completion.CompletionItem item : items) {
-                    if (item instanceof Item) {
+                    if (item instanceof Item && item != Item.NO_ITEM) {
                         res.getCompletions().add(((Item)item).toCompletionItem());
                     }
                 }
@@ -160,7 +160,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
             @Override
             public JavaCompletionItem createTypeItem(ElementHandle<TypeElement> handle, EnumSet<ElementKind> kinds, int substitutionOffset, ReferencesCount referencesCount, Source source, boolean insideNew, boolean addTypeVars, boolean afterExtends, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
@@ -239,22 +239,22 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
             @Override
             public JavaCompletionItem createOverrideMethodItem(CompilationInfo info, ExecutableElement elem, ExecutableType type, int substitutionOffset, boolean implement, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createGetterSetterMethodItem(CompilationInfo info, VariableElement elem, TypeMirror type, int substitutionOffset, String name, boolean setter) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createDefaultConstructorItem(TypeElement elem, int substitutionOffset, boolean smartType) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createParametersItem(CompilationInfo info, ExecutableElement elem, ExecutableType type, int substitutionOffset, boolean isDeprecated, int activeParamIndex, String name) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
@@ -269,32 +269,33 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
             @Override
             public JavaCompletionItem createAttributeValueItem(CompilationInfo info, String value, String documentation, TypeElement element, int substitutionOffset, ReferencesCount referencesCount, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createStaticMemberItem(CompilationInfo info, DeclaredType type, Element memberElem, TypeMirror memberType, boolean multipleVersions, int substitutionOffset, boolean isDeprecated, boolean addSemicolon, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createStaticMemberItem(ElementHandle<TypeElement> handle, String name, int substitutionOffset, boolean addSemicolon, ReferencesCount referencesCount, Source source, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createChainedMembersItem(CompilationInfo info, List<? extends Element> chainedElems, List<? extends TypeMirror> chainedTypes, int substitutionOffset, boolean isDeprecated, boolean addSemicolon, WhiteListQuery.WhiteList whiteList) {
-                return null;
+                return NO_ITEM;
             }
 
             @Override
             public JavaCompletionItem createInitializeAllConstructorItem(CompilationInfo info, boolean isDefault, Iterable<? extends VariableElement> fields, ExecutableElement superConstructor, TypeElement parent, int substitutionOffset) {
-                return null;
+                return NO_ITEM;
             }        
         }
         
         private static final String DEPRECATED = " Deprecated"; //NOI18N
         private static final String NOT_INHERITED = " NotInherited"; //NOI18N
+        private static final Item NO_ITEM = new NoItem();
         
         private CompletionItem toCompletionItem() {
             return new CompletionItem(getInsertPrefix().toString(), getDisplayName(), getExtraText(), getRightText(), getStyle());            
@@ -318,6 +319,29 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         protected String getStyle() {
             return null;
+        }
+        
+        private static class NoItem extends Item {
+
+            private NoItem() {
+                super(0);
+            }
+
+            @Override
+            public int getSortPriority() {
+                return 0;
+            }
+
+            @Override
+            public CharSequence getSortText() {
+                return null;
+            }
+
+            @Override
+            public CharSequence getInsertPrefix() {
+                return null;
+            }
+            
         }
 
         private static class KeywordItem extends Item {
