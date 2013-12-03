@@ -13,128 +13,128 @@
   float: right;
   display: inline-block;
 }
-.Deprecated .Java-hint-name {
+.Dpr .Java-hint-name {
   text-decoration:line-through;
 }
-.NotInherited .Java-hint-name {
+.NoI .Java-hint-name {
   font-weight: bolder;
 }
-.Keyword {
+.KW {
   color: rgb(0,0,153);
   background-position: left -376px;
 }
-.Package {
+.PKG {
   color: rgb(0,86,0);
   background-position: left -586px;
 }
-.Class {
+.CL {
   color: rgb(86,0,0);
   background-position: left -61px;
 }
-.Interface {
+.IF {
   color: rgb(64,64,64);
   background-position: left -355px;
 }
-.Enum {
+.EN {
   color: rgb(86,0,0);
   background-position: left -166px;
 }
-.AnnotationType {
+.AT {
   color: rgb(86,0,0);
   background-position: left 2px;
 }
-.TypeParameter {
+.TP {
   color: black;
 }
-.LocalVariable {
+.VAR {
   color: rgb(0,0,124);
   background-position: left -397px;
 }
-.Method {
+.MT {
   color: black;
   background-position: left -418px;
 }
-.MethodPackage {
+.MTP {
   color: black;
   background-position: left -439px;
 }
-.MethodPrivate {
+.MTV {
   color: black;
   background-position: left -460px;
 }
-.MethodProtected {
+.MTR {
   color: black;
   background-position: left -481px;
 }
-.MethodStatic {
+.MTS {
   color: black;
   background-position: left -502px;
 }
-.MethodStaticPackage {
+.MTSP {
   color: black;
   background-position: left -523px;
 }
-.MethodStaticPrivate {
+.MTSV {
   color: black;
   background-position: left -544px;
 }
-.MethodStaticProtected {
+.MTSR {
   color: black;
   background-position: left -565px;
 }
-.Field {
+.FD {
   color: rgb(0,134,24);
   background-position: left -187px;
 }
-.FieldPackage {
+.FDP {
   color: rgb(0,134,24);
   background-position: left -208px;
 }
-.FieldPrivate {
+.FDV {
   color: rgb(0,134,24);
   background-position: left -229px;
 }
-.FieldProtected {
+.FDR {
   color: rgb(0,134,24);
   background-position: left -250px;
 }
-.FieldStatic {
+.FDS {
   color: rgb(0,134,24);
   background-position: left -271px;
 }
-.FieldStaticPackage {
+.FDSP {
   color: rgb(0,134,24);
   background-position: left -292px;
 }
-.FieldStaticPrivate {
+.FDSV {
   color: rgb(0,134,24);
   background-position: left -313px;
 }
-.FieldStaticProtected {
+.FDSR {
   color: rgb(0,134,24);
   background-position: left -334px;
 }
-.Constructor {
+.CT {
   color: rgb(178,139,0);
   background-position: left -82px;
 }
-.ConstructorPackage {
+.CTP {
   color: rgb(178,139,0);
   background-position: left -103px;
 }
-.ConstructorPrivate {
+.CTV {
   color: rgb(178,139,0);
   background-position: left -124px;
 }
-.ConstructorProtected {
+.CTR {
   color: rgb(178,139,0);
   background-position: left -145px;
 }
-.Attribute {
+.A {
   color: rgb(64,64,64);
   background-position: left -19px;
 }
-.AttributeValue {
+.AV {
   color: rgb(64,64,64);
   background-position: left -40px;
 }

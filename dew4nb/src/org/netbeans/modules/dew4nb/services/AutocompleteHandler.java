@@ -293,8 +293,8 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
             }        
         }
         
-        private static final String DEPRECATED = " Deprecated"; //NOI18N
-        private static final String NOT_INHERITED = " NotInherited"; //NOI18N
+        private static final String DEPRECATED = " Dpr"; //NOI18N
+        private static final String NOT_INHERITED = " NoI"; //NOI18N
         private static final Item NO_ITEM = new NoItem();
         
         private CompletionItem toCompletionItem() {
@@ -346,7 +346,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class KeywordItem extends Item {
 
-            private static final String STYLE = "Java-hint Keyword"; //NOI18N
+            private static final String STYLE = "KW"; //NOI18N
 
             private String kwd;
             private int dim;
@@ -401,7 +401,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class PackageItem extends Item {
 
-            private static final String STYLE = "Java-hint Package"; //NOI18N
+            private static final String STYLE = "PKG"; //NOI18N
 
             private String simpleName;
             private String sortText;
@@ -441,7 +441,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class ClassItem extends Item {
 
-            private static final String STYLE = "Java-hint Class"; //NOI18N
+            private static final String STYLE = "CL"; //NOI18N
 
             private int dim;
             protected boolean isDeprecated;
@@ -505,7 +505,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class InterfaceItem extends ClassItem {
 
-            private static final String STYLE = "Java-hint Interface"; //NOI18N
+            private static final String STYLE = "IF"; //NOI18N
 
             private InterfaceItem(CompilationInfo info, TypeElement elem, DeclaredType type, int dim, int substitutionOffset, ReferencesCount referencesCount, boolean isDeprecated, boolean insideNew, boolean addTypeVars, boolean addSimpleName, boolean smartType, boolean autoImport, WhiteListQuery.WhiteList whiteList) {
                 super(info, elem, type, dim, substitutionOffset, referencesCount, isDeprecated, insideNew, addTypeVars, addSimpleName, smartType, autoImport, whiteList);
@@ -519,7 +519,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class EnumItem extends ClassItem {
 
-            private static final String STYLE = "Java-hint Enum"; //NOI18N
+            private static final String STYLE = "EN"; //NOI18N
 
             private EnumItem(CompilationInfo info, TypeElement elem, DeclaredType type, int dim, int substitutionOffset, ReferencesCount referencesCount, boolean isDeprecated, boolean insideNew, boolean addSimpleName, boolean smartType, boolean autoImport, WhiteListQuery.WhiteList whiteList) {
                 super(info, elem, type, dim, substitutionOffset, referencesCount, isDeprecated, insideNew, false, addSimpleName, smartType, autoImport, whiteList);
@@ -533,7 +533,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class AnnotationTypeItem extends ClassItem {
 
-            private static final String STYLE = "Java-hint AnnotationType"; //NOI18N
+            private static final String STYLE = "AT"; //NOI18N
 
             private AnnotationTypeItem(CompilationInfo info, TypeElement elem, DeclaredType type, int dim, int substitutionOffset, ReferencesCount referencesCount, boolean isDeprecated, boolean insideNew, boolean addSimpleName, boolean smartType, boolean autoImport, WhiteListQuery.WhiteList whiteList) {
                 super(info, elem, type, dim, substitutionOffset, referencesCount, isDeprecated, insideNew, false, addSimpleName, smartType, autoImport, whiteList);
@@ -547,7 +547,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
          private static class TypeParameterItem extends Item {
 
-            private static final String STYLE = "Java-hint TypeParameter"; //NOI18N
+            private static final String STYLE = "TP"; //NOI18N
 
             private String simpleName;
 
@@ -584,7 +584,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class VariableItem extends Item {
 
-            private static final String STYLE = "Java-hint LocalVariable"; //NOI18N
+            private static final String STYLE = "VAR"; //NOI18N
 
             private String varName;
             private boolean smartType;
@@ -630,11 +630,11 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class FieldItem extends Item {
 
-            private static final String STYLE = "Java-hint Field"; //NOI18N
-            private static final String STYLE_PACKAGE = "Package"; //NOI18N
-            private static final String STYLE_PRIVATE = "Private"; //NOI18N
-            private static final String STYLE_PROTECTED = "Protected"; //NOI18N
-            private static final String STYLE_STATIC = "Static"; //NOI18N
+            private static final String STYLE = "FD"; //NOI18N
+            private static final String STYLE_PACKAGE = "P"; //NOI18N
+            private static final String STYLE_PRIVATE = "V"; //NOI18N
+            private static final String STYLE_PROTECTED = "R"; //NOI18N
+            private static final String STYLE_STATIC = "S"; //NOI18N
 
             private boolean isInherited;
             private boolean isDeprecated;
@@ -717,11 +717,11 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class MethodItem extends Item {
 
-            private static final String STYLE = "Java-hint Method"; //NOI18N
-            private static final String STYLE_PACKAGE = "Package"; //NOI18N
-            private static final String STYLE_PRIVATE = "Private"; //NOI18N
-            private static final String STYLE_PROTECTED = "Protected"; //NOI18N
-            private static final String STYLE_STATIC = "Static"; //NOI18N
+            private static final String STYLE = "MT"; //NOI18N
+            private static final String STYLE_PACKAGE = "P"; //NOI18N
+            private static final String STYLE_PRIVATE = "V"; //NOI18N
+            private static final String STYLE_PROTECTED = "R"; //NOI18N
+            private static final String STYLE_STATIC = "S"; //NOI18N
 
             private boolean isInherited;
             private boolean isDeprecated;
@@ -860,10 +860,10 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         private static class ConstructorItem extends Item {
 
-            private static final String STYLE = "Java-hint Constructor"; //NOI18N
-            private static final String STYLE_PACKAGE = "Package"; //NOI18N
-            private static final String STYLE_PRIVATE = "Private"; //NOI18N
-            private static final String STYLE_PROTECTED = "Protected"; //NOI18N
+            private static final String STYLE = "CT"; //NOI18N
+            private static final String STYLE_PACKAGE = "P"; //NOI18N
+            private static final String STYLE_PRIVATE = "V"; //NOI18N
+            private static final String STYLE_PROTECTED = "R"; //NOI18N
 
             private boolean isDeprecated;
             private boolean smartType;
@@ -997,7 +997,7 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
 
         static class AttributeItem extends Item {
 
-            private static final String STYLE = "Java-hint Attribute"; //NOI18N
+            private static final String STYLE = "A"; //NOI18N
 
             private boolean isDeprecated;
             private String simpleName;

@@ -384,17 +384,21 @@ function DevCtrl( $scope, $timeout, $http ) {
             } else if (obj.type === 'autocomplete') {
                 if (obj.completions) {
                     var list = obj.completions;
+                    list.map(function(item) {
+                        item.className = "Java-hint " + item.className;
+                        return item;
+                    });
                     var from = editor.getCursor();
                     var to = editor.getCursor();
                     if ($scope.pendingJavaHintInfo) {
-                        var list;
                         if ($scope.pendingJavaHintInfo.prefix) {
                             var pref = $scope.pendingJavaHintInfo.prefix;
-                            list = [];
-                            for(var i = 0; i < obj.completions.length; ++i) {
-                                if (obj.completions[i].text.slice(0, pref.length) === pref)
-                                    list[list.length] = obj.completions[i];
+                            var filtered = [];
+                            for(var i = 0; i < list.length; ++i) {
+                                if (list[i].text.slice(0, pref.length) === pref)
+                                    filtered[filtered.length] = list[i];
                             }
+                            list = filtered;
                         }
                         var render = function(elt, data, cur) {
                             var le = elt.appendChild(document.createElement("span"));
@@ -411,9 +415,10 @@ function DevCtrl( $scope, $timeout, $http ) {
                                 re.appendChild(document.createTextNode(cur.rightText));
                             }
                         };
-                        for(var i = 0; i < list.length; ++i) {
-                            list[i].render = render;
-                        }
+                        list.map(function (item) {
+                            item.render = render;
+                            return item;
+                        });
                         from = $scope.pendingJavaHintInfo.from;
                         to = $scope.pendingJavaHintInfo.to;
                         $scope.pendingJavaHintInfo.callback({list: list, from: from, to: to, more: null});
