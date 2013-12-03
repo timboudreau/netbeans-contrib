@@ -44,6 +44,9 @@ package org.netbeans.modules.dew4nb.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.glassfish.grizzly.PortRange;
@@ -69,6 +72,7 @@ import org.openide.util.Union2;
  */
 public final class Server {
 
+    private final static Charset UTF8 = Charset.forName("UTF-8");  //NOI18N
     private final HttpServer http;
 
     private Server(
@@ -186,6 +190,13 @@ public final class Server {
                     ex.getMessage(),
                     null).toString());
             }
+        }
+
+        @Override
+        public void onMessage(WebSocket socket, byte[] bytes) {            
+            final ByteBuffer bb = ByteBuffer.wrap(bytes);
+            final CharBuffer cb = UTF8.decode(bb);
+            onMessage(socket, cb.toString());
         }
     }
 }
