@@ -65,7 +65,14 @@ public class HiddenDisplayer extends DialogDisplayer {
 
     @Override
     public Dialog createDialog(DialogDescriptor descriptor) {
-        return new Dialog((Frame)null);
+        return new Dialog((Frame)null) {
+            @Override
+            public void setVisible(boolean b) {
+            }
+            @Override
+            public void show() {
+            }
+        };
     }
 
 
