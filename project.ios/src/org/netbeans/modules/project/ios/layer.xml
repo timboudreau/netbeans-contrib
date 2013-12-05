@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="JavaSEMobile">
+                <attr name="displayName" bundlevalue="org.netbeans.modules.project.ios.Bundle#JavaSEMobileTemplateFolder"/>
+                <attr name="position" intvalue="497"/>
+                <folder name="hfx.project">
+                    <!--org.netbeans.modules.project.ios.iosWizardIterator-->
+                    <attr boolvalue="true" name="template"/>
+                    <attr bundlevalue="org.netbeans.modules.project.ios.Bundle#hfx_displayName" name="displayName"/>
+                    <attr name="iconBase" stringvalue="org/netbeans/modules/project/ios/ios.png"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/project/ios/hfxDescription.html"/>
+                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.project.ios.iosWizardIterator"/>
+                    <attr name="profile" stringvalue="compact2"/>
+                    <attr boolvalue="true" name="requireProject"/>
+                    <attr name="position" intvalue="200"/>
+                    
+                    <!-- project files -->
+                    <file name="pom.xml" url="hfx/pom.txt"/>
+                    <file name="nbactions.xml" url="hfx/nbactions.xml"/>
+                    <file name="nbactions-iOS.xml" url="hfx/nbactions-iOS.xml"/>
+                    <folder name="src">
+                        <folder name="main">
+                            <folder name="assembly">
+                                <file name="html.java.net.xml" url="hfx/html.java.net.xml"/>
+                            </folder>
+                            <folder name="java">
+                                <folder name="pkg">
+                                    <file name="Main.java" url="hfx/Main.src"/>
+                                </folder>
+                            </folder>
+                            <folder name="ios-icons">
+                                <file name="Icon-72.png" url="hfx/ios-icons/Icon-72.png"/>
+                                <file name="Icon-72@2x.png" url="hfx/ios-icons/Icon-72@2x.png"/>
+                                <file name="Icon-Small-50.png" url="hfx/ios-icons/Icon-Small-50.png"/>
+                                <file name="Icon-Small-50@2x.png" url="hfx/ios-icons/Icon-Small-50@2x.png"/>
+                                <file name="Icon-Small.png" url="hfx/ios-icons/Icon-Small.png"/>
+                                <file name="Icon-Small@2x.png" url="hfx/ios-icons/Icon-Small@2x.png"/>
+                                <file name="Icon.png" url="hfx/ios-icons/Icon.png"/>
+                                <file name="Icon@2x.png" url="hfx/ios-icons/Icon@2x.png"/>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
+                <folder name="gf.project">
+                    <!--org.netbeans.modules.project.ios.iosWizardIterator-->
+                    <attr boolvalue="true" name="template"/>
+                    <attr bundlevalue="org.netbeans.modules.project.ios.Bundle#gf_displayName" name="displayName"/>
+                    <attr name="iconBase" stringvalue="org/netbeans/modules/project/ios/ios.png"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/project/ios/gfDescription.html"/>
+                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.project.ios.iosWizardIterator"/>
+                    <attr name="profile" stringvalue="compact2"/>
+                    <attr boolvalue="true" name="requireProject"/>
+                    <attr name="position" intvalue="10100"/>
+                    
+                    <!-- project files -->
+                    <file name="pom.xml" url="gf/pom.txt"/>
+                    <file name="nbactions.xml" url="gf/nbactions.xml"/>
+                    <file name="nbactions-iOS.xml" url="gf/nbactions-iOS.xml"/>
+                    <folder name="src">
+                        <folder name="main">
+                            <folder name="assembly">
+                                <file name="html.java.net.xml" url="gf/html.java.net.xml"/>
+                            </folder>
+                            <folder name="java">
+                                <folder name="pkg">
+                                    <file name="Main.java" url="gf/Main.src"/>
+                                    <file name="Fish.java" url="gf/Fish.src"/>
+                                    <file name="RippleGenerator.java" url="gf/RippleGenerator.src"/>
+                                </folder>
+                            </folder>
+                            <folder name="resources">
+                                <folder name="pkg">
+                                    <file name="scale.png" url="gf/r/scale.png"/>
+                                    <file name="stream-3.mp3" url="gf/r/stream-3.mp3"/>
+                                    <file name="water-droplet-1.aiff" url="gf/r/water-droplet-1.aiff"/>
+                                    <file name="water-droplet-1.wav" url="gf/r/water-droplet-1.wav"/>
+                                    <file name="water-splash-2.aiff" url="gf/r/water-splash-2.aiff"/>
+                                    <file name="water-splash-2.wav" url="gf/r/water-splash-2.wav"/>
+                                </folder>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

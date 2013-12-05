@@ -1,0 +1,92 @@
+package @PKG@;
+
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+    public static final boolean useURL = "true".equals(System.getProperty("useURL", "false"));
+    public static final boolean hasSound = "true".equals(System.getProperty("hasSound", "true"));
+            
+    @Override public void start(final Stage stage) {
+        stage.setTitle("FishSim");
+        stage.setWidth(600);
+        stage.setHeight(400);
+
+        final Scene scene = new Scene(new Group());
+        scene.setFill(new RadialGradient(225, 0.85, 300, 300, 500, false,
+                CycleMethod.NO_CYCLE, new Stop[] {new Stop(0f, Color.BLACK),
+                new Stop(1f, Color.BLUE)}));
+        final Fish fish = new Fish();
+        fish.setTranslateX(300);
+        fish.setTranslateY(100);
+
+        final RippleGenerator ripper = new RippleGenerator();
+
+        final Text textOverlay = new Text();
+        textOverlay.setFill(Color.WHITE);
+        textOverlay.setFont(new Font(Font.getFamilies().get(0), 16));
+        textOverlay.setText("Click to create ripples");
+        textOverlay.setTranslateY(70);
+
+        final Timeline textFade = new Timeline();
+        final KeyFrame tFKf = new KeyFrame(Duration.seconds(1),
+                new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent event) {
+                        textOverlay.setVisible(false);
+                    }
+                }, new KeyValue(textOverlay.opacityProperty(), 0.0, Interpolator.LINEAR));
+        textFade.getKeyFrames().add(tFKf);
+
+        scene.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+                ripper.setGeneratorCenterX(me.getX());
+                ripper.setGeneratorCenterY(me.getY());
+                ripper.createRipple();
+                ripper.generate();
+                fish.goTo(me.getX(), me.getY());
+                if (textOverlay.isVisible()) {
+                    textFade.play();
+                }
+            }
+        });
+        scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+                ripper.setGeneratorCenterX(me.getX());
+                ripper.setGeneratorCenterY(me.getY());
+                fish.goTo(me.getX(), me.getY());
+            }
+        });
+        scene.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+                ripper.stopGenerator();
+            }
+        });
+      
+        ((Group)scene.getRoot()).getChildren().addAll(fish, ripper, textOverlay);
+        fish.playAnim();
+        stage.setScene(scene);
+        textOverlay.setTranslateX((stage.getWidth() - textOverlay.getBoundsInLocal().getWidth())/2);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
+
+}

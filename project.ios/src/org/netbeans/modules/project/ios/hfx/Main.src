@@ -1,0 +1,62 @@
+package @PKG@;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.effect.Reflection;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+public class Main extends Application {
+                
+    @Override
+    public void start(Stage primaryStage) {
+        Text t = new Text("Hello World!");
+        t.setFont(Font.font(null, FontWeight.BOLD, 36));
+        t.setFill(Color.BLUE);      
+        
+
+        Reflection r;
+        r = new Reflection();
+        t.setEffect(r);
+        
+        StackPane root = new StackPane();
+        root.getChildren().add(t);
+        
+        Scene scene = new Scene(root, 300, 250);
+        
+        primaryStage.setTitle("Hello World!");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        
+        final Timeline timeline = new Timeline();
+        timeline.setCycleCount(2 /*Timeline.INDEFINITE*/);
+        timeline.setAutoReverse(true);
+        final KeyValue kv = new KeyValue(t.scaleXProperty(), -1);
+        final KeyFrame kf = new KeyFrame(Duration.millis(1000), kv);
+        timeline.getKeyFrames().add(kf);
+        timeline.setDelay(Duration.millis(1000));
+        timeline.play();
+
+    }
+
+    /**
+     * The main() method is ignored in correctly deployed JavaFX application.
+     * main() serves only as fallback in case the application can not be
+     * launched through deployment artifacts, e.g., in IDEs with limited FX
+     * support. NetBeans ignores main().
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+    
+}

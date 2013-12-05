@@ -1,0 +1,186 @@
+package @PKG@;
+
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.scene.Parent;
+import javafx.scene.Group;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
+
+class Fish extends Parent {
+
+    private static final String streamName = "stream-3.mp3";
+    private static final String splashName = "water-splash-2.aiff";
+    private static final String streamURL = "http://reavers.us.oracle.com/fish/" + streamName;
+    private static final String splashURL = "http://reavers.us.oracle.com/fish/" + splashName;
+
+    private Timeline wag;
+    private Timeline move;
+
+    private Rotate angRotate;
+    private Rotate headingRotate;
+
+    private MediaPlayer backgroundSound;
+    private AudioClip splashSound;
+
+    public Fish() {
+        move = new Timeline();
+        wag = new Timeline();
+        wag.setAutoReverse(true);
+        wag.setCycleCount(Timeline.INDEFINITE);
+
+        angRotate = Transform.rotate(0, 20, 0);
+        headingRotate = Transform.rotate(90, 0, 0);
+        final KeyFrame kf1 = new KeyFrame(Duration.ZERO, new KeyValue(angRotate.angleProperty(), -10f, Interpolator.EASE_BOTH));
+        final KeyFrame kf2 = new KeyFrame(Duration.seconds(1), new KeyValue(angRotate.angleProperty(), 10f, Interpolator.EASE_BOTH));
+        wag.getKeyFrames().add(kf1);
+        wag.getKeyFrames().add(kf2);
+
+        Group group = new Group();
+        group.getTransforms().add(headingRotate);
+        Group orig = group;
+        for (int i = 0; i < 5; i++) {
+            double scale = 0.6f * (5 - i) / 3;
+            if (i == 4) scale = 0.7f;
+            Group newg = new Group();
+            newg.getTransforms().addAll(new Transform[] {
+                Transform.translate(20, 0), angRotate});
+            ImageView iv = new ImageView();
+            iv.setScaleX(scale);
+            iv.setScaleY(scale);
+            iv.setTranslateY(-50);
+            iv.setSmooth(true);
+            iv.setImage(new Image(Fish.class.getResourceAsStream("scale.png")));
+            newg.getChildren().add(iv);
+
+            if (i == 0) {
+                double eyeSpacing = 10;
+                double eyeOffset = 20;
+                Circle c1 = new Circle();
+                c1.setCenterX(eyeOffset);
+                c1.setCenterY(eyeSpacing);
+                c1.setRadius(10);
+                c1.setFill(Color.WHITE);
+                newg.getChildren().add(c1);
+                Circle c2 = new Circle();
+                c2.setCenterX(eyeOffset);
+                c2.setCenterY(-eyeSpacing);
+                c2.setRadius(10);
+                c2.setFill(Color.WHITE);
+                newg.getChildren().add(c2);
+                Circle c3 = new Circle();
+                c3.setCenterX(eyeOffset-4);
+                c3.setCenterY(eyeSpacing);
+                c3.setRadius(5);
+                c3.setFill(Color.BLACK);
+                newg.getChildren().add(c3);
+                Circle c4 = new Circle();
+                c4.setCenterX(eyeOffset-4);
+                c4.setCenterY(-eyeSpacing);
+                c4.setRadius(5);
+                c4.setFill(Color.BLACK);
+                newg.getChildren().add(c4);
+            }
+            group.getChildren().add(newg);
+            group = newg;
+        }
+        getChildren().add(orig);
+
+        // Load the sound effects
+        if (Main.hasSound) {
+            splashSound = new AudioClip(Main.useURL ? splashURL : Fish.class.getResource(splashName).toExternalForm());
+            splashSound.setVolume(0.75); // make it a little quieter
+            splashSound.setRate(0.5);
+            
+            // Get some background noise
+            Media streamSoundtrack = new Media(Main.useURL ? streamURL : Fish.class.getResource(streamName).toExternalForm());
+            backgroundSound = new MediaPlayer(streamSoundtrack);
+            backgroundSound.setVolume(0.25); // quietly play indefinitely...
+            backgroundSound.setCycleCount(MediaPlayer.INDEFINITE);
+            backgroundSound.setAutoPlay(true);
+        }
+    }
+
+    public void goTo(double x, double y) {
+        boolean wasStopped = (move.getStatus() == Animation.Status.STOPPED);
+
+        move.stop();
+        double xoff = x - getTranslateX();
+        double yoff = y - getTranslateY();
+        if (xoff == 0 && yoff == 0) {
+            return;
+        }
+        double angg = calcHeading(getTranslateX(), getTranslateY(), x, y);
+        double dist = Math.sqrt(xoff * xoff + yoff * yoff);
+
+        double oldHeading = headingRotate.getAngle();
+
+        // clamp current heading to 0-360 range to simplify logic
+        while (oldHeading < 0) {
+            oldHeading += 360;
+        }
+        while (oldHeading > 360) {
+            oldHeading -= 360;
+        }
+        headingRotate.setAngle(oldHeading); // update so it's active
+        
+        // handle 0-90 <-> 270-360 turns so they don't take the long way 'round
+        if (oldHeading <= 90 && angg >= 270) {
+            angg -= 360;
+        } else if (oldHeading >= 270 && angg <= 90) {
+            angg += 360;
+        }
+        Duration t = Duration.millis(1000 * dist / 100.0);
+        final KeyFrame kf = new KeyFrame(t, new KeyValue[] {
+            new KeyValue(headingRotate.angleProperty(), angg + 90, Interpolator.LINEAR),
+            new KeyValue(this.translateXProperty(), x, Interpolator.LINEAR),
+            new KeyValue(this.translateYProperty(), y, Interpolator.LINEAR)});
+        move = new Timeline();
+        move.getKeyFrames().add(kf);
+        move.play();
+
+        // only play if the direction changes by more than 15 degrees or the fish was stopped
+        if (wasStopped) {
+            if (splashSound != null) splashSound.play();
+        }
+    }
+
+    private double calcHeading(double x1, double y1, double x2, double y2) {
+        double xoff = x2-x1;
+        double yoff = y2-y1;
+        double hyp = Math.sqrt(xoff*xoff+yoff*yoff);
+        double angle = Math.asin(yoff/hyp);
+        
+        // angle is now -pi/2 to pi/2 radians but that's just in the triangle
+        // we need to convert that to a heading in the 0-360 degree range
+
+        // We have to hand calculate heading as the coordinates are inverted
+        // which throws off normal calculations
+        double heading = Math.toDegrees(angle);
+        if (xoff < 0) {
+            heading = 360 - heading;
+            if (heading > 360) {
+                heading -= 360;
+            }
+        } else {
+            heading += 180;
+        }
+        return heading;
+    }
+
+    public void playAnim() {
+        wag.play();
+    }
+
+}

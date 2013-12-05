@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>run</actionName>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>exec:exec</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>debug</actionName>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>exec:exec</goal>
+        </goals>
+        <properties>
+            <exec.extra>-Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</exec.extra>
+            <jpda.listen>true</jpda.listen>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-Build IPA</actionName>
+        <displayName>Build IPA</displayName>
+        <goals>
+            <goal>package</goal>
+            <goal>ios:build-IPA</goal>
+        </goals>
+        <properties>
+            <skipTests>true</skipTests>
+            <appjarDebug>true</appjarDebug>
+            <appjarDebugName>${project.build.finalName}.jar</appjarDebugName>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-Debug IPA</actionName>
+        <displayName>Debug IPA</displayName>
+        <goals>
+            <goal>package</goal>
+            <goal>ios:ipaddress</goal>
+            <goal>ios:build-IPA</goal>
+        </goals>
+        <properties>
+            <skipTests>true</skipTests>            
+            <jpda.listen>true</jpda.listen>
+            <ipAddress>${ip.address}</ipAddress>
+            <jpdaAddress>${jpda.address}</jpdaAddress>
+            <runMode>Debug</runMode>            
+        </properties>
+    </action>
+</actions>
