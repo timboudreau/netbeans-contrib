@@ -29,6 +29,7 @@
                             <folder name="java">
                                 <folder name="pkg">
                                     <file name="Main.java" url="hfx/Main.src"/>
+                                    <file name="RoboVMJFXLauncher.java" url="hfx/RoboVMJFXLauncher.src"/>
                                 </folder>
                             </folder>
                             <folder name="ios-icons">
@@ -69,6 +70,7 @@
                                     <file name="Main.java" url="gf/Main.src"/>
                                     <file name="Fish.java" url="gf/Fish.src"/>
                                     <file name="RippleGenerator.java" url="gf/RippleGenerator.src"/>
+                                    <file name="RoboVMJFXLauncher.java" url="gf/RoboVMJFXLauncher.src"/>
                                 </folder>
                             </folder>
                             <folder name="resources">
