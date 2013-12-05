@@ -22,7 +22,7 @@
           <plugin>
                 <groupId>org.robovm</groupId>
                 <artifactId>robovm-maven-plugin</artifactId>
-                <version>0.0.6.1</version>
+                <version>0.0.7.1</version>
                 <configuration>
                     <config>
                         <mainClass>test.ios.RoboVMJFXLauncher</mainClass>
@@ -102,12 +102,12 @@
       <dependency>
             <groupId>org.robovm</groupId>
             <artifactId>robovm-rt</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.robovm</groupId>
             <artifactId>robovm-cocoatouch</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7</version>
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
