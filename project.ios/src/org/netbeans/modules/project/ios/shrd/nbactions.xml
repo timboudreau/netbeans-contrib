@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>run</actionName>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>exec:exec</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>debug</actionName>
+        <goals>
+            <goal>process-classes</goal>
+            <goal>exec:exec</goal>
+        </goals>
+        <properties>
+            <exec.extra>-Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</exec.extra>
+            <jpda.listen>true</jpda.listen>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-iPad-Sim</actionName>
+        <displayName>Run iPad Simulator</displayName>
+        <goals>
+            <goal>robovm:ipad-sim</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-iPhone-Sim</actionName>
+        <displayName>Run iPhone Simulator</displayName>
+        <goals>
+            <goal>robovm:iphone-sim</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-BuildIPA</actionName>
+        <displayName>Build IPA</displayName>
+        <goals>
+            <goal>robovm:create-ipa</goal>
+        </goals>
+    </action>
+</actions>

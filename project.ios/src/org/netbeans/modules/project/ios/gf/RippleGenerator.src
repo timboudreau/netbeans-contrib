@@ -8,21 +8,21 @@ import javafx.event.EventHandler;
 import javafx.util.Duration;
 import javafx.scene.Parent;
 import javafx.scene.Group;
-import javafx.scene.media.AudioClip;
+//import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 final class RippleGenerator extends Parent {
 
-    private static String dropletName = "water-droplet-1.aiff";
-    private static String dropletURL = "http://reavers.us.oracle.com/fish/" + dropletName;
-    
+//    private static String dropletName = "water-droplet-1.aiff";
+//    private static String dropletURL = "http://reavers.us.oracle.com/fish/" + dropletName;
+
     private double generatorCenterX;
     private double generatorCenterY;
     private Group content;
     private Timeline generate;
-    private AudioClip dropletSound;
-    
+//    private AudioClip dropletSound;
+
     public RippleGenerator() {
         generate = new Timeline();
         generate.setCycleCount(Timeline.INDEFINITE);
@@ -39,8 +39,8 @@ final class RippleGenerator extends Parent {
         getChildren().add(content);
 
         if (Main.hasSound) {
-            dropletSound = new AudioClip(Main.useURL ? dropletURL : RippleGenerator.class.getResource(dropletName).toExternalForm());
-            dropletSound.setRate(0.5);
+//            dropletSound = new AudioClip(Main.useURL ? dropletURL : RippleGenerator.class.getResource(dropletName).toExternalForm());
+//            dropletSound.setRate(0.5);
         }
     }
 
@@ -74,10 +74,10 @@ final class RippleGenerator extends Parent {
         rip.setCenterY(generatorCenterY);
         content.getChildren().add(rip);
         rip.playAnim();
-        
+
         // play a sound effect to go with it
-        //dropletSound.play();
-        
+//        dropletSound.play();
+
         Timeline remover = new Timeline();
         final KeyFrame kf = new KeyFrame(Duration.seconds(3),
                 new EventHandler<ActionEvent>() {
@@ -101,7 +101,7 @@ final class RippleGenerator extends Parent {
         private void stopAnim() {
             anim.stop();
         }
-        
+
         private Ripple() {
             setStroke(Color.rgb(200,200,255));
             setFill(null);

@@ -19,8 +19,8 @@
                     
                     <!-- project files -->
                     <file name="pom.xml" url="hfx/pom.txt"/>
-                    <file name="nbactions.xml" url="hfx/nbactions.xml"/>
-                    <file name="nbactions-iOS.xml" url="hfx/nbactions-iOS.xml"/>
+                    <file name="nbactions.xml" url="shrd/nbactions.xml"/>
+                    <file name="nbactions-iOS.xml" url="shrd/nbactions-iOS.xml"/>
                     <folder name="src">
                         <folder name="main">
                             <folder name="assembly">
@@ -57,8 +57,8 @@
                     
                     <!-- project files -->
                     <file name="pom.xml" url="gf/pom.txt"/>
-                    <file name="nbactions.xml" url="gf/nbactions.xml"/>
-                    <file name="nbactions-iOS.xml" url="gf/nbactions-iOS.xml"/>
+                    <file name="nbactions.xml" url="shrd/nbactions.xml"/>
+                    <file name="nbactions-iOS.xml" url="shrd/nbactions-iOS.xml"/>
                     <folder name="src">
                         <folder name="main">
                             <folder name="assembly">

@@ -10,16 +10,6 @@
 
   <name>@NAME@</name>
 
-  <pluginRepositories>
-      <pluginRepository>
-          <id>ios</id>
-          <name>NetBeans iOS Maven Plugin</name>
-          <url>http://beetle.cz.oracle.com/~jtulach/maven/</url>
-          <snapshots>
-          </snapshots>
-      </pluginRepository>
-  </pluginRepositories>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.mainclass>@PKG@.Main</project.mainclass>
@@ -29,6 +19,23 @@
 
   <build>
       <plugins>
+          <plugin>
+                <groupId>org.robovm</groupId>
+                <artifactId>robovm-maven-plugin</artifactId>
+                <version>0.0.6.1</version>
+                <configuration>
+                    <config>
+                        <mainClass>test.ios.RoboVMJFXLauncher</mainClass>
+                        <!--<forceLinkClasses>
+                            <pattern>com.sun.scenario.effect.impl.prism.*</pattern>
+                            <pattern>com.sun.scenario.effect.impl.prism.ps.*</pattern>
+                            <pattern>com.sun.scenario.effect.impl.prism.sw.*</pattern>
+                            <pattern>javafx.scene.media.AudioClip</pattern>
+                        </forceLinkClasses>-->
+                    </config>
+                    <includeJFX>true</includeJFX>
+                </configuration>
+          </plugin>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
@@ -88,23 +95,27 @@
                       </configuration>
                   </execution>
               </executions>                
-          </plugin>      
+          </plugin>
       </plugins>
   </build>
   <dependencies>    
-    <dependency>
-        <groupId>com.oracle</groupId>
-        <artifactId>javafx</artifactId>
-        <version>2.2</version>
-        <scope>system</scope>
-        <systemPath>${jfxrt.jar}</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <version>6.7</version>
-      <scope>test</scope>
-    </dependency>    
+      <dependency>
+            <groupId>org.robovm</groupId>
+            <artifactId>robovm-rt</artifactId>
+            <version>0.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.robovm</groupId>
+            <artifactId>robovm-cocoatouch</artifactId>
+            <version>0.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>javafx</artifactId>
+            <version>2.2</version>
+            <scope>system</scope>
+            <systemPath>${jfxrt.jar}</systemPath>
+        </dependency>
   </dependencies>
   <profiles>
       <profile>
@@ -114,21 +125,6 @@
                   <name>Mac OS X</name>
               </os>
           </activation>
-          <build>
-              <plugins> 
-                  <plugin>
-                      <groupId>org.netbeans.ios</groupId>
-                      <artifactId>ios-maven-plugin</artifactId>
-                      <version>0.5</version>
-                      <configuration>
-                          <jarfile>${project.build.directory}/${project.build.finalName}.jar</jarfile>
-                          <title>${project.name}</title>
-                          <mainclass>${project.mainclass}</mainclass>
-                          <javaProfile>@PROFILE@</javaProfile>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </build>          
       </profile>
       <profile>
           <id>jdk8</id>
@@ -140,22 +136,6 @@
           <properties>
             <jfxrt.jar>${java.home}/lib/ext/jfxrt.jar</jfxrt.jar>
           </properties>
-          <build>
-              <plugins>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-compiler-plugin</artifactId>
-                      <version>2.3.2</version>
-                      <configuration>
-                        <source>1.7</source>
-                        <target>1.8</target>
-                        <compilerArguments>
-                            <profile>@PROFILE@</profile>
-                        </compilerArguments>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </build>
       </profile>
       <profile>
           <id>jdk7</id>
