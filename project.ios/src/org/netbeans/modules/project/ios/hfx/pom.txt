@@ -22,7 +22,7 @@
           <plugin>
                 <groupId>org.robovm</groupId>
                 <artifactId>robovm-maven-plugin</artifactId>
-                <version>0.0.7.1</version>
+                <version>0.0.7.2</version>
                 <configuration>
                     <config>
                         <mainClass>test.ios.RoboVMJFXLauncher</mainClass>
