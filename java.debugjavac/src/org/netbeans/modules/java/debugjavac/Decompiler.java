@@ -91,6 +91,7 @@ public interface Decompiler {
         public String compileErrors;
         public String decompiledOutput;
         public String decompiledMimeType;
+        public String exception;
 
         public Result() {
         }
@@ -99,6 +100,10 @@ public interface Decompiler {
             this.compileErrors = compileErrors.trim().isEmpty() ? null : compileErrors;
             this.decompiledOutput = decompiledOutput.trim().isEmpty() ? null : decompiledOutput;
             this.decompiledMimeType = decompiledMimeType;
+        }
+
+        public Result(String exception) {
+            this.exception = exception;
         }
 
         public String getCompileErrors() {
@@ -123,6 +128,14 @@ public interface Decompiler {
 
         public void setDecompiledMimeType(String decompiledMimeType) {
             this.decompiledMimeType = decompiledMimeType;
+        }
+
+        public String getException() {
+            return exception;
+        }
+
+        public void setException(String exception) {
+            this.exception = exception;
         }
     }
 //    public final class Result {

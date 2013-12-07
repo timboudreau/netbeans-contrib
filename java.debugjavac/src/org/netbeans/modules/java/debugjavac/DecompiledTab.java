@@ -185,8 +185,12 @@ public class DecompiledTab {
                 UpToDateStatusProviderImpl.get(doc).update(UpToDateStatus.UP_TO_DATE_PROCESSING);
                 DecompilerDescription decompiler = findDecompiler((String) decompilerId);
                 Result decompileResult = ((CompilerDescription) compilerDescription).decompile(decompiler, new Input(code, Utilities.commandLineParameters(source)));
-                decompiledCode = (decompileResult.decompiledOutput != null ? "#Section(" + decompileResult.decompiledMimeType + ") Output:\n" + decompileResult.decompiledOutput + "\n" : "") +
-                                 (decompileResult.compileErrors != null ? "#Section(text/plaing) Processing Errors:\n" + decompileResult.compileErrors + "\n" : "");
+                if (decompileResult.exception != null) {
+                    decompiledCode = "#Section(text/plain) Ooops, an exception occurred while decompiling:\n" + decompileResult.exception;
+                } else {
+                    decompiledCode = (decompileResult.decompiledOutput != null ? "#Section(" + decompileResult.decompiledMimeType + ") Output:\n" + decompileResult.decompiledOutput + "\n" : "") +
+                                     (decompileResult.compileErrors != null ? "#Section(text/plain) Processing Errors:\n" + decompileResult.compileErrors + "\n" : "");
+                }
             } else {
                 decompiledCode = "Unusable compiler";
             }
@@ -208,7 +212,7 @@ public class DecompiledTab {
                 }
             });
             
-            SaveCookie sc = DataObject.find(findDecompiled(source)).getLookup().lookup(SaveCookie.class);
+            SaveCookie sc = DataObject.find(decompiled).getLookup().lookup(SaveCookie.class);
             
             if (sc != null) sc.save();
 
@@ -472,6 +476,15 @@ public class DecompiledTab {
                     }
                 }
             });
+
+            try {
+                FileObject decompiledFO = NbEditorUtilities.getFileObject(doc);
+                SaveCookie sc = decompiledFO != null ? DataObject.find(decompiledFO).getLookup().lookup(SaveCookie.class) : null;
+
+                if (sc != null) sc.save();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 }

@@ -86,7 +86,7 @@ public class DesugarDecompilerImpl implements Decompiler {
             ex.printStackTrace(new PrintWriter(errors));
         }
         
-        return new Result(errors.toString(), decompiled.toString(), "text/x-java");
+        return new Result(errors.toString(), decompiled.toString().trim(), "text/x-java");
     }
     
     static class JavaCompilerOverride extends JavaCompiler {
@@ -108,26 +108,30 @@ public class DesugarDecompilerImpl implements Decompiler {
             Pair<Env<AttrContext>, JCClassDecl> first = queue.peek();
 
             if (first != null) {
-                out.write("package ");
-                out.write(first.fst.toplevel.pid.toString());
-                out.write(";\n");
+                if (first.fst.toplevel.pid != null) {
+                    out.write("package ");
+                    out.write(first.fst.toplevel.pid.toString());
+                    out.write(";\n\n");
+                }
 
-                boolean firstImport = true;
-
+                boolean hasImports = false;
+                
                 for (Tree importCandidate : first.fst.toplevel.defs) {
                     if (importCandidate != null && importCandidate.getKind() == Kind.IMPORT) {
-                        out.write(firstImport ? "\nimport " : "import ");
+                        out.write("import ");
                         ImportTree importTree = (ImportTree) importCandidate;
                         if (importTree.isStatic()) {
                             out.write("static ");
                         }
                         out.write(importTree.getQualifiedIdentifier().toString());
                         out.write(";\n");
-                        firstImport = false;
+                        hasImports = true;
                     }
                 }
 
-                out.write("\n");
+                if (hasImports) {
+                    out.write("\n");
+                }
 
                 for (Pair<Env<AttrContext>, JCClassDecl> q : queue) {
                     out.write(q.snd.toString());

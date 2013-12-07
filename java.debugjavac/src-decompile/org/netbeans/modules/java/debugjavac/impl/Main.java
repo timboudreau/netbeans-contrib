@@ -43,6 +43,8 @@ package org.netbeans.modules.java.debugjavac.impl;
 
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.netbeans.modules.java.debugjavac.Decompiler.Input;
 import org.netbeans.modules.java.debugjavac.Decompiler.Result;
 import org.netbeans.modules.java.debugjavac.DecompilerDescription;
@@ -53,24 +55,34 @@ import org.netbeans.modules.java.debugjavac.DecompilerDescription;
  */
 public class Main {
     public static void main(String... args) {
-        Input input;
-        
-        try (XMLDecoder decoder = new XMLDecoder(System.in)) {
-            input = (Input) decoder.readObject();
-        }
+        try {
+            Input input;
 
-        String id = args[0];
+            try (XMLDecoder decoder = new XMLDecoder(System.in)) {
+                input = (Input) decoder.readObject();
+            }
 
-        for (DecompilerDescription desc : DecompilerDescription.getDecompilers()) {
-            if (id.equals(desc.id)) {
-                Result result = desc.createDecompiler(Main.class.getClassLoader()).decompile(input);
-                try (XMLEncoder enc = new XMLEncoder(System.out)) {
-                    enc.writeObject(result);
+            String id = args[0];
+
+            for (DecompilerDescription desc : DecompilerDescription.getDecompilers()) {
+                if (id.equals(desc.id)) {
+                    Result result = desc.createDecompiler(Main.class.getClassLoader()).decompile(input);
+                    try (XMLEncoder enc = new XMLEncoder(System.out)) {
+                        enc.writeObject(result);
+                    }
+                    return ;
                 }
-                return ;
+            }
+
+            throw new IllegalStateException("Cannot find: " + id);
+        } catch (Throwable t) {
+            try (XMLEncoder enc = new XMLEncoder(System.out)) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                t.printStackTrace(pw);
+                pw.close();
+                enc.writeObject(new Result(sw.toString()));
             }
         }
-
-        throw new IllegalStateException("Cannot find: " + id);
     }
 }
