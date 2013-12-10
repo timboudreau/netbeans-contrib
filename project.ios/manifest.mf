@@ -3,5 +3,5 @@ AutoUpdate-Show-In-Client: true
 OpenIDE-Module: org.netbeans.modules.project.ios
 OpenIDE-Module-Layer: org/netbeans/modules/project/ios/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/project/ios/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.2
+OpenIDE-Module-Specification-Version: 1.3
 
