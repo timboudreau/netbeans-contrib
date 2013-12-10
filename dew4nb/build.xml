@@ -30,7 +30,14 @@
         <mkdir dir="release/modules/ext"/>
         <copy todir="release/modules/ext">
             <fileset refid="pom.fileset"/>
-            <mapper type="flatten"/>
+            <chainedmapper>
+                <regexpmapper from="^(.*)-201[3-9][0-9].*\.jar" to="\1-SNAPSHOT.jar"/>
+                <flattenmapper/>
+            </chainedmapper>
+        </copy>
+        <copy todir="release/modules/ext">
+            <fileset refid="pom.fileset"/>
+            <flattenmapper/>
         </copy>
     </target>
 </project>
