@@ -330,7 +330,7 @@ public final class ModelProcessor extends AbstractProcessor {
                     values++;
                 }
                 w.append("    Object[] ret = new Object[" + values + "];\n");
-                w.append("    org.netbeans.modules.json.JSON.extract(null, json, new String[] {\n");
+                w.append("    org.netbeans.modules.json.JSON.extract(json, new String[] {\n");
                 for (int i = 0; i < propsGetSet.size(); i += 5) {
                     Prprt p = findPrprt(props, propsGetSet.get(i));
                     if (p == null) {
@@ -354,7 +354,7 @@ public final class ModelProcessor extends AbstractProcessor {
                         w.append("      for (Object e : ((Object[])ret[" + cnt + "])) {\n");
                         if (isModel[0]) {
                             w.append("        this.prop_").append(pn).append(".add(org.netbeans.modules.json.JSON.read");
-                            w.append("(null, " + type + ".class, e));\n");
+                            w.append("(" + type + ".class, e));\n");
                         } else if (isEnum[0]) {
                             w.append("        this.prop_").append(pn);
                             w.append(".add(e == null ? null : ");
@@ -389,7 +389,7 @@ public final class ModelProcessor extends AbstractProcessor {
                             w.append(type).append("Value();\n");
                         } else if (isModel[0]) {
                             w.append("    this.prop_").append(pn).append(" = org.netbeans.modules.json.JSON.read");
-                            w.append("(null, " + type + ".class, ");
+                            w.append("(" + type + ".class, ");
                             w.append("ret[" + cnt + "]);\n");
                         }else {
                             w.append("    this.prop_").append(pn);

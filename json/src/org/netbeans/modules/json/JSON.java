@@ -73,15 +73,15 @@ public final class JSON {
         }
     }
 
-    public static void extract(BrwsrCtx c, Object value, String[] props, Object[] values) {
+    public static void extract(Object value, String[] props, Object[] values) {
         HtmlJsonProvider.extract(value, props, values);
     }
-    private static Object getProperty(BrwsrCtx c, Object obj, String prop) {
+    private static Object getProperty(Object obj, String prop) {
         if (prop == null) return obj;
         
         String[] arr = { prop };
         Object[] val = { null };
-        extract(c, obj, arr, val);
+        extract(obj, arr, val);
         return val[0];
     }
 
@@ -115,18 +115,18 @@ public final class JSON {
         return value.toString();
     }
 
-    public static String toString(BrwsrCtx c, Object obj, String prop) {
-        obj = getProperty(c, obj, prop);
+    public static String toString(Object obj, String prop) {
+        obj = getProperty(obj, prop);
         return obj instanceof String ? (String)obj : null;
     }
-    public static Number toNumber(BrwsrCtx c, Object obj, String prop) {
-        obj = getProperty(c, obj, prop);
+    public static Number toNumber(Object obj, String prop) {
+        obj = getProperty(obj, prop);
         if (!(obj instanceof Number)) {
             obj = Double.NaN;
         }
         return (Number)obj;
     }
-    public static <M> M toModel(BrwsrCtx c, Class<M> aClass, Object data, Object object) {
+    public static <M> M toModel(Class<M> aClass, Object data, Object object) {
 //        Technology<?> t = findTechnology(c);
 //        Object o = t.toModel(aClass, data);
 //        return aClass.cast(o);
@@ -248,11 +248,11 @@ public final class JSON {
         return Boolean.TRUE.equals(val);
     }
     
-    public static <T> T readStream(BrwsrCtx c, Class<T> modelClazz, InputStream data) 
+    public static <T> T readStream(Class<T> modelClazz, InputStream data) 
     throws IOException {
-        return read(c, modelClazz, HtmlJsonProvider.toJSON((InputStream)data));
+        return read(modelClazz, HtmlJsonProvider.toJSON((InputStream)data));
     }
-    public static <T> T read(BrwsrCtx c, Class<T> modelClazz, Object data) {
+    public static <T> T read(Class<T> modelClazz, Object data) {
         if (data == null) {
             return null;
         }
@@ -319,8 +319,5 @@ public final class JSON {
             Object data = Array.get(values, i);
             to.add((T)data);
         }
-    }
-    
-    public final static class BrwsrCtx {
     }
 }

@@ -74,7 +74,7 @@ public final class Models {
      * @return new instance of the model class
      */
     public static <M> M parse(Class<M> model, InputStream is) throws IOException {
-        return JSON.readStream(null, model, is);
+        return JSON.readStream(model, is);
     }
     
     /** Converts an existing, raw, JSON object into a {@link Model model class}.
@@ -86,7 +86,7 @@ public final class Models {
      * @return new instance of the model class
      */
     public static <M> M fromRaw(Class<M> model, Object jsonObject) {
-        return JSON.read(null, model, jsonObject);
+        return JSON.read(model, jsonObject);
     }
     
 //    /** Converts an existing {@link Model model} into its associated, raw 
