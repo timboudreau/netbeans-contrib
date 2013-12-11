@@ -61,7 +61,6 @@ import org.testng.annotations.Test;
     @Property(name = "names", type = String.class, array = true),
     @Property(name = "values", type = int.class, array = true),
     @Property(name = "people", type = Person.class, array = true),
-    @Property(name = "changedProperty", type=String.class)
 })
 public class ModelTest {
     private Modelik model;
@@ -168,26 +167,6 @@ public class ModelTest {
     @ComputedProperty
     static int powerValue(int value) {
         return value * value;
-    }
-    
-    @Test public void changeAnything() {
-        model.setCount(44);
-        assertNull(model.getChangedProperty(), "No observed value change");
-    }
-    @Test public void changeValue() {
-        model.setValue(33);
-        assertEquals(model.getChangedProperty(), "powerValue", "power property changed");
-    }
-    @Test public void changeUnrelated() {
-        model.setUnrelated(333);
-        assertEquals(model.getChangedProperty(), "unrelated", "unrelated changed");
-    }
-
-    @Test public void changeInArray() {
-        model.getValues().add(10);
-        assertNull(model.getChangedProperty(), "No change before applyBindings");
-        model.getValues().add(10);
-        assertEquals(model.getChangedProperty(), "values", "Something added into the array");
     }
     
     @ComputedProperty
