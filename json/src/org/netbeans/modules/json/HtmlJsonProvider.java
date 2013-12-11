@@ -39,77 +39,41 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.json;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 
-import org.apidesign.html.context.spi.Contexts;
-import org.apidesign.html.json.spi.JSONCall;
-import org.apidesign.html.json.spi.Transfer;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.openide.util.lookup.ServiceProvider;
-
-import net.java.html.BrwsrCtx;
-import net.java.html.json.Model;
-import net.java.html.json.Models;
-import net.java.html.json.Property;
 
 /** 
  * 
  *
  * @author Jaroslav Tulach (jtulach at netbeans.org)
  */
-@ServiceProvider(service = Contexts.Provider.class)
-public final class HtmlJsonProvider implements Contexts.Provider, Transfer {
-
+final class HtmlJsonProvider {
     private static final Logger LOG = Logger.getLogger(HtmlJsonProvider.class.getName());
 
-    static {
-        HtmlJsonProvider w = new HtmlJsonProvider();
-    }
-
-    @Override
-    public void fillContext(Contexts.Builder bldr, Class<?> type) {
-        bldr.register(Transfer.class, this, 10).build();
-    }
-
-    @Override
-    public void extract(Object jsonObject, String[] props, Object[] values) {
+    public static void extract(Object jsonObject, String[] props, Object[] values) {
         if (jsonObject instanceof JSONObject) {
             JSONObject obj = (JSONObject) jsonObject;
             for (int i = 0; i < props.length; i++) {
                 try {
-                    values[i] = obj.has(props[i]) ? obj.get(props[i]) : null;
-                } catch (JSONException ex) {
+                    values[i] = obj.containsKey(props[i]) ? obj.get(props[i]) : null;
+                } catch (Exception ex) {
                     LOG.log(Level.SEVERE, "Can't read " + props[i] + " from " + jsonObject, ex);
                 }
             }
         }
     }
 
-    @Override
-    public Object toJSON(InputStream is) throws IOException {
-        try {
-            InputStreamReader r = new InputStreamReader(is, "UTF-8");
-            JSONTokener t = new JSONTokener(r);
-            return new JSONObject(t);
-        } catch (JSONException ex) {
-            throw new IOException(ex);
-        }
-    }
-
-    @Override
-    public void loadJSON(JSONCall call) {
-        throw new UnsupportedOperationException();
+    public static Object toJSON(InputStream is) throws IOException {
+        InputStreamReader r = new InputStreamReader(is, "UTF-8"); // NOI18N
+        return JSONValue.parse(r);
     }
 }

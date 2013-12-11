@@ -44,6 +44,7 @@ package org.netbeans.modules.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -73,8 +74,7 @@ public final class JSON {
     }
 
     public static void extract(BrwsrCtx c, Object value, String[] props, Object[] values) {
-//        Transfer t = findTransfer(c);
-//        t.extract(value, props, values);
+        HtmlJsonProvider.extract(value, props, values);
     }
     private static Object getProperty(BrwsrCtx c, Object obj, String prop) {
         if (prop == null) return obj;
@@ -250,9 +250,7 @@ public final class JSON {
     
     public static <T> T readStream(BrwsrCtx c, Class<T> modelClazz, InputStream data) 
     throws IOException {
-//        Transfer tr = findTransfer(c);
-//        return read(c, modelClazz, tr.toJSON((InputStream)data));
-        throw new IOException();
+        return read(c, modelClazz, HtmlJsonProvider.toJSON((InputStream)data));
     }
     public static <T> T read(BrwsrCtx c, Class<T> modelClazz, Object data) {
         if (data == null) {
@@ -261,14 +259,15 @@ public final class JSON {
         if (modelClazz == String.class) {
             return modelClazz.cast(data.toString());
         }
-//        for (int i = 0; i < 2; i++) {
-//            FromJSON<?> from = froms.get(modelClazz);
-//            if (from == null) {
-//                initClass(modelClazz);
-//            } else {
-//                return modelClazz.cast(from.read(c, data));
-//            }
-//        }
+        if (isModel(modelClazz)) {
+            try {
+                Constructor<T> newC = modelClazz.getDeclaredConstructor(Object.class);
+                newC.setAccessible(true);
+                return newC.newInstance(data);
+            } catch (Exception ex) {
+                throw new IllegalStateException(ex);
+            }
+        }
         throw new NullPointerException();
     }
     static void initClass(Class<?> modelClazz) {

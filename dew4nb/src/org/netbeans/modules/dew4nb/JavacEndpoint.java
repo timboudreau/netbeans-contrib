@@ -45,13 +45,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.EnumMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
-import net.java.html.BrwsrCtx;
 import net.java.html.json.Model;
 import net.java.html.json.Models;
 import net.java.html.json.Property;
@@ -86,7 +83,7 @@ public final class JavacEndpoint {
     @NonNull
     public Object doCompile(String query) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(query.getBytes("UTF-8"));
-        JavacQuery q = Models.parse(BrwsrCtx.findDefault(JavacQuery.class), JavacQuery.class, is);
+        JavacQuery q = Models.parse(JavacQuery.class, is);
         is.close();
         return doCompile(q);
     }
