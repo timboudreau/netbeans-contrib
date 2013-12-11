@@ -50,10 +50,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.java.html.json.Model;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-/**
+/** Set of utility methods to be used from classes generated
+ * by {@link Model} annotation. These methods are not supposed
+ * to be called directly.
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
@@ -130,24 +133,6 @@ public final class JSON {
         return value.toString();
     }
 
-    public static String toString(Object obj, String prop) {
-        obj = getProperty(obj, prop);
-        return obj instanceof String ? (String)obj : null;
-    }
-    public static Number toNumber(Object obj, String prop) {
-        obj = getProperty(obj, prop);
-        if (!(obj instanceof Number)) {
-            obj = Double.NaN;
-        }
-        return (Number)obj;
-    }
-    public static <M> M toModel(Class<M> aClass, Object data, Object object) {
-//        Technology<?> t = findTechnology(c);
-//        Object o = t.toModel(aClass, data);
-//        return aClass.cast(o);
-        return null;
-    }
-    
     public static boolean isSame(int a, int b) {
         return a == b;
     }
@@ -284,23 +269,6 @@ public final class JSON {
             }
         }
         throw new NullPointerException();
-    }
-    static void initClass(Class<?> modelClazz) {
-        try {
-            // try to resolve the class
-            ClassLoader l;
-            try {
-                l = modelClazz.getClassLoader();
-            } catch (SecurityException ex) {
-                l = null;
-            }
-            if (l != null) {
-                Class.forName(modelClazz.getName(), true, l);
-            }
-            modelClazz.newInstance();
-        } catch (Exception ex) {
-            // ignore and try again
-        }
     }
     
     public static <T> void cloneAll(Collection<T> to, Collection<T> from) {
