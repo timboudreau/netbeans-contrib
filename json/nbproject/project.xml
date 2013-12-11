@@ -34,6 +34,7 @@
             </test-dependencies>
             <public-packages>
                 <package>net.java.html.json</package>
+                <package>org.netbeans.modules.json.support</package>
             </public-packages>
         </data>
     </configuration>

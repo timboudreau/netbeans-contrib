@@ -39,20 +39,27 @@
  *
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.json;
+package org.netbeans.modules.json.support;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
 public final class JSON {
+    private static final Logger LOG = Logger.getLogger(JSON.class.getName());
+    
     private JSON() {
     }
     
@@ -73,8 +80,17 @@ public final class JSON {
         }
     }
 
-    public static void extract(Object value, String[] props, Object[] values) {
-        HtmlJsonProvider.extract(value, props, values);
+    public static void extract(Object jsonObject, String[] props, Object[] values) {
+        if (jsonObject instanceof JSONObject) {
+            JSONObject obj = (JSONObject) jsonObject;
+            for (int i = 0; i < props.length; i++) {
+                try {
+                    values[i] = obj.containsKey(props[i]) ? obj.get(props[i]) : null;
+                } catch (Exception ex) {
+                    LOG.log(Level.SEVERE, "Can't read " + props[i] + " from " + jsonObject, ex);
+                }
+            }
+        }
     }
     private static Object getProperty(Object obj, String prop) {
         if (prop == null) return obj;
@@ -100,7 +116,6 @@ public final class JSON {
             for (int i = 0; i < len; i++) {
                 char ch = s.charAt(i);
                 switch (ch) {
-                    case '\'': sb.append("\\\'"); break;
                     case '\"': sb.append("\\\""); break;
                     case '\n': sb.append("\\n"); break;
                     case '\r': sb.append("\\r"); break;
@@ -250,7 +265,7 @@ public final class JSON {
     
     public static <T> T readStream(Class<T> modelClazz, InputStream data) 
     throws IOException {
-        return read(modelClazz, HtmlJsonProvider.toJSON((InputStream)data));
+        return read(modelClazz, toJSON((InputStream)data));
     }
     public static <T> T read(Class<T> modelClazz, Object data) {
         if (data == null) {
@@ -320,4 +335,10 @@ public final class JSON {
             to.add((T)data);
         }
     }
+
+    private static Object toJSON(InputStream is) throws IOException {
+        InputStreamReader r = new InputStreamReader(is, "UTF-8"); // NOI18N
+        return JSONValue.parse(r);
+    }
+    
 }

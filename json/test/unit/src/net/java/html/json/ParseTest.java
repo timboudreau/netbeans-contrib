@@ -44,6 +44,8 @@ package net.java.html.json;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -57,5 +59,18 @@ public class ParseTest {
         ByteArrayInputStream is = new ByteArrayInputStream(p.toString().getBytes());
         Person p2 = Models.parse(Person.class, is);
         Assert.assertEquals(p2, p, "Deserialized object is the same");
+    }
+
+    @Test public void parseApostroph() throws Exception {
+        Person p = new Person();
+        p.setSex(Sex.MALE);
+        p.setFirstName("Jimmy 'Jim' Rambo");
+        
+        ScriptEngineManager sem = new ScriptEngineManager();
+        ScriptEngine eng = sem.getEngineByMimeType("text/javascript");
+        
+        Object obj = eng.eval(p + ".firstName");
+        
+        Assert.assertEquals(obj, p.getFirstName(), "Should be the same");
     }
 }

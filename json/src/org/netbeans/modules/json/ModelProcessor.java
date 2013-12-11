@@ -248,7 +248,7 @@ public final class ModelProcessor extends AbstractProcessor {
                         w.write("    this.prop_" + p.name() + " = " + p.name() + ";\n");
                     }
                     if (firstArray != null) {
-                        w.write("    org.netbeans.modules.json.JSON.init(this.prop_" + firstArray.name() + ", " + firstArray.name() + ");\n");
+                        w.write("    org.netbeans.modules.json.support.JSON.init(this.prop_" + firstArray.name() + ", " + firstArray.name() + ");\n");
                     }
                     w.append("  };\n");
                 }
@@ -289,7 +289,7 @@ public final class ModelProcessor extends AbstractProcessor {
 //                        tn = btn;
 //                    }
 //                    if (set != null) {
-//                        w.append("        case " + (i / 5) + ": data." + strip(set) + "(org.netbeans.modules.json.JSON.extractValue(" + tn + ".class, value)); return;\n");
+//                        w.append("        case " + (i / 5) + ": data." + strip(set) + "(org.netbeans.modules.json.support.JSON.extractValue(" + tn + ".class, value)); return;\n");
 //                    }
 //                }
 //                w.append("      }\n");
@@ -318,7 +318,7 @@ public final class ModelProcessor extends AbstractProcessor {
 //                w.append("    public " + className + " read(net.java.html.BrwsrCtx c, Object json) { return new " + className + "(c, json); }\n");
 //                w.append("    public " + className + " cloneTo(Object o, net.java.html.BrwsrCtx c) { return ((" + className + ")o).clone(c); }\n");
 //                w.append("  }\n");
-//                w.append("  static { org.netbeans.modules.json.JSON.register(new P(0)); }\n");
+//                w.append("  static { org.netbeans.modules.json.support.JSON.register(new P(0)); }\n");
                 w.append("  private ").append(className).append("(Object json) {\n");
 //                w.append("    this.context = c;\n");
                 int values = 0;
@@ -330,7 +330,7 @@ public final class ModelProcessor extends AbstractProcessor {
                     values++;
                 }
                 w.append("    Object[] ret = new Object[" + values + "];\n");
-                w.append("    org.netbeans.modules.json.JSON.extract(json, new String[] {\n");
+                w.append("    org.netbeans.modules.json.support.JSON.extract(json, new String[] {\n");
                 for (int i = 0; i < propsGetSet.size(); i += 5) {
                     Prprt p = findPrprt(props, propsGetSet.get(i));
                     if (p == null) {
@@ -353,15 +353,15 @@ public final class ModelProcessor extends AbstractProcessor {
                         w.append("    if (ret[" + cnt + "] instanceof Object[]) {\n");
                         w.append("      for (Object e : ((Object[])ret[" + cnt + "])) {\n");
                         if (isModel[0]) {
-                            w.append("        this.prop_").append(pn).append(".add(org.netbeans.modules.json.JSON.read");
+                            w.append("        this.prop_").append(pn).append(".add(org.netbeans.modules.json.support.JSON.read");
                             w.append("(" + type + ".class, e));\n");
                         } else if (isEnum[0]) {
                             w.append("        this.prop_").append(pn);
                             w.append(".add(e == null ? null : ");
-                            w.append(type).append(".valueOf(org.netbeans.modules.json.JSON.stringValue(e)));\n");
+                            w.append(type).append(".valueOf(org.netbeans.modules.json.support.JSON.stringValue(e)));\n");
                         } else {
                             if (isPrimitive(type)) {
-                                w.append("        this.prop_").append(pn).append(".add(org.netbeans.modules.json.JSON.numberValue(e).");
+                                w.append("        this.prop_").append(pn).append(".add(org.netbeans.modules.json.support.JSON.numberValue(e).");
                                 w.append(type).append("Value());\n");
                             } else {
                                 w.append("        this.prop_").append(pn).append(".add((");
@@ -374,21 +374,21 @@ public final class ModelProcessor extends AbstractProcessor {
                         if (isEnum[0]) {
                             w.append("    this.prop_").append(pn);
                             w.append(" = ret[" + cnt + "] == null ? null : ");
-                            w.append(type).append(".valueOf(org.netbeans.modules.json.JSON.stringValue(ret[" + cnt + "]));\n");
+                            w.append(type).append(".valueOf(org.netbeans.modules.json.support.JSON.stringValue(ret[" + cnt + "]));\n");
                         } else if (isPrimitive(type)) {
                             w.append("    this.prop_").append(pn);
                             w.append(" = ret[" + cnt + "] == null ? ");
                             if ("char".equals(type)) {
-                                w.append("0 : (org.netbeans.modules.json.JSON.charValue(");
+                                w.append("0 : (org.netbeans.modules.json.support.JSON.charValue(");
                             } else if ("boolean".equals(type)) {
-                                w.append("false : (org.netbeans.modules.json.JSON.boolValue(");
+                                w.append("false : (org.netbeans.modules.json.support.JSON.boolValue(");
                             } else {
-                                w.append("0 : (org.netbeans.modules.json.JSON.numberValue(");
+                                w.append("0 : (org.netbeans.modules.json.support.JSON.numberValue(");
                             }
                             w.append("ret[" + cnt + "])).");
                             w.append(type).append("Value();\n");
                         } else if (isModel[0]) {
-                            w.append("    this.prop_").append(pn).append(" = org.netbeans.modules.json.JSON.read");
+                            w.append("    this.prop_").append(pn).append(" = org.netbeans.modules.json.support.JSON.read");
                             w.append("(" + type + ".class, ");
                             w.append("ret[" + cnt + "]);\n");
                         }else {
@@ -422,14 +422,14 @@ public final class ModelProcessor extends AbstractProcessor {
                 w.write("    if (!(o instanceof " + className + ")) return false;\n");
                 w.write("    " + className + " p = (" + className + ")o;\n");
                 for (Prprt p : props) {
-                    w.write("    if (!org.netbeans.modules.json.JSON.isSame(prop_" + p.name() + ", p.prop_" + p.name() + ")) return false;\n");
+                    w.write("    if (!org.netbeans.modules.json.support.JSON.isSame(prop_" + p.name() + ", p.prop_" + p.name() + ")) return false;\n");
                 }
                 w.write("    return true;\n");
                 w.write("  }\n");
                 w.write("  public int hashCode() {\n");
                 w.write("    int h = " + className + ".class.getName().hashCode();\n");
                 for (Prprt p : props) {
-                    w.write("    h = org.netbeans.modules.json.JSON.hashPlus(prop_" + p.name() + ", h);\n");
+                    w.write("    h = org.netbeans.modules.json.support.JSON.hashPlus(prop_" + p.name() + ", h);\n");
                 }
                 w.write("    return h;\n");
                 w.write("  }\n");
@@ -496,7 +496,7 @@ public final class ModelProcessor extends AbstractProcessor {
                 w.write("  }\n");
                 w.write("  public void " + gs[1] + "(" + tn + " v) {\n");
                 w.write("    if (locked) throw new IllegalStateException();\n");
-                w.write("    if (org.netbeans.modules.json.JSON.isSame(prop_" + p.name() + ", v)) return;\n");
+                w.write("    if (org.netbeans.modules.json.support.JSON.isSame(prop_" + p.name() + ", v)) return;\n");
                 w.write("    prop_" + p.name() + " = v;\n");
 //                w.write("    org.apidesign.html.json.impl.Bindings b = ko[0];\n");
 //                w.write("    if (b != null) {\n");
@@ -748,18 +748,18 @@ public final class ModelProcessor extends AbstractProcessor {
                     params.append('"').append(id).append('"');
                     continue;
                 }
-                toCall = "org.netbeans.modules.json.JSON.toString(context, ";
+                toCall = "org.netbeans.modules.json.support.JSON.toString(context, ";
             }
             if (ve.asType().getKind() == TypeKind.DOUBLE) {
-                toCall = "org.netbeans.modules.json.JSON.toNumber(context, ";
+                toCall = "org.netbeans.modules.json.support.JSON.toNumber(context, ";
                 toFinish = ".doubleValue()";
             }
             if (ve.asType().getKind() == TypeKind.INT) {
-                toCall = "org.netbeans.modules.json.JSON.toNumber(context, ";
+                toCall = "org.netbeans.modules.json.support.JSON.toNumber(context, ";
                 toFinish = ".intValue()";
             }
             if (dataName != null && ve.getSimpleName().contentEquals(dataName) && isModel(ve.asType())) {
-                toCall = "org.netbeans.modules.json.JSON.toModel(context, " + ve.asType() + ".class, ";
+                toCall = "org.netbeans.modules.json.support.JSON.toModel(context, " + ve.asType() + ".class, ";
             }
 
             if (toCall != null) {
@@ -868,7 +868,7 @@ public final class ModelProcessor extends AbstractProcessor {
             w.write(sep);
             w.append("    sb.append('\"').append(\"" + p.name() + "\")");
                 w.append(".append('\"').append(\":\");\n");
-            w.append("    sb.append(org.netbeans.modules.json.JSON.toJSON(prop_");
+            w.append("    sb.append(org.netbeans.modules.json.support.JSON.toJSON(prop_");
             w.append(p.name()).append("));\n");
             sep =    "    sb.append(',');\n";
         }
@@ -894,7 +894,7 @@ public final class ModelProcessor extends AbstractProcessor {
                 }
                 w.write("    ret.prop_" + p.name() + " =  prop_" + p.name() + "  == null ? null : prop_" + p.name() + ".clone();\n");
             } else {
-                w.write("    org.netbeans.modules.json.JSON.cloneAll(ret.prop_" + p.name() + ", prop_" + p.name() + ");\n");
+                w.write("    org.netbeans.modules.json.support.JSON.cloneAll(ret.prop_" + p.name() + ", prop_" + p.name() + ");\n");
             }
         }
         
