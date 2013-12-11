@@ -55,12 +55,21 @@ public final class JSON {
     private JSON() {
     }
     
-    static boolean isModel(Class<?> c) {
-        throw new IllegalStateException("c: " + c);
+    public static boolean isModel(Class<?> c) {
+        try {
+            return c.getDeclaredMethod("modelFor") != null; // NOI18N
+        } catch (Exception ex) {
+            return false;
+        }
     }
     
-    static <T> T bindTo(T t) {
-        return t;
+    @SuppressWarnings("unchecked") static <T> T bindTo(T t) {
+        try {
+            final Class<?> c = t.getClass();
+            return (T)c.cast(c.getMethod("clone").invoke(t)); // NOI18N
+        } catch (Exception ex) {
+            throw new IllegalStateException("No clone method in " + t.getClass(), ex);
+        }
     }
 
     public static void extract(BrwsrCtx c, Object value, String[] props, Object[] values) {
@@ -301,6 +310,7 @@ public final class JSON {
         to.addAll(Arrays.asList(values));
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> void init(Collection<T> to, Object values) {
         int len;
         if (values == null || (len = Array.getLength(values)) == 0) {
