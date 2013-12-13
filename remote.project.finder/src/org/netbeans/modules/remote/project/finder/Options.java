@@ -42,6 +42,7 @@
 package org.netbeans.modules.remote.project.finder;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -89,6 +90,11 @@ public final class Options extends OptionProcessor {
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
         String[] folders = optionValues.get(WORK_SPACE);
         if (folders == null || folders.length != 1) {
+            if (System.getProperty("netbeans.full.hack") != null) { // NOI18N
+                PrintStream err = env.getErrorStream();
+                err.println("WARNING: No workspace given. But seems to be running in tests, going on...");
+                return;
+            }
             error(env, -1, "No workspace given.");
         }
         final File f = new File(folders[0]);
