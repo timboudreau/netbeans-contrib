@@ -60,7 +60,7 @@ import org.openide.util.NbBundle.Messages;
         iconBase = "org/netbeans/modules/dew4nb/dew.png",
         displayName = "#CTL_LaunchDew4Nb"
 )
-@ActionReference(path = "Menu/Tools", position = 1400, separatorBefore = 1350)
+@ActionReference(path = "Menu/Tools", position = 1392, separatorBefore = 1350)
 @Messages("CTL_LaunchDew4Nb=Development Environment for Web")
 public final class LaunchDew4Nb implements ActionListener {
 
