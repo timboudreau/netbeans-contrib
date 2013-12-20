@@ -47,7 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
-import org.netbeans.api.project.*;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.licensechanger.wizard.utils.LicenseChangerRunnable;
 import org.netbeans.modules.licensechanger.wizard.utils.WizardProperties;
 import org.openide.DialogDisplayer;
@@ -58,7 +59,9 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.util.*;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  * Context-sensitive action to launch the license header change wizard.
@@ -66,83 +69,83 @@ import org.openide.util.*;
  * @author Nils Hoffmann
  */
 @ActionID(
-    category = "Tools",
-id = "org.netbeans.modules.licensechanger.wizard.LicenseChangerWizardAction")
+	category = "Tools",
+	id = "org.netbeans.modules.licensechanger.wizard.LicenseChangerWizardAction")
 @ActionRegistration(
-    displayName = "#CTL_LicenseChangerWizardAction")
+	displayName = "#CTL_LicenseChangerWizardAction")
 @ActionReferences(
-//    @ActionReference(path = "Loaders/folder/any/Actions", position = 951)
-@ActionReference(path = "UI/ToolActions/Files", position = 951))
+	//    @ActionReference(path = "Loaders/folder/any/Actions", position = 951)
+	@ActionReference(path = "UI/ToolActions/Files", position = 951))
 @NbBundle.Messages("CTL_LicenseChangerWizardAction=Change License Header")
 public final class LicenseChangerWizardAction implements ActionListener {
 
-    private List<DataObject> context;
+	private List<DataObject> context;
 
-    public LicenseChangerWizardAction(List<DataObject> context) {
-        this.context = context;
-    }
+	public LicenseChangerWizardAction(List<DataObject> context) {
+		this.context = context;
+	}
 
-    /**
-     * Used to return the parent folder of a file or the folder itself.
-     *
-     * @param fo
-     * @return
-     */
-    private FileObject addFileObject(FileObject fo) {
-        if (fo.isFolder()) {
-            return fo;
-        }
-        return fo.getParent();
-    }
+	/**
+	 * Used to return the parent folder of a file or the folder itself.
+	 *
+	 * @param fo
+	 * @return
+	 */
+	private FileObject addFileObject(FileObject fo) {
+		if (fo.isFolder()) {
+			return fo;
+		}
+		return fo.getParent();
+	}
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        Set<FileObject> files = new HashSet<FileObject>();
-        Project owningProject = null;
-        for (DataObject ob : context) {
-            FileObject fo = ob.getPrimaryFile();
-            Project proj = FileOwnerQuery.getOwner(fo);
-            if (owningProject == null) {
-                owningProject = proj;
-                //TODO implement better exclusion of build directories 
-                files.add(addFileObject(fo));
-            } else {
-                if (owningProject.equals(proj)) {
-                    files.add(addFileObject(fo));
-                } else {
-                    Exceptions.printStackTrace(new IllegalStateException("Can only handle folders below one project!"));
-                    return;
-                }
-            }
-        }
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Set<FileObject> files = new HashSet<FileObject>();
+		Project owningProject = null;
+		for (DataObject ob : context) {
+			FileObject fo = ob.getPrimaryFile();
+			Project proj = FileOwnerQuery.getOwner(fo);
+			if (owningProject == null) {
+				owningProject = proj;
+				//TODO implement better exclusion of build directories
+				files.add(addFileObject(fo));
+			} else {
+				if (owningProject.equals(proj)) {
+					files.add(addFileObject(fo));
+				} else {
+					Exceptions.printStackTrace(new IllegalStateException("Can only handle folders below one project!"));
+					return;
+				}
+			}
+		}
 
-        List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-        panels.add(new ChooseFileTypesWizardPanel());
-        panels.add(new LicenseChooserWizardPanel());
-        panels.add(new SelectFoldersWizardPanel());
-        panels.add(new PreviewWizardPanel());
-        String[] steps = new String[panels.size()];
-        for (int i = 0; i < panels.size(); i++) {
-            Component c = panels.get(i).getComponent();
-            // Default step name to component name of panel.
-            steps[i] = c.getName();
-            if (c instanceof JComponent) { // assume Swing components
-                JComponent jc = (JComponent) c;
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
-                jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
-            }
-        }
-        WizardDescriptor wiz = new WizardDescriptor(new WizardDescriptor.ArrayIterator<WizardDescriptor>(panels));
-        // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
-        wiz.setTitleFormat(new MessageFormat("{0}"));
-        wiz.setTitle("Change License Headers");
-        wiz.putProperty(WizardProperties.KEY_ROOT_FILES, files);
-        wiz.putProperty(WizardProperties.KEY_PROJECT, owningProject);
-        if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
-            RequestProcessor.getDefault().post(new LicenseChangerRunnable(wiz));
-        }
-    }
+		List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
+		panels.add(new ChooseFileTypesWizardPanel());
+		panels.add(new LicenseChooserWizardPanel());
+		panels.add(new SelectFoldersWizardPanel());
+		panels.add(new PreviewWizardPanel());
+		String[] steps = new String[panels.size()];
+		for (int i = 0; i < panels.size(); i++) {
+			Component c = panels.get(i).getComponent();
+			// Default step name to component name of panel.
+			steps[i] = c.getName();
+			if (c instanceof JComponent) { // assume Swing components
+				JComponent jc = (JComponent) c;
+				jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);
+				jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);
+				jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, true);
+				jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, true);
+				jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, true);
+			}
+		}
+		WizardDescriptor wiz = new WizardDescriptor(new WizardDescriptor.ArrayIterator<WizardDescriptor>(panels));
+		// {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
+		wiz.setTitleFormat(new MessageFormat("{0}"));
+		wiz.setTitle("Change License Headers");
+		wiz.putProperty(WizardProperties.KEY_ROOT_FILES, files);
+		wiz.putProperty(WizardProperties.KEY_PROJECT, owningProject);
+		if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
+			RequestProcessor.getDefault().post(new LicenseChangerRunnable(wiz));
+		}
+	}
 }
