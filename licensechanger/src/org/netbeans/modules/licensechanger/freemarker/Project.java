@@ -41,22 +41,36 @@
  */
 package org.netbeans.modules.licensechanger.freemarker;
 
+import org.netbeans.api.project.ProjectUtils;
+
 /**
  * Freemarker expects project.organization to be the field 'organization' in an
  * object. This provides a thin wrapper for that. Class must be public to be
  * accessible by freemarker.
- * 
+ *
  * @author Nils Hoffmann
  */
 public class Project {
 
-    private final String organization;
+	private final String organization;
+	private final String name;
+	private final String displayName;
 
-    public Project(String organization) {
-        this.organization = organization;
-    }
+	public Project(String organization, org.netbeans.api.project.Project netBeansProject) {
+		this.organization = organization;
+		this.name = ProjectUtils.getInformation(netBeansProject).getName();
+		this.displayName = ProjectUtils.getInformation(netBeansProject).getDisplayName();
+	}
 
-    public String getOrganization() {
-        return this.organization;
-    }
+	public String getOrganization() {
+		return this.organization;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public String getDisplayName() {
+		return this.displayName;
+	}
 }
