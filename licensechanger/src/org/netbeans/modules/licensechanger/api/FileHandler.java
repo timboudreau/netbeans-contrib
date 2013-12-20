@@ -163,27 +163,33 @@ public abstract class FileHandler {
 				Bindings bindings = se.createBindings();
 				//parse settings from User.properties
 				FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
-				Properties props = new Properties();
-				InputStream in = null;
-				try {
-					in = userProperties.getInputStream();
-					props.load(in);
-				} catch (IOException ex) {
-					Exceptions.printStackTrace(ex);
-					throw new RuntimeException(ex);
-				} finally {
+				Properties props = null;
+				if (userProperties != null) {
+					props = new Properties();
+					InputStream in = null;
 					try {
-						if (in != null) {
-							in.close();
-						}
+						in = userProperties.getInputStream();
+						props.load(in);
 					} catch (IOException ex) {
 						Exceptions.printStackTrace(ex);
 						throw new RuntimeException(ex);
+					} finally {
+						try {
+							if (in != null) {
+								in.close();
+							}
+						} catch (IOException ex) {
+							Exceptions.printStackTrace(ex);
+							throw new RuntimeException(ex);
+						}
 					}
-				}
-				//set default bindings from User.properties
-				for (String key : props.stringPropertyNames()) {
-					bindings.put(key, props.getProperty(key));
+					//set default bindings from User.properties
+					for (String key : props.stringPropertyNames()) {
+						bindings.put(key, props.getProperty(key));
+					}
+				} else {
+					Logger.getLogger(FileHandler.class.getName()).warning("Could not retrieve config file Templates/Properties/User.properties! Using empty properties!");
+					props = new Properties();
 				}
 				//add license template specific bindings
 				bindings.put("licenseFirst", licenseFirst());
