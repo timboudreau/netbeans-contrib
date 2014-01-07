@@ -296,7 +296,10 @@ public class GsfEditorKitFactory {
             @Override
             protected void replaceSelection(JTextComponent target, int dotPos, Caret caret,
                 String str, boolean overwrite) throws BadLocationException {
-                char insertedChar = str.charAt(0);
+                Character insertedChar = null;
+                if(str.length() > 0) {
+                    insertedChar = str.charAt(0);
+                }
                 Document document = target.getDocument();
 
                 if (document instanceof BaseDocument) {
@@ -309,9 +312,15 @@ public class GsfEditorKitFactory {
                             try {
                                 int caretPosition = caret.getDot();
 
-                                boolean handled =
-                                    bracketCompletion.beforeCharInserted(doc, caretPosition,
-                                        target, insertedChar);
+                                boolean handled = false;
+
+                                if(insertedChar != null) {
+                                    handled = bracketCompletion.beforeCharInserted(
+                                            doc, 
+                                            caretPosition,
+                                            target, 
+                                            insertedChar);
+                                }
 
                                 int p0 = Math.min(caret.getDot(), caret.getMark());
                                 int p1 = Math.max(caret.getDot(), caret.getMark());
@@ -320,13 +329,16 @@ public class GsfEditorKitFactory {
                                     doc.remove(p0, p1 - p0);
                                 }
 
-                                if (!handled) {
+                                if ( (! handled) && insertedChar != null) {
                                     if ((str != null) && (str.length() > 0)) {
                                         doc.insertString(p0, str, null);
                                     }
 
-                                    bracketCompletion.afterCharInserted(doc, caret.getDot() - 1,
-                                        target, insertedChar);
+                                    bracketCompletion.afterCharInserted(
+                                            doc,
+                                            caret.getDot() - 1,
+                                            target,
+                                            insertedChar);
                                 }
                             } catch (BadLocationException e) {
                                 e.printStackTrace();
