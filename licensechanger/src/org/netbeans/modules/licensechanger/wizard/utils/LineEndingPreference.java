@@ -45,31 +45,67 @@ package org.netbeans.modules.licensechanger.wizard.utils;
  */
 public enum LineEndingPreference {
 
-    FORCE_CRLF,
-    NO_CHANGE,
-    FORCE_NEWLINE,
-    SYSTEM_DEFAULT;
+	FORCE_CRLF,
+	FORCE_CR,
+	NO_CHANGE,
+	FORCE_NEWLINE,
+	SYSTEM_DEFAULT;
 
-    public static String convertLineEndings(LineEndingPreference pref, String old, String nue) {
-        boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
-        switch (pref) {
-            case FORCE_CRLF:
-                return nue.replaceAll("\n", "\r\n"); //NOI18N
-            case FORCE_NEWLINE:
-                //We already converted everything to newline only on load
-                return nue;
-            case NO_CHANGE:
-                return oldHasCrlf ? nue.replaceAll("\n", "\r\n") : //NOI18N
-                        nue;
-            case SYSTEM_DEFAULT:
-                String sep = System.getProperty("line.separator"); //NOI18N
-                if ("\n".equals(sep)) {
-                    return nue;
-                } else {
-                    return nue.replaceAll("\n", sep);//NOI18N
-                }
-            default:
-                throw new AssertionError();
-        }
-    }
+	public static String convertLineEndings(LineEndingPreference pref, String old, String nue) {
+		boolean oldHasCrlf = old.contains("\r\n"); //NOI18N
+		boolean oldHasCr = old.contains("\r"); //NOI18N
+		boolean oldHasLf = old.contains("\n"); //NOI18N
+		String tmp = nue;
+		switch (pref) {
+			case FORCE_CRLF:
+				if (oldHasCr && !(oldHasCrlf)) {
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				} else if (oldHasCr && oldHasCrlf) {
+					//tmp = tmp.replaceAll("\r\n", "\n"); //NOI18N
+				}
+				return tmp.replaceAll("\n", "\r\n"); //NOI18N
+			case FORCE_CR:
+				if (oldHasCr && !(oldHasCrlf)) {
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				} else if (oldHasCr && oldHasCrlf) {
+					tmp = tmp.replaceAll("\r\n", "\n"); //NOI18N
+					//tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				}
+				return tmp.replaceAll("\n", "\r"); //NOI18N
+			case FORCE_NEWLINE:
+				if (oldHasCr && !(oldHasCrlf)) {
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				} else if (oldHasCr && oldHasCrlf) {
+					tmp = tmp.replaceAll("\r\n", "\n"); //NOI18N
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				}
+				return tmp;
+			case NO_CHANGE:
+				// license headers all have \n, so if the file string contains
+				// only cr, replace \n with \r
+				if (oldHasCr && !(oldHasCrlf)) {
+					return tmp.replaceAll("\n", "\r"); //NOI18N
+					// if it contains \r\n (cr,lf), replace \n with \r\n, after
+					// homogenizing \r\n to \n to avoid substring replacements
+				} else if (oldHasCr && oldHasCrlf) {
+					tmp = tmp.replaceAll("\r\n", "\n"); //NOI18N
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+					return tmp.replaceAll("\n", "\r\n"); //NOI18N
+				} else {
+					return tmp;
+				}
+			case SYSTEM_DEFAULT:
+				String sep = System.getProperty("line.separator"); //NOI18N
+				if (oldHasCr && !(oldHasCrlf)) {
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				} else if (oldHasCr && oldHasCrlf) {
+					tmp = tmp.replaceAll("\r\n", "\n"); //NOI18N
+					tmp = tmp.replaceAll("\r", "\n"); //NOI18N
+				}
+				return tmp.replaceAll("\n", sep); //NOI18N
+			default:
+				throw new AssertionError();
+		}
+	}
+
 }
