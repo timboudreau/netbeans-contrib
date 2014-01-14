@@ -38,12 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.fileHandlers;
 
-import org.netbeans.modules.licensechanger.fileHandlers.JavaFileHandler;
 import java.util.Collections;
 import java.util.Map;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.netbeans.modules.licensechanger.TestUtils.*;
+import static org.netbeans.modules.licensechanger.TestUtils.getLicense;
+import static org.netbeans.modules.licensechanger.TestUtils.readFile;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 
 /**
@@ -68,7 +68,7 @@ public class JavaFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         JavaFileHandler instance = new JavaFileHandler();
-        String original = readFile(JavaFileHandlerTest.class,filename);
+        String original = readFile(JavaFileHandlerTest.class, filename);
         String processed = instance.transform(original, license, props);
         assertEqualsLineByLine(golden, processed, filename);
     }
@@ -97,6 +97,6 @@ public class JavaFileHandlerTest {
 //
 //    }
     private static String getGolden() throws Exception {
-        return readFile(JavaFileHandlerTest.class,"java_golden.txt");
+        return readFile(JavaFileHandlerTest.class, "java_golden.txt");
     }
 }

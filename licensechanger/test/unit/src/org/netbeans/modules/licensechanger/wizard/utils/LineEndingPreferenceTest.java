@@ -50,66 +50,66 @@ import org.junit.Test;
  */
 public class LineEndingPreferenceTest {
 
-	@Test
-	public void testNewLineToCRConversion() {
-		String testString = "jklhalksdj\nkadlkja\nhaksz";
-		String expectedString = "jklhalksdj\rkadlkja\rhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CR, testString, testString));
-	}
+    @Test
+    public void testNewLineToCRConversion() {
+        String testString = "jklhalksdj\nkadlkja\nhaksz";
+        String expectedString = "jklhalksdj\rkadlkja\rhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CR, testString, testString));
+    }
 
-	@Test
-	public void testNewLineToNewLineConversion() {
-		String testString = "jklhalksdj\nkadlkja\nhaksz";
-		String expectedString = testString;
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
-	}
+    @Test
+    public void testNewLineToNewLineConversion() {
+        String testString = "jklhalksdj\nkadlkja\nhaksz";
+        String expectedString = testString;
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
+    }
 
-	@Test
-	public void testNewLineToCRLFConversion() {
-		String testString = "jklhalksdj\nkadlkja\nhaksz";
-		String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CRLF, testString, testString));
-	}
+    @Test
+    public void testNewLineToCRLFConversion() {
+        String testString = "jklhalksdj\nkadlkja\nhaksz";
+        String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CRLF, testString, testString));
+    }
 
-	@Test
-	public void testCRToNewLineConversion() {
-		String testString = "jklhalksdj\rkadlkja\rhaksz";
-		String expectedString = "jklhalksdj\nkadlkja\nhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_NEWLINE, testString, testString));
-	}
+    @Test
+    public void testCRToNewLineConversion() {
+        String testString = "jklhalksdj\rkadlkja\rhaksz";
+        String expectedString = "jklhalksdj\nkadlkja\nhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_NEWLINE, testString, testString));
+    }
 
-	@Test
-	public void testCRToCRLFConversion() {
-		String testString = "jklhalksdj\rkadlkja\rhaksz";
-		String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CRLF, testString, testString));
-	}
+    @Test
+    public void testCRToCRLFConversion() {
+        String testString = "jklhalksdj\rkadlkja\rhaksz";
+        String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CRLF, testString, testString));
+    }
 
-	@Test
-	public void testCRToCRConversion() {
-		String testString = "jklhalksdj\rkadlkja\rhaksz";
-		String expectedString = "jklhalksdj\rkadlkja\rhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
-	}
+    @Test
+    public void testCRToCRConversion() {
+        String testString = "jklhalksdj\rkadlkja\rhaksz";
+        String expectedString = "jklhalksdj\rkadlkja\rhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
+    }
 
-	@Test
-	public void testCRLFToNewLineConversion() {
-		String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		String expectedString = "jklhalksdj\nkadlkja\nhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_NEWLINE, testString, testString));
-	}
+    @Test
+    public void testCRLFToNewLineConversion() {
+        String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        String expectedString = "jklhalksdj\nkadlkja\nhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_NEWLINE, testString, testString));
+    }
 
-	@Test
-	public void testCRLFToCRConversion() {
-		String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		String expectedString = "jklhalksdj\rkadlkja\rhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CR, testString, testString));
-	}
+    @Test
+    public void testCRLFToCRConversion() {
+        String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        String expectedString = "jklhalksdj\rkadlkja\rhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.FORCE_CR, testString, testString));
+    }
 
-	@Test
-	public void testCRLFToCRLFConversion() {
-		String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
-		Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
-	}
+    @Test
+    public void testCRLFToCRLFConversion() {
+        String testString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        String expectedString = "jklhalksdj\r\nkadlkja\r\nhaksz";
+        Assert.assertEquals(expectedString, LineEndingPreference.convertLineEndings(LineEndingPreference.NO_CHANGE, testString, testString));
+    }
 }

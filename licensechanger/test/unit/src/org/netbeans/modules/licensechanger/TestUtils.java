@@ -59,60 +59,60 @@ import org.openide.filesystems.FileUtil;
  */
 public class TestUtils {
 
-	public static String getLicense() throws Exception {
-		return readFile("fake_license.txt");
-	}
+    public static String getLicense() throws Exception {
+        return readFile("fake_license.txt");
+    }
 
-	public static String getFreemarkerLicense() throws Exception {
-		return readFile("license-test.txt");
-	}
+    public static String getFreemarkerLicense() throws Exception {
+        return readFile("license-test.txt");
+    }
 
-	public static String readFile(Class<?> clazz, String name) throws Exception {
-		InputStream in = clazz.getResourceAsStream(name);
-		if (in == null) {
-			fail("No input stream for " + name);
-		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			FileUtil.copy(in, out);
-		} finally {
-			in.close();
-			out.close();
-		}
-		String result = new String(out.toByteArray(), "UTF-8");
-		return result.replace("\r\n", "\n");
-	}
+    public static String readFile(Class<?> clazz, String name) throws Exception {
+        InputStream in = clazz.getResourceAsStream(name);
+        if (in == null) {
+            fail("No input stream for " + name);
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            FileUtil.copy(in, out);
+        } finally {
+            in.close();
+            out.close();
+        }
+        String result = new String(out.toByteArray(), "UTF-8");
+        return result.replace("\r\n", "\n");
+    }
 
-	public static String readFile(String name) throws Exception {
-		return TestUtils.readFile(TestUtils.class, name);
-	}
+    public static String readFile(String name) throws Exception {
+        return TestUtils.readFile(TestUtils.class, name);
+    }
 
-	public static void writeStream(String s, OutputStream os) throws Exception {
-		InputStream is = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
-		try {
-			FileUtil.copy(is, os);
-		} catch (IOException ioex) {
-			throw ioex;
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException ioex) {
-					throw ioex;
-				}
-			}
-			if (os != null) {
-				try {
-					os.close();
-				} catch (IOException ioex) {
-					throw ioex;
-				}
-			}
-		}
-	}
+    public static void writeStream(String s, OutputStream os) throws Exception {
+        InputStream is = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
+        try {
+            FileUtil.copy(is, os);
+        } catch (IOException ioex) {
+            throw ioex;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ioex) {
+                    throw ioex;
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ioex) {
+                    throw ioex;
+                }
+            }
+        }
+    }
 
-	public static void writeFile(String s, File f) throws Exception {
-		OutputStream os = new BufferedOutputStream(new FileOutputStream(f));
-		writeStream(s, os);
-	}
+    public static void writeFile(String s, File f) throws Exception {
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(f));
+        writeStream(s, os);
+    }
 }

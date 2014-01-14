@@ -64,75 +64,75 @@ import org.openide.util.lookup.Lookups;
  */
 public class FileHandlerTest {
 
-	@Test
-	public void testFreemarkerVariableInterpolation() throws Exception {
-		String license = TestUtils.getFreemarkerLicense();
-		Map<String, Object> props = new HashMap<String, Object>();
-		props.put(WizardProperties.KEY_PROJECT, new TestProject());
-		for (int i = 1; i <= 12; i++) {
-			String filename = "java_" + i + ".txt";
-			testOneVersion(license, filename, props);
-		}
-	}
+    @Test
+    public void testFreemarkerVariableInterpolation() throws Exception {
+        String license = TestUtils.getFreemarkerLicense();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(WizardProperties.KEY_PROJECT, new TestProject());
+        for (int i = 1; i <= 12; i++) {
+            String filename = "java_" + i + ".txt";
+            testOneVersion(license, filename, props);
+        }
+    }
 
-	private void testOneVersion(String license, String filename, Map<String, Object> properties) throws Exception {
-		System.out.println("Test " + filename);
-		JavaFileHandler instance = new JavaFileHandler();
-		String original = readFile(FileHandlerTest.class, filename);
-		Map<String, Object> tmpProperties = new HashMap<String, Object>(properties);
-		File f = FileUtil.archiveOrDirForURL(instance.getClass().getResource(filename));
-		instance.setFileProperties(FileUtil.toFileObject(f), tmpProperties);
-		tmpProperties.put("package", "org.netbeans.modules.licensechanger.fileHandlers");
-		String processed = instance.transform(original, license, tmpProperties);
-		Assert.assertFalse(processed.contains("${"));
-		Assert.assertFalse(processed.contains("Expression "));
-		Assert.assertFalse(processed.contains(" undefined "));
-	}
+    private void testOneVersion(String license, String filename, Map<String, Object> properties) throws Exception {
+        System.out.println("Test " + filename);
+        JavaFileHandler instance = new JavaFileHandler();
+        String original = readFile(FileHandlerTest.class, filename);
+        Map<String, Object> tmpProperties = new HashMap<String, Object>(properties);
+        File f = FileUtil.archiveOrDirForURL(instance.getClass().getResource(filename));
+        instance.setFileProperties(FileUtil.toFileObject(f), tmpProperties);
+        tmpProperties.put("package", "org.netbeans.modules.licensechanger.fileHandlers");
+        String processed = instance.transform(original, license, tmpProperties);
+        Assert.assertFalse(processed.contains("${"));
+        Assert.assertFalse(processed.contains("Expression "));
+        Assert.assertFalse(processed.contains(" undefined "));
+    }
 
-	private class TestProject implements Project {
+    private class TestProject implements Project {
 
-		private final Project project = this;
+        private final Project project = this;
 
-		@Override
-		public FileObject getProjectDirectory() {
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
+        @Override
+        public FileObject getProjectDirectory() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
 
-		@Override
-		public Lookup getLookup() {
-			return Lookups.fixed(new ProjectInformation() {
+        @Override
+        public Lookup getLookup() {
+            return Lookups.fixed(new ProjectInformation() {
 
-				@Override
-				public String getName() {
-					return "testProject";
-				}
+                @Override
+                public String getName() {
+                    return "testProject";
+                }
 
-				@Override
-				public String getDisplayName() {
-					return "Test Project";
-				}
+                @Override
+                public String getDisplayName() {
+                    return "Test Project";
+                }
 
-				@Override
-				public Icon getIcon() {
-					return null;
-				}
+                @Override
+                public Icon getIcon() {
+                    return null;
+                }
 
-				@Override
-				public Project getProject() {
-					return project;
-				}
+                @Override
+                public Project getProject() {
+                    return project;
+                }
 
-				@Override
-				public void addPropertyChangeListener(PropertyChangeListener listener) {
+                @Override
+                public void addPropertyChangeListener(PropertyChangeListener listener) {
 
-				}
+                }
 
-				@Override
-				public void removePropertyChangeListener(PropertyChangeListener listener) {
+                @Override
+                public void removePropertyChangeListener(PropertyChangeListener listener) {
 
-				}
-			});
-		}
+                }
+            });
+        }
 
-	}
+    }
 }

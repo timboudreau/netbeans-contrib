@@ -76,167 +76,167 @@ import org.openide.util.Exceptions;
  */
 public class LicenseChangerRunnable implements Runnable {
 
-	private final WizardDescriptor wizard;
+    private final WizardDescriptor wizard;
 
-	public LicenseChangerRunnable(WizardDescriptor wizard) {
-		this.wizard = wizard;
-	}
+    public LicenseChangerRunnable(WizardDescriptor wizard) {
+        this.wizard = wizard;
+    }
 
-	@Override
-	public void run() {
-		ProgressHandle handle = ProgressHandleFactory.createHandle("Changing license headers");
-		try {
-			/*
-			 * If KEY_STORE_IN_USER_PROPERTIES==true, store copyright holder in
-			 * User.properties under key 'user' so that NetBeans new file template
-			 * engine picks up the correct placeholder.
-			 *
-			 * XXX Is there a way of doing this for an inidividual project only?
-			 */
-			if ((Boolean) wizard.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES)) {
-				ProjectManager.mutex().writeAccess(new Runnable() {
-					@Override
-					public void run() {
-						String copyrightHolder = (String) wizard.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
-						if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
-							try {
-								FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
-								InputStream istream = userProperties.getInputStream();
-								EditableProperties props = new EditableProperties(true);
-								try {
-									props.load(istream);
-								} finally {
-									istream.close();
-								}
-								props.setProperty("user", copyrightHolder);
-								OutputStream ostream = userProperties.getOutputStream();
-								try {
-									props.store(ostream);
-								} finally {
-									ostream.close();
-								}
-							} catch (IOException ex) {
-								Exceptions.printStackTrace(ex);
-							}
-						}
-					}
-				});
-			}
-			@SuppressWarnings("unchecked")
-			Set<FileChildren.FileItem> items = (Set<FileChildren.FileItem>) wizard.getProperty(WizardProperties.KEY_ITEMS);
-			final String licenseText = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_TEXT);
-			final String licenseName = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_NAME);
-			int ix = 0;
-			int max = items.size();
-			handle.start(max);
-			Charset enc;
-			/*
-			 * Iterate and transform all selected files
-			 */
-			for (FileChildren.FileItem item : items) {
-				handle.progress(item.getFile().getNameExt(), ix);
-				try {
-					String content = FileLoader.loadFile(item.file);
+    @Override
+    public void run() {
+        ProgressHandle handle = ProgressHandleFactory.createHandle("Changing license headers");
+        try {
+            /*
+             * If KEY_STORE_IN_USER_PROPERTIES==true, store copyright holder in
+             * User.properties under key 'user' so that NetBeans new file template
+             * engine picks up the correct placeholder.
+             *
+             * XXX Is there a way of doing this for an inidividual project only?
+             */
+            if ((Boolean) wizard.getProperty(WizardProperties.KEY_STORE_IN_USER_PROPERTIES)) {
+                ProjectManager.mutex().writeAccess(new Runnable() {
+                    @Override
+                    public void run() {
+                        String copyrightHolder = (String) wizard.getProperty(WizardProperties.KEY_COPYRIGHT_HOLDER);
+                        if (copyrightHolder != null && !copyrightHolder.trim().isEmpty()) {
+                            try {
+                                FileObject userProperties = FileUtil.getConfigFile("Templates/Properties/User.properties");
+                                InputStream istream = userProperties.getInputStream();
+                                EditableProperties props = new EditableProperties(true);
+                                try {
+                                    props.load(istream);
+                                } finally {
+                                    istream.close();
+                                }
+                                props.setProperty("user", copyrightHolder);
+                                OutputStream ostream = userProperties.getOutputStream();
+                                try {
+                                    props.store(ostream);
+                                } finally {
+                                    ostream.close();
+                                }
+                            } catch (IOException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        }
+                    }
+                });
+            }
+            @SuppressWarnings("unchecked")
+            Set<FileChildren.FileItem> items = (Set<FileChildren.FileItem>) wizard.getProperty(WizardProperties.KEY_ITEMS);
+            final String licenseText = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_TEXT);
+            final String licenseName = (String) wizard.getProperty(WizardProperties.KEY_LICENSE_NAME);
+            int ix = 0;
+            int max = items.size();
+            handle.start(max);
+            Charset enc;
+            /*
+             * Iterate and transform all selected files
+             */
+            for (FileChildren.FileItem item : items) {
+                handle.progress(item.getFile().getNameExt(), ix);
+                try {
+                    String content = FileLoader.loadFile(item.file);
 
-					Map<String, Object> tmpMap = new HashMap<String, Object>(wizard.getProperties());
-					item.getHandler().setFileProperties(item.getFile(), tmpMap);
-					String nue = item.handler.transform(content, licenseText, tmpMap);
-					LineEndingPreference pref = LineEndingsPanel.getLineEndingPrefs();
-					Logger.getLogger(LicenseChangerRunnable.class.getName()).log(Level.INFO, "LineEndings: {0}", pref.name());
-					nue = LineEndingPreference.convertLineEndings(pref, content, nue);
+                    Map<String, Object> tmpMap = new HashMap<String, Object>(wizard.getProperties());
+                    item.getHandler().setFileProperties(item.getFile(), tmpMap);
+                    String nue = item.handler.transform(content, licenseText, tmpMap);
+                    LineEndingPreference pref = LineEndingsPanel.getLineEndingPrefs();
+                    Logger.getLogger(LicenseChangerRunnable.class.getName()).log(Level.INFO, "LineEndings: {0}", pref.name());
+                    nue = LineEndingPreference.convertLineEndings(pref, content, nue);
 
-					byte[] bytes;
-					try {
-						bytes = nue.getBytes((String) tmpMap.get("encoding"));
-					} catch (UnsupportedEncodingException e) {
-						//properties files get resource_bundle_charset
-						bytes = nue.getBytes(FileEncodingQuery.getDefaultEncoding().name());
-					}
-					ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-					BufferedOutputStream out = new BufferedOutputStream(item.file.getOutputStream());
-					try {
-						FileUtil.copy(in, out);
-					} finally {
-						out.close();
-						in.close();
-					}
-				} catch (IOException ex) {
-					Exceptions.printStackTrace(ex);
-				}
-				ix++;
-			}
-			/*
-			 * Check whether we should update the project license. Works for
-			 * ant-based and maven-based projects.
+                    byte[] bytes;
+                    try {
+                        bytes = nue.getBytes((String) tmpMap.get("encoding"));
+                    } catch (UnsupportedEncodingException e) {
+                        //properties files get resource_bundle_charset
+                        bytes = nue.getBytes(FileEncodingQuery.getDefaultEncoding().name());
+                    }
+                    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                    BufferedOutputStream out = new BufferedOutputStream(item.file.getOutputStream());
+                    try {
+                        FileUtil.copy(in, out);
+                    } finally {
+                        out.close();
+                        in.close();
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                ix++;
+            }
+            /*
+             * Check whether we should update the project license. Works for
+             * ant-based and maven-based projects.
 
-			 * XXX Gradle support is yet to be included :-).
-			 */
-			Boolean updateProjectLicense = (Boolean) wizard.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
-			if (updateProjectLicense) {
-				Project project = (Project) wizard.getProperty(WizardProperties.KEY_PROJECT);
-				Sources source = ProjectUtils.getSources(project);
-				for (SourceGroup group : source.getSourceGroups(Sources.TYPE_GENERIC)) {
-					try {
-						//can this be done more generic?
-						FileObject nbprojectDir = group.getRootFolder().getFileObject("nbproject");
-						if (nbprojectDir != null) {
-							//create if non-existent
-							final FileObject projectProps = FileUtil.createData(nbprojectDir, "project.properties");
-							boolean hasProjectProperties = group.contains(projectProps);
-							if (hasProjectProperties) {
-								ProjectManager.mutex().writeAccess(new Runnable() {
-									@Override
-									public void run() {
-										try {
-											InputStream istream = projectProps.getInputStream();
-											EditableProperties props = new EditableProperties(true);
-											try {
-												props.load(istream);
-											} finally {
-												istream.close();
-											}
-											props.setProperty("project.license", licenseName);
-											OutputStream ostream = projectProps.getOutputStream();
-											try {
-												props.store(ostream);
-											} finally {
-												ostream.close();
-											}
-										} catch (IOException ex) {
-											Exceptions.printStackTrace(ex);
-										}
-									}
-								});
+             * XXX Gradle support is yet to be included :-).
+             */
+            Boolean updateProjectLicense = (Boolean) wizard.getProperty(WizardProperties.KEY_UPDATE_DEFAULT_PROJECT_LICENSE);
+            if (updateProjectLicense) {
+                Project project = (Project) wizard.getProperty(WizardProperties.KEY_PROJECT);
+                Sources source = ProjectUtils.getSources(project);
+                for (SourceGroup group : source.getSourceGroups(Sources.TYPE_GENERIC)) {
+                    try {
+                        //can this be done more generic?
+                        FileObject nbprojectDir = group.getRootFolder().getFileObject("nbproject");
+                        if (nbprojectDir != null) {
+                            //create if non-existent
+                            final FileObject projectProps = FileUtil.createData(nbprojectDir, "project.properties");
+                            boolean hasProjectProperties = group.contains(projectProps);
+                            if (hasProjectProperties) {
+                                ProjectManager.mutex().writeAccess(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            InputStream istream = projectProps.getInputStream();
+                                            EditableProperties props = new EditableProperties(true);
+                                            try {
+                                                props.load(istream);
+                                            } finally {
+                                                istream.close();
+                                            }
+                                            props.setProperty("project.license", licenseName);
+                                            OutputStream ostream = projectProps.getOutputStream();
+                                            try {
+                                                props.store(ostream);
+                                            } finally {
+                                                ostream.close();
+                                            }
+                                        } catch (IOException ex) {
+                                            Exceptions.printStackTrace(ex);
+                                        }
+                                    }
+                                });
 
-							}
-						} else {
-							//check for pom.xml
-							FileObject pom = group.getRootFolder().getFileObject("pom.xml");
-							if (pom != null) {
-								//found pom-based maven project
-								// XXX do we need to use ProjectManager.mutex().writeAccess here too?
-								Utilities.performPOMModelOperations(pom, Arrays.asList(new ModelOperation<POMModel>() {
-									@Override
-									public void performOperation(POMModel model) {
-										Properties props = model.getProject().getProperties();
-										if (props == null) {
-											props = model.getFactory().createProperties();
-											props.setProperty("netbeans.hint.license", licenseName);
-											model.getProject().setProperties(props);
-										} else {
-											props.setProperty("netbeans.hint.license", licenseName);
-										}
-									}
-								}));
-							}
-						}
-					} catch (IOException ex) {
-						Exceptions.printStackTrace(ex);
-					}
-				}
-			}
-		} finally {
-			handle.finish();
-		}
-	}
+                            }
+                        } else {
+                            //check for pom.xml
+                            FileObject pom = group.getRootFolder().getFileObject("pom.xml");
+                            if (pom != null) {
+                                //found pom-based maven project
+                                // XXX do we need to use ProjectManager.mutex().writeAccess here too?
+                                Utilities.performPOMModelOperations(pom, Arrays.asList(new ModelOperation<POMModel>() {
+                                    @Override
+                                    public void performOperation(POMModel model) {
+                                        Properties props = model.getProject().getProperties();
+                                        if (props == null) {
+                                            props = model.getFactory().createProperties();
+                                            props.setProperty("netbeans.hint.license", licenseName);
+                                            model.getProject().setProperties(props);
+                                        } else {
+                                            props.setProperty("netbeans.hint.license", licenseName);
+                                        }
+                                    }
+                                }));
+                            }
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+        } finally {
+            handle.finish();
+        }
+    }
 }

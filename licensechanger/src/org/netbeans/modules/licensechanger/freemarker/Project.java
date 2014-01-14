@@ -52,25 +52,25 @@ import org.netbeans.api.project.ProjectUtils;
  */
 public class Project {
 
-	private final String organization;
-	private final String name;
-	private final String displayName;
+    private final String organization;
+    private final String name;
+    private final String displayName;
 
-	public Project(String organization, org.netbeans.api.project.Project netBeansProject) {
-		this.organization = organization;
-		this.name = ProjectUtils.getInformation(netBeansProject).getName();
-		this.displayName = ProjectUtils.getInformation(netBeansProject).getDisplayName();
-	}
+    public Project(String organization, org.netbeans.api.project.Project netBeansProject) {
+        this.organization = organization;
+        this.name = ProjectUtils.getInformation(netBeansProject).getName();
+        this.displayName = ProjectUtils.getInformation(netBeansProject).getDisplayName();
+    }
 
-	public String getOrganization() {
-		return this.organization;
-	}
+    public String getOrganization() {
+        return this.organization;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public String getDisplayName() {
-		return this.displayName;
-	}
+    public String getDisplayName() {
+        return this.displayName;
+    }
 }

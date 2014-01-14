@@ -38,12 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.fileHandlers;
 
-import org.netbeans.modules.licensechanger.fileHandlers.PropertiesFileHandler;
 import java.util.Collections;
 import java.util.Map;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.netbeans.modules.licensechanger.TestUtils.*;
+import static org.netbeans.modules.licensechanger.TestUtils.getLicense;
+import static org.netbeans.modules.licensechanger.TestUtils.readFile;
 
 /**
  *
@@ -67,7 +67,7 @@ public class PropertiesFileHandlerTest {
     private void testOneVersion(String golden, String license, String filename) throws Exception {
         System.out.println("Test " + filename);
         PropertiesFileHandler instance = new PropertiesFileHandler();
-        String original = readFile(PropertiesFileHandlerTest.class,filename);
+        String original = readFile(PropertiesFileHandlerTest.class, filename);
         String processed = instance.transform(original, license, props);
 //        if (!original.equals(processed)) {
 //            System.out.println("************************************");
@@ -78,6 +78,6 @@ public class PropertiesFileHandlerTest {
     }
 
     private static String getGolden() throws Exception {
-        return readFile(PropertiesFileHandlerTest.class,"props_golden.txt");
+        return readFile(PropertiesFileHandlerTest.class, "props_golden.txt");
     }
 }

@@ -38,12 +38,12 @@
  */
 package org.netbeans.modules.licensechanger.fileHandlers;
 
-import org.netbeans.modules.licensechanger.fileHandlers.GroovyFileHandler;
 import java.util.Collections;
 import java.util.Map;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.netbeans.modules.licensechanger.TestUtils.*;
+import static org.netbeans.modules.licensechanger.TestUtils.getLicense;
+import static org.netbeans.modules.licensechanger.TestUtils.readFile;
 import org.netbeans.modules.licensechanger.api.FileHandler;
 
 /**
@@ -109,12 +109,12 @@ public class GroovyFileHandlerTest {
 
     private static String merge(String header, String template) throws Exception {
         StringBuilder sb = new StringBuilder();
-        sb.append(readFile(GroovyFileHandlerTest.class,header));
-        sb.append(readFile(GroovyFileHandlerTest.class,template));
+        sb.append(readFile(GroovyFileHandlerTest.class, header));
+        sb.append(readFile(GroovyFileHandlerTest.class, template));
         return sb.toString();
     }
 
     private static String getGolden(String infix) throws Exception {
-        return readFile(GroovyFileHandlerTest.class,"resources/groovy/groovy_" + infix + "_golden.txt");
+        return readFile(GroovyFileHandlerTest.class, "resources/groovy/groovy_" + infix + "_golden.txt");
     }
 }

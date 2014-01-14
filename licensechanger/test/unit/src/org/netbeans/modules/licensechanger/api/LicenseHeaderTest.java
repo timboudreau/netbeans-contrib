@@ -47,7 +47,6 @@ import java.util.Collection;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.Before;
-import org.junit.experimental.categories.Categories;
 import org.netbeans.junit.NbTestCase;
 import static org.netbeans.modules.licensechanger.TestUtils.*;
 import org.openide.filesystems.FileObject;
@@ -96,7 +95,7 @@ public class LicenseHeaderTest extends NbTestCase {
         }
         Assert.assertTrue(npeCaught);
     }
-    
+
     /**
      * Test that file object may not be null, of class LicenseHeader.
      */
@@ -110,7 +109,7 @@ public class LicenseHeaderTest extends NbTestCase {
         }
         Assert.assertTrue(npeCaught);
     }
-    
+
     /**
      * Test that file object may not be null, of class LicenseHeader.
      */
@@ -124,9 +123,10 @@ public class LicenseHeaderTest extends NbTestCase {
         }
         Assert.assertTrue(npeCaught);
     }
-    
+
     /**
-     * Test retrieval of license header name from file object, of class LicenseHeader.
+     * Test retrieval of license header name from file object, of class
+     * LicenseHeader.
      */
     @Test
     public void testNullArgs4() {

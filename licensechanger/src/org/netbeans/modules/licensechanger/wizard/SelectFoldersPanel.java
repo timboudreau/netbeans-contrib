@@ -58,21 +58,21 @@ import org.openide.nodes.Node;
  * @author Nils Hoffmann (Refactoring)
  */
 public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerManager.Provider {
-    
+
     private final ExplorerManager mgr = new ExplorerManager();
-    
+
     public SelectFoldersPanel() {
         initComponents();
         updateView();
         setName("Select Folders");
     }
-    
+
     private void updateFolders() {
         Set<FileObject> folders = getSelectedFolders();
 //        System.out.println("Selected folders: " + folders);
         firePropertyChange(WizardProperties.KEY_FOLDERS, null, folders);
     }
-    
+
     private void enableUI() {
         jLabel1.setEnabled(true);
         updateView();
@@ -124,7 +124,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
     public ExplorerManager getExplorerManager() {
         return mgr;
     }
-    
+
     public void setRootFiles(Set<FileObject> roots) {
         AbstractNode root = new AbstractNode(Children.create(new FolderChildren(roots.toArray(new FileObject[roots.size()])) {
             @Override
@@ -136,7 +136,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         mgr.setRootContext(root);
         firePropertyChange("rootFiles", null, roots);
     }
-    
+
     public Set<FileObject> getSelectedFolders() {
         Set<FileObject> folders = new TreeSet<FileObject>(new Comparator<FileObject>() {
             @Override
@@ -155,7 +155,7 @@ public class SelectFoldersPanel extends javax.swing.JPanel implements ExplorerMa
         }
         return folders;
     }
-    
+
     private void updateView() {
         OutlineView ov = (OutlineView) jScrollPane1;
         ov.getOutline().setRootVisible(false);
