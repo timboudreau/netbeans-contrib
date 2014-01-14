@@ -4,5 +4,5 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/licensechanger/Bundle.pro
 OpenIDE-Module-Requires: 
   javax.script.ScriptEngine.FreeMarker,
   javax.script.ScriptEngine.freemarker
-OpenIDE-Module-Specification-Version: 1.9.1
+OpenIDE-Module-Specification-Version: 1.9.2
 
