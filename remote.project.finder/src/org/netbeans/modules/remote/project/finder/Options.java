@@ -53,6 +53,7 @@ import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -97,7 +98,7 @@ public final class Options extends OptionProcessor {
             }
             error(env, -1, "No workspace given.");
         }
-        final File f = new File(folders[0]);
+        final File f = FileUtil.normalizeFile(new File(folders[0]));
         if (!f.isDirectory() || !f.canRead()) {
             error(env, -2, "Workspace does not exist.");
         }
