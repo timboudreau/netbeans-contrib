@@ -48,5 +48,7 @@ public enum JavacMessageType {
     symbols,
     checkForErrors,
     compile,
-    getfile
+    getfile,
+    isActionEnabled,
+    invokeAction,
 }
