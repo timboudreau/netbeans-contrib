@@ -42,6 +42,7 @@
 
 package org.netbeans.modules.dew4nb.services;
 
+import javax.swing.SwingUtilities;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.dew4nb.Context;
@@ -93,9 +94,9 @@ public class InvokeProjectActionHandler extends RequestHandler<JavacQuery, Invok
             if (prj != null) {
                 final ActionProvider ap = prj.getLookup().lookup(ActionProvider.class);
                 if (ap != null) {
-                    ap.invokeAction(
-                        request.getJava(),
-                        Lookups.fixed(file, prj));
+//                    ap.invokeAction(
+//                        request.getJava(),
+//                        Lookups.fixed(file, prj));
                 }
             }
         }
