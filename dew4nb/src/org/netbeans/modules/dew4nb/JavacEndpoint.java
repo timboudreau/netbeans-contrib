@@ -211,6 +211,27 @@ public final class JavacEndpoint {
     static final class FileContentResultModel {
     }
 
+    @Model(className="IsProjectActionEnabledResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "enabled", type = Boolean.class)
+    })
+    static final class IsProjectActionEnabledResultModel {
+    }
+
+    @Model(className = "InvokeProjectActionResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "success", type = Boolean.class),
+        @Property(name = "stdout", type = String.class, array = true),
+        @Property(name = "stderr", type = String.class, array = true),
+        @Property(name = "openUrl", type = String.class, array = true)
+    })
+    static final class InvokeProjectActionResultModel {
+    }
+
     @Model(className = "JavacFailure", properties = {
         @Property(name="status", type=Status.class),
         @Property(name = "type", type = JavacMessageType.class),
