@@ -130,6 +130,17 @@ public final class JSON {
             sb.append('"');
             return sb.toString();
         }
+        if (value instanceof Collection) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            String sep = "";
+            for (Object o : ((Collection)value)) {
+                sb.append(sep).append(toJSON(o));
+                sep = ",";
+            }
+            sb.append("]");
+            return sb.toString();
+        }
         return value.toString();
     }
 
