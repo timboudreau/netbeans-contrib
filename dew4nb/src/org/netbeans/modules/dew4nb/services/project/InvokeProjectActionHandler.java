@@ -42,10 +42,15 @@
 
 package org.netbeans.modules.dew4nb.services.project;
 
+import javax.swing.SwingUtilities;
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.services.javac.Context;
@@ -55,7 +60,10 @@ import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
+import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -63,14 +71,14 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class InvokeProjectActionHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, InvokeProjectActionResult> {
+public class InvokeProjectActionHandler extends AsyncRequestHandler<JavacQuery, JavacMessageType> {
 
     public InvokeProjectActionHandler() {
-        super(JavacModels.END_POINT, JavacMessageType.invokeAction, JavacQuery.class, InvokeProjectActionResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.invokeAction, JavacQuery.class);
     }
 
     @Override
-    protected Status handle(JavacQuery request, InvokeProjectActionResult response) {
+    protected Status handle(final JavacQuery request, final EndPoint.Env env) {
         if (request.getType() != JavacMessageType.invokeAction) {
             throw new IllegalStateException(String.format(
                 "Illegal message type: %s", //NOI18N
@@ -89,21 +97,60 @@ public class InvokeProjectActionHandler extends BasicRequestHandler<JavacQuery, 
                 ctx.getWorkspace(),
                 ctx.getPath()
             ));
+        Status res = Status.done;
         if (file != null) {
             final Project prj = FileOwnerQuery.getOwner(file);
             if (prj != null) {
                 final ActionProvider ap = prj.getLookup().lookup(ActionProvider.class);
                 if (ap != null) {
-//                    ap.invokeAction(
-//                        request.getJava(),
-//                        Lookups.fixed(file, prj));
+                    res = Status.accepted;
+                    RequestProcessor.getDefault().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 0; i<10; i++) {
+                                env.sendObject(createResponse(request,null,"I je " + i,null));
+                                try {
+                                    Thread.sleep(3000);
+                                } catch (InterruptedException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                            }
+                            env.sendObject(createResponse(request,BuildResult.success, null, null));
+                        }
+                    });
+                    
+//                    SwingUtilities.invokeLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            ap.invokeAction(
+//                                request.getJava(),
+//                                Lookups.fixed(file, prj));
+//                        }
+//                    });
                 }
             }
         }
-        response.getStdout().addAll(java.util.Arrays.asList("Hello","World"));  //NOI18N
-        response.getStderr().add("Error");  //NOI18N
-        response.setSuccess(true);
-        return Status.done;
+        return res;
+    }
+
+    @NonNull
+    private static InvokeProjectActionResult createResponse(
+            @NonNull final JavacQuery prototype,
+            @NullAllowed final BuildResult result,
+            @NullAllowed final String stdOut,
+            @NullAllowed final String stdErr) {
+        final InvokeProjectActionResult res = new InvokeProjectActionResult();
+        res.setType(prototype.getType());
+        res.setState(prototype.getState());
+        res.setStatus(Status.done);
+        res.setResult(result);
+        if (stdOut != null) {
+            res.getStdout().add(stdOut);
+        }
+        if (stdErr != null) {
+            res.getStderr().add(stdErr);
+        }
+        return res;
     }
 
 }

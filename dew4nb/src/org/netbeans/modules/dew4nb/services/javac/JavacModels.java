@@ -46,6 +46,7 @@ import javax.tools.Diagnostic;
 import net.java.html.json.Model;
 import net.java.html.json.Property;
 import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.services.project.BuildResult;
 
 /**
  *
@@ -128,7 +129,7 @@ public final class JavacModels {
         @Property(name = "status", type = Status.class),
         @Property(name = "type", type = JavacMessageType.class),
         @Property(name = "state", type = String.class),
-        @Property(name = "success", type = Boolean.class),
+        @Property(name = "result", type = BuildResult.class),
         @Property(name = "stdout", type = String.class, array = true),
         @Property(name = "stderr", type = String.class, array = true),
         @Property(name = "openUrl", type = String.class, array = true)
