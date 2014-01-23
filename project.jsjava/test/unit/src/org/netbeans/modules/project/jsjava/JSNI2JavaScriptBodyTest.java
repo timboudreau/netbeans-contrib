@@ -125,4 +125,71 @@ public class JSNI2JavaScriptBodyTest {
             .assertOutput(expected);
     }
     
+    static String append(StringBuilder sb, String x) {
+        sb.append(x);
+        return sb.toString();
+    }
+
+    @Test
+    public void testWithStaticMethodCall() throws Exception {
+        String s = "class Test {\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    public native void test(String builder) /*-{\n"
+            + "        @org.netbeans.modules.project.jsjava.JSNI2JavaScriptBodyTest::append(Ljava/lang/StringBuilder;Ljava/lang/String;)(builder, 'Ahoj');\n"
+            + "    }-*/;\n"
+            + "}\n";
+
+        String expected = " import net.java.html.js.JavaScriptBody;\n"
+            + "class Test {\n"
+            + "\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n"
+            + "        @org.netbeans.modules.project.jsjava.JSNI2JavaScriptBodyTest::append(Ljava/lang/StringBuilder;Ljava/lang/String;)(builder, 'Ahoj');\\n  \")\n"
+            + "    public native void test(String builder);\n"
+            + "}\n";
+        HintTest.create()
+            .input(s)
+            .classpath(FileUtil.getArchiveRoot(JavaScriptBody.class.getProtectionDomain().getCodeSource().getLocation()))
+            .run(JSNI2JavaScriptBody.class)
+            .findWarning("4:23-4:27:verifier:" + Bundle.ERR_JSNI2JavaScriptBody())
+            .applyFix()
+            .assertCompilable()
+            .assertOutput(expected);
+    }
+    
+    @Test
+    public void testWithInstanceMethodCall() throws Exception {
+        String s = "class Test {\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    public native void test(String builder) /*-{\n"
+            + "        @java.lang.StringBuilder::append(Ljava/lang/String;)(builder, 'Ahoj');\n"
+            + "    }-*/;\n"
+            + "}\n";
+
+        String expected = " import net.java.html.js.JavaScriptBody;\n"
+            + "class Test {\n"
+            + "\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n"
+            + "        @java.lang.StringBuilder::append(Ljava/lang/String;)(builder, 'Ahoj');\\n    \")"
+            + "    public native void test(String builder);\n"
+            + "}\n";
+        HintTest.create()
+            .input(s)
+            .classpath(FileUtil.getArchiveRoot(JavaScriptBody.class.getProtectionDomain().getCodeSource().getLocation()))
+            .run(JSNI2JavaScriptBody.class)
+            .findWarning("4:23-4:27:verifier:" + Bundle.ERR_JSNI2JavaScriptBody())
+            .applyFix()
+            .assertCompilable()
+            .assertOutput(expected);
+    }
+    
 }

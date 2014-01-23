@@ -146,11 +146,6 @@ public class JSNI2JavaScriptBody {
                 return ;
             }
             
-            JsniCommentTokenizer tok = new JsniCommentTokenizer();
-            ManglingSink ms = new ManglingSink();
-            final CharSequence cmnt = jsniComment.text();
-            tok.process(cmnt.subSequence(4, cmnt.length() - 4), ms);
-
             TreeMaker make = ctx.getWorkingCopy().getTreeMaker();
             MethodTree mt = (MethodTree) ctx.getPath().getLeaf();
             List<LiteralTree> params = new ArrayList<LiteralTree>();
@@ -158,78 +153,19 @@ public class JSNI2JavaScriptBody {
             for (VariableTree p : mt.getParameters()) {
                 params.add(make.Literal(p.getName().toString()));
             }
-
-            AnnotationTree jsBody = make.Annotation(make.QualIdent("net.java.html.js.JavaScriptBody"),
-                Arrays.<ExpressionTree>asList(
-                    make.Assignment(make.Identifier("args"), make.NewArray(null, Collections.<ExpressionTree>emptyList(), params)),
-                    make.Assignment(make.Identifier("body"), make.Literal(ms.out.toString()))
-                )
-            );
-
-
+            
+            String body = jsniComment.text().toString().replace("\"", "\\\"");
+            body = body.replace("/*-{", "").replace("}-*/", "");
+            
+            List<ExpressionTree> arr = new ArrayList<ExpressionTree>();
+            arr.add(make.Assignment(make.Identifier("args"), make.NewArray(null, Collections.<ExpressionTree>emptyList(), params)));
+            if (body.contains("@") && body.contains("::")) {
+                arr.add(make.Assignment(make.Identifier("javacall"), make.Literal(true)));
+            }
+            arr.add(make.Assignment(make.Identifier("body"), make.Literal(body)));
+            
+            AnnotationTree jsBody = make.Annotation(make.QualIdent("net.java.html.js.JavaScriptBody"), arr);
             ctx.getWorkingCopy().rewrite(mt.getModifiers(), make.addModifiersAnnotation(mt.getModifiers(), jsBody));
         }
     }
-    
-    /**
-     * An implementation of {@linkplain JsniCommentTokenizer.Sink} that
-     * generates B2B
-     */
-    static class ManglingSink implements JsniCommentTokenizer.Sink {
-
-        final StringBuilder out = new StringBuilder();
-
-        public void javascript(String s) {
-            out.append(s);
-        }
-
-        public void method(String clazz, String method, String signature) {
-            out.append(mangle(clazz, method, signature));
-        }
-
-        public void field(String clazz, String field) {
-//        out.append(field);
-            out.append('_').append(field).append('(').append(')');
-        }
-
-        @Override
-        public String toString() {
-            return out.toString();
-        }
-
-        static String mangle(String clazz, String method, String signature) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(method);
-            builder.append("__");
-//            builder.append(mangle(JNIHelper.signature(JNIHelper.method(clazz, method, signature).getReturnType())));
-            builder.append(mangle(signature));
-            return builder.toString();
-        }
-
-        static String mangle(String txt) {
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < txt.length(); i++) {
-                final char ch = txt.charAt(i);
-                switch (ch) {
-                    case '/':
-                        sb.append('_');
-                        break;
-                    case '_':
-                        sb.append("_1");
-                        break;
-                    case ';':
-                        sb.append("_2");
-                        break;
-                    case '[':
-                        sb.append("_3");
-                        break;
-                    default:
-                        sb.append(ch);
-                        break;
-                }
-            }
-            return sb.toString();
-        }
-    }
-    
 }
