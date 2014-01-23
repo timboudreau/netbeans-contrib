@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="contrib/project.jsjava">
+    <description>Builds, tests, and runs the project org.netbeans.modules.project.jsjava</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="basic-init" depends="download,projectized-common.basic-init"/>
+    
+    <target name="-mvninit" depends="projectized-common.basic-init">
+        <mkdir dir="external"/>
+        <get dest="external/maven-ant-tasks.jar" 
+             src="http://mirror.hosting90.cz/apache/maven/ant-tasks/2.1.3/binaries/maven-ant-tasks-2.1.3.jar" 
+             skipexisting="true"
+        />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+                 uri="urn:org.apache.maven.artifact.ant"
+                 classpath="external/maven-ant-tasks.jar"
+        />   
+    </target>    
+    
+    <target name="download" depends="-mvninit" xmlns:artifact="urn:org.apache.maven.artifact.ant" unless="mvn.downloaded">
+        <property name="mvn.downloaded" value="true"/>
+        <property name="maven.repo.local" location="${user.home}/.m2/repository"/>
+        <artifact:pom file="${basedir}/dependencies.xml" id="pom">
+            <localRepository path="${maven.repo.local}" />
+        </artifact:pom>
+        <artifact:dependencies pathId="pom.pathid" filesetId="pom.fileset" useScope="compile">
+            <localRepository path="${maven.repo.local}" />
+            <pom refid="pom" />
+        </artifact:dependencies>             
+
+        <mkdir dir="release/modules/ext"/>
+        <copy todir="release/modules/ext">
+            <fileset refid="pom.fileset"/>
+            <chainedmapper>
+                <regexpmapper from="^(.*)-201[3-9][0-9].*\.jar" to="\1-SNAPSHOT.jar"/>
+                <flattenmapper/>
+            </chainedmapper>
+        </copy>
+        <copy todir="release/modules/ext">
+            <fileset refid="pom.fileset"/>
+            <flattenmapper/>
+        </copy>
+    </target>
+    
+</project>

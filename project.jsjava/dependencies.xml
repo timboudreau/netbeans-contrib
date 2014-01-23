@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.netbeans.modules.contrib</groupId>
+  <artifactId>launcher.http</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <name>Java &amp; JavaScript Project Support</name>
+  <url>http://maven.apache.org</url>
+  <repositories>
+      <repository>
+          <id>netbeans</id>
+          <name>NetBeans</name>
+          <url>http://bits.netbeans.org/maven2/</url>
+      </repository>
+      <repository>
+          <id>bck2brwsr</id>
+          <name>Bck2Brwsr</name>
+          <url>https://maven.java.net/content/repositories/snapshots/</url>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+      </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.netbeans.html</groupId>
+      <artifactId>net.java.html.boot</artifactId>
+      <version>0.7</version>
+    </dependency>
+  </dependencies>
+</project>
