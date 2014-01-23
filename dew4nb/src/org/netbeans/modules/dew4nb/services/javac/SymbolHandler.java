@@ -40,26 +40,20 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.javac;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.JavacSymbolResult;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
-import org.netbeans.modules.dew4nb.TypeDescriptor;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.java.source.ui.JavaSymbolDescriptor;
 import org.netbeans.modules.jumpto.common.HighlightingNameFormatter;
@@ -78,17 +72,17 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class SymbolHandler extends RequestHandler<JavacQuery, JavacSymbolResult> {
+public class SymbolHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, JavacSymbolResult> {
 
     private final HighlightingNameFormatter format;
 
     public SymbolHandler() {
-        super(JavacMessageType.symbols, JavacQuery.class, JavacSymbolResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.symbols, JavacQuery.class, JavacSymbolResult.class);
         format = HighlightingNameFormatter.createBoldFormatter();
     }
 
     @Override
-    protected boolean handle(
+    protected Status handle(
             @NonNull final JavacQuery request,
             @NonNull final JavacSymbolResult response) {
         Parameters.notNull("request", request); //NOI18N
@@ -132,8 +126,7 @@ public class SymbolHandler extends RequestHandler<JavacQuery, JavacSymbolResult>
                 cleanProviders(symProviders);
             }
         }
-        response.setStatus(Status.success);
-        return true;
+        return Status.done;
     }
 
     @NonNull

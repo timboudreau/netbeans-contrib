@@ -80,77 +80,33 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.endpoint;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.IsProjectActionEnabledResult;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
-import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
-import org.netbeans.spi.project.ActionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.Parameters;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service = RequestHandler.class)
-public class IsProjectActionEnabledHandler extends RequestHandler<JavacQuery, IsProjectActionEnabledResult> {
+public abstract class RequestHandler <Request, RequestKind extends Enum<RequestKind>> {
+    final String endPointName;
+    final RequestKind requestKind;
+    final Class<Request> requestType;
 
-    public IsProjectActionEnabledHandler() {
-        super(JavacMessageType.isActionEnabled, JavacQuery.class, IsProjectActionEnabledResult.class);
+    protected RequestHandler (
+        @NonNull final String endPointName,
+        @NonNull final RequestKind requestKind,
+        @NonNull final Class<Request> requestType) {
+        Parameters.notNull("endPointName", endPointName);   //NOI18N
+        Parameters.notNull("requestKind", requestKind);     //NOI18N
+        Parameters.notNull("requestType", requestType); //NOI18N
+        this.endPointName = endPointName;
+        this.requestKind = requestKind;
+        this.requestType = requestType;
     }
 
-    @Override
-    protected boolean handle(@NonNull final JavacQuery request, @NonNull final IsProjectActionEnabledResult response) {
-        final JavacMessageType requestType = request.getType();
-        if (requestType != JavacMessageType.isActionEnabled) {
-            throw new IllegalStateException(String.valueOf(requestType));
-        }
-        final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
-        if (resolver == null) {
-            throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
-        }
-        final Context ctx = request.getContext();
-        if (ctx == null) {
-            return false;
-        }
-        final FileObject fo = resolver.resolveFile(new WorkspaceResolver.Context(
-            ctx.getUser(),
-            ctx.getWorkspace(),
-            ctx.getPath()));
-        boolean enabled = false;
-        if (fo != null) {
-            final Project p = FileOwnerQuery.getOwner(fo);
-            if (p != null) {
-                final ActionProvider ap = p.getLookup().lookup(ActionProvider.class);
-                if (ap != null) {
-                    final String commandName = request.getJava();
-                    if (commandName != null) {
-                        final Collection<String> actions = new HashSet<>(Arrays.asList(ap.getSupportedActions()));
-                        if (actions.contains(commandName)) {
-                            enabled = ap.isActionEnabled(
-                                commandName,
-                                Lookups.fixed(p, fo));
-                        }
-                    }
-                }
-            }
-        }
-        response.setEnabled(enabled);
-        response.setStatus(Status.success);
-        return true;
-    }
-
+    @NonNull
+    abstract Status perform(@NonNull Request request, @NonNull EndPoint.Env env) throws Exception;
 }

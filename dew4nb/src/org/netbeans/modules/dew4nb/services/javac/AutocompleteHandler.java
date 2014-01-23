@@ -40,7 +40,7 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.javac;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,14 +70,10 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.support.ReferencesCount;
 import org.netbeans.api.whitelist.WhiteListQuery;
-import org.netbeans.modules.dew4nb.CompletionItem;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.JavacCompletionResult;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.SourceProvider;
-import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.java.JavaCompletionItem;
 import org.netbeans.modules.editor.java.JavaCompletionItemFactory;
@@ -90,14 +86,14 @@ import org.openide.util.lookup.ServiceProvider;
 /** Sample, code completion handler.
  */
 @ServiceProvider(service = RequestHandler.class)
-public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacCompletionResult> {
+public class AutocompleteHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, JavacCompletionResult> {
     private static final Logger LOG = Logger.getLogger(AutocompleteHandler.class.getName());
     public AutocompleteHandler() {
-        super(JavacMessageType.autocomplete, JavacQuery.class, JavacCompletionResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.autocomplete, JavacQuery.class, JavacCompletionResult.class);
     }
 
     @Override
-    protected boolean handle(JavacQuery query, JavacCompletionResult res) {
+    protected Status handle(JavacQuery query, JavacCompletionResult res) {
         assert query.getType() == JavacMessageType.autocomplete;
         final String java = query.getJava();
         final int offset = query.getOffset();
@@ -119,13 +115,12 @@ public class AutocompleteHandler extends RequestHandler<JavacQuery, JavacComplet
                         res.getCompletions().add(((Item)item).toCompletionItem());
                     }
                 }
-                status = Status.success;
+                status = Status.done;
             }
         } catch (Exception exception) {
             //pass
         }
-        res.setStatus(status);
-        return true;        
+        return status;
     }
     
     private abstract static class Item extends JavaCompletionItem {

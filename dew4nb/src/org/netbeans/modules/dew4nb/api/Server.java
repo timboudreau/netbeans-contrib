@@ -58,9 +58,10 @@ import org.glassfish.grizzly.websockets.WebSocketAddOn;
 import org.glassfish.grizzly.websockets.WebSocketApplication;
 import org.glassfish.grizzly.websockets.WebSocketEngine;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.modules.dew4nb.JavacEndpoint;
-import org.netbeans.modules.dew4nb.Status;
-import org.openide.util.Exceptions;
+import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.netbeans.modules.dew4nb.endpoint.EndPointRegistry;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.endpoint.Utilities;
 import org.openide.util.Pair;
 import org.openide.util.Parameters;
 import org.openide.util.Union2;
@@ -173,22 +174,32 @@ public final class Server {
     }
 
      private static class JavacApplication extends WebSocketApplication {
-        private final JavacEndpoint endpoint;
+        private final EndPointRegistry registry;
 
         JavacApplication() {
-            this.endpoint = JavacEndpoint.newCompiler();
+            registry = EndPointRegistry.getInstance();
         }
 
         @Override
         public void onMessage(WebSocket socket, String text) {
-            try {
-                socket.send(endpoint.doCompile(text).toString());
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-                socket.send(endpoint.error(
-                    Status.runtime_error,
-                    ex.getMessage(),
-                    null).toString());
+            final EndPoint ep = registry.getEndPoint("javac");
+            Status status = Status.not_found;
+            Exception ex = null;
+            if (ep != null) {
+                try {
+                    status = ep.handle(socket, text);
+                } catch (Exception e) {
+                    status = Status.runtime_error;
+                    ex = e;
+                }
+            }
+            if (!status.isSuccess()) {
+                socket.send(Utilities.newFailure(
+                    status,
+                    ex == null ?
+                        null :
+                        ex.getMessage()).
+                    toString());
             }
         }
 

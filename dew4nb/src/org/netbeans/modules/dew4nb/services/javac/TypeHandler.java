@@ -40,7 +40,7 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.javac;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,12 +49,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.JavacTypeResult;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.jumpto.common.Utils;
 import org.netbeans.modules.jumpto.type.TypeProviderAccessor;
@@ -70,13 +67,17 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
+public class TypeHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, JavacTypeResult> {
     public TypeHandler() {
-        super(JavacMessageType.types, JavacQuery.class, JavacTypeResult.class);
+        super(
+            JavacModels.END_POINT,
+            JavacMessageType.types,
+            JavacQuery.class,
+            JavacTypeResult.class);
     }
 
     @Override
-    protected boolean handle(
+    protected Status handle(
         @NonNull final JavacQuery request,
         @NonNull final JavacTypeResult response) {
         Parameters.notNull("request", request); //NOI18N
@@ -97,7 +98,7 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
                 final WorkspaceResolver.Context ctx = resolver.resolveContext(td.getFileObject());
                 if (ctx != null) {
                     response.getTypes().add(
-                        new org.netbeans.modules.dew4nb.TypeDescriptor(
+                        new org.netbeans.modules.dew4nb.services.javac.TypeDescriptor(
                         td.getSimpleName(),
                         td.getContextName(),
                         "", //NOI18N
@@ -107,8 +108,7 @@ public class TypeHandler extends RequestHandler<JavacQuery, JavacTypeResult> {
         } finally {
             cleanTypeProviders(typeProviders);
         }
-        response.setStatus(Status.success);
-        return true;
+        return Status.done;
     }
 
     @NonNull

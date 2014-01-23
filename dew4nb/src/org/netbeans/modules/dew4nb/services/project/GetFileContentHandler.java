@@ -40,15 +40,17 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.project;
 
 import java.io.IOException;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.FileContentResult;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.services.javac.Context;
+import org.netbeans.modules.dew4nb.services.javac.FileContentResult;
+import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
+import org.netbeans.modules.dew4nb.services.javac.JavacModels;
+import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
@@ -60,17 +62,17 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class GetFileContentHandler extends RequestHandler<JavacQuery, FileContentResult>{
+public class GetFileContentHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, FileContentResult>{
     public GetFileContentHandler() {
-        super(JavacMessageType.getfile, JavacQuery.class, FileContentResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.getfile, JavacQuery.class, FileContentResult.class);
     }
 
     @Override
-    protected boolean handle(JavacQuery request, FileContentResult response) {
+    protected Status handle(JavacQuery request, FileContentResult response) {
         Parameters.notNull("request", request); //NOI18N
         Parameters.notNull("response", response);   //NOI18N
         final Context ctx = request.getContext();
-        Status status = Status.success;
+        Status status = Status.done;
         if (ctx != null) {
             final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
             if(resolver == null) {
@@ -90,7 +92,6 @@ public class GetFileContentHandler extends RequestHandler<JavacQuery, FileConten
                 status = Status.not_found;
             }
         }
-        response.setStatus(status);
-        return true;
+        return status;
     }
 }

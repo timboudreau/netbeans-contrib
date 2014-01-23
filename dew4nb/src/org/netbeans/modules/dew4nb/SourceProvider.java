@@ -59,6 +59,7 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
+import org.netbeans.modules.dew4nb.services.javac.Context;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.api.Source;
 import org.openide.cookies.EditorCookie;

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,17 +37,27 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.dew4nb.services.javac;
+
+import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-public enum Status {
-    success,
-    not_found,
-    runtime_error
+@ServiceProvider(service = EndPoint.class)
+public final class JavacEndPoint extends EndPoint<JavacQuery, JavacMessageType> {    
+
+    public JavacEndPoint() {
+        super("javac", JavacQuery.class, JavacMessageType.class);
+    }    
+
+    @Override
+    protected JavacMessageType getRequestKind(JavacQuery query) {
+        return query.getType();
+    }
 }

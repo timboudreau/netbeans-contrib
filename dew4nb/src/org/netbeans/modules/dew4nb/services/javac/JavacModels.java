@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,123 +37,27 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.dew4nb;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+package org.netbeans.modules.dew4nb.services.javac;
+
 import javax.tools.Diagnostic;
 import net.java.html.json.Model;
-import net.java.html.json.Models;
 import net.java.html.json.Property;
-import org.netbeans.api.annotations.common.CheckForNull;
-import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.annotations.common.NullAllowed;
-import org.openide.util.Lookup;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 
-
-/** The end point one can use to communicate with Javac service. Also defines
- * the WebSocket protocol between the client and the server.
+/**
  *
- * @author Jaroslav Tulach <jtulach@netbeans.org>
+ * @author tom
  */
-public final class JavacEndpoint {
+public final class JavacModels {
 
-    private static final Logger LOG = Logger.getLogger(JavacEndpoint.class.getName());
-    private final Object lock = new Object();
-    private final Lookup.Result<RequestHandler> result;
-    //@GuardedBy("lock")
-    private Map<JavacMessageType,RequestHandler> handlers;
-
-    private JavacEndpoint() {
-        this.result = Lookup.getDefault().lookupResult(RequestHandler.class);
-    }
-    
-    public static JavacEndpoint newCompiler() {
-        return new JavacEndpoint();
-    }
-    
-
-    @NonNull
-    public Object doCompile(String query) throws IOException {
-        ByteArrayInputStream is = new ByteArrayInputStream(query.getBytes("UTF-8"));
-        JavacQuery q = Models.parse(JavacQuery.class, is);
-        is.close();
-        return doCompile(q);
+    private JavacModels() {
+        throw new IllegalStateException("Instance not supported.");    //NOI18N
     }
 
-    @NonNull
-    public Object doCompile(JavacQuery query) throws IOException {
-        final JavacMessageType type = query.getType();
-        final RequestHandler h = type == null ? null : getHandleFor(type);
-        if (h != null) {
-            try {
-                final Object res = h.response.getDeclaredConstructor().newInstance();
-                try {
-                    final Method set = h.response.getDeclaredMethod("setType", JavacMessageType.class); //NOI18N
-                    set.invoke(res, query.getType());
-                } catch (NoSuchMethodException noSetter) {
-                    LOG.log(
-                        Level.WARNING,
-                        "The {0} has no type setter.",  //NOI18N
-                        res);
-                }
-                try {
-                    final Method set = h.response.getDeclaredMethod("setState", String.class);  //NOI18N
-                    set.invoke(res, query.getState());
-                } catch (NoSuchMethodException noSetter) {
-                    LOG.log(
-                        Level.WARNING,
-                        "The {0} has no state setter.", //NOI18N
-                        res);
-                }
-                return h.handle(query, res) ?
-                    res :
-                    error(Status.runtime_error, "Unhandled request", query);    //NOI18N
-            } catch (ReflectiveOperationException |
-                     IllegalArgumentException ex) {
-                return error(Status.runtime_error, ex.getMessage(), query);
-            }
-        }        
-        return error(Status.not_found, null, query);
-    }
-
-    @NonNull
-    public JavacFailure error (
-        @NonNull final Status status,
-        @NullAllowed final String message,
-        @NullAllowed final JavacQuery query) {
-        final JavacFailure fail = new JavacFailure();
-        fail.setStatus(status);
-        if (query != null) {
-            fail.setType(query.getType());
-            fail.setState(query.getState());
-        }
-        fail.setMessage(message == null ? "" : message);    //NOI18N
-        return fail;
-    }
-
-    @CheckForNull
-    private RequestHandler getHandleFor(@NonNull final JavacMessageType type) {
-        synchronized (lock) {
-            if (handlers == null) {
-                handlers = new EnumMap<>(JavacMessageType.class);
-                for (RequestHandler h : this.result.allInstances()) {
-                    assert h.type != null;
-                    assert h.request == JavacQuery.class;
-                    assert h.response != null;                                        
-                    handlers.put(h.type, h);
-                }
-            }
-            return handlers.get(type);
-        }
-    }
+    public static final String END_POINT ="javac";                      //NOI18N
 
     @Model(className = "JavacQuery", properties = {
         @Property(name = "type", type = JavacMessageType.class),
@@ -163,7 +67,7 @@ public final class JavacEndpoint {
         @Property(name = "offset", type = int.class)
     })
     static final class JavacQueryModel {
-    }    
+    }
 
     @Model(className = "JavacCompletionResult", properties = {
         @Property(name = "status", type = Status.class),
@@ -230,16 +134,7 @@ public final class JavacEndpoint {
         @Property(name = "openUrl", type = String.class, array = true)
     })
     static final class InvokeProjectActionResultModel {
-    }
-
-    @Model(className = "JavacFailure", properties = {
-        @Property(name="status", type=Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
-        @Property(name = "state", type = String.class),
-        @Property(name="message", type=String.class)
-    })
-    static final class JavacFailureModel {
-    }
+    }    
 
     @Model(className = "Context", properties = {
         @Property(name="user", type=String.class),
@@ -250,19 +145,6 @@ public final class JavacEndpoint {
     }
 
 
-//    @Model(className = "JavacResult", properties = {
-//        @Property(name = "type", type = JavacMessageType.class),
-//        @Property(name = "state", type = String.class),
-//        @Property(name = "status", type = String.class),
-//        @Property(name = "errors", type = JavacError.class, array = true),
-//        @Property(name = "classes", type = JavacClass.class, array = true),
-//        @Property(name = "completions", type = CompletionItem.class, array = true)
-//    })
-//    static final class JavacResultModel {
-//    }
-
-
-
     @Model(className = "JavacDiagnostic", properties = {
         @Property(name = "col", type = long.class),
         @Property(name = "line", type = long.class),
@@ -270,7 +152,7 @@ public final class JavacEndpoint {
         @Property(name = "kind", type = Diagnostic.Kind.class),
         @Property(name = "msg", type = String.class)
     })
-    static final class JavacDiagnosticModel {        
+    static final class JavacDiagnosticModel {
     }
 
     @Model(className = "JavacClass", properties = {
@@ -279,7 +161,7 @@ public final class JavacEndpoint {
     })
     static final class JavacClassModel {
     }
-    
+
     @Model(className = "CompletionItem", properties = {
         @Property(name = "text", type = String.class),
         @Property(name = "displayName", type = String.class),
@@ -298,5 +180,6 @@ public final class JavacEndpoint {
     })
     static final class TypeDescriptorModel {
     }
-    
+
+
 }

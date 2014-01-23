@@ -40,7 +40,7 @@
  * Portions Copyrighted 2013 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.javac;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -52,14 +52,10 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.JavacDiagnostic;
-import org.netbeans.modules.dew4nb.JavacDiagnosticsResult;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.SourceProvider;
-import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
@@ -74,14 +70,14 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class ErrorHandler extends RequestHandler<JavacQuery, JavacDiagnosticsResult>{
+public class ErrorHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, JavacDiagnosticsResult>{
 
     public ErrorHandler() {
-        super(JavacMessageType.checkForErrors, JavacQuery.class, JavacDiagnosticsResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.checkForErrors, JavacQuery.class, JavacDiagnosticsResult.class);
     }
 
     @Override
-    protected boolean handle(
+    protected Status handle(
             @NonNull final JavacQuery request,
             @NonNull final JavacDiagnosticsResult response) {
         Parameters.notNull("request", request); //NOI18N
@@ -111,13 +107,12 @@ public class ErrorHandler extends RequestHandler<JavacQuery, JavacDiagnosticsRes
                                 }
                             }
                         });
-                status = Status.success;
+                status = Status.done;
             } catch (ParseException ex) {
                 //pass
             }
         }
-        response.setStatus(status);
-        return true;
+        return status;
     }
 
     private static JavacDiagnostic createJavacDiagnostic(Diagnostic<?> d, Document doc) {

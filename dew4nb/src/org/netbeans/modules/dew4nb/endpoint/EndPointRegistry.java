@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,18 +37,54 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.dew4nb.endpoint;
 
-public enum JavacMessageType {
-    autocomplete,
-    types,
-    symbols,
-    checkForErrors,
-    compile,
-    getfile,
-    isActionEnabled,
-    invokeAction,
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.netbeans.api.annotations.common.NonNull;
+import org.openide.util.Lookup;
+import org.openide.util.Parameters;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+public class EndPointRegistry {
+    
+    //@GuardedBy("EndPointRegistry.class")
+    private static EndPointRegistry INSTANCE;
+    private final Lookup.Result<EndPoint> result;
+    private final Object lock = new Object();
+    //@GuardedBy("lock");
+    private Map<String,EndPoint> endPointsCache;
+
+    private EndPointRegistry() {
+        this.result = Lookup.getDefault().lookupResult(EndPoint.class);
+    }
+
+    public EndPoint getEndPoint(@NonNull final String name) {
+        Parameters.notNull("name", name);   //NOI18N
+        synchronized (lock) {
+            if (endPointsCache == null) {
+                Map<String,EndPoint> tmp = new HashMap<>();
+                for (EndPoint ep : result.allInstances()) {
+                    tmp.put(ep.getName(), ep);
+                }
+                endPointsCache = Collections.unmodifiableMap(tmp);
+            }
+            return endPointsCache.get(name);
+        }
+    }
+
+
+    public static synchronized EndPointRegistry getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new EndPointRegistry();
+        }
+        return INSTANCE;
+    }
 }

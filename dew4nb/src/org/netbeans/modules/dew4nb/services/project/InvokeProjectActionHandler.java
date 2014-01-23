@@ -40,22 +40,22 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services;
+package org.netbeans.modules.dew4nb.services.project;
 
-import javax.swing.SwingUtilities;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.dew4nb.Context;
-import org.netbeans.modules.dew4nb.InvokeProjectActionResult;
-import org.netbeans.modules.dew4nb.JavacMessageType;
-import org.netbeans.modules.dew4nb.JavacQuery;
-import org.netbeans.modules.dew4nb.RequestHandler;
-import org.netbeans.modules.dew4nb.Status;
+import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.services.javac.Context;
+import org.netbeans.modules.dew4nb.services.javac.InvokeProjectActionResult;
+import org.netbeans.modules.dew4nb.services.javac.JavacModels;
+import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -63,14 +63,14 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class InvokeProjectActionHandler extends RequestHandler<JavacQuery, InvokeProjectActionResult> {
+public class InvokeProjectActionHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, InvokeProjectActionResult> {
 
     public InvokeProjectActionHandler() {
-        super(JavacMessageType.invokeAction, JavacQuery.class, InvokeProjectActionResult.class);
+        super(JavacModels.END_POINT, JavacMessageType.invokeAction, JavacQuery.class, InvokeProjectActionResult.class);
     }
 
     @Override
-    protected boolean handle(JavacQuery request, InvokeProjectActionResult response) {
+    protected Status handle(JavacQuery request, InvokeProjectActionResult response) {
         if (request.getType() != JavacMessageType.invokeAction) {
             throw new IllegalStateException(String.format(
                 "Illegal message type: %s", //NOI18N
@@ -82,7 +82,7 @@ public class InvokeProjectActionHandler extends RequestHandler<JavacQuery, Invok
         }
         final Context ctx = request.getContext();
         if (ctx == null) {
-            return false;
+            return Status.not_found;
         }
         final FileObject file = workspaceRes.resolveFile(new WorkspaceResolver.Context(
                 ctx.getUser(),
@@ -103,8 +103,7 @@ public class InvokeProjectActionHandler extends RequestHandler<JavacQuery, Invok
         response.getStdout().addAll(java.util.Arrays.asList("Hello","World"));  //NOI18N
         response.getStderr().add("Error");  //NOI18N
         response.setSuccess(true);
-        response.setStatus(Status.success);
-        return true;
+        return Status.done;
     }
 
 }

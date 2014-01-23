@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,35 +37,35 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb;
+package org.netbeans.modules.dew4nb.endpoint;
 
-import org.openide.util.lookup.ServiceProvider;
+import org.netbeans.api.annotations.common.NonNull;
 
-/** A request handler to be registered by {@link ServiceProvider}
- * annotation and convert requests for some functionality of 
- * Javac to some responses.
+/**
  *
- * @author Jaroslav Tulach <jtulach@netbeans.org>
+ * @author Tomas Zezula
  */
-public abstract class RequestHandler<Request,Response> {
-    final JavacMessageType type;
-    final Class<Request> request;
-    final Class<Response> response;
+public abstract class AsyncRequestHandler<Request, RequestKind extends Enum<RequestKind>> extends RequestHandler<Request, RequestKind> {
 
-    protected RequestHandler(JavacMessageType type, Class<Request> request, Class<Response> response) {
-        this.type = type;
-        this.request = request;
-        this.response = response;
+    protected AsyncRequestHandler(
+            @NonNull final String endPointName,
+            @NonNull final RequestKind requestKind,
+            @NonNull final Class<Request> requestType) {
+        super(endPointName, requestKind, requestType);
     }
-    
-    /** Handle an incomming request, if one is able to.
-     * 
-     * @param request
-     * @param response
-     * @return true, if the request has been handled
-     */
-    protected abstract boolean handle(Request request, Response response);
+
+    @Override
+    Status perform(Request request, EndPoint.Env env) throws Exception {
+        final Status res = handle(request, env);
+        if (!res.isAsync()) {
+            env.close();
+        }
+        return res;
+    }
+
+    protected abstract Status handle(Request request, EndPoint.Env env);
+
 }
