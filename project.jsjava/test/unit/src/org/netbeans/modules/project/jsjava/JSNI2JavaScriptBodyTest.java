@@ -67,4 +67,62 @@ public class JSNI2JavaScriptBodyTest {
                               "    public native void run(int a);\n" +
                               "}\n");
     }
+    
+    @Test
+    public void test1() throws Exception {
+        String s = "class Test {\n"
+            + "    /** javadoc */\n"
+            + "    public native void test() /*-{\n"
+            + "        // body\n"
+            + "    }-*/;\n"
+            + "}\n";
+
+        String expected = " import net.java.html.js.JavaScriptBody;\n"
+            + "class Test {\n"
+            + "\n"
+            + "    /** javadoc */\n"
+            + "    @JavaScriptBody(args = {}, body = \"\\n        // body\\n  \")\n"
+            + "    public native void test();\n"
+            + "}\n";
+
+        HintTest.create()
+            .input(s)
+            .classpath(FileUtil.getArchiveRoot(JavaScriptBody.class.getProtectionDomain().getCodeSource().getLocation()))
+            .run(JSNI2JavaScriptBody.class)
+            .findWarning("2:23-2:27:verifier:" + Bundle.ERR_JSNI2JavaScriptBody())
+            .applyFix()
+            .assertCompilable()
+            .assertOutput(expected);
+    }
+
+    @Test
+    public void test2() throws Exception {
+        String s = "class Test {\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    public native void test() /*-{\n"
+            + "        // body\n"
+            + "    }-*/;\n"
+            + "}\n";
+
+        String expected = " import net.java.html.js.JavaScriptBody;\n"
+            + "class Test {\n"
+            + "\n"
+            + "    /** javadoc */\n"
+            + "    @SuppressWarnings(\"unused\")\n"
+            + "    // comment\n"
+            + "    @JavaScriptBody(args = {}, body = \"\\n        // body\\n  \")\n"
+            + "    public native void test();\n"
+            + "}\n";
+        HintTest.create()
+            .input(s)
+            .classpath(FileUtil.getArchiveRoot(JavaScriptBody.class.getProtectionDomain().getCodeSource().getLocation()))
+            .run(JSNI2JavaScriptBody.class)
+            .findWarning("4:23-4:27:verifier:" + Bundle.ERR_JSNI2JavaScriptBody())
+            .applyFix()
+            .assertCompilable()
+            .assertOutput(expected);
+    }
+    
 }
