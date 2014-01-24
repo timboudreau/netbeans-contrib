@@ -47,6 +47,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
@@ -103,13 +104,14 @@ public class IORedirectProvider extends IOProvider {
 
     private static class RedirectWriter extends Writer {
 
-        private final EndPoint.Env env;
+        private final RedirectIO owner;
         private final boolean errorOutput;
 
         RedirectWriter(
-                @NonNull final EndPoint.Env env,
+                @NonNull final RedirectIO owner,
                 final boolean errorOutput) {
-            this.env = env;
+            Parameters.notNull("owner", owner); //NOI18N
+            this.owner = owner;
             this.errorOutput = errorOutput;
         }
 
@@ -118,15 +120,7 @@ public class IORedirectProvider extends IOProvider {
         public void write(char[] cbuf, int off, int len) throws IOException {
             final String str = new  String(cbuf, off, len);
             if (!EMPTY_STR.matcher(str).matches()) {
-                env.sendObject(createResponse(
-                    env,
-                    null,
-                    errorOutput?
-                        null :
-                        str,
-                    errorOutput?
-                        str :
-                        null));
+                owner.writeImpl(str, errorOutput);                
             }
         }
 
@@ -136,15 +130,19 @@ public class IORedirectProvider extends IOProvider {
 
         @Override
         public void close() throws IOException {
+            owner.closeImpl();
         }
     }
 
-    private static class RedirectOutputWriter extends OutputWriter {     
+    private static class RedirectOutputWriter extends OutputWriter {
+
+        private final RedirectIO owner;
 
         RedirectOutputWriter(
-                @NonNull final EndPoint.Env env,
+                @NonNull final RedirectIO owner,
                 final boolean err) {
-            super(new RedirectWriter(env, err));
+            super(new RedirectWriter(owner, err));
+            this.owner = owner;
         }
 
         @Override
@@ -154,15 +152,18 @@ public class IORedirectProvider extends IOProvider {
 
         @Override
         public void reset() throws IOException {
+            owner.resetImpl();
         }
     }
 
     private static class RedirectIO implements InputOutput {
 
+        private final AtomicBoolean closed;
         private final EndPoint.Env env;
 
         RedirectIO(@NonNull final EndPoint.Env env) {
             Parameters.notNull("env", env);
+            this.closed = new AtomicBoolean();
             this.env = env;
         }
 
@@ -173,21 +174,16 @@ public class IORedirectProvider extends IOProvider {
 
         @Override
         public OutputWriter getOut() {
-            return new RedirectOutputWriter(env, false);
+            return new RedirectOutputWriter(this, false);
         }
 
         @Override
         public OutputWriter getErr() {
-            return new RedirectOutputWriter(env, true);
+            return new RedirectOutputWriter(this, true);
         }
 
         @Override
-        public void closeInputOutput() {
-            env.sendObject(createResponse(
-                env,
-                BuildResult.success,
-                null,
-                null));
+        public void closeInputOutput() {            
         }
 
         @Override
@@ -232,6 +228,34 @@ public class IORedirectProvider extends IOProvider {
         @Override
         public Reader flushReader() {
             return new NullReader();
+        }
+
+        void writeImpl(
+            @NonNull final String data,
+            final boolean err) {
+            env.sendObject(createResponse(
+                    env,
+                    null,
+                    err?
+                        null :
+                        data,
+                    err?
+                        data :
+                        null));
+        }
+
+        void closeImpl() {
+            if (!closed.getAndSet(true)) {
+                env.sendObject(createResponse(
+                    env,
+                    BuildResult.success,
+                    null,
+                    null));
+            }
+        }
+
+        void resetImpl() {
+            closed.set(false);
         }
     }
 
