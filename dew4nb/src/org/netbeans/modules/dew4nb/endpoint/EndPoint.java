@@ -88,6 +88,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.java.html.json.Models;
 import org.glassfish.grizzly.websockets.WebSocket;
 import org.netbeans.api.annotations.common.CheckForNull;
@@ -206,6 +207,7 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
 
         private final WebSocket ws;
         private final String endPointName;
+        private final Map<String,Object> properties;
         private volatile boolean closed;
 
         private Env (
@@ -215,6 +217,7 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
             Parameters.notNull("endPointName", endPointName);   //NOI18N
             this.ws = ws;
             this.endPointName = endPointName;
+            this.properties = new ConcurrentHashMap<>();
         }
 
         public void sendObject(Object object) {
@@ -230,6 +233,26 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
             ws.send(message == null ?
                 "null" :    //NOI18N
                 message);
+        }
+
+        public void setProperty(
+                @NonNull final String propName,
+                @NullAllowed final Object value) {
+            Parameters.notNull("propName", propName);   //NOI18N
+            if (value == null) {
+                properties.remove(propName);
+            } else {
+                properties.put(propName, value);
+            }
+        }
+
+        @CheckForNull
+        public <T> T getProperty(
+                @NonNull final String propName,
+                @NonNull final Class<? extends T> clz) {
+            Parameters.notNull("propName", propName);   //NOI18N
+            Parameters.notNull("clz", clz); //NOI18N
+            return clz.cast(properties.get(propName));
         }
 
         void close() {
