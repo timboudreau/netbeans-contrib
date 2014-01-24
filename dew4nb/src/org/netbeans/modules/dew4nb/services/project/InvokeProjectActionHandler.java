@@ -43,26 +43,20 @@
 package org.netbeans.modules.dew4nb.services.project;
 
 import javax.swing.SwingUtilities;
-import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.services.javac.Context;
-import org.netbeans.modules.dew4nb.services.javac.InvokeProjectActionResult;
 import org.netbeans.modules.dew4nb.services.javac.JavacModels;
 import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -103,54 +97,26 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<JavacQuery, 
             if (prj != null) {
                 final ActionProvider ap = prj.getLookup().lookup(ActionProvider.class);
                 if (ap != null) {
-                    res = Status.accepted;
-                    RequestProcessor.getDefault().execute(new Runnable() {
+                    res = Status.accepted;                                        
+                    SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            for (int i = 0; i<10; i++) {
-                                env.sendObject(createResponse(request,null,"I je " + i,null));
-                                try {
-                                    Thread.sleep(3000);
-                                } catch (InterruptedException ex) {
-                                    Exceptions.printStackTrace(ex);
-                                }
+                            env.setProperty(IORedirectProvider.PROP_TYPE, request.getType());
+                            env.setProperty(IORedirectProvider.PROP_STATE, request.getState());
+                            IORedirectProvider.bindEnv(env);
+                            try {
+                                ap.invokeAction(
+                                    request.getJava().toLowerCase(),    //FIXME!!!!!!!!!
+                                    Lookups.fixed(file, prj));
+                            } finally {
+                                IORedirectProvider.unbindEnv();
                             }
-                            env.sendObject(createResponse(request,BuildResult.success, null, null));
                         }
                     });
-                    
-//                    SwingUtilities.invokeLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            ap.invokeAction(
-//                                request.getJava(),
-//                                Lookups.fixed(file, prj));
-//                        }
-//                    });
                 }
             }
         }
         return res;
-    }
-
-    @NonNull
-    private static InvokeProjectActionResult createResponse(
-            @NonNull final JavacQuery prototype,
-            @NullAllowed final BuildResult result,
-            @NullAllowed final String stdOut,
-            @NullAllowed final String stdErr) {
-        final InvokeProjectActionResult res = new InvokeProjectActionResult();
-        res.setType(prototype.getType());
-        res.setState(prototype.getState());
-        res.setStatus(Status.done);
-        res.setResult(result);
-        if (stdOut != null) {
-            res.getStdout().add(stdOut);
-        }
-        if (stdErr != null) {
-            res.getStderr().add(stdErr);
-        }
-        return res;
-    }
+    }    
 
 }
