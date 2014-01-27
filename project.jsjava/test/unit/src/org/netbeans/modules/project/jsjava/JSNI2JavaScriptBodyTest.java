@@ -81,7 +81,7 @@ public class JSNI2JavaScriptBodyTest {
             + "class Test {\n"
             + "\n"
             + "    /** javadoc */\n"
-            + "    @JavaScriptBody(args = {}, body = \"\\n        // body\\n  \")\n"
+            + "    @JavaScriptBody(args = {}, body = \"\\n\" + \"        // body\\n\" + \" \")\n"
             + "    public native void test();\n"
             + "}\n";
 
@@ -112,7 +112,7 @@ public class JSNI2JavaScriptBodyTest {
             + "    /** javadoc */\n"
             + "    @SuppressWarnings(\"unused\")\n"
             + "    // comment\n"
-            + "    @JavaScriptBody(args = {}, body = \"\\n        // body\\n  \")\n"
+            + "    @JavaScriptBody(args = {}, body = \"\\n\" + \"        // body\\n\" + \"  \")\n"
             + "    public native void test();\n"
             + "}\n";
         HintTest.create()
@@ -147,8 +147,8 @@ public class JSNI2JavaScriptBodyTest {
             + "    /** javadoc */\n"
             + "    @SuppressWarnings(\"unused\")\n"
             + "    // comment\n"
-            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n"
-            + "        @org.netbeans.modules.project.jsjava.JSNI2JavaScriptBodyTest::append(Ljava/lang/StringBuilder;Ljava/lang/String;)(builder, 'Ahoj');\\n  \")\n"
+            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n\" + "
+            + "    \"    @org.netbeans.modules.project.jsjava.JSNI2JavaScriptBodyTest::append(Ljava/lang/StringBuilder;Ljava/lang/String;)(builder, 'Ahoj');\\n\" + \"  \")\n"
             + "    public native void test(String builder);\n"
             + "}\n";
         HintTest.create()
@@ -168,7 +168,7 @@ public class JSNI2JavaScriptBodyTest {
             + "    @SuppressWarnings(\"unused\")\n"
             + "    // comment\n"
             + "    public native void test(String builder) /*-{\n"
-            + "        @java.lang.StringBuilder::append(Ljava/lang/String;)(builder, 'Ahoj');\n"
+            + "        builder.@java.lang.StringBuilder::append(Ljava/lang/String;)('Ahoj');\n"
             + "    }-*/;\n"
             + "}\n";
 
@@ -178,8 +178,8 @@ public class JSNI2JavaScriptBodyTest {
             + "    /** javadoc */\n"
             + "    @SuppressWarnings(\"unused\")\n"
             + "    // comment\n"
-            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n"
-            + "        @java.lang.StringBuilder::append(Ljava/lang/String;)(builder, 'Ahoj');\\n    \")"
+            + "    @JavaScriptBody(args = {\"builder\"}, javacall = true, body = \"\\n\" + \""
+            + "        builder.@java.lang.StringBuilder::append(Ljava/lang/String;)('Ahoj');\\n\" + \"    \")"
             + "    public native void test(String builder);\n"
             + "}\n";
         HintTest.create()

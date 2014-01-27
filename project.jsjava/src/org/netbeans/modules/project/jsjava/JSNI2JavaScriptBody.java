@@ -162,7 +162,21 @@ public class JSNI2JavaScriptBody {
             if (body.contains("@") && body.contains("::")) {
                 arr.add(make.Assignment(make.Identifier("javacall"), make.Literal(true)));
             }
-            arr.add(make.Assignment(make.Identifier("body"), make.Literal(body)));
+            ExpressionTree exp = null;
+            final String[] lines = body.split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                if (i < lines.length - 1) {
+                    line = line + "\n";
+                }
+                if (exp == null) {
+                    exp = make.Literal(line);
+                } else {
+                    exp = make.Binary(Kind.PLUS, exp, make.Literal(line));
+                }
+                
+            }
+            arr.add(make.Assignment(make.Identifier("body"), exp));
             
             AnnotationTree jsBody = make.Annotation(make.QualIdent("net.java.html.js.JavaScriptBody"), arr);
             ctx.getWorkingCopy().rewrite(mt.getModifiers(), make.addModifiersAnnotation(mt.getModifiers(), jsBody));
