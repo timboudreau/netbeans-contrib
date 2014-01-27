@@ -89,12 +89,8 @@ public class IORedirectProvider extends IOProvider {
     }
 
     @Override
-    public InputOutput getIO(String name, boolean newIO) {
-        final EndPoint.Env env = currentEnv.get();
-        if (env == null) {
-            throw new IllegalStateException();
-        }
-        return new RedirectIO(env);
+    public InputOutput getIO(String name, boolean newIO) {        
+        return new RedirectIO();
     }
 
     @Override
@@ -156,15 +152,14 @@ public class IORedirectProvider extends IOProvider {
         }
     }
 
-    private static class RedirectIO implements InputOutput {
+    private static final class RedirectIO implements InputOutput {
 
         private final AtomicBoolean closed;
-        private final EndPoint.Env env;
+        private volatile EndPoint.Env env;
 
-        RedirectIO(@NonNull final EndPoint.Env env) {
-            Parameters.notNull("env", env);
+        RedirectIO() {
             this.closed = new AtomicBoolean();
-            this.env = env;
+            resetImpl();
         }
 
         @Override
@@ -255,6 +250,10 @@ public class IORedirectProvider extends IOProvider {
         }
 
         void resetImpl() {
+            env = currentEnv.get();
+            if (env == null) {
+                throw new IllegalStateException();
+            }
             closed.set(false);
         }
     }

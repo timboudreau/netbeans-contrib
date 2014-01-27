@@ -106,7 +106,7 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<JavacQuery, 
                             IORedirectProvider.bindEnv(env);
                             try {
                                 ap.invokeAction(
-                                    request.getJava().toLowerCase(),    //FIXME!!!!!!!!!
+                                    request.getJava(),
                                     Lookups.fixed(file, prj));
                             } finally {
                                 IORedirectProvider.unbindEnv();
