@@ -68,6 +68,25 @@ public class JSNI2JavaScriptBodyTest {
                               "}\n");
     }
     
+    @Test public void testUseQuote() throws Exception {
+        HintTest.create()
+                .input("package test;\n" +
+                       "public class Test {\n" +
+                       "    public native void alert() /*-{ alert(\"Pozor!\"); }-*/;\n" +
+                       "}\n")
+                .classpath(FileUtil.getArchiveRoot(JavaScriptBody.class.getProtectionDomain().getCodeSource().getLocation()))
+                .run(JSNI2JavaScriptBody.class)
+                .findWarning("2:23-2:28:verifier:" + Bundle.ERR_JSNI2JavaScriptBody())
+                .applyFix()
+                .assertCompilable()
+                .assertOutput("package test;\n" +
+                              "import net.java.html.js.JavaScriptBody;\n" +
+                              "public class Test {\n" +
+                              "    @JavaScriptBody(args = {}, body = \" alert(\\\"Pozor!\\\"); \")\n" +
+                              "    public native void alert();\n" +
+                              "}\n");
+    }
+    
     @Test
     public void test1() throws Exception {
         String s = "class Test {\n"
