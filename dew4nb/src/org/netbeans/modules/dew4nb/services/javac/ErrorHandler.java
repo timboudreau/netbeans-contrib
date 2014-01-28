@@ -56,6 +56,7 @@ import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.SourceProvider;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
@@ -88,7 +89,12 @@ public class ErrorHandler extends BasicRequestHandler<JavacQuery, JavacMessageTy
         }
         final String java = request.getJava();
         final Context ctx = request.getContext();
-        final Source src = SourceProvider.getInstance().getSource(ctx, java);
+        final Source src = SourceProvider.getInstance().getSource(
+            new WorkspaceResolver.Context(
+                ctx.getUser(),
+                ctx.getWorkspace(),
+                ctx.getPath()),
+            java);
         Status status = Status.runtime_error;
         if (src != null) {
             try {

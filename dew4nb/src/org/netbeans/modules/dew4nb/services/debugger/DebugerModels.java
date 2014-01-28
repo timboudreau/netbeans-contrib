@@ -40,37 +40,50 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac.debugger;
+package org.netbeans.modules.dew4nb.services.debugger;
 
-import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
-import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import net.java.html.json.Model;
+import net.java.html.json.Property;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
-import org.openide.util.Parameters;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service = RequestHandler.class)
-public class SetBreakpointsHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, SetBreakpointsResult> {
+public final class DebugerModels {
 
-    public SetBreakpointsHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.breakpoints, JavacQuery.class, SetBreakpointsResult.class);
+    static final String END_POINT = "javac"; //NOI18N
+
+    private DebugerModels() {
+        throw new IllegalStateException("No instance allowed.");    //NOI18N
     }
 
-    @Override
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final SetBreakpointsResult response) {
-        Parameters.notNull("request", request); //NOI18N
-        Parameters.notNull("response", response);   //NOI18N;
-        if (request.getType() != JavacMessageType.breakpoints) {
-            throw new IllegalStateException("Wrong message type: " + request.getType());    //NOI18N
-        }
-        Status status = Status.done;
-        return status;
+
+    @Model(className = "AttachResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "id", type = int.class)
+    })
+    static final class AttachResultModel {
+    }
+
+
+    @Model(className = "SetBreakpointsResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class SetBreakpointsResultModel {
+    }
+
+    @Model(className = "ContinueResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class ContinueResultModel {
     }
 
 }

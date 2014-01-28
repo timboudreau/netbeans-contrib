@@ -59,7 +59,6 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
-import org.netbeans.modules.dew4nb.services.javac.Context;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.api.Source;
 import org.openide.cookies.EditorCookie;
@@ -106,7 +105,7 @@ public final class SourceProvider {
 
     @CheckForNull
     public Source getSource(
-            @NullAllowed Context ctx,
+            @NullAllowed WorkspaceResolver.Context ctx,
             @NullAllowed String content) {
         FileObject file = null;
         if (ctx != null) {
@@ -114,10 +113,7 @@ public final class SourceProvider {
             if (resolver == null) {
                 LOG.warning("No WorkspaceResolver in Lookup."); //NOI18N
             } else {
-                file = resolver.resolveFile(new WorkspaceResolver.Context(
-                    ctx.getUser(),
-                    ctx.getWorkspace(),
-                    ctx.getPath()));                
+                file = resolver.resolveFile(ctx);
             }
         }
         boolean tmpFile = false;

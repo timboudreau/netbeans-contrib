@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,19 +37,30 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac;
+package org.netbeans.modules.dew4nb.services.project;
 
-public enum JavacMessageType {
-    //javac
-    autocomplete,
-    symbols,
-    checkForErrors,
-    compile,
-    //debugger
-    attach,
-    breakpoints,
-    cont
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+@ServiceProvider(service = EndPoint.class)
+public final class ProjectEndPoint extends EndPoint<ProjectAction, ProjectMessageType> {
+
+    public ProjectEndPoint() {
+        super(ProjectModels.END_POINT, ProjectAction.class, ProjectMessageType.class);
+    }    
+
+    @Override
+    protected ProjectMessageType getRequestKind(@NonNull final ProjectAction query) {
+        Parameters.notNull("query", query); //NOI18N
+        return query.getType();
+    }
 }

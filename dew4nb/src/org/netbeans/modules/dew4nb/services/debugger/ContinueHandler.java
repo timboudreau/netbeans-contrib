@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,23 +37,21 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.project;
+package org.netbeans.modules.dew4nb.services.debugger;
 
-import java.io.IOException;
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.debugger.Session;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
+import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.Context;
-import org.netbeans.modules.dew4nb.services.javac.FileContentResult;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacModels;
 import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -61,37 +59,37 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service = RequestHandler.class)
-public class GetFileContentHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, FileContentResult>{
-    public GetFileContentHandler() {
-        super(JavacModels.END_POINT, JavacMessageType.getfile, JavacQuery.class, FileContentResult.class);
+@ServiceProvider(service=RequestHandler.class)
+public class ContinueHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, ContinueResult> {
+
+    public ContinueHandler() {
+        super(DebugerModels.END_POINT, JavacMessageType.cont, JavacQuery.class, ContinueResult.class);
     }
 
     @Override
-    protected Status handle(JavacQuery request, FileContentResult response) {
+    @NonNull
+    protected Status handle(@NonNull final JavacQuery request, @NonNull final ContinueResult response) {
         Parameters.notNull("request", request); //NOI18N
         Parameters.notNull("response", response);   //NOI18N
-        final Context ctx = request.getContext();
-        Status status = Status.done;
+        if (request.getType() != JavacMessageType.cont) {
+            throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
+        }
+        Status status = Status.not_found;
+        final int sessionId = request.getOffset();
+        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
         if (ctx != null) {
-            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
-            if(resolver == null) {
-                throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
+            final Session debugSession = ActiveSessions.getInstance().getDebugSession(sessionId);
+            if (debugSession == null) {
+                throw new IllegalStateException("No debugger session.");    //NOI18N
             }
-            final FileObject fo = resolver.resolveFile(new WorkspaceResolver.Context(
-                 ctx.getUser(),
-                 ctx.getWorkspace(),
-                 ctx.getPath()));
-            if (fo != null) {
-                try {
-                    response.setContent(fo.asText("UTF-8"));
-                } catch (IOException ex) {
-                    status = Status.runtime_error;
-                }
-            } else {
-                status = Status.not_found;
+            final JPDADebugger jpda = debugSession.lookupFirst(null, JPDADebugger.class);
+            if (!(jpda instanceof JPDADebuggerImpl)) {
+                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
             }
+            ((JPDADebuggerImpl)jpda).resume();
+            status = Status.done;
         }
         return status;
     }
+
 }

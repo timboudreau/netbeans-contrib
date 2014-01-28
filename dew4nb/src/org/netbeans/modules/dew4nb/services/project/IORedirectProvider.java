@@ -43,7 +43,6 @@
 package org.netbeans.modules.dew4nb.services.project;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -53,9 +52,6 @@ import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.InvokeProjectActionResult;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.IOProvider;
@@ -308,7 +304,7 @@ public class IORedirectProvider extends IOProvider {
             @NullAllowed final String stdOut,
             @NullAllowed final String stdErr) {
         Parameters.notNull("env", env); //NOI18N
-        final JavacMessageType type = env.getProperty(PROP_TYPE, JavacMessageType.class);
+        final ProjectMessageType type = env.getProperty(PROP_TYPE, ProjectMessageType.class);
         Parameters.notNull("type", type); //NOI18N
         final String state = env.getProperty(PROP_STATE, String.class);
         Parameters.notNull("state", state); //NOI18N

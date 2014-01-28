@@ -40,12 +40,9 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac.debugger;
+package org.netbeans.modules.dew4nb.services.debugger;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
@@ -67,15 +64,11 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = RequestHandler.class)
 public class AttachHandler extends AsyncRequestHandler<JavacQuery, JavacMessageType> {
 
-    private static final Executor RP = new RequestProcessor(AttachHandler.class);
-    private final AtomicInteger idSequencer;
-    private final ConcurrentMap<Integer,WorkspaceResolver.Context> activeSessions;
+    private static final Executor RP = new RequestProcessor(AttachHandler.class);    
 
 
     public AttachHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.attach, JavacQuery.class);
-        this.idSequencer = new AtomicInteger();
-        this.activeSessions = new ConcurrentHashMap<>();
+        super(DebugerModels.END_POINT, JavacMessageType.attach, JavacQuery.class);        
     }
 
     @Override
@@ -105,14 +98,11 @@ public class AttachHandler extends AsyncRequestHandler<JavacQuery, JavacMessageT
                    ctx.getWorkspace(),
                    ""   //NOI18N
                 );
-                final FileObject workspace = resolver.resolveFile(serverCtx);
                 Status status = Status.not_found;
                 int id = -1;
+                final FileObject workspace = resolver.resolveFile(serverCtx);                
                 if (workspace != null) {
-                    id = idSequencer.incrementAndGet();
-                    if (activeSessions.putIfAbsent(id, serverCtx) != null) {
-                        throw new IllegalStateException("Trying to reuse active session");  //NOI18N
-                    }
+                    id = ActiveSessions.getInstance().createSession(serverCtx, env);
                     status = Status.done;
                 }
                 final AttachResult attachResult = new AttachResult();

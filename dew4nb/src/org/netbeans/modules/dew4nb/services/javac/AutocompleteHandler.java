@@ -74,6 +74,7 @@ import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.SourceProvider;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.java.JavaCompletionItem;
 import org.netbeans.modules.editor.java.JavaCompletionItemFactory;
@@ -106,7 +107,12 @@ public class AutocompleteHandler extends BasicRequestHandler<JavacQuery, JavacMe
                 ctx.getPath());
         Status status = Status.runtime_error;
         try {
-            final Source s = SourceProvider.getInstance().getSource(ctx, java);
+            final Source s = SourceProvider.getInstance().getSource(
+                new WorkspaceResolver.Context(
+                    ctx.getUser(),
+                    ctx.getWorkspace(),
+                    ctx.getPath()),
+                java);
             if (s != null) {
                 List<? extends org.netbeans.spi.editor.completion.CompletionItem> items = JavaCompletionProvider.query(s, CompletionProvider.COMPLETION_QUERY_TYPE, offset, offset, new Item.Factory());
                 Collections.sort(items, CompletionItemComparator.BY_PRIORITY);
