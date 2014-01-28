@@ -78,4 +78,12 @@ public final class DebugerModels {
     static final class SetBreakpointsResultModel {
     }
 
+    @Model(className = "ContinueResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class ContinueResultModel {
+    }
+
 }

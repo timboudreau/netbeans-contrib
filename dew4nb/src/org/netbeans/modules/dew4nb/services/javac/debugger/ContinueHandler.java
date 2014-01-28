@@ -42,77 +42,54 @@
 
 package org.netbeans.modules.dew4nb.services.javac.debugger;
 
-import java.util.concurrent.Executor;
 import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
-import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.netbeans.api.debugger.Session;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
+import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.Context;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
 import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.util.RequestProcessor;
+import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service = RequestHandler.class)
-public class AttachHandler extends AsyncRequestHandler<JavacQuery, JavacMessageType> {
+@ServiceProvider(service=RequestHandler.class)
+public class ContinueHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, ContinueResult> {
 
-    private static final Executor RP = new RequestProcessor(AttachHandler.class);    
-
-
-    public AttachHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.attach, JavacQuery.class);        
+    public ContinueHandler() {
+        super(DebugerModels.END_POINT, JavacMessageType.cont, JavacQuery.class, ContinueResult.class);
     }
 
     @Override
     @NonNull
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final EndPoint.Env env) {
-        final JavacMessageType type = request.getType();
-        if (type != JavacMessageType.attach) {
-            throw new IllegalStateException("Wrong message type:" + type);  //NOI18N
+    protected Status handle(@NonNull final JavacQuery request, @NonNull final ContinueResult response) {
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("response", response);   //NOI18N
+        if (request.getType() != JavacMessageType.cont) {
+            throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
         }
-        final Context ctx = request.getContext();
+        Status status = Status.not_found;
+        final int sessionId = request.getOffset();
+        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
         if (ctx != null) {
-            throw new IllegalArgumentException("Missing context");  //NOI18N
-        }
-        final String state = request.getState();
-        if (state == null) {
-            throw new IllegalArgumentException("Missing state");       //NOI18N
-        }
-        final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
-        if (resolver == null) {
-            throw new IllegalStateException("No WorkspaceResolver");    //NOI18N
-        }
-        RP.execute(new Runnable() {
-            @Override
-            public void run() {                
-                final WorkspaceResolver.Context serverCtx = new WorkspaceResolver.Context(
-                   ctx.getUser(),
-                   ctx.getWorkspace(),
-                   ""   //NOI18N
-                );
-                Status status = Status.not_found;
-                int id = -1;
-                final FileObject workspace = resolver.resolveFile(serverCtx);                
-                if (workspace != null) {
-                    id = ActiveSessions.getInstance().createSession(serverCtx, env);
-                    status = Status.done;
-                }
-                final AttachResult attachResult = new AttachResult();
-                attachResult.setId(id);
-                attachResult.setType(type);
-                attachResult.setState(state);
-                attachResult.setStatus(status);
-                env.sendObject(attachResult);
+            final Session debugSession = ActiveSessions.getInstance().getDebugSession(sessionId);
+            if (debugSession == null) {
+                throw new IllegalStateException("No debugger session.");    //NOI18N
             }
-        });
-        return Status.accepted;
+            final JPDADebugger jpda = debugSession.lookupFirst(null, JPDADebugger.class);
+            if (!(jpda instanceof JPDADebuggerImpl)) {
+                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
+            }
+            ((JPDADebuggerImpl)jpda).resume();
+            status = Status.done;
+        }
+        return status;
     }
+
 }

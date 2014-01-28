@@ -56,4 +56,5 @@ public enum JavacMessageType {
     //debugger
     attach,
     breakpoints,
+    cont
 }
