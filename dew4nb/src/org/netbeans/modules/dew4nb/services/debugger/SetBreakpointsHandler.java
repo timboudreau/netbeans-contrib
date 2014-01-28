@@ -50,8 +50,6 @@ import org.netbeans.api.debugger.jpda.LineBreakpoint;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
@@ -63,61 +61,58 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class SetBreakpointsHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, SetBreakpointsResult> {
+public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, DebugMessageType, SetBreakpointsResult> {
     
     private static final Logger LOG = Logger.getLogger(SetBreakpointsHandler.class.getName());
 
     public SetBreakpointsHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.breakpoints, JavacQuery.class, SetBreakpointsResult.class);
+        super(DebugerModels.END_POINT, DebugMessageType.breakpoints, DebugAction.class, SetBreakpointsResult.class);
     }
 
     @Override
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final SetBreakpointsResult response) {
+    protected Status handle(@NonNull final DebugAction request, @NonNull final SetBreakpointsResult response) {
         Parameters.notNull("request", request); //NOI18N
         Parameters.notNull("response", response);   //NOI18N;
-        if (request.getType() != JavacMessageType.breakpoints) {
+        if (request.getType() != DebugMessageType.breakpoints) {
             throw new IllegalStateException("Wrong message type: " + request.getType());    //NOI18N
         }
         Status status = Status.not_found;
-        final int sessionId = request.getOffset();
+        final int sessionId = request.getSession();
         final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
-        if (ctx != null) {
-            final String lines = request.getJava();
-            if (lines != null) {
-                final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
-                if (resolver == null) {
-                    throw new IllegalStateException("No WorkspaceResolver."); //NOI18N
-                }
-                final DebuggerManager dbm = DebuggerManager.getDebuggerManager();
-                for (String line : lines.split(",")) {  //NOI18N
-                    final int separator = line.lastIndexOf(':');    //NOI18N
-                    if (separator > 0 && separator < line.length() - 1) {
-                        try {
-                            final String path = line.substring(0, separator);
-                            final String lineStr = line.substring(separator+1);
-                            final int lineNo = Integer.parseInt(lineStr);
-                            final FileObject file = resolver.resolveFile(new WorkspaceResolver.Context(ctx.getUser(), ctx.getWorkspace(), path));
-                            if (file != null) {
-                                final LineBreakpoint lb = LineBreakpoint.create(file.toURL().toExternalForm(), lineNo);
-                                dbm.addBreakpoint(lb);
-                            } else {
-                                LOG.log(
-                                    Level.WARNING,
-                                    "Ignoring breakpoint in unresolvable file: {0}",   //NOI18N
-                                    line);
-                            }
-                        } catch (NumberFormatException nfe) {
+        if (ctx != null) {            
+            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+            if (resolver == null) {
+                throw new IllegalStateException("No WorkspaceResolver."); //NOI18N
+            }
+            final DebuggerManager dbm = DebuggerManager.getDebuggerManager();
+            for (String line : request.getData()) {
+                final int separator = line.lastIndexOf(':');    //NOI18N
+                if (separator > 0 && separator < line.length() - 1) {
+                    try {
+                        final String path = line.substring(0, separator);
+                        final String lineStr = line.substring(separator+1);
+                        final int lineNo = Integer.parseInt(lineStr);
+                        final FileObject file = resolver.resolveFile(new WorkspaceResolver.Context(ctx.getUser(), ctx.getWorkspace(), path));
+                        if (file != null) {
+                            final LineBreakpoint lb = LineBreakpoint.create(file.toURL().toExternalForm(), lineNo);
+                            dbm.addBreakpoint(lb);
+                        } else {
                             LOG.log(
                                 Level.WARNING,
-                                "Ignoring breakpoint with wrong line number: {0}",   //NOI18N
+                                "Ignoring breakpoint in unresolvable file: {0}",   //NOI18N
                                 line);
                         }
-                    } else {
+                    } catch (NumberFormatException nfe) {
                         LOG.log(
                             Level.WARNING,
-                            "Ignoring wrong breakpoint: {0}",   //NOI18N
+                            "Ignoring breakpoint with wrong line number: {0}",   //NOI18N
                             line);
                     }
+                } else {
+                    LOG.log(
+                        Level.WARNING,
+                        "Ignoring wrong breakpoint: {0}",   //NOI18N
+                        line);
                 }
             }
             status = Status.done;

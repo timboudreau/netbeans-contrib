@@ -49,8 +49,6 @@ import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
@@ -60,22 +58,22 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service=RequestHandler.class)
-public class ContinueHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, ContinueResult> {
+public class ContinueHandler extends BasicRequestHandler<DebugAction, DebugMessageType, ContinueResult> {
 
     public ContinueHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.cont, JavacQuery.class, ContinueResult.class);
+        super(DebugerModels.END_POINT, DebugMessageType.cont, DebugAction.class, ContinueResult.class);
     }
 
     @Override
     @NonNull
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final ContinueResult response) {
+    protected Status handle(@NonNull final DebugAction request, @NonNull final ContinueResult response) {
         Parameters.notNull("request", request); //NOI18N
         Parameters.notNull("response", response);   //NOI18N
-        if (request.getType() != JavacMessageType.cont) {
+        if (request.getType() != DebugMessageType.cont) {
             throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
         }
         Status status = Status.not_found;
-        final int sessionId = request.getOffset();
+        final int sessionId = request.getSession();
         final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
         if (ctx != null) {
             final Session debugSession = ActiveSessions.getInstance().getDebugSession(sessionId);

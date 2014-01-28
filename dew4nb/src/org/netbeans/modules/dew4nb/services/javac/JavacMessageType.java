@@ -47,9 +47,5 @@ public enum JavacMessageType {
     autocomplete,
     symbols,
     checkForErrors,
-    compile,
-    //debugger
-    attach,
-    breakpoints,
-    cont
+    compile    
 }

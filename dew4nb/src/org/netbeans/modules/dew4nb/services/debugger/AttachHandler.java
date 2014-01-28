@@ -48,9 +48,6 @@ import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.Context;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
@@ -62,20 +59,20 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class AttachHandler extends AsyncRequestHandler<JavacQuery, JavacMessageType> {
+public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessageType> {
 
     private static final Executor RP = new RequestProcessor(AttachHandler.class);    
 
 
     public AttachHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.attach, JavacQuery.class);        
+        super(DebugerModels.END_POINT, DebugMessageType.attach, DebugAction.class);
     }
 
     @Override
     @NonNull
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final EndPoint.Env env) {
-        final JavacMessageType type = request.getType();
-        if (type != JavacMessageType.attach) {
+    protected Status handle(@NonNull final DebugAction request, @NonNull final EndPoint.Env env) {
+        final DebugMessageType type = request.getType();
+        if (type != DebugMessageType.attach) {
             throw new IllegalStateException("Wrong message type:" + type);  //NOI18N
         }
         final Context ctx = request.getContext();

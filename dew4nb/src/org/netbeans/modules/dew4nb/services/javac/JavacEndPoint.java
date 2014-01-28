@@ -53,7 +53,7 @@ import org.openide.util.lookup.ServiceProvider;
 public final class JavacEndPoint extends EndPoint<JavacQuery, JavacMessageType> {    
 
     public JavacEndPoint() {
-        super("javac", JavacQuery.class, JavacMessageType.class);
+        super(JavacModels.END_POINT, JavacQuery.class, JavacMessageType.class);
     }    
 
     @Override

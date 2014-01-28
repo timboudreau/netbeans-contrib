@@ -42,64 +42,12 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
-import net.java.html.json.Model;
-import net.java.html.json.Property;
-import org.netbeans.modules.dew4nb.endpoint.Status;
-
 /**
  *
  * @author Tomas Zezula
  */
-public final class DebugerModels {
-
-    static final String END_POINT = "debug"; //NOI18N
-
-    private DebugerModels() {
-        throw new IllegalStateException("No instance allowed.");    //NOI18N
-    }
-
-    @Model(className = "DebugAction", properties = {
-        @Property(name = "type", type = DebugMessageType.class),
-        @Property(name = "state", type = String.class),
-        @Property(name = "context", type = Context.class),
-        @Property(name = "session", type = int.class),
-        @Property(name = "data", type = String.class, array = true)
-    })
-    static final class DebugActionModel {
-    }
-
-    @Model(className = "AttachResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = DebugMessageType.class),
-        @Property(name = "state", type = String.class),
-        @Property(name = "id", type = int.class)
-    })
-    static final class AttachResultModel {
-    }
-
-
-    @Model(className = "SetBreakpointsResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = DebugMessageType.class),
-        @Property(name = "state", type = String.class),
-    })
-    static final class SetBreakpointsResultModel {
-    }
-
-    @Model(className = "ContinueResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = DebugMessageType.class),
-        @Property(name = "state", type = String.class),
-    })
-    static final class ContinueResultModel {
-    }
-
-    @Model(className = "Context", properties = {
-        @Property(name="user", type=String.class),
-        @Property(name = "workspace", type = String.class),
-        @Property(name = "path", type = String.class)
-    })
-    static final class ContextModel {
-    }
-
+public enum DebugMessageType {
+    attach,
+    breakpoints,
+    cont
 }
