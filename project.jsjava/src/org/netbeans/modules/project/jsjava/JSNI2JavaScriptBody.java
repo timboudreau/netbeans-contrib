@@ -57,6 +57,7 @@ import static org.netbeans.api.java.lexer.JavaTokenId.BLOCK_COMMENT;
 import static org.netbeans.api.java.lexer.JavaTokenId.JAVADOC_COMMENT;
 import static org.netbeans.api.java.lexer.JavaTokenId.LINE_COMMENT;
 import static org.netbeans.api.java.lexer.JavaTokenId.WHITESPACE;
+import org.netbeans.api.java.source.Comment;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.lexer.Token;
@@ -162,21 +163,18 @@ public class JSNI2JavaScriptBody {
             if (body.contains("@") && body.contains("::")) {
                 arr.add(make.Assignment(make.Identifier("javacall"), make.Literal(true)));
             }
-            ExpressionTree exp = null;
             final String[] lines = body.split("\n");
+            StringBuilder jsB = new StringBuilder();
+            String sep = "\"";
             for (int i = 0; i < lines.length; i++) {
                 String line = lines[i];
                 if (i < lines.length - 1) {
-                    line = line + "\n";
+                    line = line + "\\n";
                 }
-                if (exp == null) {
-                    exp = make.Literal(line);
-                } else {
-                    exp = make.Binary(Kind.PLUS, exp, make.Literal(line));
-                }
-                
+                jsB.append(sep).append(line).append("\"");
+                sep = " + \n\"";
             }
-            arr.add(make.Assignment(make.Identifier("body"), exp));
+            arr.add(make.Assignment(make.Identifier("body"), make.Identifier(jsB.toString())));
             
             AnnotationTree jsBody = make.Annotation(make.QualIdent("net.java.html.js.JavaScriptBody"), arr);
             ctx.getWorkingCopy().rewrite(mt.getModifiers(), make.addModifiersAnnotation(mt.getModifiers(), jsBody));
