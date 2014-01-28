@@ -40,7 +40,7 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac.debugger;
+package org.netbeans.modules.dew4nb.services.debugger;
 
 import java.util.concurrent.Executor;
 import org.netbeans.api.annotations.common.NonNull;

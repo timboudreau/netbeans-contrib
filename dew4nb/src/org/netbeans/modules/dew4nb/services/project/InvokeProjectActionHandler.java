@@ -46,13 +46,9 @@ import javax.swing.SwingUtilities;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.Context;
-import org.netbeans.modules.dew4nb.services.javac.JavacModels;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
@@ -65,15 +61,15 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class InvokeProjectActionHandler extends AsyncRequestHandler<JavacQuery, JavacMessageType> {
+public class InvokeProjectActionHandler extends AsyncRequestHandler<ProjectAction, ProjectMessageType> {
 
     public InvokeProjectActionHandler() {
-        super(JavacModels.END_POINT, JavacMessageType.invokeAction, JavacQuery.class);
+        super(ProjectModels.END_POINT, ProjectMessageType.invokeAction, ProjectAction.class);
     }
 
     @Override
-    protected Status handle(final JavacQuery request, final EndPoint.Env env) {
-        if (request.getType() != JavacMessageType.invokeAction) {
+    protected Status handle(final ProjectAction request, final EndPoint.Env env) {
+        if (request.getType() != ProjectMessageType.invokeAction) {
             throw new IllegalStateException(String.format(
                 "Illegal message type: %s", //NOI18N
                 request.getType()));
@@ -106,7 +102,7 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<JavacQuery, 
                             IORedirectProvider.bindEnv(env);
                             try {
                                 ap.invokeAction(
-                                    request.getJava(),
+                                    request.getAction(),
                                     Lookups.fixed(file, prj));
                             } finally {
                                 IORedirectProvider.unbindEnv();

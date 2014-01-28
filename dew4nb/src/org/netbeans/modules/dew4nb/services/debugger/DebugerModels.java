@@ -40,56 +40,50 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac.debugger;
+package org.netbeans.modules.dew4nb.services.debugger;
 
-import org.netbeans.api.annotations.common.NonNull;
-import org.netbeans.api.debugger.Session;
-import org.netbeans.api.debugger.jpda.JPDADebugger;
-import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
-import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
-import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import net.java.html.json.Model;
+import net.java.html.json.Property;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
-import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
-import org.openide.util.Parameters;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service=RequestHandler.class)
-public class ContinueHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, ContinueResult> {
+public final class DebugerModels {
 
-    public ContinueHandler() {
-        super(DebugerModels.END_POINT, JavacMessageType.cont, JavacQuery.class, ContinueResult.class);
+    static final String END_POINT = "javac"; //NOI18N
+
+    private DebugerModels() {
+        throw new IllegalStateException("No instance allowed.");    //NOI18N
     }
 
-    @Override
-    @NonNull
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final ContinueResult response) {
-        Parameters.notNull("request", request); //NOI18N
-        Parameters.notNull("response", response);   //NOI18N
-        if (request.getType() != JavacMessageType.cont) {
-            throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
-        }
-        Status status = Status.not_found;
-        final int sessionId = request.getOffset();
-        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
-        if (ctx != null) {
-            final Session debugSession = ActiveSessions.getInstance().getDebugSession(sessionId);
-            if (debugSession == null) {
-                throw new IllegalStateException("No debugger session.");    //NOI18N
-            }
-            final JPDADebugger jpda = debugSession.lookupFirst(null, JPDADebugger.class);
-            if (!(jpda instanceof JPDADebuggerImpl)) {
-                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
-            }
-            ((JPDADebuggerImpl)jpda).resume();
-            status = Status.done;
-        }
-        return status;
+
+    @Model(className = "AttachResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "id", type = int.class)
+    })
+    static final class AttachResultModel {
+    }
+
+
+    @Model(className = "SetBreakpointsResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class SetBreakpointsResultModel {
+    }
+
+    @Model(className = "ContinueResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class ContinueResultModel {
     }
 
 }

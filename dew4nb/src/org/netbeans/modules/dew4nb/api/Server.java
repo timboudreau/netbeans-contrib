@@ -73,7 +73,9 @@ import org.openide.util.Union2;
  */
 public final class Server {
 
-    private final static Charset UTF8 = Charset.forName("UTF-8");  //NOI18N
+    private static final Charset UTF8 = Charset.forName("UTF-8");  //NOI18N
+    private static final int MAX_CHANNEL_LEN = 256;
+    private static final char CHANNEL_SEPARATOR = '|';  //NOI18N
     private final HttpServer http;
 
     private Server(
@@ -182,15 +184,26 @@ public final class Server {
 
         @Override
         public void onMessage(WebSocket socket, String text) {
-            final EndPoint ep = registry.getEndPoint("javac");
+            int index = -1;
+            for (int i = 0; i < MAX_CHANNEL_LEN; i++) {
+                if (text.charAt(i) == CHANNEL_SEPARATOR) {
+                    index = i;
+                    break;
+                }
+            }
             Status status = Status.not_found;
             Exception ex = null;
-            if (ep != null) {
-                try {
-                    status = ep.handle(socket, text);
-                } catch (Exception e) {
-                    status = Status.runtime_error;
-                    ex = e;
+            if (index > 0) {
+                final String channel = text.substring(0, index);
+                final String message = text.substring(index+1);
+                final EndPoint ep = registry.getEndPoint(channel);
+                if (ep != null) {
+                    try {
+                        status = ep.handle(socket, message);
+                    } catch (Exception e) {
+                        status = Status.runtime_error;
+                        ex = e;
+                    }
                 }
             }
             if (!status.isSuccess()) {

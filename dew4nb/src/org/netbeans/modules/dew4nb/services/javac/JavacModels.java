@@ -46,7 +46,6 @@ import javax.tools.Diagnostic;
 import net.java.html.json.Model;
 import net.java.html.json.Property;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.project.BuildResult;
 
 /**
  *
@@ -63,7 +62,7 @@ public final class JavacModels {
     @Model(className = "JavacQuery", properties = {
         @Property(name = "type", type = JavacMessageType.class),
         @Property(name = "state", type = String.class),
-        @Property(name = "context", type=Context.class),
+        @Property(name = "context", type = Context.class),
         @Property(name = "java", type = String.class),
         @Property(name = "offset", type = int.class)
     })
@@ -116,27 +115,6 @@ public final class JavacModels {
     static final class FileContentResultModel {
     }
 
-    @Model(className="IsProjectActionEnabledResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
-        @Property(name = "state", type = String.class),
-        @Property(name = "enabled", type = Boolean.class)
-    })
-    static final class IsProjectActionEnabledResultModel {
-    }
-
-    @Model(className = "InvokeProjectActionResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
-        @Property(name = "state", type = String.class),
-        @Property(name = "result", type = BuildResult.class),
-        @Property(name = "stdout", type = String.class, array = true),
-        @Property(name = "stderr", type = String.class, array = true),
-        @Property(name = "openUrl", type = String.class, array = true)
-    })
-    static final class InvokeProjectActionResultModel {
-    }    
-
     @Model(className = "Context", properties = {
         @Property(name="user", type=String.class),
         @Property(name = "workspace", type = String.class),
@@ -144,7 +122,6 @@ public final class JavacModels {
     })
     static final class ContextModel {
     }
-
 
     @Model(className = "JavacDiagnostic", properties = {
         @Property(name = "col", type = long.class),
@@ -181,6 +158,4 @@ public final class JavacModels {
     })
     static final class TypeDescriptorModel {
     }
-
-
 }

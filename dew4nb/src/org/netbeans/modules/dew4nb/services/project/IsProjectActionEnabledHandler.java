@@ -48,14 +48,9 @@ import java.util.HashSet;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.Context;
-import org.netbeans.modules.dew4nb.services.javac.IsProjectActionEnabledResult;
-import org.netbeans.modules.dew4nb.services.javac.JavacModels;
-import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
@@ -68,16 +63,16 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = RequestHandler.class)
-public class IsProjectActionEnabledHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, IsProjectActionEnabledResult> {
+public class IsProjectActionEnabledHandler extends BasicRequestHandler<ProjectAction, ProjectMessageType, IsProjectActionEnabledResult> {
 
     public IsProjectActionEnabledHandler() {
-        super(JavacModels.END_POINT, JavacMessageType.isActionEnabled, JavacQuery.class, IsProjectActionEnabledResult.class);
+        super(ProjectModels.END_POINT, ProjectMessageType.isActionEnabled, ProjectAction.class, IsProjectActionEnabledResult.class);
     }
 
     @Override
-    protected Status handle(@NonNull final JavacQuery request, @NonNull final IsProjectActionEnabledResult response) {
-        final JavacMessageType requestType = request.getType();
-        if (requestType != JavacMessageType.isActionEnabled) {
+    protected Status handle(@NonNull final ProjectAction request, @NonNull final IsProjectActionEnabledResult response) {
+        final ProjectMessageType requestType = request.getType();
+        if (requestType != ProjectMessageType.isActionEnabled) {
             throw new IllegalStateException(String.valueOf(requestType));
         }
         final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
@@ -98,7 +93,7 @@ public class IsProjectActionEnabledHandler extends BasicRequestHandler<JavacQuer
             if (p != null) {
                 final ActionProvider ap = p.getLookup().lookup(ActionProvider.class);
                 if (ap != null) {
-                    final String commandName = request.getJava();
+                    final String commandName = request.getAction();
                     if (commandName != null) {
                         final Collection<String> actions = new HashSet<>(Arrays.asList(ap.getSupportedActions()));
                         if (actions.contains(commandName)) {
@@ -113,5 +108,4 @@ public class IsProjectActionEnabledHandler extends BasicRequestHandler<JavacQuer
         response.setEnabled(enabled);
         return Status.done;
     }
-
 }

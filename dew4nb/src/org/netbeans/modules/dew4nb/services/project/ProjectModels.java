@@ -40,50 +40,56 @@
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac.debugger;
+package org.netbeans.modules.dew4nb.services.project;
 
 import net.java.html.json.Model;
 import net.java.html.json.Property;
 import org.netbeans.modules.dew4nb.endpoint.Status;
-import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
 
 /**
  *
  * @author Tomas Zezula
  */
-public final class DebugerModels {
+class ProjectModels {
 
-    static final String END_POINT = "javac"; //NOI18N
+    static final String END_POINT = "project";  //NO_I18N
 
-    private DebugerModels() {
-        throw new IllegalStateException("No instance allowed.");    //NOI18N
-    }
-
-
-    @Model(className = "AttachResult", properties = {
-        @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
+    @Model(className = "ProjectAction", properties = {
+        @Property(name = "type", type = ProjectMessageType.class),
         @Property(name = "state", type = String.class),
-        @Property(name = "id", type = int.class)
+        @Property(name = "context", type = Context.class),
+        @Property(name = "action", type = String.class),
     })
-    static final class AttachResultModel {
+    static final class ProjectActionModel {
     }
 
 
-    @Model(className = "SetBreakpointsResult", properties = {
+    @Model(className="IsProjectActionEnabledResult", properties = {
         @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "type", type = ProjectMessageType.class),
         @Property(name = "state", type = String.class),
+        @Property(name = "enabled", type = Boolean.class)
     })
-    static final class SetBreakpointsResultModel {
+    static final class IsProjectActionEnabledResultModel {
     }
 
-    @Model(className = "ContinueResult", properties = {
+    @Model(className = "InvokeProjectActionResult", properties = {
         @Property(name = "status", type = Status.class),
-        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "type", type = ProjectMessageType.class),
         @Property(name = "state", type = String.class),
+        @Property(name = "result", type = BuildResult.class),
+        @Property(name = "stdout", type = String.class, array = true),
+        @Property(name = "stderr", type = String.class, array = true),
+        @Property(name = "openUrl", type = String.class, array = true)
     })
-    static final class ContinueResultModel {
+    static final class InvokeProjectActionResultModel {
     }
 
+    @Model(className = "Context", properties = {
+        @Property(name="user", type=String.class),
+        @Property(name = "workspace", type = String.class),
+        @Property(name = "path", type = String.class)
+    })
+    static final class ContextModel {
+    }
 }
