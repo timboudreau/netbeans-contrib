@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,23 +37,40 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac;
+package org.netbeans.modules.dew4nb.services.javac.debugger;
 
-public enum JavacMessageType {
-    //javac
-    autocomplete,
-    types,
-    symbols,
-    checkForErrors,
-    compile,
-    //project
-    getfile,
-    isActionEnabled,
-    invokeAction,
-    //debugger
-    attach,
-    breakpoints,
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
+import org.netbeans.modules.dew4nb.services.javac.JavacQuery;
+import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+@ServiceProvider(service = RequestHandler.class)
+public class SetBreakpointsHandler extends BasicRequestHandler<JavacQuery, JavacMessageType, SetBreakpointsResult> {
+
+    public SetBreakpointsHandler() {
+        super(DebugerModels.END_POINT, JavacMessageType.breakpoints, JavacQuery.class, SetBreakpointsResult.class);
+    }
+
+    @Override
+    protected Status handle(@NonNull final JavacQuery request, @NonNull final SetBreakpointsResult response) {
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("response", response);   //NOI18N;
+        if (request.getType() != JavacMessageType.breakpoints) {
+            throw new IllegalStateException("Wrong message type: " + request.getType());    //NOI18N
+        }
+        Status status = Status.done;
+        return status;
+    }
+
 }
