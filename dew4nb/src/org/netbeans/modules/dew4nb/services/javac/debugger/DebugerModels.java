@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2014 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -37,23 +37,45 @@
  *
  * Contributor(s):
  *
- * Portions Copyrighted 2013 Sun Microsystems, Inc.
+ * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.dew4nb.services.javac;
+package org.netbeans.modules.dew4nb.services.javac.debugger;
 
-public enum JavacMessageType {
-    //javac
-    autocomplete,
-    types,
-    symbols,
-    checkForErrors,
-    compile,
-    //project
-    getfile,
-    isActionEnabled,
-    invokeAction,
-    //debugger
-    attach,
-    breakpoints,
+import net.java.html.json.Model;
+import net.java.html.json.Property;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.services.javac.JavacMessageType;
+
+/**
+ *
+ * @author Tomas Zezula
+ */
+public final class DebugerModels {
+
+    static final String END_POINT = "javac"; //NOI18N
+
+    private DebugerModels() {
+        throw new IllegalStateException("No instance allowed.");    //NOI18N
+    }
+
+
+    @Model(className = "AttachResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "id", type = int.class)
+    })
+    static final class AttachResultModel {
+    }
+
+
+    @Model(className = "SetBreakpointsResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = JavacMessageType.class),
+        @Property(name = "state", type = String.class),
+    })
+    static final class SetBreakpointsResultModel {
+    }
+
 }
