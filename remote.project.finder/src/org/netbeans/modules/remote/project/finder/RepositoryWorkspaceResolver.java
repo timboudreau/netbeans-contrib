@@ -58,7 +58,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = WorkspaceResolver.class, position = 9_000)
-public final class RepositoryWorkspaceResolver implements WorkspaceResolver {
+public final class RepositoryWorkspaceResolver extends WorkspaceResolver {
 
     // path format users/{user}/workspaces/{workspace}/projects
     private static final Pattern LOCAL_PATH_PARSER = Pattern.compile(
