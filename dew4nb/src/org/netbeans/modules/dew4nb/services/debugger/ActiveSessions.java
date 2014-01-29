@@ -42,9 +42,11 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import com.sun.jdi.AbsentInformationException;
 import java.beans.Customizer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,6 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.CallStackFrame;
@@ -61,6 +64,11 @@ import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
+import org.netbeans.spi.debugger.jpda.SourcePathProvider;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
+import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 /**
@@ -166,28 +174,52 @@ final class ActiveSessions {
                 }
             } else if (JPDAThread.PROP_SUSPENDED.equals(propName)) {
                 CallStackFrame[] callStack = null;
-//                try {
-//                     callStack = currentThread.getCallStack();
-//                } catch (Exception aie) {/*pass*/}
-                if (callStack != null) {
-                    env.sendObject(createSuspendResult(callStack));
-                } else {
-                    LOG.log(
-                        Level.WARNING,
-                        "No callstack for suspended thread: {0}",   //NOI18N
-                        currentThread);
-                }
+                try {
+                     callStack = currentThread.getCallStack();
+                } catch (AbsentInformationException aie) {/*pass, no -g*/}
+                env.sendObject(createSuspendResult(callStack));                
             }
         }
 
         @NonNull
-        private SuspendResult createSuspendResult(@NonNull CallStackFrame[] callStack) {
+        private SuspendResult createSuspendResult(@NullAllowed CallStackFrame[] callStack) {
             final SuspendResult res = new SuspendResult();
             res.setId(id);
             res.setStatus(Status.done);
             res.setType(DebugMessageType.suspended);
-            for (CallStackFrame csf : callStack) {
-
+            if (callStack != null) {
+                final WorkspaceResolver wr = Lookup.getDefault().lookup(WorkspaceResolver.class);
+                if (wr == null) {
+                    throw new IllegalStateException("No workspace resolver.");  //NOI18N
+                }
+                final FileObject root = wr.resolveFile(ctx);
+                final SourcePathProvider spp = session.lookupFirst(null, SourcePathProvider.class);
+                for (CallStackFrame csf : callStack) {
+                    String relativePath;
+                    try {
+                        relativePath = csf.getSourcePath(null).replace (File.separatorChar, '/');
+                    } catch (AbsentInformationException e) {
+                        relativePath = "<unknown>";
+                    }
+                    final String surl = spp.getURL (relativePath, true);
+                    if (surl != null) {
+                        try {
+                           final FileObject fo = URLMapper.findFileObject(new java.net.URL(surl));
+                           if (root != null && fo != null && FileUtil.isParentOf(root, fo)) {
+                               relativePath = FileUtil.getRelativePath(root, fo);
+                           }
+                        } catch (java.net.MalformedURLException muex) {
+                            LOG.log(
+                                Level.WARNING,
+                                "Malformed URL {0}",    //NOI18N
+                                surl);
+                        }
+                    }
+                    res.getStack().add(String.format(
+                        "%s:%d",
+                        relativePath,
+                        csf.getLineNumber(null)));
+                }
             }
             return res;
          }
