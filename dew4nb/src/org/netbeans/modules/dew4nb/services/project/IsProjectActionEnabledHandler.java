@@ -75,7 +75,7 @@ public class IsProjectActionEnabledHandler extends BasicRequestHandler<ProjectAc
         if (requestType != ProjectMessageType.isActionEnabled) {
             throw new IllegalStateException(String.valueOf(requestType));
         }
-        final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+        final WorkspaceResolver resolver = WorkspaceResolver.getDefault();
         if (resolver == null) {
             throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
         }

@@ -60,21 +60,21 @@ public class EndPointRegistry {
     private final Lookup.Result<EndPoint> result;
     private final Object lock = new Object();
     //@GuardedBy("lock");
-    private Map<String,EndPoint> endPointsCache;
+    private Map<String,EndPoint<?,?>> endPointsCache;
 
     private EndPointRegistry() {
         this.result = Lookup.getDefault().lookupResult(EndPoint.class);
     }
 
-    public EndPoint getEndPoint(@NonNull final String name) {
+    public EndPoint<?,?> getEndPoint(@NonNull final String name) {
         Parameters.notNull("name", name);   //NOI18N
         synchronized (lock) {
             if (endPointsCache == null) {
-                Map<String,EndPoint> tmp = new HashMap<>();
-                for (EndPoint ep : result.allInstances()) {
+                Map<String,EndPoint<?,?>> tmp = new HashMap<>();
+                for (EndPoint<?,?> ep : result.allInstances()) {
                     tmp.put(ep.getName(), ep);
                 }
-                endPointsCache = Collections.unmodifiableMap(tmp);
+                endPointsCache = Collections.<String,EndPoint<?,?>>unmodifiableMap(tmp);
             }
             return endPointsCache.get(name);
         }

@@ -46,18 +46,25 @@ package org.netbeans.modules.dew4nb.spi;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 /**
  *
  * @author Tomas Zezula
  */
-public interface WorkspaceResolver {
+public abstract class WorkspaceResolver {
     @CheckForNull
-    FileObject resolveFile (@NonNull Context ctx);
+    public abstract FileObject resolveFile (@NonNull Context ctx);
 
     @CheckForNull
-    Context resolveContext(@NonNull FileObject file);
+    public abstract Context resolveContext(@NonNull FileObject file);
+
+
+    @CheckForNull
+    public static WorkspaceResolver getDefault() {
+        return Lookup.getDefault().lookup(WorkspaceResolver.class);
+    }
 
     public static final class Context {
 

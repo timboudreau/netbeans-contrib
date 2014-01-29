@@ -188,7 +188,7 @@ final class ActiveSessions {
             res.setStatus(Status.done);
             res.setType(DebugMessageType.suspended);
             if (callStack != null) {
-                final WorkspaceResolver wr = Lookup.getDefault().lookup(WorkspaceResolver.class);
+                final WorkspaceResolver wr = WorkspaceResolver.getDefault();
                 if (wr == null) {
                     throw new IllegalStateException("No workspace resolver.");  //NOI18N
                 }

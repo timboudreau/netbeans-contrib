@@ -67,7 +67,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Tomas Zezula
  */
 @ServiceProvider(service = WorkspaceResolver.class, position = 10_000)
-public class OpenProjectsWorkspaceResolver implements WorkspaceResolver {
+public class OpenProjectsWorkspaceResolver extends WorkspaceResolver {
 
     private static final Logger LOG = Logger.getLogger(OpenProjectsWorkspaceResolver.class.getName());
 

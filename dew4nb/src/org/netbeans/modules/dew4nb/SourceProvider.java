@@ -109,7 +109,7 @@ public final class SourceProvider {
             @NullAllowed String content) {
         FileObject file = null;
         if (ctx != null) {
-            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+            final WorkspaceResolver resolver = WorkspaceResolver.getDefault();
             if (resolver == null) {
                 LOG.warning("No WorkspaceResolver in Lookup."); //NOI18N
             } else {

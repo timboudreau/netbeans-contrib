@@ -83,7 +83,7 @@ public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessage
         if (state == null) {
             throw new IllegalArgumentException("Missing state");       //NOI18N
         }
-        final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+        final WorkspaceResolver resolver = WorkspaceResolver.getDefault();
         if (resolver == null) {
             throw new IllegalStateException("No WorkspaceResolver");    //NOI18N
         }

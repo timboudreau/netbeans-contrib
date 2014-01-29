@@ -196,7 +196,7 @@ public final class Server {
             if (index > 0) {
                 final String channel = text.substring(0, index);
                 final String message = text.substring(index+1);
-                final EndPoint ep = registry.getEndPoint(channel);
+                final EndPoint<?,?> ep = registry.getEndPoint(channel);
                 if (ep != null) {
                     try {
                         status = ep.handle(socket, message);

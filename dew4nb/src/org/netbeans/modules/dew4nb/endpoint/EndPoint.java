@@ -190,7 +190,7 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
         synchronized (handlersCacheLock) {
             if (handlersCache == null) {
                 final Map<String, Collection<RequestHandler<?,?>>> handlers = new HashMap<>();
-                for (RequestHandler rh : Lookup.getDefault().lookupAll(RequestHandler.class)) {
+                for (RequestHandler<?,?> rh : Lookup.getDefault().lookupAll(RequestHandler.class)) {
                     Collection<RequestHandler<?,?>> line = handlers.get(rh.endPointName);
                     if (line == null) {
                         line = new ArrayList<>();

@@ -148,6 +148,7 @@ public class IORedirectProvider extends IOProvider {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static final class RedirectIO implements InputOutput {
 
         private final AtomicBoolean closed;
@@ -216,7 +217,7 @@ public class IORedirectProvider extends IOProvider {
         public void setFocusTaken(boolean value) {
         }
 
-        @Override
+        @Override        
         public Reader flushReader() {
             return new NullReader();
         }

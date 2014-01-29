@@ -63,13 +63,14 @@ public class HiddenDisplayer extends DialogDisplayer {
         return NotifyDescriptor.YES_OPTION;
     }
 
-    @Override
+    @Override    
     public Dialog createDialog(DialogDescriptor descriptor) {
         return new Dialog((Frame)null) {
             @Override
             public void setVisible(boolean b) {
             }
-            @Override
+            @SuppressWarnings("deprecation")
+            @Override            
             public void show() {
             }
         };

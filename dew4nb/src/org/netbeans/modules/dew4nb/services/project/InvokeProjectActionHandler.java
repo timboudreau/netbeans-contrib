@@ -74,7 +74,7 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<ProjectActio
                 "Illegal message type: %s", //NOI18N
                 request.getType()));
         }
-        final WorkspaceResolver workspaceRes = Lookup.getDefault().lookup(WorkspaceResolver.class);
+        final WorkspaceResolver workspaceRes = WorkspaceResolver.getDefault();
         if (workspaceRes == null) {
             throw new IllegalStateException("No WorkspaceResolver registered"); //NOI18N
         }

@@ -80,7 +80,7 @@ public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, Debu
         final int sessionId = request.getSession();
         final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
         if (ctx != null) {            
-            final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+            final WorkspaceResolver resolver = WorkspaceResolver.getDefault();
             if (resolver == null) {
                 throw new IllegalStateException("No WorkspaceResolver."); //NOI18N
             }

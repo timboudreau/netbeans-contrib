@@ -95,7 +95,7 @@ public class SymbolHandler extends BasicRequestHandler<JavacQuery, JavacMessageT
         if (text != null) {
             final Collection<? extends SymbolProvider> symProviders = getProviders();
             try {
-                final WorkspaceResolver resolver = Lookup.getDefault().lookup(WorkspaceResolver.class);
+                final WorkspaceResolver resolver = WorkspaceResolver.getDefault();
                 if (resolver == null) {
                     throw new IllegalStateException("No WorkspaceResolver in Lookup");  //NOI18N
                 }
