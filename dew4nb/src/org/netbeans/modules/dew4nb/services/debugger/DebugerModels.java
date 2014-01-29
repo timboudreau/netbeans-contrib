@@ -90,9 +90,20 @@ public final class DebugerModels {
         @Property(name = "status", type = Status.class),
         @Property(name = "type", type = DebugMessageType.class),
         @Property(name = "state", type = String.class),
+        @Property(name = "id", type = int.class)
     })
     static final class ContinueResultModel {
     }
+
+     @Model(className = "SuspendResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = DebugMessageType.class),
+        @Property(name = "id", type = int.class),
+        @Property(name="stack", type = String.class, array = true)
+    })
+    static final class SuspendResultModel {
+    }
+
 
     @Model(className = "Context", properties = {
         @Property(name="user", type=String.class),

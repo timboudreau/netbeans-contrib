@@ -45,32 +45,54 @@ package org.netbeans.modules.dew4nb.services.debugger;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.debugger.ActionsManager;
 import org.netbeans.api.debugger.Session;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
-import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.util.Parameters;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Tomas Zezula
  */
-@ServiceProvider(service=RequestHandler.class)
-public final class ContinueHandler extends AbstractCommandHandler {
+abstract class AbstractCommandHandler extends BasicRequestHandler<DebugAction, DebugMessageType, ContinueResult> {
 
-    public ContinueHandler() {
-        super(DebugMessageType.cont);
+    public AbstractCommandHandler (@NonNull final DebugMessageType type) {
+        super(DebugerModels.END_POINT, type, DebugAction.class, ContinueResult.class);
     }
 
     @Override
-    Status performAction(
-        @NonNull final Session session,
-        @NonNull final JPDADebuggerImpl jpda,
-        @NonNull final ActionsManager actionsManager) {
-        Parameters.notNull("session", session); //NOI18N
-        Parameters.notNull("jpda", jpda); //NOI18N
-        Parameters.notNull("actionsManager", actionsManager); //NOI18N
-        jpda.resume();
-        return Status.done;
+    @NonNull
+    protected final Status handle(@NonNull final DebugAction request, @NonNull final ContinueResult response) {
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("response", response);   //NOI18N
+        if (request.getType() != DebugMessageType.cont) {
+            throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
+        }
+        Status status = Status.not_found;
+        final int sessionId = request.getSession();
+        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
+        if (ctx != null) {
+            final Session debugSession = ActiveSessions.getInstance().getDebugSession(sessionId);
+            if (debugSession == null) {
+                throw new IllegalStateException("No debugger session.");    //NOI18N
+            }
+            final JPDADebugger jpda = debugSession.lookupFirst(null, JPDADebugger.class);
+            if (!(jpda instanceof JPDADebuggerImpl)) {
+                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
+            }
+            final ActionsManager actionsManager = debugSession.lookupFirst(null, ActionsManager.class);
+            if (actionsManager == null) {
+                throw new IllegalStateException("No ActionsManager.");    //NOI18N
+            }
+            status = performAction(debugSession, (JPDADebuggerImpl)jpda, actionsManager);
+        }
+        return status;
     }
+
+    abstract Status performAction(
+        @NonNull Session session,
+        @NonNull JPDADebuggerImpl jpda,
+        @NonNull ActionsManager actionsManager);
 }

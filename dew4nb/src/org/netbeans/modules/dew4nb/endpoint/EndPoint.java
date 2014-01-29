@@ -159,6 +159,7 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
     }
 
     @CheckForNull
+    @SuppressWarnings("unchecked")
     private  RequestHandler<Request, RequestKind> getHandleFor(@NonNull final Request query) {
         final RequestKind kind = getRequestKind(query);
         if (kind == null) {

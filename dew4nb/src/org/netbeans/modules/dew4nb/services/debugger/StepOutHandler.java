@@ -42,16 +42,35 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.debugger.ActionsManager;
+import org.netbeans.api.debugger.Session;
+import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
+
 /**
  *
  * @author Tomas Zezula
  */
-public enum DebugMessageType {
-    attach,
-    breakpoints,
-    cont,
-    stepOver,
-    stepIn,
-    stepOut,
-    suspended
+@ServiceProvider(service=RequestHandler.class)
+public class StepOutHandler extends AbstractCommandHandler {
+
+    public StepOutHandler() {
+        super(DebugMessageType.stepOut);
+    }
+
+    @Override
+    Status performAction(
+            @NonNull final Session session,
+            @NonNull final JPDADebuggerImpl jpda,
+            @NonNull final ActionsManager actionsManager) {
+        Parameters.notNull("session", session);    //NOI18N
+        Parameters.notNull("jpda", jpda);   //NOI18N
+        Parameters.notNull("actionsManager", actionsManager);   //NOI18N
+        actionsManager.doAction(ActionsManager.ACTION_STEP_OUT);
+        return Status.done;
+    }
 }

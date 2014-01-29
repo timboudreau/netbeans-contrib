@@ -42,14 +42,24 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import java.beans.Customizer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.Session;
+import org.netbeans.api.debugger.jpda.CallStackFrame;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
+import org.netbeans.api.debugger.jpda.JPDAThread;
+import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.util.Parameters;
 
@@ -58,6 +68,8 @@ import org.openide.util.Parameters;
  * @author Tomas Zezula
  */
 final class ActiveSessions {
+
+     private static final Logger LOG = Logger.getLogger(ActiveSessions.class.getName());
 
     //@GuardedBy("ActiveSessions.class")
     private static ActiveSessions instance;
@@ -78,7 +90,7 @@ final class ActiveSessions {
         Parameters.notNull("env", env); //NOI18N
         final int id = sequencer.incrementAndGet();
         final Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
-        if (active.putIfAbsent(id, new Data(context, env, session)) != null) {
+        if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
             throw new IllegalStateException("Trying to reuse active session");  //NOI18N
         }
         return id;
@@ -111,23 +123,75 @@ final class ActiveSessions {
         return instance;
     }
 
-    private static final class Data {
+    private static final class Data implements PropertyChangeListener {
+        final int id;
         final WorkspaceResolver.Context ctx;
         final EndPoint.Env env;
         final Session session;
+        final JPDADebugger jpda;
+        volatile JPDAThread currentThread;
+
 
 
         private Data(
+            final int id,
             @NonNull final WorkspaceResolver.Context ctx,
             @NonNull final EndPoint.Env env,
             @NonNull final Session session) {
             Parameters.notNull("ctx", ctx); //NOI18N
             Parameters.notNull("env", env); //NOI18N
             Parameters.notNull("session", session); //NOI18N
+            this.id = id;
             this.ctx = ctx;
             this.env = env;
             this.session = session;
+            this.jpda = this.session.lookupFirst(null, JPDADebugger.class);
+            if (!(jpda instanceof JPDADebuggerImpl)) {
+                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
+            }
+            jpda.addPropertyChangeListener(this);
         }
+
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            final String propName = evt.getPropertyName();
+            if (JPDADebugger.PROP_CURRENT_THREAD.equals(propName)) {
+                if (currentThread != null) {
+                    ((Customizer)currentThread).removePropertyChangeListener(this);
+                }
+                currentThread = jpda.getCurrentThread();
+                if (currentThread != null) {
+                    ((Customizer)currentThread).addPropertyChangeListener(this);
+                }
+            } else if (JPDAThread.PROP_SUSPENDED.equals(propName)) {
+                CallStackFrame[] callStack = null;
+//                try {
+//                     callStack = currentThread.getCallStack();
+//                } catch (Exception aie) {/*pass*/}
+                if (callStack != null) {
+                    env.sendObject(createSuspendResult(callStack));
+                } else {
+                    LOG.log(
+                        Level.WARNING,
+                        "No callstack for suspended thread: {0}",   //NOI18N
+                        currentThread);
+                }
+            }
+        }
+
+        @NonNull
+        private SuspendResult createSuspendResult(@NonNull CallStackFrame[] callStack) {
+            final SuspendResult res = new SuspendResult();
+            res.setId(id);
+            res.setStatus(Status.done);
+            res.setType(DebugMessageType.suspended);
+            for (CallStackFrame csf : callStack) {
+
+            }
+            return res;
+         }
+
     }
 
 }
