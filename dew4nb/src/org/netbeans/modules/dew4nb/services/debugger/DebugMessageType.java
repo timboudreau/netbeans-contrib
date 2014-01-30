@@ -53,5 +53,6 @@ public enum DebugMessageType {
     stepOver,
     stepIn,
     stepOut,
-    suspended
+    suspended,
+    disconnected
 }

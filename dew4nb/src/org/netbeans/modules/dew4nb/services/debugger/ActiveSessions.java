@@ -174,7 +174,7 @@ final class ActiveSessions {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            final String propName = evt.getPropertyName();
+            final String propName = evt.getPropertyName();            
             if (JPDADebugger.PROP_CURRENT_THREAD.equals(propName)) {
                 if (currentThread != null) {
                     ((Customizer)currentThread).removePropertyChangeListener(this);
@@ -185,6 +185,10 @@ final class ActiveSessions {
                     if (currentThread.isSuspended()) {
                         sendSuspend(currentThread);
                     }
+                }
+            } else if (JPDADebugger.PROP_STATE.equals(propName)) {
+                if (jpda.getState() == JPDADebugger.STATE_DISCONNECTED) {
+                    sendDisconnected();
                 }
             } else if (JPDAThread.PROP_SUSPENDED.equals(propName)) {
                 assert  evt.getSource() == currentThread;
@@ -201,6 +205,9 @@ final class ActiveSessions {
                  callStack = t.getCallStack();
             } catch (AbsentInformationException aie) {/*pass, no -g*/}
             env.sendObject(createSuspendResult(callStack));
+        }
+
+        private void sendDisconnected() {
         }
 
         @NonNull

@@ -58,8 +58,11 @@ import org.openide.util.Parameters;
  */
 abstract class AbstractCommandHandler extends BasicRequestHandler<DebugAction, DebugMessageType, ContinueResult> {
 
+    final DebugMessageType type;
+
     public AbstractCommandHandler (@NonNull final DebugMessageType type) {
         super(DebugerModels.END_POINT, type, DebugAction.class, ContinueResult.class);
+        this.type = type;
     }
 
     @Override
@@ -67,7 +70,7 @@ abstract class AbstractCommandHandler extends BasicRequestHandler<DebugAction, D
     protected final Status handle(@NonNull final DebugAction request, @NonNull final ContinueResult response) {
         Parameters.notNull("request", request); //NOI18N
         Parameters.notNull("response", response);   //NOI18N
-        if (request.getType() != DebugMessageType.cont) {
+        if (request.getType() != type) {
             throw new IllegalStateException("Invalid message type: " + request.getType());  //NOI18N
         }
         Status status = Status.not_found;
