@@ -50,15 +50,22 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.debugger.DebuggerManager;
+import org.netbeans.api.debugger.DebuggerManagerAdapter;
+import org.netbeans.api.debugger.DebuggerManagerListener;
 import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.CallStackFrame;
+import org.netbeans.api.debugger.jpda.DebuggerStartException;
 import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.api.debugger.jpda.JPDAThread;
 import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
@@ -69,6 +76,7 @@ import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
@@ -98,18 +106,22 @@ final class ActiveSessions {
         Parameters.notNull("context", context); //NOI18N
         Parameters.notNull("env", env); //NOI18N
         final int id = sequencer.incrementAndGet();
-        for (int i = 0; i < 10; i++) {
-            final Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
-            if (session != null) {
-                if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
-                    throw new IllegalStateException("Trying to reuse active session");  //NOI18N
-                }
-                return id;
+        final Session session = findSession();
+        if (session != null) {
+            if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
+                throw new IllegalStateException("Trying to reuse active session");  //NOI18N
+            }
+            final JPDADebugger jpda = session.lookupFirst(null, JPDADebugger.class);
+            if (!(jpda instanceof JPDADebuggerImpl)) {
+                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
             }
             try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {}
-        }
+                jpda.waitRunning();
+            } catch (DebuggerStartException ex) {
+                return -1;
+            }
+            return id;
+        }            
         return -1;
     }
 
@@ -138,6 +150,24 @@ final class ActiveSessions {
             instance = new ActiveSessions();
         }
         return instance;
+    }
+
+    /**
+     * Finds debuggers session.
+     * Todo: debugger API does not pair sessions with projects,
+     * no way to find out correct session.
+     * @return
+     */
+    @CheckForNull
+    private Session findSession () {
+        final DebuggerManager dm = DebuggerManager.getDebuggerManager();
+        final DML dml = new DML(dm);
+        dm.addDebuggerListener(dml);
+        try {
+            return dml.getCurrentSession();
+        }finally {
+            dm.removeDebuggerListener(dml);
+        }
     }
 
     private static final class Data implements PropertyChangeListener {
@@ -273,4 +303,52 @@ final class ActiveSessions {
         }
     }
 
+    private static final class DML extends DebuggerManagerAdapter {
+
+        private final DebuggerManager dm;
+        private final Lock lock;
+        private final Condition cond;
+        //GuardedBy("lock")
+        private Session session;
+
+        DML(@NonNull final DebuggerManager dm) {
+            Parameters.notNull("dm", dm);   //NOI18N
+            this.dm = dm;
+            this.lock = new ReentrantLock();
+            this.cond = lock.newCondition();
+        }
+
+        @Override
+        public void sessionAdded(@NonNull Session session) {
+            lock.lock();
+            try {
+                this.session = session;
+                cond.signalAll();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        Session getCurrentSession() {
+            Session res = dm.getCurrentSession();
+            if (res != null) {
+                return res;
+            }
+            lock.lock();
+            try {
+                while (this.session == null) {
+                    try {
+                        if (!cond.await(20, TimeUnit.SECONDS)) {
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        return null;
+                    }
+                }
+                return this.session;
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
 }

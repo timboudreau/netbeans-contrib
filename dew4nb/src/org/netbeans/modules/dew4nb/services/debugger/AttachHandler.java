@@ -42,6 +42,7 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import java.util.concurrent.Executor;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
@@ -49,6 +50,7 @@ import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.openide.filesystems.FileObject;
+import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -58,6 +60,7 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = RequestHandler.class)
 public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessageType> {
 
+    private static final Executor WORKER = new RequestProcessor(AttachHandler.class);
 
     public AttachHandler() {
         super(DebugerModels.END_POINT, DebugMessageType.attach, DebugAction.class);
@@ -87,21 +90,25 @@ public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessage
            ctx.getWorkspace(),
            ""   //NOI18N
         );
-        Status status = Status.not_found;
-        int id = -1;
+        Status status = Status.not_found;        
         final FileObject workspace = resolver.resolveFile(serverCtx);                
         if (workspace != null) {
-            id = ActiveSessions.getInstance().createSession(serverCtx, env);
+            status = Status.accepted;
+            WORKER.execute(new Runnable() {
+                @Override
+                public void run() {
+                    int id = ActiveSessions.getInstance().createSession(serverCtx, env);
+                    final AttachResult attachResult = new AttachResult();
+                    attachResult.setId(id);
+                    attachResult.setType(type);
+                    attachResult.setState(state);
+                    attachResult.setStatus(id < 0 ?
+                        Status.not_found :
+                        Status.done);
+                    env.sendObject(attachResult);
+                }
+            });
         }
-        if (id >= 0) {
-            status = Status.done;
-        }
-        final AttachResult attachResult = new AttachResult();
-        attachResult.setId(id);
-        attachResult.setType(type);
-        attachResult.setState(state);
-        attachResult.setStatus(status);
-        env.sendObject(attachResult);
-        return Status.accepted;
+        return status;
     }
 }
