@@ -208,14 +208,12 @@ final class ActiveSessions {
         }
 
         private void sendDisconnected() {
+            env.sendObject(createSuspendResult(DebugMessageType.disconnected));
         }
 
         @NonNull
         private SuspendResult createSuspendResult(@NullAllowed CallStackFrame[] callStack) {
-            final SuspendResult res = new SuspendResult();
-            res.setId(id);
-            res.setStatus(Status.done);
-            res.setType(DebugMessageType.suspended);
+            final SuspendResult res = createSuspendResult(DebugMessageType.suspended);
             if (callStack != null) {
                 final WorkspaceResolver wr = WorkspaceResolver.getDefault();
                 if (wr == null) {
@@ -251,6 +249,15 @@ final class ActiveSessions {
             }
             return res;
          }
+
+        @NonNull
+        private SuspendResult createSuspendResult(@NonNull final DebugMessageType type) {
+            final SuspendResult res = new SuspendResult();
+            res.setId(id);
+            res.setStatus(Status.done);
+            res.setType(type);
+            return res;
+        }
 
         private SourcePathProvider getContext (Session session) {
            List<? extends SourcePathProvider> l = session.lookup(null, SourcePathProvider.class);
