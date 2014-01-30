@@ -71,7 +71,7 @@ public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessage
             throw new IllegalStateException("Wrong message type:" + type);  //NOI18N
         }
         final Context ctx = request.getContext();
-        if (ctx != null) {
+        if (ctx == null) {
             throw new IllegalArgumentException("Missing context");  //NOI18N
         }
         final String state = request.getState();
@@ -92,6 +92,8 @@ public class AttachHandler extends AsyncRequestHandler<DebugAction, DebugMessage
         final FileObject workspace = resolver.resolveFile(serverCtx);                
         if (workspace != null) {
             id = ActiveSessions.getInstance().createSession(serverCtx, env);
+        }
+        if (id >= 0) {
             status = Status.done;
         }
         final AttachResult attachResult = new AttachResult();

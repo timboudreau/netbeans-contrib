@@ -97,11 +97,19 @@ final class ActiveSessions {
         Parameters.notNull("context", context); //NOI18N
         Parameters.notNull("env", env); //NOI18N
         final int id = sequencer.incrementAndGet();
-        final Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
-        if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
-            throw new IllegalStateException("Trying to reuse active session");  //NOI18N
+        for (int i = 0; i < 10; i++) {
+            final Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
+            if (session != null) {
+                if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
+                    throw new IllegalStateException("Trying to reuse active session");  //NOI18N
+                }
+                return id;
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {}
         }
-        return id;
+        return -1;
     }
 
     @CheckForNull
