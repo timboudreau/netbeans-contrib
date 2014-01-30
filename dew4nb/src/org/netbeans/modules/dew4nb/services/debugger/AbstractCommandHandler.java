@@ -82,7 +82,7 @@ abstract class AbstractCommandHandler extends BasicRequestHandler<DebugAction, D
             if (!(jpda instanceof JPDADebuggerImpl)) {
                 throw new IllegalStateException("Wrong debugger service.");    //NOI18N
             }
-            final ActionsManager actionsManager = debugSession.lookupFirst(null, ActionsManager.class);
+            final ActionsManager actionsManager = debugSession.getCurrentEngine().getActionsManager();
             if (actionsManager == null) {
                 throw new IllegalStateException("No ActionsManager.");    //NOI18N
             }

@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.java.html.json.Model;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
@@ -89,6 +90,14 @@ public final class JSON {
             for (int i = 0; i < props.length; i++) {
                 try {
                     values[i] = obj.containsKey(props[i]) ? obj.get(props[i]) : null;
+                    if (values[i] instanceof JSONArray) {
+                        JSONArray jsarr = (JSONArray) values[i];
+                        Object[] arr = new Object[jsarr.size()];
+                        for (int j=0; j< jsarr.size(); j++) {
+                            arr[j] = jsarr.get(j);
+                        }
+                        values[i] = arr;
+                    }
                 } catch (Exception ex) {
                     LOG.log(Level.SEVERE, "Can't read " + props[i] + " from " + jsonObject, ex);
                 }
