@@ -165,7 +165,7 @@ final class ActiveSessions {
             if (!(jpda instanceof JPDADebuggerImpl)) {
                 throw new IllegalStateException("Wrong debugger service.");    //NOI18N
             }
-            jpda.addPropertyChangeListener(this);
+            jpda.addPropertyChangeListener(this);            
         }
 
 
@@ -179,14 +179,25 @@ final class ActiveSessions {
                 currentThread = jpda.getCurrentThread();
                 if (currentThread != null) {
                     ((Customizer)currentThread).addPropertyChangeListener(this);
+                    if (currentThread.isSuspended()) {
+                        sendSuspend(currentThread);
+                    }
                 }
             } else if (JPDAThread.PROP_SUSPENDED.equals(propName)) {
-                CallStackFrame[] callStack = null;
-                try {
-                     callStack = currentThread.getCallStack();
-                } catch (AbsentInformationException aie) {/*pass, no -g*/}
-                env.sendObject(createSuspendResult(callStack));                
+                assert  evt.getSource() == currentThread;
+                if (currentThread.isSuspended()) {
+                    sendSuspend(currentThread);
+                }
             }
+        }
+
+
+        private void sendSuspend(JPDAThread t) {
+            CallStackFrame[] callStack = null;
+            try {
+                 callStack = t.getCallStack();
+            } catch (AbsentInformationException aie) {/*pass, no -g*/}
+            env.sendObject(createSuspendResult(callStack));
         }
 
         @NonNull
@@ -224,7 +235,7 @@ final class ActiveSessions {
                         }
                     }
                     res.getStack().add(String.format(
-                        "%s:%d",
+                        "src/%s:%d",
                         relativePath,
                         csf.getLineNumber(null)));
                 }

@@ -85,8 +85,12 @@ public class IORedirectProvider extends IOProvider {
     }
 
     @Override
-    public InputOutput getIO(String name, boolean newIO) {        
-        return new RedirectIO();
+    public InputOutput getIO(String name, boolean newIO) {
+        if (currentEnv.get() == null) {
+            return new NullIO();
+        } else {
+            return new RedirectIO();
+        }
     }
 
     @Override
@@ -271,6 +275,7 @@ public class IORedirectProvider extends IOProvider {
 
         @Override
         public void write(char[] cbuf, int off, int len) throws IOException {
+            System.out.println(new String(cbuf, off, len));
         }
 
         @Override
@@ -295,6 +300,72 @@ public class IORedirectProvider extends IOProvider {
 
         @Override
         public void reset() throws IOException {
+        }
+    }
+
+    private static final class NullIO implements InputOutput {
+
+        @Override
+        public OutputWriter getOut() {
+            return new NullOutputWriter();
+        }
+
+        @Override
+        public Reader getIn() {
+            return new NullReader();
+        }
+
+        @Override
+        public OutputWriter getErr() {
+            return new NullOutputWriter();
+        }
+
+        @Override
+        public void closeInputOutput() {
+        }
+
+        @Override
+        public boolean isClosed() {
+            return false;
+        }
+
+        @Override
+        public void setOutputVisible(boolean value) {
+        }
+
+        @Override
+        public void setErrVisible(boolean value) {
+        }
+
+        @Override
+        public void setInputVisible(boolean value) {
+        }
+
+        @Override
+        public void select() {
+        }
+
+        @Override
+        public boolean isErrSeparated() {
+            return true;
+        }
+
+        @Override
+        public void setErrSeparated(boolean value) {
+        }
+
+        @Override
+        public boolean isFocusTaken() {
+            return true;
+        }
+
+        @Override
+        public void setFocusTaken(boolean value) {
+        }
+
+        @Override
+        public Reader flushReader() {
+            return new NullReader();
         }
     }
 
