@@ -47,6 +47,7 @@ import java.beans.Customizer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -144,6 +145,7 @@ final class ActiveSessions {
         final WorkspaceResolver.Context ctx;
         final EndPoint.Env env;
         final Session session;
+        final SourcePathProvider sourcePath;
         final JPDADebugger jpda;
         volatile JPDAThread currentThread;
 
@@ -161,6 +163,7 @@ final class ActiveSessions {
             this.ctx = ctx;
             this.env = env;
             this.session = session;
+            sourcePath = getContext(session);
             this.jpda = this.session.lookupFirst(null, JPDADebugger.class);
             if (!(jpda instanceof JPDADebuggerImpl)) {
                 throw new IllegalStateException("Wrong debugger service.");    //NOI18N
@@ -212,7 +215,6 @@ final class ActiveSessions {
                     throw new IllegalStateException("No workspace resolver.");  //NOI18N
                 }
                 final FileObject root = wr.resolveFile(ctx);
-                final SourcePathProvider spp = session.lookupFirst(null, SourcePathProvider.class);
                 for (CallStackFrame csf : callStack) {
                     String relativePath;
                     try {
@@ -220,7 +222,7 @@ final class ActiveSessions {
                     } catch (AbsentInformationException e) {
                         relativePath = "<unknown>";
                     }
-                    final String surl = spp.getURL (relativePath, true);
+                    final String surl = sourcePath.getURL (relativePath, true);
                     if (surl != null) {
                         try {
                            final FileObject fo = URLMapper.findFileObject(new java.net.URL(surl));
@@ -235,7 +237,7 @@ final class ActiveSessions {
                         }
                     }
                     res.getStack().add(String.format(
-                        "src/%s:%d",
+                        "%s:%d",
                         relativePath,
                         csf.getLineNumber(null)));
                 }
@@ -243,6 +245,18 @@ final class ActiveSessions {
             return res;
          }
 
+        private SourcePathProvider getContext (Session session) {
+           List<? extends SourcePathProvider> l = session.lookup(null, SourcePathProvider.class);
+           SourcePathProvider sourcePathProvider = l.get(0);
+           int i, k = l.size ();
+           for (i = 1; i < k; i++) {
+               sourcePathProvider = new CompoundContextProvider (
+                   (SourcePathProvider) l.get (i),
+                   sourcePathProvider
+               );
+           }
+           return sourcePathProvider;
+        }
     }
 
 }
