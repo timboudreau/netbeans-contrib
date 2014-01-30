@@ -86,6 +86,15 @@ public final class DebugerModels {
     static final class SetBreakpointsResultModel {
     }
 
+    @Model(className = "EvalResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = DebugMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "values", type = String.class, array = true)
+    })
+    static final class EvalResultModel {
+    }
+
     @Model(className = "ContinueResult", properties = {
         @Property(name = "status", type = Status.class),
         @Property(name = "type", type = DebugMessageType.class),
