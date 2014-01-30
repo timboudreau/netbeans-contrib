@@ -201,6 +201,7 @@ public final class Server {
                     try {
                         status = ep.handle(socket, message);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         status = Status.runtime_error;
                         ex = e;
                     }
