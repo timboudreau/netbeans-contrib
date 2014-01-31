@@ -117,10 +117,18 @@ final class ActiveSessions {
             }
             try {
                 jpda.waitRunning();
-            } catch (DebuggerStartException ex) {
+                //Hack:
+                //Now comes the fun, JPDADebuggerImpl is full of races
+                //so after wait we need to busy wait. Inverted spin-park :-)
+                while (jpda.getState() < 2) {
+                    Thread.sleep(500);
+                }
+            } catch (DebuggerStartException | InterruptedException ex) {
                 return -1;
             }
-            return id;
+            return jpda.getState() == JPDADebugger.STATE_RUNNING ?
+                id :
+                -1;
         }            
         return -1;
     }
