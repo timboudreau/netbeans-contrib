@@ -86,32 +86,34 @@ public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, Debu
             }
             final DebuggerManager dbm = DebuggerManager.getDebuggerManager();
             for (String line : request.getData()) {
-                final int separator = line.lastIndexOf(':');    //NOI18N
+                final int separator = line.indexOf(':');    //NOI18N
                 if (separator > 0 && separator < line.length() - 1) {
-                    try {
-                        final String path = line.substring(0, separator);
-                        final String lineStr = line.substring(separator+1);
-                        final int lineNo = Integer.parseInt(lineStr);
-                        final FileObject file = resolver.resolveFile(new WorkspaceResolver.Context(ctx.getUser(), ctx.getWorkspace(), path));
-                        if (file != null) {
-                            final LineBreakpoint lb = LineBreakpoint.create(file.toURL().toExternalForm(), lineNo);
-                            dbm.addBreakpoint(lb);
-                        } else {
-                            LOG.log(
-                                Level.WARNING,
-                                "Ignoring breakpoint in unresolvable file: {0}",   //NOI18N
-                                line);
+                    final String path = line.substring(0, separator);
+                    final FileObject file = resolver.resolveFile(new WorkspaceResolver.Context(ctx.getUser(), ctx.getWorkspace(), path));
+                    if (file != null) {
+                        final String linesStr = line.substring(separator+1);
+                        for (String lineStr : linesStr.split(":")) { //NOI18N
+                            try {
+                                final int lineNo = Integer.parseInt(lineStr);
+                                final LineBreakpoint lb = LineBreakpoint.create(file.toURL().toExternalForm(), lineNo);
+                                dbm.addBreakpoint(lb);
+                            } catch (NumberFormatException nfe) {
+                                LOG.log(
+                                    Level.WARNING,
+                                    "Ignoring breakpoint(s) with wrong line number: {0}",   //NOI18N
+                                    line);
+                            }
                         }
-                    } catch (NumberFormatException nfe) {
+                    } else {
                         LOG.log(
                             Level.WARNING,
-                            "Ignoring breakpoint with wrong line number: {0}",   //NOI18N
+                            "Ignoring breakpoint(s) in unresolvable file: {0}",   //NOI18N
                             line);
                     }
                 } else {
                     LOG.log(
                         Level.WARNING,
-                        "Ignoring wrong breakpoint: {0}",   //NOI18N
+                        "Ignoring wrong breakpoint(s): {0}",   //NOI18N
                         line);
                 }
             }
