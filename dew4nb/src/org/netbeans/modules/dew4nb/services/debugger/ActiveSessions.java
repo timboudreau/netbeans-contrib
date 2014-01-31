@@ -62,7 +62,6 @@ import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.DebuggerManagerAdapter;
-import org.netbeans.api.debugger.DebuggerManagerListener;
 import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.CallStackFrame;
 import org.netbeans.api.debugger.jpda.DebuggerStartException;
@@ -76,8 +75,6 @@ import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 /**
@@ -90,6 +87,12 @@ final class ActiveSessions {
 
     //@GuardedBy("ActiveSessions.class")
     private static ActiveSessions instance;
+    private static final ThreadLocal<Boolean> inEval = new ThreadLocal<Boolean>() {
+         @Override
+         protected Boolean initialValue() {
+             return Boolean.FALSE;
+         }
+    };
 
     private final ConcurrentMap<Integer,Data> active;
     private final AtomicInteger sequencer;
@@ -151,6 +154,9 @@ final class ActiveSessions {
         return data == null ? null : data.session;
     }
 
+    void setEval(boolean inEval) {
+        ActiveSessions.inEval.set(inEval);
+    }
 
     @NonNull
     static synchronized ActiveSessions getInstance() {
@@ -229,6 +235,9 @@ final class ActiveSessions {
                     sendDisconnected();
                 }
             } else if (JPDAThread.PROP_SUSPENDED.equals(propName)) {
+                if (inEval.get() == Boolean.TRUE) {
+                    return;
+                }
                 assert  evt.getSource() == currentThread;
                 if (currentThread.isSuspended()) {
                     sendSuspend(currentThread);

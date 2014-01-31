@@ -45,6 +45,8 @@ package org.netbeans.modules.dew4nb.services.debugger;
 import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.InvalidExpressionException;
 import org.netbeans.api.debugger.jpda.JPDADebugger;
+import org.netbeans.api.debugger.jpda.ObjectVariable;
+import org.netbeans.api.debugger.jpda.Variable;
 import org.netbeans.modules.debugger.jpda.JPDADebuggerImpl;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
@@ -83,14 +85,31 @@ public class EvalHandler extends BasicRequestHandler<DebugAction, DebugMessageTy
             if (!(jpda instanceof JPDADebuggerImpl)) {
                 throw new IllegalStateException("Wrong debugger service.");    //NOI18N
             }
+            status = Status.done;
             for (String toEval : request.getData()) {
-                String value;
+                String evaluated;
                 try {
-                    value = jpda.evaluate(toEval).getValue();
+                    final Variable var = jpda.evaluate(toEval);
+                    String value;
+                    if (var instanceof ObjectVariable) {
+                        ActiveSessions.getInstance().setEval(true);
+                        try {
+                            value = ((ObjectVariable)var).getToStringValue();
+                        } finally {
+                            ActiveSessions.getInstance().setEval(false);
+                        }
+                    } else {
+                        value = var.getValue();
+                    }
+                    final String type = var.getType();
+                    evaluated = String.format(
+                        "(%s) %s",  //NOI18N
+                        type,
+                        value);
                 } catch (InvalidExpressionException ex) {
-                    value = null;
+                    evaluated = null;
                 }
-                response.getValues().add(value);
+                response.getValues().add(evaluated);
             }
         }
         return status;
