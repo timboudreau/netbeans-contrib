@@ -42,19 +42,43 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.debugger.Session;
+import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.EndPoint;
+import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
+import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
+import org.openide.util.Parameters;
+import org.openide.util.lookup.ServiceProvider;
+
 /**
  *
  * @author Tomas Zezula
  */
-public enum DebugMessageType {
-    attach,
-    detach,
-    breakpoints,
-    cont,
-    stepOver,
-    stepIn,
-    stepOut,
-    eval,
-    suspended,
-    disconnected
+@ServiceProvider(service = RequestHandler.class)
+public class DetachHandler extends AsyncRequestHandler<DebugAction, DebugMessageType> {
+
+    public DetachHandler() {
+        super(DebugerModels.END_POINT, DebugMessageType.detach, DebugAction.class);
+    }
+
+    @Override
+    protected Status handle(@NonNull final DebugAction request, @NonNull final EndPoint.Env env) {
+        Parameters.notNull("request", request); //NOI18N
+        Parameters.notNull("env", env); //NOI18N
+        final int sessionId = request.getSession();
+        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
+        Status result = Status.not_found;
+        if (ctx != null) {
+            final Session session = ActiveSessions.getInstance().getDebugSession(sessionId);
+            if (session == null) {
+                throw new IllegalStateException("No debugger session");    //NOI18N
+            }
+            session.kill();
+            result = Status.accepted;
+        }
+        return result;
+    }
+
 }

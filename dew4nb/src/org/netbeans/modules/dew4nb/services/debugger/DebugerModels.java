@@ -113,6 +113,14 @@ public final class DebugerModels {
     static final class SuspendResultModel {
     }
 
+    @Model(className = "DetachedResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = DebugMessageType.class),
+        @Property(name = "id", type = int.class),
+    })
+    static final class DetachedResultModel {
+    }
+
 
     @Model(className = "Context", properties = {
         @Property(name="user", type=String.class),
