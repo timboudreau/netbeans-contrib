@@ -77,6 +77,7 @@ public final class Server {
     private static final int MAX_CHANNEL_LEN = 256;
     private static final char CHANNEL_SEPARATOR = '|';  //NOI18N
     private final HttpServer http;
+    private final static boolean measuringEnabled="true".equals(System.getProperty("tailwindmeasurementenabled"));  //NOI18N
 
     private Server(
         @NonNull final Union2<Integer,Pair<Integer,Integer>> portCfg,
@@ -221,6 +222,9 @@ public final class Server {
         public void onMessage(WebSocket socket, byte[] bytes) {            
             final ByteBuffer bb = ByteBuffer.wrap(bytes);
             final CharBuffer cb = UTF8.decode(bb);
+            if (measuringEnabled) {
+                Utilities.insertStartTime(System.currentTimeMillis(), socket.hashCode());
+            }
             onMessage(socket, cb.toString());
         }
     }

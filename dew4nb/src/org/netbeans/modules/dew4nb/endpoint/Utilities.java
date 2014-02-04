@@ -42,6 +42,9 @@
 
 package org.netbeans.modules.dew4nb.endpoint;
 
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.java.html.json.Model;
 import net.java.html.json.Property;
 import org.netbeans.api.annotations.common.NonNull;
@@ -56,6 +59,8 @@ public final class Utilities {
     private Utilities() {
         throw new IllegalStateException("No instance allowed.");    //NOI18N
     }
+    private static final HashMap<Integer,Long> measurements = new HashMap<>();
+    private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
 
     @NonNull
     public static Failure newFailure (
@@ -84,6 +89,25 @@ public final class Utilities {
         return fail;
     }
 
+    public static void insertStartTime(long starttime, int hash) {
+        measurements.put(hash, starttime);
+        Log("Operation   "+hash+"  STARTED at starttime:  "+starttime);    //NOI18N
+    }
+    
+    private static void Log(String message) {
+        LOG.log(Level.INFO, message);
+    }
+
+    public static long getMeasuredTime(long endtime, int hash) {
+        Long start = measurements.get(hash);
+        long result=-1;
+        if (start!=null) {
+            result = endtime - start;
+        }
+        Log("Operation   "+hash+"  FINISHED at:  "+endtime+"    Duration="+result+" ms");    //NOI18N 
+        return result;
+    }
+    
     @Model(className = "Failure", properties = {
         @Property(name="status", type=Status.class),
         @Property(name = "type", type = String.class),
