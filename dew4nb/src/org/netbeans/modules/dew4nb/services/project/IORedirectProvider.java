@@ -46,6 +46,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import org.netbeans.api.annotations.common.NonNull;
@@ -71,6 +79,10 @@ public class IORedirectProvider extends IOProvider {
 
     private static final Pattern EMPTY_STR = Pattern.compile("^\\s*$"); //NOI18N
     private static final ThreadLocal<EndPoint.Env> currentEnv = new ThreadLocal<>();
+    private static final Object threadsLock = new Object();
+    //@GuardedBy("threadsLock")
+    private static final Map<RedirectIO,Collection<Reference<Thread>>> activeThreads =
+        new WeakHashMap<>();
 
     public IORedirectProvider() {}
 
@@ -82,6 +94,19 @@ public class IORedirectProvider extends IOProvider {
 
     static void unbindEnv() {
         currentEnv.remove();
+    }
+
+    static void showUrl(@NonNull final URL url) {
+        synchronized(threadsLock) {
+out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeThreads.entrySet()) {
+                for (Reference<Thread> tr : e.getValue()) {
+                    if (Thread.currentThread() == tr.get()) {
+                        e.getKey().openUrlImpl(url);
+                        break out;
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -161,20 +186,24 @@ public class IORedirectProvider extends IOProvider {
         RedirectIO() {
             this.closed = new AtomicBoolean();
             resetImpl();
+            registerThread();
         }
 
         @Override
         public Reader getIn() {
+            registerThread();
             return new NullReader();
         }
 
         @Override
         public OutputWriter getOut() {
+            registerThread();
             return new RedirectOutputWriter(this, false);
         }
 
         @Override
         public OutputWriter getErr() {
+            registerThread();
             return new RedirectOutputWriter(this, true);
         }
 
@@ -237,7 +266,8 @@ public class IORedirectProvider extends IOProvider {
                         data,
                     err?
                         data :
-                        null));
+                        null,
+                    null));
         }
 
         void closeImpl() {
@@ -246,16 +276,41 @@ public class IORedirectProvider extends IOProvider {
                     env,
                     BuildResult.success,
                     null,
+                    null,
                     null));
             }
         }
 
+        void openUrlImpl(@NonNull final URL url) {
+            Parameters.notNull("url", url); //NOI18N
+            env.sendObject(createResponse(
+                env,
+                null,
+                null,
+                null,
+                Collections.singleton(url)));
+        }
+
         void resetImpl() {
+            synchronized (threadsLock) {
+                activeThreads.remove(this);
+            }
             env = currentEnv.get();
             if (env == null) {
                 throw new IllegalStateException();
             }
             closed.set(false);
+        }
+
+        private void registerThread() {
+            synchronized (threadsLock) {
+                Collection<Reference<Thread>> myThreads = activeThreads.get(this);
+                if (myThreads == null) {
+                    myThreads = new ArrayList<>();
+                    activeThreads.put(this, myThreads);
+                }
+                myThreads.add(new WeakReference<>(Thread.currentThread()));
+            }
         }
     }
 
@@ -374,7 +429,8 @@ public class IORedirectProvider extends IOProvider {
             @NonNull final EndPoint.Env env,
             @NullAllowed final BuildResult result,
             @NullAllowed final String stdOut,
-            @NullAllowed final String stdErr) {
+            @NullAllowed final String stdErr,
+            @NullAllowed final Collection<? extends URL> urls) {
         Parameters.notNull("env", env); //NOI18N
         final ProjectMessageType type = env.getProperty(PROP_TYPE, ProjectMessageType.class);
         Parameters.notNull("type", type); //NOI18N
@@ -390,6 +446,11 @@ public class IORedirectProvider extends IOProvider {
         }
         if (stdErr != null) {
             res.getStderr().add(stdErr);
+        }
+        if (urls != null) {
+            for (URL url : urls) {
+                res.getOpenUrl().add(url.toExternalForm());
+            }
         }
         return res;
     }
