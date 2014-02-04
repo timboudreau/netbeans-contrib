@@ -86,7 +86,7 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<ProjectActio
                 ctx.getUser(),
                 ctx.getWorkspace(),
                 ctx.getPath()
-            ));
+            ));        
         Status res = Status.done;
         if (file != null) {
             final Project prj = FileOwnerQuery.getOwner(file);
