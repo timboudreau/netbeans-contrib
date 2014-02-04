@@ -232,12 +232,13 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
             if (closed) {
                 throw new IllegalStateException("Env already closed");  //NOI18N
             }
-            if (measuringEnabled) {
+            if (measuringEnabled && message!=null && message.startsWith("{\"status\":\"done\",\"type\":\"autocomplete\"")) {  //NOI18N
                 long timeinside=Utilities.getMeasuredTime(System.currentTimeMillis(), ws.hashCode());
-                ws.send(message == null ? "null" :( (timeinside<0)? message : (message +"@"+timeinside) ) );    //NOI18N
+                String newMsg = message.replace("}]}", "},{\"text\":\"Duration: @#$ms Browser->Tomcat: @#$ms\",\"displayName\":null,\"extraText\":\"Tomcat->IDE: @#$ms\",\"rightText\":\"IDE: @#$"+timeinside+"@#$ms\",\"className\":\"MTV\"}]}");  //NOI18N                 
+                ws.send(newMsg);
             } else {
                 ws.send(message == null ? "null" : ( message) );    //NOI18N
-            }
+            }            
         }
 
         public void setProperty(

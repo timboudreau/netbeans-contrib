@@ -222,10 +222,11 @@ public final class Server {
         public void onMessage(WebSocket socket, byte[] bytes) {            
             final ByteBuffer bb = ByteBuffer.wrap(bytes);
             final CharBuffer cb = UTF8.decode(bb);
-            if (measuringEnabled) {
+            String message=cb.toString();
+            if (measuringEnabled && message.startsWith("javac|{\"type\":\"autocomplete\",\"java\":")) {
                 Utilities.insertStartTime(System.currentTimeMillis(), socket.hashCode());
             }
-            onMessage(socket, cb.toString());
+            onMessage(socket, message);
         }
     }
 }
