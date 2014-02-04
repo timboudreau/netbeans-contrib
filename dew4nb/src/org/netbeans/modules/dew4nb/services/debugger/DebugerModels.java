@@ -95,6 +95,15 @@ public final class DebugerModels {
     static final class EvalResultModel {
     }
 
+    @Model(className = "ApplyCodeChangesResult", properties = {
+        @Property(name = "status", type = Status.class),
+        @Property(name = "type", type = DebugMessageType.class),
+        @Property(name = "state", type = String.class),
+        @Property(name = "result", type = boolean.class)
+    })
+    static final class ApplyCodeChangesResultModel {
+    }
+
     @Model(className = "ContinueResult", properties = {
         @Property(name = "status", type = Status.class),
         @Property(name = "type", type = DebugMessageType.class),

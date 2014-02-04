@@ -55,6 +55,7 @@ public enum DebugMessageType {
     stepIn,
     stepOut,
     eval,
+    apply,
     suspended,
     disconnected
 }
