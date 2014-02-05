@@ -115,8 +115,8 @@ public class ApplyCodeChangesHandler extends AsyncRequestHandler<DebugAction, De
                                 ap.invokeAction(null, lkp);
                             }
                         });
-                    }
-                    result = Status.accepted;
+                        result = Status.accepted;
+                    }                    
                 }
             }
         }

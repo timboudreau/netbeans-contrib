@@ -127,14 +127,20 @@ final class ActiveSessions {
                     Thread.sleep(500);
                 }
             } catch (DebuggerStartException | InterruptedException ex) {
+                LOG.log(Level.WARNING, "Debugger start Exception: {0}", ex);
                 return -1;
             }
-            return jpda.getState() == JPDADebugger.STATE_RUNNING ||
-                   jpda.getState() == JPDADebugger.STATE_STOPPED ?
-                id :
-                -1;
-        }            
-        return -1;
+            final int state = jpda.getState();
+            if (state == JPDADebugger.STATE_RUNNING || state == JPDADebugger.STATE_STOPPED) {
+                return id;
+            } else {
+                LOG.log(Level.WARNING, "Wrong debugger state: {0}", state);
+                return -1;
+            }
+        } else {
+            LOG.warning("No debugger session");
+            return -1;
+        }
     }
 
     @CheckForNull
