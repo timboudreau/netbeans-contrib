@@ -82,12 +82,16 @@ public class ApplyCodeChangesHandler extends AsyncRequestHandler<DebugAction, De
         }
         final int sessionId = request.getSession();
         Status result = Status.not_found;
-        final WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
+        WorkspaceResolver.Context ctx = ActiveSessions.getInstance().getContext(sessionId);
         if (ctx != null) {
             final WorkspaceResolver wr = WorkspaceResolver.getDefault();
             if (wr == null) {
                 throw new IllegalStateException("No WorkspaceResolver");    //NOI18N
             }
+            ctx = new WorkspaceResolver.Context(
+                ctx.getUser(),
+                ctx.getWorkspace(),
+                request.getContext().getPath());
             final FileObject file = wr.resolveFile(ctx);
             if (file != null) {
                 final Project prj = FileOwnerQuery.getOwner(file);
@@ -112,7 +116,7 @@ public class ApplyCodeChangesHandler extends AsyncRequestHandler<DebugAction, De
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                ap.invokeAction(null, lkp);
+                                ap.invokeAction(JavaProjectConstants.COMMAND_DEBUG_FIX, lkp);
                             }
                         });
                         result = Status.accepted;
