@@ -106,7 +106,7 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
     private static final Object handlersCacheLock = new Object();
     //@GuardedBy("handlersCacheLock")
     private static Map<String,Collection<RequestHandler<?,?>>> handlersCache;
-    private final static boolean measuringEnabled="true".equals(System.getProperty("tailwindmeasurementenabled"));  //NOI18N
+    private final static boolean measuringEnabled=Boolean.getBoolean("tailwindmeasurementenabled");  //NOI18N
     private final Object cacheLock = new Object();
     //@GuardedBy("cacheLock")
     private Map<RequestKind, RequestHandler<Request, RequestKind>> cache;
@@ -232,9 +232,9 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
             if (closed) {
                 throw new IllegalStateException("Env already closed");  //NOI18N
             }
-            if (measuringEnabled) {
+            if (measuringEnabled && message!=null && message.startsWith("{\"status\":\"done\",\"type\":\"autocomplete\"")) {  //NOI18N
                 long timeinside=Utilities.getMeasuredTime(System.currentTimeMillis(), ws.hashCode());
-                ws.send(message == null ? "null" :( (timeinside<0)? message : (message +"@"+timeinside) ) );    //NOI18N
+                ws.send(message.replace("}]}", "},{\"text\":\"Duration: @#$ms Browser->Tomcat: @#$ms \",\"displayName\":null,\"extraText\":\"Tomcat->IDE: @#$ms\",\"rightText\":\"IDE: @#$"+timeinside+"@#$ms\",\"className\":\"MTV\"}]}")); //NOI18N
             } else {
                 ws.send(message == null ? "null" : ( message) );    //NOI18N
             }
