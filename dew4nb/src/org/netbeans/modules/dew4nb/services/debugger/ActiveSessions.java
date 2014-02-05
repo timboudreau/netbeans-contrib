@@ -129,7 +129,8 @@ final class ActiveSessions {
             } catch (DebuggerStartException | InterruptedException ex) {
                 return -1;
             }
-            return jpda.getState() == JPDADebugger.STATE_RUNNING ?
+            return jpda.getState() == JPDADebugger.STATE_RUNNING ||
+                   jpda.getState() == JPDADebugger.STATE_STOPPED ?
                 id :
                 -1;
         }            
