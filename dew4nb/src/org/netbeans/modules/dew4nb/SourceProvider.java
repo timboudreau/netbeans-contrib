@@ -43,6 +43,7 @@
 package org.netbeans.modules.dew4nb;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
@@ -79,6 +80,10 @@ import org.openide.util.Utilities;
  */
 public final class SourceProvider {
 
+    private static final int DEFAULT_CACHE_SIZE = 10;
+    private static final int CACHE_SIZE = Integer.getInteger(
+            "SourceProvider.cacheSize", //NOI18N
+            DEFAULT_CACHE_SIZE);
     private static final Logger LOG = Logger.getLogger(SourceProvider.class.getName());
 
     //@GuardedBy("SourceProvider.class")
@@ -87,7 +92,32 @@ public final class SourceProvider {
         FileUtil.createMemoryFileSystem();
     //@GuardedBy("retain")
     private final Map<FileObject, Reference<Source>> retain
-        = Collections.synchronizedMap(new LinkedHashMap <FileObject,Reference<Source>>());
+        = Collections.synchronizedMap(new LinkedHashMap <FileObject,Reference<Source>>(
+            16, 0.75f, true) {
+                {
+                    LOG.log(
+                        Level.INFO,
+                        "SourceProvider.cacheSize={0}", //NOI18N
+                        CACHE_SIZE);
+                }
+                @Override
+                protected boolean removeEldestEntry(@NonNull final Map.Entry<FileObject, Reference<Source>> eldest) {
+                    if (size() > CACHE_SIZE) {
+                        final Reference<? extends Source> ref = eldest.getValue();
+                        if (ref instanceof Closeable) {
+                            try {
+                                ((Closeable)ref).close();
+                            } catch (IOException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        }
+                        ref.clear();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            });
     
 
     private SourceProvider() {
@@ -214,7 +244,7 @@ public final class SourceProvider {
 
 
 
-    private static final class SR extends SoftReference<Source> implements Runnable {
+    private static final class SR extends SoftReference<Source> implements Runnable, Closeable {
         private final FileObject file;
         private final Map<FileObject, Reference<Source>> active;
         
@@ -247,6 +277,15 @@ public final class SourceProvider {
         }
 
         @Override
+        public void close() throws IOException {
+            LOG.log(
+                Level.FINE,
+                "Deleting temporary file: {0}",   //NOI18N
+                FileUtil.getFileDisplayName(this.file));
+            this.file.delete();
+        }
+
+        @Override
         public void run() {
             LOG.log(
                 Level.FINE,
@@ -254,7 +293,7 @@ public final class SourceProvider {
                 FileUtil.getFileDisplayName(this.file));
             active.remove(this.file);
             try {
-                this.file.delete();
+                close();
             } catch (IOException ex) {
                LOG.log(
                    Level.WARNING,
