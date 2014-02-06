@@ -70,7 +70,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 import org.openide.util.Utilities;
 
@@ -89,7 +88,6 @@ public final class SourceProvider {
     //@GuardedBy("retain")
     private final Map<FileObject, Reference<Source>> retain
         = Collections.synchronizedMap(new LinkedHashMap <FileObject,Reference<Source>>());
-
     
 
     private SourceProvider() {
@@ -130,8 +128,8 @@ public final class SourceProvider {
             if (r == null || (src = r.get()) == null) {
                 src = Source.create(file);
                 r = tmpFile ?
-                    new WR (src) :
-                    new SR (src, retain);
+                    new SR (src, retain) :
+                    new WR (src, retain);
                 retain.put(file, r);
             }
             update(src, content, tmpFile);
@@ -216,56 +214,10 @@ public final class SourceProvider {
 
 
 
-    private static final class WR extends SoftReference<Source> implements Runnable {
+    private static final class SR extends SoftReference<Source> implements Runnable {
         private final FileObject file;
+        private final Map<FileObject, Reference<Source>> active;
         
-        WR(@NonNull final Source src) {
-            super(src, Utilities.activeReferenceQueue());
-            this.file = src.getFileObject();
-            if (this.file == null) {
-                throw new IllegalArgumentException("No file for Source:" + src);    //NOI18N
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return file.hashCode();
-        }
-
-        @Override
-        public boolean equals(@NullAllowed final Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof SR)) {
-                return false;
-            }
-            return ((SR)obj).file.equals(this.file);
-        }
-
-        @Override
-        public void run() {
-            LOG.log(
-                Level.FINE,
-                "Clearing cache for temporary file: {0}",   //NOI18N
-                FileUtil.getFileDisplayName(this.file));
-            try {
-                this.file.delete();
-            } catch (IOException ex) {
-               LOG.log(
-                   Level.WARNING,
-                   "Cannot delete: {0}",    //NOI18N
-                   FileUtil.getFileDisplayName(file));
-            }
-        }
-    }
-
-    private static final class SR extends WeakReference<Source> implements Runnable {
-
-        private final FileObject file;
-        private final Map<FileObject,Reference<Source>> active;
-
-
         SR(
             @NonNull final Source src,
             @NonNull final Map<FileObject, Reference<Source>> active) {
@@ -298,11 +250,61 @@ public final class SourceProvider {
         public void run() {
             LOG.log(
                 Level.FINE,
+                "Clearing cache for temporary file: {0}",   //NOI18N
+                FileUtil.getFileDisplayName(this.file));
+            active.remove(this.file);
+            try {
+                this.file.delete();
+            } catch (IOException ex) {
+               LOG.log(
+                   Level.WARNING,
+                   "Cannot delete: {0}",    //NOI18N
+                   FileUtil.getFileDisplayName(file));
+            }
+        }
+    }
+
+    private static final class WR extends WeakReference<Source> implements Runnable {
+
+        private final FileObject file;
+        private final Map<FileObject,Reference<Source>> active;
+
+
+        WR(
+            @NonNull final Source src,
+            @NonNull final Map<FileObject, Reference<Source>> active) {
+            super(src, Utilities.activeReferenceQueue());
+            this.file = src.getFileObject();
+            if (this.file == null) {
+                throw new IllegalArgumentException("No file for Source:" + src);    //NOI18N
+            }
+            Parameters.notNull("active", active);
+            this.active = active;
+        }
+
+        @Override
+        public int hashCode() {
+            return file.hashCode();
+        }
+
+        @Override
+        public boolean equals(@NullAllowed final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof WR)) {
+                return false;
+            }
+            return ((WR)obj).file.equals(this.file);
+        }
+
+        @Override
+        public void run() {
+            LOG.log(
+                Level.FINE,
                 "Clearing cache for permanent file: {0}",   //NOI18N
                 FileUtil.getFileDisplayName(this.file));
-            synchronized (active) {
-                active.remove(this.file);
-            }
+            active.remove(this.file);
         }
     }
 }
