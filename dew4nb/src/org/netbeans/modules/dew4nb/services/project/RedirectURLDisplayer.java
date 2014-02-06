@@ -42,9 +42,13 @@
 
 package org.netbeans.modules.dew4nb.services.project;
 
+import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import org.netbeans.api.annotations.common.NonNull;
 import org.openide.awt.HtmlBrowser;
+import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -54,9 +58,39 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = HtmlBrowser.URLDisplayer.class, position = 1)
 public class RedirectURLDisplayer extends HtmlBrowser.URLDisplayer {
 
+    private static final String LOCALHOST = "localhost";   //NOI18N
+
     @Override
-    public void showURL(@NonNull final URL url) {
+    public void showURL(@NonNull URL url) {
+        Parameters.notNull("url", url); //NOI18N
+        final String host = url.getHost();
+        if (isLocal(host)) {
+            try {
+                url = new URL(
+                    url.getProtocol(),
+                    java.net.InetAddress.getLocalHost().getHostName(),
+                    url.getPort(),
+                    url.getPath());
+            } catch (MalformedURLException | UnknownHostException e) {
+                //pass with original URL
+            }
+        }
         IORedirectProvider.showUrl(url);
+    }
+
+    private static boolean isLocal(String hostName) {
+        if (LOCALHOST.equalsIgnoreCase(hostName)) {
+            return true;
+        }
+        try {
+            final InetAddress addr = InetAddress.getByName(LOCALHOST);
+            if (addr.getHostAddress().equals(hostName)) {
+                return true;
+            }
+        } catch (UnknownHostException ex) {
+            //pass
+        }
+        return false;
     }
 
  
