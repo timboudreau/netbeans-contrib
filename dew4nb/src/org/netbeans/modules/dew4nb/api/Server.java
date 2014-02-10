@@ -49,6 +49,8 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.glassfish.grizzly.PortRange;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
@@ -73,6 +75,7 @@ import org.openide.util.Union2;
  */
 public final class Server {
 
+    private static final Logger LOG = Logger.getLogger(Server.class.getName());
     private static final Charset UTF8 = Charset.forName("UTF-8");  //NOI18N
     private static final int MAX_CHANNEL_LEN = 256;
     private static final char CHANNEL_SEPARATOR = '|';  //NOI18N
@@ -198,6 +201,14 @@ public final class Server {
                 final String channel = text.substring(0, index);
                 final String message = text.substring(index+1);
                 final EndPoint<?,?> ep = registry.getEndPoint(channel);
+                LOG.log(
+                    Level.FINE,
+                    "Message: {0} to: {1} served by: {2}",
+                    new Object[]{
+                        message,
+                        channel,
+                        ep
+                    });
                 if (ep != null) {
                     try {
                         status = ep.handle(socket, message);

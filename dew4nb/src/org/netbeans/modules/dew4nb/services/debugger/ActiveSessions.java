@@ -109,7 +109,15 @@ final class ActiveSessions {
         Parameters.notNull("context", context); //NOI18N
         Parameters.notNull("env", env); //NOI18N
         final int id = sequencer.incrementAndGet();
-        final Session session = findSession();
+        Session session;
+        try {
+            for (session = findSession(); session == null; session = findSession()) {
+                LOG.info("Wating for debugger....");    //NOI18N
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException ie) {
+            return -1;
+        }
         if (session != null) {
             if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
                 throw new IllegalStateException("Trying to reuse active session");  //NOI18N
