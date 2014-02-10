@@ -89,6 +89,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.java.html.json.Models;
 import org.glassfish.grizzly.websockets.WebSocket;
 import org.netbeans.api.annotations.common.CheckForNull;
@@ -102,6 +104,8 @@ import org.openide.util.Parameters;
  * @author Tomas Zezula
  */
 public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
+
+    private static final Logger LOG = Logger.getLogger(EndPoint.class.getName());
 
     private static final Object handlersCacheLock = new Object();
     //@GuardedBy("handlersCacheLock")
@@ -232,6 +236,13 @@ public abstract class EndPoint<Request, RequestKind extends Enum<RequestKind>> {
             if (closed) {
                 throw new IllegalStateException("Env already closed");  //NOI18N
             }
+            LOG.log(
+                Level.FINE,
+                "Sending: {0} from: {1}",   //NOI18N
+                new Object[]{
+                    message,
+                    endPointName
+                });
             if (measuringEnabled && message!=null && message.startsWith("{\"status\":\"done\",\"type\":\"autocomplete\"")) {  //NOI18N
                 long timeinside=Utilities.getMeasuredTime(System.currentTimeMillis(), ws.hashCode());
                 ws.send(message.replace("}]}", "},{\"text\":\"Duration: @#$ms Browser->Tomcat: @#$ms \",\"displayName\":null,\"extraText\":\"Tomcat->IDE: @#$ms\",\"rightText\":\"IDE: @#$"+timeinside+"@#$ms\",\"className\":\"MTV\"}]}")); //NOI18N
