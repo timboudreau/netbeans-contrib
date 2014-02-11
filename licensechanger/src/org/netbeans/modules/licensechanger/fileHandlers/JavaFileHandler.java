@@ -100,7 +100,7 @@ public class JavaFileHandler extends FileHandler {
 
         public boolean visitLine(String line) {
             String trimmed = line.trim();
-            if (trimmed.startsWith("//") || trimmed.startsWith("/*") && trimmed.endsWith("*/")) {
+            if (trimmed.startsWith("//") || trimmed.startsWith("/*") && !trimmed.startsWith("/**") && trimmed.endsWith("*/")) {
                 return visitCommentLine(line);
             } else if (trimmed.length() == 0) {
                 return visitEmptyLine(line);
@@ -122,7 +122,7 @@ public class JavaFileHandler extends FileHandler {
         }
 
         private boolean visitLineAndTestForComment(String line) {
-            if (line.trim().startsWith("/*")) {
+            if (line.trim().startsWith("/*") && !line.trim().startsWith("/**")) {
                 inComment = true;
                 delCount += line.length() + 1;
                 return true;

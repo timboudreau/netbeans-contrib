@@ -63,6 +63,7 @@ public class JavaFileHandlerTest {
             String filename = "java_" + i + ".txt";
             testOneVersion(golden, license, filename);
         }
+        testOneVersion(readFile(JavaFileHandlerTest.class, "package-info_golden.txt"), license, "package-info_1.txt");
     }
 
     private void testOneVersion(String golden, String license, String filename) throws Exception {
