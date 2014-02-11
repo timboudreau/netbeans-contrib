@@ -60,6 +60,7 @@ import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.Status;
+import org.openide.util.Pair;
 import org.openide.util.Parameters;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.IOProvider;
@@ -74,11 +75,8 @@ import org.openide.windows.OutputWriter;
 @ServiceProvider(service = IOProvider.class, position = 0)
 public class IORedirectProvider extends IOProvider {
 
-    static final String PROP_STATE = "state";   //NOI18N
-    static final String PROP_TYPE = "type"; //NOI18N
-
     private static final Pattern EMPTY_STR = Pattern.compile("^\\s*$"); //NOI18N
-    private static final ThreadLocal<EndPoint.Env> currentEnv = new ThreadLocal<>();
+    private static final ThreadLocal<Pair<EndPoint.Env,String>> currentEnv = new ThreadLocal<>();
     private static final Object threadsLock = new Object();
     //@GuardedBy("threadsLock")
     private static final Map<RedirectIO,Collection<Reference<Thread>>> activeThreads =
@@ -87,9 +85,17 @@ public class IORedirectProvider extends IOProvider {
     public IORedirectProvider() {}
 
 
-    static void bindEnv(@NonNull final EndPoint.Env env) {
+    static void bindEnv(
+        @NonNull final EndPoint.Env env,
+        @NonNull final ProjectAction request) {
         Parameters.notNull("env", env); //NOI18N
-        currentEnv.set(env);
+        Parameters.notNull("request", request); //NOI18N
+        if (ProjectMessageType.invokeAction != request.getType()) {
+            throw new IllegalArgumentException(String.valueOf(request.getType()));
+        }
+        currentEnv.set(Pair.<EndPoint.Env,String>of(
+            env,
+            request.getState()));
     }
 
     static void unbindEnv() {
@@ -182,6 +188,7 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
 
         private final AtomicBoolean closed;
         private volatile EndPoint.Env env;
+        private volatile String state;
 
         RedirectIO() {
             this.closed = new AtomicBoolean();
@@ -259,7 +266,7 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
             @NonNull final String data,
             final boolean err) {
             env.sendObject(createResponse(
-                    env,
+                    state,
                     null,
                     err?
                         null :
@@ -273,7 +280,7 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
         void closeImpl() {
             if (!closed.getAndSet(true)) {
                 env.sendObject(createResponse(
-                    env,
+                    state,
                     BuildResult.success,
                     null,
                     null,
@@ -284,7 +291,7 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
         void openUrlImpl(@NonNull final URL url) {
             Parameters.notNull("url", url); //NOI18N
             env.sendObject(createResponse(
-                env,
+                state,
                 null,
                 null,
                 null,
@@ -295,10 +302,12 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
             synchronized (threadsLock) {
                 activeThreads.remove(this);
             }
-            env = currentEnv.get();
-            if (env == null) {
+            final Pair<EndPoint.Env,String> p = currentEnv.get();
+            if (p == null) {
                 throw new IllegalStateException();
             }
+            env = p.first();
+            state = p.second();
             closed.set(false);
         }
 
@@ -426,18 +435,14 @@ out:        for (Map.Entry<RedirectIO,Collection<Reference<Thread>>> e : activeT
 
     @NonNull
     private static InvokeProjectActionResult createResponse(
-            @NonNull final EndPoint.Env env,
+            @NonNull final String state,
             @NullAllowed final BuildResult result,
             @NullAllowed final String stdOut,
             @NullAllowed final String stdErr,
             @NullAllowed final Collection<? extends URL> urls) {
-        Parameters.notNull("env", env); //NOI18N
-        final ProjectMessageType type = env.getProperty(PROP_TYPE, ProjectMessageType.class);
-        Parameters.notNull("type", type); //NOI18N
-        final String state = env.getProperty(PROP_STATE, String.class);
         Parameters.notNull("state", state); //NOI18N
         final InvokeProjectActionResult res = new InvokeProjectActionResult();
-        res.setType(type);
+        res.setType(ProjectMessageType.invokeAction);
         res.setState(state);
         res.setStatus(Status.done);
         res.setResult(result);

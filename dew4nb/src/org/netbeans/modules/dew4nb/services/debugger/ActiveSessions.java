@@ -107,48 +107,48 @@ final class ActiveSessions {
             @NonNull final WorkspaceResolver.Context context,
             @NonNull final EndPoint.Env env) {
         Parameters.notNull("context", context); //NOI18N
-        Parameters.notNull("env", env); //NOI18N
-        final int id = sequencer.incrementAndGet();
-        Session session;
+        Parameters.notNull("env", env); //NOI18N        
+        Session session = null;
+        final DebugInterceptor di = DebugInterceptor.getInstance();
         try {
-            for (session = findSession(); session == null; session = findSession()) {
-                LOG.info("Wating for debugger....");    //NOI18N
+            for (session = findSession(); session == null && di.isDebuggerStarting(); session = findSession()) {
+                LOG.info("Wating for debugger session....");    //NOI18N
                 Thread.sleep(1000);
             }
         } catch (InterruptedException ie) {
-            return -1;
+            //Pass
         }
-        if (session != null) {
-            if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
-                throw new IllegalStateException("Trying to reuse active session");  //NOI18N
-            }
-            final JPDADebugger jpda = session.lookupFirst(null, JPDADebugger.class);
-            if (!(jpda instanceof JPDADebuggerImpl)) {
-                throw new IllegalStateException("Wrong debugger service.");    //NOI18N
-            }
-            try {
-                jpda.waitRunning();
-                //Hack:
-                //Now comes the fun, JPDADebuggerImpl is full of races
-                //so after wait we need to busy wait. Inverted spin-park :-)
-                while (jpda.getState() < 2) {
-                    Thread.sleep(500);
-                }
-            } catch (DebuggerStartException | InterruptedException ex) {
-                LOG.log(Level.WARNING, "Debugger start Exception: {0}", ex);
-                return -1;
-            }
-            final int state = jpda.getState();
-            if (state == JPDADebugger.STATE_RUNNING || state == JPDADebugger.STATE_STOPPED) {
-                return id;
-            } else {
-                LOG.log(Level.WARNING, "Wrong debugger state: {0}", state);
-                return -1;
-            }
-        } else {
+        if (session == null) {
             LOG.warning("No debugger session");
             return -1;
         }
+        final int id = sequencer.incrementAndGet();
+        if (active.putIfAbsent(id, new Data(id, context, env, session)) != null) {
+            throw new IllegalStateException("Trying to reuse active session");  //NOI18N
+        }
+        final JPDADebugger jpda = session.lookupFirst(null, JPDADebugger.class);
+        if (!(jpda instanceof JPDADebuggerImpl)) {
+            throw new IllegalStateException("Wrong debugger service.");    //NOI18N
+        }
+        try {
+            jpda.waitRunning();
+            //Hack:
+            //Now comes the fun, JPDADebuggerImpl is full of races
+            //so after wait we need to busy wait. Inverted spin-park :-)
+            while (jpda.getState() < 2) {
+                Thread.sleep(500);
+            }
+        } catch (DebuggerStartException | InterruptedException ex) {
+            LOG.log(Level.WARNING, "Debugger start Exception: {0}", ex);
+            return -1;
+        }
+        final int state = jpda.getState();
+        if (state == JPDADebugger.STATE_RUNNING || state == JPDADebugger.STATE_STOPPED) {
+            return id;
+        } else {
+            LOG.log(Level.WARNING, "Wrong debugger state: {0}", state);
+            return -1;
+        }        
     }
 
     @CheckForNull
