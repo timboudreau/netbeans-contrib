@@ -43,6 +43,7 @@
 package org.netbeans.modules.dew4nb.services.project;
 
 import javax.swing.SwingUtilities;
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.dew4nb.endpoint.AsyncRequestHandler;
@@ -50,9 +51,11 @@ import org.netbeans.modules.dew4nb.endpoint.EndPoint;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.Status;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
+import org.netbeans.spi.project.ActionProgress;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
+import org.openide.util.Parameters;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -97,22 +100,51 @@ public class InvokeProjectActionHandler extends AsyncRequestHandler<ProjectActio
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            env.setProperty(IORedirectProvider.PROP_TYPE, request.getType());
-                            env.setProperty(IORedirectProvider.PROP_STATE, request.getState());
-                            IORedirectProvider.bindEnv(env);
-                            try {
-                                ap.invokeAction(
-                                    request.getAction(),
-                                    Lookups.fixed(file, prj));
-                            } finally {
-                                IORedirectProvider.unbindEnv();
-                            }
+                            ap.invokeAction(
+                                request.getAction(),
+                                Lookups.fixed(
+                                    file,
+                                    prj,
+                                    new Progress(env, request)));
                         }
                     });
                 }
             }
         }
         return res;
-    }    
+    }
+
+    private static final class Progress extends ActionProgress {
+
+        private static final Lookup.Result<ProjectActionInterceptor> impls =
+                Lookup.getDefault().lookupResult(ProjectActionInterceptor.class);
+        private final EndPoint.Env env;
+        private final ProjectAction request;
+
+        Progress(
+                @NonNull final EndPoint.Env env,
+                @NonNull final ProjectAction request) {
+            Parameters.notNull("env", env); //NOI18N
+            Parameters.notNull("request", request); //NOI18N
+            this.env = env;
+            this.request = request;            
+            IORedirectProvider.bindEnv(this.env, this.request);
+            for (ProjectActionInterceptor interceptor : impls.allInstances()) {
+                interceptor.started(this.env, this.request);
+            }
+        }
+
+        @Override
+        protected void started() {
+        }
+
+        @Override
+        public void finished(boolean success) {
+            IORedirectProvider.unbindEnv();
+            for (ProjectActionInterceptor interceptor : impls.allInstances()) {
+                interceptor.finished(this.env, this.request, success);
+            }
+        }
+    }
 
 }
