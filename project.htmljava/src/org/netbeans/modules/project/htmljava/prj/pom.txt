@@ -143,6 +143,18 @@
           <build>
               <plugins>
                   <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <configuration>
+                          <compilerArguments>
+                              <bootclasspath>netbeans.ignore.jdk.bootclasspath</bootclasspath>
+                          </compilerArguments>
+                          <testExcludes>
+                              <exclude>**/JsInteractionTest*</exclude>
+                          </testExcludes>
+                      </configuration>
+                  </plugin>
+                  <plugin>
                       <groupId>org.apidesign.bck2brwsr</groupId>
                       <artifactId>bck2brwsr-maven-plugin</artifactId>
                       <version>${bck2brwsr.version}</version>
