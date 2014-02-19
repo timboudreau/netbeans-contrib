@@ -42,6 +42,7 @@
                             <folder name="java">
                                 <folder name="pkg">
                                     <file name="DataModelTest.java" url="prj/DataModelTest.src"/>
+                                    <file name="JsInteractionTest.java" url="prj/JsInteractionTest.src"/>
                                 </folder>
                             </folder>
                         </folder>
