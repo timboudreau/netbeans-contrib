@@ -178,28 +178,6 @@ public class WikiTask1151 implements WikiTasks {
         }
         e.removeAttr("id");
         return e.outerHtml();
-        //Matcher m = CONTENT_PATTERN.matcher(content);*/
-    /*     if (m.find()) {
-         String result = m.group(1);
-         result = result.replaceAll("<a href=\"/", "<a href=\"#");
-         result = result.replaceAll("<img.*?>", "<a href=\"" + getWebUrl() + "\" target=\"ext\"><i>[image - see online version]</i></a>");
-         result = result.replaceAll("</img>", "");
-         result = result.replaceAll("<h[123456]>", "<h5>");
-         result = result.replaceAll("</h[123456]>", "</h5>");
-         result = result.replaceAll("<hr\\s*?/>", "");
-
-         int ix = result.indexOf("<p><b><span style=\"color:#ff6633;\">Attachments</span></b>");
-         if (ix > 0) {
-         System.err.println("F" + title + url);
-         int newIx = result.lastIndexOf("<div", ix);
-         ix = newIx < 0 ? ix : newIx;
-         result = result.substring(0, ix);
-         }
-
-         return "<div class=\"itemBody\">" + result + "\n</div>";
-         } else {
-         return "[no content found]";
-         }*/
     }
 
 }
