@@ -1,0 +1,5 @@
+Faqsuck maven plugin
+
+Original idea is from Tim Boudreau and can be found in path other/faqsuck
+
+mvn clean install site is enough as plugin is configured on itself.
