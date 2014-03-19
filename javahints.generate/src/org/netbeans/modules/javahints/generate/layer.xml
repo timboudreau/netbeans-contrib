@@ -31,6 +31,10 @@
 		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB74" />
 		    <attr name="position" intvalue="74" />
 		</file>
+		<file name="NB80.hints" url="NB80.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB80" />
+		    <attr name="position" intvalue="80" />
+		</file>
 	    </folder>
         </folder>
         <folder name="errors">
@@ -41,6 +45,10 @@
 		<file name="ERR74.hints" url="ERR74.hints">
 		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB74" />
 		    <attr name="position" intvalue="74" />
+		</file>
+		<file name="ERR80.hints" url="ERR80.hints">
+		    <attr name="displayName" bundlevalue="org.netbeans.modules.javahints.generate.Bundle#DN_NB80" />
+		    <attr name="position" intvalue="80" />
 		</file>
 	    </folder>
         </folder>
