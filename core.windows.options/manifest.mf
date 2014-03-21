@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: org.netbeans.core.windows.options/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Install: org/netbeans/core/windows/options/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/core/windows/options/Bundle.properties
+
