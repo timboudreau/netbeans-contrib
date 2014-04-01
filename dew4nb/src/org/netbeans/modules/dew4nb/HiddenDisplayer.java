@@ -44,6 +44,8 @@ package org.netbeans.modules.dew4nb;
 
 import java.awt.Dialog;
 import java.awt.Frame;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.NonNull;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -56,15 +58,18 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service=DialogDisplayer.class, position = 1)
 public class HiddenDisplayer extends DialogDisplayer {
+    private static final Logger LOG = Logger.getLogger(HiddenDisplayer.class.getName());
 
     @NonNull
     @Override
     public Object notify(NotifyDescriptor descriptor) {
+        LOG.log(Level.INFO, "Supressing dialog: {0}", descriptor.getMessage());
         return NotifyDescriptor.YES_OPTION;
     }
 
     @Override    
     public Dialog createDialog(DialogDescriptor descriptor) {
+        LOG.log(Level.INFO, "Supressing dialog: {0}", descriptor.getMessage());
         return new Dialog((Frame)null) {
             @Override
             public void setVisible(boolean b) {
