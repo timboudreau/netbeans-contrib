@@ -42,11 +42,13 @@
 
 package org.netbeans.modules.dew4nb.services.debugger;
 
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.debugger.Breakpoint;
 import org.netbeans.api.debugger.DebuggerManager;
+import org.netbeans.api.debugger.jpda.JPDABreakpoint;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 import org.netbeans.modules.dew4nb.endpoint.BasicRequestHandler;
 import org.netbeans.modules.dew4nb.endpoint.RequestHandler;
@@ -87,6 +89,12 @@ public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, Debu
             }
             final DebuggerManager dbm = DebuggerManager.getDebuggerManager();
             for (Breakpoint bp : dbm.getBreakpoints()) {
+                if (bp instanceof JPDABreakpoint) {
+                    JPDABreakpoint jpdabp = (JPDABreakpoint) bp;
+                    if (jpdabp.isHidden()) {
+                        continue;
+                    }
+                }
                 dbm.removeBreakpoint(bp);
             }
             for (String line : request.getData()) {
