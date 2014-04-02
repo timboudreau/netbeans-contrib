@@ -47,6 +47,7 @@ import java.beans.Customizer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -75,6 +76,7 @@ import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.Exceptions;
 import org.openide.util.Parameters;
 
 /**
@@ -282,6 +284,15 @@ final class ActiveSessions {
                     throw new IllegalStateException("No workspace resolver.");  //NOI18N
                 }
                 final FileObject root = wr.resolveFile(ctx);
+                FileObject cannonRoot = null;
+                File rootF = FileUtil.toFile(root);
+                if (rootF != null) {
+                    try {
+                        cannonRoot = FileUtil.toFileObject(rootF.getCanonicalFile());
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
                 for (CallStackFrame csf : callStack) {
                     String relativePath;
                     try {
@@ -289,12 +300,24 @@ final class ActiveSessions {
                     } catch (AbsentInformationException e) {
                         relativePath = "<unknown>";
                     }
-                    final String surl = sourcePath.getURL (relativePath, true);
+                    String surl = sourcePath.getURL (relativePath, true);
+                    if (surl == null) {
+                        try {
+                            String sn = csf.getSourceName(null);
+                            if (sn.startsWith("file:/")) {
+                                surl = sn;
+                            }
+                        } catch (AbsentInformationException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
                     if (surl != null) {
                         try {
                            final FileObject fo = URLMapper.findFileObject(new java.net.URL(surl));
                            if (root != null && fo != null && FileUtil.isParentOf(root, fo)) {
                                relativePath = FileUtil.getRelativePath(root, fo);
+                           } else if (cannonRoot != null && fo != null && FileUtil.isParentOf(cannonRoot, fo)) {
+                               relativePath = FileUtil.getRelativePath(cannonRoot, fo);
                            }
                         } catch (java.net.MalformedURLException muex) {
                             LOG.log(
