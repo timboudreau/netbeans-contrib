@@ -105,11 +105,11 @@ public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, Debu
                     if (file != null) {
                         final String linesStr = line.substring(separator+1);
                         for (String lineStr : linesStr.split(":")) { //NOI18N
+                            final int lineNo = Integer.parseInt(lineStr);
                             try {
-                                final int lineNo = Integer.parseInt(lineStr);
-                                final LineBreakpoint lb = LineBreakpoint.create(file.toURL().toExternalForm(), lineNo);
-                                dbm.addBreakpoint(lb);
-                            } catch (NumberFormatException nfe) {
+                                Breakpoint b = createLineBreakpoint(file, lineNo);
+                                dbm.addBreakpoint(b);
+                            } catch (Exception nfe) {
                                 LOG.log(
                                     Level.WARNING,
                                     "Ignoring breakpoint(s) with wrong line number: {0}",   //NOI18N
@@ -132,6 +132,21 @@ public class SetBreakpointsHandler extends BasicRequestHandler<DebugAction, Debu
             status = Status.done;
         }
         return status;
+    }
+
+    private static Breakpoint createLineBreakpoint(final FileObject file, final int lineNo) 
+    throws Exception {
+        for (LineBreakpointProvider p : Lookup.getDefault().lookupAll(LineBreakpointProvider.class)) {
+            try {
+                Breakpoint b = p.createLineBreakpoint(file, lineNo);
+                if (b != null) {
+                    return b;
+                }
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "Can't set JavaScript breakpoint ", ex);
+            }
+        }
+        throw new Exception("Cannot find breakpoint for " + file + " and " + lineNo);
     }
 
 }
