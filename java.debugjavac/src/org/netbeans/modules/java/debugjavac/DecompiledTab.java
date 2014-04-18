@@ -477,14 +477,20 @@ public class DecompiledTab {
                 }
             });
 
-            try {
-                FileObject decompiledFO = NbEditorUtilities.getFileObject(doc);
-                SaveCookie sc = decompiledFO != null ? DataObject.find(decompiledFO).getLookup().lookup(SaveCookie.class) : null;
+            DECOMPILE_RUNNER.post(new Runnable() {
 
-                if (sc != null) sc.save();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+                @Override
+                public void run() {
+                    try {
+                        FileObject decompiledFO = NbEditorUtilities.getFileObject(doc);
+                        SaveCookie sc = decompiledFO != null ? DataObject.find(decompiledFO).getLookup().lookup(SaveCookie.class) : null;
+
+                        if (sc != null) sc.save();
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            });
         }
     }
 }
