@@ -50,26 +50,26 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.modules.dew4nb.spi.WorkspaceResolver;
 import org.netbeans.modules.parsing.api.Source;
-import org.openide.cookies.EditorCookie;
+import org.netbeans.modules.parsing.impl.SourceAccessor;
+import org.netbeans.modules.parsing.impl.SourceFlags;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.Parameters;
 import org.openide.util.Utilities;
@@ -118,6 +118,11 @@ public final class SourceProvider {
                     }
                 }
             });
+    //@GuardedBy("modifiedContent")
+    private final Map<FileObject, CharSequence> modifiedContent
+        = Collections.synchronizedMap(new HashMap<FileObject, CharSequence>());
+
+    private final FileChangeListener fileListener = new RepoFileListener();
     
 
     private SourceProvider() {
@@ -168,6 +173,11 @@ public final class SourceProvider {
     }
 
     @CheckForNull
+    CharSequence getContentFor(@NonNull final FileObject file) {
+        return modifiedContent.get(file);
+    }
+
+    @CheckForNull
     private FileObject createTempFile(String content) {
         FileObject file = null;
         if (content != null) {
@@ -204,41 +214,30 @@ public final class SourceProvider {
         if (tmpFile) {
             return;
         }
-        if (content == null) {
-            try {
-                final DataObject dobj = DataObject.find(source.getFileObject());
-                final EditorCookie ec = dobj.getLookup().lookup(EditorCookie.class);
-                if (ec != null) {
-                    final Document doc = ec.getDocument();
-                    if (doc != null) {
-                        ec.close();
-                    }
-                }
-            } catch (DataObjectNotFoundException nfe) {
-                LOG.log(
-                    Level.INFO,
-                    "Cannot find DataObject: {0}",  //NOI18N
-                    FileUtil.getFileDisplayName(source.getFileObject()));
-            }
-
+        final FileObject file = source.getFileObject();
+        boolean dirty = false;
+        if (content == null) {            
+            modifiedContent.remove(file);
+            dirty = true;
         } else {
-            final Document doc = source.getDocument(true);
-            NbDocument.runAtomic(
-                (StyledDocument)doc,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final String docContent = doc.getText(0, doc.getLength());
-                            if (!content.equals(docContent)) {
-                                doc.remove(0, doc.getLength());
-                                doc.insertString(0, content, null);
-                            }
-                        } catch (BadLocationException ble) {
-                            throw new IllegalStateException(ble);
-                        }
-                    }
-            });
+            synchronized(modifiedContent) {
+                final CharSequence origContent = modifiedContent.get(file);
+                if (origContent == null) {
+                    file.addFileChangeListener(fileListener);
+                    dirty = true;
+                } else if (!content.contentEquals(origContent)) {
+                    dirty = true;
+                }
+                if (dirty) {
+                    modifiedContent.put(file, content);
+                }
+            }
+        }
+        if (dirty) {
+            LOG.log(Level.FINE, "Dirty file: {0}", file);   //NOI18N
+            SourceAccessor.getINSTANCE().setFlags(
+                source,
+                EnumSet.of(SourceFlags.INVALID));
         }
     }
 
@@ -344,6 +343,33 @@ public final class SourceProvider {
                 "Clearing cache for permanent file: {0}",   //NOI18N
                 FileUtil.getFileDisplayName(this.file));
             active.remove(this.file);
+        }
+    }
+
+    private class RepoFileListener extends FileChangeAdapter {
+
+        @Override
+        public void fileChanged(FileEvent fe) {
+            handleChange(fe.getFile());
+        }
+
+        @Override
+        public void fileDeleted(FileEvent fe) {
+            handleChange(fe.getFile());
+        }
+
+        @Override
+        public void fileDataCreated(FileEvent fe) {
+            handleChange(fe.getFile());
+        }
+
+        private void handleChange (FileObject file) {
+            LOG.log(Level.FINE, "Clean file: {0}", file);   //NOI18N
+            synchronized (modifiedContent) {
+                if (modifiedContent.remove(file) != null) {
+                    file.removeFileChangeListener(fileListener);
+                }
+            }
         }
     }
 }
