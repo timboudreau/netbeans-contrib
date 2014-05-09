@@ -50,7 +50,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Gevik Babakhani <gevik@netbeans.org>
  */
 @ServiceProvider(service = Processor.class)
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class YiiExtensionRegistrationProcessor extends BaseRegistrationProcessor<YiiExtensionProvider, YiiExtensionProvider.Registration> {
 
     @Override
