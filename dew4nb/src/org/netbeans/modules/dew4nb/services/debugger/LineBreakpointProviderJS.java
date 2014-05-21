@@ -43,7 +43,6 @@
 package org.netbeans.modules.dew4nb.services.debugger;
 
 import java.net.URL;
-import java.util.logging.Level;
 import org.netbeans.api.debugger.Breakpoint;
 import org.openide.filesystems.FileObject;
 import org.openide.text.Line;
@@ -62,7 +61,7 @@ public final class LineBreakpointProviderJS implements LineBreakpointProvider {
         if (file.hasExt("js")) {
             ClassLoader l = Lookup.getDefault().lookup(ClassLoader.class);
             Class<?> fl = Class.forName("org.netbeans.modules.javascript2.debug.breakpoints.FutureLine", true, l);
-            Line ln = (Line) fl.getConstructor(URL.class, int.class).newInstance(file.toURL(), line);
+            Line ln = (Line) fl.getConstructor(URL.class, int.class).newInstance(file.toURL(), line - 1);
             Class<?> jslb = Class.forName("org.netbeans.modules.javascript2.debug.breakpoints.JSLineBreakpoint", true, l);
             return (Breakpoint) jslb.getConstructor(Line.class).newInstance(ln);
         }
