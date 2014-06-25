@@ -51,12 +51,13 @@ package org.netbeans.modules.cnd.debugger.gdbserver;
 import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
+import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerInfo;
 import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
 import org.netbeans.modules.cnd.debugger.common2.debugger.remote.CndRemote;
-import org.netbeans.modules.cnd.debugger.gdb2.GdbDebuggerInfo;
+import org.netbeans.modules.cnd.debugger.gdb2.options.GdbDebuggerInfoFactory;
 import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupport;
 import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
@@ -168,13 +169,8 @@ public class GdbServerAttachPanel extends JPanel implements HelpCtx.Provider {
                 dt.setExecutable(path);
 
                 // always use gdb
-                GdbDebuggerInfo gdi = GdbDebuggerInfo.create();
-                gdi.setDebugTarget(dt);
-                gdi.setHostName(CndRemote.userhostFromConfiguration(conf));
-                gdi.setConfiguration(conf);
-                gdi.setAction(NativeDebuggerManager.ATTACH);
-                gdi.setTargetCommand(targetValue);
-                
+                NativeDebuggerInfo gdi = GdbDebuggerInfoFactory.create(dt, 
+                        CndRemote.userhostFromConfiguration(conf), conf, NativeDebuggerManager.ATTACH, targetValue);                
                 NativeDebuggerManager.get().debugNoAsk(gdi);
 //                try {
 //                    GdbDebugger.attachGdbServer(target, pi.getProjectInformation());
