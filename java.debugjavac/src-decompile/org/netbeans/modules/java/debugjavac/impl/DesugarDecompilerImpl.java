@@ -108,9 +108,9 @@ public class DesugarDecompilerImpl implements Decompiler {
             Pair<Env<AttrContext>, JCClassDecl> first = queue.peek();
 
             if (first != null) {
-                if (first.fst.toplevel.pid != null) {
+                if (first.fst.toplevel.getPackageName() != null) {
                     out.write("package ");
-                    out.write(first.fst.toplevel.pid.toString());
+                    out.write(first.fst.toplevel.getPackageName().toString());
                     out.write(";\n\n");
                 }
 
