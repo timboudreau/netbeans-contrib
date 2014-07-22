@@ -49,6 +49,7 @@
 package org.netbeans.modules.cnd.debugger.gdbserver;
 
 import java.beans.PropertyChangeListener;
+import java.lang.invoke.MethodHandles;
 import javax.swing.JPanel;
 import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
 import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerInfo;
@@ -63,6 +64,7 @@ import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.spi.debugger.ui.Controller;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
 /**

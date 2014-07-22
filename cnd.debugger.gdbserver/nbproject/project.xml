@@ -20,7 +20,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.8.2</specification-version>
+                        <specification-version>1.22.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -47,7 +47,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <specification-version>2.0.0</specification-version>
+                        <specification-version>2.48.7</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -90,6 +90,14 @@
                     <compile-dependency/>
                     <run-dependency>
                         <specification-version>8.14</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.util.lookup</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>8.25</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
