@@ -70,6 +70,7 @@ import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.StatusDecorator;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
@@ -155,7 +156,7 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
         String s = super.getDisplayName ();
 
         try {            
-            s = file.getFileSystem ().getStatus ().annotateName (s, files);
+            s = file.getFileSystem ().getDecorator ().annotateName (s, files);
         } catch (FileStateInvalidException e) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
         }
@@ -165,17 +166,14 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
 
     public @Override String getHtmlDisplayName() {
          try {
-             FileSystem.Status stat = file.getFileSystem().getStatus();
-             if (stat instanceof FileSystem.HtmlStatus) {
-                 FileSystem.HtmlStatus hstat = (FileSystem.HtmlStatus) stat;
+             StatusDecorator stat = file.getFileSystem().getDecorator();
 
-                 String result = hstat.annotateNameHtml (
-                     super.getDisplayName(), files);
+             String result = stat.annotateNameHtml (
+                super.getDisplayName(), files);
 
-                 //Make sure the super string was really modified
-                 if (!super.getDisplayName().equals(result)) {
-                     return result;
-                 }
+             //Make sure the super string was really modified
+             if (result != null && !super.getDisplayName().equals(result)) {
+                 return result;
              }
          } catch (FileStateInvalidException e) {
              ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);

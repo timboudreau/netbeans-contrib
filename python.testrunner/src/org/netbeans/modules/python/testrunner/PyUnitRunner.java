@@ -52,6 +52,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.netbeans.modules.gsf.testrunner.api.TestSession.SessionType;
+import org.netbeans.modules.gsf.testrunner.ui.api.Manager;
 import org.netbeans.modules.python.api.PythonExecution;
 import org.netbeans.modules.python.api.PythonPlatform;
 import org.netbeans.modules.python.editor.codecoverage.PythonCoverageProvider;
@@ -62,7 +63,7 @@ import org.netbeans.modules.python.testrunner.ui.PyUnitHandlerFactory;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
-import org.openide.util.Utilities;
+import org.openide.util.BaseUtilities;
 
 /**
  * Test runner implmentation for running PyUnit tests
@@ -255,7 +256,7 @@ public final class PyUnitRunner implements TestRunner/*, RakeTaskCustomizer*/ {
         File pwd = FileUtil.toFile(project.getProjectDirectory());
 
             desc.setDisplayName(name);
-            desc.setScriptArgs(Utilities.escapeParameters(additionalArgs.toArray(new String[additionalArgs.size()])));
+            desc.setScriptArgs(BaseUtilities.escapeParameters(additionalArgs.toArray(new String[additionalArgs.size()])));
             desc.setWorkingDirectory(pwd.getAbsolutePath());
             desc.setCommand(platform.getInterpreterCommand());
             desc.setScript(getScript(RUNNER_SCRIPT_NAME).getAbsolutePath());
@@ -282,10 +283,10 @@ public final class PyUnitRunner implements TestRunner/*, RakeTaskCustomizer*/ {
                         desc.getDisplayName(), desc.getJavaPath(), desc.getPath(), desc.getScript(),
                         desc.getScriptArgs(), desc.getWorkingDirectory()});
             }
-
-        final TestSession session = new TestSession(name,
+        Manager.getInstance().setNodeFactory(new PythonTestRunnerNodeFactory());
+        final TestSession session = new TestSession(name, 
                 project,
-                debug ? SessionType.DEBUG : SessionType.TEST, new PythonTestRunnerNodeFactory());
+                debug ? SessionType.DEBUG : SessionType.TEST);
 
         TestExecutionManager.getInstance().start(desc, new PyUnitHandlerFactory(), session);
     }

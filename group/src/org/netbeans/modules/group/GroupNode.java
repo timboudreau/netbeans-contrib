@@ -106,7 +106,7 @@ public class GroupNode extends DataNode implements PropertyChangeListener {
                                     ? defaultDisplayName
                                     : ""});                             //NOI18N
         try {
-            displayName = fileObject.getFileSystem().getStatus().annotateName(
+            displayName = fileObject.getFileSystem().getDecorator().annotateName(
                     displayName,
                     dataObject.files());
 

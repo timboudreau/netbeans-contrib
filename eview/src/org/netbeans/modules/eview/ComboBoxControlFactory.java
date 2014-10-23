@@ -131,7 +131,7 @@ public class ComboBoxControlFactory implements ControlFactory {
             if (child.isData()) {
                 String displayName = child.getName();
                 try {
-                    displayName = child.getFileSystem ().getStatus ().annotateName(child.getName(), Collections.singleton(child));
+                    displayName = child.getFileSystem ().getDecorator ().annotateName(child.getName(), Collections.singleton(child));
                 } catch (Exception x) {
                     log.log(Level.WARNING, "display name cannot be annotated " + displayName, x); // NOI18N
                 }

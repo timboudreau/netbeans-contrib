@@ -43,9 +43,9 @@
 package org.netbeans.modules.python.testrunner;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.gsf.testrunner.api.TestRunnerNodeFactory;
+import org.netbeans.modules.gsf.testrunner.ui.api.TestRunnerNodeFactory;
 import org.netbeans.modules.gsf.testrunner.api.Testcase;
-import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
+import org.netbeans.modules.gsf.testrunner.ui.api.TestsuiteNode;
 import org.netbeans.modules.python.testrunner.ui.PythonCallstackFrameNode;
 import org.netbeans.modules.python.testrunner.ui.PythonTestMethodNode;
 import org.netbeans.modules.python.testrunner.ui.PythonTestsuiteNode;

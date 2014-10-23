@@ -30,7 +30,8 @@ import com.sun.source.util.Trees;
 import javax.lang.model.element.Element;
 import static org.netbeans.spi.editor.hints.ErrorDescriptionFactory.createErrorDescription;
 import com.sun.source.tree.Tree;
-import static org.netbeans.modules.editor.java.Utilities.isExcludeMethods;
+import static org.netbeans.modules.java.completion.Utilities.isExcludeMethods;
+import static org.netbeans.modules.java.completion.Utilities.isExcluded;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import java.util.Collections;
@@ -116,7 +117,7 @@ public class Excluded extends AbstractHint {
             default:
                 return null;
         }
-        if (fqn == null || fqn.length() == 0 || !Utilities.isExcluded(fqn)) {
+        if (fqn == null || fqn.length() == 0 || !isExcluded(fqn)) {
             return null;
         }
         CompilationUnitTree cu = ci.getCompilationUnit();

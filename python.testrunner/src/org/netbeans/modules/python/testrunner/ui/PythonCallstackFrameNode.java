@@ -44,8 +44,8 @@
 
 package org.netbeans.modules.python.testrunner.ui;
 import javax.swing.Action;
-import org.netbeans.modules.gsf.testrunner.api.CallstackFrameNode;
-import org.netbeans.modules.gsf.testrunner.api.DiffViewAction;
+import org.netbeans.modules.gsf.testrunner.ui.api.CallstackFrameNode;
+import org.netbeans.modules.gsf.testrunner.ui.api.DiffViewAction;
 import org.netbeans.modules.gsf.testrunner.api.Trouble.ComparisonFailure;
 import org.openide.util.actions.SystemAction;
 

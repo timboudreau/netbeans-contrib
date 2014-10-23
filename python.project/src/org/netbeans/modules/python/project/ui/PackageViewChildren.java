@@ -88,6 +88,8 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileUIUtils;
+import org.openide.filesystems.StatusDecorator;
 import org.openide.loaders.ChangeableDataFilter;
 import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataFolder;
@@ -925,9 +927,10 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             try {
                 FileObject fo = dataFolder.getPrimaryFile();
                 Set<FileObject> set = new NonRecursiveFolderSet(fo);
-                FileSystem.Status status = fo.getFileSystem().getStatus();
-                if (status instanceof FileSystem.HtmlStatus) {
-                    name = ((FileSystem.HtmlStatus) status).annotateNameHtml(name, set);
+                StatusDecorator status = fo.getFileSystem().getDecorator();
+                String htmlName = status.annotateNameHtml(name, set);
+                if (htmlName != null) {
+                    name = htmlName;
                 } else {
                     // #89138: return null if the name starts with '<' and status is not HtmlStatus
                     if (name.startsWith("<")) {
@@ -968,7 +971,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             try {
                 FileObject fo = dataFolder.getPrimaryFile();
                 Set<FileObject> set = new NonRecursiveFolderSet(fo);
-                img = fo.getFileSystem ().getStatus ().annotateIcon (img, type, set);
+                img = FileUIUtils.getImageDecorator(fo.getFileSystem ()).annotateIcon (img, type, set);
             } catch (FileStateInvalidException e) {
                 // no fs, do nothing
             }
@@ -982,7 +985,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             try {
                 FileObject fo = dataFolder.getPrimaryFile();
                 Set<FileObject> set = new NonRecursiveFolderSet(fo);
-                img = fo.getFileSystem ().getStatus ().annotateIcon (img, type, set);
+                img = FileUIUtils.getImageDecorator(fo.getFileSystem ()).annotateIcon (img, type, set);
             } catch (FileStateInvalidException e) {
                 // no fs, do nothing
             }

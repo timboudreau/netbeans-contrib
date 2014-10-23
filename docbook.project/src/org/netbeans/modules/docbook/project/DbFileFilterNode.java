@@ -100,7 +100,7 @@ public class DbFileFilterNode extends FilterNode {
                 nm : cachedName;
             FileObject ob = ((DataNode) getOriginal()).getDataObject().getPrimaryFile();
             try {
-                String nue = ob.getFileSystem().getStatus().annotateName(nm,
+                String nue = ob.getFileSystem().getDecorator().annotateName(nm,
                         Collections.singleton(ob));
                 result = nue.replace(nm, result);
             } catch (FileStateInvalidException ex) {
@@ -121,22 +121,13 @@ public class DbFileFilterNode extends FilterNode {
         }
         if (result != null) {
             try {
-                 FileSystem.Status stat =
-                     ob.getFileSystem().getStatus();
-                 if (stat instanceof FileSystem.HtmlStatus) {
-                     FileSystem.HtmlStatus hstat = (FileSystem.HtmlStatus) stat;
-
-                     String old = result;
-                     result = hstat.annotateNameHtml (
-                         result, Collections.singleton(ob));
-
-                     if (main) result = "<b>" + (result == null ? old : result);
-
-                     //Make sure the super string was really modified
-                     if (!super.getDisplayName().equals(result)) {
-                         return result;
-                     }
-                 }
+                String x = ob.getFileSystem().getDecorator().annotateNameHtml(
+                    result, Collections.singleton(ob));
+                if (main) result = "<b>" + (x == null ? result : x);
+                //Make sure the super string was really modified
+                if (result != null && !super.getDisplayName().equals(result)) {
+                    return result;
+                }
             } catch (FileStateInvalidException ex) {
                 ErrorManager.getDefault().notify(ex);
             }

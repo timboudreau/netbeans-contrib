@@ -208,7 +208,7 @@ public class GeneralAction {
         }
         
         try {
-            String actionName = fo.getFileSystem().getStatus().annotateName(
+            String actionName = fo.getFileSystem().getDecorator().annotateName(
                 fo.getNameExt(), Collections.singleton(fo)
             );
             return actionName;

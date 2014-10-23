@@ -165,7 +165,7 @@ class SubMenuCache {
         if (LOGGABLE) log.fine("scanFolder(" + folder.getPath() + ") START");
         String displayName = folder.getName();
         try {
-            displayName = folder.getFileSystem ().getStatus ().annotateName(folder.getName(), Collections.singleton(folder));
+            displayName = folder.getFileSystem ().getDecorator ().annotateName(folder.getName(), Collections.singleton(folder));
         } catch (Exception x) {
             log.log(Level.SEVERE, "", x);
         }

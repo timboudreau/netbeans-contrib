@@ -72,7 +72,7 @@ import org.w3c.dom.events.*;
  * to be encoded using UTF-8 encoding.
  * @author Jesse Glick, adapted by David Strupl
  */
-public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractFileSystem.Attr, AbstractFileSystem.Change, AbstractFileSystem.Info, AbstractFileSystem.List, AbstractFileSystem.Transfer, FileSystem.Status, FileChangeListener {
+public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractFileSystem.Attr, AbstractFileSystem.Change, AbstractFileSystem.Info, AbstractFileSystem.List, AbstractFileSystem.Transfer, StatusDecorator, FileChangeListener {
     
     private Document doc;
     private Date time;
@@ -1065,6 +1065,11 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
     public String annotateName(String name, java.util.Set files) {
         return name;
     }
+
+    public String annotateNameHtml(String name, java.util.Set files) {
+        return name;
+    }
+    
     
     private static void storeData (byte[] bdata, PrintWriter pw) throws IOException {
         char[] cdata = new char[BUFFSIZE];

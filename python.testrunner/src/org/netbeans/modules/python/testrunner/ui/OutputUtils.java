@@ -52,7 +52,7 @@ import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.spi.GsfUtilities;
 import org.netbeans.modules.gsf.testrunner.api.Report;
-import org.netbeans.modules.gsf.testrunner.api.TestsuiteNode;
+import org.netbeans.modules.gsf.testrunner.ui.api.TestsuiteNode;
 import org.netbeans.modules.python.api.FileLocation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;

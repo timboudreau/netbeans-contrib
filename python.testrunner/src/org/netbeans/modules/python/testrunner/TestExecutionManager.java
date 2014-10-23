@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
-import org.netbeans.modules.gsf.testrunner.api.Manager;
+import org.netbeans.modules.gsf.testrunner.ui.api.Manager;
 import org.netbeans.modules.gsf.testrunner.api.RerunHandler;
 import org.netbeans.modules.gsf.testrunner.api.RerunType;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;

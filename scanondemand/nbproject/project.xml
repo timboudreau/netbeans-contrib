@@ -6,11 +6,10 @@
             <code-name-base>org.netbeans.modules.scanondemand</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.parsing.api</code-name-base>
+                    <code-name-base>org.netbeans.modules.parsing.indexing</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>1</release-version>
                         <implementation-version/>
                     </run-dependency>
                 </dependency>

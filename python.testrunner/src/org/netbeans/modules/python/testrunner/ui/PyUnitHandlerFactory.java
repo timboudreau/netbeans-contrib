@@ -49,7 +49,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.netbeans.modules.gsf.testrunner.api.Manager;
+import org.netbeans.modules.gsf.testrunner.ui.api.Manager;
 import org.netbeans.modules.gsf.testrunner.api.TestSession;
 import org.netbeans.modules.gsf.testrunner.api.TestSuite;
 import org.netbeans.modules.gsf.testrunner.api.Testcase;

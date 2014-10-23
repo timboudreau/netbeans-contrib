@@ -150,7 +150,7 @@ public class Configuration {
         if (LOGGABLE) log.fine("scanFolder(" + folder.getPath() + ") START");
         container.displayName = folder.getName();
         try {
-            container.displayName = folder.getFileSystem ().getStatus ().annotateName(folder.getName(), Collections.singleton(folder));
+            container.displayName = folder.getFileSystem ().getDecorator ().annotateName(folder.getName(), Collections.singleton(folder));
         } catch (Exception x) {
             log.log(Level.WARNING, container.displayName, x);
         }

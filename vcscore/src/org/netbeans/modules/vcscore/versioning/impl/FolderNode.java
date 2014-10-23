@@ -188,7 +188,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         String s;
         try {
             Set target = Collections.singleton(file);
-            s = file.getFileSystem().getStatus().annotateName(file.getNameExt(), target);
+            s = file.getFileSystem().getDecorator().annotateName(file.getNameExt(), target);
         } catch (FileStateInvalidException exc) {
             s = super.getDisplayName();
         }
@@ -198,10 +198,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     public String getHtmlDisplayName() {
         try {
             Set target = Collections.singleton(file);
-            FileSystem.Status fsStatus = file.getFileSystem().getStatus();
-            if (fsStatus instanceof FileSystem.HtmlStatus) {
-                return ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(file.getNameExt(), target);
-            }
+            return file.getFileSystem().getDecorator().annotateNameHtml(file.getNameExt(), target);
         } catch (FileStateInvalidException exc) {
             // null bellow
         }
