@@ -70,10 +70,10 @@ made subject to such option by the copyright holder.
     This lowers the amount of changes in comparition
     from NetBeans 5.0 and concentrates them into relatively small, isolated
     area. The basic building block is 
-    <a href="@org-openide-util@/org/openide/util/Utilities.html#actionsGlobalContext()">
+    <a href="@org-openide-util-ui@/org/openide/util/Utilities.html#actionsGlobalContext()">
         Utilities.actionGlobalContext()
     </a> and 
-    <a href="@org-openide-util@/org/openide/util/ContextAwareAction.html">
+    <a href="@org-openide-util-ui@/org/openide/util/ContextAwareAction.html">
         ContextAwareAction
     </a> interface. These were introduced to solve focus problems when 
     creating pop up menus on window managers with other then click-to-focus
@@ -82,16 +82,16 @@ made subject to such option by the copyright holder.
     
     <p>
     One of the most important goals is to remove the need to work with
-    historic <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+    historic <a href="@org-openide-util-ui@/org/openide/util/actions/SystemAction.html">
         SystemAction
     </a> and subclasses. Beyond the fact the they are instances of
-    <a href="@org-openide-util@/org/openide/util/SharedClassObject.html">
+    <a href="@org-openide-util-ui@/org/openide/util/SharedClassObject.html">
         SharedClassObject
     </a> and such they have limited, complex and not very useful lifecycle
     management, they also rely on old and currently already obsolete concepts
     like <a href="@org-openide-nodes@/org/openide/nodes/Node.Cookie.html">Node.Cookie</a>.
     By using this module one does not need to care about the 
-    <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+    <a href="@org-openide-util-ui@/org/openide/util/actions/SystemAction.html">
         SystemAction
     </a> at all. A knowledge and understanding of 
     <a href="@org-openide-nodes@/org/openide/nodes/Node.Cookie.html">Node.Cookie</a>
@@ -141,7 +141,7 @@ made subject to such option by the copyright holder.
  <answer id="arch-time">
     <p>
     The main goal - e.g. no need to rely on 
-    <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+    <a href="@org-openide-util-ui@/org/openide/util/actions/SystemAction.html">
         SystemAction
     </a> - has to be achived in one release. Best in <b>promo-h</b>.
     The API is designed in extensible way and covered by tests, so 
@@ -378,7 +378,7 @@ made subject to such option by the copyright holder.
     <p>
         A module who wishes to expose a piece of data creates an interface
         in its API to encapsulate them and makes sure the interface get's exposed 
-        in <a href="@org-openide-util@/org/openide/util/Utilities.html#actionsGlobalContext()">
+        in <a href="@org-openide-util-ui@/org/openide/util/Utilities.html#actionsGlobalContext()">
         Utilities.actionGlobalContext()
         </a>. This can be done by putting the interface into 
         <a href="@org-openide-windows@/org/openide/windows/TopComponent.html#getLookup()">lookup</a>
@@ -944,7 +944,7 @@ JRE is enough.
         group="java"
         type="import"
         category="official"
-        url="@org-openide-util@/overview-summary.html"
+        url="@org-openide-util-ui@/overview-summary.html"
     /> the only one API that is really required.
 </answer>
 

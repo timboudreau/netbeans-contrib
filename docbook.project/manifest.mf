@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.docbook.project
 OpenIDE-Module-Install: org/netbeans/modules/docbook/project/Installer.class
 OpenIDE-Module-Layer: org/netbeans/modules/docbook/project/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/docbook/project/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.12
+OpenIDE-Module-Specification-Version: 1.13
 
