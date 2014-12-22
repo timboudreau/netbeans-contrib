@@ -1483,8 +1483,9 @@ class JPyDbg(BdbClone) :
             self.cmd = FREEZE
         elif ( string.upper(verb) == "BP-"):
             self.cmd = CLEAR_BP
-            arg , optarg = _utils.nextArg(arg) # split BP arguments
-            self.clear_break( arg , int(optarg) )
+            file , optarg = _utils.nextArg(arg)
+            line , optarg = _utils.nextArg(optarg)
+            self.clear_break( file, int(line) )
             self.cmd = FREEZE
         elif ( string.upper(verb) == "KILL"):
             self.cmd = QUIT
