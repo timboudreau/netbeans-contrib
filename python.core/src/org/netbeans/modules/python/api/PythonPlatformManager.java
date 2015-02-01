@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,7 +68,8 @@ public class PythonPlatformManager implements Serializable{
     private PythonPlatform getBundledPlatform() {
         PythonPlatform platform = new PythonPlatform(PLATFORM_ID_DEFAULT);
 
-        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.5.1", "org.jython", false); // NOI18N
+        File jythonInstall = new File("C:\\jython2.5.1"); // NOI18N
+//        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.5.1", "org.jython", false); // NOI18N
         if (!jythonInstall.exists()) {
             return null;
         }
@@ -396,7 +398,11 @@ public class PythonPlatformManager implements Serializable{
         }catch(PythonException ex){
             Exceptions.printStackTrace(ex);
             throw ex;
-        }catch(Exception ex){            
+        }catch(InterruptedException ex){            
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
         return platform;

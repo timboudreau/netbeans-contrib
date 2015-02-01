@@ -47,6 +47,7 @@ package org.netbeans.modules.python.qshell.richexecution;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
+import java.util.List;
 
 public interface PtyLibrary extends Library {
 
@@ -64,6 +65,11 @@ public interface PtyLibrary extends Library {
             this.ws_xpixel = (short) width;
             this.ws_ypixel = (short) height;
         }
+
+        @Override
+        protected List getFieldOrder() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
     }
 
     // struct termios
@@ -79,6 +85,11 @@ public interface PtyLibrary extends Library {
 
         public Termios() {
             c_cc = new byte[NCCS];
+        }
+
+        @Override
+        protected List getFieldOrder() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 

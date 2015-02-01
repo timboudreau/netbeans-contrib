@@ -460,7 +460,7 @@ public class PythonPlatformPanel extends javax.swing.JPanel {
                 //Exceptions.printStackTrace(ex);
             }catch(Exception ex){
                 NotifyDescriptor message = new Message(
-                        "Invalid Python Type", NotifyDescriptor.ERROR_MESSAGE); // was Invlaid and platform_info.py is NOT where expected
+                        "Invlaid Python Type", NotifyDescriptor.ERROR_MESSAGE);
                 DialogDisplayer.getDefault().notify(message);
             }
         }
