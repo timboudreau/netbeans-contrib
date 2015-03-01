@@ -5,8 +5,9 @@
 <#assign licensePrefix = "# ">
 <#include "../Licenses/license-${project.license}.txt">
 
-__author__="${user}"
-__date__ ="$${date} ${time}$"
-
 if __name__ == "__main__":
+<#if python3style?? && python3style>
+    print("Hello World")
+<#else>
     print "Hello World"
+</#if>

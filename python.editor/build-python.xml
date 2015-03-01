@@ -87,7 +87,8 @@ made subject to such option by the copyright holder.
         </subant>
     </target>
 
-    <target name="everything" depends="gsf,python"/>
+<!--    <target name="everything" depends="gsf,python"/>-->
+    <target name="everything" depends="python"/>
 
     <target name="clean">
         <ant dir="${nbroot}/nbbuild" target="init"/>

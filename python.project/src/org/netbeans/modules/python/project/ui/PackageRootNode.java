@@ -155,7 +155,7 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
     public @Override String getDisplayName() {
         String s = super.getDisplayName ();
 
-        try {            
+        try {
             s = file.getFileSystem ().getDecorator ().annotateName (s, files);
         } catch (FileStateInvalidException e) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
