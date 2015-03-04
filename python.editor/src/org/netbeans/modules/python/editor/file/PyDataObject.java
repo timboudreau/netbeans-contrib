@@ -23,7 +23,8 @@ import org.openide.windows.TopComponent;
 @MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_Py_LOADER",
         mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE,
-        extension = {"py"}
+        extension = {"py"},
+        position = 183
 )
 @DataObject.Registration(
         mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE,
