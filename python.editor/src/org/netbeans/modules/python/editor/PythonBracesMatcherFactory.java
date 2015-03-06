@@ -38,10 +38,10 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 import org.netbeans.spi.editor.bracesmatching.support.BracesMatcherSupport;
 
 /**
- *
+ * 
  * @author Ralph Benjamin Ruijs <ralphbenjamin@netbeans.org>
  */
-@MimeRegistration(mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE, service = BracesMatcherFactory.class)
+@MimeRegistration(mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE, service = BracesMatcherFactory.class, position = 80)
 public class PythonBracesMatcherFactory implements BracesMatcherFactory {
 
     @Override
