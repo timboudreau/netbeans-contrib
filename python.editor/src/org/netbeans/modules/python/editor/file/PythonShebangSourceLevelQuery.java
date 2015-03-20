@@ -10,9 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 import javax.swing.event.ChangeListener;
+import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.ChangeSupport;
@@ -44,7 +46,7 @@ public class PythonShebangSourceLevelQuery implements SourceLevelQueryImplementa
         private ResultImpl(FileObject pythonFile) {
             this.pythonFile = pythonFile;
             this.pythonFile.addFileChangeListener(this);
-            this.fileChanged(null);
+            this.fileChanged(new FileEvent(pythonFile, pythonFile, true));
         }
 
         @Override
@@ -58,14 +60,27 @@ public class PythonShebangSourceLevelQuery implements SourceLevelQueryImplementa
 
         @Override
         public void fileChanged(FileEvent fe) {
-            if (pythonFile.isValid()) {
+            FileObject file = fe.getFile();
+            if (file.isValid()) {
+                FileLock lock;
+                try {
+                    lock = file.lock();
+                } catch (FileAlreadyLockedException e) {
+                    return;
+                } catch (IOException ex) {
+                    return;
+                }
                 String shebang = null;
-                try (Scanner sc = new Scanner(pythonFile.getInputStream())) {
-                    if (sc.hasNextLine()) {
-                        shebang = sc.nextLine();
+                try {
+                    try (Scanner sc = new Scanner(file.getInputStream())) {
+                        if (sc.hasNextLine()) {
+                            shebang = sc.nextLine();
+                        }
+                    } catch (FileNotFoundException ex) {
+                        // ignore
                     }
-                } catch (FileNotFoundException ex) {
-                    Exceptions.printStackTrace(ex);
+                } finally {
+                    lock.releaseLock();
                 }
                 processShebang(shebang);
             }
