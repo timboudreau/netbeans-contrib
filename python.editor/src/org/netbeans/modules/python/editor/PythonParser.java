@@ -134,6 +134,9 @@ public class PythonParser extends Parser {
         context.caretOffset = GsfUtilities.getLastKnownCaretOffset(snapshot, event);
         context.source = snapshot.getText().toString();
         context.file = snapshot.getSource().getFileObject();
+        if(context.file == null) {
+            return; // TODO: parse the source, not the file
+        }
         /* Let's not sanitize ;-) Would be great if we could have a more robust parser
         if (context.caretOffset != -1) {
             context.sanitized = Sanitize.EDITED_DOT;
