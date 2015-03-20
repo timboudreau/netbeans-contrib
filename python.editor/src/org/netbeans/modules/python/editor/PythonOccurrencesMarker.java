@@ -113,43 +113,50 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
     }
 
     @Override
-    public void run(PythonParserResult info, SchedulerEvent event) {
+    public void run(final PythonParserResult info, SchedulerEvent event) {
         resume();
 
         if (isCancelled()) {
             return;
         }
 
-        PythonTree root = PythonAstUtils.getRoot(info);
+        final PythonTree root = PythonAstUtils.getRoot(info);
         if (root == null) {
             return;
         }
 
-        int astOffset = PythonAstUtils.getAstOffset((ParserResult) info, caretPosition);
+        final int astOffset = PythonAstUtils.getAstOffset((ParserResult) info, caretPosition);
         if (astOffset == -1) {
             return;
         }
 
         //PythonTree closest = PythonPositionManager.findClosest(root, astOffset);
-        AstPath path = AstPath.get(root, astOffset);
+        final AstPath path = AstPath.get(root, astOffset);
         if (path == null) {
             return;
         }
-        PythonTree closest = path.leaf();
         OffsetRange blankRange = info.getSanitizedRange();
 
+        final PythonTree closest;
         if (blankRange.containsInclusive(astOffset)) {
             closest = null;
+        } else {
+            closest = path.leaf();
         }
-
+        
         Document document = info.getSnapshot().getSource().getDocument(false);
         if (document == null) {
             return;
         }
 
-        Set<OffsetRange> offsets = null;
 
-        BaseDocument doc = (BaseDocument)document;
+        final BaseDocument doc = (BaseDocument)document;
+        doc.render(new Runnable() {
+
+            @Override
+            public void run() {
+        Set<OffsetRange> offsets = null;
+           
         TokenSequence<? extends PythonTokenId> ts = PythonLexerUtils.getPositionedSequence(doc, caretPosition);
         if (ts != null && ts.token().id() == PythonTokenId.COMMENT) {
             TokenSequence<PythonCommentTokenId> embedded = ts.embedded(PythonCommentTokenId.language());
@@ -278,6 +285,8 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
         }
 
         setHighlights(offsets);
+            }
+        });
     }
 
     private void setHighlights(Set<OffsetRange> offsets) {
