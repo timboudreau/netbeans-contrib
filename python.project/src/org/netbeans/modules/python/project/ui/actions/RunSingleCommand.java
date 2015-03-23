@@ -31,7 +31,6 @@ import org.openide.util.Lookup;
  * @author alley
  */
 public class RunSingleCommand extends Command {
-    PythonPlatformManager manager = PythonPlatformManager.getInstance();
     protected boolean isTest;
 
     public RunSingleCommand(PythonProject project, boolean isTest) {
