@@ -31,6 +31,7 @@
 package org.netbeans.modules.python.editor;
 
 import java.io.File;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.python.editor.hints.PythonHintsProvider;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
@@ -47,6 +48,7 @@ import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.csl.spi.LanguageRegistration;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
+import org.netbeans.modules.parsing.spi.indexing.PathRecognizerRegistration;
 import org.netbeans.modules.python.api.PythonMIMEResolver;
 import org.netbeans.modules.python.editor.lexer.PythonTokenId;
 import org.openide.filesystems.FileObject;
@@ -59,6 +61,7 @@ import org.openide.modules.InstalledFileLocator;
  * @author Tor Norbye
  */
 @LanguageRegistration(mimeType=PythonMIMEResolver.PYTHON_MIME_TYPE)
+@PathRecognizerRegistration(mimeTypes = PythonMIMEResolver.PYTHON_MIME_TYPE, sourcePathIds = ClassPath.SOURCE, binaryLibraryPathIds = ClassPath.BOOT)
 public class PythonLanguage extends DefaultLanguageConfig {
     private static FileObject jsStubsFO;
 
