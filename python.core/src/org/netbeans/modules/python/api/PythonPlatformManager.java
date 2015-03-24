@@ -69,8 +69,8 @@ public class PythonPlatformManager implements Serializable{
     private PythonPlatform getBundledPlatform() {
         PythonPlatform platform = new PythonPlatform(PLATFORM_ID_DEFAULT);
 
-        File jythonInstall = new File("C:\\jython2.5.1"); // NOI18N
-//        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.5.1", "org.jython", false); // NOI18N
+//        File jythonInstall = new File("C:\\jython2.5.1"); // NOI18N
+        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.5.1", "org.jython", false); // NOI18N
         if (!jythonInstall.exists()) {
             return null;
         }
