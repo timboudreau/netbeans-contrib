@@ -254,6 +254,7 @@ public class PythonProject2 implements Project {
 
         public Properties findProjectProperties() {
             Properties props = new Properties();
+            String strMessage;
             PythonPlatform platform = PythonPlatformManager.getInstance().getPlatforms().get(0);
             PythonExecution pye;
             try {
@@ -284,7 +285,8 @@ public class PythonProject2 implements Project {
                         props.setProperty(PROP_VERSION, newVersion);
                     }
                 } else {
-                    throw new PythonException("Could not discover Python Project Info");
+                    strMessage = "Could not discover Python Project Info in " + pye.getWorkingDirectory();
+                    throw new PythonException( strMessage);
                 }
             } catch (PythonException | InterruptedException | ExecutionException | IOException ex) {
                 Exceptions.printStackTrace(ex);
