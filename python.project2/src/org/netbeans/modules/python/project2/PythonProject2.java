@@ -11,6 +11,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import static org.netbeans.api.project.ProjectInformation.PROP_DISPLAY_NAME;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.python.api.PythonException;
@@ -61,6 +62,7 @@ public class PythonProject2 implements Project {
     private static final String MAIN_MODULE = "main.file"; //NOI18N
     private static final String APPLICATION_ARGS = "application.args";   //NOI18N
     private static final String ACTIVE_PLATFORM = "platform.active"; //NOI18N
+    private static final String PROP_VERSION = "version";
     public static final String SOURCES_TYPE_PYTHON = "python"; //NOI18N
     static final String SETUPPY = "setup.py"; //NOI18N
 
@@ -72,7 +74,7 @@ public class PythonProject2 implements Project {
     private final PropertyChangeSupport support;
     private final PythonSources sources;
 
-    public PythonProject2(FileObject projectDirectory, ProjectState state) {
+    public PythonProject2(FileObject projectDirectory, ProjectState state) throws PythonException {
         support = new PropertyChangeSupport(this);
         this.logicalView = new Python2LogicalView(this);
         this.projectDirectory = projectDirectory;
@@ -200,16 +202,65 @@ public class PythonProject2 implements Project {
             }
         });
     }
+    
+    private static Properties findProjectProperties(FileObject projectDirectory, FileChangeListener listener) throws PythonException {
+        Properties props = new Properties();
+        PythonPlatform platform = PythonPlatformManager.getInstance().getPlatforms().get(0);
+        PythonExecution pye;
+        try {
+            pye = new PythonExecution();
+            pye.setCommand(platform.getInterpreterCommand());
+            pye.setDisplayName("Python Project Info");
+            FileObject setuppy = projectDirectory.getFileObject(SETUPPY);
+            if(listener != null) {
+                setuppy.addFileChangeListener(listener);
+            }
+            pye.setScript(FileUtil.toFile(setuppy).getAbsolutePath());
+            pye.setScriptArgs("--name --version"); //NOI18N
+            pye.setShowControls(false);
+            pye.setShowInput(false);
+            pye.setShowWindow(false);
+            pye.setShowProgress(false);
+            pye.setShowSuspended(false);
+            //pye.setWorkingDirectory(info.getAbsolutePath().substring(0, info.getAbsolutePath().lastIndexOf(File.separator)));
+            pye.setWorkingDirectory(FileUtil.toFile(projectDirectory).getAbsolutePath());
+            pye.attachOutputProcessor();
+            Future<Integer> result = pye.run();
+            Integer value = result.get();
+            if (value == 0) {
+                // Problem with encoding?
+//                    prop.load(new ReaderInputStream(pye.getOutput()));
+                try (Scanner sc = new Scanner(new ReaderInputStream(pye.getOutput()))) {
+                    String newName = sc.nextLine();
+                    props.setProperty(PROP_DISPLAY_NAME, newName);
+                    String newVersion = sc.nextLine();
+                    props.setProperty(PROP_VERSION, newVersion);
+                }
+            } else {
+                throw new PythonException("Could not discover Python Project Info");
+            }
+        } catch (InterruptedException | ExecutionException | IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return props;
+    }
+    
+    public static boolean isProject(FileObject projectDirectory) {
+        try {
+            return projectDirectory.getFileObject(PythonProject2.SETUPPY) != null &&
+                    findProjectProperties(projectDirectory, null) != null;
+        } catch (PythonException ex) {
+            return false;
+        }
+    }
 
     private final class Info implements ProjectInformation, FileChangeListener {
-
-        private static final String PROP_VERSION = "version";
 
         private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
         private final Properties properties;
 
-        public Info() {
-            properties = findProjectProperties();
+        public Info() throws PythonException {
+            properties = findProjectProperties(projectDirectory, this);
         }
 
         @Override
@@ -252,46 +303,6 @@ public class PythonProject2 implements Project {
             return PythonProject2.this;
         }
 
-        public Properties findProjectProperties() {
-            Properties props = new Properties();
-            PythonPlatform platform = PythonPlatformManager.getInstance().getPlatforms().get(0);
-            PythonExecution pye;
-            try {
-                pye = new PythonExecution();
-                pye.setCommand(platform.getInterpreterCommand());
-                pye.setDisplayName("Python Project Info");
-                FileObject setuppy = projectDirectory.getFileObject(SETUPPY);
-                setuppy.addFileChangeListener(this);
-                pye.setScript(FileUtil.toFile(setuppy).getAbsolutePath());
-                pye.setScriptArgs("--name --version"); //NOI18N
-                pye.setShowControls(false);
-                pye.setShowInput(false);
-                pye.setShowWindow(false);
-                pye.setShowProgress(false);
-                pye.setShowSuspended(false);
-                //pye.setWorkingDirectory(info.getAbsolutePath().substring(0, info.getAbsolutePath().lastIndexOf(File.separator)));
-                pye.setWorkingDirectory(FileUtil.toFile(projectDirectory).getAbsolutePath());
-                pye.attachOutputProcessor();
-                Future<Integer> result = pye.run();
-                Integer value = result.get();
-                if (value.intValue() == 0) {
-                    // Problem with encoding?
-//                    prop.load(new ReaderInputStream(pye.getOutput()));
-                    try (Scanner sc = new Scanner(new ReaderInputStream(pye.getOutput()))) {
-                        String newName = sc.nextLine();
-                        props.setProperty(PROP_DISPLAY_NAME, newName);
-                        String newVersion = sc.nextLine();
-                        props.setProperty(PROP_VERSION, newVersion);
-                    }
-                } else {
-                    throw new PythonException("Could not discover Python Project Info");
-                }
-            } catch (PythonException | InterruptedException | ExecutionException | IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            return props;
-        }
-
         @Override
         public void fileFolderCreated(FileEvent fe) {
         }
@@ -306,13 +317,17 @@ public class PythonProject2 implements Project {
 
                 @Override
                 public Void run() {
-                    Properties newProps = findProjectProperties();
-                    for (String propName : newProps.stringPropertyNames()) {
-                        String value = newProps.getProperty(propName);
-                        Object oldValue = properties.setProperty(propName, value);
-                        if (!value.equals(oldValue)) {
-                            propertyChangeSupport.firePropertyChange(propName, oldValue, value);
+                    try {
+                        Properties newProps = findProjectProperties(projectDirectory, Info.this);
+                        for (String propName : newProps.stringPropertyNames()) {
+                            String value = newProps.getProperty(propName);
+                            Object oldValue = properties.setProperty(propName, value);
+                            if (!value.equals(oldValue)) {
+                                propertyChangeSupport.firePropertyChange(propName, oldValue, value);
+                            }
                         }
+                    } catch (PythonException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
                     return null;
                 }
