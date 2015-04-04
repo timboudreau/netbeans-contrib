@@ -237,7 +237,7 @@ public class PythonProject2 implements Project {
                     props.setProperty(PROP_VERSION, newVersion);
                 }
             } else {
-                throw new PythonException("Could not discover Python Project Info");
+                throw new PythonException("Could not discover Python Project Info in " + pye.getWorkingDirectory());
             }
         } catch (InterruptedException | ExecutionException | IOException ex) {
             Exceptions.printStackTrace(ex);
