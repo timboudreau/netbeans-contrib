@@ -28,7 +28,7 @@ public class PythonExecutionTest extends NbTestCase{
         PythonExecution pyexec = new PythonExecution();
         pyexec.setDisplayName("Python Console Test");
         pyexec.setWorkingDirectory(getDataSourceDir().getAbsolutePath());
-        pyexec.setCommand("/usr/bin/python");
+        pyexec.setCommand("/usr/bin/python2");
         pyexec.setScript(getTestFile("HelloWorld.py").getAbsolutePath());            
         pyexec.setCommandArgs("-u");
         Future<Integer> result  =  pyexec.run();
@@ -37,7 +37,7 @@ public class PythonExecutionTest extends NbTestCase{
     }
     
     public void testPythonWriter() throws Exception{
-        String command = "/usr/bin/python";
+        String command = "/usr/bin/python2";
         PythonPlatform platform = new PythonPlatform("testid");
         PythonExecution pye = new PythonExecution();
         pye.setCommand(command);
@@ -65,7 +65,7 @@ public class PythonExecutionTest extends NbTestCase{
 
     }
     public void testPythonPath() throws Exception{
-        String command = "/usr/bin/python";
+        String command = "/usr/bin/python2";
         PythonPlatform platform = new PythonPlatform("testid");
         PythonExecution pye = new PythonExecution();
         pye.setCommand(command);
