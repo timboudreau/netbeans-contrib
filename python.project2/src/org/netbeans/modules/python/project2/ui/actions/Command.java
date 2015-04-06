@@ -106,11 +106,11 @@ public abstract class Command {
      * @param project current project
      * @return JavaPath fileList for jython CLASSPATH command
      */
-//    protected ArrayList<String> buildJavaPath( PythonPlatform platform , PythonProject2 project ) {
-//      final ArrayList<String> javaPath = new ArrayList<String>() ;
-//      // start with platform
-//      javaPath.addAll(platform.getJavaPath());
+    protected ArrayList<String> buildJavaPath( PythonPlatform platform , PythonProject2 project ) {
+      final ArrayList<String> javaPath = new ArrayList<>() ;
+      // start with platform
+      javaPath.addAll(platform.getJavaPath());
 //      javaPath.addAll(getProperties().getJavaPath());
-//      return javaPath ;
-//    }
+      return javaPath ;
+    }
 }

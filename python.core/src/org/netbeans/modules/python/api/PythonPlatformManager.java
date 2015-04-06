@@ -70,7 +70,7 @@ public class PythonPlatformManager implements Serializable{
         PythonPlatform platform = new PythonPlatform(PLATFORM_ID_DEFAULT);
 
 //        File jythonInstall = new File("C:\\jython2.5.1"); // NOI18N
-        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.5.1", "org.jython", false); // NOI18N
+        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.7.0-rc1", "org.jython", false); // NOI18N
         if (!jythonInstall.exists()) {
             return null;
         }
@@ -90,7 +90,7 @@ public class PythonPlatformManager implements Serializable{
         // % cd o.jython && ant
         // % ./release/jython-2.5.1/bin/jython ../python.core/release/platform_info.py
         // and then updating properties below
-        platform.setName("Jython 2.5.1"); // NOI18N
+        platform.setName("Jython 2.7.0-rc1"); // NOI18N
         String jythonInstallDir = jythonInstall.getPath();
         platform.addPythonPath(new String[] { jythonInstallDir + File.separator + "Lib",
            jythonInstallDir + File.separator + "Lib" + File.separator + "site-packages" });

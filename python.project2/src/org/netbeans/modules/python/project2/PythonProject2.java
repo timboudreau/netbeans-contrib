@@ -205,7 +205,8 @@ public class PythonProject2 implements Project {
     
     private static Properties findProjectProperties(FileObject projectDirectory, FileChangeListener listener) throws PythonException {
         Properties props = new Properties();
-        PythonPlatform platform = PythonPlatformManager.getInstance().getPlatforms().get(0);
+        final PythonPlatformManager manager = PythonPlatformManager.getInstance();
+        PythonPlatform platform = manager.getPlatform(manager.getDefaultPlatform());
         PythonExecution pye;
         try {
             pye = new PythonExecution();

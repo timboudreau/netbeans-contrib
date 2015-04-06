@@ -86,7 +86,7 @@ public class RunCommand extends Command {
         //build path & set
         //build path & set
         pyexec.setPath(PythonPlatform.buildPath(super.buildPythonPath(platform, pyProject)));
-//        pyexec.setJavaPath(PythonPlatform.buildPath(super.buildJavaPath(platform, pyProject)));
+        pyexec.setJavaPath(PythonPlatform.buildPath(super.buildJavaPath(platform, pyProject)));
         pyexec.setShowControls(true);
         pyexec.setShowInput(true);
         pyexec.setShowWindow(true);

@@ -166,8 +166,10 @@ public final class PythonExecution {
 //                    processBuilder = processBuilder.addArgument(commandPath);
                      processBuilder =
                             processBuilder.addEnvironmentVariable("JYTHONPATH", path);
-                     processBuilder =
-                            processBuilder.addEnvironmentVariable("CLASSPATH", javapath);
+                     if(javapath != null) {
+                        processBuilder =
+                               processBuilder.addEnvironmentVariable("CLASSPATH", javapath);
+                     }
                 }else{
                     processBuilder =
                             processBuilder.addEnvironmentVariable("PYTHONPATH", path);
