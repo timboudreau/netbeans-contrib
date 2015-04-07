@@ -46,10 +46,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.util.Utilities;
 
 /**
  *
  * @author alley
+ * @author Lou Dasaro
  */
 public class PythonAutoDetector {
     private Logger LOGGER = Logger.getLogger(PythonAutoDetector.class.getName());
@@ -71,17 +73,25 @@ public class PythonAutoDetector {
                 name = dir.getName();
                 ext = "";
             }
-            if((name.equalsIgnoreCase("jython") ||
-                    name.equalsIgnoreCase("python")) && 
-                    (ext.equalsIgnoreCase("") ||
-                    ext.equalsIgnoreCase("exe") ||
-                    ext.equalsIgnoreCase("bat"))){
-                matches.add(dir.getAbsolutePath());
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
+            if( name.equalsIgnoreCase("jython") || name.equalsIgnoreCase("python")) {
+                if (Utilities.isWindows()){
+                    if (ext.equalsIgnoreCase("exe") || ext.equalsIgnoreCase("bat")) {
+                        matches.add(dir.getAbsolutePath());
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
+                        }
+                    }
+                } else { // Not Windows, for Mac and Unix-like systems...
+                    if (ext.equalsIgnoreCase("")) {
+                        matches.add(dir.getAbsolutePath());
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
+                        }                        
+                    }
                 }
             }
         }
+        
         if(dir.isDirectory()){
             if(dir.getName().toLowerCase().contains("jython") ||
                     dir.getName().toLowerCase().contains("python")){

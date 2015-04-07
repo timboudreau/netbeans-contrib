@@ -313,7 +313,10 @@ public class PythonPlatformManager implements Serializable{
 
     public List<PythonPlatform> getPlatforms(){
         List<PythonPlatform> list = new ArrayList<PythonPlatform>(platforms.values());
-        Collections.sort(list);
+        int i = list.size(); // for debugging when a bad list was persisted...
+        if( i > 1){
+            Collections.sort(list);
+        }
 
         return list;
     }
@@ -370,7 +373,9 @@ public class PythonPlatformManager implements Serializable{
             pye.setShowProgress(false);
             pye.setShowSuspended(false);
             //pye.setWorkingDirectory(info.getAbsolutePath().substring(0, info.getAbsolutePath().lastIndexOf(File.separator)));
-            pye.setWorkingDirectory(info.getAbsoluteFile().getParent());
+            //pye.setWorkingDirectory(info.getAbsoluteFile().getParent()); // Wrong, because in the case of Jython, CWD must contain the related Jar!
+            // so copy the path from cmd - probably should account for "split" (above)
+            pye.setWorkingDirectory( cmd.substring(0, cmd.lastIndexOf(File.separator)));
             pye.attachOutputProcessor();
             Future<Integer> result = pye.run();
             Integer value = result.get();
@@ -408,11 +413,13 @@ public class PythonPlatformManager implements Serializable{
                 }
                 platforms.put(platform.getId(), platform);
             }else{
-                throw new PythonException("Could not discover Python properties");
+                // throw new PythonException("Could not discover Python properties");
+                LOGGER.log(Level.SEVERE, "Could not discover Python properties in ", cmd);
+                return (PythonPlatform) null;
             }
-        }catch(PythonException ex){
-            Exceptions.printStackTrace(ex);
-            throw ex;
+//        }catch(PythonException ex){
+//            Exceptions.printStackTrace(ex);
+//            throw ex;
         }catch(InterruptedException ex){            
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
@@ -443,11 +450,16 @@ public class PythonPlatformManager implements Serializable{
             PythonAutoDetector ad = new PythonAutoDetector();
 
             // TODO - Shouldn't we search the user's $PATH/%Path% instead of the below?
+            // perhaps in addition to, but not "instead of"
             if (Utilities.isWindows()) {
                 ad.traverse(new File("c:/"), false);
                 ad.traverse(new File("c:/program files"), false);
-            }else{
-                ad.traverse(new File("/usr/bin"), false);
+            }else{ 
+                if(Utilities.isMac()){
+                    ad.traverse(new File("/usr/bin"), false); // placeholder for someone to insert correct locations for MAC
+                }else{                
+                    ad.traverse(new File("/usr/bin"), false); // for all other (probably Unix-like) systems
+                }
             }
 
             for(String path : ad.getMatches()){
