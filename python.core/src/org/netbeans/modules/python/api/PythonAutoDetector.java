@@ -78,15 +78,22 @@ public class PythonAutoDetector {
                     if (ext.equalsIgnoreCase("exe") || ext.equalsIgnoreCase("bat")) {
                         matches.add(dir.getAbsolutePath());
                         if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
+                            LOGGER.log(Level.FINE, "Match (Windows): " + dir.getAbsolutePath());
                         }
                     }
-                } else { // Not Windows, for Mac and Unix-like systems...
+                } else if(Utilities.isMac()) {
                     if (ext.equalsIgnoreCase("")) {
                         matches.add(dir.getAbsolutePath());
                         if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "Match: " + dir.getAbsolutePath());
-                        }                        
+                            LOGGER.log(Level.FINE, "Match (Mac): " + dir.getAbsolutePath());
+                        }
+                    }
+                } else { // Not Windows or Mac, must be Unix-like system...
+                    if (ext.equalsIgnoreCase("")) {
+                        matches.add(dir.getAbsolutePath());
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE, "Match (Unix-like): " + dir.getAbsolutePath());
+                        }                     
                     }
                 }
             }
