@@ -1,18 +1,17 @@
 #!/bin/sh
 
 repository=https://bitbucket.org/jython/jython
-target=jython-2.7.0-rc1.zip
-dist=jython-2.7.0-rc1
+target=jython-2.7.0-rc3.zip
+dist=jython-2.7.0-rc3
 location=jython
 
-hg clone $repository
+hg clone --rev v2.7rc3 $repository
 cd $location
-hg update v2.7rc1
+
 # Note - need both ant calls
 ant
 ant jar-complete
-# Nuke SVN stuff
-#find . -type d -name .svn -exec rm -rf {} \; 
+
 rm -f ../$target
 mv dist $dist
 curl https://pypi.python.org/packages/source/s/setuptools/setuptools-15.0.zip -O
@@ -27,4 +26,3 @@ echo `openssl dgst -sha1 $target | awk '{ print toupper($2) }'` $target > binari
 echo "Cleaning up"
 rm -rf "$location"
 echo "Done."
-

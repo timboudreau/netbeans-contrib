@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.netbeans.modules.python.api;
 
 import java.beans.PropertyVetoException;
@@ -13,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +32,8 @@ import org.openide.util.io.ReaderInputStream;
  *
  * @author alley
  */
-public class PythonPlatformManager implements Serializable{
+public class PythonPlatformManager implements Serializable {
+
     private static final String PLATFORM_ID_DEFAULT = "default";
     private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
 
@@ -55,7 +50,8 @@ public class PythonPlatformManager implements Serializable{
     private HashMap<String, PythonPlatform> platforms;
     private String defaultPlatform;
     private volatile boolean autoDetecting;
-    private PythonOptions options = PythonOptions.getInstance();
+    private final PythonOptions options = PythonOptions.getInstance();
+
     /**
      * The PythonPlatformManager is a singleton
      */
@@ -69,8 +65,9 @@ public class PythonPlatformManager implements Serializable{
     private PythonPlatform getBundledPlatform() {
         PythonPlatform platform = new PythonPlatform(PLATFORM_ID_DEFAULT);
 
-//        File jythonInstall = new File("C:\\jython2.5.1"); // NOI18N
-        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.7.0-rc1", "org.jython", false); // NOI18N
+        //TODO: 1. Do not hard-code platforms versions.
+        //		2. Shouldn't Platform Manager go into python.platform?
+        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.7.0-rc3", "org.jython", false); // NOI18N
         if (!jythonInstall.exists()) {
             return null;
         }
@@ -90,7 +87,7 @@ public class PythonPlatformManager implements Serializable{
         // % cd o.jython && ant
         // % ./release/jython-2.5.1/bin/jython ../python.core/release/platform_info.py
         // and then updating properties below
-        platform.setName("Jython 2.7.0-rc1"); // NOI18N
+        platform.setName("Jython 2.7.0-rc3"); // NOI18N
         String jythonInstallDir = jythonInstall.getPath();
         platform.addPythonPath(new String[] { jythonInstallDir + File.separator + "Lib",
            jythonInstallDir + File.separator + "Lib" + File.separator + "site-packages" });
@@ -119,7 +116,6 @@ public class PythonPlatformManager implements Serializable{
 
     /**
      * Load Platform data from xml
-     * @return Status of load operation
      */
     public void load(){
         platforms = new HashMap<String, PythonPlatform>();
@@ -188,6 +184,7 @@ public class PythonPlatformManager implements Serializable{
 
             if (Util.isFirstPlatformTouch()) {
                 RequestProcessor.getDefault().post(new Runnable() {
+                    @Override
                     public void run() {
                         synchronized(PythonPlatformManager.this) {
                             autoDetect();
@@ -217,6 +214,7 @@ public class PythonPlatformManager implements Serializable{
         }
         try {
             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                @Override
                 public Void run() throws IOException {
                     EditableProperties props = PropertyUtils.getGlobalProperties();
                     clearProperties(platform, props);
@@ -229,7 +227,7 @@ public class PythonPlatformManager implements Serializable{
             throw (IOException) e.getException();
         }
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("PythonPlatform stored: " + platform);
+            LOGGER.log(Level.FINE, "PythonPlatform stored: {0}", platform);
         }
     }
 
@@ -263,7 +261,7 @@ public class PythonPlatformManager implements Serializable{
         props.setProperty(interpreterKey, interpreter.getAbsolutePath());
         if (!interpreter.isFile()) {
             //throw new FileNotFoundException(interpreter.getAbsolutePath());
-            LOGGER.log(Level.WARNING, "Interpreter isn't file: " + interpreter.getAbsolutePath());
+            LOGGER.log(Level.WARNING, "Interpreter isn''t file: {0}", interpreter.getAbsolutePath());
             return;
         }
         String idDot = id + '.';
@@ -306,7 +304,10 @@ public class PythonPlatformManager implements Serializable{
         return platforms.get(name);
     }
 
-    /** @todo Rename to getPlatformNameList? */
+    /**
+     * @return  
+     * @todo Rename to getPlatformNameList?
+     */
     public List<String> getPlatformList(){
         return new ArrayList<String>(platforms.keySet());
     }
@@ -379,7 +380,7 @@ public class PythonPlatformManager implements Serializable{
             pye.attachOutputProcessor();
             Future<Integer> result = pye.run();
             Integer value = result.get();
-            if(value.intValue() == 0){
+            if(value == 0){
                 Properties prop = new Properties();
                 prop.load(new ReaderInputStream(pye.getOutput()));
                 // @@@Jean-Yves fix : assume that cmd is the python command
@@ -408,7 +409,7 @@ public class PythonPlatformManager implements Serializable{
                     List<String> list = discoverJythonClasspath(platform.getInterpreterCommand());
                     platform.setJavaPath(list.toArray(new String[list.size()]));
                 }
-                if(platforms.size() == 0){
+                if(platforms.isEmpty()){
                     setDefaultPlatform(platform.getId());
                 }
                 platforms.put(platform.getId(), platform);

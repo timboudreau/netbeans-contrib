@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.netbeans.modules.python.api;
 
 import java.awt.Color;
@@ -65,7 +60,7 @@ public class PythonOptions {
         while (!found && token.hasMoreTokens() ){
             String tempToken = token.nextToken();
             if(tempToken.contains(pattern) || tempToken.contains(pattern.toLowerCase()) ){
-                defaultPython = tempToken + File.separator + "jython-2.7.0-rc1" // XXX: Hardcoded? 
+                defaultPython = tempToken + File.separator + "jython-2.7.0-rc3" // XXX: Hardcoded? 
                         + File.separator + "bin" + File.separator + "jython";
                 if (System.getProperty("os.name").toLowerCase().contains("windows")){
                     defaultPython += ".bat";
@@ -78,7 +73,6 @@ public class PythonOptions {
                 }
                     
                 found = true;
-                //System.out.println(defaultPython);
             }
         }
     }
@@ -246,7 +240,7 @@ public class PythonOptions {
                 br.close();
             } catch (FileNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
-            }catch(IOException ex){
+            } catch(IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
             
