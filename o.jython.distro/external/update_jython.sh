@@ -5,7 +5,7 @@ target=jython-2.7.0-rc3.zip
 dist=jython-2.7.0-rc3
 location=jython
 
-hg clone --rev v2.7rc3 $repository
+hg clone --rev v2.7rc3 $repository $location
 cd $location
 
 # Note - need both ant calls
