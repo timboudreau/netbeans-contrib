@@ -70,7 +70,7 @@ public final class CompilePathImplementation implements ClassPathImplementation,
 
     CompilePathImplementation(final PythonProject2 project) {
         assert project != null;
-        FileObject fo = project.getProjectDirectory();;
+        FileObject fo = project.getProjectDirectory();
         assert fo != null;
         this.projectFolder = FileUtil.toFile(fo);
         assert projectFolder != null;
