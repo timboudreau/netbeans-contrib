@@ -443,7 +443,7 @@ public class FmtOptions {
             {cleanupUnusedImports, IMP_LEAVE_ALONE},
             {separateFromImps, FALSE},};
 
-        defaults = new HashMap<String, String>();
+        defaults = new HashMap<>();
 
         for (java.lang.String[] strings : defaultValues) {
             defaults.put(strings[0], strings[1]);
@@ -470,7 +470,7 @@ public class FmtOptions {
         private final String previewText;
         private final String id;
         protected final JPanel panel;
-        private final List<JComponent> components = new LinkedList<JComponent>();
+        private final List<JComponent> components = new LinkedList<>();
         private JEditorPane previewPane;
         private final Preferences preferences;
         private final Preferences previewPrefs;
@@ -523,24 +523,29 @@ public class FmtOptions {
         }
 
         // ActionListener implementation ---------------------------------------
+        @Override
         public void actionPerformed(ActionEvent e) {
             notifyChanged();
         }
 
         // DocumentListener implementation -------------------------------------
+        @Override
         public void insertUpdate(DocumentEvent e) {
             notifyChanged();
         }
 
+        @Override
         public void removeUpdate(DocumentEvent e) {
             notifyChanged();
         }
 
+        @Override
         public void changedUpdate(DocumentEvent e) {
             notifyChanged();
         }
 
         // PreviewProvider methods -----------------------------------------------------
+        @Override
         public JComponent getPreviewComponent() {
             if (previewPane == null) {
                 previewPane = new JEditorPane();
@@ -553,6 +558,7 @@ public class FmtOptions {
             return previewPane;
         }
 
+        @Override
         public void refreshPreview() {
             JEditorPane jep = (JEditorPane)getPreviewComponent();
             try {
@@ -667,10 +673,8 @@ public class FmtOptions {
                 }
             } catch (DataObjectNotFoundException dof) {
                 Exceptions.printStackTrace(dof);
-            } catch (IOException ioe) {
+            } catch (IOException | BadLocationException ioe) {
                 Exceptions.printStackTrace(ioe);
-            } catch (BadLocationException ex) {
-                Exceptions.printStackTrace(ex);
             }
 
             if (tmpFo != null) {
@@ -690,18 +694,22 @@ public class FmtOptions {
         }
 
         // PreferencesCustomizer implementation --------------------------------
+        @Override
         public JComponent getComponent() {
             return panel;
         }
 
+        @Override
         public String getDisplayName() {
             return panel.getName();
         }
 
+        @Override
         public String getId() {
             return id;
         }
 
+        @Override
         public HelpCtx getHelpCtx() {
             return null;
         }
@@ -720,10 +728,11 @@ public class FmtOptions {
                 this.forcedOptions = forcedOptions;
             }
 
+            @Override
             public PreferencesCustomizer create(Preferences preferences) {
                 try {
                     return new CategorySupport(preferences, id, panelClass.newInstance(), previewText, forcedOptions);
-                } catch (Exception e) {
+                } catch (IllegalAccessException | InstantiationException e) {
                     return null;
                 }
             }
@@ -902,45 +911,54 @@ public class FmtOptions {
     }
 
     public static class PreviewPreferences extends AbstractPreferences {
-        private Map<String, Object> map = new HashMap<String, Object>();
+        private Map<String, Object> map = new HashMap<>();
 
         public PreviewPreferences() {
             super(null, ""); // NOI18N
         }
 
+        @Override
         protected void putSpi(String key, String value) {
             map.put(key, value);
         }
 
+        @Override
         protected String getSpi(String key) {
             return (String)map.get(key);
         }
 
+        @Override
         protected void removeSpi(String key) {
             map.remove(key);
         }
 
+        @Override
         protected void removeNodeSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected String[] keysSpi() throws BackingStoreException {
             String array[] = new String[map.keySet().size()];
             return map.keySet().toArray(array);
         }
 
+        @Override
         protected String[] childrenNamesSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected AbstractPreferences childSpi(String name) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected void syncSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected void flushSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -955,10 +973,12 @@ public class FmtOptions {
             this.delegates = delegates;
         }
 
+        @Override
         protected void putSpi(String key, String value) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected String getSpi(String key) {
             for (Preferences p : delegates) {
                 String value = p.get(key, null);
@@ -969,34 +989,41 @@ public class FmtOptions {
             return null;
         }
 
+        @Override
         protected void removeSpi(String key) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected void removeNodeSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected String[] keysSpi() throws BackingStoreException {
-            Set<String> keys = new HashSet<String>();
+            Set<String> keys = new HashSet<>();
             for (Preferences p : delegates) {
                 keys.addAll(Arrays.asList(p.keys()));
             }
             return keys.toArray(new String[keys.size()]);
         }
 
+        @Override
         protected String[] childrenNamesSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected AbstractPreferences childSpi(String name) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected void syncSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         protected void flushSpi() throws BackingStoreException {
             throw new UnsupportedOperationException("Not supported yet.");
         }

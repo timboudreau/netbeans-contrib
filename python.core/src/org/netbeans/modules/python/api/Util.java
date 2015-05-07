@@ -100,7 +100,7 @@ public final class Util {
 
     // Tested in PythonUtilsTest
     public static List<FileObject> findUniqueRoots(List<FileObject> originalRoots) {
-        List<FileObject> roots = new ArrayList<FileObject>(originalRoots);
+        List<FileObject> roots = new ArrayList<>(originalRoots);
         int n = roots.size();
         if (n > 1) {
             for (int i = 0; i < n; i++) {
@@ -123,7 +123,7 @@ public final class Util {
             }
         }
 
-        List<FileObject> uniqueRoots = new ArrayList<FileObject>();
+        List<FileObject> uniqueRoots = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             FileObject fo = roots.get(i);
             if (fo != null) {

@@ -41,6 +41,7 @@
  */
 package org.netbeans.modules.python.debugger.actions;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.python.api.PythonOptions;
 import org.netbeans.modules.python.debugger.DebuggerPythonLogger;
@@ -130,6 +131,7 @@ public class JpyDbgView extends TopComponent
    * a debugging event is coming from JpyDbg kernel : handle it inside netbeans
    * debugger's structure
    */
+  @Override
   public void newDebuggingEvent(PluginEvent evt) {
     if (_dbgInstance != null) {
       _dbgInstance.handleDebuggerEvent(evt);
@@ -224,7 +226,7 @@ public class JpyDbgView extends TopComponent
     } else {
       try {
         SwingUtilities.invokeAndWait(new _AWT_DEBUG_OPEN_THREAD_(this, _title));
-      } catch (Exception e) {
+      } catch (InterruptedException | InvocationTargetException e) {
         e.printStackTrace();
       }
 

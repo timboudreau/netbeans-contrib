@@ -181,6 +181,7 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
          return super.getHtmlDisplayName();
     }
 
+    @Override
     public void run() {
         if (iconChange) {
             fireIconChange();
@@ -193,6 +194,7 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
         }
     }
 
+    @Override
     public void annotationChanged(FileStatusEvent event) {
         if (task == null) {
             task = RequestProcessor.getDefault().create(this);
@@ -258,20 +260,19 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
                 MultiTransferObject mto = (MultiTransferObject) t.getTransferData(ExTransferable.multiFlavor);
-                List<PackageViewChildren.PackageNode> l = new ArrayList<PackageViewChildren.PackageNode>();
+                List<PackageViewChildren.PackageNode> l = new ArrayList<>();
                 boolean isPackageFlavor = false;
                 boolean hasTheSameRoot = false;
                 int op = -1;
                 for (int i=0; i < mto.getCount(); i++) {
                     Transferable pt = mto.getTransferableAt(i);
                     DataFlavor[] flavors = mto.getTransferDataFlavors(i);
-                    for (int j=0; j< flavors.length; j++) {
-                        if (PackageViewChildren.SUBTYPE.equals(flavors[j].getSubType ()) &&
-                                PackageViewChildren.PRIMARY_TYPE.equals(flavors[j].getPrimaryType ())) {
+                    for (DataFlavor flavor : flavors) {
+                        if (PackageViewChildren.SUBTYPE.equals(flavor.getSubType()) && PackageViewChildren.PRIMARY_TYPE.equals(flavor.getPrimaryType())) {
                             if (op == -1) {
-                                op = Integer.valueOf (flavors[j].getParameter (PackageViewChildren.MASK)).intValue ();
+                                op = Integer.valueOf(flavor.getParameter(PackageViewChildren.MASK));
                             }
-                            PackageViewChildren.PackageNode pkgNode = (PackageViewChildren.PackageNode) pt.getTransferData(flavors[j]);
+                            PackageViewChildren.PackageNode pkgNode = (PackageViewChildren.PackageNode)pt.getTransferData(flavor);
                             if ( !((PackageViewChildren)getChildren()).getRoot().equals( pkgNode.getRoot() ) ) {
                                 l.add(pkgNode);
                             }
@@ -290,9 +291,7 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
                 else if (!isPackageFlavor) {
                     list.addAll( Arrays.asList( getDataFolderNodeDelegate().getPasteTypes( t ) ) );
                 }
-            } catch (UnsupportedFlavorException e) {
-                ErrorManager.getDefault().notify(e);
-            } catch (IOException e) {
+            } catch (UnsupportedFlavorException | IOException e) {
                 ErrorManager.getDefault().notify(e);
             }
         }
@@ -311,11 +310,8 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
                             if ( !((PackageViewChildren)getChildren()).getRoot().equals( pkgNode.getRoot() ) ) {
                                 list.add(new PackageViewChildren.PackagePasteType (root, new PackageViewChildren.PackageNode[] {pkgNode}, op));
                             }
-                        } catch (IOException ioe) {
+                        } catch (IOException | UnsupportedFlavorException ioe) {
                             ErrorManager.getDefault().notify(ioe);
-                        }
-                        catch (UnsupportedFlavorException ufe) {
-                            ErrorManager.getDefault().notify(ufe);
                         }
                     }
                 }
@@ -463,10 +459,12 @@ final class PackageRootNode extends AbstractNode implements Runnable, FileStatus
             this.delegate = delegate;
         }
 
+        @Override
         public boolean canSearch() {
             return true;
         }
 
+        @Override
         public Iterator<DataObject> objectsToSearch() {
             return delegate.objectsToSearch();
         }

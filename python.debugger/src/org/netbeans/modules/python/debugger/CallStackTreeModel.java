@@ -76,7 +76,7 @@ public class CallStackTreeModel
     private static final String _SHORT_DESCRIPTION_ = "Python stack";
     private PythonDebugger _debugger;
     private ContextProvider _lookupProvider;
-    private Vector<ModelListener> _listeners = new Vector<ModelListener>();
+    private Vector<ModelListener> _listeners = new Vector<>();
     private StackInfo _selectedStack = null;
 
     /** Creates a new instance of CallStackTreeModel */
@@ -90,6 +90,7 @@ public class CallStackTreeModel
      *
      * @return the translated root node of the tree or null
      */
+    @Override
     public Object getRoot() {
         return ROOT;
     }
@@ -99,6 +100,7 @@ public class CallStackTreeModel
      *
      * @param l the listener to add
      */
+    @Override
     public void addModelListener(ModelListener l) {
         _listeners.add(l);
         // provide a way to get called back by Python debugger
@@ -110,20 +112,22 @@ public class CallStackTreeModel
      *
      * @param l the listener to remove
      */
+    @Override
     public void removeModelListener(ModelListener l) {
         _listeners.remove(l);
         _debugger.removeStackListChangeListener(this);
     }
 
+    @Override
     public void fireContextChanged() {
-        Object[] ls;
+        ModelListener[] ls;
         synchronized (_listeners) {
-            ls = _listeners.toArray();
+            ls = _listeners.toArray(new ModelListener[_listeners.size()]);
         }
         ModelEvent ev = new ModelEvent.TreeChanged(this);
-        for (int i = 0; i < ls.length; i++) {
-            ((ModelListener) ls[i]).modelChanged(ev);
-        }
+      for (ModelListener l : ls) {
+        l.modelChanged(ev);
+      }
     }
 
     /**
@@ -136,6 +140,7 @@ public class CallStackTreeModel
      * @throws UnknownTypeException if this TreeModel implementation is not able
      *                              to resolve children for given node type
      */
+    @Override
     public int getChildrenCount(Object node) throws UnknownTypeException {
         if (node.equals(ROOT)) {
             return _debugger.getStackSize();
@@ -151,6 +156,7 @@ public class CallStackTreeModel
      *          is not able to resolve actions for given node type
      * @return  display name for given node
      */
+    @Override
     public Action[] getActions(Object node)
             throws UnknownTypeException {
         return new Action[]{};
@@ -198,6 +204,7 @@ public class CallStackTreeModel
      *          is not able to resolve actions for given node type
      * @return  display name for given node
      */
+    @Override
     public void performDefaultAction(Object node)
             throws UnknownTypeException {
         if (node instanceof StackInfo) {
@@ -217,6 +224,7 @@ public class CallStackTreeModel
      * @return true if node is leaf
      *
      */
+    @Override
     public boolean isLeaf(Object node) {
         if (node == ROOT) {
             return false;
@@ -237,6 +245,7 @@ public class CallStackTreeModel
      * @throws UnknownTypeException   if this TreeModel implementation is not able
      *                                to resolve dchildren for given node type
      */
+    @Override
     public Object[] getChildren(Object parent, int from, int to)
             throws UnknownTypeException {
         if (parent.equals(ROOT)) {
@@ -247,13 +256,16 @@ public class CallStackTreeModel
     }
 
     /** unused */
+    @Override
     public void setValueAt(Object node, String ColumnID, Object value) {
     }
 
+    @Override
     public boolean isReadOnly(Object node, String columnID) {
         return true;
     }
 
+    @Override
     public Object getValueAt(Object node, String columnID)
             throws UnknownTypeException {
         if (columnID.equals(  Constants.CALL_STACK_FRAME_LOCATION_COLUMN_ID ) ) {
@@ -265,6 +277,7 @@ public class CallStackTreeModel
         return "";
     }
 
+    @Override
     public String getShortDescription(Object node) {
         return _SHORT_DESCRIPTION_;
     }
@@ -278,6 +291,7 @@ public class CallStackTreeModel
      *          able to resolve display name for given node type
      * @return  display name for given node
      */
+    @Override
     public String getDisplayName(Object node)
             throws UnknownTypeException {
         if (node == ROOT) {
@@ -298,6 +312,7 @@ public class CallStackTreeModel
      *          able to resolve icon for given node type
      * @return  icon for given node
      */
+    @Override
     public String getIconBase(Object node)
             throws UnknownTypeException {
         if (node == ROOT) {

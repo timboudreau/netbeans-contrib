@@ -130,7 +130,7 @@ public class ExtractCode extends PythonSelectionRule {
             range = new OffsetRange(dot, dot);
         }
 
-        List<HintFix> fixList = new ArrayList<HintFix>(3);
+        List<HintFix> fixList = new ArrayList<>(3);
         if ((applicability & INTRODUCE_METHOD) != 0) {
             fixList.add(new ExtractCodeFix(context, start, end, INTRODUCE_METHOD));
         }
@@ -151,34 +151,42 @@ public class ExtractCode extends PythonSelectionRule {
         }
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(ExtractCode.class, "ExtractCode");
     }
 
+    @Override
     public String getId() {
         return "ExtractCode"; // NOI18N
     }
 
+    @Override
     public String getDescription() {
         return "";
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean showInTasklist() {
         return false;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.CURRENT_LINE_WARNING;
     }
@@ -206,6 +214,7 @@ public class ExtractCode extends PythonSelectionRule {
             this.type = type;
         }
 
+        @Override
         public String getDescription() {
             switch (type) {
             case INTRODUCE_VARIABLE:
@@ -221,10 +230,12 @@ public class ExtractCode extends PythonSelectionRule {
             }
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             BaseDocument doc = context.doc;
             PythonParserResult info = (PythonParserResult) context.parserResult;
@@ -278,8 +289,8 @@ public class ExtractCode extends PythonSelectionRule {
 
             InputOutputFinder finder = new InputOutputFinder(startNode, endNode, Collections.<PythonTree>emptyList());
             finder.traverse(localScope);
-            List<String> inParams = new ArrayList<String>(finder.getInputVars());
-            List<String> outParams = new ArrayList<String>(finder.getOutputVars());
+            List<String> inParams = new ArrayList<>(finder.getInputVars());
+            List<String> outParams = new ArrayList<>(finder.getOutputVars());
             Collections.sort(inParams);
             Collections.sort(outParams);
 
@@ -459,6 +470,7 @@ public class ExtractCode extends PythonSelectionRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList();
 
@@ -467,7 +479,7 @@ public class ExtractCode extends PythonSelectionRule {
             // Refactoring isn't necessary here since local variables and block
             // variables are limited to the local scope, so we can accurately just
             // find their positions using the AST and let the user edit them synchronously.
-            Set<OffsetRange> ranges = new HashSet<OffsetRange>();
+            Set<OffsetRange> ranges = new HashSet<>();
             int length = newName.length();
             ranges.add(new OffsetRange(finalCallSiteOffset, finalCallSiteOffset + length));
             ranges.add(new OffsetRange(finalExtractedSiteOffset, finalExtractedSiteOffset + length));
@@ -476,10 +488,12 @@ public class ExtractCode extends PythonSelectionRule {
             EditRegions.getInstance().edit(context.parserResult.getSnapshot().getSource().getFileObject(), ranges, finalExtractedSiteOffset);
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

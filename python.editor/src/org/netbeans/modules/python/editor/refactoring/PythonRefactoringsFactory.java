@@ -57,6 +57,7 @@ import org.openide.util.Lookup;
  * @author Jan Becicka
  */
 public class PythonRefactoringsFactory implements RefactoringPluginFactory {
+    @Override
     public RefactoringPlugin createInstance(AbstractRefactoring refactoring) {
         Lookup look = refactoring.getRefactoringSource();
         FileObject file = look.lookup(FileObject.class);

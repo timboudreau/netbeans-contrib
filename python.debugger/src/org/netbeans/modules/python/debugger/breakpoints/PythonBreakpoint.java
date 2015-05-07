@@ -76,6 +76,7 @@ public class PythonBreakpoint
    *
    * @return <code>true</code> if so
    */
+  @Override
   public boolean isEnabled() {
     return _enabled;
 
@@ -88,6 +89,7 @@ public class PythonBreakpoint
   /**
    * Disables the breakpoint.
    */
+  @Override
   public void disable() {
     if (!_enabled) {
       return;
@@ -112,6 +114,7 @@ public class PythonBreakpoint
   /**
    * Enables the breakpoint.
    */
+  @Override
   public void enable() {
     if (_enabled) {
       return;

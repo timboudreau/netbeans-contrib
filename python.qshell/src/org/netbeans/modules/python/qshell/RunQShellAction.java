@@ -55,6 +55,7 @@ import org.openide.util.NbBundle;
 
 public final class RunQShellAction implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         JButton runButton = new JButton();

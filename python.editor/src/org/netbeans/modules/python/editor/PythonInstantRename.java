@@ -55,6 +55,7 @@ import org.python.antlr.ast.Name;
  */
 public class PythonInstantRename implements InstantRenamer {
     
+    @Override
     public boolean isRenameAllowed(ParserResult info, int caretOffset, String[] explanationRetValue) {
         if (findVarName(info, caretOffset) != null) {
             return true;
@@ -107,6 +108,7 @@ public class PythonInstantRename implements InstantRenamer {
         return null;
     }
 
+    @Override
     public Set<OffsetRange> getRenameRegions(ParserResult info, int caretOffset) {
         TokenSequence<PythonCommentTokenId> embedded = findVarName(info, caretOffset);
         if (embedded != null) {

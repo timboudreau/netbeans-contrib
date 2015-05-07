@@ -37,7 +37,7 @@ public class PythonTemplateAttributesProvider implements CreateFromTemplateAttri
         }
         
         FileObject targetFO = target.getPrimaryFile();
-        Map<String,Object> result = new HashMap<String,Object>();
+        Map<String,Object> result = new HashMap<>();
         
         ClassPath cp = ClassPath.getClassPath(targetFO, ClassPath.SOURCE);
         if (cp == null) {

@@ -213,6 +213,7 @@ public class PythonVariableTreeTable
       return pathName.toString();
     }
 
+    @Override
     public void treeExpanded(TreeExpansionEvent evt) {
       System.out.println("expending tree node");
       TreePath candidate = evt.getPath();
@@ -238,6 +239,7 @@ public class PythonVariableTreeTable
       return false;
     }
 
+    @Override
     public void treeCollapsed(TreeExpansionEvent evt) {
       System.out.println("collapsing tree node");
       TreePath candidate = evt.getPath();
@@ -246,6 +248,7 @@ public class PythonVariableTreeTable
       _expanded.remove(pathName);
     }
 
+    @Override
     public void callbackWithValuesSet(TreeMap values, TreeMap types) {
       System.out.println("comming back from valuation");
       setNodeValue(_curNode, values, types);
@@ -317,8 +320,8 @@ public class PythonVariableTreeTable
     }
     PythonVariableTreeDataNode children[] = node.get_children();
     if (children != null) {
-      for (int ii = 0; ii < children.length; ii++) {
-        checkExpanded(children[ii]);
+      for (PythonVariableTreeDataNode child : children) {
+        checkExpanded(child);
       }
     }
   }

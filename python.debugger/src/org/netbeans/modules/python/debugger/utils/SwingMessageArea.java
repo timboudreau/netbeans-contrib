@@ -45,6 +45,7 @@ import javax.swing.text.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.InvocationTargetException;
 
 /**
 
@@ -119,6 +120,7 @@ public class SwingMessageArea
         JMenuItem mi = _popup.add(new JMenuItem("clear message area"));
         mi.addActionListener(new ActionListener() {
 
+          @Override
           public void actionPerformed(ActionEvent ev) {
             clearScreen();
           }
@@ -129,6 +131,7 @@ public class SwingMessageArea
                 KeyEvent.VK_C, ActionEvent.CTRL_MASK));
         mi1.addActionListener(new ActionListener() {
 
+          @Override
           public void actionPerformed(ActionEvent ev) {
             _textPane.copy();
           }
@@ -188,7 +191,7 @@ public class SwingMessageArea
 
   private void populateStyle(Style style, Font f, Color c) {
     style.addAttribute(StyleConstants.Foreground, c);
-    style.addAttribute(StyleConstants.FontSize, new Integer((f.getSize())));
+    style.addAttribute(StyleConstants.FontSize, (f.getSize()));
     style.addAttribute(StyleConstants.FontFamily, f.getFamily());
   }
 
@@ -326,7 +329,7 @@ public class SwingMessageArea
     try {
       SwingUtilities.invokeAndWait(inserter);
       _observer.setTimeStamp();
-    } catch (Exception e) {
+    } catch (InterruptedException | InvocationTargetException e) {
       e.printStackTrace();
     }
   }
@@ -646,6 +649,7 @@ public class SwingMessageArea
         _message = message;
       }
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         _message.error("test new error message insert");
       }
@@ -659,6 +663,7 @@ public class SwingMessageArea
         _message = message;
       }
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         _message.clearScreen();
       }
@@ -672,6 +677,7 @@ public class SwingMessageArea
         _message = message;
       }
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         long started = System.currentTimeMillis();
         _message.removeFirstLine();

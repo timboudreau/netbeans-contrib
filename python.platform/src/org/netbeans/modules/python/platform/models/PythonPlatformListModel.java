@@ -18,10 +18,12 @@ public class PythonPlatformListModel extends AbstractListModel {
     private PythonPlatformManager manager = PythonPlatformManager.getInstance();
     private List<PythonPlatform> model = manager.getPlatforms();
 
+    @Override
     public int getSize() {
         return model.size();
     }
 
+    @Override
     public Object getElementAt(int index) {
         if (index >= 0 && index < model.size()) {
             return model.get(index);

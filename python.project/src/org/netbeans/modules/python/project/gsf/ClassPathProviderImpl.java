@@ -73,7 +73,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider {
     private final PythonProject project;
     private final SourceRoots sources;
     private final SourceRoots tests;
-    private final Map<Pair<String,Integer>,ClassPath> cache = new HashMap<Pair<String,Integer>,ClassPath>();
+    private final Map<Pair<String,Integer>,ClassPath> cache = new HashMap<>();
 
     public ClassPathProviderImpl(final PythonProject project) {
         assert project != null;
@@ -169,6 +169,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider {
 //        return cp;
 //    }
 
+    @Override
     public ClassPath findClassPath(FileObject file, String type) {
         if (type.equals(ClassPath.SOURCE)) {
             return getSourcepath(file);

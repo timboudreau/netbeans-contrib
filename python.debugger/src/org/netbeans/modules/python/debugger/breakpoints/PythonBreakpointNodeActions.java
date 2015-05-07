@@ -64,10 +64,12 @@ public final class PythonBreakpointNodeActions implements NodeActionsProviderFil
     String name = "GoTo Source";
     ActionPerformer ap = new ActionPerformer() {
 
+      @Override
       public boolean isEnabled(Object node) {
         return true;
       }
 
+      @Override
       public void perform(Object[] nodes) {
         PythonBreakpoint bp = (PythonBreakpoint) nodes[0];
         Utils.showLine(Utils.getLineAnnotatable(bp.getFilePath(), bp.getLineNumber() - 1));
@@ -80,10 +82,12 @@ public final class PythonBreakpointNodeActions implements NodeActionsProviderFil
     String name = "Properties ";
     ActionPerformer ap = new ActionPerformer() {
 
+      @Override
       public boolean isEnabled(Object node) {
         return true;
       }
 
+      @Override
       public void perform(Object[] nodes) {
         PythonBreakpoint bp = (PythonBreakpoint) nodes[0];
         PythonBreakpointActionProvider.customize(bp);
@@ -92,6 +96,7 @@ public final class PythonBreakpointNodeActions implements NodeActionsProviderFil
     PROPERTIES_ACTION = Models.createAction(name, ap, Models.MULTISELECTION_TYPE_EXACTLY_ONE);
   }
 
+  @Override
   public void performDefaultAction(NodeActionsProvider original, Object node) throws UnknownTypeException {
     if (node instanceof PythonBreakpoint) {
       PythonBreakpoint bp = (PythonBreakpoint) node;
@@ -101,6 +106,7 @@ public final class PythonBreakpointNodeActions implements NodeActionsProviderFil
     }
   }
 
+  @Override
   public Action[] getActions(NodeActionsProvider original, Object node) throws UnknownTypeException {
     Action[] origActions = original.getActions(node);
     if (node instanceof PythonBreakpoint) {

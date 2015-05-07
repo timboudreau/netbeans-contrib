@@ -65,7 +65,7 @@ class FontSelectorDialog extends JDialog
 		{
 			size = Integer.parseInt(sizeField.getText());
 		}
-		catch(Exception e)
+		catch(NumberFormatException e)
 		{
 			size = 12;
 		}
@@ -212,7 +212,7 @@ class FontSelectorDialog extends JDialog
 		{
 			for(j = 0; j < HIDEFONTS.length; j++)
 			{
-				if(nameArray[i].indexOf(HIDEFONTS[j]) >= 0)
+				if(nameArray[i].contains(HIDEFONTS[j]))
 					break;
 			}
 
@@ -273,7 +273,7 @@ class FontSelectorDialog extends JDialog
 		{
 			size = Integer.parseInt(sizeField.getText());
 		}
-		catch(Exception e)
+		catch(NumberFormatException e)
 		{
 			size = 12;
 		}
@@ -285,6 +285,7 @@ class FontSelectorDialog extends JDialog
 
 	class ActionHandler implements ActionListener
 	{
+                @Override
 		public void actionPerformed(ActionEvent evt)
 		{
 			if(evt.getSource() == ok)
@@ -296,6 +297,7 @@ class FontSelectorDialog extends JDialog
 
 	class ListHandler implements ListSelectionListener
 	{
+                @Override
 		public void valueChanged(ListSelectionEvent evt)
 		{
 			Object source = evt.getSource();

@@ -86,7 +86,7 @@ public abstract class Command {
      * @return PythonPath FileList
      */
     protected ArrayList<String> buildPythonPath(PythonPlatform platform, PythonProject2 project) {
-        final ArrayList<String> pythonPath = new ArrayList<String>();
+        final ArrayList<String> pythonPath = new ArrayList<>();
         // start with platform
         pythonPath.addAll(platform.getPythonPath());
         Sources sources = ProjectUtils.getSources(project);

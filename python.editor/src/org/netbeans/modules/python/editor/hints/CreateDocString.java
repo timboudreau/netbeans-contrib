@@ -73,7 +73,7 @@ import org.python.antlr.ast.FunctionDef;
 public class CreateDocString extends PythonAstRule {
     @Override
     public Set<Class> getKinds() {
-        Set<Class> classes = new HashSet<Class>();
+        Set<Class> classes = new HashSet<>();
         classes.add(FunctionDef.class);
         classes.add(ClassDef.class);
 
@@ -97,7 +97,7 @@ public class CreateDocString extends PythonAstRule {
             if (lexOffsets != OffsetRange.NONE && lexOffsets.getStart() < doc.getLength() &&
                     (context.caretOffset == -1 ||
                     Utilities.getRowStart(doc, context.caretOffset) == Utilities.getRowStart(doc, lexOffsets.getStart()))) {
-                List<HintFix> fixList = new ArrayList<HintFix>();
+                List<HintFix> fixList = new ArrayList<>();
                 boolean singleIsDefault = node.getClass() == FunctionDef.class;
                 fixList.add(new CreateDocStringFix(context, node, !singleIsDefault));
                 fixList.add(new CreateDocStringFix(context, node, singleIsDefault));
@@ -110,34 +110,42 @@ public class CreateDocString extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "CreateDocString"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(CreateDocString.class, "CreateDocString");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(CreateDocString.class, "CreateDocStringDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return false;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.CURRENT_LINE_WARNING;
     }
@@ -154,14 +162,17 @@ public class CreateDocString extends PythonAstRule {
             this.multiLine = multiLine;
         }
 
+        @Override
         public String getDescription() {
             return multiLine ? NbBundle.getMessage(CreateDocString.class, "CreateDocStringFixMulti") : NbBundle.getMessage(CreateDocString.class, "CreateDocStringFix");
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             BaseDocument doc = context.doc;
             EditList edits = new EditList(doc);
@@ -203,6 +214,7 @@ public class CreateDocString extends PythonAstRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList();
 
@@ -216,10 +228,12 @@ public class CreateDocString extends PythonAstRule {
             }
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

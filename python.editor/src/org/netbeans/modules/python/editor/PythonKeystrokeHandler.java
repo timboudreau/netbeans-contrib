@@ -74,6 +74,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
     //private static final boolean FROM_IMPORT = !Boolean.getBoolean("python.nofromimport");
     private static final boolean FROM_IMPORT = Boolean.getBoolean("python.fromimport"); // NOI18N
 
+    @Override
     public int beforeBreak(Document document, int offset, JTextComponent target) throws BadLocationException {
 
         Caret caret = target.getCaret();
@@ -269,6 +270,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
         return true;
     }
 
+    @Override
     public boolean beforeCharInserted(Document document, int caretOffset, JTextComponent target, char ch)
             throws BadLocationException {
         isAfter = false;
@@ -432,6 +434,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
      * @return Whether the insert was handled
      * @throws BadLocationException if dotPos is not correct
      */
+    @Override
     public boolean afterCharInserted(Document document, int dotPos, JTextComponent target, char ch)
             throws BadLocationException {
         isAfter = true;
@@ -591,6 +594,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
         }
     }
 
+    @Override
     public OffsetRange findMatching(Document document, int offset /*, boolean simpleSearch*/) {
         BaseDocument doc = (BaseDocument)document;
 
@@ -657,6 +661,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
      * @param ch the character that was deleted
      */
     @SuppressWarnings("fallthrough")
+    @Override
     public boolean charBackspaced(Document document, int dotPos, JTextComponent target, char ch)
             throws BadLocationException {
         BaseDocument doc = (BaseDocument)document;
@@ -1260,10 +1265,11 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
         }
     }
 
+    @Override
     public List<OffsetRange> findLogicalRanges(ParserResult info, int caretOffset) {
         PythonTree root = PythonAstUtils.getRoot(info);
         if (root != null) {
-            List<OffsetRange> ranges = new ArrayList<OffsetRange>();
+            List<OffsetRange> ranges = new ArrayList<>();
             AstPath path = AstPath.get(root, caretOffset);
             OffsetRange prevRange = OffsetRange.NONE;
             for (PythonTree node : path) {
@@ -1292,6 +1298,7 @@ public class PythonKeystrokeHandler implements KeystrokeHandler {
     }
 
     // Camel case logic for identifier jumps. A bit ugly, rewrite.
+    @Override
     public int getNextWordOffset(Document document, int offset, boolean reverse) {
         BaseDocument doc = (BaseDocument)document;
         TokenSequence<? extends PythonTokenId> ts = PythonLexerUtils.getPythonSequence(doc, offset);

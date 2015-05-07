@@ -21,7 +21,7 @@ public final class Pair<P,K> {
 
 
     public static <P,K> Pair<P,K> of (P first, K second) {
-        return new Pair<P,K> (first,second);
+        return new Pair<> (first,second);
     }
 
 

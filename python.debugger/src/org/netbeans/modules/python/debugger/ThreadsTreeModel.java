@@ -89,6 +89,7 @@ public class ThreadsTreeModel
    *
    * @return the translated root node of the tree or null
    */
+  @Override
   public Object getRoot() {
     return ROOT;
   }
@@ -98,6 +99,7 @@ public class ThreadsTreeModel
    *
    * @param l the listener to add
    */
+  @Override
   public void addModelListener(ModelListener l) {
     _listeners.add(l);
     // provide a way to get called back by Python debugger
@@ -109,20 +111,22 @@ public class ThreadsTreeModel
    *
    * @param l the listener to remove
    */
+  @Override
   public void removeModelListener(ModelListener l) {
     _listeners.remove(l);
     // provide a way to get called back by Python debugger
     _debugger.removeThreadListChangeListener(this);
   }
 
+  @Override
   public void fireContextChanged() {
     Object[] ls;
     synchronized (_listeners) {
       ls = _listeners.toArray();
     }
     ModelEvent ev = new ModelEvent.TreeChanged(this);
-    for (int i = 0; i < ls.length; i++) {
-      ((ModelListener) ls[i]).modelChanged(ev);
+    for (Object l : ls) {
+      ((ModelListener) l).modelChanged(ev);
     }
   }
 
@@ -136,6 +140,7 @@ public class ThreadsTreeModel
    * @throws UnknownTypeException if this TreeModel implementation is not able
    *                              to resolve children for given node type
    */
+  @Override
   public int getChildrenCount(Object node) throws UnknownTypeException {
     if (node.equals(ROOT)) {
       return _debugger.getThreadCount();
@@ -152,6 +157,7 @@ public class ThreadsTreeModel
    * @throws UnknownTypeException if this TreeModel implementation is not able
    *                              to resolve dchildren for given node type
    */
+  @Override
   public boolean isLeaf(Object node) throws UnknownTypeException {
     if (node instanceof PythonThreadInfos) {
       return true;
@@ -175,6 +181,7 @@ public class ThreadsTreeModel
    * @throws UnknownTypeException   if this TreeModel implementation is not able
    *                                to resolve dchildren for given node type
    */
+  @Override
   public Object[] getChildren(Object parent, int from, int to)
           throws UnknownTypeException {
     if (parent.equals(ROOT)) {
@@ -185,13 +192,16 @@ public class ThreadsTreeModel
   }
 
   /** unused */
+  @Override
   public void setValueAt(Object node, String ColumnID, Object value) {
   }
 
+  @Override
   public boolean isReadOnly(Object node, String columnID) {
     return true;
   }
 
+  @Override
   public Object getValueAt(Object node, String columnID) {
     if (node == ROOT) {
       return null;
@@ -209,12 +219,13 @@ public class ThreadsTreeModel
     if (columnID.equals(Constants.THREAD_SUSPENDED_COLUMN_ID ) ){
       if (node instanceof PythonThreadInfos) {
         PythonThreadInfos curThread = (PythonThreadInfos) node;
-        return new Boolean( curThread.isSuspended() ) ;
+        return curThread.isSuspended() ;
       }
     }
     return ("");
   }
 
+  @Override
   public String getShortDescription(Object node) {
     return _SHORT_DESCRIPTION_;
   }
@@ -228,6 +239,7 @@ public class ThreadsTreeModel
    *          able to resolve display name for given node type
    * @return  display name for given node
    */
+  @Override
   public String getDisplayName(Object node)
           throws UnknownTypeException {
     if (node == ROOT) {
@@ -249,6 +261,7 @@ public class ThreadsTreeModel
    *          able to resolve icon for given node type
    * @return  icon for given node
    */
+  @Override
   public String getIconBase(Object node)
           throws UnknownTypeException {
     if (node == ROOT) {

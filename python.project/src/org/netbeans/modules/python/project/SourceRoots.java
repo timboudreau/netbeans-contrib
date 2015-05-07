@@ -125,6 +125,7 @@ public final class SourceRoots {
      */
     public String[] getRootNames() {
         return ProjectManager.mutex().readAccess(new Mutex.Action<String[]>() {
+            @Override
             public String[] run() {
                 synchronized (SourceRoots.this) {
                     if (sourceRootNames == null) {
@@ -142,6 +143,7 @@ public final class SourceRoots {
      */
     public String[] getRootProperties() {
         return ProjectManager.mutex().readAccess(new Mutex.Action<String[]>() {
+            @Override
             public String[] run() {
                 synchronized (SourceRoots.this) {
                     if (sourceRootProperties == null) {
@@ -159,12 +161,13 @@ public final class SourceRoots {
      */
     public FileObject[] getRoots() {
         return ProjectManager.mutex().readAccess(new Mutex.Action<FileObject[]>() {
+                @Override
                 public FileObject[] run() {
                     synchronized (this) {
                         // local caching
                         if (sourceRoots == null) {
                             String[] srcProps = getRootProperties();
-                            List<FileObject> result = new ArrayList<FileObject>();
+                            List<FileObject> result = new ArrayList<>();
                             for (String p : srcProps) {
                                 String prop = evaluator.getProperty(p);
                                 if (prop != null) {
@@ -192,11 +195,12 @@ public final class SourceRoots {
      */
     public URL[] getRootURLs() {
         return ProjectManager.mutex().readAccess(new Mutex.Action<URL[]>() {
+            @Override
             public URL[] run() {
                 synchronized (this) {
                     // local caching
                     if (sourceRootURLs == null) {
-                        List<URL> result = new ArrayList<URL>();
+                        List<URL> result = new ArrayList<>();
                         for (String srcProp : getRootProperties()) {
                             String prop = evaluator.getProperty(srcProp);
                             if (prop != null) {
@@ -228,8 +232,9 @@ public final class SourceRoots {
 
     private Map<URL, String> getRootsToProps() {
         return ProjectManager.mutex().readAccess(new Mutex.Action<Map<URL, String>>() {
+            @Override
             public Map<URL, String> run() {
-                Map<URL, String> result = new HashMap<URL, String>();
+                Map<URL, String> result = new HashMap<>();
                 for (String srcProp : getRootProperties()) {
                     String prop = evaluator.getProperty(srcProp);
                     if (prop != null) {
@@ -285,10 +290,11 @@ public final class SourceRoots {
         try {
             ProjectManager.mutex().writeAccess(
                     new Mutex.ExceptionAction<Void> () { 
+                        @Override
                         public Void run() throws IOException {
                             Map<URL, String> oldRoots2props = getRootsToProps();
-                            Map<URL, String> newRoots2lab = new HashMap<URL, String>();
-                            List<URL> newRoots = new ArrayList<URL>();
+                            Map<URL, String> newRoots2lab = new HashMap<>();
+                            List<URL> newRoots = new ArrayList<>();
                             for (Pair<File,String> e : data) {
                                 try {
                                     final URL url = e.first.toURI().toURL();
@@ -311,7 +317,7 @@ public final class SourceRoots {
                                 ownerElement.removeChild(root);
                             }
                             // remove all unused root properties                                                        
-                            Map<URL, String> propsToRemove = new HashMap<URL, String>(oldRoots2props);
+                            Map<URL, String> propsToRemove = new HashMap<>(oldRoots2props);
                             propsToRemove.keySet().removeAll(newRoots);
                             EditableProperties props = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
                             props.keySet().removeAll(propsToRemove.values());
@@ -453,8 +459,8 @@ public final class SourceRoots {
     private void readProjectMetadata() {
         Element cfgEl = helper.getPrimaryConfigurationData(true);
         NodeList nl = cfgEl.getElementsByTagNameNS(PythonProjectType.PROJECT_CONFIGURATION_NAMESPACE, elementName);        
-        List<String> rootProps = new ArrayList<String>();
-        List<String> rootNames = new ArrayList<String>();
+        List<String> rootProps = new ArrayList<>();
+        List<String> rootNames = new ArrayList<>();
         // it can be 0 in the case when the project is created by J2SEProjectGenerator and not yet customized
         if (nl.getLength() == 1) {
             NodeList roots =
@@ -474,14 +480,17 @@ public final class SourceRoots {
 
     private class ProjectMetadataListener implements PropertyChangeListener, AntProjectListener {
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             resetCache(false, evt.getPropertyName());
         }
 
+        @Override
         public void configurationXmlChanged(AntProjectEvent ev) {
             resetCache(true, null);
         }
 
+        @Override
         public void propertiesChanged(AntProjectEvent ev) {
             // handled by propertyChange
         }

@@ -62,7 +62,7 @@ public class Program {
     public Program() {
         processBuilder = new ProcessBuilder();
         processBuilder.redirectErrorStream(true);
-        command = new ArrayList<String>();
+        command = new ArrayList<>();
     }
 
     /**
@@ -110,7 +110,7 @@ public class Program {
     }
 
     public void command(String... command) {
-        this.command = new ArrayList<String>(command.length);
+        this.command = new ArrayList<>(command.length);
         for (String arg : command) {
             this.command.add(arg);
         }

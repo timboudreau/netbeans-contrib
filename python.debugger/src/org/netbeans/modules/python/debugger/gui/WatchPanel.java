@@ -108,10 +108,12 @@ public class WatchPanel {
             if (contextRetrievalRP != null) {
                 final DebuggerEngine den = en;
                 contextRetrievalRP.post(new Runnable() {
+                    @Override
                     public void run() {
                         final Context c = retrieveContext(den);
                         if (c != null) {
                             SwingUtilities.invokeLater(new Runnable() {
+                          @Override
                                 public void run() {
                                     setupContext(editorPane, c.url, c.line);
                                     if (contextSetUp != null) contextSetUp.actionPerformed(null);
@@ -180,6 +182,7 @@ public class WatchPanel {
     
     private static void setupUI(final JEditorPane editorPane) {
         final Runnable runnable = new Runnable() {
+            @Override
             public void run() {
                 EditorUI eui = org.netbeans.editor.Utilities.getEditorUI(editorPane);
                 if (eui == null) {
@@ -194,7 +197,7 @@ public class WatchPanel {
                     java.lang.reflect.Field textLimitLineField = EditorUI.class.getDeclaredField("textLimitLineVisible"); // NOI18N
                     textLimitLineField.setAccessible(true);
                     textLimitLineField.set(eui, false);
-                } catch (Exception ex) {
+                } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
                   ex.printStackTrace(); 
                 }
             }
@@ -219,6 +222,7 @@ public class WatchPanel {
         editorPane.setText(expression);
 
         ActionListener editorPaneUpdated = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 editorPane.setText (expression);
                 editorPane.selectAll ();

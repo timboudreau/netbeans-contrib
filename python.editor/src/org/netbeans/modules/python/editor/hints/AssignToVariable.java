@@ -122,7 +122,7 @@ public class AssignToVariable extends PythonAstRule {
             if (lexOffsets != OffsetRange.NONE && lexOffsets.getStart() < doc.getLength() &&
                     (context.caretOffset == -1 ||
                     Utilities.getRowStart(doc, context.caretOffset) == Utilities.getRowStart(doc, lexOffsets.getStart()))) {
-                List<HintFix> fixList = new ArrayList<HintFix>();
+                List<HintFix> fixList = new ArrayList<>();
                 fixList.add(new AssignToVariableFix(context, node));
                 String displayName = getDisplayName();
                 Hint desc = new Hint(this, displayName, info.getSnapshot().getSource().getFileObject(), lexOffsets, fixList, 1500);
@@ -133,34 +133,42 @@ public class AssignToVariable extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "AssignToVariable"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(AssignToVariable.class, "AssignToVariable");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(AssignToVariable.class, "AssignToVariableDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return false;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.CURRENT_LINE_WARNING;
     }
@@ -176,14 +184,17 @@ public class AssignToVariable extends PythonAstRule {
             this.node = node;
         }
 
+        @Override
         public String getDescription() {
             return NbBundle.getMessage(AssignToVariable.class, "AssignToVariableFix");
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             BaseDocument doc = context.doc;
             EditList edits = new EditList(doc);
@@ -205,6 +216,7 @@ public class AssignToVariable extends PythonAstRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList();
 
@@ -220,10 +232,12 @@ public class AssignToVariable extends PythonAstRule {
             }
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

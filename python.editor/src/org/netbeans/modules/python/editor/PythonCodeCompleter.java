@@ -127,6 +127,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         "\\ooo", "Character with octal value ooo",
         "\\xhh", "Character with hex value hh",};
 
+    @Override
     public CodeCompletionResult complete(CodeCompletionContext context) {
         ParserResult result = context.getParserResult();
         int lexOffset = context.getCaretOffset();
@@ -140,7 +141,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         }
         final BaseDocument doc = (BaseDocument)document;
 
-        List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
+        List<CompletionProposal> proposals = new ArrayList<>();
         DefaultCompletionResult completionResult = new PythonCompletionResult(context, proposals);
 
         PythonParserResult parseResult = PythonAstUtils.getParseResult(result);
@@ -345,6 +346,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         return completionResult;
     }
 
+    @Override
     public String document(ParserResult info, ElementHandle element) {
         if (element instanceof CommentElement) {
             // Text is packaged as the name
@@ -366,10 +368,12 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             this.text = text;
         }
 
+        @Override
         public String getName() {
             return text;
         }
 
+        @Override
         public ElementKind getKind() {
             return ElementKind.KEYWORD;
         }
@@ -385,6 +389,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         }
     }
 
+    @Override
     public ElementHandle resolveLink(String link, ElementHandle originalHandle) {
         JTextComponent last = EditorRegistry.lastFocusedComponent();
         if (last != null) {
@@ -463,6 +468,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public String getPrefix(ParserResult info, int lexOffset, boolean upToOffset) {
         try {
             BaseDocument doc = (BaseDocument)info.getSnapshot().getSource().getDocument(false);
@@ -519,6 +525,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         return null;
     }
 
+    @Override
     public QueryType getAutoQuery(JTextComponent component, String typedText) {
         char c = typedText.charAt(0);
 
@@ -567,6 +574,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         return QueryType.NONE;
     }
 
+    @Override
     public String resolveTemplateVariable(String variable, ParserResult info, int caretOffset, String name, Map parameters) {
         PythonParserResult parseResult = PythonAstUtils.getParseResult(info);
         if (parseResult != null) {
@@ -641,7 +649,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         String[] params = method.getParams();
 
         if ((params != null) && (params.length > 0)) {
-            List<String> parameterList = new ArrayList<String>();
+            List<String> parameterList = new ArrayList<>();
             for (String param : params) {
                 // Filter out self-args
                 if (parameterList.size() == 0 && "self".equals(param)) { // NOI18N
@@ -1602,7 +1610,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         // Also show other documented, not nodoc'ed items (except for those
         // with identical signatures, such as overrides of the same method)
         if (alternatesHolder[0] != null) {
-            Set<String> signatures = new HashSet<String>();
+            Set<String> signatures = new HashSet<>();
             signatures.add(targetMethod.getSignature().substring(targetMethod.getSignature().indexOf('#') + 1));
             for (IndexedMethod m : alternatesHolder[0]) {
                 if (m != targetMethod && m.isDocumented() && !m.isNoDoc()) {
@@ -2028,6 +2036,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             return getName();
         }
 
+        @Override
         public ElementHandle getElement() {
             // XXX Is this called a lot? I shouldn't need it most of the time
             return element;
@@ -2099,7 +2108,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
                 IndexedElement ie = (IndexedElement)element;
                 String filename = ie.getFilenameUrl();
                 if (filename != null) {
-                    if (filename.indexOf("pythonstubs") == -1) { // NOI18N
+                    if (!filename.contains("pythonstubs")) { // NOI18N
                         int index = filename.lastIndexOf('/');
                         if (index != -1) {
                             filename = filename.substring(index + 1);
@@ -2279,18 +2288,22 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             this.kind = kind;
         }
 
+        @Override
         public String getName() {
             return keyword;
         }
 
+        @Override
         public ElementKind getKind() {
             return kind != null ? kind : ElementKind.KEYWORD;
         }
 
+        @Override
         public String getRhsHtml(final HtmlFormatter formatter) {
             return null;
         }
 
+        @Override
         public String getLhsHtml(final HtmlFormatter formatter) {
             ElementKind kind = getKind();
             formatter.name(kind, true);
@@ -2309,6 +2322,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             return formatter.getText();
         }
 
+        @Override
         public ImageIcon getIcon() {
             if (kind != null && kind != ElementKind.KEYWORD) {
                 return null;
@@ -2321,31 +2335,38 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             return keywordIcon;
         }
 
+        @Override
         public Set<Modifier> getModifiers() {
             return Collections.emptySet();
         }
 
+        @Override
         public ElementHandle getElement() {
             // For completion documentation
             return handle;
         }
 
+        @Override
         public boolean isSmart() {
             return smart;
         }
 
+        @Override
         public int getAnchorOffset() {
             return anchor;
         }
 
+        @Override
         public String getInsertPrefix() {
             return insertPrefix != null ? insertPrefix : keyword;
         }
 
+        @Override
         public String getSortText() {
             return sort;
         }
 
+        @Override
         public String getCustomInsertTemplate() {
             return null;
         }
@@ -2358,22 +2379,27 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             return null;
         }
 
+        @Override
         public FileObject getFileObject() {
             return null;
         }
 
+        @Override
         public String getMimeType() {
             return PythonMIMEResolver.PYTHON_MIME_TYPE;
         }
 
+        @Override
         public String getIn() {
             return null;
         }
 
+        @Override
         public boolean signatureEquals(ElementHandle handle) {
             return false;
         }
 
+        @Override
         public int getSortPrioOverride() {
             return sortPrioOverride;
         }
@@ -2403,73 +2429,90 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             return call.getLhs();
         }
 
+        @Override
         public int getAnchorOffset() {
             return request.anchor;
         }
 
+        @Override
         public ElementHandle getElement() {
             return this;
         }
 
+        @Override
         public String getName() {
             return "";
         }
 
+        @Override
         public String getInsertPrefix() {
             // Return the prefix to ensure that when the prefix is nonempty we still
             // show this item first
             return request.prefix;
         }
 
+        @Override
         public String getSortText() {
             return request.prefix;
         }
 
+        @Override
         public String getLhsHtml(HtmlFormatter formatter) {
             return NbBundle.getMessage(PythonCodeCompleter.class, "SpecifyTypeOf", getVariableName());
         }
 
+        @Override
         public String getRhsHtml(HtmlFormatter formatter) {
             return null;
         }
 
+        @Override
         public ElementKind getKind() {
             return ElementKind.OTHER;
         }
 
+        @Override
         public ImageIcon getIcon() {
             return ImageUtilities.loadImageIcon("org/netbeans/modules/gsfret/source/resources/icons/implement-glyph.gif", false); // NOI18N
         }
 
+        @Override
         public Set<Modifier> getModifiers() {
             return Collections.emptySet();
         }
 
+        @Override
         public boolean isSmart() {
             return true;
         }
 
+        @Override
         public int getSortPrioOverride() {
             // Sort to the very top
             return -30000;
         }
 
+        @Override
         public String getCustomInsertTemplate() {
             return null;
         }
 
+        @Override
         public FileObject getFileObject() {
             return null;
         }
 
+        @Override
         public String getMimeType() {
             return PythonMIMEResolver.PYTHON_MIME_TYPE;
         }
 
+        @Override
         public String getIn() {
             return null;
         }
 
+        @Override
         public boolean signatureEquals(ElementHandle handle) {
             return false;
         }
@@ -2478,6 +2521,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
             request.doc.runAtomic(this);
         }
 
+        @Override
         public void run() {
             BaseDocument doc = request.doc;
             try {
@@ -2515,6 +2559,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
                     // the current completion session has to be completely finished
                     // first.
                     RequestProcessor.getDefault().post(new Runnable() {
+                        @Override
                         public void run() {
                             if (target instanceof JEditorPane) {
                                 Completion.get().showCompletion();

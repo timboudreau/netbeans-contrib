@@ -54,6 +54,7 @@ import org.netbeans.modules.python.qshell.richexecution.OS;
 import org.netbeans.modules.python.qshell.richexecution.Program;
 import org.netbeans.modules.python.qshell.richexecution.Pty;
 import org.netbeans.modules.python.qshell.richexecution.Pty.Mode;
+import org.netbeans.modules.python.qshell.richexecution.PtyException;
 import org.netbeans.modules.python.qshell.richexecution.PtyExecutor;
 import org.netbeans.modules.python.qshell.richexecution.PtyProcess;
 
@@ -83,6 +84,7 @@ public class TermExecutor extends PtyExecutor {
             this.pty = pty;
         }
 
+        @Override
         public void sizeChanged(Dimension cells, Dimension pixels) {
             /* LATER
             if (pty.isRaw())
@@ -165,7 +167,7 @@ public class TermExecutor extends PtyExecutor {
             case REGULAR:
                 try {
                     pty = Pty.create(Pty.Mode.REGULAR);
-                } catch (Exception x) {
+                } catch (PtyException x) {
                     System.out.printf("Exception %s\n",x);
                 }
                 break;

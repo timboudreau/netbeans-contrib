@@ -808,8 +808,8 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
 
 
         private boolean isPackageFlavor (DataFlavor[] flavors) {
-            for (int i=0; i<flavors.length; i++) {
-                if (SUBTYPE.equals(flavors[i].getSubType ()) && PRIMARY_TYPE.equals(flavors[i].getPrimaryType ())) {
+            for (DataFlavor flavor : flavors) {
+                if (SUBTYPE.equals(flavor.getSubType()) && PRIMARY_TYPE.equals(flavor.getPrimaryType())) {
                     //Disable pasting into package, only paste into root is allowed
                     return true;
                 }
@@ -875,9 +875,9 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                 DataFolder sourceFolder = DataFolder.findFolder (source);
                 DataFolder destinationFolder = DataFolder.findFolder (destination);
                 DataObject[] children = sourceFolder.getChildren();
-                for (int j=0; j<children.length; j++) {
-                    if (children[j].getPrimaryFile().isData()) {
-                        children[j].move(destinationFolder);
+                for (DataObject child : children) {
+                    if (child.getPrimaryFile().isData()) {
+                        child.move(destinationFolder);
                     }
                 }
                 while (!commonFolder.equals(source)) {
@@ -1148,10 +1148,11 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         public DataObject[] getChildren () {
             DataObject[] arr = folder.getChildren ();
             List<DataObject> list = new ArrayList<>(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                if (arr[i] instanceof DataFolder) continue;
-                
-                list.add (arr[i]);
+            for (DataObject arr1 : arr) {
+                if (arr1 instanceof DataFolder) {
+                    continue;
+                }
+                list.add(arr1);
             }
             return list.size() == arr.length ? arr : list.toArray(new DataObject[0]);
         }
@@ -1219,7 +1220,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         private PackageNode node;
 
         public PackageTransferable (PackageNode node, int operation) throws ClassNotFoundException {
-            super(new DataFlavor(PACKAGE_FLAVOR.format(new Object[] {new Integer(operation)}), null, PackageNode.class.getClassLoader()));
+            super(new DataFlavor(PACKAGE_FLAVOR.format(new Object[] {operation}), null, PackageNode.class.getClassLoader()));
             this.node = node;
         }
 
@@ -1250,10 +1251,10 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         @Override
         public Transferable paste() throws IOException {
             assert this.op != DnDConstants.ACTION_NONE;
-            for (int ni=0; ni< nodes.length; ni++) {
+            for (PackageNode node : nodes) {
                 FileObject fo = srcRoot;
-                if (!nodes[ni].isDefaultPackage) {
-                    String pkgName = nodes[ni].getName();
+                if (!node.isDefaultPackage) {
+                    String pkgName = node.getName();
                     StringTokenizer tk = new StringTokenizer(pkgName,".");  //NOI18N
                     while (tk.hasMoreTokens()) {
                         String name = tk.nextToken();
@@ -1265,27 +1266,24 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                     }
                 }
                 DataFolder dest = DataFolder.findFolder(fo);
-                DataObject[] children = nodes[ni].dataFolder.getChildren();
+                DataObject[] children = node.dataFolder.getChildren();
                 boolean cantDelete = false;
-                for (int i=0; i< children.length; i++) {
-                    if (children[i].getPrimaryFile().isData() 
-                    && VisibilityQuery.getDefault().isVisible (children[i].getPrimaryFile())) {
+                for (DataObject child : children) {
+                    if (child.getPrimaryFile().isData() && VisibilityQuery.getDefault().isVisible(child.getPrimaryFile())) {
                         //Copy only the package level
                         if (this.op == DnDConstants.ACTION_MOVE) {
-                            children[i].move(dest);
+                            child.move(dest);
+                        } else {
+                            child.copy(dest);
                         }
-                        else {
-                            children[i].copy (dest);
-                        }                                                
-                    }
-                    else {
+                    } else {
                         cantDelete = true;
                     }
                 }
                 if (this.op == DnDConstants.ACTION_MOVE && !cantDelete) {
                     try {
-                        FileObject tmpFo = nodes[ni].dataFolder.getPrimaryFile();
-                        FileObject originalRoot = nodes[ni].root;
+                        FileObject tmpFo = node.dataFolder.getPrimaryFile();
+                        FileObject originalRoot = node.root;
                         assert tmpFo != null && originalRoot != null;
                         while (!tmpFo.equals(originalRoot)) {
                             if (tmpFo.getChildren().length == 0) {
@@ -1297,7 +1295,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                                 break;
                             }
                         }
-                    } catch (IOException ioe) {
+                    }catch (IOException ioe) {
                         //Not important
                     }
                 }

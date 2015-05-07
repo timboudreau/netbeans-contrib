@@ -41,7 +41,7 @@ public class PythonActionProvider implements ActionProvider {
 
     public PythonActionProvider(PythonProject project) {
         assert project != null;
-        commands = new LinkedHashMap<String, Command>();
+        commands = new LinkedHashMap<>();
         Command[] commandArray = new Command[] {
             new DeleteCommand(project),
             new CopyCommand(project),
@@ -73,11 +73,13 @@ public class PythonActionProvider implements ActionProvider {
         return null;
     }
 
+    @Override
     public String[] getSupportedActions() {
         final Set<String> names = commands.keySet();
         return names.toArray(new String[names.size()]);
     }
 
+    @Override
     public void invokeAction(final String commandName, final Lookup context) throws IllegalArgumentException {
         final Command command = findCommand(commandName);
         assert command != null;
@@ -88,6 +90,7 @@ public class PythonActionProvider implements ActionProvider {
             command.invokeAction(context);
         } else {
             RequestProcessor.getDefault().post(new Runnable() {
+                @Override
                 public void run() {
                     command.invokeAction(context);
                 }
@@ -95,6 +98,7 @@ public class PythonActionProvider implements ActionProvider {
         }
     }
 
+    @Override
     public boolean isActionEnabled(String commandName, Lookup context) throws IllegalArgumentException {
         final Command command = findCommand (commandName);
         assert command != null;

@@ -183,7 +183,7 @@ public class PythonDebugContainer implements PythonContainer {
   // current debugging script start arguments
   private String _scriptArgs = null;
   // private Hashtable _breakpoints      = new Hashtable();
-  private Hashtable<String, String> _changedVariables = new Hashtable<String, String>();
+  private Hashtable<String, String> _changedVariables = new Hashtable<>();
   // private boolean   _bpPopulated      = false;
   /** current composite introspection action */
   private CompositeCallback _cCallback = null;
@@ -408,6 +408,7 @@ public class PythonDebugContainer implements PythonContainer {
     }
   }
 
+  @Override
   public void inspectCompositeCommand(CompositeCallback callBack,
           String varName) {
     try {
@@ -444,13 +445,14 @@ public class PythonDebugContainer implements PythonContainer {
       _pyClient.sendCommand(buffer.toString());
 
       // cleanup container
-      _changedVariables = new Hashtable<String, String>();
+      _changedVariables = new Hashtable<>();
     } catch (PythonDebugException ex) {
       _msgBar.setError("SET VARIABLE command failed : " + ex.getMessage());
     }
   }
 
 
+  @Override
   public void dbgVariableChanged(String name, String value, boolean global) {
     _changedVariables.put(name, value);
   }
@@ -549,9 +551,9 @@ public class PythonDebugContainer implements PythonContainer {
     /** current debugging source is remote */
     private boolean _remoteSource = false;
     /** remote source name / local tmp source location table */
-    private Hashtable<String, String> _hashSource = new Hashtable<String, String>();
+    private Hashtable<String, String> _hashSource = new Hashtable<>();
     /** remote local tmp source / remote source name location table */
-    private Hashtable<String, String> _remoteHashSource = new Hashtable<String, String>();
+    private Hashtable<String, String> _remoteHashSource = new Hashtable<>();
     private int _currentLine = -1;
 
     /* debug over FTP connection if not null */
@@ -696,6 +698,7 @@ public class PythonDebugContainer implements PythonContainer {
       }
     }
 
+    @Override
     public void launcherMessage(PythonDebugEvent e) {
       synchronized (this) {
         switch (e.get_type()) {
@@ -823,6 +826,7 @@ public class PythonDebugContainer implements PythonContainer {
       }
     }
 
+    @Override
     public void newDebugEvent(PythonDebugEvent e) {
       switch (e.get_type()) {
 
@@ -1043,6 +1047,7 @@ public class PythonDebugContainer implements PythonContainer {
 
   class _CANCEL_WAITING_CONNECTION_ implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
       try {
         _pyClient.abort(PythonDebugParameters.get_listeningPort());
@@ -1139,6 +1144,7 @@ public class PythonDebugContainer implements PythonContainer {
     /**
      * debuggger initialization startup action
      */
+    @Override
     public void actionPerformed(ActionEvent evt) {
       _DEBUGGING_TERMINATOR_ terminator = new _DEBUGGING_TERMINATOR_();
       terminator.start();
@@ -1147,6 +1153,7 @@ public class PythonDebugContainer implements PythonContainer {
 
   class _STEP_OVER_ implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
       debugSubcommand(_NEXT_);
     }
@@ -1154,6 +1161,7 @@ public class PythonDebugContainer implements PythonContainer {
 
   class _STEP_INTO_ implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
       debugSubcommand(_STEP_);
     }
@@ -1161,6 +1169,7 @@ public class PythonDebugContainer implements PythonContainer {
 
   class _RUN_ implements ActionListener {
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
       debugSubcommand(_RUN_);
     }
@@ -1198,6 +1207,7 @@ public class PythonDebugContainer implements PythonContainer {
     private void setCurrentLine(String toParse) {
     }
 
+    @Override
     public void itemStateChanged(ItemEvent e) {
       switch (e.getStateChange()) {
 
@@ -1260,6 +1270,7 @@ public class PythonDebugContainer implements PythonContainer {
   class _SEND_SHELL_COMMAND_
           implements CommandLineListener {
 
+    @Override
     public void commandEntered(CommandLineEvent e) {
       try {
 
@@ -1309,6 +1320,7 @@ public class PythonDebugContainer implements PythonContainer {
     private void setStatusIcon(final ImageIcon icon) {
       SwingUtilities.invokeLater(new Runnable() {
 
+        @Override
         public void run() {
           _cancel.setIcon(icon);
         }
@@ -1380,7 +1392,7 @@ public class PythonDebugContainer implements PythonContainer {
   class _THREAD_MANAGER_ {
 
     /** implement here a Vector of PythonThreadInfos collected from python env */
-    private Hashtable<String, PythonThreadInfos> _threads = new Hashtable<String, PythonThreadInfos>();
+    private Hashtable<String, PythonThreadInfos> _threads = new Hashtable<>();
     private DebuggerContextChangeListener _threadListChange = null;
 
     public boolean isListeningBack() {
@@ -1562,6 +1574,7 @@ public class PythonDebugContainer implements PythonContainer {
       stopWaiting();
     }
 
+    @Override
     public void callbackWithValuesSet(TreeMap values, TreeMap types) {
       _curNode.set_children(values, types);
       stopWaiting();

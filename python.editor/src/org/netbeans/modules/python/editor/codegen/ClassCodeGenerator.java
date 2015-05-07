@@ -69,6 +69,7 @@ public class ClassCodeGenerator implements CodeGenerator {
 
     public static class Factory implements CodeGenerator.Factory {
 
+        @Override
         public List<? extends CodeGenerator> create(Lookup context) {
             return Collections.singletonList(new ClassCodeGenerator(context));
         }
@@ -77,6 +78,7 @@ public class ClassCodeGenerator implements CodeGenerator {
     /**
      * The name which will be inserted inside Insert Code dialog
      */
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(ClassCodeGenerator.class, "Class");
     }
@@ -85,6 +87,7 @@ public class ClassCodeGenerator implements CodeGenerator {
      * This will be invoked when user chooses this Generator from Insert Code
      * dialog
      */
+    @Override
     public void invoke() {
         /* The code generated is very simple now, so use the code templates
          * instead of hardcoded code such that they are user configurable...

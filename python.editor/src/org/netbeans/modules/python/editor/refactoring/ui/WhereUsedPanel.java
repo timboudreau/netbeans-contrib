@@ -94,6 +94,7 @@ public class WhereUsedPanel extends JPanel implements CustomRefactoringPanel {
         return isMethodFromBaseClass() ? methodDeclaringSuperClass : methodDeclaringClass;
     }
 
+    @Override
     public void initialize() {
         if (initialized) {
             return;
@@ -109,10 +110,11 @@ public class WhereUsedPanel extends JPanel implements CustomRefactoringPanel {
             /**
              * @todo For method calls, try to figure out the call type with the type analyzer
              */
+            @Override
             public void run(ResultIterator iter) throws Exception {
                 String m_isBaseClassText = null;
                 final String labelText;
-                Set<Modifier> modif = new HashSet<Modifier>();
+                Set<Modifier> modif = new HashSet<>();
                 // TODO - resolve elements against the current info?
                 if (element.getKind() == ElementKind.METHOD) {
                     if (element.getElement() != null) {
@@ -153,6 +155,7 @@ public class WhereUsedPanel extends JPanel implements CustomRefactoringPanel {
                 final String isBaseClassText = m_isBaseClassText;
 
                 SwingUtilities.invokeLater(new Runnable() {
+                    @Override
                     public void run() {
                         remove(classesPanel);
                         remove(methodsPanel);
@@ -416,6 +419,7 @@ public class WhereUsedPanel extends JPanel implements CustomRefactoringPanel {
         return searchInComments.isSelected();
     }
 
+    @Override
     public Component getComponent() {
         return this;
     }

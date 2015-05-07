@@ -98,13 +98,13 @@ public class SymbolTable {
     private final static int YES = 1;
     private final static int NO = 0;
     private final static int CIRCULAR = -1;
-    private Map<PythonTree, ScopeInfo> scopes = new HashMap<PythonTree, ScopeInfo>();
+    private Map<PythonTree, ScopeInfo> scopes = new HashMap<>();
     private PythonTree root;
     private FileObject fileObject;
-    private List<Import> imports = new ArrayList<Import>();
-    private List<ImportFrom> importsFrom = new ArrayList<ImportFrom>();
-    private List<PythonTree> mainImports = new ArrayList<PythonTree>();
-    private Set<PythonTree> topLevelImports = new HashSet<PythonTree>();
+    private List<Import> imports = new ArrayList<>();
+    private List<ImportFrom> importsFrom = new ArrayList<>();
+    private List<PythonTree> mainImports = new ArrayList<>();
+    private Set<PythonTree> topLevelImports = new HashSet<>();
     private List<Error> errors;
     /** List of symbols registered via __all__ = [ "foo", "bar" ] or __all__.extend() or __all__.append() */
     private List<Str> publicSymbols;
@@ -117,12 +117,12 @@ public class SymbolTable {
             put("__name__", "__bases");
         }
     };
-    private HashMap<String, ClassDef> classes = new HashMap<String, ClassDef>();
+    private HashMap<String, ClassDef> classes = new HashMap<>();
     // TODO - use WeakHashMap?
-    static Map<String, Set<IndexedElement>> importedElements = new HashMap<String, Set<IndexedElement>>();
+    static Map<String, Set<IndexedElement>> importedElements = new HashMap<>();
 
     private HashMap<String, ClassDef> buildLocalClasses() {
-        HashMap<String, ClassDef> localClasses = new HashMap<String, ClassDef>();
+        HashMap<String, ClassDef> localClasses = new HashMap<>();
         for (PythonTree cur : scopes.keySet()) {
             if (cur instanceof ClassDef) {
                 ClassDef curClass = (ClassDef)cur;
@@ -144,7 +144,7 @@ public class SymbolTable {
                 classes = buildLocalClasses();
                 if (publicSymbols != null) {
                     // Mark all other symbols private!
-                    Set<String> names = new HashSet<String>(publicSymbols.size() + 1);
+                    Set<String> names = new HashSet<>(publicSymbols.size() + 1);
                     names.add("__all__"); // __all__ itself is exported!
                     for (Str str : publicSymbols) {
                         String name = PythonAstUtils.getStrContent(str);
@@ -306,7 +306,7 @@ public class SymbolTable {
     }
 
     private List<String> getModulesToStarImport() {
-        List<String> modules = new ArrayList<String>();
+        List<String> modules = new ArrayList<>();
 
         for (ImportFrom from : importsFrom) {
             List<alias> names = from.getInternalNames();
@@ -355,7 +355,7 @@ public class SymbolTable {
         Set<IndexedElement> elements = importedElements.get(module);
         if (elements == null) {
             PythonIndex index = PythonIndex.get(info.getSnapshot().getSource().getFileObject());
-            Set<String> systemHolder = new HashSet<String>(3);
+            Set<String> systemHolder = new HashSet<>(3);
             elements = index.getImportedElements("", QuerySupport.Kind.PREFIX, Collections.singleton(module), systemHolder);
             // Cache system modules - don't cache local modules
             if (!systemHolder.isEmpty()) {
@@ -367,7 +367,7 @@ public class SymbolTable {
     }
 
     public Set<Element> getDefinedElements(PythonParserResult info, PythonTree scope, String prefix, QuerySupport.Kind kind) {
-        Set<Element> elements = new HashSet<Element>(300);
+        Set<Element> elements = new HashSet<>(300);
         ScopeInfo scopeInfo = scopes.get(scope);
         String module = PythonUtils.getModuleName(fileObject);
         String url = fileObject.toURL().toExternalForm();
@@ -384,7 +384,7 @@ public class SymbolTable {
         // already added I avoid adding references to variables I have re-bound in closer
         // scopes.
 
-        Set<String> added = new HashSet<String>();
+        Set<String> added = new HashSet<>();
 
         while (scopeInfo != null) {
             for (Map.Entry<String, SymInfo> entry : scopeInfo.tbl.entrySet()) {
@@ -500,7 +500,7 @@ public class SymbolTable {
     /** Return a list of the variables visible from a given scope */
     public Set<String> getVarNames(PythonTree scope, boolean mustBeBound) {
         ScopeInfo scopeInfo = scopes.get(scope);
-        Set<String> names = new HashSet<String>();
+        Set<String> names = new HashSet<>();
         while (scopeInfo != null) {
             for (Map.Entry<String, SymInfo> entry : scopeInfo.tbl.entrySet()) {
                 String name = entry.getKey();
@@ -519,7 +519,7 @@ public class SymbolTable {
     }
 
     public List<ImportEntry> getUnusedImports() {
-        List<ImportEntry> unused = new ArrayList<ImportEntry>();
+        List<ImportEntry> unused = new ArrayList<>();
         ScopeInfo scopeInfo = scopes.get(root);
         for (Map.Entry<String, SymInfo> entry : scopeInfo.tbl.entrySet()) {
             SymInfo sym = entry.getValue();
@@ -614,7 +614,7 @@ public class SymbolTable {
     }
 
     private class NameNodeFinder extends Visitor {
-        private List<PythonTree> nodes = new ArrayList<PythonTree>();
+        private List<PythonTree> nodes = new ArrayList<>();
         private PythonTree startScope;
         private String name;
 
@@ -775,7 +775,7 @@ public class SymbolTable {
     }
 
     public Map<String, SymInfo> getUnresolvedNames(PythonParserResult info) {
-        Map<String, SymInfo> unresolved = new HashMap<String, SymInfo>();
+        Map<String, SymInfo> unresolved = new HashMap<>();
         Set<String> builtin = getBuiltin(info);
 
         for (ScopeInfo scopeInfo : scopes.values()) {
@@ -814,7 +814,7 @@ public class SymbolTable {
     }
 
     public List<Attribute> getNotInInitAttributes(PythonParserResult info) {
-        List<Attribute> notInInitAttribs = new ArrayList<Attribute>();
+        List<Attribute> notInInitAttribs = new ArrayList<>();
         for (ScopeInfo scopeInfo : scopes.values()) {
             if (scopeInfo.scope_node instanceof ClassDef) {
                 if (scopeInfo.attributes != null) {
@@ -926,7 +926,7 @@ public class SymbolTable {
 
     public List<PythonTree> getUnresolvedParents(PythonParserResult info) {
         // deal with unresolved parents in inherit trees
-        List<PythonTree> unresolvedParents = new ArrayList<PythonTree>();
+        List<PythonTree> unresolvedParents = new ArrayList<>();
         PythonIndex index = PythonIndex.get(info.getSnapshot().getSource().getFileObject());
 
         for (String cur : classes.keySet()) {
@@ -972,9 +972,9 @@ public class SymbolTable {
     }
 
     public HashMap<ClassDef, String> getClassesCyclingRedundancies(PythonParserResult info) {
-        HashMap<ClassDef, String> cyclingRedundancies = new HashMap<ClassDef, String>();
+        HashMap<ClassDef, String> cyclingRedundancies = new HashMap<>();
         for (String cur : classes.keySet()) {
-            HashMap<String, String> returned = new HashMap<String, String>();
+            HashMap<String, String> returned = new HashMap<>();
             ClassDef curClass = classes.get(cur);
             if (!cyclingRedundancies.containsKey(curClass)) {
                 if (belongsToParents(curClass, null, returned) == CIRCULAR) {
@@ -988,9 +988,9 @@ public class SymbolTable {
     }
 
     public List<PythonTree> getUnresolvedAttributes(PythonParserResult info) {
-        List<PythonTree> unresolvedNodes = new ArrayList<PythonTree>();
+        List<PythonTree> unresolvedNodes = new ArrayList<>();
         for (ScopeInfo scopeInfo : scopes.values()) {
-            Set<String> unresolved = new HashSet<String>();
+            Set<String> unresolved = new HashSet<>();
             Map<String, SymInfo> tbl = scopeInfo.tbl;
             // unresolved attributes in local classes
             Map<String, SymInfo> attribs = scopeInfo.attributes;
@@ -1045,11 +1045,11 @@ public class SymbolTable {
     }
 
     public List<PythonTree> getUnresolved(PythonParserResult info) {
-        List<PythonTree> unresolvedNodes = new ArrayList<PythonTree>();
+        List<PythonTree> unresolvedNodes = new ArrayList<>();
         Set<String> builtin = getBuiltin(info);
 
         for (ScopeInfo scopeInfo : scopes.values()) {
-            Set<String> unresolved = new HashSet<String>();
+            Set<String> unresolved = new HashSet<>();
             Map<String, SymInfo> tbl = scopeInfo.tbl;
             for (Map.Entry<String, SymInfo> entry : tbl.entrySet()) {
                 SymInfo symInfo = entry.getValue();
@@ -1110,13 +1110,13 @@ public class SymbolTable {
     }
 
     public List<PythonTree> getUnused(boolean skipSelf, boolean skipParams) { // not used for unused imports, see separate method
-        List<PythonTree> unusedNodes = new ArrayList<PythonTree>();
+        List<PythonTree> unusedNodes = new ArrayList<>();
 
         for (ScopeInfo scopeInfo : scopes.values()) {
             if (scopeInfo.kind != FUNCSCOPE) {
                 continue;
             }
-            Set<String> unused = new HashSet<String>();
+            Set<String> unused = new HashSet<>();
             Map<String, SymInfo> tbl = scopeInfo.tbl;
             for (Map.Entry<String, SymInfo> entry : tbl.entrySet()) {
                 SymInfo symInfo = entry.getValue();
@@ -1146,7 +1146,7 @@ public class SymbolTable {
 
     private static class NameFinder extends Visitor {
         private Set<String> names;
-        private List<Name> nodes = new ArrayList<Name>();
+        private List<Name> nodes = new ArrayList<>();
         private PythonTree acceptDef;
 
         private NameFinder(Set<String> names) {
@@ -1209,7 +1209,7 @@ public class SymbolTable {
         OffsetRange range = PythonAstUtils.getRange(node);
 
         if (errors == null) {
-            errors = new ArrayList<Error>();
+            errors = new ArrayList<>();
         }
         Error error = new DefaultError(null, msg, null, fileObject, range.getStart(), range.getEnd(), err ? Severity.ERROR : Severity.WARNING);
         errors.add(error);

@@ -205,9 +205,11 @@ public class PythonDebugClient {
           extends PythonInterpretor
           implements PythonDebugEventListener {
 
+    @Override
     public void newDebugEvent(PythonDebugEvent e) {
     }
 
+    @Override
     public void launcherMessage(PythonDebugEvent e) {
       populateLauncherEvent(e);
     }

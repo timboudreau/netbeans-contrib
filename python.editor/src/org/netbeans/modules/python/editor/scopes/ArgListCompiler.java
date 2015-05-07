@@ -29,10 +29,10 @@ public class ArgListCompiler extends Visitor {
         this.symbolTable = symbolTable;
         arglist = keywordlist = false;
         defaults = null;
-        names = new ArrayList<String>();
-        nodes = new ArrayList<PythonTree>();
-        fpnames = new ArrayList<String>();
-        init_code = new ArrayList<stmt>();
+        names = new ArrayList<>();
+        nodes = new ArrayList<>();
+        fpnames = new ArrayList<>();
+        init_code = new ArrayList<>();
     }
 
     public void reset() {
@@ -58,7 +58,7 @@ public class ArgListCompiler extends Visitor {
             names.add(name);
             nodes.add(node);
             if (node instanceof Tuple) {
-                List<expr> targets = new ArrayList<expr>();
+                List<expr> targets = new ArrayList<>();
                 targets.add(node);
                 Assign ass = new Assign(node,
                         targets,

@@ -22,7 +22,7 @@ public class PythonActionProvider implements ActionProvider {
 
     public PythonActionProvider(PythonProject2 project) {
         assert project != null;
-        commands = new LinkedHashMap<String, Command>();
+        commands = new LinkedHashMap<>();
         Command[] commandArray = new Command[]{
             //            new DeleteCommand(project),
             //            new CopyCommand(project),

@@ -83,14 +83,17 @@ public class UnusedDetector extends PythonAstRule {
     public UnusedDetector() {
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public Set<Class> getKinds() {
         return Collections.<Class>singleton(Module.class);
     }
 
+    @Override
     public void run(PythonRuleContext context, List<Hint> result) {
         PythonParserResult info = (PythonParserResult) context.parserResult;
         SymbolTable symbolTable = info.getSymbolTable();
@@ -113,7 +116,7 @@ public class UnusedDetector extends PythonAstRule {
             skipTupleAssigns = getSkipTupleAssignments(pref);
             String ignoreNamesStr = getIgnoreNames(pref);
             if (ignoreNamesStr.length() > 0) {
-                ignoreNames = new HashSet<String>();
+                ignoreNames = new HashSet<>();
                 for (String s : ignoreNamesStr.split(",")) { // NOI18N
                     ignoreNames.add(s.trim());
                 }
@@ -134,7 +137,7 @@ public class UnusedDetector extends PythonAstRule {
             OffsetRange range = PythonAstUtils.getNameRange(info, node);
             range = PythonLexerUtils.getLexerOffsets(info, range);
             if (range != OffsetRange.NONE) {
-                List<HintFix> fixList = new ArrayList<HintFix>(3);
+                List<HintFix> fixList = new ArrayList<>(3);
                 String message = NbBundle.getMessage(NameRule.class, "UnusedVariable", name);
                 Hint desc = new Hint(this, message, info.getSnapshot().getSource().getFileObject(), range, fixList, 2305);
                 result.add(desc);
@@ -168,30 +171,37 @@ public class UnusedDetector extends PythonAstRule {
         return false;
     }
 
+    @Override
     public String getId() {
         return "Unused"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(NameRule.class, "Unused");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(NameRule.class, "UnusedDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return new UnusedDetectorPrefs(node);
     }

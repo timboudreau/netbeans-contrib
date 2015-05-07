@@ -76,6 +76,7 @@ public final class SourceNodeFactory implements NodeFactory {
     public SourceNodeFactory() {
     }
     
+    @Override
     public NodeList createNodes(Project p) {
         PythonProject project = (PythonProject)p.getLookup().lookup(PythonProject.class);
         assert project != null;
@@ -92,6 +93,7 @@ public final class SourceNodeFactory implements NodeFactory {
             project = proj;
         }
         
+        @Override
         public List<SourceGroupKey> keys() {
             if (this.project.getProjectDirectory() == null || !this.project.getProjectDirectory().isValid()) {
                 return Collections.EMPTY_LIST;
@@ -100,36 +102,43 @@ public final class SourceNodeFactory implements NodeFactory {
             SourceGroup[] groups = sources.getSourceGroups(PythonProjectType.SOURCES_TYPE_PYTHON);
             
             List result =  new ArrayList(groups.length);
-            for( int i = 0; i < groups.length; i++ ) {
-                result.add(new SourceGroupKey(groups[i]));
+            for (SourceGroup group : groups) {
+                result.add(new SourceGroupKey(group));
             }
             return result;
         }
         
+        @Override
         public void addChangeListener(ChangeListener l) {
             changeSupport.addChangeListener(l);
         }
         
+        @Override
         public void removeChangeListener(ChangeListener l) {
             changeSupport.removeChangeListener(l);
         }
         
+        @Override
         public Node node(SourceGroupKey key) {
             return new PackageViewFilterNode(key.group, project);
         }
         
+        @Override
         public void addNotify() {
             getSources().addChangeListener(this);
         }
         
+        @Override
         public void removeNotify() {
             getSources().removeChangeListener(this);
         }
         
+        @Override
         public void stateChanged(ChangeEvent e) {
             // setKeys(getKeys());
             // The caller holds ProjectManager.mutex() read lock
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     changeSupport.fireChange();
                 }
@@ -200,6 +209,7 @@ public final class SourceNodeFactory implements NodeFactory {
             this.nodeName = "Sources";  //NOI18N
         }
         
+        @Override
         public Action[] getActions(boolean context) {
             if (!context) {
                 if (actions == null) {
@@ -237,6 +247,7 @@ public final class SourceNodeFactory implements NodeFactory {
             this.panelName = panelName;
         }
         
+        @Override
         public void actionPerformed(ActionEvent e) {
 //todo: Add customizer            
 //            CustomizerProviderImpl cp = (CustomizerProviderImpl) project.getLookup().lookup(CustomizerProviderImpl.class);

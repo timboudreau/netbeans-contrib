@@ -118,7 +118,7 @@ public class PythonPlatformManager implements Serializable {
      * Load Platform data from xml
      */
     public void load(){
-        platforms = new HashMap<String, PythonPlatform>();
+        platforms = new HashMap<>();
 
         Map<String, String> p = PropertyUtils.sequentialPropertyEvaluator(null,
                 PropertyUtils.globalPropertyProvider()).getProperties();
@@ -309,11 +309,11 @@ public class PythonPlatformManager implements Serializable {
      * @todo Rename to getPlatformNameList?
      */
     public List<String> getPlatformList(){
-        return new ArrayList<String>(platforms.keySet());
+        return new ArrayList<>(platforms.keySet());
     }
 
     public List<PythonPlatform> getPlatforms(){
-        List<PythonPlatform> list = new ArrayList<PythonPlatform>(platforms.values());
+        List<PythonPlatform> list = new ArrayList<>(platforms.values());
         int i = list.size(); // for debugging when a bad list was persisted...
         if( i > 1){
             Collections.sort(list);
@@ -327,6 +327,7 @@ public class PythonPlatformManager implements Serializable {
         if (removed != null) {
             try {
                 ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                    @Override
                     public Void run() throws IOException {
                         EditableProperties props = PropertyUtils.getGlobalProperties();
                         clearProperties(removed, props);
@@ -421,11 +422,7 @@ public class PythonPlatformManager implements Serializable {
 //        }catch(PythonException ex){
 //            Exceptions.printStackTrace(ex);
 //            throw ex;
-        }catch(InterruptedException ex){            
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IOException ex) {
+        }catch(InterruptedException | ExecutionException | IOException ex){
             Exceptions.printStackTrace(ex);
         }
         return platform;
@@ -511,16 +508,16 @@ public class PythonPlatformManager implements Serializable {
         if (contents == null) {
           return;
         }
-        for(int i =0; i < contents.length; i++){
-            if(contents[i].getAbsolutePath().endsWith("jar")){
-                dest.add(contents[i].getAbsolutePath());
+        for (File content : contents) {
+            if (content.getAbsolutePath().endsWith("jar")) {
+                dest.add(content.getAbsolutePath());
             }
         }
 
     }
 
     private ArrayList<String> discoverJythonClasspath(String command){
-        ArrayList<String> temp = new ArrayList<String>();
+        ArrayList<String> temp = new ArrayList<>();
         //@@@jean-yves in some case bin is not there(jython 2.2.1 installer)
         // => looking for parent path of command  seemed less dangerous
         // + scan for jar in jython home instead of specifiying "jython.jar"
@@ -567,7 +564,7 @@ public class PythonPlatformManager implements Serializable {
 
         if (chmod.isFile()) {
             try {
-                List<String> argv = new ArrayList<String>();
+                List<String> argv = new ArrayList<>();
                 argv.add(chmod.getAbsolutePath());
                 argv.add("u+rx"); // NOI18N
 

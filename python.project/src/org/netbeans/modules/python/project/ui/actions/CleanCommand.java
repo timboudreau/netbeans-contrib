@@ -74,8 +74,8 @@ public class CleanCommand extends Command {
         if(dir.isDirectory()){
             String[] children = dir.list();
             if(children != null){
-                for (int i=0; i<children.length; i++) {
-                    traverse(new File(dir, children[i]));
+                for (String child : children) {
+                    traverse(new File(dir, child));
                 }
             }
 
@@ -90,8 +90,8 @@ public class CleanCommand extends Command {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             if(children != null){
-                for (int i=0; i<children.length; i++) {
-                    traverse(new File(dir, children[i]));
+                for (String child : children) {
+                    traverse(new File(dir, child));
                 }
 
             }

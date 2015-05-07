@@ -710,7 +710,7 @@ public class PythonTypeAnalyzer {
     private void init() {
         if (localVars == null) {
             startTime = System.currentTimeMillis();
-            localVars = new HashMap<String, String>();
+            localVars = new HashMap<>();
 
             LinkedList<Integer> typeAssertionOffsets = null;
             LinkedList<String> typeAssertionNames = null;
@@ -751,9 +751,9 @@ public class PythonTypeAnalyzer {
                                                         String type = ts.token().text().toString();
 
                                                         if (typeAssertionOffsets == null) {
-                                                            typeAssertionOffsets = new LinkedList<Integer>();
-                                                            typeAssertionNames = new LinkedList<String>();
-                                                            typeAssertionTypes = new LinkedList<String>();
+                                                            typeAssertionOffsets = new LinkedList<>();
+                                                            typeAssertionNames = new LinkedList<>();
+                                                            typeAssertionTypes = new LinkedList<>();
                                                         }
 
 
@@ -762,7 +762,7 @@ public class PythonTypeAnalyzer {
                                                             ast = PythonAstUtils.getAstOffset(info, lex);
                                                         }
                                                         if (ast != -1) {
-                                                            typeAssertionOffsets.add(Integer.valueOf(ast));
+                                                            typeAssertionOffsets.add(ast);
                                                             typeAssertionNames.add(var);
                                                             typeAssertionTypes.add(type);
                                                         }

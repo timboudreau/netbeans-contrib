@@ -104,6 +104,7 @@ public class PythonBreakpointActionProvider
    *
    * @param action an action which has been called
    */
+  @Override
   public void doAction(Object action) {
     Line line = Utils.getCurrentLine();
 
@@ -133,6 +134,7 @@ public class PythonBreakpointActionProvider
    *
    * @return set of actions supported by this ActionsProvider
    */
+  @Override
   public Set getActions() {
     return _ACTIONS_;
   }
@@ -142,6 +144,7 @@ public class PythonBreakpointActionProvider
 
   }
 
+  @Override
   public void propertyChange(PropertyChangeEvent evt) {
     boolean enabled = Utils.getCurrentLine() != null;
     setEnabled(ActionsManager.ACTION_TOGGLE_BREAKPOINT, enabled);
@@ -158,6 +161,7 @@ public class PythonBreakpointActionProvider
     final Dialog[] dialogPtr = new Dialog[1];
     ActionListener buttonsActionListener = new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent ev) {
         if (descriptorPtr[0].getValue() == DialogDescriptor.OK_OPTION) {
           boolean ok = cPtr[0].ok();

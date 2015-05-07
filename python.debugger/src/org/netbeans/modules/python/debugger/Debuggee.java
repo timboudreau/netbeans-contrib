@@ -59,7 +59,7 @@ import org.openide.util.RequestProcessor;
 public class Debuggee
         implements PythonSourceDebuggee {
 
-  private final static Hashtable<FileObject, Debuggee> _debuggees = new Hashtable<FileObject, Debuggee>();
+  private final static Hashtable<FileObject, Debuggee> _debuggees = new Hashtable<>();
   private final static String _PYTHON_ = "python";
 
   // execution commands
@@ -156,6 +156,7 @@ public class Debuggee
     this._displayName = displayName;
   }
 
+  @Override
   public File getFile() {
     FileObject fo = getFileObject();
     if (fo != null) {
@@ -165,6 +166,7 @@ public class Debuggee
     }
   }
 
+  @Override
   public FileObject getFileObject() {
     if (_pyo == null) {
       return null;
@@ -177,18 +179,22 @@ public class Debuggee
     return fo;
   }
 
+  @Override
   public void setDebugView(JpyDbgView view) {
     _view = view;
   }
 
+  @Override
   public JpyDbgView getDebugView() {
     return _view;
   }
 
+  @Override
   public void setSession(PythonSession pythonSession) {
     _pythonSession = pythonSession;
   }
 
+  @Override
   public PythonSession getSession() {
     return _pythonSession;
   }

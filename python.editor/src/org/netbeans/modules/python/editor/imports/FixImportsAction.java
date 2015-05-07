@@ -155,11 +155,11 @@ public class FixImportsAction extends BaseAction {
                 boolean removeUnusedImports;
                 Preferences prefs = NbPreferences.forModule(FixImportsAction.class).node(ImportManager.PREFS_KEY);
 
-                List<String> ambiguousSymbols = new ArrayList<String>();
-                Set<ImportEntry> unused = new HashSet<ImportEntry>();
-                Set<ImportEntry> duplicates = new HashSet<ImportEntry>();
-                Map<String, String> defaultLists = new HashMap<String, String>();
-                Map<String, List<String>> alternatives = new HashMap<String, List<String>>();
+                List<String> ambiguousSymbols = new ArrayList<>();
+                Set<ImportEntry> unused = new HashSet<>();
+                Set<ImportEntry> duplicates = new HashSet<>();
+                Map<String, String> defaultLists = new HashMap<>();
+                Map<String, List<String>> alternatives = new HashMap<>();
 
                 ImportManager manager = new ImportManager(info, doc);
                 boolean ambiguous = manager.computeImports(ambiguousSymbols, defaultLists, alternatives, unused, duplicates);

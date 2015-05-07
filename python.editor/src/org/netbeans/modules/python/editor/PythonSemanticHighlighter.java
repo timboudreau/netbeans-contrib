@@ -60,6 +60,7 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
     private boolean cancelled;
     private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
 
+    @Override
     public Map<OffsetRange, Set<ColoringAttributes>> getHighlights() {
         return semanticHighlights;
     }
@@ -72,6 +73,7 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
         cancelled = false;
     }
 
+    @Override
     public final synchronized void cancel() {
         cancelled = true;
     }
@@ -86,6 +88,7 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
         return Scheduler.EDITOR_SENSITIVE_TASK_SCHEDULER;
     }
     
+    @Override
     public void run(PythonParserResult pr, SchedulerEvent event) {
         resume();
 
@@ -112,7 +115,7 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
     private static class SemanticVisitor extends Visitor {
         private final PythonParserResult info;
         private Map<OffsetRange, Set<ColoringAttributes>> highlights =
-                new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
+                new HashMap<>(100);
         private final SymbolTable symbolTable;
         private ScopeInfo scope;
 

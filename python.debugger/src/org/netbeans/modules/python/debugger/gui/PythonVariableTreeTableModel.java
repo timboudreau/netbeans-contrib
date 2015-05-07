@@ -86,11 +86,13 @@ public class PythonVariableTreeTableModel
   //
   // The TreeModel interface
   //
+  @Override
   public int getChildCount(Object node) {
     Object[] children = getChildren(node);
     return (children == null) ? 0 : children.length;
   }
 
+  @Override
   public boolean isCellEditable(Object node, int column) {
     if (getColumnClass(column) == TreeTableModel.class) {
       return true;
@@ -104,12 +106,14 @@ public class PythonVariableTreeTableModel
     return false;
   }
 
+  @Override
   public Object getChild(Object node, int i) {
 
     return getChildren(node)[i];
   }
 
   // The superclass's implementation would work, but this is more efficient.
+  @Override
   public boolean isLeaf(Object node) {
     PythonVariableTreeDataNode cur = (PythonVariableTreeDataNode) node;
     return cur.isLeaf();
@@ -118,14 +122,17 @@ public class PythonVariableTreeTableModel
   //
   //  The TreeTableNode interface.
   //
+  @Override
   public int getColumnCount() {
     return _columnNames.length;
   }
 
+  @Override
   public String getColumnName(int column) {
     return _columnNames[column];
   }
 
+  @Override
   public Class getColumnClass(int column) {
     return cTypes[column];
   }
@@ -152,6 +159,7 @@ public class PythonVariableTreeTableModel
     fireTreeStructureChanged(this, candidate.getPath(), null, null);
   }
 
+  @Override
   public Object getValueAt(Object node, int column) {
     PythonVariableTreeDataNode dataNode = getDataNode(node);
 
@@ -165,6 +173,7 @@ public class PythonVariableTreeTableModel
     return null;
   }
 
+  @Override
   public void setValueAt(Object newValue, Object node, int column) {
     if (column == 0) // tree
     {

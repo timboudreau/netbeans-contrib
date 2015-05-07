@@ -452,7 +452,7 @@ public class PythonAstUtils {
 
     public static List<String> getParameters(FunctionDef def) {
         arguments args = def.getInternalArgs();
-        List<String> params = new ArrayList<String>();
+        List<String> params = new ArrayList<>();
 
         NameVisitor visitor = new NameVisitor();
 
@@ -680,7 +680,7 @@ public class PythonAstUtils {
         if (nodes == null) {
             return null;
         }
-        Set<OffsetRange> offsets = new HashSet<OffsetRange>();
+        Set<OffsetRange> offsets = new HashSet<>();
         Document doc = GsfUtilities.getDocument(info.getSnapshot().getSource().getFileObject(), false);
         if (doc == null) {
             return Collections.emptySet();
@@ -813,8 +813,8 @@ public class PythonAstUtils {
     }
 
     private static class LocalVarVisitor extends Visitor {
-        private List<Name> vars = new ArrayList<Name>();
-        private Set<OffsetRange> offsets = new HashSet<OffsetRange>();
+        private List<Name> vars = new ArrayList<>();
+        private Set<OffsetRange> offsets = new HashSet<>();
         private String name;
         private PythonParserResult info;
         private boolean collectNames;
@@ -869,8 +869,8 @@ public class PythonAstUtils {
     }
 
     private static class LocalVarAssignVisitor extends Visitor {
-        private List<Name> vars = new ArrayList<Name>();
-        private Set<OffsetRange> offsets = new HashSet<OffsetRange>();
+        private List<Name> vars = new ArrayList<>();
+        private Set<OffsetRange> offsets = new HashSet<>();
         private String name;
         private PythonParserResult info;
         private boolean collectNames;
@@ -942,8 +942,8 @@ public class PythonAstUtils {
 
         @Override
         public void traverse(PythonTree node) throws Exception {
-            for (int i = 0; i < nodeClasses.length; i++) {
-                if (node.getClass() == nodeClasses[i]) {
+            for (Class nodeClasse : nodeClasses) {
+                if (node.getClass() == nodeClasse) {
                     result.add(node);
                     break;
                 }

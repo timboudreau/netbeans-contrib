@@ -77,10 +77,10 @@ public class DebuggerPythonLogger {
    */
   private final static String _PYTHONSESSION_ = "PythonSession";
   /** PythonSession => PythonDebugger */
-  private Map<PythonSession, PythonDebugger> _runningDebuggers = new HashMap<PythonSession, PythonDebugger>();
+  private Map<PythonSession, PythonDebugger> _runningDebuggers = new HashMap<>();
   /** PythonDebugger => PythonSession */
-  private Map<PythonDebugger, PythonSession> _runningDebuggers2 = new HashMap<PythonDebugger, PythonSession>();
-  private Set<File> _filesToDebug = new HashSet<File>();
+  private Map<PythonDebugger, PythonSession> _runningDebuggers2 = new HashMap<>();
+  private Set<File> _filesToDebug = new HashSet<>();
 
   /**
    * Creates a new instance of DebuggerPythonLogger
@@ -178,20 +178,24 @@ public class DebuggerPythonLogger {
             new Object[]{
               new SessionProvider() {
 
+                @Override
                 public String getSessionName() {
                   // System.out.println( "Debugger Session Name is :" + pyEvent.getSession().getDisplayName() );
 
                   return pyEvent.getSession().getDisplayName();
                 }
 
+                @Override
                 public String getLocationName() {
                   return "localhost";
                 }
 
+                @Override
                 public String getTypeID() {
                   return _PYTHONSESSION_;
                 }
 
+                @Override
                 public Object[] getServices() {
                   return new Object[]{};
                 }

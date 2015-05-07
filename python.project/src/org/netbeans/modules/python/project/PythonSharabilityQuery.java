@@ -44,9 +44,11 @@ public class PythonSharabilityQuery implements SharabilityQueryImplementation, P
         this.tests.addPropertyChangeListener(this);        
     }
 
+    @Override
     public int getSharability(final File file) {
         assert file != null;
         return ProjectManager.mutex().readAccess(new Mutex.Action<Integer>() {
+            @Override
             public Integer run() {
                 synchronized (PythonSharabilityQuery.this) {
                     if (delegate == null) {
@@ -58,6 +60,7 @@ public class PythonSharabilityQuery implements SharabilityQueryImplementation, P
         });
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (SourceRoots.PROP_ROOT_PROPERTIES.equals(evt.getPropertyName())) {
             delegate = null;
@@ -71,7 +74,7 @@ public class PythonSharabilityQuery implements SharabilityQueryImplementation, P
         int size = srcProps.length;
         size += testProps.length;
         
-        List<String> props = new ArrayList<String>(size);
+        List<String> props = new ArrayList<>(size);
 
         for (String src : srcProps) {
             props.add("${" + src + "}"); // NOI18N

@@ -227,6 +227,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
             };
         } else {
             task = new NodeToElementTask(lookup.lookupAll(Node.class)) {
+                @Override
                 protected RefactoringUI createRefactoringUI(PythonElementCtx selectedElement, PythonParserResult info) {
                     return new WhereUsedQueryUI(selectedElement);
                 }
@@ -281,6 +282,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
         public void cancel() {
         }
 
+        @Override
         public void run(ResultIterator cc) throws Exception {
             PythonTree root = PythonAstUtils.getRoot((ParserResult) cc.getParserResult());
             if (root == null) {
@@ -296,6 +298,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
             ui = createRefactoringUI(ctx, start, end, (PythonParserResult)cc.getParserResult());
         }
 
+        @Override
         public final void run() {
             FileObject fo = null;
             try {
@@ -342,6 +345,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
         public void cancel() {
         }
 
+        @Override
         public void run(ResultIterator info) throws Exception {
             PythonTree root = PythonAstUtils.getRoot((ParserResult) info.getParserResult());
             if (root != null) {
@@ -351,6 +355,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
             }
         }
 
+        @Override
         public final void run() {
             DataObject o = node.getCookie(DataObject.class);
             Source source = Source.create(o.getPrimaryFile());
@@ -371,7 +376,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
         private RefactoringUI ui;
         public NonRecursiveFolder pkg[];
         public WeakReference<ResultIterator> cinfo;
-        Collection<PythonElementCtx> handles = new ArrayList<PythonElementCtx>();
+        Collection<PythonElementCtx> handles = new ArrayList<>();
 
         public NodeToFileObjectTask(Collection<? extends Node> nodes) {
             this.nodes = nodes;
@@ -380,6 +385,7 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
         public void cancel() {
         }
 
+        @Override
         public void run(ResultIterator info) throws Exception {
             PythonTree root = PythonAstUtils.getRoot((ParserResult) info.getParserResult());
             if (root != null) {
@@ -400,9 +406,10 @@ public class RefactoringActionsProvider extends ActionsImplementationProvider {
                     }
                 }
             }
-            cinfo = new WeakReference<ResultIterator>(info);
+            cinfo = new WeakReference<>(info);
         }
 
+        @Override
         public void run() {
             FileObject[] fobs = new FileObject[nodes.size()];
             pkg = new NonRecursiveFolder[fobs.length];

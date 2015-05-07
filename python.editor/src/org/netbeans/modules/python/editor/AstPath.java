@@ -46,7 +46,7 @@ import org.python.antlr.Visitor;
  * @author Tor Norbye
  */
 public class AstPath implements Iterable<PythonTree> {
-    private ArrayList<PythonTree> path = new ArrayList<PythonTree>(30);
+    private ArrayList<PythonTree> path = new ArrayList<>(30);
 
     public AstPath() {
     }
@@ -265,6 +265,7 @@ public class AstPath implements Iterable<PythonTree> {
     }
 
     /** Return an iterator that returns the elements from the leaf back up to the root */
+    @Override
     public Iterator<PythonTree> iterator() {
         return new LeafToRootIterator(path);
     }
@@ -286,38 +287,47 @@ public class AstPath implements Iterable<PythonTree> {
             it = path.listIterator(path.size());
         }
 
+        @Override
         public boolean hasNext() {
             return it.hasPrevious();
         }
 
+        @Override
         public PythonTree next() {
             return it.previous();
         }
 
+        @Override
         public boolean hasPrevious() {
             return it.hasNext();
         }
 
+        @Override
         public PythonTree previous() {
             return it.next();
         }
 
+        @Override
         public int nextIndex() {
             return it.previousIndex();
         }
 
+        @Override
         public int previousIndex() {
             return it.nextIndex();
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void set(PythonTree arg0) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
         public void add(PythonTree arg0) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -325,7 +335,7 @@ public class AstPath implements Iterable<PythonTree> {
 
     private static class FindByOffsetVisitor extends Visitor {
         private int targetOffset;
-        private ArrayList<PythonTree> path = new ArrayList<PythonTree>();
+        private ArrayList<PythonTree> path = new ArrayList<>();
 
         private FindByOffsetVisitor(int targetOffset) {
             this.targetOffset = targetOffset;
@@ -371,7 +381,7 @@ public class AstPath implements Iterable<PythonTree> {
         private PythonTree target;
         private int startOffset;
         private int endOffset;
-        private ArrayList<PythonTree> path = new ArrayList<PythonTree>();
+        private ArrayList<PythonTree> path = new ArrayList<>();
         private boolean found;
 
         private FindByNodeVisitor(PythonTree target) {

@@ -54,8 +54,10 @@ public class PythonSources implements Sources, ChangeListener, PropertyChangeLis
         delegate = initSources();
     }
 
+    @Override
     public SourceGroup[] getSourceGroups(final String type) {
         return ProjectManager.mutex().readAccess(new Mutex.Action<SourceGroup[]>() {
+            @Override
             public SourceGroup[] run() {
                 Sources _delegate;
                 synchronized (PythonSources.this) {
@@ -93,10 +95,12 @@ public class PythonSources implements Sources, ChangeListener, PropertyChangeLis
         }
     }
 
+    @Override
     public void addChangeListener(ChangeListener changeListener) {
         changeSupport.addChangeListener(changeListener);
     }
 
+    @Override
     public void removeChangeListener(ChangeListener changeListener) {
         changeSupport.removeChangeListener(changeListener);
     }
@@ -108,6 +112,7 @@ public class PythonSources implements Sources, ChangeListener, PropertyChangeLis
         changeSupport.fireChange();
     }
     
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
         if (SourceRoots.PROP_ROOT_PROPERTIES.equals(propName)) {
@@ -115,6 +120,7 @@ public class PythonSources implements Sources, ChangeListener, PropertyChangeLis
         }
     }
     
+    @Override
     public void stateChanged (ChangeEvent event) {
         this.fireChange();
     }

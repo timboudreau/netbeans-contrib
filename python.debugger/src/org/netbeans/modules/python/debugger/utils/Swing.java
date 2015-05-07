@@ -201,10 +201,7 @@ public class Swing {
     } catch (UnsupportedLookAndFeelException e) {
       return new String("Unsupported look and feel exception returned on :" +
               strLookAndFeel);
-    } catch (IllegalAccessException f) {
-      return new String("IllegalAccessException returned on :" +
-              strLookAndFeel);
-    } catch (InstantiationException g) {
+    } catch (IllegalAccessException | InstantiationException f) {
       return new String("IllegalAccessException returned on :" +
               strLookAndFeel);
     } catch (ClassNotFoundException h) {

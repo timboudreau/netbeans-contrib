@@ -69,15 +69,18 @@ public class PropertyCodeGenerator implements CodeGenerator {
 
     public static class Factory implements CodeGenerator.Factory {
 
+        @Override
         public List<? extends CodeGenerator> create(Lookup context) {
             return Collections.singletonList(new PropertyCodeGenerator(context));
         }
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(PropertyCodeGenerator.class, "Property");
     }
 
+    @Override
     public void invoke() {
         PropertyCodeGenPanel panel = new PropertyCodeGenPanel();
         DialogDescriptor descriptor = new DialogDescriptor(panel,

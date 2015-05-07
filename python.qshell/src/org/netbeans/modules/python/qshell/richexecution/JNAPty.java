@@ -70,6 +70,7 @@ class JNAPty extends Pty {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void masterTIOCSWINSZ(int rows, int cols, int height, int width) {
         if (master_fd == null)
             return;
@@ -80,6 +81,7 @@ class JNAPty extends Pty {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void slaveTIOCSWINSZ(int rows, int cols, int height, int width) {
         if (slave_fd == null)
             return;
@@ -91,6 +93,7 @@ class JNAPty extends Pty {
      * {@inheritDoc}
      * @throws pty.PtyException
      */
+    @Override
     public void setup() throws PtyException {
 	int mfd = -1;
 	int sfd = -1;

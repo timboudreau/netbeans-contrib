@@ -51,6 +51,7 @@ public class PythonPlatformPanel extends javax.swing.JPanel {
         }
 
         manager.addVetoableChangeListener(new VetoableChangeListener() {
+            @Override
             public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
                 try {
                     ignoreEvents = true;
@@ -427,8 +428,8 @@ public class PythonPlatformPanel extends javax.swing.JPanel {
         console.setText(platform.getInterpreterConsoleComand());
         commandArgs.setText(platform.getInterpreterArgs());
         // Make copy so we don't muck with the master copy in the platform manager...
-        pythonPathModel.setModel(new ArrayList<String>(platform.getPythonPath()));
-        javaPathModel.setModel(new ArrayList<String>(platform.getJavaPath()));
+        pythonPathModel.setModel(new ArrayList<>(platform.getPythonPath()));
+        javaPathModel.setModel(new ArrayList<>(platform.getJavaPath()));
 
     }
 
@@ -637,6 +638,7 @@ public class PythonPlatformPanel extends javax.swing.JPanel {
         final PythonPlatformPanel customizer = new PythonPlatformPanel();
         JButton closeButton = new JButton();
         closeButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 customizer.savePlatform();
             }

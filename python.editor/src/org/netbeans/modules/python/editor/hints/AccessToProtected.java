@@ -108,34 +108,42 @@ public class AccessToProtected extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return ACCESS_PROTECTED_ID;
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(RelativeImports.class, ACCESS_PROTECTED_DESC);
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return false;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(AccessToProtected.class, ACCESS_PROTECTED_ID);
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }

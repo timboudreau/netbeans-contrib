@@ -96,7 +96,7 @@ public class RelativeImports extends PythonAstRule {
                 if (lexOffsets != OffsetRange.NONE && lexOffsets.getStart() < doc.getLength() &&
                         (context.caretOffset == -1 ||
                         Utilities.getRowStart(doc, context.caretOffset) == Utilities.getRowStart(doc, lexOffsets.getStart()))) {
-                    List<HintFix> fixList = new ArrayList<HintFix>();
+                    List<HintFix> fixList = new ArrayList<>();
                     fixList.add(new RelativeImportsFix(context, imp));
                     String displayName = getDisplayName();
                     Hint desc = new Hint(this, displayName, info.getSnapshot().getSource().getFileObject(), lexOffsets, fixList, 1500);
@@ -108,34 +108,42 @@ public class RelativeImports extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "RelativeImports"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(RelativeImports.class, "RelativeImports");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(RelativeImports.class, "RelativeImportsDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }
@@ -149,14 +157,17 @@ public class RelativeImports extends PythonAstRule {
             this.imp = imp;
         }
 
+        @Override
         public String getDescription() {
             return NbBundle.getMessage(RelativeImports.class, "RelativeImportsFix");
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             BaseDocument doc = context.doc;
             EditList edits = new EditList(doc);
@@ -216,15 +227,18 @@ public class RelativeImports extends PythonAstRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList();
             edits.apply();
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

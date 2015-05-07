@@ -279,14 +279,17 @@ public class GotoTest implements TestLocator {
         return /*LocationResult.NONE*/null;
     }
 
+    @Override
     public boolean appliesTo(FileObject fo) {
         return PythonUtils.isPythonFile(fo);
     }
 
+    @Override
     public boolean asynchronous() {
         return false;
     }
 
+    @Override
     public LocationResult findOpposite(FileObject fileObject, int caretOffset) {
         LocationResult location = findTest(fileObject, caretOffset);
 
@@ -301,13 +304,15 @@ public class GotoTest implements TestLocator {
         }
     }
 
+    @Override
     public void findOpposite(FileObject fo, int caretOffset, LocationListener callback) {
         throw new UnsupportedOperationException("GotoTest is synchronous");
     }
 
+    @Override
     public FileType getFileType(FileObject fo) {
         String name = fo.getName();
-        return name.indexOf("_test") != -1 || name.indexOf("test_") != -1 ? // NOI18N
+        return name.contains("_test") || name.contains("test_") ? // NOI18N
             TestLocator.FileType.TEST :
             TestLocator.FileType.TESTED;
     }

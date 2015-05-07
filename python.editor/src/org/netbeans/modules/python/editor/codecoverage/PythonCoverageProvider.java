@@ -130,7 +130,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         //int notExecuted = 0;
         //int inferred = 0;
         for (Integer lineno : linenos) {
-            int line = lineno.intValue();
+            int line = lineno;
             if (line > lineCount) {
                 lineCount = lineno;
             }
@@ -172,8 +172,9 @@ public final class PythonCoverageProvider implements CoverageProvider {
         return result;
     }
 
+    @Override
     public synchronized List<FileCoverageSummary> getResults() {
-        List<FileCoverageSummary> results = new ArrayList<FileCoverageSummary>();
+        List<FileCoverageSummary> results = new ArrayList<>();
 
         update();
 
@@ -193,10 +194,12 @@ public final class PythonCoverageProvider implements CoverageProvider {
         return results;
     }
 
+    @Override
     public boolean supportsAggregation() {
         return true;
     }
 
+    @Override
     public synchronized boolean isAggregating() {
         if (aggregating == null) {
             aggregating = CoverageProviderHelper.isAggregating(project);
@@ -204,6 +207,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         return aggregating;
     }
 
+    @Override
     public synchronized void setAggregating(boolean on) {
         if (aggregating != null && on == isAggregating()) {
             return;
@@ -214,6 +218,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         CoverageProviderHelper.setAggregating(project, on);
     }
 
+    @Override
     public synchronized boolean isEnabled() {
         if (enabled == null) {
             enabled = CoverageProviderHelper.isEnabled(project);
@@ -221,6 +226,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         return enabled;
     }
 
+    @Override
     public synchronized void setEnabled(boolean on) {
         if (enabled != null && on == isEnabled()) {
             return;
@@ -237,6 +243,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         CoverageProviderHelper.setEnabled(project, on);
     }
 
+    @Override
     public synchronized void clear() {
         File file = getPythonCoverageFile();
         if (file.exists()) {
@@ -253,6 +260,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         timestamp = 0;
     }
 
+    @Override
     public synchronized FileCoverageDetails getDetails(FileObject fo, Document doc) {
         update();
 
@@ -316,7 +324,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
 
     private static List<Integer> getLineCounts(String lines) {
         int size = lines.length() / 6;
-        List<Integer> lineCounts = new ArrayList<Integer>(size);
+        List<Integer> lineCounts = new ArrayList<>(size);
 
         int start = 1;
         int i = start;
@@ -594,8 +602,8 @@ public final class PythonCoverageProvider implements CoverageProvider {
         // Read & Parse the corresponding data structure into memory
         if (nbCoverage.exists() && timestamp < nbCoverage.lastModified()) {
             timestamp = nbCoverage.lastModified();
-            hitCounts = new HashMap<String, String>();
-            fullNames = new HashMap<String, String>();
+            hitCounts = new HashMap<>();
+            fullNames = new HashMap<>();
 
             BufferedReader br = null;
             try {
@@ -651,7 +659,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
 
         PythonExecution execution = new PythonExecution(original);
 
-        List<String> wrapperArgs = new ArrayList<String>();
+        List<String> wrapperArgs = new ArrayList<>();
         // TODO - path munging on Windows?
         File pythonCoverage = getPythonCoverageFile();
         File nbCoverage = getNbCoverageFile();
@@ -676,6 +684,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         execution.addErrConvertor(new HideCoverageFramesConvertor());
 
         execution.setPostExecutionHook(new Runnable() {
+            @Override
             public void run() {
                 // Process the data immediately since it's available when we need it...
                 PythonCoverageProvider.this.update();
@@ -690,6 +699,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
         return execution;
     }
 
+    @Override
     public String getTestAllAction() {
         return null;
     }
@@ -698,6 +708,7 @@ public final class PythonCoverageProvider implements CoverageProvider {
     private static class HideCoverageFramesConvertor implements LineConvertor {
         boolean lastWasCulled = false;
 
+        @Override
         public List<ConvertedLine> convert(String line) {
             // What about Windows? Do \\ instead?
             if (line.contains("/python/coverage/coverage")) { // NOI18N
@@ -717,10 +728,12 @@ public final class PythonCoverageProvider implements CoverageProvider {
         CoverageManager.INSTANCE.setEnabled(project, true);
     }
 
+    @Override
     public boolean supportsHitCounts() {
         return false;
     }
 
+    @Override
     public Set<String> getMimeTypes() {
         return mimeTypes;
     }
@@ -740,18 +753,22 @@ public final class PythonCoverageProvider implements CoverageProvider {
             this.lastUpdated = lastUpdated;
         }
 
+        @Override
         public int getLineCount() {
             return hitCounts.length;
         }
 
+        @Override
         public boolean hasHitCounts() {
             return false;
         }
 
+        @Override
         public FileCoverageSummary getSummary() {
             return createSummary(fileName, lineCounts);
         }
 
+        @Override
         public CoverageType getType(int lineNo) {
             int count = hitCounts[lineNo];
             switch (count) {
@@ -766,14 +783,17 @@ public final class PythonCoverageProvider implements CoverageProvider {
             }
         }
 
+        @Override
         public int getHitCount(int lineNo) {
             return hitCounts[lineNo];
         }
 
+        @Override
         public long lastUpdated() {
             return lastUpdated;
         }
 
+        @Override
         public FileObject getFile() {
             return fileObject;
         }

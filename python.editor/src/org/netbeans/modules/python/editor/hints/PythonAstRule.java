@@ -40,6 +40,7 @@ public abstract class PythonAstRule implements AstRule {
      * Get the ElementKinds this rule should run on.
      * The integers should correspond to values in {@link org.mozilla.javascript.Token}
      */
+    @Override
     public abstract Set<Class> getKinds();
 
     /**

@@ -67,7 +67,7 @@ public class BreakpointModel
           "org/netbeans/modules/debugger/resources/editor/Breakpoint+PC";
   public static final String DISABLED_LINE_BREAKPOINT =
           "org/netbeans/modules/debugger/resources/editor/DisabledBreakpoint";
-  private Vector<ModelListener> _listeners = new Vector<ModelListener>();
+  private Vector<ModelListener> _listeners = new Vector<>();
 
   /** Creates a new instance of BreakpointModel */
   public BreakpointModel() {
@@ -78,6 +78,7 @@ public class BreakpointModel
    *
    * @param l the listener to remove
    */
+  @Override
   public void removeModelListener(ModelListener l) {
     _listeners.remove(l);
   }
@@ -91,6 +92,7 @@ public class BreakpointModel
    *          able to resolve tooltip for given node type
    * @return  tooltip for given node
    */
+  @Override
   public String getShortDescription(Object node)
           throws UnknownTypeException {
     if (node instanceof PythonBreakpoint) {
@@ -112,6 +114,7 @@ public class BreakpointModel
    *          able to resolve icon for given node type
    * @return  icon for given node
    */
+  @Override
   public String getIconBase(Object node) throws UnknownTypeException {
     if (node instanceof PythonBreakpoint) {
       PythonBreakpoint breakpoint = (PythonBreakpoint) node;
@@ -139,6 +142,7 @@ public class BreakpointModel
    *          able to resolve display name for given node type
    * @return  display name for given node
    */
+  @Override
   public String getDisplayName(Object node) throws UnknownTypeException {
     if (node instanceof PythonBreakpoint) {
       PythonBreakpoint breakpoint = (PythonBreakpoint) node;
@@ -164,6 +168,7 @@ public class BreakpointModel
    *
    * @param l the listener to add
    */
+  @Override
   public void addModelListener(ModelListener l) {
     _listeners.add(l);
   }

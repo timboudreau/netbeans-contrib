@@ -84,6 +84,7 @@ public class FastImportAction extends BaseAction {
         super(ACTION_NAME);
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt, JTextComponent target) {
         try {
             final Rectangle caretRectangle = target.modelToView(target.getCaretPosition());
@@ -137,12 +138,13 @@ public class FastImportAction extends BaseAction {
         // which implies which alternative is eligible, etc.)
 
 
-        final List<String> privileged = new ArrayList<String>(modules);
+        final List<String> privileged = new ArrayList<>(modules);
         Collections.sort(privileged);
-        final List<String> denied = new ArrayList<String>();
+        final List<String> denied = new ArrayList<>();
         Collections.sort(denied);
 
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 ImportModulePanel panel = new ImportModulePanel(ident, privileged, denied, font, info, position);
                 PopupUtil.showPopup(panel, "", where.x, where.y, true, caretRectangle.height);

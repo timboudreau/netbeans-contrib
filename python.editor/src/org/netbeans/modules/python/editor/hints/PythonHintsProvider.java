@@ -73,23 +73,28 @@ public class PythonHintsProvider implements HintsProvider {
     }
 
     private static class ScopeRule implements Rule {
+        @Override
         public boolean appliesTo(RuleContext context) {
             return true;
         }
 
+        @Override
         public String getDisplayName() {
             return "";
         }
 
+        @Override
         public boolean showInTasklist() {
             return true;
         }
 
+        @Override
         public HintSeverity getDefaultSeverity() {
             return HintSeverity.ERROR;
         }
     }
     
+    @Override
     public void computeErrors(HintsManager manager, RuleContext context, List<Hint> result, List<Error> unhandled) {
         ParserResult parserResult = context.parserResult;
         if (parserResult == null) {
@@ -130,6 +135,7 @@ public class PythonHintsProvider implements HintsProvider {
 //        }
     }
 
+    @Override
     public void computeSelectionHints(HintsManager manager, RuleContext context, List<Hint> result, int start, int end) {
         cancelled = false;
 
@@ -191,6 +197,7 @@ public class PythonHintsProvider implements HintsProvider {
         }
     }
 
+    @Override
     public void computeHints(HintsManager manager, RuleContext context, List<Hint> result) {
         cancelled = false;
 
@@ -235,6 +242,7 @@ public class PythonHintsProvider implements HintsProvider {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void computeSuggestions(HintsManager manager, RuleContext context, List<Hint> result, int caretOffset) {
         cancelled = false;
         if (context.parserResult == null) {
@@ -247,7 +255,7 @@ public class PythonHintsProvider implements HintsProvider {
             return;
         }
 
-        Map<Class, List<PythonAstRule>> suggestions = new HashMap<Class, List<PythonAstRule>>();
+        Map<Class, List<PythonAstRule>> suggestions = new HashMap<>();
         suggestions.putAll((Map)manager.getHints(true, context));
 
         Set<Entry<Class, List<PythonAstRule>>> entrySet = (Set)manager.getSuggestions().entrySet();
@@ -255,7 +263,7 @@ public class PythonHintsProvider implements HintsProvider {
             List<PythonAstRule> rules = suggestions.get(e.getKey());
 
             if (rules != null) {
-                List<PythonAstRule> res = new LinkedList<PythonAstRule>();
+                List<PythonAstRule> res = new LinkedList<>();
 
                 res.addAll(rules);
                 res.addAll(e.getValue());
@@ -363,6 +371,7 @@ public class PythonHintsProvider implements HintsProvider {
 //        }
 //    }
 //
+    @Override
     public void cancel() {
         cancelled = true;
     }
@@ -371,10 +380,12 @@ public class PythonHintsProvider implements HintsProvider {
         return cancelled;
     }
 
+    @Override
     public RuleContext createRuleContext() {
         return new PythonRuleContext();
     }
 
+    @Override
     public List<Rule> getBuiltinRules() {
         return Collections.emptyList();
     }

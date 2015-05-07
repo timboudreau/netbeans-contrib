@@ -166,11 +166,11 @@ public final class ImportManager {
         }
 
         if (cleanup != ImportCleanupStyle.LEAVE_ALONE) {
-            List<String> ambiguousSymbols = new ArrayList<String>();
-            Map<String, String> defaultLists = new HashMap<String, String>();
-            Map<String, List<String>> alternatives = new HashMap<String, List<String>>();
-            Set<ImportEntry> unused = new HashSet<ImportEntry>();
-            Set<ImportEntry> duplicates = new HashSet<ImportEntry>();
+            List<String> ambiguousSymbols = new ArrayList<>();
+            Map<String, String> defaultLists = new HashMap<>();
+            Map<String, List<String>> alternatives = new HashMap<>();
+            Set<ImportEntry> unused = new HashSet<>();
+            Set<ImportEntry> duplicates = new HashSet<>();
 
             computeImports(ambiguousSymbols, defaultLists, alternatives, unused, duplicates);
             if (ambiguousSymbols.size() == 0 || force) {
@@ -195,7 +195,7 @@ public final class ImportManager {
     }
 
     private Set<ImportEntry> findDuplicates() {
-        Set<ImportEntry> duplicates = new HashSet<ImportEntry>();
+        Set<ImportEntry> duplicates = new HashSet<>();
         // TODO!
 
         return duplicates;
@@ -221,14 +221,14 @@ public final class ImportManager {
             for (IndexedElement module : modules) {
                 String name = module.getName();
                 if (unresolved.containsKey(name)) {
-                    List<String> list = new ArrayList<String>(4);
+                    List<String> list = new ArrayList<>(4);
                     list.add(name);
                     defaults.put(name, name);
                     alternatives.put(name, list);
                 }
             }
 
-            List<String> unresolvedList = new ArrayList<String>(unresolved.keySet());
+            List<String> unresolvedList = new ArrayList<>(unresolved.keySet());
             Collections.sort(unresolvedList);
             for (String symbol : unresolvedList) {
                 // TODO - determine if it's a call or variable
@@ -237,13 +237,13 @@ public final class ImportManager {
                 // TODO - insert symbols   + " (whole module)"
                 if (importsFor.size() > 0) {
                     if (importsFor.size() > 1) {
-                        List<String> l = new ArrayList<String>(importsFor);
+                        List<String> l = new ArrayList<>(importsFor);
                         Collections.sort(l);
                         importsFor = l;
                     }
                     List<String> list = alternatives.get(symbol);
                     if (list == null) {
-                        list = new ArrayList<String>();
+                        list = new ArrayList<>();
                         alternatives.put(symbol, list);
                     }
                     for (String s : importsFor) {
@@ -266,7 +266,7 @@ public final class ImportManager {
 
         }
 
-        List<String> unambiguousNames = new ArrayList<String>();
+        List<String> unambiguousNames = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : alternatives.entrySet()) {
             List<String> list = entry.getValue();
             if (list == null || list.size() == 0) {
@@ -309,11 +309,11 @@ public final class ImportManager {
             apply = true;
         }
 
-        Set<PythonTree> removedAlready = new HashSet<PythonTree>();
+        Set<PythonTree> removedAlready = new HashSet<>();
 
         Set<PythonTree> mainImport;
         //if (sortImports) {
-        mainImport = new HashSet<PythonTree>(mainImports);
+        mainImport = new HashSet<>(mainImports);
         //} else {
         //    mainImport = Collections.<PythonTree>emptySet();
         //}
@@ -419,8 +419,8 @@ public final class ImportManager {
         if (cleanup == ImportCleanupStyle.LEAVE_ALONE) {
             removeEntries.clear();
         } else {
-            Set<ImportEntry> newSet = new HashSet<ImportEntry>();
-            Set<PythonTree> filtered = new HashSet<PythonTree>();
+            Set<ImportEntry> newSet = new HashSet<>();
+            Set<PythonTree> filtered = new HashSet<>();
             for (ImportEntry entry : removeEntries) {
                 PythonTree node = entry.node;
                 if (!mainImport.contains(node) && topLevel.contains(node)) {
@@ -536,7 +536,7 @@ public final class ImportManager {
 
         PythonIndex index = PythonIndex.get(info.getSnapshot().getSource().getFileObject());
 
-        Collection<ImportEntry> newEntries = new ArrayList<ImportEntry>();
+        Collection<ImportEntry> newEntries = new ArrayList<>();
         if (selections != null) {
             for (String module : selections) {
                 if (module.startsWith("<html>")) { // NOI18N
@@ -618,7 +618,7 @@ public final class ImportManager {
 // TODO
 //                } else {
                 // Determine offsets within the line
-                List<OffsetRange> ranges = new ArrayList<OffsetRange>();
+                List<OffsetRange> ranges = new ArrayList<>();
                 try {
                     int start = lexRange.getStart();
                     int end = lexRange.getEnd();
@@ -754,7 +754,7 @@ public final class ImportManager {
         // TODO:
         // Look for comments to preserve
         // Replace the entire editor block
-        Set<ImportEntry> entries = new HashSet<ImportEntry>();
+        Set<ImportEntry> entries = new HashSet<>();
         int ordinal = 0;
         for (PythonTree node : mainImports) {
             if (node instanceof Import) {
@@ -801,7 +801,7 @@ public final class ImportManager {
         }
 
         // Sort imports -- first by system/nonsystem, then alphabetically
-        List<ImportEntry> sortedEntries = new ArrayList<ImportEntry>(entries);
+        List<ImportEntry> sortedEntries = new ArrayList<>(entries);
         Collections.sort(sortedEntries);
 
         // Write out existing imports
@@ -871,7 +871,7 @@ public final class ImportManager {
         // Write commented out deleted entries as well
         if (remove.size() > 0 && cleanup == ImportCleanupStyle.COMMENT_OUT) {
             size = remove.size();
-            List<ImportEntry> sortedRemove = new ArrayList<ImportEntry>();
+            List<ImportEntry> sortedRemove = new ArrayList<>();
             sortedRemove.addAll(remove);
             Collections.sort(sortedRemove);
             for (ImportEntry entry : sortedRemove) {

@@ -206,14 +206,17 @@ class ExistingPythonProjectPanelVisual extends SettingsPanel implements Document
     void validate(WizardDescriptor settings) throws WizardValidationException {        
     }
 
+    @Override
     public void insertUpdate(DocumentEvent e) {
         handleDocChange ();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e) {
         handleDocChange ();
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e) {
         handleDocChange ();
     }

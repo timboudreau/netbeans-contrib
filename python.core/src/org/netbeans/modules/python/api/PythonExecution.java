@@ -42,8 +42,8 @@ public final class PythonExecution {
     private String wrapperCommand;
     private String[] wrapperArgs;
     private String[] wrapperEnv;
-    private List<LineConvertor> outConvertors = new ArrayList<LineConvertor>();
-    private List<LineConvertor> errConvertors = new ArrayList<LineConvertor>();
+    private List<LineConvertor> outConvertors = new ArrayList<>();
+    private List<LineConvertor> errConvertors = new ArrayList<>();
     private InputProcessorFactory outProcessorFactory;
     private InputProcessorFactory errProcessorFactory;
     private boolean addStandardConvertors;
@@ -75,8 +75,8 @@ public final class PythonExecution {
             System.arraycopy(from.wrapperEnv, 0, wrapperEnv, 0, from.wrapperEnv.length);
         }
         fileLocator = from.fileLocator;
-        outConvertors = new ArrayList<LineConvertor>(from.outConvertors);
-        errConvertors = new ArrayList<LineConvertor>(from.errConvertors);
+        outConvertors = new ArrayList<>(from.outConvertors);
+        errConvertors = new ArrayList<>(from.errConvertors);
         setOutProcessorFactory(from.outProcessorFactory);
         setErrProcessorFactory(from.errProcessorFactory);
         lineBased(from.lineBased);
@@ -118,7 +118,7 @@ public final class PythonExecution {
             // Start Service
            return service.run();
             //io = InputOutputManager.getInputOutput(displayName, true, path).getInputOutput();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             return null;
         }
@@ -153,11 +153,12 @@ public final class PythonExecution {
             if(script != null)
                 processBuilder = processBuilder.addArgument(script);
             if(scriptArgs != null) {
-               // @@@jean-Yves populate arguments one by one in order to get
-               // a natural python tuple on python side
-               String args[] = org.openide.util.Utilities.parseParameters(scriptArgs) ;
-               for ( int ii = 0 ; ii < args.length ; ii++)
-                 processBuilder = processBuilder.addArgument( args[ii] )  ;
+                // @@@jean-Yves populate arguments one by one in order to get
+                // a natural python tuple on python side
+                String args[] = org.openide.util.Utilities.parseParameters(scriptArgs) ;
+                for (String arg : args) {
+                    processBuilder = processBuilder.addArgument(arg);
+                }
             }
             processBuilder = processBuilder.redirectErrorStream(redirect);
             if(path != null){
@@ -340,6 +341,7 @@ public final class PythonExecution {
                 return outProcessor;
             }
 
+            @Override
             public InputProcessor newInputProcessor(InputProcessor defaultProcessor) {
                 return outProcessor;
             }

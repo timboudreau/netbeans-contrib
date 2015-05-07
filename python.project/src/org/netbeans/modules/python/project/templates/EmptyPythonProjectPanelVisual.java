@@ -143,6 +143,7 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         projectNameTextField.requestFocus();
     }
 
+    @Override
     boolean valid(WizardDescriptor wizardDescriptor) {
 
         if (projectNameTextField.getText().length() == 0) {
@@ -185,6 +186,7 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         return true;
     }
 
+    @Override
     void store(WizardDescriptor d) {
         String name = projectNameTextField.getText().trim();
         String folder = createdFolderTextField.getText().trim();
@@ -193,6 +195,7 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         d.putProperty(NewPythonProjectWizardIterator.PROP_PROJECT_NAME, name);
     }
 
+    @Override
     void read(WizardDescriptor settings) {
         File projectLocation = (File) settings.getProperty(NewPythonProjectWizardIterator.PROP_PROJECT_LOCATION);
         if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory()) {
@@ -210,11 +213,13 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         this.projectNameTextField.selectAll();
     }
 
+    @Override
     void validate(WizardDescriptor d) throws WizardValidationException {
     // nothing to validate
     }
 
     // Implementation of DocumentListener --------------------------------------
+    @Override
     public void changedUpdate(DocumentEvent e) {
         updateTexts(e);
         if (this.projectNameTextField.getDocument() == e.getDocument()) {
@@ -222,6 +227,7 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         }
     }
 
+    @Override
     public void insertUpdate(DocumentEvent e) {
         updateTexts(e);
         if (this.projectNameTextField.getDocument() == e.getDocument()) {
@@ -229,6 +235,7 @@ public class EmptyPythonProjectPanelVisual extends SettingsPanel implements Docu
         }
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e) {
         updateTexts(e);
         if (this.projectNameTextField.getDocument() == e.getDocument()) {

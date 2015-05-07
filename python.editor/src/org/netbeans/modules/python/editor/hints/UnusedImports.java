@@ -79,15 +79,18 @@ public class UnusedImports extends PythonAstRule {
     public UnusedImports() {
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         FileObject fo = context.parserResult.getSnapshot().getSource().getFileObject();
         return fo == null || !fo.getName().equals("__init__"); // NOI18N
     }
 
+    @Override
     public Set<Class> getKinds() {
         return Collections.<Class>singleton(Module.class);
     }
 
+    @Override
     public void run(PythonRuleContext context, List<Hint> result) {
         computeUnusedImports(this, context, result, null);
     }
@@ -101,7 +104,7 @@ public class UnusedImports extends PythonAstRule {
         if (unusedImports.isEmpty()) {
             return;
         }
-        Map<PythonTree, List<String>> maps = new HashMap<PythonTree, List<String>>();
+        Map<PythonTree, List<String>> maps = new HashMap<>();
         for (ImportEntry entry : unusedImports) {
             maps.put(entry.node, new ArrayList<String>());
         }
@@ -152,7 +155,7 @@ public class UnusedImports extends PythonAstRule {
         OffsetRange range = PythonAstUtils.getNameRange(info, node);
         range = PythonLexerUtils.getLexerOffsets(info, range);
         if (range != OffsetRange.NONE) {
-            List<HintFix> fixList = new ArrayList<HintFix>(3);
+            List<HintFix> fixList = new ArrayList<>(3);
             fixList.add(new UnusedFix(detector, context, node, symbols, false));
             fixList.add(new UnusedFix(detector, context, null, null, false)); // Remove All
             fixList.add(new UnusedFix(detector, context, null, null, true)); // Organize
@@ -167,30 +170,37 @@ public class UnusedImports extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "UnusedImports"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(NameRule.class, "UnusedImports");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(NameRule.class, "UnusedImportsDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return false; // ? or maybe yes?
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
@@ -213,6 +223,7 @@ public class UnusedImports extends PythonAstRule {
             this.organizeOnly = organizeOnly;
         }
 
+        @Override
         public String getDescription() {
             if (node == null) {
                 if (organizeOnly) {
@@ -241,14 +252,14 @@ public class UnusedImports extends PythonAstRule {
                 if (organizeOnly) {
                     importManager.cleanup(edits, 0, doc.getLength(), true);
                 } else {
-                    Map<PythonTree, List<String>> onlyNames = new HashMap<PythonTree, List<String>>();
+                    Map<PythonTree, List<String>> onlyNames = new HashMap<>();
                     computeUnusedImports(detector, context, null, onlyNames);
                     Set<PythonTree> candidates = onlyNames.keySet();
                     importManager.removeImports(edits, candidates, false, onlyNames);
                 }
             } else {
                 Set<PythonTree> candidates = Collections.singleton(node);
-                Map<PythonTree, List<String>> onlyNames = new HashMap<PythonTree, List<String>>();
+                Map<PythonTree, List<String>> onlyNames = new HashMap<>();
                 onlyNames.put(node, symbols);
                 importManager.removeImports(edits, candidates, false, onlyNames);
             }
@@ -256,15 +267,18 @@ public class UnusedImports extends PythonAstRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList();
             edits.apply();
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }
