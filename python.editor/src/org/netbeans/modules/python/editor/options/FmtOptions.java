@@ -605,7 +605,7 @@ public class FmtOptions {
                     BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
                     writer.write(previewText);
                     writer.close();
-                    final FileObject fo = FileUtil.toFileObject(tmp);
+                    final FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(tmp));
                     tmpFo = fo;
                     // TODO - I need to get the classpath involved here such that it can
                     // find used/unused libraries
