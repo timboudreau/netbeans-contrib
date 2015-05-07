@@ -145,7 +145,7 @@ public class PackageView {
     
     public static ComboBoxModel createListView(SourceGroup group) {
         Parameters.notNull("group", group); //NOI18N
-        SortedSet<PackageItem> data = new TreeSet<PackageItem>();
+        SortedSet<PackageItem> data = new TreeSet<>();
         findNonExcludedPackages(null, data, group.getRootFolder(), group, false);
         return new DefaultComboBoxModel(data.toArray(new PackageItem[data.size()]));
     }
@@ -189,7 +189,7 @@ public class PackageView {
         
         boolean hasSubfolders = false;
         boolean hasFiles = false;
-        List<FileObject> folders = new ArrayList<FileObject>();
+        List<FileObject> folders = new ArrayList<>();
         for (FileObject kid : fo.getChildren()) {
             // XXX could use PackageDisplayUtils.isSignificant here
             if (kid.isValid() && VisibilityQuery.getDefault().isVisible(kid) && group.contains(kid)) {
@@ -279,6 +279,7 @@ public class PackageView {
                 IN_UNIT_TEST = true;
             } catch (ClassNotFoundException e) {}
         }
+        @Override
         public void propertyChange (PropertyChangeEvent event) {
             String prop = event.getPropertyName();
             if (PythonProjectSettings.PROP_PACKAGE_VIEW_TYPE.equals(prop) || SourceGroup.PROP_CONTAINERSHIP.equals(prop)) {
@@ -286,6 +287,7 @@ public class PackageView {
                     changeOriginal(getOriginalNode(sourceGroup), true);
                 } else {
                     EventQueue.invokeLater(new Runnable() {
+                        @Override
                         public void run() {
                             changeOriginal(getOriginalNode(sourceGroup), true);
                         }
@@ -318,7 +320,7 @@ public class PackageView {
      */
     static final class PackageItem implements Comparable<PackageItem> {
         
-        private static Map<Image,Icon> image2icon = new IdentityHashMap<Image,Icon>();
+        private static Map<Image,Icon> image2icon = new IdentityHashMap<>();
         
         private final boolean empty;
         private final FileObject pkg;
@@ -333,6 +335,7 @@ public class PackageView {
             pkgname = path.replace('/', '.');
         }
         
+        @Override
         public String toString() {
             return pkgname;
         }
@@ -353,6 +356,7 @@ public class PackageView {
             return icon;
         }
 
+        @Override
         public int compareTo(PackageItem p) {
             return pkgname.compareTo(p.pkgname);
         }
@@ -368,6 +372,7 @@ public class PackageView {
             setOpaque(true);
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             // #93658: GTK needs name to render cell renderer "natively"
             setName("ComboBox.listRenderer"); // NOI18N
@@ -396,6 +401,7 @@ public class PackageView {
         }
         
         // #93658: GTK needs name to render cell renderer "natively"
+        @Override
         public String getName() {
             String name = super.getName();
             return name == null ? "ComboBox.renderer" : name;  // NOI18N

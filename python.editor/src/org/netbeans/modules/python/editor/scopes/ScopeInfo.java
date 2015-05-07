@@ -53,7 +53,7 @@ public class ScopeInfo extends Object {
 
 
         // Sort to make test output stable
-        List<String> keys = new ArrayList<String>(tbl.keySet());
+        List<String> keys = new ArrayList<>(tbl.keySet());
         Collections.sort(keys);
         for (String name : keys) {
             SymInfo info = tbl.get(name);
@@ -75,7 +75,7 @@ public class ScopeInfo extends Object {
         }
 
         if (inner_free.size() > 0) {
-            List<String> sorted = new ArrayList<String>();
+            List<String> sorted = new ArrayList<>();
             for (String s : inner_free.keySet()) {
                 sorted.add(s + "=" + inner_free.get(s));
             }
@@ -135,7 +135,7 @@ public class ScopeInfo extends Object {
             }
             sb.append("------ Attributes ---------------------------------------\n"); // NOI18N
             // Sort
-            List<String> attributeNames = new ArrayList<String>(attributes.keySet());
+            List<String> attributeNames = new ArrayList<>(attributes.keySet());
             Collections.sort(attributeNames);
             for (String attributeName : attributeNames) {
                 for (int i = 0; i < level; i++) {
@@ -170,11 +170,11 @@ public class ScopeInfo extends Object {
     public int yield_count;
     public int max_with_count;
     public ArgListCompiler ac;
-    public Map<String, SymInfo> tbl = new LinkedHashMap<String, SymInfo>();
+    public Map<String, SymInfo> tbl = new LinkedHashMap<>();
 
     // define a separate dictionary for dynamic bounded variables
-    public Map<String, SymInfo> attributes = new HashMap<String, SymInfo>();
-    public List<String> names = new ArrayList<String>();
+    public Map<String, SymInfo> attributes = new HashMap<>();
+    public List<String> names = new ArrayList<>();
 
     private void addAttributeEntry(String name, PythonTree node, int flags) {
         SymInfo info = attributes.get(name);
@@ -375,9 +375,9 @@ public class ScopeInfo extends Object {
     }
     // </netbeans>
     private final static String PRESENT = new String("PRESENT");
-    public HashMap<String, String> inner_free = new HashMap<String, String>();
-    public List<String> cellvars = new ArrayList<String>();
-    public List<String> jy_paramcells = new ArrayList<String>();
+    public HashMap<String, String> inner_free = new HashMap<>();
+    public List<String> cellvars = new ArrayList<>();
+    public List<String> jy_paramcells = new ArrayList<>();
     public int jy_npurecell;
     public int cell, distance;
     public ScopeInfo up;
@@ -391,7 +391,7 @@ public class ScopeInfo extends Object {
         this.up = up;
         this.distance = distance;
         boolean func = kind == FUNCSCOPE;
-        List<String> purecells = new ArrayList<String>();
+        List<String> purecells = new ArrayList<>();
         cell = 0;
         boolean some_inner_free = inner_free.size() > 0;
 
@@ -507,7 +507,7 @@ public class ScopeInfo extends Object {
         }
         ctxt.error(illegal + why, true, scope_node);
     }
-    public List<String> freevars = new ArrayList<String>();
+    public List<String> freevars = new ArrayList<>();
 
     /**
      * setup the closure on this scope using the scope passed into cook as up as

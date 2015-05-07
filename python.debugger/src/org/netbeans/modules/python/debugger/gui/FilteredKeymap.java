@@ -69,6 +69,7 @@ public class FilteredKeymap implements Keymap {
     public FilteredKeymap(final JTextComponent component) {
         
         class KeymapUpdater implements Runnable {
+            @Override
             public void run() {
                 component.setKeymap(new FilteredKeymap(component));
             }
@@ -76,6 +77,7 @@ public class FilteredKeymap implements Keymap {
         
         this.keyMap = component.getKeymap();
         component.addPropertyChangeListener("keymap", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(evt.getNewValue() instanceof FilteredKeymap)) {
                     // We have to do that lazily, because the property change
@@ -91,9 +93,11 @@ public class FilteredKeymap implements Keymap {
         });
     }
     
+    @Override
     public void addActionForKeyStroke(KeyStroke key, Action a) {
         keyMap.addActionForKeyStroke(key, a);
     }
+    @Override
     public Action getAction(KeyStroke key) {
         if (enter.equals(key) ||
             esc.equals(key) ||
@@ -104,24 +108,31 @@ public class FilteredKeymap implements Keymap {
             return keyMap.getAction(key);
         }
     }
+    @Override
     public Action[] getBoundActions() {
         return keyMap.getBoundActions();
     }
+    @Override
     public KeyStroke[] getBoundKeyStrokes() {
         return keyMap.getBoundKeyStrokes();
     }
+    @Override
     public Action getDefaultAction() {
         return keyMap.getDefaultAction();
     }
+    @Override
     public KeyStroke[] getKeyStrokesForAction(Action a) {
         return keyMap.getKeyStrokesForAction(a);
     }
+    @Override
     public String getName() {
         return keyMap.getName()+"_Filtered"; //NOI18N
     }
+    @Override
     public javax.swing.text.Keymap getResolveParent() {
         return keyMap.getResolveParent();
     }
+    @Override
     public boolean isLocallyDefined(KeyStroke key) {
         if (enter.equals(key) ||
             esc.equals(key) ||
@@ -132,15 +143,19 @@ public class FilteredKeymap implements Keymap {
             return keyMap.isLocallyDefined(key);
         }
     }
+    @Override
     public void removeBindings() {
         keyMap.removeBindings();
     }
+    @Override
     public void removeKeyStrokeBinding(KeyStroke keys) {
         keyMap.removeKeyStrokeBinding(keys);
     }
+    @Override
     public void setDefaultAction(Action a) {
         keyMap.setDefaultAction(a);
     }
+    @Override
     public void setResolveParent(javax.swing.text.Keymap parent) {
         keyMap.setResolveParent(parent);
     }

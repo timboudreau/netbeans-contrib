@@ -56,7 +56,7 @@ import org.openide.util.Utilities;
 public class PythonAutoDetector {
     private Logger LOGGER = Logger.getLogger(PythonAutoDetector.class.getName());
 
-    private ArrayList<String> matches = new ArrayList<String>();
+    private ArrayList<String> matches = new ArrayList<>();
     private boolean searchNestedDirectoies = true;
     private void processAction(File dir) {
         if (LOGGER.isLoggable(Level.FINE)) {
@@ -104,8 +104,8 @@ public class PythonAutoDetector {
                     dir.getName().toLowerCase().contains("python")){
                 String[] children = dir.list();
                 if(children != null){
-                    for (int i=0; i<children.length; i++) {
-                        traverse(new File(dir, children[i]), searchNestedDirectoies);
+                    for (String child : children) {
+                        traverse(new File(dir, child), searchNestedDirectoies);
                     }
                 }
             }
@@ -123,8 +123,8 @@ public class PythonAutoDetector {
                 if(searchNestedDirectoies){
                     if(searchNestedDirectoies != recersive)
                         searchNestedDirectoies = recersive;
-                    for (int i=0; i<children.length; i++) {
-                        traverse(new File(dir, children[i]), recersive);
+                    for (String child : children) {
+                        traverse(new File(dir, child), recersive);
                     }
                 }
             }

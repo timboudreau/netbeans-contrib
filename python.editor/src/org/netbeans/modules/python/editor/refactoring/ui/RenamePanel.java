@@ -72,20 +72,24 @@ public class RenamePanel extends JPanel implements CustomRefactoringPanel {
         nameField.setEnabled(editable);
         nameField.requestFocus();
         nameField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void changedUpdate(DocumentEvent event) {
                 RenamePanel.this.parent.stateChanged(null);
             }
 
+            @Override
             public void insertUpdate(DocumentEvent event) {
                 RenamePanel.this.parent.stateChanged(null);
             }
 
+            @Override
             public void removeUpdate(DocumentEvent event) {
                 RenamePanel.this.parent.stateChanged(null);
             }
         });
     }
 
+    @Override
     public void initialize() {
         if (initialized) {
             return;
@@ -213,6 +217,7 @@ public class RenamePanel extends JPanel implements CustomRefactoringPanel {
         return true;
     }
 
+    @Override
     public Component getComponent() {
         return this;
     }

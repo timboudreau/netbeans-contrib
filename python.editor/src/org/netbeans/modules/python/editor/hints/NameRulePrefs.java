@@ -88,6 +88,7 @@ public class NameRulePrefs extends javax.swing.JPanel {
             setOpaque(true);
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
             // #93658: GTK needs name to render cell renderer "natively"

@@ -729,6 +729,7 @@ public final class CodeStyle {
 
     // Communication with non public packages ----------------------------------
     private static class Producer implements FmtOptions.CodeStyleProducer {
+        @Override
         public CodeStyle create(Preferences preferences) {
             return new CodeStyle(preferences);
         }

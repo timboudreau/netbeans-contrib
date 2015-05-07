@@ -122,6 +122,7 @@ public class ImportEntry implements Comparable<ImportEntry> {
         return hash;
     }
 
+    @Override
     public int compareTo(ImportEntry other) {
         boolean thisIsFuture = "__future__".equals(module); // NOI18N
         boolean otherIsFuture = "__future__".equals(other.module); // NOI18N

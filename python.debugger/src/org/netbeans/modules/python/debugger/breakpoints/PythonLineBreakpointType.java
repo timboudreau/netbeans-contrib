@@ -56,21 +56,25 @@ import org.openide.util.NbBundle;
  */
 public class PythonLineBreakpointType extends BreakpointType {
 
+  @Override
   public String getCategoryDisplayName() {
     return NbBundle.getMessage(
             PythonLineBreakpointType.class,
             "CTL_Python_breakpoint_events_cathegory_name");
   }
 
+  @Override
   public JComponent getCustomizer() {
     return new PythonBreakpointPanel();
   }
 
+  @Override
   public String getTypeDisplayName() {
     return NbBundle.getMessage(PythonLineBreakpointType.class,
             "CTL_Python_line_event_type_name");
   }
 
+  @Override
   public boolean isDefault() {
     return true;
   }

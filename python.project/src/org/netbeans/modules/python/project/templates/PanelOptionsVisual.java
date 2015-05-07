@@ -86,6 +86,7 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
         initComponents();
         this.panel = panel;
         PlatformComponentFactory.addPlatformChangeListener(platforms, new PlatformComponentFactory.PlatformChangeListener() {
+            @Override
             public void platformChanged() {
                 fireChangeEvent();
             }
@@ -106,14 +107,17 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
         
         this.mainFileTextField.getDocument().addDocumentListener( new DocumentListener () {
             
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 mainFileChanged ();
             }
             
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 mainFileChanged ();
             }
             
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 mainFileChanged ();
             }
@@ -122,6 +126,7 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
         
     }
 
+    @Override
     public void actionPerformed( ActionEvent e ) {        
         if ( e.getSource() == createMainCheckBox ) {
             lastMainClassCheck = createMainCheckBox.isSelected();
@@ -130,6 +135,7 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
         }                
     }
     
+    @Override
     public void propertyChange (PropertyChangeEvent event) {
         // The project name isn't very python'y
         if (NewPythonProjectWizardIterator.PROP_PROJECT_NAME.equals(event.getPropertyName())) {
@@ -223,9 +229,7 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
             CallableSystemAction action = (CallableSystemAction) ido.instanceCreate();
             action.performAction();
             platforms.setModel(Utils.createPlatformModel()); //Currentl the PythonManager doesn't fire events, we need to replace model.
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }        
     }
@@ -233,6 +237,7 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     
 
     
+    @Override
     boolean valid(WizardDescriptor settings) {
         if (PlatformComponentFactory.getPlatform(platforms) == null) {
             // Only complain if there are no available platforms since most likely there's
@@ -255,6 +260,7 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         }
     }
     
+    @Override
     void read (WizardDescriptor d) {
         final PythonPlatformManager manager = PythonPlatformManager.getInstance();
         String pid = (String) d.getProperty(NewPythonProjectWizardIterator.PROP_PLATFORM_ID);                
@@ -270,10 +276,12 @@ private void manageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         }        
     }
     
+    @Override
     void validate (WizardDescriptor d) throws WizardValidationException {        
         // nothing to validate
     }
 
+    @Override
     void store( WizardDescriptor d ) {
         d.putProperty(NewPythonProjectWizardIterator.MAIN_FILE, createMainCheckBox.isSelected() && createMainCheckBox.isVisible() ? mainFileTextField.getText() : null ); // NOI18N
         PythonPlatform platform = PlatformComponentFactory.getPlatform(platforms);

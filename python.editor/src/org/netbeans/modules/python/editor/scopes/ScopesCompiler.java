@@ -133,7 +133,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         cur = up;
     }
 
-    public void parse() throws Exception {
+    public void parse() {
         try {
             visit(root);
         } catch (Throwable t) {
@@ -215,7 +215,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
                             if (expr instanceof Str) {
                                 Str str = (Str)expr;
                                 if (publicSymbols == null) {
-                                    publicSymbols = new ArrayList<Str>();
+                                    publicSymbols = new ArrayList<>();
                                 }
                                 publicSymbols.add(str);
                             } else {
@@ -230,7 +230,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         }
 
         if (targets.size() > 0) {
-            List<Name> names = new ArrayList<Name>(targets.size());
+            List<Name> names = new ArrayList<>(targets.size());
             boolean valid = true;
             for (expr et : targets) {
                 if (et instanceof Name) {
@@ -515,7 +515,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
                     for (expr expr : callArgs) {
                         if (expr instanceof Str) {
                             if (publicSymbols == null) {
-                                publicSymbols = new ArrayList<Str>();
+                                publicSymbols = new ArrayList<>();
                             }
                             publicSymbols.add((Str)expr);
                         } else if (expr instanceof org.python.antlr.ast.List) {
@@ -527,7 +527,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
                                         if (ex instanceof Str) {
                                             Str str = (Str)ex;
                                             if (publicSymbols == null) {
-                                                publicSymbols = new ArrayList<Str>();
+                                                publicSymbols = new ArrayList<>();
                                             }
                                             publicSymbols.add(str);
                                         } else {
@@ -590,7 +590,7 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
         String tmp = "_(" + node.getLine() + "_" + node.getCharPositionInLine() + ")";
         def(tmp, GENERATOR, node);
         ArgListCompiler ac = new ArgListCompiler(symbolTable);
-        List<expr> args = new ArrayList<expr>();
+        List<expr> args = new ArrayList<>();
         Name argsName = new Name(node.getToken(), bound_exp, expr_contextType.Param);
         args.add(argsName);
         ac.visitArgs(new arguments(node, args, null, null, new ArrayList<expr>()));

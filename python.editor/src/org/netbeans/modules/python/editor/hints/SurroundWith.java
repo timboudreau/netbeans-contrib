@@ -86,7 +86,7 @@ public class SurroundWith extends PythonSelectionRule {
             range = new OffsetRange(dot, dot);
         }
 
-        List<HintFix> fixList = new ArrayList<HintFix>(3);
+        List<HintFix> fixList = new ArrayList<>(3);
         fixList.add(new SurroundWithFix(context, start, end, false, true));
         fixList.add(new SurroundWithFix(context, start, end, true, true));
         fixList.add(new SurroundWithFix(context, start, end, true, false));
@@ -96,34 +96,42 @@ public class SurroundWith extends PythonSelectionRule {
         result.add(desc);
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(SurroundWith.class, "SurroundWith");
     }
 
+    @Override
     public boolean showInTasklist() {
         return false;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.CURRENT_LINE_WARNING;
     }
 
+    @Override
     public String getId() {
         return "SurroundWith"; // NOI18N
     }
 
+    @Override
     public String getDescription() {
         return "";
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
@@ -153,6 +161,7 @@ public class SurroundWith extends PythonSelectionRule {
             this.includeExcept = includeExcept;
         }
 
+        @Override
         public String getDescription() {
             if (includeExcept && includeFinally) {
                 return NbBundle.getMessage(CreateDocString.class, "SurroundWithTEF");
@@ -164,10 +173,12 @@ public class SurroundWith extends PythonSelectionRule {
             }
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             return getEditList(true);
         }
@@ -247,6 +258,7 @@ public class SurroundWith extends PythonSelectionRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList(true);
 
@@ -266,10 +278,12 @@ public class SurroundWith extends PythonSelectionRule {
             }
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

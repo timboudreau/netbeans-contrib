@@ -113,12 +113,14 @@ public class FixDuplicateImportStmts extends javax.swing.JPanel {
             Font monoSpaced = new Font("Monospaced", Font.PLAIN, new JLabel().getFont().getSize());
             FocusListener focusListener = new FocusListener() {
 
+                @Override
                 public void focusGained(FocusEvent e) {
                     Component c = e.getComponent();
                     Rectangle r = c.getBounds();
                     contentPanel.scrollRectToVisible(r);
                 }
 
+                @Override
                 public void focusLost(FocusEvent arg0) {
                 }
             };
@@ -273,6 +275,7 @@ public class FixDuplicateImportStmts extends javax.swing.JPanel {
             this.values = values;
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Component res = orig.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (res instanceof JLabel && null != icons) {
@@ -289,6 +292,7 @@ public class FixDuplicateImportStmts extends javax.swing.JPanel {
 
     private static class TogglePopupAction extends AbstractAction {
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JComboBox) {
                 JComboBox combo = (JComboBox) e.getSource();

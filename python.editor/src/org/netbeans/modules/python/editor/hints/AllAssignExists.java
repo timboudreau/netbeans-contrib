@@ -106,34 +106,42 @@ public class AllAssignExists extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "AllAssignExists"; // NOI18N
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(AllAssignExists.class, "AllAssignExistsDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(AllAssignExists.class, "AllAssignExists");
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.ERROR;
     }

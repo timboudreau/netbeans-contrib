@@ -38,6 +38,7 @@ final class MainModuleChooser extends javax.swing.JPanel {
         this.okButton.setEnabled(false);
         ((DefaultListModel)this.mainModules.getModel()).addElement(NbBundle.getMessage(MainModuleChooser.class, "TXT_PleaseWait"));
         RP.post(new Runnable() {
+            @Override
             public void run() {
                 initData();
             }
@@ -50,7 +51,7 @@ final class MainModuleChooser extends javax.swing.JPanel {
     
     
     private void initData () {
-        final List<String> data = new LinkedList<String>();
+        final List<String> data = new LinkedList<>();
         for (FileObject root : roots) {
             final Enumeration<? extends FileObject> fos = root.getChildren(true);
             while (fos.hasMoreElements()) {
@@ -61,6 +62,7 @@ final class MainModuleChooser extends javax.swing.JPanel {
             }
         }
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 DefaultListModel lm = (DefaultListModel)mainModules.getModel();
                 lm.clear();

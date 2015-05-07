@@ -279,6 +279,7 @@ public class PythonDebugEvent {
     return _debuggee;
   }
 
+  @Override
   public String toString() {
     return _source;
   }

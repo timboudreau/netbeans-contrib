@@ -266,7 +266,7 @@ public class JPyDebugXmlParser extends DefaultHandler {
     PythonThreadInfos thInfos =
             new PythonThreadInfos(
             getAttribute(_NAME_, attr),
-            isCurrent.booleanValue(),
+            isCurrent,
             suspended);
     _threadList.addElement(thInfos);
   }
@@ -302,6 +302,7 @@ public class JPyDebugXmlParser extends DefaultHandler {
    *
    * @throws SAXException DOCUMENT ME!
    */
+  @Override
   public void startElement(
           String namespaceURI,
           String localName,

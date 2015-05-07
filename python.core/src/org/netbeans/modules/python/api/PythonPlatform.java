@@ -26,8 +26,8 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
 
     private final String id;
     private String name;
-    private List<String> pythonPath = new ArrayList<String>();
-    private List<String> javaPath = new ArrayList<String>();;
+    private List<String> pythonPath = new ArrayList<>();
+    private List<String> javaPath = new ArrayList<>();;
     private String interpreterCommand;
     private String interpreterConsoleComand;
     private String interpreterArgs;
@@ -88,12 +88,12 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
 
     public void setJavaPath(List<String> javaPath) {
         checkDirty(this.javaPath, javaPath);
-        this.javaPath = new ArrayList<String>(javaPath);
+        this.javaPath = new ArrayList<>(javaPath);
     }
 
     public void setJavaPath(String[] javaPath) {
         // Arrays.asList() creates a readonly list...
-        List<String> newPath = new ArrayList<String>(javaPath.length);
+        List<String> newPath = new ArrayList<>(javaPath.length);
         for (String s : javaPath) {
             newPath.add(s);
         }
@@ -136,12 +136,12 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
 
     public void setPythonPath(List<String> pythonPath) {
         checkDirty(this.pythonPath, pythonPath);
-        this.pythonPath = new ArrayList<String>(pythonPath); // defensive copy
+        this.pythonPath = new ArrayList<>(pythonPath); // defensive copy
     }
 
     void setPythonPath(String[] pythonPath) {
         // Arrays.asList() creates a readonly list...
-        List<String> newPath = new ArrayList<String>(pythonPath.length);
+        List<String> newPath = new ArrayList<>(pythonPath.length);
         for (String s : pythonPath) {
             newPath.add(s);
         }
@@ -184,14 +184,14 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
 
     void addPythonPath(String[] pathElements) {
         dirty = true;
-        for (int i =0; i < pathElements.length; i++){
-            addPythonPath(pathElements[i]);
+        for (String pathElement : pathElements) {
+            addPythonPath(pathElement);
         }
     }
     void addJavaPath(String[] pathElements) {
         dirty = true;
-        for (int i =0; i < pathElements.length; i++){
-            addJavaPath(pathElements[i]);
+        for (String pathElement : pathElements) {
+            addJavaPath(pathElement);
         }
     }
 
@@ -245,7 +245,7 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
     }
 
     public List<URL> getUrls() {
-        List<URL> urls = new ArrayList<URL>();
+        List<URL> urls = new ArrayList<>();
 
         for (FileObject root : getUniqueLibraryRoots()) {
             try {
@@ -264,8 +264,8 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
             return;
         }
 
-        libraryRoots = new ArrayList<FileObject>();
-        List<String> sortedPath = new ArrayList<String>(pythonPath);
+        libraryRoots = new ArrayList<>();
+        List<String> sortedPath = new ArrayList<>(pythonPath);
         // Ensure that subdirectories appear first: sort in reverse order.
         Collections.sort(sortedPath);
         Collections.reverse(sortedPath);
@@ -286,7 +286,7 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
         }
 
         List<FileObject> unique = Util.findUniqueRoots(libraryRoots);
-        uniqueLibraryRoots = new ArrayList<FileObject>(unique);
+        uniqueLibraryRoots = new ArrayList<>(unique);
     }
 
     public boolean isValid() {
@@ -308,6 +308,7 @@ public final class PythonPlatform implements Serializable, Comparable<PythonPlat
     }
 
     // Implements Comparable
+    @Override
     public int compareTo(PythonPlatform other) {
         // Sort default entry to the top
         PythonPlatformManager manager = PythonPlatformManager.getInstance();

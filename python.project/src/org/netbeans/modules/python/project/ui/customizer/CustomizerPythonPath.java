@@ -56,6 +56,7 @@ public class CustomizerPythonPath extends javax.swing.JPanel {
     void addNotify() {
         super.addNotify();
         platformListener = new PlatformComponentFactory.PlatformChangeListener() {
+            @Override
             public void platformChanged() {
                 PythonPlatform platform = (PythonPlatform)platforms.getSelectedItem();
                 if (platform != null) {
@@ -240,9 +241,7 @@ public class CustomizerPythonPath extends javax.swing.JPanel {
                 CallableSystemAction action = (CallableSystemAction)ido.instanceCreate();
                 action.performAction();
                 platforms.setModel(Utils.createPlatformModel()); //Currentl the PythonManager doesn't fire events, we need to replace model.
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (ClassNotFoundException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
             }
         }

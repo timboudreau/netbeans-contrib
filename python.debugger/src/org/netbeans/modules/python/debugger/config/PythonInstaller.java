@@ -100,10 +100,9 @@ public class PythonInstaller {
   private void cleanupPythonDir(File pythonDir) {
     if (pythonDir.isDirectory()) {
       String fileNames[] = pythonDir.list();
-      for (int ii = 0; ii < fileNames.length; ii++) {
-        if ((fileNames[ii].startsWith(_VERSIONPREFIX_)) ||
-                (fileNames[ii].endsWith(_PYSUFFIX_))) {
-          File f = new File(pythonDir, fileNames[ii]);
+      for (String fileName : fileNames) {
+        if ((fileName.startsWith(_VERSIONPREFIX_)) || (fileName.endsWith(_PYSUFFIX_))) {
+          File f = new File(pythonDir, fileName);
           f.delete();
         }
       }
@@ -288,6 +287,7 @@ public class PythonInstaller {
       SwingUtilities.invokeLater(
               new Runnable() {
 
+                @Override
                 public void run() {
                   _pBar.setProgress(counter);
                   _pBar.setNote(message);

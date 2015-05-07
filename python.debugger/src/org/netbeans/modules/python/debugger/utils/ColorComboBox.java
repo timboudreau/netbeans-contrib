@@ -136,6 +136,7 @@ public class ColorComboBox extends JComboBox {
     setSelectedItem(new Value(null, null));
     addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent ev) {
         if (getSelectedItem() == CUSTOM_COLOR) {
           Color c = JColorChooser.showDialog(
@@ -246,6 +247,7 @@ public class ColorComboBox extends JComboBox {
       setOpaque(true);
     }
 
+    @Override
     public void paint(Graphics g) {
       Color oldColor = g.getColor();
       Dimension size = getSize();
@@ -269,11 +271,13 @@ public class ColorComboBox extends JComboBox {
       g.setColor(oldColor);
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
       setBackground(enabled ? SystemColor.text : SystemColor.control);
       super.setEnabled(enabled);
     }
 
+    @Override
     public Component getListCellRendererComponent(
             JList list,
             Object value,
@@ -285,25 +289,31 @@ public class ColorComboBox extends JComboBox {
       return this;
     }
 
+    @Override
     public Component getEditorComponent() {
       setEnabled(ColorComboBox.this.isEnabled());
       return this;
     }
 
+    @Override
     public void setItem(Object anObject) {
       this.value = (Value) anObject;
     }
 
+    @Override
     public Object getItem() {
       return value;
     }
 
+    @Override
     public void selectAll() {
     }
 
+    @Override
     public void addActionListener(ActionListener l) {
     }
 
+    @Override
     public void removeActionListener(ActionListener l) {
     }
   }
@@ -317,6 +327,7 @@ public class ColorComboBox extends JComboBox {
 
     f.addWindowListener(new WindowAdapter() {
 
+      @Override
       public void windowClosing(WindowEvent e) {
         System.exit(0);
       }

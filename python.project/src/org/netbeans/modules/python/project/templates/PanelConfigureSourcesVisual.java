@@ -55,6 +55,7 @@ public class PanelConfigureSourcesVisual extends javax.swing.JPanel {
             this.table = table;
         }
         
+        @Override
         public void componentResized(ComponentEvent evt){
             double pw = table.getParent().getParent().getSize().getWidth();
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -302,6 +303,7 @@ private void removeTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
             this.projectFolder = folder;
         }
         
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             if (projectFolder != null && value instanceof File) {
                 String path = ((File)value).getAbsolutePath();

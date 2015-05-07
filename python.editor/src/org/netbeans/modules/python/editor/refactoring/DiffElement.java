@@ -76,10 +76,12 @@ public class DiffElement extends SimpleRefactoringElementImplementation {
         this.modification = modification;
     }
 
+    @Override
     public String getDisplayText() {
         return displayText;
     }
 
+    @Override
     public Lookup getLookup() {
         Object composite = ElementGripFactory.getDefault().get(parentFile, bounds.getBegin().getOffset());
         if (composite == null) {
@@ -95,17 +97,21 @@ public class DiffElement extends SimpleRefactoringElementImplementation {
         super.setEnabled(enabled);
     }
 
+    @Override
     public PositionBounds getPosition() {
         return bounds;
     }
 
+    @Override
     public String getText() {
         return displayText;
     }
 
+    @Override
     public void performChange() {
     }
 
+    @Override
     public FileObject getParentFile() {
         return parentFile;
     }
@@ -125,7 +131,7 @@ public class DiffElement extends SimpleRefactoringElementImplementation {
             Exceptions.printStackTrace(ex);
             return null;
         }
-        newFileContent = new WeakReference<String>(result);
+        newFileContent = new WeakReference<>(result);
         return result;
     }
 

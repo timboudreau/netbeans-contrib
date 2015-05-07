@@ -108,11 +108,11 @@ public class PythonExecutionTest extends NbTestCase{
         File inputFile = getDataDir();
         String inputFilePath = inputFile.getAbsolutePath();
         boolean replaced = false;
-        if (inputFilePath.indexOf(pathJoin("build", "test")) != -1) {
+        if (inputFilePath.contains(pathJoin("build", "test"))) {
             inputFilePath = inputFilePath.replace(pathJoin("build", "test"), pathJoin("test"));
             replaced = true;
         }
-        if (!replaced && inputFilePath.indexOf(pathJoin("test", "work", "sys")) != -1) {
+        if (!replaced && inputFilePath.contains(pathJoin("test", "work", "sys"))) {
             inputFilePath = inputFilePath.replace(pathJoin("test", "work", "sys"), pathJoin("test", "unit"));
             replaced = true;
         }

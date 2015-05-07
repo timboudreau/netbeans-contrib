@@ -59,7 +59,7 @@ import org.netbeans.spi.viewmodel.UnknownTypeException;
 public class SessionsModel
         implements TableModelFilter {
 
-  private Vector<ModelListener> _listeners = new Vector<ModelListener>();
+  private Vector<ModelListener> _listeners = new Vector<>();
 
   /** Creates a new instance of SessionsModel */
   public SessionsModel() {
@@ -71,6 +71,7 @@ public class SessionsModel
    *
    * @param l the listener to add
    */
+  @Override
   public void addModelListener(ModelListener l) {
     _listeners.add(l);
   }
@@ -80,6 +81,7 @@ public class SessionsModel
    *
    * @param l the listener to remove
    */
+  @Override
   public void removeModelListener(ModelListener l) {
     _listeners.remove(l);
   }
@@ -97,6 +99,7 @@ public class SessionsModel
 
   }
 
+  @Override
   public Object getValueAt(TableModel original, Object node, String columnId)
           throws UnknownTypeException {
     if (!(node instanceof Session)) {
@@ -108,11 +111,13 @@ public class SessionsModel
     return (original.getValueAt(node, columnId));
   }
 
+  @Override
   public boolean isReadOnly(TableModel original, Object node, String columnId)
           throws UnknownTypeException {
     return original.isReadOnly(node, columnId);
   }
 
+  @Override
   public void setValueAt(TableModel original, Object node, String columnId, Object value)
           throws UnknownTypeException {
     original.setValueAt(node, columnId, value);

@@ -50,6 +50,7 @@ public class PythonProjectFileEncodingQuery extends FileEncodingQueryImplementat
         }
     }
 
+    @Override
     public void propertyChange(final PropertyChangeEvent evt) {    
         String propName = evt.getPropertyName();
         if (propName == null || propName.equals(PythonProjectProperties.SOURCE_ENCODING)) {

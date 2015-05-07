@@ -165,7 +165,7 @@ public class PythonParser extends Parser {
             context.errorOffset = -1;
         }
 
-        final List<Error> errors = new ArrayList<Error>();
+        final List<Error> errors = new ArrayList<>();
         final FileObject file = context.file;
         try {
             String fileName = file.getNameExt();

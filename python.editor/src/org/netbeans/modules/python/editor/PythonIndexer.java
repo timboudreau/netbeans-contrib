@@ -212,7 +212,7 @@ public class PythonIndexer extends EmbeddingIndexer {
     private static final Logger LOG = Logger.getLogger(PythonIndexer.class.getName());
 
     public boolean acceptQueryPath(String url) {
-        return url.indexOf("jsstubs") == -1; // NOI18N
+        return !url.contains("jsstubs"); // NOI18N
     }
 
     public String getPersistentUrl(File file) {
@@ -261,7 +261,7 @@ public class PythonIndexer extends EmbeddingIndexer {
         private PythonParserResult result;
         private FileObject file;
         private IndexingSupport support;
-        private List<IndexDocument> documents = new ArrayList<IndexDocument>();
+        private List<IndexDocument> documents = new ArrayList<>();
         private String url;
         private String module;
         private SymbolTable symbolTable;
@@ -300,7 +300,7 @@ public class PythonIndexer extends EmbeddingIndexer {
                 moduleAttrs = "S"; // NOI18N
             } else if (PREINDEXING) {
                 String prj = System.getProperty("gsf.preindexing.projectpath");
-                if (prj != null && url.indexOf(prj) == -1) {
+                if (prj != null && !url.contains(prj)) {
                     System.err.println("WARNING -- not marking url " + url + " from " + file + " as a system library!");
                 }
             }
@@ -647,7 +647,7 @@ public class PythonIndexer extends EmbeddingIndexer {
     }
 
     private static class CachedIndexDocument {
-        private List<CachedIndexDocumentEntry> entries = new ArrayList<CachedIndexDocumentEntry>(DEFAULT_DOC_SIZE);
+        private List<CachedIndexDocumentEntry> entries = new ArrayList<>(DEFAULT_DOC_SIZE);
 
         private void addPair(String key, String value, boolean index) {
             entries.add(new CachedIndexDocumentEntry(key, value, index));
@@ -667,9 +667,9 @@ public class PythonIndexer extends EmbeddingIndexer {
     }
 
     private List<IndexDocument> scanRst(FileObject fo, Indexable indexable, IndexingSupport support, String overrideUrl) {
-        List<CachedIndexDocument> documents = new ArrayList<CachedIndexDocument>();
+        List<CachedIndexDocument> documents = new ArrayList<>();
 
-        List<IndexDocument> docs = new ArrayList<IndexDocument>();
+        List<IndexDocument> docs = new ArrayList<>();
         
         if (fo != null) {
             String module = fo.getNameExt();
@@ -719,7 +719,7 @@ public class PythonIndexer extends EmbeddingIndexer {
 
             BaseDocument doc = GsfUtilities.getDocument(fo, true);
             if (doc != null) {
-                Map<String, CachedIndexDocument> classDocs = new HashMap<String, CachedIndexDocument>();
+                Map<String, CachedIndexDocument> classDocs = new HashMap<>();
                 CachedIndexDocument document = null;
                 try {
                     String text = doc.getText(0, doc.getLength());
@@ -728,7 +728,7 @@ public class PythonIndexer extends EmbeddingIndexer {
 
                     for (int lineno = 0, maxLines = lines.length; lineno < maxLines; lineno++) {
                         String line = lines[lineno];
-                        if (!line.startsWith(".. ") && line.indexOf(" .. ") == -1) { // NOI18N
+                        if (!line.startsWith(".. ") && !line.contains(" .. ")) { // NOI18N
                             continue;
                         }
 
@@ -1143,8 +1143,8 @@ public class PythonIndexer extends EmbeddingIndexer {
 
         assert classDocument != doc;
 
-        List<String> namesFound = new ArrayList<String>();
-        List<String> namesMissing = new ArrayList<String>();
+        List<String> namesFound = new ArrayList<>();
+        List<String> namesMissing = new ArrayList<>();
         boolean noneFound = true;
 
         // Look for each of the given functions
@@ -1305,7 +1305,7 @@ public class PythonIndexer extends EmbeddingIndexer {
     }
 
     private List<IndexDocument> scanEgg(FileObject fo, Indexable indexable, ParserResult result, IndexingSupport support) {
-        List<IndexDocument> documents = new ArrayList<IndexDocument>();
+        List<IndexDocument> documents = new ArrayList<>();
 
         if (fo == null) {
             return documents;

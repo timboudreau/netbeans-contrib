@@ -95,7 +95,7 @@ public class PythonDebugger
   };
   private SessionsModel _sModel = null;
   // ActionsProvider .........................................................
-  private static Set<Object> _ACTIONS_ = new HashSet<Object>();
+  private static Set<Object> _ACTIONS_ = new HashSet<>();
   
 
   static {
@@ -147,6 +147,7 @@ public class PythonDebugger
    *
    * @return DOCUMENT ME!
    */
+  @Override
   public Set getActions() {
     return _ACTIONS_;
   }
@@ -216,6 +217,7 @@ public class PythonDebugger
   /**
    * entry point for debugger frontend requested user actions
    */
+  @Override
   public void doAction(Object action) {
 
     // System.out.println( "entering doAction" );

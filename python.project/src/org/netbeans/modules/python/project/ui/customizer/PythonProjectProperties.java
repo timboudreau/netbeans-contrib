@@ -88,7 +88,7 @@ public class PythonProjectProperties {
             final String[] rootLabels = sourceRoots.getRootNames();
             final String[] rootProps = sourceRoots.getRootProperties();
             final URL[] rootURLs = sourceRoots.getRootURLs();
-            final List<Pair<File,String>> data = new LinkedList<Pair<File,String>>();
+            final List<Pair<File,String>> data = new LinkedList<>();
             for (int i=0; i< rootURLs.length; i++) {                
                 final File f  = new File (URI.create (rootURLs[i].toExternalForm()));            
                 final String s = sourceRoots.getRootDisplayName(rootLabels[i], rootProps[i]);
@@ -110,7 +110,7 @@ public class PythonProjectProperties {
             final String[] rootLabels = testRoots.getRootNames();
             final String[] rootProps = testRoots.getRootProperties();
             final URL[] rootURLs = testRoots.getRootURLs();
-            final List<Pair<File,String>> data = new LinkedList<Pair<File, String>>();
+            final List<Pair<File,String>> data = new LinkedList<>();
             for (int i=0; i< rootURLs.length; i++) {                
                 final File f  = new File (URI.create (rootURLs[i].toExternalForm()));            
                 final String s = testRoots.getRootDisplayName(rootLabels[i], rootProps[i]);
@@ -195,6 +195,7 @@ public class PythonProjectProperties {
             }
             // store properties
             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                @Override
                 public Void run() throws IOException {
                     saveProperties();
                     return null;
@@ -273,7 +274,7 @@ public class PythonProjectProperties {
      * @return
      */
     private static ArrayList<String> buildPathList(String pathString){
-        ArrayList<String> pathList = new ArrayList<String>();
+        ArrayList<String> pathList = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(pathString, PYTHON_PATH_SEP);        
         while(tokenizer.hasMoreTokens()){
             pathList.add(tokenizer.nextToken());

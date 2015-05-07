@@ -77,10 +77,12 @@ public class UnresolvedClassComponents extends PythonAstRule {
     public UnresolvedClassComponents() {
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public Set<Class> getKinds() {
         return Collections.<Class>singleton(Module.class);
     }
@@ -111,6 +113,7 @@ public class UnresolvedClassComponents extends PythonAstRule {
     }
 
 
+    @Override
     public void run(PythonRuleContext context, List<Hint> result) {
         PythonParserResult info = (PythonParserResult) context.parserResult;
         SymbolTable symbolTable = info.getSymbolTable();
@@ -121,30 +124,37 @@ public class UnresolvedClassComponents extends PythonAstRule {
         populateMessages(info,unresolvedParents,result,true) ;
     }
 
+    @Override
     public String getId() {
         return CLASS_UNRESOLVED_ATTRIBUTES; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(NameRule.class, CLASS_UNRESOLVED_ATTRIBUTES);
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(NameRule.class, CLASS_UNRESOLVED_ATTRIBUTES_DESC);
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return false;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.ERROR;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
@@ -160,10 +170,12 @@ public class UnresolvedClassComponents extends PythonAstRule {
             this.module = module;
         }
 
+        @Override
         public String getDescription() {
             return NbBundle.getMessage(CreateDocString.class, "FixImport", module);
         }
 
+        @Override
         public void implement() throws Exception {
             String mod = this.module;
             String symbol = null;
@@ -182,10 +194,12 @@ public class UnresolvedClassComponents extends PythonAstRule {
             new ImportManager((PythonParserResult) context.parserResult).ensureImported(mod, symbol, false, false, true);
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

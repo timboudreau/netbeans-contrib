@@ -62,7 +62,7 @@ public class PythonParserResult extends ParserResult {
     public PythonParserResult(PythonTree tree, @NonNull Snapshot snapshot) {
         super(snapshot);
         this.root = tree;
-        this.errors = new LinkedList<Error>();
+        this.errors = new LinkedList<>();
     }
 
     public PythonTree getRoot() {

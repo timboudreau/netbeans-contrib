@@ -140,6 +140,7 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
         if (!"Aqua".equals(lafid)) { //NOI18N
             this.encoding.putClientProperty ("JComboBox.isTableCellEditor", Boolean.TRUE);    //NOI18N
             this.encoding.addItemListener(new java.awt.event.ItemListener(){ 
+                @Override
                 public void itemStateChanged(java.awt.event.ItemEvent e){ 
                     javax.swing.JComboBox combo = (javax.swing.JComboBox)e.getSource(); 
                     combo.setPopupVisible(false); 
@@ -147,6 +148,7 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
             });
         }
         this.encoding.addActionListener(new ActionListener () {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 handleEncodingChange();
             }            
@@ -162,6 +164,7 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
             this.table = table;
         }
         
+        @Override
         public void componentResized(ComponentEvent evt){
             double pw = table.getParent().getParent().getSize().getWidth();
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -217,12 +220,14 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
             this.uiProperties.setEncoding(encName);
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return new HelpCtx (CustomizerSources.class);
     }            
     
     private class MediatorListener implements ChangeListener {
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             if (e.getSource() == emSR) {                
                 uiProperties.setSourceRoots(tableToData(sourceRoots));
@@ -234,7 +239,7 @@ public class CustomizerSources extends javax.swing.JPanel implements HelpCtx.Pro
         
         private List<Pair<File,String>> tableToData (JTable table) {
             final TableModel model = sourceRoots.getModel();
-            List<Pair<File,String>> data = new LinkedList<Pair<File, String>>();
+            List<Pair<File,String>> data = new LinkedList<>();
             for (int i=0; i< model.getRowCount(); i++) {
                 File f = (File) model.getValueAt(i, 0);
                 String s = (String) model.getValueAt(i, 1);

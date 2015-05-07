@@ -128,7 +128,7 @@ public final class PythonLineConvertorFactory implements LineConvertorFactory {
      * @return
      */
     public static List<LineConvertor> getStandardConvertors(FileLocator locator) {
-        List<LineConvertor> result = new ArrayList<LineConvertor>(4);
+        List<LineConvertor> result = new ArrayList<>(4);
         result.add(LineConvertors.filePattern(locator, PYTHON_STACKTRACE_PATTERN, EXT_RE, 1, 2));
 //        result.add(LineConvertors.filePattern(locator, RAILS_RECOGNIZER, EXT_RE, 1, 2));
 //        result.add(LineConvertors.filePattern(locator, RUBY_COMPILER_WIN_MY, EXT_RE, 1, 2));
@@ -137,8 +137,9 @@ public final class PythonLineConvertorFactory implements LineConvertorFactory {
         return result;
     }
 
+    @Override
     public LineConvertor newLineConvertor() {
-        final List<LineConvertor> convertorList = new ArrayList<LineConvertor>();
+        final List<LineConvertor> convertorList = new ArrayList<>();
 
         if (convertors != null) {
             for (LineConvertor each : convertors) {

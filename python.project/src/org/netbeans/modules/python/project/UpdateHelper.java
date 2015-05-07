@@ -46,6 +46,7 @@ public final class UpdateHelper {
      */
     public EditableProperties getProperties(final String path) {
         return ProjectManager.mutex().readAccess(new Mutex.Action<EditableProperties>() {
+            @Override
             public EditableProperties run() {
                 if (!isCurrent() && AntProjectHelper.PROJECT_PROPERTIES_PATH.equals(path)) {
                     // only project properties were changed
@@ -69,6 +70,7 @@ public final class UpdateHelper {
     public void putProperties(final String path, final EditableProperties props) {
         ProjectManager.mutex().writeAccess(
             new Runnable() {
+                @Override
                 public void run() {
                     if (isCurrent() || !AntProjectHelper.PROJECT_PROPERTIES_PATH.equals(path)) {
                         // only project props should cause update
@@ -95,6 +97,7 @@ public final class UpdateHelper {
      */
     public Element getPrimaryConfigurationData(final boolean shared) {
         return ProjectManager.mutex().readAccess(new Mutex.Action<Element>() {
+            @Override
             public Element run() {
                 if (!shared || isCurrent()) { // only shared props should cause update
                     return helper.getPrimaryConfigurationData(shared);
@@ -115,6 +118,7 @@ public final class UpdateHelper {
      */
     public void putPrimaryConfigurationData(final Element element, final boolean shared) {
         ProjectManager.mutex().writeAccess(new Runnable() {
+            @Override
             public void run () {
                 if (!shared || isCurrent()) {
                     helper.putPrimaryConfigurationData(element, shared);
@@ -139,6 +143,7 @@ public final class UpdateHelper {
     public boolean requestUpdate() throws IOException {
         try {
             return ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Boolean>() {
+                @Override
                 public Boolean run() throws IOException {
                     if (isCurrent()) {
                         return true;

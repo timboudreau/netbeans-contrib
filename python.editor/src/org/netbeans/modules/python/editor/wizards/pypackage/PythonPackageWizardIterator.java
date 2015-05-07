@@ -55,7 +55,7 @@ public final class PythonPackageWizardIterator implements WizardDescriptor.Insta
                     JComponent jc = (JComponent)c;
                     // Sets step number of a component
                     // TODO if using org.openide.dialogs >= 7.8, can use WizardDescriptor.PROP_*:
-                    jc.putClientProperty("WizardPanel_contentSelectedIndex", Integer.valueOf(i));
+                    jc.putClientProperty("WizardPanel_contentSelectedIndex", i);
                     // Sets steps names for a panel
                     jc.putClientProperty("WizardPanel_contentData", steps);
                     // Turn on subtitle creation on each step
@@ -70,8 +70,9 @@ public final class PythonPackageWizardIterator implements WizardDescriptor.Insta
         return panels;
     }
 
+    @Override
     public Set instantiate() throws IOException {
-        final Set<FileObject> resultSet = new HashSet<FileObject>();
+        final Set<FileObject> resultSet = new HashSet<>();
         FileObject template = FileUtil.getConfigFile("Templates/Python/_init.py"); // NOI18N
         FileObject dir = Templates.getTargetFolder(wizard);
         String targetName = Templates.getTargetName(wizard);
@@ -105,30 +106,37 @@ public final class PythonPackageWizardIterator implements WizardDescriptor.Insta
         return resultSet;
     }
 
+    @Override
     public void initialize(WizardDescriptor wizard) {
         this.wizard = wizard;
     }
 
+    @Override
     public void uninitialize(WizardDescriptor wizard) {
         panels = null;
     }
 
+    @Override
     public WizardDescriptor.Panel current() {
         return getPanels()[index];
     }
 
+    @Override
     public String name() {
         return index + 1 + ". from " + getPanels().length;
     }
 
+    @Override
     public boolean hasNext() {
         return index < getPanels().length - 1;
     }
 
+    @Override
     public boolean hasPrevious() {
         return index > 0;
     }
 
+    @Override
     public void nextPanel() {
         if (!hasNext()) {
             throw new NoSuchElementException();
@@ -136,6 +144,7 @@ public final class PythonPackageWizardIterator implements WizardDescriptor.Insta
         index++;
     }
 
+    @Override
     public void previousPanel() {
         if (!hasPrevious()) {
             throw new NoSuchElementException();
@@ -144,9 +153,11 @@ public final class PythonPackageWizardIterator implements WizardDescriptor.Insta
     }
 
     // If nothing unusual changes in the middle of the wizard, simply:
+    @Override
     public void addChangeListener(ChangeListener l) {
     }
 
+    @Override
     public void removeChangeListener(ChangeListener l) {
     }
 

@@ -67,10 +67,12 @@ public final class ChangePackageViewTypeAction extends AbstractAction implements
     
     public ChangePackageViewTypeAction() {}
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         assert false : e;
     }
 
+    @Override
     public JMenuItem getPopupPresenter() {
         JMenu menu = new JMenu();
         Mnemonics.setLocalizedText(menu, NbBundle.getMessage(ChangePackageViewTypeAction.class, "LBL_change_package_type"));
@@ -84,6 +86,7 @@ public final class ChangePackageViewTypeAction extends AbstractAction implements
         Mnemonics.setLocalizedText(item, label);
         item.setSelected(PythonProjectSettings.getPackageViewType() == type);
         item.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 PythonProjectSettings.setPackageViewType(type);
             }

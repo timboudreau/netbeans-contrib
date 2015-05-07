@@ -79,7 +79,7 @@ class InputOutputFinder extends Visitor {
     private int ifs;
     //private PythonTree currentBlock;
     //private final List<PythonTree> blockStack = new ArrayList<PythonTree>(); // JDK16: Use Deque
-    private Map<PythonTree, UsageScope> blockScopes = new HashMap<PythonTree, UsageScope>();
+    private Map<PythonTree, UsageScope> blockScopes = new HashMap<>();
     private UsageScope methodScope = new UsageScope(null);
     //private UsageScope blockScope;
     private PythonTree parent;
@@ -104,14 +104,14 @@ class InputOutputFinder extends Visitor {
             scope.merge(s);
         }
 
-        Set<String> inputs = new HashSet<String>(scope.readDuring);
+        Set<String> inputs = new HashSet<>(scope.readDuring);
         // But not read before
         inputs.removeAll(scope.writtenBeforeReadDuring);
 
         // Also need to pass in any variables I'm modifying that are read after
-        Set<String> outputs = new HashSet<String>(scope.writtenDuring);
+        Set<String> outputs = new HashSet<>(scope.writtenDuring);
         outputs.retainAll(scope.readAfter);
-        Set<String> extraOutputs = new HashSet<String>(scope.writtenBefore);
+        Set<String> extraOutputs = new HashSet<>(scope.writtenBefore);
         extraOutputs.retainAll(outputs);
         // unless they are written before read
         extraOutputs.removeAll(scope.writtenBeforeReadDuring);
@@ -129,7 +129,7 @@ class InputOutputFinder extends Visitor {
             scope.merge(s);
         }
 
-        Set<String> outputs = new HashSet<String>(scope.writtenDuring);
+        Set<String> outputs = new HashSet<>(scope.writtenDuring);
         outputs.retainAll(scope.readAfter);
 
         return outputs;
@@ -289,16 +289,16 @@ class InputOutputFinder extends Visitor {
         /** Block, or null if it's the local method */
         private PythonTree block;
         /** Variables that exist in scope before the code fragment */
-        private final Set<String> writtenBefore = new HashSet<String>();
+        private final Set<String> writtenBefore = new HashSet<>();
         /** Variables that are read during the code fragment */
-        private final Set<String> readDuring = new HashSet<String>(); // rename readBeforeWrittenDuring
+        private final Set<String> readDuring = new HashSet<>(); // rename readBeforeWrittenDuring
         /** Variables that are written to during the code fragment */
-        private final Set<String> writtenDuring = new HashSet<String>();
+        private final Set<String> writtenDuring = new HashSet<>();
         /** Variables that are written to during the code fragment */
-        private final Set<String> writtenBeforeReadDuring = new HashSet<String>();
+        private final Set<String> writtenBeforeReadDuring = new HashSet<>();
         /** Variables that are written PRIOR TO A READ OF THE SAME VAR after the code fragment */
-        private final Set<String> writtenAfter = new HashSet<String>(); // rename writtenBeforeReadAfter
+        private final Set<String> writtenAfter = new HashSet<>(); // rename writtenBeforeReadAfter
         /** Variables that are read (prior to a write) after the code fragment */
-        private final Set<String> readAfter = new HashSet<String>(); // rename readBeforeWrittenAfter
+        private final Set<String> readAfter = new HashSet<>(); // rename readBeforeWrittenAfter
     }
 }

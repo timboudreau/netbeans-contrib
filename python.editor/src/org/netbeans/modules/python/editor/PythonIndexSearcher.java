@@ -60,7 +60,7 @@ public class PythonIndexSearcher implements IndexSearcher {
     @Override
     public Set<? extends Descriptor> getTypes(Project prjct, String textForQuery, QuerySupport.Kind kind, Helper helper) {
         PythonIndex index = PythonIndex.get(prjct);
-        Set<PythonSymbol> result = new HashSet<PythonSymbol>();
+        Set<PythonSymbol> result = new HashSet<>();
         Set<? extends IndexedElement> elements;
 
         // TODO - do some filtering if you use ./#
@@ -80,7 +80,7 @@ public class PythonIndexSearcher implements IndexSearcher {
     @Override
     public Set<? extends Descriptor> getSymbols(Project prjct, String textForQuery, QuerySupport.Kind kind, Helper helper) {
         PythonIndex index = PythonIndex.get(prjct);
-        Set<PythonSymbol> result = new HashSet<PythonSymbol>();
+        Set<PythonSymbol> result = new HashSet<>();
         Set<? extends IndexedElement> elements;
 
         // TODO - do some filtering if you use ./#
@@ -229,6 +229,7 @@ public class PythonIndexSearcher implements IndexSearcher {
             return fqn;
         }
 
+        @Override
         public ElementHandle getElement() {
             return element;
         }

@@ -66,6 +66,7 @@ public class RefactoringTreeElement implements TreeElement {
         }
     }
 
+    @Override
     public TreeElement getParent(boolean isLogical) {
         if (isLogical) {
             return TreeElementFactory.getTreeElement(parent);
@@ -78,10 +79,12 @@ public class RefactoringTreeElement implements TreeElement {
         return el;
     }
 
+    @Override
     public Icon getIcon() {
         return thisFeature.getIcon();
     }
 
+    @Override
     public String getText(boolean isLogical) {
         if (isLogical) {
             return PythonRefUtils.htmlize(thisFeature.toString()) + " ... " + element.getDisplayText();
@@ -90,6 +93,7 @@ public class RefactoringTreeElement implements TreeElement {
         }
     }
 
+    @Override
     public Object getUserObject() {
         return element;
     }

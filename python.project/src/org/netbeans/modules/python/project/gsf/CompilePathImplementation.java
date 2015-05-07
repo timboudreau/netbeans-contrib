@@ -94,21 +94,25 @@ public final class CompilePathImplementation implements ClassPathImplementation,
         evaluator.addPropertyChangeListener(WeakListeners.propertyChange(this, evaluator));
     }
 
+    @Override
     public synchronized List<PathResourceImplementation> getResources() {
         assert this.resources != null;
         return this.resources;
     }
 
+    @Override
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         Parameters.notNull("listener", listener);
         support.addPropertyChangeListener (listener);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         Parameters.notNull("listener", listener);
         support.removePropertyChangeListener (listener);
     }
 
+    @Override
     public void propertyChange(final PropertyChangeEvent evt) {
         String prop = evt.getPropertyName();
         if (prop != null && !PythonProjectProperties.PYTHON_LIB_PATH.equals(evt.getPropertyName())) {
@@ -121,6 +125,7 @@ public final class CompilePathImplementation implements ClassPathImplementation,
         }
     }
 
+    @Override
     public void run() {
         dirty.set(false);
         List<PathResourceImplementation> newRoots = getPath();
@@ -137,7 +142,7 @@ public final class CompilePathImplementation implements ClassPathImplementation,
     }
 
     private List<PathResourceImplementation> getPath() {
-        List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>();
+        List<PathResourceImplementation> result = new ArrayList<>();
 
         String prop = evaluator.getProperty(PythonProjectProperties.PYTHON_LIB_PATH);
         if (prop != null) {            

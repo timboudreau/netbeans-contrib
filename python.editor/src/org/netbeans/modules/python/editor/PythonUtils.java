@@ -473,12 +473,14 @@ public class PythonUtils {
         return offset;
     }
     public static Comparator NAME_NODE_COMPARATOR = new Comparator<Name>() {
+        @Override
         public int compare(Name n1, Name n2) {
             return n1.getInternalId().compareTo(n2.getInternalId());
         }
     };
     public static Comparator ATTRIBUTE_NAME_NODE_COMPARATOR = new Comparator<Object>() {
         @SuppressWarnings("unchecked")
+        @Override
         public int compare(Object n1, Object n2) {
             String s1 = "";
             String s2 = "";
@@ -511,6 +513,7 @@ public class PythonUtils {
         }
     };
     public static Comparator NODE_POS_COMPARATOR = new Comparator<PythonTree>() {
+        @Override
         public int compare(PythonTree p1, PythonTree p2) {
             int ret = p1.getCharStartIndex() - p2.getCharStartIndex();
             if (ret != 0) {

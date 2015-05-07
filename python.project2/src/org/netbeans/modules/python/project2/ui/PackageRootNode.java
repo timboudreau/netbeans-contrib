@@ -268,13 +268,12 @@ NbBundle.getMessage(PackageRootNode.class,"PROP_rootpath"), NbBundle.getMessage(
                 for (int i=0; i < mto.getCount(); i++) {
                     Transferable pt = mto.getTransferableAt(i);
                     DataFlavor[] flavors = mto.getTransferDataFlavors(i);
-                    for (int j=0; j< flavors.length; j++) {
-                        if (PackageViewChildren.SUBTYPE.equals(flavors[j].getSubType ()) &&
-                                PackageViewChildren.PRIMARY_TYPE.equals(flavors[j].getPrimaryType ())) {
+                    for (DataFlavor flavor : flavors) {
+                        if (PackageViewChildren.SUBTYPE.equals(flavor.getSubType()) && PackageViewChildren.PRIMARY_TYPE.equals(flavor.getPrimaryType())) {
                             if (op == -1) {
-                                op = Integer.valueOf (flavors[j].getParameter (PackageViewChildren.MASK)).intValue ();
+                                op = Integer.valueOf(flavor.getParameter(PackageViewChildren.MASK));
                             }
-                            PackageViewChildren.PackageNode pkgNode = (PackageViewChildren.PackageNode) pt.getTransferData(flavors[j]);
+                            PackageViewChildren.PackageNode pkgNode = (PackageViewChildren.PackageNode)pt.getTransferData(flavor);
                             if ( !((PackageViewChildren)getChildren()).getRoot().equals( pkgNode.getRoot() ) ) {
                                 l.add(pkgNode);
                             }

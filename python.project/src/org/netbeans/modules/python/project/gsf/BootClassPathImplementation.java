@@ -77,10 +77,11 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         this.eval.addPropertyChangeListener(WeakListeners.propertyChange(this, this.eval));
     }
 
+    @Override
     public synchronized List<PathResourceImplementation> getResources() {
         if (this.resourcesCache == null) {
             List<URL> urls = getUrls(project);
-            List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>(1);
+            List<PathResourceImplementation> result = new ArrayList<>(1);
             for (URL url : urls) {
                 result.add(ClassPathSupport.createResource(url));
             }
@@ -89,21 +90,25 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         return this.resourcesCache;
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         Parameters.notNull("listener", listener);
         this.support.addPropertyChangeListener (listener);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         Parameters.notNull("listener", listener);
         this.support.removePropertyChangeListener (listener);
     }
 
+    @Override
     public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getSource() == this.eval &&
             (evt.getPropertyName() == null || evt.getPropertyName().equals(PythonProjectProperties.ACTIVE_PLATFORM))) {
             //Active platform was changed
             RequestProcessor.getDefault().post(new Runnable() {
+                @Override
               public void run() {
                 resetCache ();
               }

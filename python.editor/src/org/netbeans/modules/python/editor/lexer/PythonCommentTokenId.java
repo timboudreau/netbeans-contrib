@@ -79,6 +79,7 @@ public enum PythonCommentTokenId implements TokenId {
         this.primaryCategory = primaryCategory;
     }
 
+    @Override
     public String primaryCategory() {
         return primaryCategory;
     }

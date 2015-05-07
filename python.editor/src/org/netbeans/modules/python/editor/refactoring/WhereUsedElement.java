@@ -46,6 +46,7 @@ package org.netbeans.modules.python.editor.refactoring;
 import java.util.Collections;
 import java.util.Set;
 import javax.swing.Icon;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Position.Bias;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
@@ -84,10 +85,12 @@ public class WhereUsedElement extends SimpleRefactoringElementImplementation {
         ElementGripFactory.getDefault().put(parentFile, name, range, icon);
     }
 
+    @Override
     public String getDisplayText() {
         return displayText;
     }
 
+    @Override
     public Lookup getLookup() {
         Object composite =
                 ElementGripFactory.getDefault().get(parentFile, bounds.getBegin().getOffset());
@@ -99,17 +102,21 @@ public class WhereUsedElement extends SimpleRefactoringElementImplementation {
         return Lookups.singleton(composite);
     }
 
+    @Override
     public PositionBounds getPosition() {
         return bounds;
     }
 
+    @Override
     public String getText() {
         return displayText;
     }
 
+    @Override
     public void performChange() {
     }
 
+    @Override
     public FileObject getParentFile() {
         return parentFile;
     }
@@ -173,7 +180,7 @@ public class WhereUsedElement extends SimpleRefactoringElementImplementation {
                     end = bdoc.getLength();
                 }
             }
-        } catch (Exception ex) {
+        } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         } finally {
             bdoc.readUnlock();

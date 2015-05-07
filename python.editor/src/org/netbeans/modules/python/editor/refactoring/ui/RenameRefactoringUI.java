@@ -176,10 +176,12 @@ public class RenameRefactoringUI implements RefactoringUI, RefactoringUIBypass {
         this.refactoring.getContext().add(UI.Constants.REQUEST_PREVIEW);
     }
 
+    @Override
     public boolean isQuery() {
         return false;
     }
 
+    @Override
     public CustomRefactoringPanel getPanel(ChangeListener parent) {
         if (panel == null) {
             String name = oldName;
@@ -228,6 +230,7 @@ public class RenameRefactoringUI implements RefactoringUI, RefactoringUIBypass {
         return name;
     }
 
+    @Override
     public org.netbeans.modules.refactoring.api.Problem setParameters() {
         newName = getPanelName();
         if (refactoring instanceof RenameRefactoring) {
@@ -237,6 +240,7 @@ public class RenameRefactoringUI implements RefactoringUI, RefactoringUIBypass {
         return refactoring.checkParameters();
     }
 
+    @Override
     public org.netbeans.modules.refactoring.api.Problem checkParameters() {
         if (!panel.isUpdateReferences()) {
             return null;
@@ -248,31 +252,38 @@ public class RenameRefactoringUI implements RefactoringUI, RefactoringUIBypass {
         return refactoring.fastCheckParameters();
     }
 
+    @Override
     public org.netbeans.modules.refactoring.api.AbstractRefactoring getRefactoring() {
         return refactoring;
     }
 
+    @Override
     public String getDescription() {
         return new MessageFormat(NbBundle.getMessage(RenamePanel.class, "DSC_Rename")).format(
                 new Object[]{dispOldName, newName});
     }
 
+    @Override
     public String getName() {
         return NbBundle.getMessage(RenamePanel.class, "LBL_Rename");
     }
 
+    @Override
     public boolean hasParameters() {
         return true;
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return null;
     }
 
+    @Override
     public boolean isRefactoringBypassRequired() {
         return !panel.isUpdateReferences();
     }
 
+    @Override
     public void doRefactoringBypass() throws IOException {
         DataObject dob = null;
         if (byPassFolder != null) {

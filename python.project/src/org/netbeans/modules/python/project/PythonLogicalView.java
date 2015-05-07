@@ -49,10 +49,12 @@ class PythonLogicalView implements LogicalViewProvider {
         this.project = project;
     }
 
+    @Override
     public Node createLogicalView() {
         return new PythonProjectNode();
     }
 
+    @Override
     public Node findPath(Node root, Object target) {
         Project project = root.getLookup().lookup(Project.class);
         if (project == null) {
@@ -142,7 +144,7 @@ class PythonLogicalView implements LogicalViewProvider {
         }
 
         private Action[] getAdditionalActions() {
-            final List<Action> actions = new ArrayList<Action>();
+            final List<Action> actions = new ArrayList<>();
             actions.add(CommonProjectActions.newFileAction());
             actions.add(null);
 //            The action provider is not done yet

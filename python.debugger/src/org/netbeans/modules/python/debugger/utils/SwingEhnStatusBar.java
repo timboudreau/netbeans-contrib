@@ -118,6 +118,7 @@ public class SwingEhnStatusBar extends JPanel {
     // Exit the debug window frame
     class WL extends WindowAdapter {
 
+      @Override
       public void windowClosing(WindowEvent e) {
         System.exit(0);
       }
@@ -132,6 +133,7 @@ public class SwingEhnStatusBar extends JPanel {
         _ehn = ehn;
       }
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         if (_on) {
           _on = false;

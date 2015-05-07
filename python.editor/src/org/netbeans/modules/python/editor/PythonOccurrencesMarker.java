@@ -82,6 +82,7 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
     public PythonOccurrencesMarker() {
     }
 
+    @Override
     public Map<OffsetRange, ColoringAttributes> getOccurrences() {
         return occurrences;
     }
@@ -94,10 +95,12 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
         cancelled = false;
     }
 
+    @Override
     public final synchronized void cancel() {
         cancelled = true;
     }
 
+    @Override
     public void setCaretPosition(int position) {
         this.caretPosition = position;
     }
@@ -294,7 +297,7 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
 
         if (offsets != null) {
             Map<OffsetRange, ColoringAttributes> h =
-                    new HashMap<OffsetRange, ColoringAttributes>(100);
+                    new HashMap<>(100);
 
             for (OffsetRange lexRange : offsets) {
                 h.put(lexRange, ColoringAttributes.MARK_OCCURRENCES);
@@ -318,7 +321,7 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
         private final Call call;
         private final FunctionDef def;
         private final String name;
-        private final Set<OffsetRange> ranges = new HashSet<OffsetRange>();
+        private final Set<OffsetRange> ranges = new HashSet<>();
         private final PythonParserResult info;
 
         CallVisitor(PythonParserResult info, FunctionDef def, Call call) {
@@ -394,10 +397,10 @@ public class PythonOccurrencesMarker extends OccurrencesFinder<PythonParserResul
     }
 
     private Set<OffsetRange> findSameAttributes(PythonParserResult info, PythonTree root, Attribute attr) {
-        List<PythonTree> result = new ArrayList<PythonTree>();
+        List<PythonTree> result = new ArrayList<>();
         PythonAstUtils.addNodesByType(root, new Class[]{Attribute.class}, result);
 
-        Set<OffsetRange> offsets = new HashSet<OffsetRange>();
+        Set<OffsetRange> offsets = new HashSet<>();
 
         String attrName = attr.getInternalAttr();
         if (attrName != null) {

@@ -71,6 +71,7 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         return new NewPythonProjectWizardIterator (WizardType.EXISTING);
     }
 
+    @Override
     public void initialize(WizardDescriptor wizard) {
         descriptor = wizard;
         index = 0;
@@ -79,18 +80,21 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         initDescriptor(wizard);
     }
 
+    @Override
     public void uninitialize(WizardDescriptor wizard) {
         panels = null;
         descriptor = null;
     }
 
+    @Override
     public Set instantiate() throws IOException {
         assert false : "Cannot call this method if implements WizardDescriptor.ProgressInstantiatingIterator.";
         return null;
     }
 
+    @Override
     public Set instantiate(ProgressHandle handle) throws IOException {
-        final Set<FileObject> resultSet = new HashSet<FileObject>();
+        final Set<FileObject> resultSet = new HashSet<>();
 
         handle.start(5);
 
@@ -127,22 +131,27 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         return resultSet;
     }
 
+    @Override
     public String name() {
         return NbBundle.getMessage(NewPythonProjectWizardIterator.class, "LBL_IteratorName", index + 1, panels.length);
     }
 
+    @Override
     public boolean hasNext() {
         return index < panels.length - 1;
     }
+    @Override
     public boolean hasPrevious() {
         return index > 0;
     }
+    @Override
     public void nextPanel() {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
         index++;
     }
+    @Override
     public void previousPanel() {
         if (!hasPrevious()) {
             throw new NoSuchElementException();
@@ -150,6 +159,7 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         index--;
     }
 
+    @Override
     public WizardDescriptor.Panel current() {
         // wizard title
         String title = NbBundle.getMessage(NewPythonProjectWizardIterator.class, wizardType == WizardType.APP ? "TXT_PythonProject" : "TXT_ExistingPythonProject");
@@ -157,9 +167,11 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         return panels[index];
     }
 
+    @Override
     public void addChangeListener(ChangeListener l) {
     }
 
+    @Override
     public void removeChangeListener(ChangeListener l) {
     }
     
@@ -222,6 +234,7 @@ public class NewPythonProjectWizardIterator implements WizardDescriptor.Progress
         final AntProjectHelper helper = ProjectGenerator.createProject(projectFO, PythonProjectType.TYPE);
         try {
             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                @Override
                 public Void run () throws MutexException {
                     try {
                     // configure

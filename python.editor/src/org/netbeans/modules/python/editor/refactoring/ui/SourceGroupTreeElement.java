@@ -68,7 +68,7 @@ public class SourceGroupTreeElement implements TreeElement {
     private static String PACKAGE_BADGE = "org/netbeans/modules/python/pythonproject/ui/packageBadge.gif"; // NOI18N
 
     SourceGroupTreeElement(SourceGroup sg) {
-        this.sg = new WeakReference<SourceGroup>(sg);
+        this.sg = new WeakReference<>(sg);
         dir = sg.getRootFolder();
 
         icon = sg.getIcon(false);
@@ -83,18 +83,22 @@ public class SourceGroupTreeElement implements TreeElement {
         displayName = sg.getDisplayName();
     }
 
+    @Override
     public TreeElement getParent(boolean isLogical) {
         return TreeElementFactory.getTreeElement(FileOwnerQuery.getOwner(dir));
     }
 
+    @Override
     public Icon getIcon() {
         return icon;
     }
 
+    @Override
     public String getText(boolean isLogical) {
         return displayName;
     }
 
+    @Override
     public Object getUserObject() {
         SourceGroup s = sg.get();
         if (s == null) {

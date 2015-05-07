@@ -58,7 +58,7 @@ public class ProcessLauncher {
   private ProcessBuilder _builder;
   // the launched process component
   private Process _executable;
-  private HashMap<String, String> _env = new HashMap<String, String>();
+  private HashMap<String, String> _env = new HashMap<>();
   private String _args[];
   private int _retCode;
   private ExecTerminationListener _listener;

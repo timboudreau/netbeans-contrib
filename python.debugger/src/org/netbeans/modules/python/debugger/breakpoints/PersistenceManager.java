@@ -66,12 +66,14 @@ public class PersistenceManager
   public PersistenceManager() {
   }
 
+  @Override
   public String[] getProperties() {
     return new String[]{
               DebuggerManager.PROP_BREAKPOINTS_INIT,
               DebuggerManager.PROP_BREAKPOINTS,};
   }
 
+  @Override
   public void breakpointRemoved(Breakpoint breakpoint) {
     Properties p = Properties.getDefault().getProperties(_DEBUGGER_).
             getProperties(DebuggerManager.PROP_BREAKPOINTS);
@@ -81,27 +83,35 @@ public class PersistenceManager
     breakpoint.removePropertyChangeListener(this);
   }
 
+  @Override
   public void sessionAdded(Session session) {
   }
 
+  @Override
   public void sessionRemoved(Session session) {
   }
 
+  @Override
   public void engineAdded(DebuggerEngine engine) {
   }
 
+  @Override
   public void engineRemoved(DebuggerEngine engine) {
   }
 
+  @Override
   public void watchAdded(Watch watch) {
   }
 
+  @Override
   public void watchRemoved(Watch watch) {
   }
 
+  @Override
   public void initWatches() {
   }
 
+  @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if (evt.getSource() instanceof PythonBreakpoint) {
       Properties.getDefault().getProperties(_DEBUGGER_).
@@ -111,6 +121,7 @@ public class PersistenceManager
     }
   }
 
+  @Override
   public Breakpoint[] initBreakpoints() {
     Properties p = Properties.getDefault().getProperties(_DEBUGGER_).
             getProperties(DebuggerManager.PROP_BREAKPOINTS);
@@ -120,8 +131,8 @@ public class PersistenceManager
     // chase for null file or line breakpoints and remove them
     // (Filezilla 150543
     Vector wk = new Vector();
-    for (int ii = 0; ii < wkArray.length; ii++) {
-      PythonBreakpoint cur = (PythonBreakpoint) wkArray[ii];
+    for (Breakpoint brkpoint : wkArray) {
+      PythonBreakpoint cur = (PythonBreakpoint) brkpoint;
       if (cur.getLine() != null) {
         cur.addPropertyChangeListener(this);
         wk.add(cur);
@@ -131,6 +142,7 @@ public class PersistenceManager
     return (Breakpoint[]) wk.toArray(new Breakpoint[0]);
   }
 
+  @Override
   public void breakpointAdded(Breakpoint breakpoint) {
     if (breakpoint instanceof PythonBreakpoint) {
 

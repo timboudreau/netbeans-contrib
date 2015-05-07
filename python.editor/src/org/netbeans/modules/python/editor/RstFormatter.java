@@ -371,7 +371,7 @@ public class RstFormatter {
                             sb.setLength(sb.length() - BRBR.length());
                         }
                         inVerbatim = true;
-                        code = new ArrayList<String>();
+                        code = new ArrayList<>();
                         code.add(line);
                         maybeVerbatim = false;
                         return;
@@ -453,7 +453,7 @@ public class RstFormatter {
                 } else if (trim.startsWith(".. productionlist:")) {
                     lastIndent = getIndentation(line, 0);
                     inVerbatim = true;
-                    code = new ArrayList<String>();
+                    code = new ArrayList<>();
                     code.add(line);
                     maybeVerbatim = false;
                     return;
@@ -484,15 +484,15 @@ public class RstFormatter {
                         sb.setLength(sb.length() - BRBR.length());
                     }
                     sb.append("<div style=\"margin: 5px 5px; "); // NOI18N
-                    if (trim.indexOf("seealso") == -1) { // NOI18N
+                    if (!trim.contains("seealso")) { // NOI18N
                         sb.append("background: #ffdddd; "); // NOI18N
                     } else {
                         sb.append("background: #ddffdd; "); // NOI18N
                     }
                     sb.append("border-size: 1px; padding: 5px\">"); // NOI18N
-                    if (trim.indexOf("note:") != -1) {
+                    if (trim.contains("note:")) {
                         sb.append("<b>NOTE</b>: "); // NOI18N
-                    } else if (trim.indexOf("warning") != -1) {
+                    } else if (trim.contains("warning")) {
                         sb.append("<b>WARNING</b>: "); // NOI18N
                     } else {
                         sb.append("<b>See Also</b>: "); // NOI18N
@@ -508,12 +508,12 @@ public class RstFormatter {
                         sb.setLength(sb.length() - BRBR.length());
                     }
                     sb.append("<div style=\"margin: 5px 5px; background: #dddddd; border-size: 1px; padding: 5px\">"); // NOI18N
-                    if (trim.indexOf("added:") != -1) {
+                    if (trim.contains("added:")) {
                         sb.append("<b>Version Added</b>: "); // NOI18N
-                    } else if (trim.indexOf("changed") != -1) {
+                    } else if (trim.contains("changed")) {
                         sb.append("<b>Version Changed</b>: "); // NOI18N
                     } else {
-                        assert trim.indexOf("deprecated") != -1; // NOI18N
+                        assert trim.contains("deprecated"); // NOI18N
                         sb.append("<b>Deprecated</b>: "); // NOI18N
                     }
                     sb.append(trim.substring(trim.indexOf("::") + 2));
@@ -1281,13 +1281,13 @@ public class RstFormatter {
 
                     Boolean b = (Boolean)attribs.getAttribute(StyleConstants.Bold);
 
-                    if ((b != null) && b.booleanValue()) {
+                    if ((b != null) && b) {
                         sb.append("font-weight:bold;"); // NOI18N
                     }
 
                     b = (Boolean)attribs.getAttribute(StyleConstants.Italic);
 
-                    if ((b != null) && b.booleanValue()) {
+                    if ((b != null) && b) {
                         sb.append("font-style:italic;"); // NOI18N
                     }
 

@@ -76,14 +76,17 @@ public class UnresolvedDetector extends PythonAstRule {
     public UnresolvedDetector() {
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public Set<Class> getKinds() {
         return Collections.<Class>singleton(Module.class);
     }
 
+    @Override
     public void run(PythonRuleContext context, List<Hint> result) {
         PythonParserResult info = (PythonParserResult) context.parserResult;
         SymbolTable symbolTable = info.getSymbolTable();
@@ -98,7 +101,7 @@ public class UnresolvedDetector extends PythonAstRule {
                 if (name == null) {
                     name = "";
                 }
-                List<HintFix> fixList = new ArrayList<HintFix>(3);
+                List<HintFix> fixList = new ArrayList<>(3);
                 // Is is a reference to a module?
                 boolean tryModule = false;
                 if (node.getParent() instanceof Call) {
@@ -142,30 +145,37 @@ public class UnresolvedDetector extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "Unresolved"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(NameRule.class, "Unresolved");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(NameRule.class, "UnresolvedDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return false;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.ERROR;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
@@ -181,10 +191,12 @@ public class UnresolvedDetector extends PythonAstRule {
             this.module = module;
         }
 
+        @Override
         public String getDescription() {
             return NbBundle.getMessage(CreateDocString.class, "FixImport", module);
         }
 
+        @Override
         public void implement() throws Exception {
             String mod = this.module;
             String symbol = null;
@@ -203,10 +215,12 @@ public class UnresolvedDetector extends PythonAstRule {
             new ImportManager((PythonParserResult) context.parserResult).ensureImported(mod, symbol, false, false, true);
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

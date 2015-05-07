@@ -67,13 +67,7 @@ public final class Util {
 	    // Allow setting of private fields:
 	    fieldFd.setAccessible(true);
 	    fieldFd.setInt(FD, fd);
-	} catch (IllegalArgumentException ex) {
-	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IllegalAccessException ex) {
-	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (NoSuchFieldException ex) {
-	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (SecurityException ex) {
+	} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
 	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
@@ -90,11 +84,9 @@ public final class Util {
             // Allow getting of private fields:
             fieldFd.setAccessible(true);
             return fieldFd.getInt(FD);
-	} catch (IllegalAccessException ex) {
+	} catch (IllegalAccessException | NoSuchFieldException ex) {
 	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (NoSuchFieldException ex) {
-	    Logger.getLogger(JNAPty.class.getName()).log(Level.SEVERE, null, ex);
-        }
+	}
         return -1;
     }
 }

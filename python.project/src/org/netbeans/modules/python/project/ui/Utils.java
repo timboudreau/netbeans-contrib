@@ -198,6 +198,7 @@ public class Utils {
             delegate = HtmlRenderer.createRenderer();
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             String name;
             if (value instanceof PythonPlatform) {
@@ -224,10 +225,12 @@ public class Utils {
             super (data,new Object[]{"location","label"});//NOI18N
         }
 
+        @Override
         public boolean isCellEditable(int row, int column) {
             return column == 1;
         }
 
+        @Override
         public Class getColumnClass(int columnIndex) {
             switch (columnIndex) {
                 case 0:
@@ -276,7 +279,7 @@ public class Utils {
             this.removeButton = removeButton;
             this.upButton = upButton;
             this.downButton = downButton;
-            this.ownedFolders = new HashSet<File>();
+            this.ownedFolders = new HashSet<>();
             this.project = master;
             this.listener = listener;
             this.isTest = isTest;
@@ -291,6 +294,7 @@ public class Utils {
             }
         }
         
+        @Override
         public void setRelatedEditMediator(final SourceRootsMediator rem) {
             this.relatedEditMediator = (EditMediator) rem;
         }
@@ -299,6 +303,7 @@ public class Utils {
         
         /** Handles button events
          */        
+        @Override
         public void actionPerformed(ActionEvent e ) {
             
             Object source = e.getSource();
@@ -355,6 +360,7 @@ public class Utils {
         
         /** Handles changes in the selection
          */        
+        @Override
         public void valueChanged( ListSelectionEvent e ) {
             
             int[] si = rootsList.getSelectedRows();
@@ -382,9 +388,11 @@ public class Utils {
             
         }
 
+        @Override
         public void editingCanceled(ChangeEvent e) {
         }
 
+        @Override
         public void editingStopped(ChangeEvent e) {            
             fireChange();
         }
@@ -394,8 +402,8 @@ public class Utils {
             int lastIndex = si == null || si.length == 0 ? -1 : si[si.length - 1];
             ListSelectionModel selectionModel = this.rootsList.getSelectionModel();
             selectionModel.clearSelection();
-            Set<File> rootsFromOtherProjects = new HashSet<File> ();
-            Set<File> rootsFromRelatedSourceRoots = new HashSet<File>();
+            Set<File> rootsFromOtherProjects = new HashSet<> ();
+            Set<File> rootsFromRelatedSourceRoots = new HashSet<>();
 out:        for( int i = 0; i < files.length; i++ ) {
                 File normalizedFile = FileUtil.normalizeFile(files[i]);
                 Project p;
@@ -430,8 +438,8 @@ out:        for( int i = 0; i < files.length; i++ ) {
                         rootsFromOtherProjects.add (normalizedFile);
                         continue;
                     }
-                    for (int j=0; j<groups.length; j++) {
-                        final FileObject sgRoot = groups[j].getRootFolder();
+                    for (SourceGroup group : groups) {
+                        final FileObject sgRoot = group.getRootFolder();
                         if (fileObject.equals(sgRoot)) {
                             rootsFromOtherProjects.add (normalizedFile);
                             continue out;
@@ -619,6 +627,7 @@ out:        for( int i = 0; i < files.length; i++ ) {
                 this.projectConflict = projectConflict;
             }
 
+            @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 File f = (File) value;
                 String message = f.getAbsolutePath();
@@ -645,6 +654,7 @@ out:        for( int i = 0; i < files.length; i++ ) {
             this.projectFolder = projectFolder;
         }
         
+        @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,int row, int column) {
             String displayName;
             if (value instanceof File) {

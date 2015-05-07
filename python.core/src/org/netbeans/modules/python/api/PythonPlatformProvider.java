@@ -84,6 +84,7 @@ public final class PythonPlatformProvider {
         ph.start();
         try {
             Thread autoDetection = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     PythonPlatformManager.getInstance().autoDetect();
                 }

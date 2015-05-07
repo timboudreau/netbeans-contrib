@@ -55,22 +55,27 @@ public interface UpdateImplementation {
     
     public static final UpdateImplementation NULL = new UpdateImplementation() {
 
+        @Override
         public boolean isCurrent() {
             return true;
         }
 
+        @Override
         public boolean canUpdate() {
             return false;
         }
 
+        @Override
         public void saveUpdate(EditableProperties props) throws IOException {
             throw new UnsupportedOperationException("Nothing to do");
         }
 
+        @Override
         public Element getUpdatedSharedConfigurationData() {
             throw new UnsupportedOperationException("Nothing to do");
         }
 
+        @Override
         public EditableProperties getUpdatedProjectProperties() {
             throw new UnsupportedOperationException("Nothing to do");
         }

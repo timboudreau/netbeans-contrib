@@ -228,9 +228,7 @@ public class PtyExecutor {
                 try {
                     Process p = Runtime.getRuntime().exec(chmodProgram);
                     p.waitFor();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(PtyExecutor.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
+                } catch (InterruptedException | IOException ex) {
                     Logger.getLogger(PtyExecutor.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 break;
@@ -266,7 +264,7 @@ public class PtyExecutor {
         if (pty == null) {
             return cmd;
         }
-        List<String> wrapperCmd = new ArrayList<String>();
+        List<String> wrapperCmd = new ArrayList<>();
         String wrapper = getWrapper();
         if (pgrp != null) {
             wrapperCmd.add(setpgrpCmd());

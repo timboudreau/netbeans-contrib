@@ -143,6 +143,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         }
     }
 
+    @Override
     public Object state() {
         return state;
     }
@@ -154,6 +155,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
     }
 
     @SuppressWarnings("fallthrough")
+    @Override
     public Token<PythonTokenId> nextToken() {
         switch (state) {
         case INIT: {
@@ -681,6 +683,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         return null;
     }
 
+    @Override
     public void release() {
     }
 

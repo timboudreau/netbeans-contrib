@@ -72,6 +72,7 @@ public class PythonLineConvertorFactoryTest {
         final String[] fileNameRequest = new String[1];
         FileLocator locator = new FileLocator() {
 
+            @Override
             public FileObject find(String filename) {
                 fileNameRequest[0] = filename;
                 return null;
@@ -101,6 +102,7 @@ public class PythonLineConvertorFactoryTest {
         final String[] fileNameRequest = new String[1];
         FileLocator locator = new FileLocator() {
 
+            @Override
             public FileObject find(String filename) {
                 fileNameRequest[0] = filename;
                 return null;

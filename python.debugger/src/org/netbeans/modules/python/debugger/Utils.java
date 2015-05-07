@@ -46,6 +46,7 @@ import org.openide.text.Line;
 import org.openide.text.Annotatable;
 import javax.swing.SwingUtilities;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -162,6 +163,7 @@ public class Utils {
     final Annotatable[] a = (Annotatable[]) line;
     SwingUtilities.invokeLater(new Runnable() {
 
+      @Override
       public void run() {
         if (a[0] instanceof Line) {
           ((Line) a[0]).show(ShowOpenType.OPEN, ShowVisibilityType.FOCUS);
@@ -222,7 +224,7 @@ public class Utils {
       annotatables[0] = l;
 
       return annotatables;
-    } catch (Exception e) {
+    } catch (IOException | IndexOutOfBoundsException e) {
       e.printStackTrace();
     }
     return null;
@@ -284,7 +286,7 @@ public class Utils {
       showLine(annotatables);
 
       return doc;
-    } catch (Exception e) {
+    } catch (IOException | IndexOutOfBoundsException e) {
       e.printStackTrace();
     }
     return null;
@@ -364,7 +366,7 @@ public class Utils {
       assert editor != null;
       Document doc = editor.openDocument();
       return doc;
-    } catch (Exception e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
     return null;
@@ -408,8 +410,7 @@ public class Utils {
     }
     try {
       return ls.getCurrent(lineNumber);
-    } catch (IndexOutOfBoundsException e) {
-    } catch (IllegalArgumentException e) {
+    } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
     }
     return null;
   }
@@ -481,16 +482,14 @@ public class Utils {
     } else {
       final JEditorPane[] ce = new JEditorPane[1];
       try {
-        EventQueue.invokeAndWait(
-                new Runnable() {
+        EventQueue.invokeAndWait(new Runnable() {
 
+          @Override
                   public void run() {
                     ce[0] = getEditorPane_(editorCookie);
                   }
                 });
-      } catch (InvocationTargetException ex) {
-        ex.printStackTrace();
-      } catch (InterruptedException ex) {
+      } catch (InvocationTargetException | InterruptedException ex) {
         ex.printStackTrace();
       }
       return ce[0];

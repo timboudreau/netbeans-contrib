@@ -93,7 +93,7 @@ public abstract class Command {
      * @return PythonPath FileList
      */
     protected ArrayList<String> buildPythonPath( PythonPlatform platform , PythonProject project ) {
-      final ArrayList<String> pythonPath = new ArrayList<String>() ;
+      final ArrayList<String> pythonPath = new ArrayList<>() ;
       // start with platform
       pythonPath.addAll(platform.getPythonPath());
       for (FileObject fo : project.getSourceRoots().getRoots()) {
@@ -112,7 +112,7 @@ public abstract class Command {
      * @return JavaPath fileList for jython CLASSPATH command
      */
     protected ArrayList<String> buildJavaPath( PythonPlatform platform , PythonProject project ) {
-      final ArrayList<String> javaPath = new ArrayList<String>() ;
+      final ArrayList<String> javaPath = new ArrayList<>() ;
       // start with platform
       javaPath.addAll(platform.getJavaPath());
       javaPath.addAll(getProperties().getJavaPath());

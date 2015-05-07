@@ -20,6 +20,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 public final class RunPyAction extends CookieAction {
+    @Override
     protected void performAction(Node[] activatedNodes) {
         //listProperties();
         DataObject gdo = activatedNodes[0].getLookup().lookup(DataObject.class);
@@ -48,14 +49,17 @@ public final class RunPyAction extends CookieAction {
         }
     }
 
+    @Override
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
 
+    @Override
     public String getName() {
         return NbBundle.getMessage(RunPyAction.class, "CTL_RunPyAction");
     }
 
+    @Override
     protected Class[] cookieClasses() {
         return new Class[]{DataObject.class};
     }
@@ -75,6 +79,7 @@ public final class RunPyAction extends CookieAction {
         return "org/netbeans/modules/python/actions/page_go.png";
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }

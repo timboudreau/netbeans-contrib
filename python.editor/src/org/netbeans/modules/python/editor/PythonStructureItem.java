@@ -70,16 +70,18 @@ public final class PythonStructureItem extends AstElement implements StructureIt
 
     void add(PythonStructureItem child) {
         if (children == null) {
-            children = new ArrayList<PythonStructureItem>();
+            children = new ArrayList<>();
         }
         children.add(child);
         child.parent = this;
     }
 
+    @Override
     public String getSortText() {
         return name;
     }
 
+    @Override
     public String getHtml(HtmlFormatter formatter) {
         formatter.appendText(name);
         if (kind == ElementKind.METHOD || kind == ElementKind.CONSTRUCTOR) {
@@ -104,26 +106,32 @@ public final class PythonStructureItem extends AstElement implements StructureIt
         return formatter.getText();
     }
 
+    @Override
     public ElementHandle getElementHandle() {
         return null;
     }
 
+    @Override
     public boolean isLeaf() {
         return children == null;
     }
 
+    @Override
     public List<? extends StructureItem> getNestedItems() {
         return children == null ? Collections.<StructureItem>emptyList() : children;
     }
 
+    @Override
     public long getPosition() {
         return node.getCharStartIndex();
     }
 
+    @Override
     public long getEndPosition() {
         return node.getCharStopIndex();
     }
 
+    @Override
     public ImageIcon getCustomIcon() {
         if (kind == ElementKind.CLASS && getModifiers().contains(Modifier.PRIVATE)) {
             // GSF doesn't automatically handle icons on private classes, so I have to

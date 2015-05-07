@@ -212,6 +212,7 @@ public final class PopupUtil  {
     
     private static class HideAWTListener extends ComponentAdapter implements  AWTEventListener, WindowStateListener {
         
+        @Override
         public void eventDispatched(java.awt.AWTEvent aWTEvent) {
             if (aWTEvent instanceof MouseEvent) {
                 MouseEvent mv = (MouseEvent)aWTEvent;
@@ -233,6 +234,7 @@ public final class PopupUtil  {
             }
         }
 
+        @Override
         public void windowStateChanged(WindowEvent windowEvent) {
             if (popupWindow != null ) {
                 int oldState = windowEvent.getOldState();
@@ -249,12 +251,14 @@ public final class PopupUtil  {
 
         }
         
+        @Override
         public void componentResized(ComponentEvent evt) {
             if (popupWindow != null) {
                 resizePopup();
             }
         }
         
+        @Override
         public void componentMoved(ComponentEvent evt) {
             if (popupWindow!= null) {
                 resizePopup();
@@ -265,10 +269,12 @@ public final class PopupUtil  {
     
     private static class MyFocusListener implements FocusListener {
         
+        @Override
         public void focusLost(java.awt.event.FocusEvent e) {
             System.out.println( e );
         }
 
+        @Override
         public void focusGained(java.awt.event.FocusEvent e) {
             System.out.println( e );
         }
@@ -277,6 +283,7 @@ public final class PopupUtil  {
     
     private static class CloseAction extends AbstractAction {
         
+        @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
             hidePopup();
         }

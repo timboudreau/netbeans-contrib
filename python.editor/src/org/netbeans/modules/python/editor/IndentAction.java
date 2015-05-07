@@ -82,6 +82,7 @@ public class IndentAction extends BaseKit.InsertTabAction {
                 if ((target.getSelectionStart() == target.getSelectionEnd()) &&
                    (Utilities.isRowEmpty(doc, offset) || Utilities.isRowWhite(doc, offset))) {
                     doc.runAtomicAsUser(new Runnable() {
+                        @Override
                         public void run() {
                             try {
                                 DocumentUtilities.setTypingModification(doc, true);

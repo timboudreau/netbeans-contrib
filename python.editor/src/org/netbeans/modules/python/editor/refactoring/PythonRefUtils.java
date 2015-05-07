@@ -224,8 +224,8 @@ public class PythonRefUtils {
         assert file != null;
         Project p = FileOwnerQuery.getOwner(file);
         Project[] opened = OpenProjects.getDefault().getOpenProjects();
-        for (int i = 0; i < opened.length; i++) {
-            if (p == opened[i]) {
+        for (Project opened1 : opened) {
+            if (p == opened1) {
                 return true;
             }
         }
@@ -240,14 +240,14 @@ public class PythonRefUtils {
             return false;
         }
         Project[] opened = OpenProjects.getDefault().getOpenProjects();
-        for (int i = 0; i < opened.length; i++) {
-            if (p == opened[i]) {
+        for (Project prj : opened) {
+            if (p == prj) {
                 SourceGroup[] gr = ProjectUtils.getSources(p).getSourceGroups(SOURCES_TYPE_PYTHON);
-                for (int j = 0; j < gr.length; j++) {
-                    if (fo == gr[j].getRootFolder()) {
+                for (SourceGroup group : gr) {
+                    if (fo == group.getRootFolder()) {
                         return true;
                     }
-                    if (FileUtil.isParentOf(gr[j].getRootFolder(), fo)) {
+                    if (FileUtil.isParentOf(group.getRootFolder(), fo)) {
                         return true;
                     }
                 }

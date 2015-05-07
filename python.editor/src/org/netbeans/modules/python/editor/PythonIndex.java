@@ -87,12 +87,12 @@ public class PythonIndex {
 
     // The "functions" module is always imported by the interpreter, and ditto
     // for exceptions, constants, etc.
-    public static Set<String> BUILTIN_MODULES = new HashSet<String>();
+    public static Set<String> BUILTIN_MODULES = new HashSet<>();
 
 
     private static final Logger LOG = Logger.getLogger(PythonIndex.class.getName());
     public static final String OBJECT = "object"; // NOI18N
-    static Map<String, Set<String>> wildcardImports = new HashMap<String, Set<String>>();
+    static Map<String, Set<String>> wildcardImports = new HashMap<>();
     static Set<String> systemModules;
     // TODO - make weak?
     static Set<String> availableClasses;
@@ -113,8 +113,8 @@ public class PythonIndex {
     }
     
     public static PythonIndex get(Project project) {
-        Set<String> sourceIds = new HashSet<String>();
-        Set<String> libraryIds = new HashSet<String>();
+        Set<String> sourceIds = new HashSet<>();
+        Set<String> libraryIds = new HashSet<>();
         Collection<? extends PathRecognizer> lookupAll = Lookup.getDefault().lookupAll(PathRecognizer.class);
         for (PathRecognizer pathRecognizer : lookupAll) {
             Set<String> source = pathRecognizer.getSourcePathIds();
@@ -134,7 +134,7 @@ public class PythonIndex {
         return PythonIndex.get(findRoots);
     }
     
-    private static final WeakHashMap<FileObject, PythonIndex> INDEX_CACHE = new WeakHashMap<FileObject, PythonIndex>();
+    private static final WeakHashMap<FileObject, PythonIndex> INDEX_CACHE = new WeakHashMap<>();
     public static PythonIndex get(FileObject fo) {
         PythonIndex index = INDEX_CACHE.get(fo);
         if (index == null) {
@@ -232,13 +232,13 @@ public class PythonIndex {
                 return null;
             } else if (url.startsWith(CLUSTER_URL)) {
                 url = getClusterUrl() + url.substring(CLUSTER_URL.length()); // NOI18N
-                if (url.indexOf(".egg!/") != -1) { // NOI18N
+                if (url.contains(".egg!/")) { // NOI18N
                     url = "jar:" + url; // NOI18N
                 }
             }
             
             return URLMapper.findFileObject(new URL(url));
-        } catch (IOException ex) {
+        } catch (MalformedURLException ex) {
             Exceptions.printStackTrace(ex);
         }
         
@@ -290,7 +290,7 @@ public class PythonIndex {
     }
 
     public Set<IndexedElement> getModules(String name, final QuerySupport.Kind kind) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
 
         //        if (!isValid()) {
         //            LOGGER.fine(String.format("LuceneIndex[%s] is invalid!\n", this.toString()));
@@ -302,7 +302,7 @@ public class PythonIndex {
 
         search(field, name, kind, result, PythonIndexer.FIELD_MODULE_ATTR_NAME, PythonIndexer.FIELD_MODULE_NAME);
 
-        final Set<IndexedElement> modules = new HashSet<IndexedElement>();
+        final Set<IndexedElement> modules = new HashSet<>();
 
         for (IndexResult map : result) {
             URL url = map.getUrl();
@@ -331,12 +331,12 @@ public class PythonIndex {
     }
 
     public Set<IndexedPackage> getPackages(String name, final QuerySupport.Kind kind) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
 
         String field = PythonIndexer.FIELD_MODULE_NAME;
         search(field, name, kind, result, PythonIndexer.FIELD_MODULE_NAME);
 
-        final Set<IndexedPackage> packages = new HashSet<IndexedPackage>();
+        final Set<IndexedPackage> packages = new HashSet<>();
 
         for (IndexResult map : result) {
             String module = map.getValue(PythonIndexer.FIELD_MODULE_NAME);
@@ -377,7 +377,7 @@ public class PythonIndex {
     }
     
     public Set<IndexedElement> getClasses(String name, final QuerySupport.Kind kind, PythonParserResult context, boolean includeDuplicates) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
 
         //        if (!isValid()) {
         //            LOGGER.fine(String.format("LuceneIndex[%s] is invalid!\n", this.toString()));
@@ -408,7 +408,7 @@ public class PythonIndex {
 
         Set<String> uniqueClasses = includeDuplicates ? null : new HashSet<String>();
 
-        final Set<IndexedElement> classes = new HashSet<IndexedElement>();
+        final Set<IndexedElement> classes = new HashSet<>();
 
         for (IndexResult map : result) {
             String clz = map.getValue(PythonIndexer.FIELD_CLASS_NAME);
@@ -473,7 +473,7 @@ public class PythonIndex {
 
         // TODO - remove all methods that are in the same file
         if (methods.size() > 0) {
-            Set<IndexedElement> result = new HashSet<IndexedElement>(methods.size());
+            Set<IndexedElement> result = new HashSet<>(methods.size());
             for (IndexedElement element : methods) {
                 if (!className.equals(element.getClz())) {
                     result.add(element);
@@ -500,11 +500,11 @@ public class PythonIndex {
 
     /** Get the super class of the given class */
     public Set<IndexedElement> getSuperClasses(String className) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
 
         search(PythonIndexer.FIELD_CLASS_NAME, className, QuerySupport.Kind.EXACT, result, PythonIndexer.FIELD_EXTENDS_NAME, PythonIndexer.FIELD_CLASS_NAME);
 
-        Set<String> classNames = new HashSet<String>();
+        Set<String> classNames = new HashSet<>();
         for (IndexResult map : result) {
             String[] extendsClasses = map.getValues(PythonIndexer.FIELD_EXTENDS_NAME);
             if (extendsClasses != null && extendsClasses.length > 0) {
@@ -516,7 +516,7 @@ public class PythonIndex {
 
         String[] terms = { PythonIndexer.FIELD_IN, PythonIndexer.FIELD_CLASS_NAME };
 
-        Set<IndexedElement> superClasses = new HashSet<IndexedElement>();
+        Set<IndexedElement> superClasses = new HashSet<>();
 
         for (String superClz : classNames) {
             result.clear();
@@ -553,9 +553,9 @@ public class PythonIndex {
         }
 
         //String field = PythonIndexer.FIELD_FQN_NAME;
-        Set<IndexedElement> elements = new HashSet<IndexedElement>();
-        Set<String> scannedClasses = new HashSet<String>();
-        Set<String> seenSignatures = new HashSet<String>();
+        Set<IndexedElement> elements = new HashSet<>();
+        Set<String> scannedClasses = new HashSet<>();
+        Set<String> seenSignatures = new HashSet<>();
 
         if (prefix == null) {
             prefix = "";
@@ -590,7 +590,7 @@ public class PythonIndex {
 
         String searchField = PythonIndexer.FIELD_CLASS_NAME;
 
-        Set<IndexResult> result = new HashSet<IndexResult>();
+        Set<IndexResult> result = new HashSet<>();
 
         String[] terms = {PythonIndexer.FIELD_IN,
                           PythonIndexer.FIELD_EXTENDS_NAME,
@@ -630,7 +630,7 @@ public class PythonIndex {
                     if (extendsClasses == null) {
                         extendsClasses = Arrays.asList(ext);
                     } else {
-                        extendsClasses = new ArrayList<String>(extendsClasses);
+                        extendsClasses = new ArrayList<>(extendsClasses);
                         extendsClasses.addAll(Arrays.asList(ext));
                     }
                 }
@@ -711,7 +711,7 @@ public class PythonIndex {
     
     
     public Set<IndexedElement> getAllMembers(String name, QuerySupport.Kind kind, PythonParserResult context, boolean includeDuplicates) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
         // TODO - handle case sensitivity better...
         String field = PythonIndexer.FIELD_MEMBER;
         QuerySupport.Kind originalKind = kind;
@@ -741,7 +741,7 @@ public class PythonIndex {
 //            uniqueClasses = new HashSet<String>();
 //        }
 
-        final Set<IndexedElement> members = new HashSet<IndexedElement>();
+        final Set<IndexedElement> members = new HashSet<>();
         int nameLength = name.length();
 
         for (IndexResult map : result) {
@@ -776,7 +776,7 @@ public class PythonIndex {
     }
     
     public Set<IndexedElement> getAllElements(String name, QuerySupport.Kind kind, PythonParserResult context, boolean includeDuplicates) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
         // TODO - handle case sensitivity better...
         String field = PythonIndexer.FIELD_ITEM;
         QuerySupport.Kind originalKind = kind;
@@ -797,7 +797,7 @@ public class PythonIndex {
 
         search(field, name, kind, result, terms);
 
-        final Set<IndexedElement> elements = new HashSet<IndexedElement>();
+        final Set<IndexedElement> elements = new HashSet<>();
         int nameLength = name.length();
 
         for (IndexResult map : result) {
@@ -834,21 +834,21 @@ public class PythonIndex {
     }
 
     public Set<String> getBuiltinSymbols() {
-        Set<String> modules = new HashSet<String>();
+        Set<String> modules = new HashSet<>();
 
         // The "functions" module is always imported by the interpreter, and ditto
         // for exceptions, constants, etc.
         //modules.add("objects"); // NOI18N -- just links to the others
         modules.addAll(BUILTIN_MODULES);
 
-        Set<String> symbols = new HashSet<String>(250);
+        Set<String> symbols = new HashSet<>(250);
 
         String[] terms = { PythonIndexer.FIELD_MODULE_NAME,
                            PythonIndexer.FIELD_ITEM };
 
         // Look up all symbols
         for (String module : modules) {
-            final Set<IndexResult> result = new HashSet<IndexResult>();
+            final Set<IndexResult> result = new HashSet<>();
             // TODO - handle case sensitivity better...
             String field = PythonIndexer.FIELD_MODULE_NAME;
             QuerySupport.Kind kind = QuerySupport.Kind.EXACT;
@@ -938,9 +938,9 @@ public class PythonIndex {
 
     @SuppressWarnings("unchecked")
     public Set<String> getImportsFor(String ident, boolean includeSymbol) {
-        Set<String> modules = new HashSet<String>(10);
+        Set<String> modules = new HashSet<>(10);
 
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
         search(PythonIndexer.FIELD_MODULE_NAME, ident, QuerySupport.Kind.EXACT, result, PythonIndexer.FIELD_MODULE_NAME);
         for (IndexResult map : result) {
             String module = map.getValue(PythonIndexer.FIELD_MODULE_NAME);
@@ -1024,10 +1024,10 @@ public class PythonIndex {
         
 //        Set<String> imported = new HashSet<String>();
 //
-        Set<IndexedElement> elements = new HashSet<IndexedElement>();
+        Set<IndexedElement> elements = new HashSet<>();
 
         // Look up the imports and compute all the symbols we get from the import
-        Set<String> modules = new HashSet<String>();
+        Set<String> modules = new HashSet<>();
 
         // ImportsFrom require no index lookup
         for (ImportFrom from : importsFrom) {
@@ -1105,10 +1105,10 @@ public class PythonIndex {
         return elements;
     }
     public Set<String> getImportedFromWildcards(List<ImportFrom> importsFrom) {
-        Set<String> symbols = new HashSet<String>(100);
+        Set<String> symbols = new HashSet<>(100);
 
         // Look up the imports and compute all the symbols we get from the import
-        Set<String> modules = new HashSet<String>();
+        Set<String> modules = new HashSet<>();
 
         // ImportsFrom require no index lookup
         for (ImportFrom from : importsFrom) {
@@ -1135,12 +1135,12 @@ public class PythonIndex {
                     symbols.addAll(s);
                     continue;
                 } else {
-                    moduleSymbols = new HashSet<String>(100);
+                    moduleSymbols = new HashSet<>(100);
                 }
             }
 
 
-            final Set<IndexResult> result = new HashSet<IndexResult>();
+            final Set<IndexResult> result = new HashSet<>();
             // TODO - handle case sensitivity better...
 
             search(PythonIndexer.FIELD_MODULE_NAME, module, QuerySupport.Kind.EXACT, result, terms);
@@ -1174,7 +1174,7 @@ public class PythonIndex {
     }
     
     public Set<IndexedElement> getImportedElements(String prefix, QuerySupport.Kind kind, Set<String> modules, Set<String> systemModuleHolder) {
-        Set<IndexedElement> elements = new HashSet<IndexedElement>();
+        Set<IndexedElement> elements = new HashSet<>();
 
         addImportedElements(prefix, kind, modules, elements, systemModuleHolder);
 
@@ -1183,10 +1183,10 @@ public class PythonIndex {
 
     public boolean isSystemModule(String module) {
         if (systemModules == null) {
-            systemModules = new HashSet<String>(800); // measured: 623
+            systemModules = new HashSet<>(800); // measured: 623
             String[] terms = { PythonIndexer.FIELD_MODULE_ATTR_NAME,
                                PythonIndexer.FIELD_MODULE_NAME };
-            final Set<IndexResult> result = new HashSet<IndexResult>();
+            final Set<IndexResult> result = new HashSet<>();
 
             // This doesn't work because the attrs field isn't searchable:
             //search(PythonIndexer.FIELD_MODULE_ATTR_NAME, "S", QuerySupport.Kind.PREFIX, result, ALL_SCOPE, terms);
@@ -1211,8 +1211,8 @@ public class PythonIndex {
 
     public boolean isLowercaseClassName(String clz) {
         if (availableClasses == null) {
-            availableClasses = new HashSet<String>(300); // measured: 193
-            final Set<IndexResult> result = new HashSet<IndexResult>();
+            availableClasses = new HashSet<>(300); // measured: 193
+            final Set<IndexResult> result = new HashSet<>();
 
             search(PythonIndexer.FIELD_CLASS_NAME, "", QuerySupport.Kind.PREFIX, result, PythonIndexer.FIELD_CLASS_NAME);
 
@@ -1238,7 +1238,7 @@ public class PythonIndex {
             boolean isBuiltin = isBuiltinModule(module);
             boolean isSystem = isBuiltin;
 
-            final Set<IndexResult> result = new HashSet<IndexResult>();
+            final Set<IndexResult> result = new HashSet<>();
             // TODO - handle case sensitivity better...
 
             search(PythonIndexer.FIELD_MODULE_NAME, module, QuerySupport.Kind.EXACT, result, terms);
@@ -1289,13 +1289,13 @@ public class PythonIndex {
     }
 
     public Set<IndexedElement> getExceptions(String prefix, QuerySupport.Kind kind) {
-        final Set<IndexResult> result = new HashSet<IndexResult>();
+        final Set<IndexResult> result = new HashSet<>();
         String[] terms = { PythonIndexer.FIELD_EXTENDS_NAME,
                               PythonIndexer.FIELD_CLASS_NAME,
                               PythonIndexer.FIELD_CLASS_ATTR_NAME,
                               PythonIndexer.FIELD_IN };
         search(PythonIndexer.FIELD_EXTENDS_NAME, "", QuerySupport.Kind.PREFIX, result, terms); // NOI18N
-        Map<String, String> extendsMap = new HashMap<String, String>(100);
+        Map<String, String> extendsMap = new HashMap<>(100);
         // First iteration: Compute inheritance hierarchy
         for (IndexResult map : result) {
 
@@ -1310,8 +1310,8 @@ public class PythonIndex {
 
         // Compute set of classes that extend Exception
 
-        Set<String> exceptionClasses = new HashSet<String>();
-        Set<String> notExceptionClasses = new HashSet<String>();
+        Set<String> exceptionClasses = new HashSet<>();
+        Set<String> notExceptionClasses = new HashSet<>();
         exceptionClasses.add("Exception"); // NOI18N
         Outer:
         for (String cls : extendsMap.keySet()) {
@@ -1347,7 +1347,7 @@ public class PythonIndex {
         }
 
         // Next add elements for all the exceptions
-        final Set<IndexedElement> classes = new HashSet<IndexedElement>();
+        final Set<IndexedElement> classes = new HashSet<>();
         for (IndexResult map : result) {
             String clz = map.getValue(PythonIndexer.FIELD_CLASS_NAME);
             if (clz == null || !exceptionClasses.contains(clz)) {
@@ -1380,9 +1380,9 @@ public class PythonIndex {
      * context of the usage. */
     public Set<IndexedElement> getSubClasses(String fqn, String possibleFqn, String name, boolean directOnly) {
         //String field = PythonIndexer.FIELD_FQN_NAME;
-        Set<IndexedElement> classes = new HashSet<IndexedElement>();
-        Set<String> scannedClasses = new HashSet<String>();
-        Set<String> seenClasses = new HashSet<String>();
+        Set<IndexedElement> classes = new HashSet<>();
+        Set<String> scannedClasses = new HashSet<>();
+        Set<String> seenClasses = new HashSet<>();
 
         if (fqn != null) {
             addSubclasses(fqn, classes, seenClasses, scannedClasses, directOnly);
@@ -1427,7 +1427,7 @@ public class PythonIndex {
 
         String searchField = PythonIndexer.FIELD_EXTENDS_NAME;
 
-        Set<IndexResult> result = new HashSet<IndexResult>();
+        Set<IndexResult> result = new HashSet<>();
 
         String[] terms = { PythonIndexer.FIELD_IN,
                               PythonIndexer.FIELD_EXTENDS_NAME,

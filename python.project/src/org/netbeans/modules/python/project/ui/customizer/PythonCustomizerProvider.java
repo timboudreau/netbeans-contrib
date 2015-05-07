@@ -30,7 +30,7 @@ public class PythonCustomizerProvider implements CustomizerProvider {
     
     public static final String CUSTOMIZER_FOLDER_PATH = "Projects/org-netbeans-modules-python-project//Customizer"; //NO18N
     
-    private static final Map<Project, Dialog> PROJECT_2_DIALOG = new HashMap<Project, Dialog>();    
+    private static final Map<Project, Dialog> PROJECT_2_DIALOG = new HashMap<>();    
     
     private final PythonProject project;
     
@@ -41,6 +41,7 @@ public class PythonCustomizerProvider implements CustomizerProvider {
     
     
 
+    @Override
     public void showCustomizer() {
         showCustomizer(null);
     }
@@ -75,6 +76,7 @@ public class PythonCustomizerProvider implements CustomizerProvider {
             this.uiProperties = uiProperties;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             uiProperties.save();
         }
@@ -88,6 +90,7 @@ public class PythonCustomizerProvider implements CustomizerProvider {
         }
 
         // Listening to OK button ----------------------------------------------
+        @Override
         public void actionPerformed( ActionEvent e ) {
             // Close & dispose the the dialog
             Dialog dialog = PROJECT_2_DIALOG.get(project);

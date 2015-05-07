@@ -83,6 +83,7 @@ public class DebuggerAnnotation
     }
   }
 
+  @Override
   public String getShortDescription() {
     if (_type.equals( BREAKPOINT_ANNOTATION_TYPE ) ) {
       return "Breakpoint";
@@ -100,6 +101,7 @@ public class DebuggerAnnotation
     return "TOOLTIP_ANNOTATION";
   }
 
+  @Override
   public String getAnnotationType() {
     return _type;
   }

@@ -28,6 +28,7 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
         this.name = name;
     }
 
+    @Override
     public ProjectCustomizer.Category createCategory(Lookup context) {
         ProjectCustomizer.Category toReturn = null;
         final ProjectCustomizer.Category[] categories = null;
@@ -54,6 +55,7 @@ public class CompositePanelProviderImpl implements CompositeCategoryProvider {
         return toReturn;
     }
 
+    @Override
     public JComponent createComponent(ProjectCustomizer.Category category, Lookup context) {
         String nm = category.getName();
         PythonProjectProperties uiProps = context.lookup(PythonProjectProperties.class);

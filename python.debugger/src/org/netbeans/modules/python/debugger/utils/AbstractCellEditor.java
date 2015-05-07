@@ -61,6 +61,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
   protected int clickCountToStart = 1;
 
   /** Returns the value contained in the editor**/
+  @Override
   public Object getCellEditorValue() {
     return value;
   }
@@ -91,6 +92,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    * @return	true if editing can be started.
    * @see #shouldSelectCell
    */
+  @Override
   public boolean isCellEditable(EventObject anEvent) {
     if (anEvent instanceof MouseEvent) {
       if (((MouseEvent) anEvent).getClickCount() < clickCountToStart) {
@@ -133,6 +135,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    * @return	true if the editor would like the editing cell to be selected
    * @see #isCellEditable
    */
+  @Override
   public boolean shouldSelectCell(EventObject anEvent) {
     if (this.isCellEditable(anEvent)) {
       if (anEvent == null || ((MouseEvent) anEvent).getClickCount() >= clickCountToStart) {
@@ -150,6 +153,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    *
    * @return	true if editing was stopped
    */
+  @Override
   public boolean stopCellEditing() {
     fireEditingStopped();
     return true;
@@ -159,6 +163,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    * Tell the editor to cancel editing and not accept any partially
    * edited value.
    */
+  @Override
   public void cancelCellEditing() {
     fireEditingCanceled();
   }
@@ -169,6 +174,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    *
    * @param	l		the CellEditorListener
    */
+  @Override
   public void addCellEditorListener(CellEditorListener l) {
     listenerList.add(CellEditorListener.class, l);
   }
@@ -178,6 +184,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    *
    * @param	l		the CellEditorListener
    */
+  @Override
   public void removeCellEditorListener(CellEditorListener l) {
     listenerList.remove(CellEditorListener.class, l);
   }
@@ -201,6 +208,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    * @param	row		the row index of the node being edited
    * @return	the component for editing
    */
+  @Override
   public Component getTreeCellEditorComponent(JTree tree, Object myvalue, boolean isSelected,
           boolean expanded, boolean leaf, int row) {
     return null;
@@ -229,6 +237,7 @@ public class AbstractCellEditor implements TableCellEditor, TreeCellEditor {
    * @param	column  	the column of the cell being edited
    * @return	the component for editing
    */
+  @Override
   public Component getTableCellEditorComponent(JTable table, Object myvalue, boolean isSelected,
           int row, int column) {
     return null;

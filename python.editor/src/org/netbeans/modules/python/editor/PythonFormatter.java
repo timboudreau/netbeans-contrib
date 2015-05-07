@@ -126,6 +126,7 @@ public class PythonFormatter implements Formatter {
         reindent(context, document, startOffset, endOffset);
     }
 
+    @Override
     public boolean needsParserResult() {
 //        if (SourceUtils.isScanInProgress()) {
 //            return false;
@@ -140,11 +141,13 @@ public class PythonFormatter implements Formatter {
         return false;
     }
 
+    @Override
     public int indentSize() {
         // 4 spaces: See http://www.python.org/dev/peps/pep-0008/
         return 4;
     }
 
+    @Override
     public int hangingIndentSize() {
         return 4;
     }
@@ -157,6 +160,7 @@ public class PythonFormatter implements Formatter {
     //   Find smallest indent: That's the top level
     //   Build a graph? Each indent line.
     //
+    @Override
     public void reindent(final Context context) {
         Document document = context.document();
         int startOffset = context.startOffset();
@@ -181,13 +185,13 @@ public class PythonFormatter implements Formatter {
 
             // Current indentation for the given line. -1 means that it should be left alone (e.g.
             // we don't mess with multiline string literals.
-            final List<Integer> offsets = new ArrayList<Integer>();
+            final List<Integer> offsets = new ArrayList<>();
 
             // Current indentation for the given line. -1 means that it should be left alone (e.g.
             // we don't mess with multiline string literals. Other negative numbers are offsets
             // pointing at a particular left parenthesis that this line should be aligned with
-            final List<Integer> indentation = new ArrayList<Integer>();
-            final List<Integer> lParenOffsets = new ArrayList<Integer>();
+            final List<Integer> indentation = new ArrayList<>();
+            final List<Integer> lParenOffsets = new ArrayList<>();
 
             try {
                 doc.readLock(); // For token hierarchy usage
@@ -261,14 +265,14 @@ public class PythonFormatter implements Formatter {
 
             assert indentation.size() == offsets.size();
 
-            final Map<Integer, Integer> offsetToLevel = new HashMap<Integer, Integer>();
-            final Map<Integer,Integer> offsetToIndex = new HashMap<Integer,Integer>();
-            List<Integer> parentIndentations = new ArrayList<Integer>();
+            final Map<Integer, Integer> offsetToLevel = new HashMap<>();
+            final Map<Integer,Integer> offsetToIndex = new HashMap<>();
+            List<Integer> parentIndentations = new ArrayList<>();
             int currentParentIndent = -1;
             int currentLevel = -1;
 
             int firstIndent = indentation.get(0);
-            List<Integer> sorted = new ArrayList<Integer>(indentation);
+            List<Integer> sorted = new ArrayList<>(indentation);
             Collections.sort(sorted);
             // Attempt to shift the computed indentation to fit the right indentation levels
             // that are currently in the file?
@@ -347,6 +351,7 @@ public class PythonFormatter implements Formatter {
             final int relativeShift = shiftToCurrent ? computedIndent - firstLineIndent : 0;
 
             doc.runAtomic(new Runnable() {
+                @Override
                 public void run() {
                     int[] computedIndents = new int[offsets.size()];
                     // Process backwards so I don't have to worry about updating offsets affected by
@@ -643,6 +648,7 @@ public class PythonFormatter implements Formatter {
         }
 
         doc.runAtomic(new Runnable() {
+            @Override
             public void run() {
                 edits.apply();
             }

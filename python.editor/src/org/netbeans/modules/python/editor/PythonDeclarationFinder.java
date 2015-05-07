@@ -79,6 +79,7 @@ import org.python.antlr.ast.alias;
  * @Author Tor Norbye
  */
 public class PythonDeclarationFinder implements DeclarationFinder {
+    @Override
     public OffsetRange getReferenceSpan(Document doc, int lexOffset) {
         TokenHierarchy<Document> th = TokenHierarchy.get(doc);
 
@@ -640,7 +641,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
         // Make sure that the best fit method actually has a corresponding valid source location
         // and parse tree
 
-        Set<IndexedElement> methods = new HashSet<IndexedElement>(methodSet);
+        Set<IndexedElement> methods = new HashSet<>(methodSet);
 
         while (!methods.isEmpty()) {
             IndexedElement method =
@@ -671,7 +672,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
     private IndexedElement findBestMatchHelper(PythonParserResult info, String name, Set<IndexedElement> elements,
             BaseDocument doc, int astOffset, int lexOffset, AstPath path, PythonTree callNode, PythonIndex index) {
 
-        Set<IndexedElement> candidates = new HashSet<IndexedElement>();
+        Set<IndexedElement> candidates = new HashSet<>();
 
         if (elements.size() == 0) {
             return null;
@@ -681,7 +682,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
 
         // 1. Prefer matches in the current file
         String searchUrl = info.getSnapshot().getSource().getFileObject().toURL().toExternalForm();
-        candidates = new HashSet<IndexedElement>();
+        candidates = new HashSet<>();
 
         for (IndexedElement element : elements) {
             String url = element.getFilenameUrl();
@@ -700,8 +701,8 @@ public class PythonDeclarationFinder implements DeclarationFinder {
 
         // 2. See which of the class references are defined in files directly
         //   included by this file.
-        Set<String> included = new HashSet<String>();
-        candidates = new HashSet<IndexedElement>();
+        Set<String> included = new HashSet<>();
+        candidates = new HashSet<>();
 
         SymbolTable table = PythonAstUtils.getParseResult(info).getSymbolTable();
         List<Import> imports = table.getImports();
@@ -735,12 +736,12 @@ public class PythonDeclarationFinder implements DeclarationFinder {
         }
 
         // 4. Prefer builtins
-        candidates = new HashSet<IndexedElement>();
+        candidates = new HashSet<>();
 
         for (IndexedElement element : elements) {
             String url = element.getFilenameUrl();
 
-            if (url != null && url.indexOf("pythonstubs") != -1) { // NOI18N
+            if (url != null && url.contains("pythonstubs")) { // NOI18N
                 candidates.add(element);
             }
         }
@@ -752,7 +753,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
         }
 
         // 5. Prefer documented classes
-        candidates = new HashSet<IndexedElement>();
+        candidates = new HashSet<>();
         for (IndexedElement element : elements) {
             if (element.isDocumented()) {
                 candidates.add(element);
@@ -849,7 +850,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
         }
 
         if (functions != null && functions.size() > 0) {
-            Set<IndexedElement> eligible = new HashSet<IndexedElement>();
+            Set<IndexedElement> eligible = new HashSet<>();
             for (IndexedElement element : functions) {
                 if (element instanceof IndexedMethod) {
                     eligible.add(element);
@@ -927,6 +928,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
             order = element.getOrder();
         }
 
+        @Override
         public String getDisplayHtml(HtmlFormatter formatter) {
             formatter.setMaxLength(120);
             if (cachedDisplayItem == null) {
@@ -984,7 +986,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
                 if (url == null) {
                     // Deleted file?
                     // Just leave out the file name
-                } else if (url.indexOf("pythonstubs") != -1) { // NOI18N
+                } else if (url.contains("pythonstubs")) { // NOI18N
                     filename = NbBundle.getMessage(PythonDeclarationFinder.class, "PythonLib");
 //                    
 //                    if (url.indexOf("/stub_") == -1) {
@@ -1066,6 +1068,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
             return cachedDisplayItem;
         }
 
+        @Override
         public DeclarationLocation getLocation() {
             PythonTree node = element.getNode();
             int lineOffset = node != null ? node.getCharStartIndex() : -1;
@@ -1075,6 +1078,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
             return loc;
         }
 
+        @Override
         public ElementHandle getElement() {
             return element;
         }
@@ -1103,6 +1107,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
             return hash;
         }
 
+        @Override
         public int compareTo(AlternativeLocation alternative) {
             PythonAltLocation alt = (PythonAltLocation)alternative;
 

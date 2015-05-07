@@ -121,7 +121,7 @@ public class PythonStructureScanner implements StructureScanner {
                 visitor.visit(root);
                 List<OffsetRange> codeBlocks = visitor.getCodeBlocks();
 
-                Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
+                Map<String, List<OffsetRange>> folds = new HashMap<>();
                 folds.put("codeblocks", codeBlocks); // NOI18N
 
                 return folds;
@@ -140,7 +140,7 @@ public class PythonStructureScanner implements StructureScanner {
     }
 
     private static class FoldVisitor extends Visitor {
-        private List<OffsetRange> codeBlocks = new ArrayList<OffsetRange>();
+        private List<OffsetRange> codeBlocks = new ArrayList<>();
         private PythonParserResult info;
         private BaseDocument doc;
 
@@ -191,8 +191,8 @@ public class PythonStructureScanner implements StructureScanner {
     }
 
     private static class StructureVisitor extends Visitor {
-        List<PythonStructureItem> roots = new ArrayList<PythonStructureItem>();
-        List<PythonStructureItem> stack = new ArrayList<PythonStructureItem>();
+        List<PythonStructureItem> roots = new ArrayList<>();
+        List<PythonStructureItem> stack = new ArrayList<>();
         SymbolTable scopes;
 
         StructureVisitor(SymbolTable scopes) {

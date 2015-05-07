@@ -420,9 +420,7 @@ public class PythonAuxilaryConfig implements AuxiliaryConfiguration {
             if (str != null) {
                 try {
                     doc = XMLUtil.parse(new InputSource(new StringReader(str)), false, true, null, null);
-                } catch (SAXException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IOException ex) {
+                } catch (SAXException | IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
             } else {
@@ -467,7 +465,7 @@ public class PythonAuxilaryConfig implements AuxiliaryConfiguration {
     static void findDuplicateElements(@NonNull Element parent, @NonNull ProblemProvider pp, FileObject config) {
         NodeList l = parent.getChildNodes();
         int nodeCount = l.getLength();
-        Set<String> known = new HashSet<String>();
+        Set<String> known = new HashSet<>();
         for (int i = 0; i < nodeCount; i++) {
             if (l.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Node node = l.item(i);

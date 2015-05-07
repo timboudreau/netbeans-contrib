@@ -56,7 +56,7 @@ import org.openide.filesystems.FileObject;
  * @author Jan Becicka
  */
 public class TreeElementFactoryImpl implements TreeElementFactoryImplementation {
-    public Map<Object, TreeElement> map = new WeakHashMap<Object, TreeElement>();
+    public Map<Object, TreeElement> map = new WeakHashMap<>();
     public static TreeElementFactoryImpl instance;
 
 
@@ -64,6 +64,7 @@ public class TreeElementFactoryImpl implements TreeElementFactoryImplementation 
         instance = this;
     }
 
+    @Override
     public TreeElement getTreeElement(Object o) {
         TreeElement result = null;
         if (o instanceof SourceGroup) {
@@ -108,6 +109,7 @@ public class TreeElementFactoryImpl implements TreeElementFactoryImplementation 
         return result;
     }
 
+    @Override
     public void cleanUp() {
         map.clear();
         ElementGripFactory.getDefault().cleanUp();

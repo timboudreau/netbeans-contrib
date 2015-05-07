@@ -173,8 +173,7 @@ public final class PackageDisplayUtils {
      */
     public static boolean isEmpty( FileObject fo, boolean recurse, boolean initIsEmpty ) {
         FileObject[] kids = fo.getChildren();
-        for( int i = 0; i < kids.length; i++ ) {
-            final FileObject kid = kids[i];
+        for (FileObject kid : kids) {
             // Package init files don't count unless they have contents (or are pyc files)
             if (initIsEmpty && kid.getName().equals("__init__")) { // NOI18N
                 if ("pyc".equals(kid.getExt()) || "pyo".equals(kid.getExt()) || kid.getSize() == 0) { // NOI18N
@@ -186,7 +185,7 @@ public final class PackageDisplayUtils {
                 return false;
             }  
             else if (recurse && VisibilityQuery.getDefault().isVisible( kid) && !isEmpty(kid)) {
-                    return false;
+                return false;
             }
         }
         return true;
@@ -208,11 +207,11 @@ public final class PackageDisplayUtils {
         }
         FileObject[] kids = pkg.getChildren();
         boolean subpackages = false;
-        for (int i = 0; i < kids.length; i++) {
-            if (!VisibilityQuery.getDefault().isVisible(kids[i])) {
+        for (FileObject kid : kids) {
+            if (!VisibilityQuery.getDefault().isVisible(kid)) {
                 continue;
             }
-            if (kids[i].isData()) {
+            if (kid.isData()) {
                 return true;
             } else {
                 subpackages = true;

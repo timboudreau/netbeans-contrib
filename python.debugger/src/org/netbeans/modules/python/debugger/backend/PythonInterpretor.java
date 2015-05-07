@@ -104,6 +104,7 @@ public class PythonInterpretor
       _resultBuffer = new StringBuffer();
     }
 
+    @Override
     public void run() {
       int c;
 
@@ -129,6 +130,7 @@ public class PythonInterpretor
   /**
    * Daemon ending
    */
+  @Override
   public void processHasEnded(ExecTerminationEvent evt) {
     int code = evt.get_code();
     String retCode = Integer.toString(code);

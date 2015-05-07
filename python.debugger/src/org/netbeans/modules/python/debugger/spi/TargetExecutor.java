@@ -83,6 +83,7 @@ public class TargetExecutor
       _task = task;
     }
 
+    @Override
     public void run() {
       _task.waitFinished();
     }
@@ -91,6 +92,7 @@ public class TargetExecutor
   private class _TASKTERMINATIONHANDLER_
           implements TaskListener {
 
+    @Override
     public void taskFinished(Task task) {
       System.out.println("Entering task termination");
       // proceed with debug termination
@@ -112,14 +114,17 @@ public class TargetExecutor
       _io = io;
     }
 
+    @Override
     public void stop() {
       _task.stop();
     }
 
+    @Override
     public int result() {
       return _task.result() + (_ok ? 0 : 1);
     }
 
+    @Override
     public InputOutput getInputOutput() {
       return _io;
     }
@@ -160,6 +165,7 @@ public class TargetExecutor
     return new _WRAPPEREXECUTORTASK_(task, null);
   }
 
+  @Override
   synchronized public void run() {
     System.out.println("entering targetexecutor THREAD");
 

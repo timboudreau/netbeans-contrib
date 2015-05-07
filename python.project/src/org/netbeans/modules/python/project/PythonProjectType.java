@@ -26,11 +26,13 @@ public class PythonProjectType implements AntBasedProjectType {
     //Probably it should become a part of python api.
     public static final String SOURCES_TYPE_PYTHON = "python"; // NOI18N
 
+    @Override
     public Project createProject(AntProjectHelper helper) throws IOException {
         assert helper != null;
         return new PythonProject(helper);
     }
 
+    @Override
     public String getPrimaryConfigurationDataElementName( boolean shared ) {
         /*
          * Copied from MakeProjectType.
@@ -38,6 +40,7 @@ public class PythonProjectType implements AntBasedProjectType {
         return shared ? PROJECT_CONFIGURATION_NAME : PRIVATE_CONFIGURATION_NAME;
     }
 
+    @Override
     public String getPrimaryConfigurationDataElementNamespace( boolean shared ) {
         /*
          * Copied from MakeProjectType.
@@ -45,6 +48,7 @@ public class PythonProjectType implements AntBasedProjectType {
         return shared ? PROJECT_CONFIGURATION_NAMESPACE : PRIVATE_CONFIGURATION_NAMESPACE;
     }
 
+    @Override
     public String getType() {
         return TYPE;
     }

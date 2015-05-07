@@ -179,7 +179,7 @@ public class GoToSuperTypeAction extends BaseAction {
         String previous = "";
         GsfHtmlFormatter formatter = new GsfHtmlFormatter();
         int count = 0;
-        List<AlternativeLocation> pruned = new ArrayList<AlternativeLocation>(alternatives.size());
+        List<AlternativeLocation> pruned = new ArrayList<>(alternatives.size());
         for (AlternativeLocation alt : alternatives) {
             String s = alt.getDisplayHtml(formatter);
             if (!s.equals(previous)) {
@@ -246,16 +246,19 @@ public class GoToSuperTypeAction extends BaseAction {
         public GsfHtmlFormatter() {
         }
 
+        @Override
         public void reset() {
             textLength = 0;
             sb.setLength(0);
         }
 
+        @Override
         public void appendHtml(String html) {
             sb.append(html);
             // Not sure what to do about maxLength here... but presumably
         }
 
+        @Override
         public void appendText(String text, int fromInclusive, int toExclusive) {
             for (int i = fromInclusive; i < toExclusive; i++) {
                 if (textLength >= maxLength) {
@@ -294,6 +297,7 @@ public class GoToSuperTypeAction extends BaseAction {
             }
         }
 
+        @Override
         public void name(ElementKind kind, boolean start) {
             assert start != isName;
             isName = start;
@@ -305,6 +309,7 @@ public class GoToSuperTypeAction extends BaseAction {
             }
         }
 
+        @Override
         public void parameters(boolean start) {
             assert start != isParameter;
             isParameter = start;
@@ -321,6 +326,7 @@ public class GoToSuperTypeAction extends BaseAction {
             emphasis(start);
         }
 
+        @Override
         public void type(boolean start) {
             assert start != isType;
             isType = start;
@@ -332,6 +338,7 @@ public class GoToSuperTypeAction extends BaseAction {
             }
         }
 
+        @Override
         public void deprecated(boolean start) {
             assert start != isDeprecated;
             isDeprecated = start;
@@ -343,12 +350,14 @@ public class GoToSuperTypeAction extends BaseAction {
             }
         }
 
+        @Override
         public String getText() {
             assert !isParameter && !isDeprecated && !isName && !isType;
 
             return sb.toString();
         }
 
+        @Override
         public void emphasis(boolean start) {
             assert start != isEmphasis;
             isEmphasis = start;
@@ -407,11 +416,13 @@ public class GoToSuperTypeAction extends BaseAction {
         jList1.setVisibleRowCount(declarations.size()
         );
         jList1.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jList1KeyPressed(evt);
             }
         });
         jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jList1MouseClicked(evt);
             }
@@ -511,11 +522,13 @@ public class GoToSuperTypeAction extends BaseAction {
         }
     }
     
+    @Override
     public void focusGained(FocusEvent arg0) {
         jList1.requestFocus();
         jList1.requestFocusInWindow();
     }
     
+    @Override
     public void focusLost(FocusEvent arg0) {
     }
     

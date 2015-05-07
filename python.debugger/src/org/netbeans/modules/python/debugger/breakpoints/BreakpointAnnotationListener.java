@@ -138,6 +138,7 @@ public class BreakpointAnnotationListener
             this);
   }
 
+  @Override
     public void annotate(Set set, Lookup context) {
         DebuggerManager.getDebuggerManager().getBreakpoints();
     }

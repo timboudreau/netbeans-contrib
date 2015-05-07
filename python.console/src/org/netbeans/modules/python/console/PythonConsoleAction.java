@@ -20,6 +20,7 @@ public class PythonConsoleAction extends AbstractAction {
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_PATH, true));
     }
 
+    @Override
     public void actionPerformed(ActionEvent evt) {
 //        PythonConsoleTopComponent win = PythonConsoleTopComponent.findInstance();
 //        if (win.nTerm() > 1)

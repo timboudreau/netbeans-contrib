@@ -67,10 +67,12 @@ public final class DebuggerBreakpointAnnotation extends BreakpointAnnotation {
         attach(annotatable);
     }
     
+    @Override
     public String getAnnotationType() {
         return type;
     }
     
+    @Override
     public String getShortDescription() {
         if (type.equals(BREAKPOINT_ANNOTATION_TYPE)) {
             return getMessage("TOOLTIP_BREAKPOINT"); // NOI18N

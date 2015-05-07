@@ -65,11 +65,13 @@ public class BreakpointsReader
   public BreakpointsReader() {
   }
 
+  @Override
   public String[] getSupportedClassNames() {
     return new String[]{
               PythonBreakpoint.class.getName(),};
   }
 
+  @Override
   public void write(Object object, Properties properties) {
     PythonBreakpoint b = (PythonBreakpoint) object;
     if ((b != null) &&
@@ -92,6 +94,7 @@ public class BreakpointsReader
     }
   }
 
+  @Override
   public Object read(String typeID, Properties properties) {
     if (!(typeID.equals(PythonBreakpoint.class.getName()))) {
       return null;

@@ -497,16 +497,16 @@ public class IndexedElement extends Element {
     // For testsuite
     public static int stringToFlags(String string) {
         int flags = 0;
-        if (string.indexOf("|DOCUMENTED") != -1) {
+        if (string.contains("|DOCUMENTED")) {
             flags |= DOCUMENTED;
         }
-        if (string.indexOf("|PRIVATE") != -1) {
+        if (string.contains("|PRIVATE")) {
             flags |= PRIVATE;
         }
-        if (string.indexOf("|DEPRECATED") != -1) {
+        if (string.contains("|DEPRECATED")) {
             flags |= DEPRECATED;
         }
-        if (string.indexOf("|CONSTRUCTOR") != -1) {
+        if (string.contains("|CONSTRUCTOR")) {
             flags |= CONSTRUCTOR;
         }
 //        if (string.indexOf("|PROTECTED") != -1) {
@@ -515,10 +515,10 @@ public class IndexedElement extends Element {
 //        if (string.indexOf("|TOPLEVEL") != -1) {
 //            flags |= TOPLEVEL;
 //        }
-        if (string.indexOf("|STATIC") != -1) {
+        if (string.contains("|STATIC")) {
             flags |= STATIC;
         }
-        if (string.indexOf("|NODOC") != -1) {
+        if (string.contains("|NODOC")) {
             flags |= NODOC;
         }
 

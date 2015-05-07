@@ -95,9 +95,11 @@ public final class PlatformComponentFactory {
             plafComboBox.setModel(createComboWaitModel());
             plafComboBox.setEnabled(false);
             RequestProcessor.getDefault().post(new Runnable() {
+                @Override
                 public void run() {
                     PythonPlatformManager manager = PythonPlatformManager.getInstance();
                     manager.addVetoableChangeListener(new VetoableChangeListener() {
+                        @Override
                         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
                             PythonPlatformListModel model = new PythonPlatformListModel();
                             plafComboBox.setModel(model);
@@ -135,9 +137,11 @@ public final class PlatformComponentFactory {
             plafList.setModel(createListWaitModel());
             plafList.setEnabled(false);
             RequestProcessor.getDefault().post(new Runnable() {
+                @Override
                 public void run() {
                     PythonPlatformManager manager = PythonPlatformManager.getInstance();
                     manager.addVetoableChangeListener(new VetoableChangeListener() {
+                        @Override
                         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
                             PythonPlatformListModel model = new PythonPlatformListModel();
                             plafList.setModel(model);
@@ -185,12 +189,14 @@ public final class PlatformComponentFactory {
         
         public abstract void platformChanged();
 
+        @Override
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 platformChanged();
             }
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             // when the model has changed from "Detectin platform" to valid
             // platform model itemStateChanged is not fired(??)
@@ -211,7 +217,7 @@ public final class PlatformComponentFactory {
         private static PythonPlatform[] getSortedPlatforms(PythonPlatform extra) {
             PythonPlatformManager manager = PythonPlatformManager.getInstance();
             List<String> platformNames = manager.getPlatformList();
-            Set<PythonPlatform> _platforms = new HashSet<PythonPlatform>();
+            Set<PythonPlatform> _platforms = new HashSet<>();
             for (String platformName : platformNames) {
                 _platforms.add(manager.getPlatform(platformName));
             }
@@ -221,6 +227,7 @@ public final class PlatformComponentFactory {
 
             PythonPlatform[] platforms = _platforms.toArray(new PythonPlatform[_platforms.size()]);
             Arrays.sort(platforms, new Comparator<PythonPlatform>() {
+                @Override
                 public int compare(PythonPlatform p1, PythonPlatform p2) {
                     String p1Name = p1.getName();
                     String p2Name = p2.getName();
@@ -258,14 +265,17 @@ public final class PlatformComponentFactory {
             }
         }
 
+        @Override
         public int getSize() {
             return nbPlafs.length;
         }
 
+        @Override
         public Object getElementAt(int index) {
             return index < nbPlafs.length ? nbPlafs[index] : null;
         }
 
+        @Override
         public void setSelectedItem(Object plaf) {
             assert plaf == null || plaf instanceof PythonPlatform;
             if (selectedPlaf != plaf) {
@@ -274,6 +284,7 @@ public final class PlatformComponentFactory {
             }
         }
 
+        @Override
         public Object getSelectedItem() {
             return selectedPlaf;
         }
@@ -295,6 +306,7 @@ public final class PlatformComponentFactory {
             setOpaque(true);
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
             // #93658: GTK needs name to render cell renderer "natively"

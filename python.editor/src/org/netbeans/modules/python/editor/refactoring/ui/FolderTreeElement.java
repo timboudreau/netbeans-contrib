@@ -69,6 +69,7 @@ public class FolderTreeElement implements TreeElement {
         this.fo = fo;
     }
 
+    @Override
     public TreeElement getParent(boolean isLogical) {
         if (isLogical) {
             SourceGroup sg = getSourceGroup(fo);
@@ -87,12 +88,14 @@ public class FolderTreeElement implements TreeElement {
         }
     }
 
+    @Override
     public Icon getIcon() {
 //        return UiUtils.getElementIcon(ElementKind.PACKAGE, null);
         // UGH! I need a "source folder" like icon!
         return UiUtils.getElementIcon(ElementKind.MODULE, null);
     }
 
+    @Override
     public String getText(boolean isLogical) {
         ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         if (cp == null) {
@@ -128,9 +131,9 @@ public class FolderTreeElement implements TreeElement {
         SourceGroup[] allgroups = new SourceGroup[pythongroups.length + xmlgroups.length];
         System.arraycopy(pythongroups, 0, allgroups, 0, pythongroups.length);
         System.arraycopy(xmlgroups, 0, allgroups, allgroups.length - 1, xmlgroups.length);
-        for (int i = 0; i < allgroups.length; i++) {
-            if (allgroups[i].getRootFolder().equals(file) || FileUtil.isParentOf(allgroups[i].getRootFolder(), file)) {
-                return allgroups[i];
+        for (SourceGroup group : allgroups) {
+            if (group.getRootFolder().equals(file) || FileUtil.isParentOf(group.getRootFolder(), file)) {
+                return group;
             }
         }
         return null;
@@ -144,14 +147,15 @@ public class FolderTreeElement implements TreeElement {
         Sources src = ProjectUtils.getSources(prj);
         SourceGroup[] pythongroups = src.getSourceGroups(PythonRefUtils.SOURCES_TYPE_PYTHON);
 
-        for (int i = 0; i < pythongroups.length; i++) {
-            if (pythongroups[i].getRootFolder().equals(file) || FileUtil.isParentOf(pythongroups[i].getRootFolder(), file)) {
-                return pythongroups[i];
+        for (SourceGroup pythongroup : pythongroups) {
+            if (pythongroup.getRootFolder().equals(file) || FileUtil.isParentOf(pythongroup.getRootFolder(), file)) {
+                return pythongroup;
             }
         }
         return null;
     }
 
+    @Override
     public Object getUserObject() {
         return fo;
     }

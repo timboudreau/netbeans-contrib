@@ -100,6 +100,7 @@ public class AnimatedCursor
     return _animated;
   }
 
+  @Override
   public void run() {
     int count = 0;
     System.out.println("entering animation");
@@ -124,6 +125,7 @@ public class AnimatedCursor
 
               AnimatedCursor _cursor = new AnimatedCursor(f);
 
+              @Override
               public void actionPerformed(ActionEvent e) {
                 if (_cursor.isAnimated()) {
                   button.setText("start Animation");

@@ -14,12 +14,14 @@ import javax.swing.AbstractListModel;
  * @author alley
  */
 public class PathListModel extends AbstractListModel{
-    private List<String> model = new ArrayList<String>();
+    private List<String> model = new ArrayList<>();
 
+    @Override
     public int getSize() {
         return model.size();
     }
 
+    @Override
     public Object getElementAt(int index) {
         return model.get(index);
     }

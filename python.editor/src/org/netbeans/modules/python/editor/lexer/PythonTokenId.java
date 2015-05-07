@@ -123,6 +123,7 @@ public enum PythonTokenId implements TokenId {
         this.primaryCategory = primaryCategory;
     }
 
+    @Override
     public String primaryCategory() {
         return primaryCategory;
     }
@@ -132,10 +133,12 @@ public enum PythonTokenId implements TokenId {
     }
     private static final Language<PythonTokenId> language =
             new LanguageHierarchy<PythonTokenId>() {
+                @Override
                 protected String mimeType() {
                     return PythonMIMEResolver.PYTHON_MIME_TYPE;
                 }
 
+                @Override
                 protected Collection<PythonTokenId> createTokenIds() {
                     return EnumSet.allOf(PythonTokenId.class);
                 }
@@ -143,10 +146,11 @@ public enum PythonTokenId implements TokenId {
                 @Override
                 protected Map<String, Collection<PythonTokenId>> createTokenCategories() {
                     Map<String, Collection<PythonTokenId>> cats =
-                            new HashMap<String, Collection<PythonTokenId>>();
+                            new HashMap<>();
                     return cats;
                 }
 
+                @Override
                 protected Lexer<PythonTokenId> createLexer(LexerRestartInfo<PythonTokenId> info) {
                     FileObject fileObject = (FileObject)info.getAttributeValue(FileObject.class);
                     final TokenFactory<PythonTokenId> tokenFactory = info.tokenFactory();
@@ -154,6 +158,7 @@ public enum PythonTokenId implements TokenId {
                     // Lex .rst files just as literal strings
                     if (fileObject != null && PythonUtils.isRstFile(fileObject)) {
                         return new Lexer<PythonTokenId>() {
+                            @Override
                             public Token<PythonTokenId> nextToken() {
                                 if (input.read() == LexerInput.EOF) {
                                     return null;
@@ -164,10 +169,12 @@ public enum PythonTokenId implements TokenId {
                                 return tokenFactory.createToken(PythonTokenId.STRING_LITERAL, input.readLength());
                             }
 
+                            @Override
                             public Object state() {
                                 return null;
                             }
 
+                            @Override
                             public void release() {
                             }
                         };

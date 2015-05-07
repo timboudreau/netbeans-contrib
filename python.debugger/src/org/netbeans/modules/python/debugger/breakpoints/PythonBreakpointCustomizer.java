@@ -62,6 +62,7 @@ public class PythonBreakpointCustomizer extends JPanel implements Customizer, Co
   public PythonBreakpointCustomizer() {
   }
 
+  @Override
   public void setObject(Object bean) {
     if (!(bean instanceof PythonBreakpoint)) {
       throw new IllegalArgumentException(bean.toString());
@@ -80,10 +81,12 @@ public class PythonBreakpointCustomizer extends JPanel implements Customizer, Co
     add(c, gbc);
   }
 
+  @Override
   public boolean ok() {
     return ((Controller) c).ok();
   }
 
+  @Override
   public boolean cancel() {
     return ((Controller) c).cancel();
   }

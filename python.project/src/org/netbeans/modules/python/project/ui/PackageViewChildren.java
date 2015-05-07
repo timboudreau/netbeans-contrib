@@ -156,6 +156,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         return root; // Used from PackageRootNode
     }
     
+    @Override
     protected Node[] createNodes(String path) {
         FileObject fo = root.getFileObject(path);
         if ( fo != null && fo.isValid()) {
@@ -177,12 +178,14 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     
     RequestProcessor.Task task = RequestProcessor.getDefault().create( this );
         
+    @Override
     protected void addNotify() {
         // System.out.println("ADD NOTIFY" + root + " : " + this );
         super.addNotify();
         task.schedule( 0 );
     }
     
+    @Override
     public Node[] getNodes( boolean optimal ) {
         if ( optimal ) {
             Node[] garbage = super.getNodes( false );        
@@ -191,6 +194,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         return super.getNodes( false );
     }
     
+    @Override
     public Node findChild (String name) {
         while (true) {
             Node n = super.findChild(name);
@@ -214,6 +218,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         }
     }
     
+    @Override
     public void run() {
         computeKeys();
         refreshKeys();
@@ -229,6 +234,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         VisibilityQuery.getDefault().addChangeListener( wvqcl );
     }
 
+    @Override
     protected void removeNotify() {
         // System.out.println("REMOVE NOTIFY" + root + " : " + this );        
         VisibilityQuery.getDefault().removeChangeListener( wvqcl );
@@ -248,7 +254,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     private void refreshKeys() {
         Set<String> keys;
         synchronized (names2nodes) {
-            keys = new TreeSet<String>(names2nodes.keySet());
+            keys = new TreeSet<>(names2nodes.keySet());
         }
         setKeys(keys);
     }
@@ -258,6 +264,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
      */
     private void refreshKeysAsync () {
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run () {
                 refreshKeys();
             }
@@ -320,6 +327,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                 synchronized (this) {
                     if (refreshLazilyTask == null) {
                         refreshLazilyTask = RequestProcessor.getDefault().post(new Runnable() {
+                            @Override
                             public void run() {
                                 synchronized (PackageViewChildren.this) {
                                     refreshLazilyTask = null;
@@ -392,10 +400,13 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     
     // Implementation of FileChangeListener ------------------------------------
     
+    @Override
     public void fileAttributeChanged( FileAttributeEvent fe ) {}
 
+    @Override
     public void fileChanged( FileEvent fe ) {} 
 
+    @Override
     public void fileFolderCreated( FileEvent fe ) {
         FileObject fo = fe.getFile();        
         if ( FileUtil.isParentOf( root, fo ) && isVisible( root, fo ) ) {
@@ -406,6 +417,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         }
     }
     
+    @Override
     public void fileDataCreated( FileEvent fe ) {
         FileObject fo = fe.getFile();
         if ( FileUtil.isParentOf( root, fo ) && isVisible( root, fo ) ) {
@@ -425,6 +437,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         }
     }
 
+    @Override
     public void fileDeleted( FileEvent fe ) {
         FileObject fo = fe.getFile();       
         
@@ -459,6 +472,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                     
                     if (leaf != empty) {
                         SwingUtilities.invokeLater(new Runnable() {
+                            @Override
                             public void run() {
                                 n.updateChildren();
                             }
@@ -506,6 +520,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     }
     
     
+    @Override
     public void fileRenamed( FileRenameEvent fe ) {
         FileObject fo = fe.getFile();        
         if ( FileUtil.isParentOf( root, fo ) && fo.isFolder() ) {
@@ -517,7 +532,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             boolean doUpdate = false;
             
             // Find all entries which have to be updated
-            List<String> needsUpdate = new ArrayList<String>();
+            List<String> needsUpdate = new ArrayList<>();
             synchronized (names2nodes) {
                 for (Iterator<String> it = names2nodes.keySet().iterator(); it.hasNext(); ) {
                     String p = it.next();
@@ -589,6 +604,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
 
     // Implementation of ChangeListener ------------------------------------
         
+    @Override
     public void stateChanged( ChangeEvent e ) {
         computeKeys();
         refreshKeys();
@@ -646,18 +662,20 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         }
     
         
+        @Override
         public String getName() {
             String relativePath = FileUtil.getRelativePath(root, dataFolder.getPrimaryFile());
             return relativePath == null ?  null : relativePath.replace('/', '.'); // NOI18N
         }
         
+        @Override
         public Action[] getActions( boolean context ) {
             
             if ( !context ) {
                 if ( actions == null ) {                
                     // Copy actions and leave out the PropertiesAction and FileSystemAction.                
                     Action superActions[] = super.getActions( context );            
-                    List<Action> actionList = new ArrayList<Action>(superActions.length);
+                    List<Action> actionList = new ArrayList<>(superActions.length);
                     
                     for( int i = 0; i < superActions.length; i++ ) {
 
@@ -688,6 +706,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
         
+        @Override
         public boolean canRename() {
             if ( isDefaultPackage ) {
                 return false;
@@ -697,6 +716,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
 
+        @Override
         public boolean canCut () {
             return !isDefaultPackage;    
         }
@@ -704,6 +724,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         /**
          * Copy handling
          */
+        @Override
         public Transferable clipboardCopy () throws IOException {
             try {
                 return new PackageTransferable (this, DnDConstants.ACTION_COPY);
@@ -712,6 +733,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
         
+        @Override
         public Transferable clipboardCut () throws IOException {
             try {
                 return new PackageTransferable (this, DnDConstants.ACTION_MOVE);
@@ -720,6 +742,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
         
+        @Override
         public /*@Override*/ Transferable drag () throws IOException {
             try {
                 return new PackageTransferable (this, DnDConstants.ACTION_NONE);
@@ -728,6 +751,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
 
+        @Override
         public PasteType[] getPasteTypes(Transferable t) {
             if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
                 try {
@@ -740,10 +764,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                         }
                     }
                     return hasPackageFlavor ? new PasteType[0] : super.getPasteTypes (t);
-                } catch (UnsupportedFlavorException e) {
-                    ErrorManager.getDefault().notify(e);
-                    return new PasteType[0];
-                } catch (IOException e) {
+                } catch (UnsupportedFlavorException | IOException e) {
                     ErrorManager.getDefault().notify(e);
                     return new PasteType[0];
                 }
@@ -759,6 +780,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
         }
         
+        @Override
         public /*@Override*/ PasteType getDropType (Transferable t, int action, int index) {
             if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
                 try {
@@ -771,10 +793,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                         }
                     }
                     return hasPackageFlavor ? null : super.getDropType (t, action, index);
-                } catch (UnsupportedFlavorException e) {
-                    ErrorManager.getDefault().notify(e);
-                    return null;
-                } catch (IOException e) {
+                } catch (UnsupportedFlavorException | IOException e) {
                     ErrorManager.getDefault().notify(e);
                     return null;
                 }
@@ -792,8 +811,8 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
 
 
         private boolean isPackageFlavor (DataFlavor[] flavors) {
-            for (int i=0; i<flavors.length; i++) {
-                if (SUBTYPE.equals(flavors[i].getSubType ()) && PRIMARY_TYPE.equals(flavors[i].getPrimaryType ())) {
+            for (DataFlavor flavor : flavors) {
+                if (SUBTYPE.equals(flavor.getSubType()) && PRIMARY_TYPE.equals(flavor.getPrimaryType())) {
                     //Disable pasting into package, only paste into root is allowed
                     return true;
                 }
@@ -811,6 +830,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
 //            return handlers.iterator().next();
 //        }
         
+        @Override
         public void setName(String name) {
 //            PackageRenameHandler handler = getRenameHandler();
 //            if (handler!=null) {
@@ -858,9 +878,9 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                 DataFolder sourceFolder = DataFolder.findFolder (source);
                 DataFolder destinationFolder = DataFolder.findFolder (destination);
                 DataObject[] children = sourceFolder.getChildren();
-                for (int j=0; j<children.length; j++) {
-                    if (children[j].getPrimaryFile().isData()) {
-                        children[j].move(destinationFolder);
+                for (DataObject child : children) {
+                    if (child.getPrimaryFile().isData()) {
+                        child.move(destinationFolder);
                     }
                 }
                 while (!commonFolder.equals(source)) {
@@ -880,15 +900,12 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         
         
         
+        @Override
         public boolean canDestroy() {
-            if ( isDefaultPackage ) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return !isDefaultPackage;
         }
         
+        @Override
         public void destroy() throws IOException {
             FileObject parent = dataFolder.getPrimaryFile().getParent();
             // First; delete all files except packages
@@ -922,6 +939,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
          *  
          * @return annotated display name
          */ 
+        @Override
         public String getHtmlDisplayName() {
             String name = getDisplayName();
             try {
@@ -945,6 +963,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return name;
         }
         
+        @Override
         public String getDisplayName() {
             FileObject folder = dataFolder.getPrimaryFile();
             String path = FileUtil.getRelativePath(root, folder);
@@ -955,6 +974,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return PackageDisplayUtils.getDisplayLabel( path.replace('/', '.'));
         }
         
+        @Override
         public String getShortDescription() {
             FileObject folder = dataFolder.getPrimaryFile();
             String path = FileUtil.getRelativePath(root, folder);
@@ -965,6 +985,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return PackageDisplayUtils.getToolTip(folder, path.replace('/', '.'));
         }
 
+        @Override
         public Image getIcon (int type) {
             Image img = getMyIcon (type);
 
@@ -979,6 +1000,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return img;
         }
 
+        @Override
         public Image getOpenedIcon (int type) {
             Image img = getMyOpenedIcon(type);
 
@@ -1115,29 +1137,35 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             this.folder = folder;
         }
         
+        @Override
         public FileObject getFolder() {
             return folder.getPrimaryFile();
         }
         
+        @Override
         public DataObject[] getChildren () {
             DataObject[] arr = folder.getChildren ();
-            List<DataObject> list = new ArrayList<DataObject>(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                if (arr[i] instanceof DataFolder) continue;
-                
-                list.add (arr[i]);
+            List<DataObject> list = new ArrayList<>(arr.length);
+            for (DataObject arr1 : arr) {
+                if (arr1 instanceof DataFolder) {
+                    continue;
+                }
+                list.add(arr1);
             }
             return list.size() == arr.length ? arr : list.toArray(new DataObject[0]);
         }
 
+        @Override
         public void addPropertyChangeListener(PropertyChangeListener l) {
             prop.addPropertyChangeListener (l);
         }
 
+        @Override
         public void removePropertyChangeListener(PropertyChangeListener l) {
             prop.removePropertyChangeListener (l);
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (DataObject.Container.PROP_CHILDREN.equals (evt.getPropertyName ())) {
                 prop.firePropertyChange (PROP_CHILDREN, null, null);
@@ -1153,6 +1181,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             VisibilityQuery.getDefault().addChangeListener(WeakListeners.change(this, VisibilityQuery.getDefault()));
         }
                 
+        @Override
         public boolean acceptDataObject(DataObject obj) {  
             // Filter out .pyc or .pyo files!
             String ext = obj.getPrimaryFile().getExt();
@@ -1162,18 +1191,22 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return acceptFileObject(obj.getPrimaryFile());
         }
         
+        @Override
         public void stateChanged( ChangeEvent e) {            
             cs.fireChange();
         }        
     
+        @Override
         public void addChangeListener( ChangeListener listener ) {
             cs.addChangeListener(listener);
         }        
                         
+        @Override
         public void removeChangeListener( ChangeListener listener ) {
             cs.removeChangeListener(listener);
         }
 
+        @Override
         public boolean acceptFileObject(FileObject fo) {
             return  fo.isValid() && VisibilityQuery.getDefault().isVisible(fo) && fo.isData() && group.contains(fo);
         }
@@ -1185,10 +1218,11 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         private PackageNode node;
 
         public PackageTransferable (PackageNode node, int operation) throws ClassNotFoundException {
-            super(new DataFlavor(PACKAGE_FLAVOR.format(new Object[] {new Integer(operation)}), null, PackageNode.class.getClassLoader()));
+            super(new DataFlavor(PACKAGE_FLAVOR.format(new Object[] {operation}), null, PackageNode.class.getClassLoader()));
             this.node = node;
         }
 
+        @Override
         protected Object getData() throws IOException, UnsupportedFlavorException {
             return this.node;
         }
@@ -1212,12 +1246,13 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             this.op = op;
         }
 
+        @Override
         public Transferable paste() throws IOException {
             assert this.op != DnDConstants.ACTION_NONE;
-            for (int ni=0; ni< nodes.length; ni++) {
+            for (PackageNode node : nodes) {
                 FileObject fo = srcRoot;
-                if (!nodes[ni].isDefaultPackage) {
-                    String pkgName = nodes[ni].getName();
+                if (!node.isDefaultPackage) {
+                    String pkgName = node.getName();
                     StringTokenizer tk = new StringTokenizer(pkgName,".");  //NOI18N
                     while (tk.hasMoreTokens()) {
                         String name = tk.nextToken();
@@ -1229,27 +1264,24 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                     }
                 }
                 DataFolder dest = DataFolder.findFolder(fo);
-                DataObject[] children = nodes[ni].dataFolder.getChildren();
+                DataObject[] children = node.dataFolder.getChildren();
                 boolean cantDelete = false;
-                for (int i=0; i< children.length; i++) {
-                    if (children[i].getPrimaryFile().isData() 
-                    && VisibilityQuery.getDefault().isVisible (children[i].getPrimaryFile())) {
+                for (DataObject child : children) {
+                    if (child.getPrimaryFile().isData() && VisibilityQuery.getDefault().isVisible(child.getPrimaryFile())) {
                         //Copy only the package level
                         if (this.op == DnDConstants.ACTION_MOVE) {
-                            children[i].move(dest);
+                            child.move(dest);
+                        } else {
+                            child.copy(dest);
                         }
-                        else {
-                            children[i].copy (dest);
-                        }                                                
-                    }
-                    else {
+                    } else {
                         cantDelete = true;
                     }
                 }
                 if (this.op == DnDConstants.ACTION_MOVE && !cantDelete) {
                     try {
-                        FileObject tmpFo = nodes[ni].dataFolder.getPrimaryFile();
-                        FileObject originalRoot = nodes[ni].root;
+                        FileObject tmpFo = node.dataFolder.getPrimaryFile();
+                        FileObject originalRoot = node.root;
                         assert tmpFo != null && originalRoot != null;
                         while (!tmpFo.equals(originalRoot)) {
                             if (tmpFo.getChildren().length == 0) {
@@ -1261,7 +1293,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
                                 break;
                             }
                         }
-                    } catch (IOException ioe) {
+                    }catch (IOException ioe) {
                         //Not important
                     }
                 }
@@ -1269,6 +1301,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             return ExTransferable.EMPTY;
         }
 
+        @Override
         public String getName() {
             return NbBundle.getMessage(PackageViewChildren.class,"TXT_PastePackage");
         }
@@ -1290,6 +1323,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             add(folder);
         }
         
+        @Override
         public FileObject getFolder() {
             return folder;
         }        

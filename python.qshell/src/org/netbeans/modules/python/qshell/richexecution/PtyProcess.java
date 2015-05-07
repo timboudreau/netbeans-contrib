@@ -44,6 +44,7 @@
 
 package org.netbeans.modules.python.qshell.richexecution;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
@@ -87,6 +88,7 @@ public final class PtyProcess extends java.lang.Process {
     /**
      * {@inheritDoc}
      */
+    @Override
     public InputStream getInputStream() {
 	if (pty == null)
 	    return process.getInputStream();	// Mode.RAW
@@ -100,6 +102,7 @@ public final class PtyProcess extends java.lang.Process {
      * Note that PtyProcess always has it's error redirected via
      * {@link java.lang.ProcessBuilder#redirectErrorStream}.
      */
+    @Override
     public InputStream getErrorStream() {
 	if (pty == null)
 	    return process.getErrorStream();	// Mode.RAW
@@ -110,6 +113,7 @@ public final class PtyProcess extends java.lang.Process {
     /**
      * {@inheritDoc}
      */
+    @Override
     public OutputStream getOutputStream() {
 	if (pty == null)
 	    return process.getOutputStream();
@@ -125,13 +129,14 @@ public final class PtyProcess extends java.lang.Process {
     private Runnable getReaper() {
         if (reaper == null) {
             reaper = new Runnable() {
+                @Override
                 public void run() {
                     try {
                         process.waitFor();
 			if (pty != null)
 			    pty.close();
                         reaped = true;
-                    } catch (Exception ex) {
+                    } catch (IOException | InterruptedException ex) {
                         Logger.getLogger(PtyProcess.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -143,6 +148,7 @@ public final class PtyProcess extends java.lang.Process {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int waitFor() {
         getReaper().run();
         return exitValue();
@@ -198,6 +204,7 @@ public final class PtyProcess extends java.lang.Process {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void destroy() {
         if (reaped)
             return;
@@ -211,6 +218,7 @@ public final class PtyProcess extends java.lang.Process {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int exitValue() {
         return process.exitValue();
     }

@@ -64,15 +64,18 @@ public class ConstructorGenerator implements CodeGenerator {
     }
 
     public static class Factory implements CodeGenerator.Factory {
+        @Override
         public List<? extends CodeGenerator> create(Lookup context) {
             return Collections.singletonList(new ConstructorGenerator(context));
         }
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(ConstructorGenerator.class, "Constructor");
     }
 
+    @Override
     public void invoke() {
         final BaseDocument doc = (BaseDocument)target.getDocument();
         final CodeTemplateManager ctm = CodeTemplateManager.get(doc);

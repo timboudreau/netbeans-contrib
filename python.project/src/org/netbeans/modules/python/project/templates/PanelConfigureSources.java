@@ -32,6 +32,7 @@ public class PanelConfigureSources implements WizardDescriptor.Panel,
         this.changeSupport = new ChangeSupport(this);
     }
 
+    @Override
     public PanelConfigureSourcesVisual getComponent() {
         if (component == null) {
             component = new PanelConfigureSourcesVisual ();
@@ -41,38 +42,46 @@ public class PanelConfigureSources implements WizardDescriptor.Panel,
         return component;
     }
 
+    @Override
     public HelpCtx getHelp() {
         return new HelpCtx(PanelConfigureSources.class);
     }
 
+    @Override
     public void readSettings(Object settings) {
         wizardDescriptor = (WizardDescriptor) settings;
         getComponent().read(wizardDescriptor);
     }
 
+    @Override
     public void storeSettings(Object settings) {
         WizardDescriptor d = (WizardDescriptor) settings;
         getComponent().store(d);
     }
 
+    @Override
     public boolean isValid() {
         return getComponent().valid(wizardDescriptor);
     }
 
+    @Override
     public void addChangeListener(ChangeListener l) {
         assert l != null;
         this.changeSupport.addChangeListener(l);
     }
 
+    @Override
     public void removeChangeListener(ChangeListener l) {
         assert l != null;
         this.changeSupport.removeChangeListener(l);
     }
 
+    @Override
     public void validate() throws WizardValidationException {
         getComponent().validate(wizardDescriptor);
     }
 
+    @Override
     public boolean isFinishPanel() {
         return true;
     }

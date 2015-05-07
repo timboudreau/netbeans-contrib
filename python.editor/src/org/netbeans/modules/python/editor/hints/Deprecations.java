@@ -83,7 +83,7 @@ import org.python.antlr.ast.alias;
  * @author Tor Norbye
  */
 public class Deprecations extends PythonAstRule {
-    private static final Map<String, String> deprecated = new HashMap<String, String>();
+    private static final Map<String, String> deprecated = new HashMap<>();
 
 
     static {
@@ -196,7 +196,7 @@ public class Deprecations extends PythonAstRule {
 
     @Override
     public Set<Class> getKinds() {
-        HashSet<Class> kinds = new HashSet<Class>();
+        HashSet<Class> kinds = new HashSet<>();
         kinds.add(Import.class);
         kinds.add(ImportFrom.class);
 
@@ -251,34 +251,42 @@ public class Deprecations extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "Deprecations"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(Deprecations.class, "Deprecations");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(Deprecations.class, "DeprecationsDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         return null;
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }

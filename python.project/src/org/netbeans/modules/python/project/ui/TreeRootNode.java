@@ -117,38 +117,47 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
         }
     }
 
+    @Override
     public Image getIcon(int type) {
         return computeIcon(false, type);
     }
 
+    @Override
     public Image getOpenedIcon(int type) {
         return computeIcon(true, type);
     }
 
+    @Override
     public String getName() {
         return g.getName();
     }
 
+    @Override
     public String getDisplayName() {
         return g.getDisplayName();
     }
 
+    @Override
     public boolean canRename() {
         return false;
     }
 
+    @Override
     public boolean canDestroy() {
         return false;
     }
 
+    @Override
     public boolean canCut() {
         return false;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent ev) {
         // XXX handle SourceGroup.rootFolder change too
         EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 fireNameChange(null, null);
                 fireDisplayNameChange(null, null);
@@ -180,7 +189,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             if (FileUtil.isParentOf(groupRoot, fo) /* && group.contains(fo) */) {
                 FileObject folder = fo.isFolder() ? fo : fo.getParent();
                 String relPath = FileUtil.getRelativePath(groupRoot, folder);
-                List<String> path = new ArrayList<String>();
+                List<String> path = new ArrayList<>();
                 StringTokenizer strtok = new StringTokenizer(relPath, "/"); // NOI18N
                 while (strtok.hasMoreTokens()) {
                     String token = strtok.nextToken();
@@ -192,12 +201,11 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                         return folderNode;
                     } else {
                         Node[] childs = folderNode.getChildren().getNodes(true);
-                        for (int i = 0; i < childs.length; i++) {
-                            DataObject dobj = childs[i].getLookup().lookup(DataObject.class);
+                        for (Node child : childs) {
+                            DataObject dobj = child.getLookup().lookup(DataObject.class);
                             if (dobj != null && dobj.getPrimaryFile().getNameExt().equals(fo.getNameExt())) {
-                                return childs[i];
+                                return child;
                             }
-
                         }
                     }
                 } catch (NodeNotFoundException e) {
@@ -222,6 +230,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             g.addPropertyChangeListener(WeakListeners.propertyChange(this, g));
         }
 
+        @Override
         public boolean acceptDataObject(DataObject obj) {
             FileObject fo = obj.getPrimaryFile();
             if (fo.getExt().equalsIgnoreCase("pyc") || fo.getExt().equalsIgnoreCase("pyo") | fo.getExt().equalsIgnoreCase("egg-info") || fo.getName().equalsIgnoreCase("build") || fo.getName().equalsIgnoreCase("dist")) {
@@ -231,10 +240,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                     VisibilityQuery.getDefault().isVisible(fo);
         }
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             fireChange();
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent e) {
             if (SourceGroup.PROP_CONTAINERSHIP.equals(e.getPropertyName())) {
                 fireChange();
@@ -254,10 +265,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             }
         }
 
+        @Override
         public void addChangeListener(ChangeListener listener) {
             ell.add(ChangeListener.class, listener);
         }
 
+        @Override
         public void removeChangeListener(ChangeListener listener) {
             ell.remove(ChangeListener.class, listener);
         }

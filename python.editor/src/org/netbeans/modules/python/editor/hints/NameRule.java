@@ -87,6 +87,7 @@ public class NameRule extends PythonAstRule {
     public NameRule() {
     }
 
+    @Override
     public boolean appliesTo(RuleContext context) {
         moduleStyle = null; // Ensure lazy init
 
@@ -103,8 +104,9 @@ public class NameRule extends PythonAstRule {
         selfRequired = isSelfRequired(pref);
     }
 
+    @Override
     public Set<Class> getKinds() {
-        Set<Class> classes = new HashSet<Class>();
+        Set<Class> classes = new HashSet<>();
         classes.add(Module.class);
         classes.add(FunctionDef.class);
         classes.add(ClassDef.class);
@@ -112,6 +114,7 @@ public class NameRule extends PythonAstRule {
         return classes;
     }
 
+    @Override
     public void run(PythonRuleContext context, List<Hint> result) {
         if (moduleStyle == null) {
             initializeFromPrefs(context, this);
@@ -157,7 +160,7 @@ public class NameRule extends PythonAstRule {
                                     // TODO - determine if it should be cls or def
                                     "NameRuleWrongArg", // NOI18N
                                     name);
-                            List<HintFix> fixList = new ArrayList<HintFix>(2);
+                            List<HintFix> fixList = new ArrayList<>(2);
                             fixList.add(new SelfParamFix(context, true, def, null));
                             List<String> parameters = PythonAstUtils.getParameters(def);
                             if (parameters.size() > 0) {
@@ -190,7 +193,7 @@ public class NameRule extends PythonAstRule {
     }
 
     private List<HintFix> getNameStyleFixes(String name, PythonRuleContext context, NameStyle currentStyle, String key, String type) {
-        List<HintFix> fixes = new ArrayList<HintFix>(5);
+        List<HintFix> fixes = new ArrayList<>(5);
 
         fixes.add(new IgnoreWordFix(name, this, context));
 
@@ -239,30 +242,37 @@ public class NameRule extends PythonAstRule {
         }
     }
 
+    @Override
     public String getId() {
         return "NameRule"; // NOI18N
     }
 
+    @Override
     public String getDisplayName() {
         return NbBundle.getMessage(NameRule.class, "NameRule");
     }
 
+    @Override
     public String getDescription() {
         return NbBundle.getMessage(NameRule.class, "NameRuleDesc");
     }
 
+    @Override
     public boolean getDefaultEnabled() {
         return true;
     }
 
+    @Override
     public boolean showInTasklist() {
         return true;
     }
 
+    @Override
     public HintSeverity getDefaultSeverity() {
         return HintSeverity.WARNING;
     }
 
+    @Override
     public JComponent getCustomizer(Preferences node) {
         moduleStyle = null; // Ensure lazy init after this
         return new NameRulePrefs(this, node);
@@ -333,10 +343,12 @@ public class NameRule extends PythonAstRule {
             this.context = context;
         }
 
+        @Override
         public String getDescription() {
             return NbBundle.getMessage(NameRule.class, "IgnoreWord", name);
         }
 
+        @Override
         public void implement() throws Exception {
             Preferences pref = context.manager.getPreferences(rule);
             String ignored = getIgnoredNames(pref);
@@ -350,10 +362,12 @@ public class NameRule extends PythonAstRule {
             context.manager.refreshHints(context);
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return true;
         }
@@ -374,6 +388,7 @@ public class NameRule extends PythonAstRule {
             this.typeKey = type;
         }
 
+        @Override
         public String getDescription() {
             if (style == NO_PREFERENCE) {
                 return NbBundle.getMessage(NameRule.class, "ChangeNoStyle", NbBundle.getMessage(NameRule.class, typeKey));
@@ -382,6 +397,7 @@ public class NameRule extends PythonAstRule {
             }
         }
 
+        @Override
         public void implement() throws Exception {
             Preferences pref = context.manager.getPreferences(rule);
             pref.put(key, style.name());
@@ -389,10 +405,12 @@ public class NameRule extends PythonAstRule {
             context.manager.refreshHints(context);
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return true;
         }
@@ -416,6 +434,7 @@ public class NameRule extends PythonAstRule {
             assert insert || first != null;
         }
 
+        @Override
         public String getDescription() {
             if (insert) {
                 return NbBundle.getMessage(CreateDocString.class, "InsertSelf");
@@ -424,10 +443,12 @@ public class NameRule extends PythonAstRule {
             }
         }
 
+        @Override
         public boolean canPreview() {
             return true;
         }
 
+        @Override
         public EditList getEditList() throws Exception {
             return getEditList(true);
         }
@@ -482,16 +503,19 @@ public class NameRule extends PythonAstRule {
             return edits;
         }
 
+        @Override
         public void implement() throws Exception {
             EditList edits = getEditList(true);
 
             edits.apply();
         }
 
+        @Override
         public boolean isSafe() {
             return true;
         }
 
+        @Override
         public boolean isInteractive() {
             return false;
         }

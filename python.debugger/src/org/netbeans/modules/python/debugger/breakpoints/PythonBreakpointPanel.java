@@ -149,6 +149,7 @@ public class PythonBreakpointPanel extends JPanel implements Controller, org.ope
         _conditionsPanel.setupConditionPaneContext(_breakpoint.getFilePath(), _breakpoint.getLineNumber());
   }
 
+  @Override
   public org.openide.util.HelpCtx getHelpCtx() {
     return new org.openide.util.HelpCtx("NetbeansDebuggerBreakpointLineJPDA"); // NOI18N
     }
@@ -259,6 +260,7 @@ public class PythonBreakpointPanel extends JPanel implements Controller, org.ope
    *
    * @return whether customizer can be closed
    */
+  @Override
   public boolean ok() {
     String msg = validateMsg();
     if (msg == null) {
@@ -293,6 +295,7 @@ public class PythonBreakpointPanel extends JPanel implements Controller, org.ope
    *
    * @return whether customizer can be closed
    */
+  @Override
   public boolean cancel() {
     return true;
   }

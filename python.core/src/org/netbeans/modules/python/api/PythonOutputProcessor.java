@@ -14,14 +14,17 @@ import org.netbeans.api.extexecution.input.InputProcessor;
  */
 public class PythonOutputProcessor implements InputProcessor {
     StringBuilder builder = new StringBuilder();
+    @Override
     public void processInput(char[] input) throws IOException {
         builder.append(input);
     }
 
+    @Override
     public void reset() throws IOException {
         //builder = new StringBuilder();
     }
 
+    @Override
     public void close() throws IOException {
 
     }
