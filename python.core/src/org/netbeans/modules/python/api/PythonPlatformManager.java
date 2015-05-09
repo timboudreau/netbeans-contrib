@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,7 @@ public class PythonPlatformManager implements Serializable {
         String binDir = jythonInstall + File.separator + "bin"; // NOI18N
         String cmd = binDir + File.separator + "jython"; // NOI18N
         if (Utilities.isWindows()) {
-            cmd += ".bat"; // NOI18N
+            cmd += ".exe"; // NOI18N was ".bat" for older Jython versions...
         } else {
             ensureExecutable(binDir);
         }
@@ -116,6 +117,7 @@ public class PythonPlatformManager implements Serializable {
 
     /**
      * Load Platform data from xml
+     * 
      */
     public void load(){
         platforms = new HashMap<>();
@@ -400,8 +402,8 @@ public class PythonPlatformManager implements Serializable {
                 platform.setInterpreterConsoleComand(command);
                 // @@@Jean-Yves end of fix
                 platform.setName(name);
-                platform.setSourceLevel(prop.getProperty("platform.sourcelevel"));
-                String pathString = prop.getProperty("python.path");
+                platform.setSourceLevel(prop.getProperty("platform.sourcelevel")); // NOI18N
+                String pathString = prop.getProperty("python.path"); // NOI18N
                 if(pathString != null)
                     platform.setPythonPath(pathString.split(File.pathSeparator));
                 if (new File(cmd).getName().toLowerCase().contains("python")){ // NOI18N
@@ -447,16 +449,24 @@ public class PythonPlatformManager implements Serializable {
 
             PythonAutoDetector ad = new PythonAutoDetector();
 
-            // TODO - Shouldn't we search the user's $PATH/%Path% instead of the below?
-            // perhaps in addition to, but not "instead of"
             if (Utilities.isWindows()) {
-                ad.traverse(new File("c:/"), false);
-                ad.traverse(new File("c:/program files"), false);
+                ad.traverseEnvPaths();
+                ad.traverseDirectory(new File("c:/"));
+                // ad.searchNestedDirectoies = true; // because traverse turns it off
+                // ad.traverse(new File("c:/"), false);
+                //}
             }else{ 
                 if(Utilities.isMac()){
-                    ad.traverse(new File("/usr/bin"), false); // placeholder for someone to insert correct locations for MAC
-                }else{                
-                    ad.traverse(new File("/usr/bin"), false); // for all other (probably Unix-like) systems
+                    ad.traverseEnvPaths();
+                    ad.searchNestedDirectoies = true;
+                    ad.traverseDirectory(new File("/usr/bin"));
+                    ad.searchNestedDirectoies = false;
+                    ad.traverseMacDirectories(new File("/System/Library/Frameworks/Python.framework/Versions") ); // NOI18N // 2.x 
+                    ad.traverseMacDirectories(new File("/Library/Frameworks/Python.framework/Versions") ); // // NOI18N // 3.x
+                }else{
+                    ad.traverseEnvPaths();
+                    ad.searchNestedDirectoies = true;
+                    ad.traverseDirectory(new File("/usr/bin")); // NOI18N // for all other (probably Unix-like) systems
                 }
             }
 
@@ -475,7 +485,7 @@ public class PythonPlatformManager implements Serializable {
         } finally {
             autoDetecting = false;
         }
-        Util.setFirstPlatformTouch(false);
+        Util.setFirstPlatformTouch(false); // What is this - shouldn't we save the previously set platform and reset it here?
         firePlatformsChanged();
     }
 
