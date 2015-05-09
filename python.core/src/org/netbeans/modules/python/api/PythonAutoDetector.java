@@ -44,20 +44,23 @@ package org.netbeans.modules.python.api;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
 /**
  *
  * @author alley
- * @author Lou Dasaro
+ * @author Lou Dasaro <mr_lou_d@netbeans.org>
  */
 public class PythonAutoDetector {
     private Logger LOGGER = Logger.getLogger(PythonAutoDetector.class.getName());
 
     private ArrayList<String> matches = new ArrayList<>();
-    private boolean searchNestedDirectoies = true;
+    boolean searchNestedDirectoies = true;
+
     private void processAction(File dir) {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.log(Level.FINE, "Inspecting: " + dir.getAbsolutePath());
@@ -76,23 +79,26 @@ public class PythonAutoDetector {
             if( name.equalsIgnoreCase("jython") || name.equalsIgnoreCase("python")) {
                 if (Utilities.isWindows()){
                     if (ext.equalsIgnoreCase("exe") || ext.equalsIgnoreCase("bat")) {
-                        matches.add(dir.getAbsolutePath());
-                        if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "Match (Windows): " + dir.getAbsolutePath());
+                        if( addMatch(dir.getAbsolutePath())) { //don't report duplicates
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.log(Level.FINE, "Match (Windows): {0}", dir.getAbsolutePath());                           
+                            }
                         }
                     }
                 } else if(Utilities.isMac()) {
                     if (ext.equalsIgnoreCase("")) {
-                        matches.add(dir.getAbsolutePath());
-                        if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "Match (Mac): " + dir.getAbsolutePath());
+                        if( addMatch(dir.getAbsolutePath())) {
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.log(Level.FINE, "Match (Mac): {0}", dir.getAbsolutePath());                           
+                            }
                         }
                     }
                 } else { // Not Windows or Mac, must be Unix-like system...
                     if (ext.equalsIgnoreCase("")) {
-                        matches.add(dir.getAbsolutePath());
-                        if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "Match (Unix-like): " + dir.getAbsolutePath());
+                        if( addMatch(dir.getAbsolutePath())) {
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.log(Level.FINE, "Match (Unix-like): {0}", dir.getAbsolutePath());                           
+                            }
                         }                     
                     }
                 }
@@ -105,26 +111,8 @@ public class PythonAutoDetector {
                 String[] children = dir.list();
                 if(children != null){
                     for (String child : children) {
-                        traverse(new File(dir, child), searchNestedDirectoies);
-                    }
-                }
-            }
-        }
-
-    }
-
-    public void traverse(File dir, boolean recersive) {
-
-        processAction(dir);
-
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            if(children != null){
-                if(searchNestedDirectoies){
-                    if(searchNestedDirectoies != recersive)
-                        searchNestedDirectoies = recersive;
-                    for (String child : children) {
-                        traverse(new File(dir, child), recersive);
+                        searchNestedDirectoies = true;
+                        traverse(new File(dir, child), false); // false had been searchNestedDirectoies
                     }
                 }
             }
@@ -135,6 +123,146 @@ public class PythonAutoDetector {
     public ArrayList<String> getMatches() {
         return matches;
     }
+    
+    public int countMatches(){
+        return matches.size();
+    }
+    
+    private boolean addMatch( String sMatch){
+        // ensure that no match is added twice (no duplicates!)
+        // tweaking may be required... especially for /python vs. /python/bin
+        for( String sTest : matches) { // TODO: Do not compare trailing \ or / 
+            if(sMatch.equalsIgnoreCase(sTest)){ // perhaps shouldn't ignore case for non-Windows
+                return false; // do not add if it already exists!
+            }
+//        Iterator<String> iterator = matches.iterator();
+//        while (iterator.hasNext()) {
+//            String sTest = iterator.next(); // TODO: Do not compare trailing \ or / 
+//            if(sMatch.equalsIgnoreCase(sTest)){ // perhaps shouldn't ignore case for non-Windows
+//                return false; // do not add if it already exists!
+//            }
+        }
+        matches.add(sMatch); // no preexisting match... add new.
+        return true;
+    }
+    
+    public void traverseEnvPaths() throws SecurityException{
+        String delims = "[;]"; // might not be correct for some *nix implementations ???
+        String sEnvPath = "";
+        try{
+            sEnvPath = System.getenv("path");
+        } catch (SecurityException se) {
+            Exceptions.printStackTrace(se);
+            return;
+        } 
+     
+        String[] paths = sEnvPath.split(delims);
+        int iCount = countMatches();
+        // search ONLY paths that contain the substring python/jython
+        for( String spath: paths) { 
+            if( spath.toLowerCase().contains("jython") ||
+                spath.toLowerCase().contains("python") ){
+                searchNestedDirectoies = true;
+                processAction(new File(spath)); //traverse(new File(spath), false);
+                if( iCount < matches.size()){ // take only the first match
+                    return;
+                }
+            }
+        }
+        // no python found!!!
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.log(Level.FINE, "Python/Jython not found in environment path {0}", sEnvPath);            
+        }
+    }
 
+    // Given a directory, search all grandchild directories 
+    //   for bin directories containing files to be processed
+    // This is specific to Mac which installs its Pythons like
+    //  /Library/Frameworks/Python.framework/Versions/3.4/bin/python3
+    //      and
+    //  /System/Library/Frameworks/Python.framework/Versions/2.7/    
+    public void traverseMacDirectories( File dir) {
+        if (dir.isDirectory()) { //this directory better end with "versions" !
+            String spath = dir.getName();
+            if( !(spath.toLowerCase().contains("versions")) ){
+                return;
+            }
+            // check the "next,next" (grandchild) level for the bin dir...
+            String[] children = dir.list();
+            if(children != null){
+                for (String child : children) { //2.7, 3.4
+                    File childDir = new File(child);
+                    if (childDir.isDirectory()){ 
+                        String[] grandchildren = childDir.list(); // within, for example, 2.7
+                        for (String grandchild : grandchildren) { 
+                            File gcDir = new File(grandchild);
+                            if (gcDir.isDirectory()) {
+                                String gcpath = gcDir.getName();
+                                if( gcpath.toLowerCase().contains("bin") ){ //find the bin directory
+                                    String[] ggrandchildren = childDir.list();
+                                    for (String ggrandchild : ggrandchildren) { // for all the files in the bin directory
+                                        File ggcFile = new File(ggrandchild);
+                                        if (ggcFile.isFile()) {
+                                            searchNestedDirectoies = false; // must set each time
+                                            processAction(ggcFile); // let processAction determine correctness of filename
+                                        }
+                                    }
+                                }
+                            }
+                        }                        
+                    }
+                }
+            }            
+        }        
+    } 
+        
+    
+    // Given a directory, for each subdirectory within, 
+    //   search the subdirectory and next-level subdirectories only
+    public void traverseDirectory( File dir) {
+        if (dir.isDirectory()) { //are we already IN the ?ython dir?
+            String spath = dir.getName();
+            if( spath.toLowerCase().contains("jython") ||
+                spath.toLowerCase().contains("python") ){
+                searchNestedDirectoies = true; // must set each time
+                processAction(dir);
+                return;
+            }
+            // otherwise, we check the next level for the ?ython dir?
+            String[] children = dir.list();
+            if(children != null){
+                for (int i=0; i<children.length; i++) {
+                    File fDirectory = new File(dir, children[i]);
+                    if (fDirectory.isDirectory()){
+                        spath = fDirectory.getName();
+                        if( spath.toLowerCase().contains("jython") ||
+                            spath.toLowerCase().contains("python") ){
+                        searchNestedDirectoies = true; // must set each time
+                        processAction(fDirectory);
+                        }
+                    }
+                }
+            }
+        }        
+    } 
+    
+    public void traverse(File dir, boolean recersive) {
+
+        processAction(dir);
+
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            if(children != null){
+                if(searchNestedDirectoies){// recursive is bad - better only search one or two levels
+                    if(searchNestedDirectoies != recersive)
+                        searchNestedDirectoies = recersive;
+                    for (String child : children) {
+                        traverse(new File(dir, child), recersive);
+                    }
+                }
+            }
+        }
+
+    }
     
 }
