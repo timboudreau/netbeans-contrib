@@ -44,7 +44,6 @@ package org.netbeans.modules.python.api;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.util.Exceptions;
@@ -56,19 +55,19 @@ import org.openide.util.Utilities;
  * @author Lou Dasaro <mr_lou_d@netbeans.org>
  */
 public class PythonAutoDetector {
-    private Logger LOGGER = Logger.getLogger(PythonAutoDetector.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PythonAutoDetector.class.getName());
 
-    private ArrayList<String> matches = new ArrayList<>();
+    private final ArrayList<String> matches = new ArrayList<>();
     boolean searchNestedDirectoies = true;
 
     private void processAction(File dir) {
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "Inspecting: " + dir.getAbsolutePath());
+            LOGGER.log(Level.FINE, "Inspecting: {0}", dir.getAbsolutePath());
         }
         if(dir.isFile()){
             int pos = dir.getName().indexOf(".");
-            String name = null;
-            String ext = null;
+            String name;
+            String ext;
             if (pos > -1 ){
                  name = dir.getName().substring(0, pos);
                  ext = dir.getName().substring(pos+1);
@@ -147,10 +146,11 @@ public class PythonAutoDetector {
     }
     
     public void traverseEnvPaths() throws SecurityException{
-        String delims = "[;]"; // might not be correct for some *nix implementations ???
-        String sEnvPath = "";
+        String delims = "[" + System.getProperty("path.separator") + "]";
+        String sEnvPath;
         try{
-            sEnvPath = System.getenv("path");
+            // Env variables must be upper-case in Unix. Windows is case-insensitive.
+            sEnvPath = System.getenv("PATH");
         } catch (SecurityException se) {
             Exceptions.printStackTrace(se);
             return;
@@ -159,7 +159,7 @@ public class PythonAutoDetector {
         String[] paths = sEnvPath.split(delims);
         int iCount = countMatches();
         // search ONLY paths that contain the substring python/jython
-        for( String spath: paths) { 
+        for(String spath: paths) { 
             if( spath.toLowerCase().contains("jython") ||
                 spath.toLowerCase().contains("python") ){
                 searchNestedDirectoies = true;
