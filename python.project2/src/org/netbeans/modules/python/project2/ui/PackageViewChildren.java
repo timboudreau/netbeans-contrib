@@ -130,7 +130,8 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     private static final String NODE_NOT_CREATED_EMPTY = "NNC_E"; //NOI18N
     
     private static final MessageFormat PACKAGE_FLAVOR = new MessageFormat("application/x-python-org-netbeans-modules-python-project-packagenodednd; class=org.netbeans.spi.java.project.support.ui.PackageViewChildren$PackageNode; mask={0}"); //NOI18N
-        
+    private static final RequestProcessor RP = new RequestProcessor(PackageRootNode.class);
+    
     static final String PRIMARY_TYPE = "application";   //NOI18N
     static final String SUBTYPE = "x-python-org-netbeans-modules-python-project-packagenodednd";    //NOI18N
     static final String MASK = "mask";  //NOI18N
@@ -177,7 +178,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         return new Node[0];
     }
     
-    RequestProcessor.Task task = RequestProcessor.getDefault().create( this );
+    RequestProcessor.Task task = RP.create( this );
         
     @Override
     protected void addNotify() {

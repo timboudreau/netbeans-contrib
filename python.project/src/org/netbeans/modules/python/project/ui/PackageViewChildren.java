@@ -176,7 +176,8 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         return new Node[0];
     }
     
-    RequestProcessor.Task task = RequestProcessor.getDefault().create( this );
+    private static final RequestProcessor RP = new RequestProcessor(PackageRootNode.class);
+    RequestProcessor.Task task = RP.create( this );
         
     @Override
     protected void addNotify() {
