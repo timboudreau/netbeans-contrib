@@ -53,7 +53,7 @@ public class PathListModel extends AbstractListModel{
         }
     }
     public void moveDown(int index){
-        if (index < model.size()){
+        if (index +1 < model.size()){ // +1 because you can't move 'down' from the end position!
             String temp = model.remove(index);
             model.add(index+1, temp);
             fireContentsChanged(this, 0, model.size() -1);
