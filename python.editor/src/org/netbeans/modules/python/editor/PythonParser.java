@@ -60,7 +60,6 @@ import org.python.antlr.runtime.RecognitionException;
 
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.python.antlr.BaseParser;
 import org.python.antlr.ListErrorHandler;
 import org.python.antlr.ParseException;
 import org.python.antlr.PythonLexer;
@@ -93,7 +92,7 @@ public class PythonParser extends Parser {
     public mod file_input(CharStream charStream, String fileName) throws RecognitionException {
         ListErrorHandler eh = new ListErrorHandler();
         mod tree = null;
-        PythonLexer lexer = new BaseParser.PyLexer(charStream);
+        PythonLexer lexer = new PythonLexer(charStream);
         lexer.setErrorHandler(eh);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         tokens.discardOffChannelTokens(true);
@@ -289,12 +288,20 @@ public class PythonParser extends Parser {
 
                         errors.add(new DefaultError(null, message, null, file, start, end, Severity.ERROR));
 
+                        br = new BaseRecognizer() {
+
+                            @Override
+                            public String getSourceName() {
+                                return file.getName();
+                            }
+                        };
+
                         super.reportError(br, re);
                     }
                 }
             };
 
-            PythonLexer lexer = new BaseParser.PyLexer(new ANTLRStringStream(sourceCode));
+            PythonLexer lexer = new PythonLexer(new ANTLRStringStream(sourceCode));
             lexer.setErrorHandler(errorHandler);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             tokens.discardOffChannelTokens(true);
