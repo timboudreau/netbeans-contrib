@@ -166,12 +166,12 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
             if (scope != null) {
                 if (scope.isUnused(name)) {
                     OffsetRange r = PythonAstUtils.getNameRange(info, node);
-                    if (scope.isParameter(name)) {
+                    if (scope.isParameter(name) && !name.equals("self")) {
                         highlights.put(r, EnumSet.of(ColoringAttributes.UNUSED, ColoringAttributes.PARAMETER));
                     } else {
                         highlights.put(r, EnumSet.of(ColoringAttributes.UNUSED));
                     }
-                } else if (scope.isParameter(name)) {
+                } else if (scope.isParameter(name) && !name.equals("self")) {
                     OffsetRange r = PythonAstUtils.getNameRange(info, node);
                     highlights.put(r, ColoringAttributes.PARAMETER_SET);
                 }

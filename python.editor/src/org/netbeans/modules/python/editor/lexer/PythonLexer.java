@@ -697,21 +697,28 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         char c2 = s.charAt(1);
 
         switch (c1) {
-        case 'a': // and, as, assert
+        case 'a': // and, as, assert, async, await
             switch (c2) {
             case 'n': // and
                 if (TokenUtilities.textEquals(s, "and")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
                 break;
-            case 's':  // as, assert
+            case 's':  // as, assert, async
                 if (length == 2) { // as
                     return PythonTokenId.ANY_KEYWORD;
                 }
                 if (length == 6 && TokenUtilities.textEquals(s, "assert")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
+                if (length == 5 && TokenUtilities.textEquals(s, "async")) { // NOI18N
+                    return PythonTokenId.ANY_KEYWORD;
+                }
                 break;
+            case 'w': // await
+                if (length == 5 && TokenUtilities.textEquals(s, "await")) { // NOI18N
+                    return PythonTokenId.ANY_KEYWORD;
+                }
             }
             break;
         case 'b': // break
@@ -841,6 +848,10 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 }
             }
             break;
+        case 's': // self
+            if (length == 4 && TokenUtilities.textEquals(s, "self")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
+            }
         case 't': // try
             if (length == 3 && TokenUtilities.textEquals(s, "try")) { // NOI18N
                 return PythonTokenId.TRY;
@@ -862,6 +873,18 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 return PythonTokenId.ANY_KEYWORD;
             }
             break;
+        case 'F': // False
+            if (length == 5 && TokenUtilities.textEquals(s, "False")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
+            }
+        case 'N': // None
+            if (length == 4 && TokenUtilities.textEquals(s, "None")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
+            }
+        case 'T': // True
+            if (length == 4 && TokenUtilities.textEquals(s, "True")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
+            }
         }
 
         return null;
