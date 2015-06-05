@@ -295,8 +295,12 @@ public class PythonParser extends Parser {
                                 return file.getName();
                             }
                         };
-
-                        super.reportError(br, re);
+                        try {
+                            super.reportError(br, re);
+                        } catch (NullPointerException e) {
+                            
+                        }
+                        
                     }
                 }
             };
