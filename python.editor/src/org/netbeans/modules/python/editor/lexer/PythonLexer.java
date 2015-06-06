@@ -93,7 +93,7 @@ import org.netbeans.spi.lexer.TokenFactory;
  *     our custom Python lexer is going to have a lot of corner case bugs.
  *   </li>
  * </ul>
- * 
+ *
  * @author Tor Norbye
  */
 public final class PythonLexer implements Lexer<PythonTokenId> {
@@ -721,9 +721,11 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 }
             }
             break;
-        case 'b': // break
+        case 'b': // break, bytes
             if (length == 5 && TokenUtilities.textEquals(s, "break")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 5 && TokenUtilities.textEquals(s, "bytes")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
             break;
         case 'c': // class, continue
@@ -762,6 +764,10 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                     }
                 }
                 break;
+            case 'n': // enumerate
+                if (length == 9 && TokenUtilities.textEquals(s, "enumerate")) { // NOI18N
+                    return PythonTokenId.STD_SYMBOLS;
+                }
             case 'x': // except, exec
                 if (length == 4 && TokenUtilities.textEquals(s, "exec")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
@@ -789,6 +795,10 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                     return PythonTokenId.FROM;
                 }
                 break;
+            case 'l':
+                if (length == 5 && TokenUtilities.textEquals(s, "float")) {
+                    return PythonTokenId.STD_SYMBOLS;
+                }
             }
             break;
         case 'g': // global
@@ -796,24 +806,32 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 return PythonTokenId.ANY_KEYWORD;
             }
             break;
-        case 'i': // if,import,in,is
+        case 'i': // if,import,in,is, int
             if (length == 2) {
                 switch (c2) {
                 case 'f': // if
                     return PythonTokenId.IF;
                 case 'n': // in
-                    return PythonTokenId.ANY_KEYWORD;
+                    if (length == 2 && TokenUtilities.textEquals(s, "in")) { //NOI18N
+                        return PythonTokenId.ANY_KEYWORD;
+                    }
                 case 's': // is
                     return PythonTokenId.ANY_KEYWORD;
                 }
             } else if (c2 == 'm' && length == 6 && TokenUtilities.textEquals(s, "import")) { // NOI18N
                 // import
                 return PythonTokenId.IMPORT;
+            } else if (length == 3 && TokenUtilities.textEquals(s, "int")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
+            } else if (length == 10 && TokenUtilities.textEquals(s, "isinstance")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
             break;
-        case 'l': // lambda
+        case 'l': // lambda, len
             if (length == 6 && TokenUtilities.textEquals(s, "lambda")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 3 && TokenUtilities.textEquals(s, "len")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
             break;
         case 'n': // not
@@ -821,9 +839,11 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 return PythonTokenId.ANY_KEYWORD;
             }
             break;
-        case 'o': // or
+        case 'o': // or, object
             if (length == 2 && TokenUtilities.textEquals(s, "or")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 6 && TokenUtilities.textEquals(s, "object")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
             break;
         case 'p': // pass,print
@@ -842,19 +862,23 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 if (length == 5 && TokenUtilities.textEquals(s, "raise")) { // NOI18N
                     return PythonTokenId.RAISE;
                 }
-            } else if (c2 == 'e') { // print
+            } else if (c2 == 'e') { // return
                 if (length == 6 && TokenUtilities.textEquals(s, "return")) { // NOI18N
                     return PythonTokenId.RETURN;
                 }
             }
             break;
-        case 's': // self
+        case 's': // self, str
             if (length == 4 && TokenUtilities.textEquals(s, "self")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 3 && TokenUtilities.textEquals(s, "str")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
-        case 't': // try
+        case 't': // try, type
             if (length == 3 && TokenUtilities.textEquals(s, "try")) { // NOI18N
                 return PythonTokenId.TRY;
+            } else if (length == 4 && TokenUtilities.textEquals(s, "type")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             }
             break;
         case 'w': // while,with
@@ -862,7 +886,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 if (length == 5 && TokenUtilities.textEquals(s, "while")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
-            } else if (c2 == 'i') { // print
+            } else if (c2 == 'i') { // with
                 if (length == 4 && TokenUtilities.textEquals(s, "with")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }

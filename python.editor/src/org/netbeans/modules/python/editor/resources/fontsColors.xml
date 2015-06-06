@@ -35,6 +35,7 @@
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="QUOTED_STRING_LITERAL" default="string"/>
+    <fontcolor name="STD_SYMBOLS" foreColor="3366CC" />
 
     <!--"semantic" highlighting:-->
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
