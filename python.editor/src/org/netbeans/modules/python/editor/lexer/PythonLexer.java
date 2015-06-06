@@ -693,6 +693,10 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             return null;
         }
 
+        if (s.toString().endsWith("Error")) {
+            return PythonTokenId.ERROR;
+        }
+
         char c1 = s.charAt(0);
         char c2 = s.charAt(1);
 
