@@ -108,6 +108,9 @@ public enum PythonTokenId implements TokenId {
     FINALLY("finally", KEYWORD_CAT), // NOI18N
     IMPORT("import", KEYWORD_CAT), // NOI18N
     FROM("from", KEYWORD_CAT), // NOI18N
+    TRUE("True", KEYWORD_CAT), // NOI18N
+    FALSE("False", KEYWORD_CAT), // NOI18N
+    NONE("None", KEYWORD_CAT), // NOI18N
     TRY("try", KEYWORD_CAT), // NOI18N
     DOT(".", OPERATOR_CAT), // NOI18N
     COMMA(",", OPERATOR_CAT), // NOI18N

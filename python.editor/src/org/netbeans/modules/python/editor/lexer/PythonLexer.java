@@ -899,15 +899,15 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             break;
         case 'F': // False
             if (length == 5 && TokenUtilities.textEquals(s, "False")) { // NOI18N
-                return PythonTokenId.ANY_KEYWORD;
+                return PythonTokenId.FALSE;
             }
         case 'N': // None
             if (length == 4 && TokenUtilities.textEquals(s, "None")) { // NOI18N
-                return PythonTokenId.ANY_KEYWORD;
+                return PythonTokenId.NONE;
             }
         case 'T': // True
             if (length == 4 && TokenUtilities.textEquals(s, "True")) { // NOI18N
-                return PythonTokenId.ANY_KEYWORD;
+                return PythonTokenId.TRUE;
             }
         }
 

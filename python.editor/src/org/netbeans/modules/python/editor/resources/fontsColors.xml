@@ -35,6 +35,15 @@
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="QUOTED_STRING_LITERAL" default="string"/>
+    <fontcolor name="TRUE" foreColor="000066">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="FALSE" foreColor="000066">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="NONE" foreColor="000066">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="STD_SYMBOLS" foreColor="3366CC" />
 
     <!--"semantic" highlighting:-->
