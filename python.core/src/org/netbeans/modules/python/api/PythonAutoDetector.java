@@ -43,6 +43,9 @@
 package org.netbeans.modules.python.api;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -181,41 +184,51 @@ public class PythonAutoDetector {
     //  /Library/Frameworks/Python.framework/Versions/3.4/bin/python3
     //      and
     //  /System/Library/Frameworks/Python.framework/Versions/2.7/    
-    public void traverseMacDirectories( File dir) {
-        if (dir.isDirectory()) { //this directory better end with "versions" !
-            String spath = dir.getName();
-            if( !(spath.toLowerCase().contains("versions")) ){
-                return;
-            }
-            // check the "next,next" (grandchild) level for the bin dir...
-            String[] children = dir.list();
-            if(children != null){
-                for (String child : children) { //2.7, 3.4
-                    File childDir = new File(child);
-                    if (childDir.isDirectory()){ 
-                        String[] grandchildren = childDir.list(); // within, for example, 2.7
-                        for (String grandchild : grandchildren) { 
-                            File gcDir = new File(grandchild);
-                            if (gcDir.isDirectory()) {
-                                String gcpath = gcDir.getName();
-                                if( gcpath.toLowerCase().contains("bin") ){ //find the bin directory
-                                    String[] ggrandchildren = childDir.list();
-                                    for (String ggrandchild : ggrandchildren) { // for all the files in the bin directory
-                                        File ggcFile = new File(ggrandchild);
-                                        if (ggcFile.isFile()) {
-                                            searchNestedDirectoies = false; // must set each time
-                                            processAction(ggcFile); // let processAction determine correctness of filename
-                                        }
-                                    }
-                                }
-                            }
-                        }                        
-                    }
-                }
-            }            
-        }        
-    } 
+    public void traverseMacDirectories(File dir) {
         
+        // Make sure the path is a directory named "Versions".
+        if (! dir.getName().endsWith("Versions") || ! dir.isDirectory()) {
+            return;
+        }
+
+        // Directories which are not symbolic links.
+        FileFilter directoriesOnlyFilter = new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isDirectory() &! Files.isSymbolicLink(Paths.get(file.getAbsolutePath()));
+            }
+        };
+
+        // "bin" directory
+        FileFilter binDirectoryFilter = new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.getName().equals("bin") && file.isDirectory();
+            }
+        };
+
+        File[] versionDirs = dir.listFiles(directoriesOnlyFilter);
+        File[] binDirs;  // Should have either 0 or 1 element.
+        File[] binContents;
+        for (File versionDir : versionDirs) {
+            binDirs = versionDir.listFiles(binDirectoryFilter);
+            if (binDirs.length < 1) {
+                continue;
+            }
+
+            File binDir = binDirs[0];
+            binContents = binDir.listFiles(new FileFilter(){
+                @Override public boolean accept(File file){
+                    return file.isFile(); // Regular files only.
+                }
+            });
+
+            for (File binContent : binContents) {
+                searchNestedDirectoies = false;
+                processAction(binContent);
+            }
+        }// END for each version dir
+    }   
     
     // Given a directory, for each subdirectory within, 
     //   search the subdirectory and next-level subdirectories only
