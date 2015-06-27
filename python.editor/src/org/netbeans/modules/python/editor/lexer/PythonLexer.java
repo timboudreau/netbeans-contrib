@@ -831,10 +831,12 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 return PythonTokenId.STD_SYMBOLS;
             }
             break;
-        case 'l': // lambda, len
+        case 'l': // lambda, len, list
             if (length == 6 && TokenUtilities.textEquals(s, "lambda")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
             } else if (length == 3 && TokenUtilities.textEquals(s, "len")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
+            } else if (length == 4 && TokenUtilities.textEquals(s, "list")) { // NOI18N
                 return PythonTokenId.STD_SYMBOLS;
             }
             break;
@@ -872,15 +874,21 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 }
             }
             break;
-        case 's': // self, str
+        case 's': // self, set, str, super
             if (length == 4 && TokenUtilities.textEquals(s, "self")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 3 && TokenUtilities.textEquals(s, "set")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             } else if (length == 3 && TokenUtilities.textEquals(s, "str")) { // NOI18N
                 return PythonTokenId.STD_SYMBOLS;
+            } else if (length == 5 && TokenUtilities.textEquals(s, "super")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
             }
-        case 't': // try, type
+        case 't': // try, tuple, type
             if (length == 3 && TokenUtilities.textEquals(s, "try")) { // NOI18N
                 return PythonTokenId.TRY;
+            } else if (length == 5 && TokenUtilities.textEquals(s, "tuple")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
             } else if (length == 4 && TokenUtilities.textEquals(s, "type")) { // NOI18N
                 return PythonTokenId.STD_SYMBOLS;
             }
