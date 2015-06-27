@@ -24,4 +24,13 @@ and open the template in the editor.
         <ext name="egg"/>
         <resolver mime="application/x-python-egg"/>
     </file>
+    
+    <!-- These files are common extensions of templating language used by python
+         web framework. We currently only open these files as HTML -->
+    <file>
+        <ext name="jinja2" />
+        <ext name="mako" />
+        <ext name="pt" /> <!-- Chameleon -->
+        <resolver mime="text/html" />
+    </file>
 </MIME-resolver>
