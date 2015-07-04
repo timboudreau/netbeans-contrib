@@ -153,11 +153,29 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
             OffsetRange range = PythonAstUtils.getNameRange(info, def);
             highlights.put(range, ColoringAttributes.METHOD_SET);
 
+            // vararg and kwarg from the function definition line must be handled here, since they
+            // are passed to visit name unlike ordinary arguments.
+            highlightVarargAndKwargs(def);
+
             ScopeInfo oldScope = scope;
             scope = symbolTable.getScopeInfo(def);
             Object result = super.visitFunctionDef(def);
             scope = oldScope;
             return result;
+        }
+
+        private void highlightVarargAndKwargs(FunctionDef def) {
+            Name vararg = def.getInternalArgs().getInternalVarargName();
+            highlightName(vararg, ColoringAttributes.PARAMETER_SET);
+            Name kwarg = def.getInternalArgs().getInternalKwargName();
+            highlightName(kwarg, ColoringAttributes.PARAMETER_SET);
+        }
+
+        private void highlightName(Name name, EnumSet<ColoringAttributes> color) {
+            if (name != null) {
+                OffsetRange range = PythonAstUtils.getNameRange(info, name);
+                highlights.put(range, color);
+            }
         }
 
         @Override
