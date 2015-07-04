@@ -59,7 +59,9 @@
     <fontcolor name="mod-constructor" >
         <font style="bold" />
     </fontcolor>
-    <fontcolor name="mod-class" />
+    <fontcolor name="mod-class">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="mod-deprecated" strikeThrough="404040" />
     <fontcolor name="mark-occurrences" bgColor="ECEBA3"/>
 

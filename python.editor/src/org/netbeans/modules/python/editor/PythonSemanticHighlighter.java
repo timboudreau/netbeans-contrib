@@ -136,6 +136,9 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
 
         @Override
         public Object visitClassDef(ClassDef node) throws Exception {
+            OffsetRange range = PythonAstUtils.getNameRange(info, node);
+            highlights.put(range, ColoringAttributes.CLASS_SET);
+
             ScopeInfo oldScope = scope;
             scope = symbolTable.getScopeInfo(node);
             Object ret = super.visitClassDef(node);
