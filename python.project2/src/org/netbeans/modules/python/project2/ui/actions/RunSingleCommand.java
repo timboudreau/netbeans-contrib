@@ -5,8 +5,6 @@ import org.netbeans.modules.python.api.PythonExecution;
 import org.netbeans.modules.python.api.PythonMIMEResolver;
 import org.netbeans.modules.python.api.PythonOptions;
 import org.netbeans.modules.python.api.PythonPlatform;
-import org.netbeans.modules.python.api.PythonPlatformManager;
-import org.netbeans.modules.python.editor.codecoverage.PythonCoverageProvider;
 import org.netbeans.modules.python.project2.PythonProject2;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
@@ -21,7 +19,6 @@ import org.openide.util.Lookup;
  */
 public class RunSingleCommand extends Command {
 
-    PythonPlatformManager manager = PythonPlatformManager.getInstance();
     protected boolean isTest;
 
     public RunSingleCommand(PythonProject2 project, boolean isTest) {
