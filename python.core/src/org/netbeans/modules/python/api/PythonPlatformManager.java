@@ -296,6 +296,9 @@ public class PythonPlatformManager implements Serializable {
     }
 
     public PythonPlatform getPlatform(String name){
+        if (name == null) {
+            return null;
+        }
         return platforms.get(name);
     }
 

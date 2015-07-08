@@ -6,6 +6,7 @@ import org.netbeans.modules.python.project2.PythonProject2;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.python.api.PythonPlatformManager;
 import org.netbeans.modules.python.project2.ui.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
@@ -50,9 +51,18 @@ public class RunCommand extends Command {
 //        }
 
         final PythonProject2 pyProject = getProject();
-        final PythonPlatform platform = checkProjectPythonPlatform(pyProject);
+        PythonPlatform platform = checkProjectPythonPlatform(pyProject);
         if (platform == null) {
-            return; // invalid platform user has been warn in check so safe to return
+            String platformName = Utils.choosePythonPlatform(pyProject);
+            PythonPlatformManager ppm = PythonPlatformManager.getInstance();
+            if (platformName == null) {
+                platformName = ppm.getDefaultPlatform();
+            }
+            platform = ppm.getPlatform(platformName);
+            if (platform == null) {
+                return;
+            }
+            pyProject.setActivePlatform(platform);
         }
 
         String main = pyProject.getMainModule();
