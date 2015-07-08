@@ -64,17 +64,7 @@ public abstract class Command {
      * @param errMessage
      */
     protected PythonPlatform checkProjectPythonPlatform(PythonProject2 pyProject) {
-//       PythonPlatform platform = PythonProject2Util.getActivePlatform(pyProject);
-//       if ( platform == null ) {
-//         // Better to inform the user than try to use a default unsuited
-//         String platformId = pyProject.getEvaluator().getProperty(PythonProject2Properties.ACTIVE_PLATFORM);
-//         showLaunchError( "selected project has broken python platform : " +
-//                           platformId +
-//                           " => bind to an existing python platform in project's properties "
-//                         );
-//       }
-        PythonPlatform platform = PythonPlatformManager.getInstance().getPlatforms().get(0);
-        return platform;
+        return pyProject.getActivePlatform();
     }
 
     /**
