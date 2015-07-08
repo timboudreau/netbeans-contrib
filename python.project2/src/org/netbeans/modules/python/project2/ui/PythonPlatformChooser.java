@@ -12,7 +12,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.python.api.PythonPlatformManager;
-import org.netbeans.modules.python.project2.PythonProject2;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -23,15 +22,12 @@ import org.openide.util.RequestProcessor;
 @NbBundle.Messages({"PPC_TXT_PleaseWait=Please Wait..."})
 final class PythonPlatformChooser extends javax.swing.JPanel {
 
-    private final PythonProject2 project;
     private final JButton okButton;
     private final static RequestProcessor RP = new RequestProcessor("PythonPlatformChooser");   //NOI18N
 
-    PythonPlatformChooser (final PythonProject2 project, final JButton okButton) {
-        assert project != null;
+    PythonPlatformChooser (final JButton okButton) {
         assert okButton != null;
         initComponents();
-        this.project = project;
         this.okButton = okButton;
         this.okButton.setEnabled(false);
         ((DefaultListModel)this.pythonPlatforms.getModel()).addElement(NbBundle.getMessage(PythonPlatformChooser.class, "PPC_TXT_PleaseWait"));

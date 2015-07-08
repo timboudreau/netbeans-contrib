@@ -50,7 +50,7 @@ public class Utils {
     @NbBundle.Messages({"LBL_SelectPythonPlatform=Select Python Platform", "LBL_BrowsePythonPlatforms=Browse Python Platforms"})
     public static String choosePythonPlatform(PythonProject2 project) {
         final JButton okButton = new JButton (NbBundle.getMessage(Utils.class, "LBL_SelectPythonPlatform"));
-        final PythonPlatformChooser ppc = new PythonPlatformChooser(project, okButton);
+        final PythonPlatformChooser ppc = new PythonPlatformChooser(okButton);
         final Object[] options = new Object[] {okButton, DialogDescriptor.CANCEL_OPTION};
         final DialogDescriptor dd = new DialogDescriptor(ppc, NbBundle.getMessage(Utils.class, "LBL_BrowsePythonPlatforms"), true, options,
             okButton,DialogDescriptor.RIGHT_ALIGN, HelpCtx.DEFAULT_HELP, null);
