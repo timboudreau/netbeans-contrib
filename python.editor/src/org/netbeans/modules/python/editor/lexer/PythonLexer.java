@@ -923,6 +923,10 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             if (length == 4 && TokenUtilities.textEquals(s, "True")) { // NOI18N
                 return PythonTokenId.TRUE;
             }
+        case '_': // Special symbols of python
+            if (length > 4 && TokenUtilities.startsWith(s, "__") && TokenUtilities.endsWith(s, "__")) { // NOI18N
+                return PythonTokenId.STD_SYMBOLS;
+            }
         }
 
         return null;
