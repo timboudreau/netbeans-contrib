@@ -47,6 +47,7 @@ import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Task;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.SourceModificationEvent;
+import org.netbeans.modules.python.api.PythonFileEncodingQuery;
 import org.openide.filesystems.FileObject;
 import org.python.antlr.runtime.ANTLRStringStream;
 import org.python.antlr.runtime.BaseRecognizer;
@@ -88,6 +89,9 @@ public class PythonParser extends Parser {
     }
     
     private Result lastResult;
+    private final PythonFileEncodingQuery fileEncodingQuery = new PythonFileEncodingQuery();
+    private String headerCached = null;
+    private String encodingCache = null;
 
     public mod file_input(CharStream charStream, String fileName) throws RecognitionException {
         ListErrorHandler eh = new ListErrorHandler();
@@ -177,7 +181,14 @@ public class PythonParser extends Parser {
             //String charset = "ISO8859_1"; // NOI18N
             //String charset = "UTF-8"; // NOI18N
             //String charset = "iso8859_1"; // NOI18N
-            String charset = null;
+            // TODO: improve this check.
+            int cache_len = sourceCode.length() >= 64 ? 64 : sourceCode.length();
+            if (headerCached == null || cache_len != headerCached.length() || !headerCached.equals(sourceCode.substring(0, cache_len))) {
+                headerCached = sourceCode.substring(0, cache_len);
+                encodingCache = fileEncodingQuery.getPythonFileEncoding(sourceCode.split("\n", 2));                
+            }
+            String charset = encodingCache;            
+                
             final boolean ignoreErrors = sanitizedSource;
             ListErrorHandler errorHandler = new ListErrorHandler() {
                 @Override
@@ -311,7 +322,12 @@ public class PythonParser extends Parser {
             tokens.discardOffChannelTokens(true);
             PythonTokenSource indentedSource = new PythonTokenSource(tokens, fileName);
             CommonTokenStream indentedTokens = new CommonTokenStream(indentedSource);
-            org.python.antlr.PythonParser parser = new org.python.antlr.PythonParser(indentedTokens);
+            org.python.antlr.PythonParser parser;
+            if (charset != null) {
+                parser = new org.python.antlr.PythonParser(indentedTokens, charset);
+            } else {
+                parser = new org.python.antlr.PythonParser(indentedTokens);
+            }
             parser.setTreeAdaptor(new PythonTreeAdaptor());
             parser.setErrorHandler(errorHandler);
             org.python.antlr.PythonParser.file_input_return r = parser.file_input();

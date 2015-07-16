@@ -3,6 +3,9 @@
 <#else>
 #!/usr/bin/env python2
 </#if>
+<#if encoding??>
+#encoding: ${encoding}
+</#if>
 
 <#-- This is a FreeMarker template -->
 <#-- You can change the contents of the license inserted into

@@ -63,6 +63,7 @@ import javax.swing.border.*;
 import org.netbeans.api.debugger.Breakpoint;
 import org.netbeans.api.debugger.Breakpoint.HIT_COUNT_FILTERING_STYLE;
 import org.netbeans.api.debugger.DebuggerManager;
+import org.netbeans.modules.python.api.PythonFileEncodingQuery;
 import org.netbeans.modules.python.api.PythonOptions;
 import org.netbeans.modules.python.api.PythonPlatform;
 import org.netbeans.modules.python.debugger.CompositeCallback;
@@ -1109,6 +1110,9 @@ public class PythonDebugContainer implements PythonContainer {
         }
         PythonPlatform platform = _debuggee.getPlatform();
 
+        // Use encoding from running file
+        PythonFileEncodingQuery pythonEncodingQuery = new PythonFileEncodingQuery();
+        String encoding = pythonEncodingQuery.getPythonFileEncoding(_debuggee.getFileObject().getInputStream());
 
         _pyClient.init(dbgHost,
                 PythonDebugParameters.get_listeningPort(),
@@ -1118,8 +1122,8 @@ public class PythonDebugContainer implements PythonContainer {
                 platform.getInterpreterCommand(),
                 PythonDebugParameters.get_jpydbgScript(),
                 PythonDebugParameters.get_jpydbgScriptArgs(),
-                PythonDebugParameters.get_codePage());
-      } catch (PythonDebugException e) {
+                encoding);
+      } catch (PythonDebugException | IOException e) {
         _msgBar.setError(e.getMessage());
       }
     }

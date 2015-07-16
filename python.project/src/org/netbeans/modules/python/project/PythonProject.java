@@ -11,6 +11,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.modules.python.api.PythonFileEncodingQuery;
 import org.netbeans.modules.python.api.PythonPlatformProvider;
 import org.netbeans.modules.python.project.gsf.ClassPathProviderImpl;
 import org.netbeans.modules.python.project.ui.customizer.PythonCustomizerProvider;
@@ -107,7 +108,8 @@ public class PythonProject implements Project {
             new PythonProjectOperations(this), //move, rename, copy of project
             new RecommendedTemplatesImpl(this.updateHelper), // Recommended Templates
             new PythonCustomizerProvider(this), //Project custmoizer
-            new PythonProjectFileEncodingQuery(getEvaluator()), //Provides encoding of the project - used by editor, runtime
+            new PythonFileEncodingQuery(),
+            new PythonProjectTemplateAttributesProvider(getEvaluator()),
             new PythonSharabilityQuery(helper, getEvaluator(), getSourceRoots(), getTestRoots()), //Sharabilit info - used by VCS
             helper.createCacheDirectoryProvider(), //Cache provider
             helper.createAuxiliaryProperties(), // AuxiliaryConfiguraion provider - used by bookmarks, project Preferences, etc

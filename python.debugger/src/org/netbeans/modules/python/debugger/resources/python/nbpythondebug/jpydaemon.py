@@ -207,6 +207,7 @@ class BdbClone(bdb.Bdb) :
 
     def __init__( self ) :
         bdb.Bdb.__init__( self)
+        self.encoding = sys.stdout.encoding
         self.lock = threading.Lock()
         self._acquire_lock = self.lock.acquire
         self._release_lock = self.lock.release
@@ -1212,9 +1213,12 @@ class JPyDbg(BdbClone) :
             variables = stackElement[0].f_locals
         xmlVariables = ['<VARIABLES type="'+type+'">' ]
         for mapElement in variables.items():
+            mapElmValue = mapElement[1]
+            if isinstance(mapElmValue, unicode):
+                mapElmValue = mapElmValue.encode(sys.stdout.encoding)
             xmlVariables.append('<VARIABLE ')
             xmlVariables.append('name="'+ _utils.removeForXml(mapElement[0])+'" ')
-            xmlVariables.append('content="'+ _utils.removeForXml(__builtin__.str(mapElement[1]))+'" ')
+            xmlVariables.append('content="'+ _utils.removeForXml(__builtin__.str(mapElmValue))+'" ')
             xmlVariables.append('vartype="'+ self.getVarType(mapElement[1])+'" ')
             xmlVariables.append( '/>')
         xmlVariables.append('</VARIABLES>')

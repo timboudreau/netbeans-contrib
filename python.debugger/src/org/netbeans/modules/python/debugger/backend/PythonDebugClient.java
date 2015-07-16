@@ -235,7 +235,8 @@ public class PythonDebugClient {
           String pythonPath,
           String classPath,
           String pythonLoc,
-          String jnetPyLoc)
+          String jnetPyLoc,
+          String codePage)
           throws PythonDebugException {
     if (pythonLoc == null) {
       throw new PythonDebugException("python.exe location not specified => check configuration");
@@ -265,6 +266,9 @@ public class PythonDebugClient {
     }
     if (classPath != null) {
       launcher.setEnv("CLASSPATH", classPath);
+    }
+    if (codePage != null) {
+      launcher.setEnv("PYTHONIOENCODING", codePage); //NOI18N
     }
     launcher.start();
   }
@@ -298,7 +302,7 @@ public class PythonDebugClient {
           String codePage)
           throws PythonDebugException {
     try {
-      _codePage = System.getProperty(_ENCODING_PROPERTY_);
+      _codePage = codePage==null ? System.getProperty(_ENCODING_PROPERTY_) : codePage;
       // parsing initialization   
       _parser = new JPyDebugXmlParser();
       _parser.init(null);
@@ -311,12 +315,7 @@ public class PythonDebugClient {
         ServerSocket tcpOutServer = new ServerSocket(listeningPort, 1);
         ServerSocket tcpInServer = new ServerSocket(listeningPort + 1, 1);
         if (localHost(debuggingHost)) {
-          localPythonLaunch(debuggingHost, listeningPort, pyPath, classPath, pythonLoc, jnetPyLoc);
-        } else {
-          // use configuration codepage for remote connection only
-          if (codePage != null) {
-            _codePage = codePage;
-          }
+          localPythonLaunch(debuggingHost, listeningPort, pyPath, classPath, pythonLoc, jnetPyLoc, codePage);
         }
         tcpOutServer.setSoTimeout(20000) ;
         _outCnx = tcpOutServer.accept();

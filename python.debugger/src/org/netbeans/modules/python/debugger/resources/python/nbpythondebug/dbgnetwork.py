@@ -43,6 +43,7 @@
 import socket
 import dbgutils
 import __builtin__
+import sys
 
 __author__="jean-Yves Mengant"
 __date__ ="$Jan 13, 2009 10:03:05 AM$"
@@ -59,7 +60,7 @@ class NetworkDebuggingSession :
         self._connections = { 'in' : socket.socket( socket.AF_INET , socket.SOCK_STREAM ) ,
                              'out': socket.socket( socket.AF_INET , socket.SOCK_STREAM )
                            }
-
+        self._encoding = sys.stdout.encoding
         if  host == None :
             # listening mode
             print "JPyDbg listening on in=" , port ,"/ out=",port+1
@@ -152,7 +153,11 @@ class NetworkDebuggingSession :
         """ populate JpyDbg Xml buffer back """
         mbuffer = '<JPY>'
         for element in bufferList:
-            mbuffer = mbuffer + ' ' + str(element)
+            if isinstance(element, unicode):
+                elm = element.encode(self._encoding)
+            else:
+                elm = str(element)
+            mbuffer = mbuffer + ' ' + elm
         mbuffer = mbuffer + '</JPY>\n'
         self._DBG( "populateToClient --> " + mbuffer )
         self._send( mbuffer )

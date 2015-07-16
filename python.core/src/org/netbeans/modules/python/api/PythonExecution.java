@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -21,6 +22,8 @@ import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.extexecution.input.InputProcessor;
 import org.netbeans.api.extexecution.print.LineConvertor;
 import org.netbeans.api.extexecution.print.LineConvertors.FileLocator;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -108,11 +111,23 @@ public final class PythonExecution {
             
             // Setup Descriptor Information
             //descriptor = buildDescriptor();
+            String encoding = null;
+            if (script != null) {
+                File scriptFile = new File(script);
+                FileObject scriptFileObject = FileUtil.toFileObject(scriptFile);
+                
+                PythonFileEncodingQuery encodingQuery = new PythonFileEncodingQuery();
+                encoding = encodingQuery.getPythonFileEncoding(scriptFileObject.getInputStream());
+                if (encoding != null) {
+                    descriptor = descriptor.charset(Charset.forName(encoding));                    
+                }
+            }
+            
             //process.
             //build Service
             ExecutionService service = 
                     ExecutionService.newService(
-                    buildProcess(),
+                    buildProcess(encoding),
                     descriptor, displayName);
             //io = descriptor.getInputOutput();
             // Start Service
@@ -126,7 +141,7 @@ public final class PythonExecution {
     }
 
 
-    public ExternalProcessBuilder buildProcess() throws IOException{
+    public ExternalProcessBuilder buildProcess(String encoding) throws IOException{
         ExternalProcessBuilder processBuilder =
                     new ExternalProcessBuilder(command);
             processBuilder = processBuilder.workingDirectory(new File(workingDirectory));
@@ -162,6 +177,10 @@ public final class PythonExecution {
             }
             processBuilder = processBuilder.redirectErrorStream(redirect);
             if(path != null){
+                if (encoding != null) {
+                    processBuilder = 
+                            processBuilder.addEnvironmentVariable("PYTHONIOENCODING", encoding); // NOI18N
+                }
                 if(command.toLowerCase().contains("jython")){
 //                    String commandPath = "-Dpython.path=" + path;
 //                    processBuilder = processBuilder.addArgument(commandPath);
