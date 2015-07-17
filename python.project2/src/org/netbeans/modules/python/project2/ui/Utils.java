@@ -1,31 +1,28 @@
 package org.netbeans.modules.python.project2.ui;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import org.netbeans.modules.python.api.PythonPlatform;
 import org.netbeans.modules.python.api.PythonPlatformManager;
+import org.netbeans.modules.python.platform.panels.PythonPlatformPanel;
 import org.netbeans.modules.python.project2.PythonProject2;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.awt.HtmlRenderer;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.Pair;
 
 /**
  *
@@ -47,14 +44,16 @@ public class Utils {
         return null;
     }
 
-    @NbBundle.Messages({"LBL_SelectPythonPlatform=Select Python Platform", "LBL_BrowsePythonPlatforms=Browse Python Platforms"})
+    @NbBundle.Messages({"LBL_SelectPythonPlatform=Select Python Platform", "LBL_BrowsePythonPlatforms=Browse Python Platforms", "LBL_ManagePythonPlatform=Manage Python Platforms"})
     public static String choosePythonPlatform(PythonProject2 project) {
         final JButton okButton = new JButton (NbBundle.getMessage(Utils.class, "LBL_SelectPythonPlatform"));
-        final PythonPlatformChooser ppc = new PythonPlatformChooser(okButton);
-        final Object[] options = new Object[] {okButton, DialogDescriptor.CANCEL_OPTION};
+        final JButton managePythonPlatformButton = new JButton(NbBundle.getMessage(Utils.class, "LBL_ManagePythonPlatform"));
+        final PythonPlatformChooser ppc = new PythonPlatformChooser(okButton, managePythonPlatformButton);
+        final Object[] options = new Object[] {okButton, managePythonPlatformButton, DialogDescriptor.CANCEL_OPTION};
+        final Object[] closingOptions = new Object[] {okButton, DialogDescriptor.CANCEL_OPTION};
         final DialogDescriptor dd = new DialogDescriptor(ppc, NbBundle.getMessage(Utils.class, "LBL_BrowsePythonPlatforms"), true, options,
             okButton,DialogDescriptor.RIGHT_ALIGN, HelpCtx.DEFAULT_HELP, null);
-        dd.setClosingOptions(options);
+        dd.setClosingOptions(closingOptions);
         if (DialogDisplayer.getDefault().notify(dd) == okButton) {
             return ppc.getPythonPlatform();
         }

@@ -1,17 +1,20 @@
 /*
- * MainClassChooser.java
+ * PythonPlatformChooser.java
  *
  * Created on July 01, 2015 18:23
  */
 
 package org.netbeans.modules.python.project2.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.python.api.PythonPlatformManager;
+import org.netbeans.modules.python.platform.panels.PythonPlatformPanel;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
@@ -23,13 +26,16 @@ import org.openide.util.RequestProcessor;
 final class PythonPlatformChooser extends javax.swing.JPanel {
 
     private final JButton okButton;
+    private final JButton managePythonPlatformButton;
     private final static RequestProcessor RP = new RequestProcessor("PythonPlatformChooser");   //NOI18N
 
-    PythonPlatformChooser (final JButton okButton) {
+    PythonPlatformChooser (final JButton okButton, final JButton managePythonPlatformButton) {
         assert okButton != null;
         initComponents();
         this.okButton = okButton;
         this.okButton.setEnabled(false);
+        this.managePythonPlatformButton = managePythonPlatformButton;
+        this.managePythonPlatformButton.setEnabled(false);
         ((DefaultListModel)this.pythonPlatforms.getModel()).addElement(NbBundle.getMessage(PythonPlatformChooser.class, "PPC_TXT_PleaseWait"));
         RP.post(new Runnable() {
             @Override
@@ -44,19 +50,33 @@ final class PythonPlatformChooser extends javax.swing.JPanel {
     }
 
 
-    private void initData () {
-        final List<String> data = new LinkedList<>(PythonPlatformManager.getInstance().getPlatformList());
+    private void initData() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                DefaultListModel lm = (DefaultListModel)pythonPlatforms.getModel();
-                lm.clear();
-                for (String s : data) {
-                    lm.addElement(s);
-                }
+                updatePlatformList();
                 okButton.setEnabled(true);
+
+                managePythonPlatformButton.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        PythonPlatformPanel.showPlatformManager();
+                        updatePlatformList();
+                    }
+                });
+                managePythonPlatformButton.setEnabled(true);
             }
         });
+    }
+
+    private void updatePlatformList() {
+        final List<String> data = new LinkedList<>(PythonPlatformManager.getInstance().getPlatformList());
+        DefaultListModel lm = (DefaultListModel)pythonPlatforms.getModel();
+        lm.clear();
+        for (String s : data) {
+            lm.addElement(s);
+        }
     }
 
     /** This method is called from within the constructor to

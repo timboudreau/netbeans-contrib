@@ -91,7 +91,9 @@
                     </test-dependency>
                 </test-type>
             </test-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.python.platform.panels</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
