@@ -299,19 +299,24 @@ public class PythonParser extends Parser {
 
                         errors.add(new DefaultError(null, message, null, file, start, end, Severity.ERROR));
 
+                        // In order to avoid a StackOverflowError, the BaseRecognizer must be recreated.
+                        // We must keep the names of the tokens to avoid a NullPointerException.
+                        // See bz252630
+                        final String[] tokenNames = br.getTokenNames();
                         br = new BaseRecognizer() {
 
                             @Override
                             public String getSourceName() {
                                 return file.getName();
                             }
+
+                            @Override
+                            public String[] getTokenNames() {
+                                return tokenNames;
+                            }
                         };
-                        try {
-                            super.reportError(br, re);
-                        } catch (NullPointerException e) {
-                            
-                        }
-                        
+
+                        super.reportError(br, re);
                     }
                 }
             };
