@@ -843,6 +843,8 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         case 'n': // not
             if (length == 3 && TokenUtilities.textEquals(s, "not")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            } else if (length == 8 && TokenUtilities.textEquals(s, "nonlocal")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
             }
             break;
         case 'o': // or, object
