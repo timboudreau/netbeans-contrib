@@ -703,14 +703,27 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         switch (c1) {
         case 'a': // and, as, assert, async, await
             switch (c2) {
-            case 'n': // and
-                if (TokenUtilities.textEquals(s, "and")) { // NOI18N
+            case 'b': // abs
+                if (length == 3 && TokenUtilities.textEquals(s, "abs")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+            case 'l': // all
+                if (length == 3 && TokenUtilities.textEquals(s, "all")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+            case 'n': // and, any
+                if (length == 3 && TokenUtilities.textEquals(s, "and")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
+                } else if (TokenUtilities.textEquals(s, "any")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
                 break;
-            case 's':  // as, assert, async
+            case 's':  // as, ascii, assert, async
                 if (length == 2) { // as
                     return PythonTokenId.ANY_KEYWORD;
+                }
+                if (length == 5 && TokenUtilities.textEquals(s, "ascii")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
                 if (length == 6 && TokenUtilities.textEquals(s, "assert")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
@@ -725,21 +738,58 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 }
             }
             break;
-        case 'b': // break, bytes
+        case 'b': // basestring, bin, bool, break, bytearray, bytes
+            if (length == 10 && TokenUtilities.textEquals(s, "basestring")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "bin")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 4 && TokenUtilities.textEquals(s, "bool")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
             if (length == 5 && TokenUtilities.textEquals(s, "break")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
-            } else if (length == 5 && TokenUtilities.textEquals(s, "bytes")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+            }
+            if (length == 9 && TokenUtilities.textEquals(s, "bytearray")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 5 && TokenUtilities.textEquals(s, "bytes")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
-        case 'c': // class, continue
+        case 'c': // callable, chr, class, classmethod, continue
             switch (c2) {
-            case 'l': // class
+            case 'a': // callable
+                if (length == 8 && TokenUtilities.textEquals(s, "callable")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                break;
+            case 'h': // chr
+                if (length == 3 && TokenUtilities.textEquals(s, "chr")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                break;
+            case 'l': // class, classmethod
                 if (length == 5 && TokenUtilities.textEquals(s, "class")) { // NOI18N
                     return PythonTokenId.CLASS;
                 }
+                if (length == 11 && TokenUtilities.textEquals(s, "classmethod")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 break;
-            case 'o':  // continue
+            case 'm': // cmp
+                if (length == 3 && TokenUtilities.textEquals(s, "cmp")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                break;
+            case 'o':  // compile, complex, continue
+                if (length == 7 && TokenUtilities.textEquals(s, "compile")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                if (length == 7 && TokenUtilities.textEquals(s, "complex")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 if (length == 8 && TokenUtilities.textEquals(s, "continue")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
@@ -747,16 +797,32 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             }
             break;
         case 'd': // def, del
-            if (c2 == 'e' && length == 3) { // def, del
-                char c3 = s.charAt(2);
-                if (c3 == 'f') { // def
-                    return PythonTokenId.DEF;
-                } else if (c3 == 'l') { // del
-                    return PythonTokenId.ANY_KEYWORD;
-                }
+            switch (c2) {
+                case 'e': // def, del, delattr
+                    if (length == 3 && TokenUtilities.textEquals(s, "def")) {  // NOI18N
+                        return PythonTokenId.DEF;
+                    }
+                    if (length == 3 && TokenUtilities.textEquals(s, "del")) {  // NOI18N
+                        return PythonTokenId.ANY_KEYWORD;
+                    }
+                    if (length == 7 && TokenUtilities.textEquals(s, "delattr")) {  // NOI18N
+                        return PythonTokenId.BUILTIN_FUNCTION;
+                    }
+                    break;
+                case 'i': // dict, dir, divmod
+                    if (length == 4 && TokenUtilities.textEquals(s, "dict")) {  // NOI18N
+                        return PythonTokenId.BUILTIN_FUNCTION;
+                    }
+                    if (length == 3 && TokenUtilities.textEquals(s, "dir")) {  // NOI18N
+                        return PythonTokenId.BUILTIN_FUNCTION;
+                    }
+                    if (length == 6 && TokenUtilities.textEquals(s, "divmod")) {  // NOI18N
+                        return PythonTokenId.BUILTIN_FUNCTION;
+                    }
+                    break;
             }
             break;
-        case 'e': // elif, else, except, exec
+        case 'e': // elif, else, enumerate, eval, except, exec, execfile
             switch (c2) {
             case 'l': // elif, else
                 if (length == 4) {
@@ -770,11 +836,20 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 break;
             case 'n': // enumerate
                 if (length == 9 && TokenUtilities.textEquals(s, "enumerate")) { // NOI18N
-                    return PythonTokenId.STD_SYMBOLS;
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
-            case 'x': // except, exec
+                break;
+            case 'v': // eval
+                if (length == 4 && TokenUtilities.textEquals(s, "eval")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                break;
+            case 'x': // except, exec, execfile
                 if (length == 4 && TokenUtilities.textEquals(s, "exec")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
+                }
+                if (length == 8 && TokenUtilities.textEquals(s, "execfile")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
                 if (length == 6 && TokenUtilities.textEquals(s, "except")) { // NOI18N
                     return PythonTokenId.EXCEPT;
@@ -782,37 +857,72 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 break;
             }
             break;
-        case 'f': // finally,for,from
+        case 'f': // file, filter, finally, for, from
             switch (c2) {
-            case 'i': // finally
+            case 'i': // file, filter, finally
+                if (length == 4 && TokenUtilities.textEquals(s, "file")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                if (length == 6 && TokenUtilities.textEquals(s, "filter")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 if (length == 7 && TokenUtilities.textEquals(s, "finally")) { // NOI18N
                     return PythonTokenId.FINALLY;
                 }
                 break;
-            case 'o': // for
+            case 'o': // for, format
                 if (length == 3 && TokenUtilities.textEquals(s, "for")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
+                if (length == 6 && TokenUtilities.textEquals(s, "format")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 break;
-            case 'r': // from
+            case 'r': // from, frozenset
                 if (length == 4 && TokenUtilities.textEquals(s, "from")) { // NOI18N
                     return PythonTokenId.FROM;
+                }
+                if (length == 9 && TokenUtilities.textEquals(s, "frozenset")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
                 break;
             case 'l':
                 if (length == 5 && TokenUtilities.textEquals(s, "float")) {
-                    return PythonTokenId.STD_SYMBOLS;
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 }
+                break;
             }
             break;
-        case 'g': // global
+        case 'g': // getattr, global, globals
+            if (length == 7 && TokenUtilities.textEquals(s, "getattr")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
             if (length == 6 && TokenUtilities.textEquals(s, "global")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
             }
+            if (length == 7 && TokenUtilities.textEquals(s, "globals")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
             break;
-        case 'i': // if,import,in,is, int
+        case 'h': // hasattr, hash, help, hex
+            if (length == 7 && TokenUtilities.textEquals(s, "hasattr")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 4 && TokenUtilities.textEquals(s, "hash")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 4 && TokenUtilities.textEquals(s, "help")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "hex")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
+        case 'i': // id, if, import, in, input, int, is, issubclass, iter
             if (length == 2) {
                 switch (c2) {
+                case 'd': // id
+                    return PythonTokenId.BUILTIN_FUNCTION;
                 case 'f': // if
                     return PythonTokenId.IF;
                 case 'n': // in
@@ -823,76 +933,172 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                     return PythonTokenId.ANY_KEYWORD;
                 }
             } else if (c2 == 'm' && length == 6 && TokenUtilities.textEquals(s, "import")) { // NOI18N
-                // import
                 return PythonTokenId.IMPORT;
+            } else if (length == 5 && TokenUtilities.textEquals(s, "input")) {  // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             } else if (length == 3 && TokenUtilities.textEquals(s, "int")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
             } else if (length == 10 && TokenUtilities.textEquals(s, "isinstance")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
+            } else if (length == 10 && TokenUtilities.textEquals(s, "issubclass")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            } else if (length == 4 && TokenUtilities.textEquals(s, "iter")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
-        case 'l': // lambda, len, list
+        case 'l': // lambda, len, list, locals, long
             if (length == 6 && TokenUtilities.textEquals(s, "lambda")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
             } else if (length == 3 && TokenUtilities.textEquals(s, "len")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
             } else if (length == 4 && TokenUtilities.textEquals(s, "list")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
+            } else if (length == 6 && TokenUtilities.textEquals(s, "locals")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            } else if (length == 4 && TokenUtilities.textEquals(s, "long")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
-        case 'n': // not
+        case 'm': // map, max, memoryview, min
+            if (length == 3 && TokenUtilities.textEquals(s, "map")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "max")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 10 && TokenUtilities.textEquals(s, "memoryview")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "min")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
+        case 'n': // next, nonlocal, not
+            if (length == 4 && TokenUtilities.textEquals(s, "next")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 8 && TokenUtilities.textEquals(s, "nonlocal")) { // NOI18N
+                return PythonTokenId.ANY_KEYWORD;
+            }
             if (length == 3 && TokenUtilities.textEquals(s, "not")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
-            } else if (length == 8 && TokenUtilities.textEquals(s, "nonlocal")) { // NOI18N
-                return PythonTokenId.ANY_KEYWORD;
             }
             break;
-        case 'o': // or, object
+        case 'o': // or, object, oct, open, ord
             if (length == 2 && TokenUtilities.textEquals(s, "or")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
-            } else if (length == 6 && TokenUtilities.textEquals(s, "object")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+            }
+            if (length == 6 && TokenUtilities.textEquals(s, "object")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "oct")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 4 && TokenUtilities.textEquals(s, "open")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "ord")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
-        case 'p': // pass,print
+        case 'p': // pass, pow, print, property
             if (c2 == 'a') { // pass
                 if (length == 4 && TokenUtilities.textEquals(s, "pass")) { // NOI18N
                     return PythonTokenId.PASS;
                 }
-            } else if (c2 == 'r') { // print
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "pow")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (c2 == 'r') { // print, property
                 if (length == 5 && TokenUtilities.textEquals(s, "print")) { // NOI18N
                     return PythonTokenId.ANY_KEYWORD;
                 }
+                if (length == 8 && TokenUtilities.textEquals(s, "property")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
             }
             break;
-        case 'r': // raise,return
-            if (c2 == 'a') { // raise
+        case 'r': // raise, range, raise, raw_input, reduce, reload, repr, return, reversed, round
+            if (c2 == 'a') { // raise, range
+                if (length == 5 && TokenUtilities.textEquals(s, "range")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 if (length == 5 && TokenUtilities.textEquals(s, "raise")) { // NOI18N
                     return PythonTokenId.RAISE;
                 }
-            } else if (c2 == 'e') { // return
+                if (length == 9 && TokenUtilities.textEquals(s, "raw_input")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+            } else if (c2 == 'e') { // reduce, reload, repr, return, reversed
+                if (length == 6 && TokenUtilities.textEquals(s, "reduce")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                if (length == 6 && TokenUtilities.textEquals(s, "reload")) {  // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+                if (length == 4 && TokenUtilities.textEquals(s, "repr")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
                 if (length == 6 && TokenUtilities.textEquals(s, "return")) { // NOI18N
                     return PythonTokenId.RETURN;
                 }
+                if (length == 8 && TokenUtilities.textEquals(s, "reversed")) { // NOI18N
+                    return PythonTokenId.BUILTIN_FUNCTION;
+                }
+            } else if (length == 5 && TokenUtilities.textEquals(s, "round")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
-        case 's': // self, set, str, super
+        case 's': // self, set, setattr, slice, sorted, staticmethod, str, sum, super
             if (length == 4 && TokenUtilities.textEquals(s, "self")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
-            } else if (length == 3 && TokenUtilities.textEquals(s, "set")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
-            } else if (length == 3 && TokenUtilities.textEquals(s, "str")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
-            } else if (length == 5 && TokenUtilities.textEquals(s, "super")) { // NOI18N
-                return PythonTokenId.ANY_KEYWORD;
             }
+            if (length == 3 && TokenUtilities.textEquals(s, "set")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 7 && TokenUtilities.textEquals(s, "setattr")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 5 && TokenUtilities.textEquals(s, "slice")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 6 && TokenUtilities.textEquals(s, "sorted")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 12 && TokenUtilities.textEquals(s, "staticmethod")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "str")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 3 && TokenUtilities.textEquals(s, "sum")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 5 && TokenUtilities.textEquals(s, "super")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
         case 't': // try, tuple, type
             if (length == 3 && TokenUtilities.textEquals(s, "try")) { // NOI18N
                 return PythonTokenId.TRY;
             } else if (length == 5 && TokenUtilities.textEquals(s, "tuple")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
             } else if (length == 4 && TokenUtilities.textEquals(s, "type")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
+        case 'u': // unichr, unicode
+            if (length == 6 && TokenUtilities.textEquals(s, "unichr")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            if (length == 7 && TokenUtilities.textEquals(s, "unicode")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
+        case 'v': // vars
+            if (length == 4 && TokenUtilities.textEquals(s, "vars")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
         case 'w': // while,with
@@ -906,27 +1112,41 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
                 }
             }
             break;
+        case 'x': // xrange
+            if (length == 6 && TokenUtilities.textEquals(s, "xrange")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
+            }
+            break;
         case 'y': // yield
             if (length == 5 && TokenUtilities.textEquals(s, "yield")) { // NOI18N
                 return PythonTokenId.ANY_KEYWORD;
+            }
+            break;
+        case 'z': // zip
+            if (length == 3 && TokenUtilities.textEquals(s, "zip")) { // NOI18N
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
             break;
         case 'F': // False
             if (length == 5 && TokenUtilities.textEquals(s, "False")) { // NOI18N
                 return PythonTokenId.FALSE;
             }
+            break;
         case 'N': // None
             if (length == 4 && TokenUtilities.textEquals(s, "None")) { // NOI18N
                 return PythonTokenId.NONE;
             }
+            break;
         case 'T': // True
             if (length == 4 && TokenUtilities.textEquals(s, "True")) { // NOI18N
                 return PythonTokenId.TRUE;
             }
+            break;
         case '_': // Special symbols of python
             if (length > 4 && TokenUtilities.startsWith(s, "__") && TokenUtilities.endsWith(s, "__")) { // NOI18N
-                return PythonTokenId.STD_SYMBOLS;
+                return PythonTokenId.BUILTIN_FUNCTION;
             }
+            break;
         }
 
         return null;

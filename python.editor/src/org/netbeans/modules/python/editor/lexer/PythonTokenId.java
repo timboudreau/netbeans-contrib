@@ -81,7 +81,7 @@ public enum PythonTokenId implements TokenId {
     DECORATOR(null, OPERATOR_CAT), // NOI18N
     //    CONTINUED_LINE(null, WHITESPACE_CAT), // NOI18N
     COMMENT(null, COMMENT_CAT),
-    STD_SYMBOLS(null, KEYWORD_CAT), // NOI18N
+    BUILTIN_FUNCTION(null, KEYWORD_CAT), // NOI18N
     LPAREN("(", SEPARATOR_CAT), // NOI18N
     RPAREN(")", SEPARATOR_CAT), // NOI18N
     LBRACE("{", SEPARATOR_CAT), // NOI18N

@@ -45,7 +45,7 @@
         <font style="bold" />
     </fontcolor>
     <fontcolor name="ERROR" foreColor="CC3300" />
-    <fontcolor name="STD_SYMBOLS" foreColor="3366CC" />
+    <fontcolor name="BUILTIN_FUNCTION" foreColor="3366CC" />
 
     <!--"semantic" highlighting:-->
     <fontcolor name="mod-unused" waveUnderlined="999999"/>
