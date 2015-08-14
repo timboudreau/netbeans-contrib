@@ -327,6 +327,12 @@ public class PythonParser extends Parser {
             tokens.discardOffChannelTokens(true);
             PythonTokenSource indentedSource = new PythonTokenSource(tokens, fileName);
             CommonTokenStream indentedTokens = new CommonTokenStream(indentedSource);
+            // Import line ending with a dot raise a NullPointerException in
+            // org.python.antlr.GrammarActions.makeDottedText called from parser.file_input
+            // sanitizeImportTokens will remove the dot token from the list of tokens in
+            // indentedTokens to avoid the bug and add an error at this file.
+            // See https://netbeans.org/bugzilla/show_bug.cgi?id=252356
+            sanitizeImportTokens(indentedTokens, errors, file);
             org.python.antlr.PythonParser parser;
             if (charset != null) {
                 parser = new org.python.antlr.PythonParser(indentedTokens, charset);
@@ -389,6 +395,51 @@ public class PythonParser extends Parser {
             }
             return new PythonParserResult(null, context.snapshot);
         }
+    }
+
+    private void sanitizeImportTokens(CommonTokenStream indentedTokens, List errors, FileObject file) {
+        List tokens = indentedTokens.getTokens();
+        List<CommonToken> tokensToRemove = new ArrayList<>();
+        int i = 0;
+        while (i < tokens.size()) {
+            CommonToken importToken = (CommonToken)tokens.get(i);
+            if ("import".equals(importToken.getText()) || "from".equals(importToken.getText())) {
+                // sanitizeDotTokens return the index of the token that starts the next line
+                i = sanitizeDotTokens(tokens, tokensToRemove, importToken, i + 1, errors, file);
+            } else {
+                i++;
+            }
+        }
+
+        for (CommonToken token : tokensToRemove) {
+            tokens.remove(token);
+        }
+    }
+
+    private int sanitizeDotTokens(List tokens, List tokensToRemove, CommonToken importToken,
+            int startIndex, List errors, FileObject file) {
+        for (int j = startIndex; j < tokens.size() - 1; j++) {
+            CommonToken dotToken = (CommonToken)tokens.get(j);
+            CommonToken nextToken = (CommonToken)tokens.get(j + 1);
+            if (".".equals(dotToken.getText())) {
+                if (nextToken.getText().startsWith("\n")) {
+                    tokensToRemove.add(dotToken);
+                    String rawTokenText;
+                    if (nextToken.getText().startsWith("\n")) {
+                        rawTokenText = "\\n";
+                    } else {
+                        rawTokenText = " ";
+                    }
+                    errors.add(
+                        new DefaultError(null, "Mismatch input '.' expecting NAME\nMissing NAME at '" + rawTokenText + "'",
+                            null, file, importToken.getStartIndex(), dotToken.getStopIndex(), Severity.ERROR));
+                }
+            } else if ("\n".equals(nextToken.getText())) { // End of line, must continue looping from external loop
+                return j + 1;
+            }
+        }
+
+        return startIndex;
     }
 
     private static String asString(CharSequence sequence) {
