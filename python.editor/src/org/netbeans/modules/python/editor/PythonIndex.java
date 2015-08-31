@@ -396,6 +396,7 @@ public class PythonIndex {
                 
             case CASE_INSENSITIVE_PREFIX:
             case CASE_INSENSITIVE_REGEXP:
+            case CASE_INSENSITIVE_CAMEL_CASE:
                 field = PythonIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME;
                 
                 break;
