@@ -242,3 +242,7 @@
 ^dew4nb/release/modules$
 ^project.jsjava/release/modules$
 
+^callgraph/nbactions.xml$
+^callgraph/nbproject/project.properties$
+^callgraph/target$
+
