@@ -43,6 +43,8 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.PythonAstUtils;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Image;

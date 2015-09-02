@@ -30,6 +30,11 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonUtils;
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonIndex;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -38,11 +43,11 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.python.editor.elements.IndexedElement;
-import org.netbeans.modules.python.editor.elements.IndexedMethod;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
-import org.netbeans.modules.python.editor.lexer.PythonStringTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.elements.IndexedElement;
+import org.netbeans.modules.python.source.elements.IndexedMethod;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonStringTokenId;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -57,9 +62,9 @@ import org.netbeans.modules.csl.api.HtmlFormatter;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
-import org.netbeans.modules.python.editor.lexer.PythonLexer;
-import org.netbeans.modules.python.editor.scopes.SymbolTable;
-import org.netbeans.modules.python.editor.scopes.SymInfo;
+import org.netbeans.modules.python.source.lexer.PythonLexer;
+import org.netbeans.modules.python.source.scopes.SymbolTable;
+import org.netbeans.modules.python.source.scopes.SymInfo;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
@@ -406,8 +411,8 @@ public class PythonDeclarationFinder implements DeclarationFinder {
             }
 
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
-            org.netbeans.modules.python.editor.lexer.Call call =
-                    org.netbeans.modules.python.editor.lexer.Call.getCallType(doc, th, lexOffset);
+            org.netbeans.modules.python.source.lexer.Call call =
+                    org.netbeans.modules.python.source.lexer.Call.getCallType(doc, th, lexOffset);
             
             FileObject fileObject = info.getSnapshot().getSource().getFileObject();
 

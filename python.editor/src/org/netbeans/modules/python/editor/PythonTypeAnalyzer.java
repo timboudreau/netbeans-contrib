@@ -30,6 +30,9 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonIndex;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,9 +42,9 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.OffsetRange;
-import org.netbeans.modules.python.editor.lexer.PythonCommentTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.lexer.PythonCommentTokenId;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.python.antlr.PythonTree;
