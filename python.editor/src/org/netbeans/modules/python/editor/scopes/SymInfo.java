@@ -103,7 +103,9 @@ public class SymInfo extends Object {
     }
 
     public boolean isUnused(ScopeInfo info) {
-        return (info == null || info.kind == FUNCSCOPE) && (flags & (READ | BOUND | DEF)) == BOUND;
+        // Cannot correctly detect usage of variables in CLASSSCOPE
+        return (info == null || info.kind == FUNCSCOPE || info.kind == TOPSCOPE) &&
+                (flags & (READ | BOUND | DEF)) == BOUND;
     }
 
     public boolean isParameter() {

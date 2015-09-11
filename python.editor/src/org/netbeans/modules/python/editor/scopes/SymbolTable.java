@@ -1113,7 +1113,7 @@ public class SymbolTable {
         List<PythonTree> unusedNodes = new ArrayList<>();
 
         for (ScopeInfo scopeInfo : scopes.values()) {
-            if (scopeInfo.kind != FUNCSCOPE) {
+            if (scopeInfo.kind != FUNCSCOPE && scopeInfo.kind != TOPSCOPE && scopeInfo.kind != CLASSSCOPE) {
                 continue;
             }
             Set<String> unused = new HashSet<>();
