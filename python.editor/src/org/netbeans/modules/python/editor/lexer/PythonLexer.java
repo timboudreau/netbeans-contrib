@@ -693,7 +693,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             return null;
         }
 
-        if (s.toString().endsWith("Error")) {
+        if (BuiltinException.isBuiltInException(s)) {
             return PythonTokenId.ERROR;
         }
 
