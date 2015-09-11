@@ -305,7 +305,7 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
             }
             return;
         }
-        
+
         while ( FileUtil.isParentOf( root, parent ) ) {
             PackageNode n = get( parent );
             if ( n != null && n.isLeaf() ) {
@@ -320,6 +320,12 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
     // in on place (PackageView) 
     void add(FileObject fo, boolean empty, boolean refreshImmediately) {
         String path = FileUtil.getRelativePath( root, fo );
+        // Special case for __pycache__: it should never contain code, we can
+        // safely ignore it.
+        if (path.endsWith("__pycache__")) {
+            return;
+        }
+
         assert path != null : "Adding wrong folder " + fo +"(valid="+fo.isValid()+")"+ "under root" + this.root + "(valid="+this.root.isValid()+")";
         if ( get( fo ) == null ) { 
             names2nodes.put( path, empty ? NODE_NOT_CREATED_EMPTY : NODE_NOT_CREATED );
