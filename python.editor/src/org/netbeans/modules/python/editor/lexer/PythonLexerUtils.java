@@ -555,4 +555,8 @@ public class PythonLexerUtils {
 
         return lexOffset;
     }
+
+     public static boolean isKeywordOrBuiltin(CharSequence name) {
+        return PythonLexer.isKeywordOrBuiltin(name);
+    }
 }

@@ -687,7 +687,7 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
     public void release() {
     }
 
-    private PythonTokenId getKeywordToken(CharSequence s) {
+    private static PythonTokenId getKeywordToken(CharSequence s) {
         int length = s.length();
         if (length < 2) {
             return null;
@@ -1150,5 +1150,9 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
         }
 
         return null;
+    }
+
+    public static boolean isKeywordOrBuiltin(CharSequence name) {
+        return getKeywordToken(name) != null;
     }
 }

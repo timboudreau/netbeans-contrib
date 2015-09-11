@@ -101,6 +101,11 @@ public class UnresolvedDetector extends PythonAstRule {
                 if (name == null) {
                     name = "";
                 }
+                // Ignore keywords and builtin
+                if (PythonLexerUtils.isKeywordOrBuiltin(name)) {
+                    continue;
+                }
+
                 List<HintFix> fixList = new ArrayList<>(3);
                 // Is is a reference to a module?
                 boolean tryModule = false;
