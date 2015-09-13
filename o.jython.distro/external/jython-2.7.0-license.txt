@@ -1,12 +1,12 @@
 Name: Jython
-Version: 2.7.0-rc3
+Version: 2.7.0
 Description: The Java-based implementation of Python
 License: Jython
 OSR: 9913
 Origin: http://www.jython.org
 Source: http://www.jython.org
 
-Use of Jython version  2.7.0-rc3 is governed by the terms of the license below:
+Use of Jython version  2.7.0 is governed by the terms of the license below:
 
 A. TERMS AND CONDITIONS FOR ACCESSING OR OTHERWISE USING JYTHON
 =======================================================
@@ -62,7 +62,7 @@ Agreement.
 Jython 2.0, 2.1 License
 ================================
 
-Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Jython Developers
+Copyright (c) 2000-2009 Jython Developers.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -206,4 +206,3 @@ Software License.
 
 The command line interpreter is covered by the Apache Software
 License.  See the org/apache/LICENSE file for details.
-

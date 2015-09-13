@@ -1,11 +1,12 @@
 #!/bin/sh
 
+version=2.7.0
 repository=https://bitbucket.org/jython/jython
-target=jython-2.7.0-rc3.zip
-dist=jython-2.7.0-rc3
+target=jython-${version}.zip
+dist=jython-${version}
 location=jython
 
-hg clone --rev v2.7rc3 $repository $location
+hg clone --rev v${version} $repository $location
 cd $location
 
 # Note - need both ant calls
