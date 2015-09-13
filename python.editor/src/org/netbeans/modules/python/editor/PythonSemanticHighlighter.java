@@ -30,6 +30,8 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.PythonAstUtils;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,12 +39,10 @@ import java.util.Set;
 import org.netbeans.modules.csl.api.ColoringAttributes;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
-import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.parsing.spi.Parser.Result;
 import org.netbeans.modules.parsing.spi.Scheduler;
 import org.netbeans.modules.parsing.spi.SchedulerEvent;
-import org.netbeans.modules.python.editor.scopes.ScopeInfo;
-import org.netbeans.modules.python.editor.scopes.SymbolTable;
+import org.netbeans.modules.python.source.scopes.ScopeInfo;
+import org.netbeans.modules.python.source.scopes.SymbolTable;
 import org.openide.util.Exceptions;
 import org.python.antlr.PythonTree;
 import org.python.antlr.Visitor;

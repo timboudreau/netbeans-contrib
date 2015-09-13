@@ -41,6 +41,7 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonIndexer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,21 +55,5 @@ import org.openide.util.Exceptions;
  */
 public class QuerySupportFactory {
     
-    public static QuerySupport get(final Collection<FileObject> roots) {
-        try {
-            return QuerySupport.forRoots(PythonIndexer.NAME,
-                    PythonIndexer.VERSION,
-                    roots.toArray(new FileObject[roots.size()]));
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
     
-    public static QuerySupport get(final FileObject source) {
-        return get(QuerySupport.findRoots(source,
-                null,
-                null,
-                Collections.<String>emptySet()));
-    }
 }

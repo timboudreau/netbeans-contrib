@@ -32,15 +32,15 @@ package org.netbeans.modules.python.editor.refactoring;
 
 import java.util.Iterator;
 
-import org.netbeans.modules.python.editor.elements.AstElement;
-import org.netbeans.modules.python.editor.elements.Element;
+import org.netbeans.modules.python.source.elements.AstElement;
+import org.netbeans.modules.python.source.elements.Element;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.python.editor.AstPath;
-import org.netbeans.modules.python.editor.PythonAstUtils;
-import org.netbeans.modules.python.editor.PythonParserResult;
-import org.netbeans.modules.python.editor.elements.IndexedElement;
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.elements.IndexedElement;
 import org.openide.filesystems.FileObject;
 import org.python.antlr.PythonTree;
 import org.python.antlr.ast.Assign;

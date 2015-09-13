@@ -30,6 +30,9 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,9 +53,9 @@ import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.spi.Parser.Result;
 import org.netbeans.modules.parsing.spi.Scheduler;
 import org.netbeans.modules.parsing.spi.SchedulerEvent;
-import org.netbeans.modules.python.editor.lexer.PythonCommentTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.lexer.PythonCommentTokenId;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.openide.util.Exceptions;
 import org.python.antlr.PythonTree;
 import org.python.antlr.Visitor;

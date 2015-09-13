@@ -30,14 +30,17 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.PythonAstUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;

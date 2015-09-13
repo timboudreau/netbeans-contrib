@@ -46,7 +46,7 @@ import java.util.List;
 import javax.swing.text.JTextComponent;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.python.editor.PythonUtils;
+import org.netbeans.modules.python.source.PythonUtils;
 import org.netbeans.spi.editor.codegen.CodeGenerator;
 import org.netbeans.spi.editor.codegen.CodeGeneratorContextProvider;
 import org.openide.util.Lookup;
@@ -119,7 +119,7 @@ public class ClassCodeGenerator implements CodeGenerator {
         final BaseDocument doc = (BaseDocument)target.getDocument();
         final CodeTemplateManager ctm = CodeTemplateManager.get(doc);
         if (ctm != null) {
-            String template = PythonUtils.getCodeTemplate(ctm, "cls", "class ", null); // NOI18N
+            String template = CodeGenUtils.getCodeTemplate(ctm, "cls", "class ", null); // NOI18N
             if (template == null) {
                 template = "class ${name}${1 default=\"(Extends)\"}:\n${initialindent editable=\"false\"}${indent editable=\"false\"}\"\"\"\n${initialindent editable=\"false\"}${indent editable=\"false\"}${Documentation}\n${initialindent editable=\"false\"}${indent editable=\"false\"}\"\"\"\n${initialindent editable=\"false\"}${indent editable=\"false\"}${cursor}\n";
             }

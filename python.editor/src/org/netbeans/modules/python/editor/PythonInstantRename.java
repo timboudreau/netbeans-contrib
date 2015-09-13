@@ -30,6 +30,9 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.PythonAstUtils;
 import java.util.Collections;
 import java.util.Set;
 import javax.swing.text.Document;
@@ -39,9 +42,9 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.InstantRenamer;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonCommentTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.lexer.PythonCommentTokenId;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
 import org.python.antlr.PythonTree;
 import org.python.antlr.ast.Attribute;
 import org.python.antlr.ast.Call;

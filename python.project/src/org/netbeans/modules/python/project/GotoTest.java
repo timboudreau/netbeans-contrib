@@ -48,7 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-import org.netbeans.modules.python.editor.PythonUtils;
+import org.netbeans.modules.python.source.PythonUtils;
 import org.netbeans.spi.gototest.TestLocator;
 import org.netbeans.spi.gototest.TestLocator.LocationResult;
 import org.openide.filesystems.FileObject;

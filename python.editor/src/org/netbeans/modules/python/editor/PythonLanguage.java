@@ -30,9 +30,13 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonStructureScanner;
+import org.netbeans.modules.python.source.PythonIndexerFactory;
+import org.netbeans.modules.python.source.PythonIndexSearcher;
+import org.netbeans.modules.python.source.PythonParser;
+import org.netbeans.modules.python.source.PythonFormatter;
 import java.io.File;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.modules.python.editor.hints.PythonHintsProvider;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.DeclarationFinder;
@@ -50,7 +54,7 @@ import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 import org.netbeans.modules.parsing.spi.indexing.PathRecognizerRegistration;
 import org.netbeans.modules.python.api.PythonMIMEResolver;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
@@ -144,15 +148,15 @@ public class PythonLanguage extends DefaultLanguageConfig {
         return new PythonIndexerFactory();
     }
 
-    @Override
-    public boolean hasHintsProvider() {
-        return true;
-    }
-
-    @Override
-    public HintsProvider getHintsProvider() {
-        return new PythonHintsProvider();
-    }
+//    @Override
+//    public boolean hasHintsProvider() {
+//        return true;
+//    }
+//
+//    @Override
+//    public HintsProvider getHintsProvider() {
+//        return new PythonHintsProvider();
+//    }
 
     @Override
     public DeclarationFinder getDeclarationFinder() {

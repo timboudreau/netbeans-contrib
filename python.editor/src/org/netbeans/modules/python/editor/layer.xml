@@ -7,11 +7,6 @@
             <folder name="x-python">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.python.editor.Bundle"/>
 
-                <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.lexer.PythonTokenId.language"/>
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
-                </file>
-
                 <folder name="Actions">
                     <file name="org-netbeans-modules-python-editor-imports-FixImportsAction.instance"/>
                     <file name="org-netbeans-modules-python-editor-imports-FastImportAction.instance"/>
@@ -142,49 +137,12 @@
         </folder>
     </folder>
     
-    <folder name="csl-hints">
-        <folder name="text">
-            <folder name="x-python">
-                <folder name="hints">
-                    <folder name="general">
-                        <attr name="position" intvalue="100"/>
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.python.editor.hints.Bundle"/>
-                        <file name="org-netbeans-modules-python-editor-hints-NameRule.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-CreateDocString.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-AssignToVariable.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-SplitImports.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-RelativeImports.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-Deprecations.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-UnusedImports.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-UnusedDetector.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-UnresolvedDetector.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-UnresolvedClassComponents.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-AllAssignExists.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-AccessToProtected.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-AttributeDefinedOutsideInit.instance"/>
-                        <file name="org-netbeans-modules-python-editor-hints-ClassCircularRedundancy.instance"/>
-                    </folder>
-                </folder>
-                <folder name="selection">
-                    <file name="org-netbeans-modules-python-editor-hints-SurroundWith.instance"/>
-                    <file name="org-netbeans-modules-python-editor-hints-ExtractCode.instance"/>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-    
     <folder name="CslPlugins">
         <folder name="text">
             <folder name="x-python">
                 <file name="language.instance">
 <!--                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>-->
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.python.editor.PythonLanguage"/>
-                </file>
-                <file name="structure.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.python.editor.PythonStructureScanner"/>
-                </file>
-                <file name="hints.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.python.editor.hints.PythonHintsProvider"/>
                 </file>
                 <file name="codecoverage"/>
             </folder>
@@ -269,66 +227,6 @@
                 <attr name="displayName" bundlevalue="org.netbeans.modules.python.editor.Bundle#Services/MIMEResolver/PythonResolver.xml"/>
                 <attr name="position" intvalue="184"/>
             </file>
-        </folder>
-    </folder>
-
-    <folder name="OptionsDialog">
-        <folder name="PreviewExamples">
-            <folder name="text">
-                <file name="x-python" url="PythonExample.py"/>
-            </folder>
-        </folder>
-        <folder name="Editor">
-            <folder name="Hints">
-                <attr name="position" intvalue="0"/>
-                <folder name="text">
-                    <folder name="x-python">
-                        <file name="PythonHints.instance">
-                            <attr name="instanceOf" stringvalue="org.netbeans.spi.options.OptionsPanelController"/>
-                            <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.PythonHintOptions.createStatic"/>
-                        </file>
-                    </folder>
-                </folder>
-            </folder>
-            <folder name="Formatting">
-                <attr name="position" intvalue="0"/>
-                <folder name="text">
-                    <folder name="x-python">
-                        <file name="Imports.instance">
-                            <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                            <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtImports.getController"/>
-                            <attr name="position" intvalue="150"/>
-                        </file>
-                      <!-- Not yet implemented
-                      <file name="TabsAndIndents.instance">
-                          <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtTabsIndents.getController"/>
-                          <attr name="position" intvalue="100"/>
-                      </file>
-                      <file name="Alignment.instance">
-                          <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtAlignment.getController"/>
-                          <attr name="position" intvalue="200"/>
-                      </file>
-                      <file name="Wrapping.instance">
-                          <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtWrapping.getController"/>
-                          <attr name="position" intvalue="400"/>
-                      </file>
-                      <file name="BlankLines.instance">
-                          <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtBlankLines.getController"/>
-                          <attr name="position" intvalue="500"/>
-                      </file>
-                      -->
-                        <file name="Spaces.instance">
-                            <attr name="instanceOf" stringvalue="org.netbeans.modules.options.editor.spi.PreferencesCustomizer$Factory"/>
-                            <attr name="instanceCreate" methodvalue="org.netbeans.modules.python.editor.options.FmtSpaces.getController"/>
-                            <attr name="position" intvalue="600"/>
-                        </file>
-                    </folder>
-                </folder>
-            </folder>
         </folder>
     </folder>
 

@@ -46,7 +46,7 @@ import java.util.List;
 import javax.swing.text.JTextComponent;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.python.editor.PythonUtils;
+import org.netbeans.modules.python.source.PythonUtils;
 import org.netbeans.spi.editor.codegen.CodeGenerator;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -80,7 +80,7 @@ public class ConstructorGenerator implements CodeGenerator {
         final BaseDocument doc = (BaseDocument)target.getDocument();
         final CodeTemplateManager ctm = CodeTemplateManager.get(doc);
         if (ctm != null) {
-            String template = PythonUtils.getCodeTemplate(ctm, "init", "def __init__", null); // NOI18N
+            String template = CodeGenUtils.getCodeTemplate(ctm, "init", "def __init__", null); // NOI18N
             if (template == null) {
                 template = "def __init__(self${1 default=\", parameters\"}):\n        ${cursor})"; // NOI18N
             }
