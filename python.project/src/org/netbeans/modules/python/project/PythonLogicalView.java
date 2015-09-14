@@ -85,7 +85,8 @@ class PythonLogicalView implements LogicalViewProvider {
 
         public PythonProjectNode() {
             super(NodeFactorySupport.createCompositeChildren(project, "Projects/org-netbeans-modules-python-project/Nodes"),
-                    Lookups.singleton(project));
+                    project.sourceRoots.getRoots().length > 0 ? Lookups.fixed(project, project.sourceRoots.getRoots()[0]) :
+                            Lookups.singleton(project));
             setIconBaseWithExtension("org/netbeans/modules/python/project/resources/py_25_16.png");
             super.setName(ProjectUtils.getInformation(project).getDisplayName());
         }
