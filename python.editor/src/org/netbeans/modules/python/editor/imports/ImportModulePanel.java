@@ -43,6 +43,7 @@
  */
 package org.netbeans.modules.python.editor.imports;
 
+import org.netbeans.modules.python.source.ImportManager;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -64,9 +65,9 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.spi.GsfUtilities;
-import org.netbeans.modules.python.editor.PythonIndex;
-import org.netbeans.modules.python.editor.PythonParserResult;
-import org.netbeans.modules.python.editor.lexer.Call;
+import org.netbeans.modules.python.source.PythonIndex;
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.lexer.Call;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;

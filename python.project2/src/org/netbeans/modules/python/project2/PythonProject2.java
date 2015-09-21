@@ -24,7 +24,9 @@ import org.netbeans.modules.python.project2.ui.customizer.PythonCustomizerProvid
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
+import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -114,10 +116,11 @@ public class PythonProject2 implements Project {
 //            new PythonPlatformProvider(getEvaluator()),
             new PythonCoverageProvider(this),
             new PythonProjectSourceLevelQuery(this),
+            new RecommendedTemplatesImpl(),
             state
         });
     }
-
+    
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
         support.addPropertyChangeListener(propertyChangeListener);
     }
@@ -377,6 +380,34 @@ public class PythonProject2 implements Project {
 //            } catch (IOException e) {
 //                Exceptions.printStackTrace(e);
 //            }
+        }
+    }
+
+    private static final class RecommendedTemplatesImpl implements RecommendedTemplates, PrivilegedTemplates {
+
+        // List of primarily supported templates
+        private static final String[] APPLICATION_TYPES = new String[]{
+            "python", // NOI18N
+            "XML", // NOI18N
+            "simple-files" // NOI18N
+        };
+
+        private static final String[] PRIVILEGED_NAMES = new String[]{
+            "Templates/Python/_package", // NOI18N
+            "Templates/Python/_module.py", //NOI18N
+            "Templates/Python/_main.py", // NOI18N
+            "Templates/Python/_empty_module.py", // NOI18N
+            "Templates/Python/_test.py", // NOI18N
+        };
+
+        @Override
+        public String[] getRecommendedTypes() {
+            return APPLICATION_TYPES;
+        }
+
+        @Override
+        public String[] getPrivilegedTemplates() {
+            return PRIVILEGED_NAMES;
         }
     }
 }

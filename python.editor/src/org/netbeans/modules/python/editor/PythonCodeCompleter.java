@@ -30,6 +30,12 @@
  */
 package org.netbeans.modules.python.editor;
 
+import org.netbeans.modules.python.source.PythonUtils;
+import org.netbeans.modules.python.source.AstPath;
+import org.netbeans.modules.python.source.PythonIndex;
+import org.netbeans.modules.python.source.RstFormatter;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,12 +51,12 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.editor.completion.Completion;
-import org.netbeans.modules.python.editor.elements.Element;
-import org.netbeans.modules.python.editor.elements.IndexedElement;
-import org.netbeans.modules.python.editor.elements.IndexedMethod;
-import org.netbeans.modules.python.editor.lexer.Call;
-import org.netbeans.modules.python.editor.lexer.PythonLexerUtils;
-import org.netbeans.modules.python.editor.lexer.PythonTokenId;
+import org.netbeans.modules.python.source.elements.Element;
+import org.netbeans.modules.python.source.elements.IndexedElement;
+import org.netbeans.modules.python.source.elements.IndexedMethod;
+import org.netbeans.modules.python.source.lexer.Call;
+import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
+import org.netbeans.modules.python.source.lexer.PythonTokenId;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -74,13 +80,13 @@ import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.editor.indent.api.IndentUtils;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.modules.python.api.PythonMIMEResolver;
-import org.netbeans.modules.python.editor.PythonParser.Sanitize;
-import org.netbeans.modules.python.editor.elements.IndexedPackage;
-import org.netbeans.modules.python.editor.imports.ImportManager;
-import org.netbeans.modules.python.editor.lexer.PythonCommentTokenId;
-import org.netbeans.modules.python.editor.lexer.PythonLexer;
-import org.netbeans.modules.python.editor.options.CodeStyle;
-import org.netbeans.modules.python.editor.scopes.SymbolTable;
+import org.netbeans.modules.python.source.PythonParser.Sanitize;
+import org.netbeans.modules.python.source.elements.IndexedPackage;
+import org.netbeans.modules.python.source.ImportManager;
+import org.netbeans.modules.python.source.lexer.PythonCommentTokenId;
+import org.netbeans.modules.python.source.lexer.PythonLexer;
+import org.netbeans.modules.python.source.CodeStyle;
+import org.netbeans.modules.python.source.scopes.SymbolTable;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
@@ -305,8 +311,8 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
                 return completionResult;
             }
 
-            org.netbeans.modules.python.editor.lexer.Call call =
-                    org.netbeans.modules.python.editor.lexer.Call.getCallType(doc, th, lexOffset);
+            org.netbeans.modules.python.source.lexer.Call call =
+                    org.netbeans.modules.python.source.lexer.Call.getCallType(doc, th, lexOffset);
             request.call = call;
 
             if ((fqn != null) &&
@@ -1088,7 +1094,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         PythonParserResult info = request.result;
         String prefix = request.prefix;
         QuerySupport.Kind kind = request.kind;
-        org.netbeans.modules.python.editor.lexer.Call call = request.call;
+        org.netbeans.modules.python.source.lexer.Call call = request.call;
 
         // Only call local and inherited methods if we don't have an LHS, such as Foo::
         if (call.getLhs() == null) {
@@ -1187,7 +1193,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
      * @todo Look for self or this or super; these should be limited to inherited.
      */
     private boolean completeObjectMethod(List<CompletionProposal> proposals, CompletionRequest request, String fqn,
-            org.netbeans.modules.python.editor.lexer.Call call) {
+            org.netbeans.modules.python.source.lexer.Call call) {
 
         PythonIndex index = request.index;
         String prefix = request.prefix;
@@ -1211,8 +1217,8 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         if ((index != null) && (ts != null)) {
             boolean skipPrivate = true;
 
-            if ((call == org.netbeans.modules.python.editor.lexer.Call.LOCAL) ||
-                    (call == org.netbeans.modules.python.editor.lexer.Call.NONE)) {
+            if ((call == org.netbeans.modules.python.source.lexer.Call.LOCAL) ||
+                    (call == org.netbeans.modules.python.source.lexer.Call.NONE)) {
                 return false;
             }
 
@@ -1563,6 +1569,41 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
 
         return true;
     }
+    
+    // Keywords - according to http://docs.python.org/ref/keywords.html
+    static final String[] PYTHON_KEYWORDS = new String[]{
+        "and", // NOI18N
+        "as", // NOI18N
+        "assert", // NOI18N
+        "break", // NOI18N
+        "class", // NOI18N
+        "continue", // NOI18N
+        "def", // NOI18N
+        "del", // NOI18N
+        "elif", // NOI18N
+        "else", // NOI18N
+        "except", // NOI18N
+        "exec", // NOI18N
+        "finally", // NOI18N
+        "for", // NOI18N
+        "from", // NOI18N
+        "global", // NOI18N
+        "if", // NOI18N
+        "import", // NOI18N
+        "in", // NOI18N
+        "is", // NOI18N
+        "lambda", // NOI18N
+        "not", // NOI18N
+        "or", // NOI18N
+        "pass", // NOI18N
+        "print", // NOI18N
+        "raise", // NOI18N
+        "return", // NOI18N
+        "try", // NOI18N
+        "while", // NOI18N
+        "with", // NOI18N
+        "yield", // NOI18N
+    };
 
     private void completeKeywords(List<CompletionProposal> proposals, CompletionRequest request) {
         // No keywords possible in the RHS of a call (except for "this"?)
@@ -1573,8 +1614,8 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         String prefix = request.prefix;
 
 
-        for (int i = 0, n = PythonUtils.PYTHON_KEYWORDS.length; i < n; i++) {
-            String keyword = PythonUtils.PYTHON_KEYWORDS[i];
+        for (int i = 0, n = PYTHON_KEYWORDS.length; i < n; i++) {
+            String keyword = PYTHON_KEYWORDS[i];
             if (startsWith(keyword, prefix)) {
                 KeywordItem item = new KeywordItem(keyword, null, request, Integer.toString(10000 + i));
 
@@ -1830,7 +1871,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         private PythonParserResult result;
         private QueryType queryType;
         private FileObject fileObject;
-        private org.netbeans.modules.python.editor.lexer.Call call;
+        private org.netbeans.modules.python.source.lexer.Call call;
         private boolean inCall;
         private String fqn;
         private String searchUrl;
@@ -2601,7 +2642,7 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
 
             if (item instanceof PythonCompletionItem) {
                 PythonCompletionItem pythonItem = (PythonCompletionItem)item;
-                org.netbeans.modules.python.editor.lexer.Call call = pythonItem.request.call;
+                org.netbeans.modules.python.source.lexer.Call call = pythonItem.request.call;
                 // Only insert imports when we add new top-level items
                 if (pythonItem.getAddImport() != null) {
                     String module = pythonItem.getAddImport();

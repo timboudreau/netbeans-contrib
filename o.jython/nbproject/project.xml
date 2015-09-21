@@ -16,6 +16,8 @@
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.python.editor</friend>
+                <friend>org.netbeans.modules.python.hints</friend>
+                <friend>org.netbeans.modules.python.source</friend>
                 <package>org.python.antlr</package>
                 <package>org.python.antlr.ast</package>
                 <package>org.python.antlr.base</package>

@@ -43,7 +43,7 @@
  */
 package org.netbeans.modules.python.editor.refactoring;
 
-import org.netbeans.modules.python.editor.PythonUtils;
+import org.netbeans.modules.python.source.PythonUtils;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.api.RenameRefactoring;
 import org.netbeans.modules.refactoring.api.WhereUsedQuery;

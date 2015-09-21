@@ -41,6 +41,8 @@
  */
 package org.netbeans.modules.python.editor.imports;
 
+import org.netbeans.modules.python.source.ImportEntry;
+import org.netbeans.modules.python.source.ImportManager;
 import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -62,9 +64,9 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.python.editor.PythonAstUtils;
-import org.netbeans.modules.python.editor.PythonParserResult;
-import org.netbeans.modules.python.editor.options.CodeStyle.ImportCleanupStyle;
+import org.netbeans.modules.python.source.PythonAstUtils;
+import org.netbeans.modules.python.source.PythonParserResult;
+import org.netbeans.modules.python.source.CodeStyle.ImportCleanupStyle;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.awt.StatusDisplayer;
@@ -100,6 +102,10 @@ import org.openide.util.NbPreferences;
  * @author Tor Norbye
  */
 public class FixImportsAction extends BaseAction {
+    private static final String PREFS_KEY = FixImportsAction.class.getName();
+    // TODO - use document style instead!
+    private static final String KEY_REMOVE_UNUSED_IMPORTS = "removeUnusedImports"; // NOI18N
+    
     public FixImportsAction() {
         super("fix-imports", 0); // NOI18N
     }
@@ -153,7 +159,7 @@ public class FixImportsAction extends BaseAction {
                 boolean fixImports = false;
                 String[] selections = null;
                 boolean removeUnusedImports;
-                Preferences prefs = NbPreferences.forModule(FixImportsAction.class).node(ImportManager.PREFS_KEY);
+                Preferences prefs = NbPreferences.forModule(FixImportsAction.class).node(PREFS_KEY);
 
                 List<String> ambiguousSymbols = new ArrayList<>();
                 Set<ImportEntry> unused = new HashSet<>();
@@ -199,7 +205,7 @@ public class FixImportsAction extends BaseAction {
                         FixDuplicateImportStmts panel = new FixDuplicateImportStmts();
 
                         panel.initPanel(names, variants, icons, defaults,
-                                prefs.getBoolean(ImportManager.KEY_REMOVE_UNUSED_IMPORTS, true));
+                                prefs.getBoolean(KEY_REMOVE_UNUSED_IMPORTS, true));
 
                         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(FixImportsAction.class, "FixDupImportStmts_Title")); //NOI18N
                         Dialog d = DialogDisplayer.getDefault().createDialog(dd);
@@ -227,10 +233,10 @@ public class FixImportsAction extends BaseAction {
                     } else {
                         fixImports = true;
                         selections = defaults;
-                        removeUnusedImports = prefs.getBoolean(ImportManager.KEY_REMOVE_UNUSED_IMPORTS, true);
+                        removeUnusedImports = prefs.getBoolean(KEY_REMOVE_UNUSED_IMPORTS, true);
                     }
                 } else {
-                    removeUnusedImports = prefs.getBoolean(ImportManager.KEY_REMOVE_UNUSED_IMPORTS, true);
+                    removeUnusedImports = prefs.getBoolean(KEY_REMOVE_UNUSED_IMPORTS, true);
                     // Just clean up imports
                     fixImports = true;
                     selections = null;
@@ -238,7 +244,7 @@ public class FixImportsAction extends BaseAction {
 
                 if (fixImports) {
                     if (shouldShowImportsPanel) {
-                        prefs.putBoolean(ImportManager.KEY_REMOVE_UNUSED_IMPORTS, removeUnusedImports);
+                        prefs.putBoolean(KEY_REMOVE_UNUSED_IMPORTS, removeUnusedImports);
                     }
 
                     if (!removeUnusedImports) {
