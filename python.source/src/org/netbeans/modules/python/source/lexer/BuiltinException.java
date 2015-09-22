@@ -39,7 +39,7 @@
  *
  * Portions Copyrighted 2015 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.python.editor.lexer;
+package org.netbeans.modules.python.source.lexer;
 
 import java.util.Arrays;
 import java.util.HashSet;
