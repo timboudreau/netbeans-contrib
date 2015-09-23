@@ -8,7 +8,7 @@
                 <folder name="hints">
                     <folder name="general">
                         <attr name="position" intvalue="100"/>
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.python.editor.hints.Bundle"/>
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.python.hints.Bundle"/>
                         <file name="org-netbeans-modules-python-hints-NameRule.instance"/>
                         <file name="org-netbeans-modules-python-hints-CreateDocString.instance"/>
                         <file name="org-netbeans-modules-python-hints-AssignToVariable.instance"/>
@@ -26,8 +26,8 @@
                     </folder>
                 </folder>
                 <folder name="selection">
-                    <file name="org-netbeans-modules-python-editor-hints-SurroundWith.instance"/>
-                    <file name="org-netbeans-modules-python-editor-hints-ExtractCode.instance"/>
+                    <file name="org-netbeans-modules-python-hints-SurroundWith.instance"/>
+                    <file name="org-netbeans-modules-python-hints-ExtractCode.instance"/>
                 </folder>
             </folder>
         </folder>
