@@ -156,7 +156,9 @@ class PythonLogicalView implements LogicalViewProvider {
 //            actions.add(null);
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_RUN, NbBundle.getMessage(PythonLogicalView.class, "LBL_RunAction_Name"), null)); // NOI18N
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_DEBUG, NbBundle.getMessage(PythonLogicalView.class, "LBL_DebugAction_Name"), null)); // NOI18N
+/* until it is working again, remove test from Python Ant Project menu             
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_TEST, NbBundle.getMessage(PythonLogicalView.class, "LBL_TestAction_Name"), null)); // NOI18N
+*/        
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_BUILD, NbBundle.getMessage(PythonLogicalView.class, "LBL_BuildAction_Name"), null)); // NOI18N
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_REBUILD, NbBundle.getMessage(PythonLogicalView.class, "LBL_CleanBuildAction_Name"), null)); // NOI18N
 

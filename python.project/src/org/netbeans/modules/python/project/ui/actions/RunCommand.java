@@ -46,10 +46,9 @@ public class RunCommand extends Command {
             //    runner.showWarnings(true);
             //    runner.setDebug(COMMAND_DEBUG_SINGLE.equals(command));
             //    runner.run(TEST_TASK_NAME);
-            //} else if (testRunner != null) {
-                testRunner.getInstance().runAllTests(getProject(), false);
-            //}
-            return;
+            /*} else */if (testRunner != null) { // don't invoke null.getInstance()...
+                    testRunner.getInstance().runAllTests(getProject(), false);
+                }
         }
 
         final PythonProject pyProject = getProject();
