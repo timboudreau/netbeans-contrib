@@ -6,16 +6,16 @@
             <code-name-base>org.netbeans.modules.python.kit</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.jython.distro</code-name-base>
+                    <code-name-base>org.jython</code-name-base>
                     <run-dependency>
-                        <release-version>1</release-version>
+                        <release-version>2</release-version>
                         <specification-version>2.7</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.jython</code-name-base>
+                    <code-name-base>org.jython.distro</code-name-base>
                     <run-dependency>
-                        <release-version>2</release-version>
+                        <release-version>1</release-version>
                         <specification-version>2.7</specification-version>
                     </run-dependency>
                 </dependency>
@@ -50,15 +50,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.python.testrunner</code-name-base>
-                    <run-dependency>
-                        <specification-version>1.4</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.netbeans.modules.python.help</code-name-base>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.python.hints</code-name-base>
+                    <run-dependency>
+                        <specification-version>1.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -83,6 +83,12 @@
                     <code-name-base>org.netbeans.modules.python.project2</code-name-base>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.python.testrunner</code-name-base>
+                    <run-dependency>
+                        <specification-version>1.4</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
