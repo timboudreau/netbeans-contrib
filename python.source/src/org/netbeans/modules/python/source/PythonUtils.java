@@ -189,6 +189,7 @@ public class PythonUtils {
 
     // According to https://hg.python.org/cpython/file/3.5/Lib/keyword.py
     // and https://hg.python.org/cpython/file/2.7/Lib/keyword.py
+    // Duplicate in org.netbeans.modules.python.editor.PythonCodeCompleter
     static final String[] PYTHON_KEYWORDS = new String[]{
         "False", // NOI18N
         "None", // NOI18N

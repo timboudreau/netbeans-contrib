@@ -1570,8 +1570,13 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         return true;
     }
     
-    // Keywords - according to http://docs.python.org/ref/keywords.html
+    // According to https://hg.python.org/cpython/file/3.5/Lib/keyword.py
+    // and https://hg.python.org/cpython/file/2.7/Lib/keyword.py
+    // duplicate in org.netbeans.modules.python.source.PythonUtils
     static final String[] PYTHON_KEYWORDS = new String[]{
+        "False", // NOI18N
+        "None", // NOI18N
+        "True", // NOI18N
         "and", // NOI18N
         "as", // NOI18N
         "assert", // NOI18N
@@ -1583,7 +1588,6 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         "elif", // NOI18N
         "else", // NOI18N
         "except", // NOI18N
-        "exec", // NOI18N
         "finally", // NOI18N
         "for", // NOI18N
         "from", // NOI18N
@@ -1593,16 +1597,20 @@ public class PythonCodeCompleter implements CodeCompletionHandler {
         "in", // NOI18N
         "is", // NOI18N
         "lambda", // NOI18N
+        "nonlocal", // NOI18N
         "not", // NOI18N
         "or", // NOI18N
         "pass", // NOI18N
-        "print", // NOI18N
         "raise", // NOI18N
         "return", // NOI18N
         "try", // NOI18N
         "while", // NOI18N
         "with", // NOI18N
         "yield", // NOI18N
+        "async", // NOI18N, Python 3.5 only
+        "await", // NOI18N, Python 3.5 only
+        "exec", // NOI18N, Python 2 only
+        "print", // NOI18N, Pytohn 2 only, function in python 3
     };
 
     private void completeKeywords(List<CompletionProposal> proposals, CompletionRequest request) {
