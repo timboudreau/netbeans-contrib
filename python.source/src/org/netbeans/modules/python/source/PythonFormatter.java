@@ -409,7 +409,7 @@ public class PythonFormatter implements Formatter {
                             computedIndent = 0;
                         }
 
-                        if (computedIndent != indent) {
+                        if (computedIndent != indent && context != null) {
                             try {
                                 context.modifyIndent(offset, computedIndent);
                             } catch (BadLocationException ex) {
