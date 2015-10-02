@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.Stack;
 import org.netbeans.modules.python.source.AstPath;
 import org.openide.util.Exceptions;
+import org.python.antlr.ParseException;
 import org.python.antlr.PythonTree;
 import org.python.antlr.Visitor;
 import org.python.antlr.ast.Assign;
@@ -136,10 +137,12 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
     public void parse() {
         try {
             visit(root);
+        } catch (ParseException ex) {
+            // ParseException are likely problems in the code. We must throw them back so that they
+            // can be handled correctly in SymbolTable (presented as error hints to the user).
+            throw ex;
         } catch (Throwable t) {
             Exceptions.printStackTrace(t);
-            //throw org.python.core.ParserFacade.fixParseError(null, t,
-            //        code_compiler.getFilename());
         }
     }
 

@@ -83,6 +83,7 @@ import org.python.antlr.ast.Str;
 import org.python.antlr.ast.alias;
 import org.python.antlr.base.expr;
 import static org.netbeans.modules.python.source.scopes.ScopeConstants.*;
+import org.python.antlr.ParseException;
 
 /**
  * A symbol table tracks a bunch of scopes and can answer questions about defined
@@ -197,6 +198,13 @@ public class SymbolTable {
                         }
                     }
                 }
+            } catch (ParseException ex) {
+                OffsetRange range = PythonAstUtils.getRange((PythonTree) ex.node);
+                Error error = new DefaultError(null, ex.getMessage(), null, fileObject, range.getStart(), range.getEnd(), Severity.ERROR);
+                if (errors == null) {
+                    errors = new ArrayList<>();
+                }
+                errors.add(error);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
