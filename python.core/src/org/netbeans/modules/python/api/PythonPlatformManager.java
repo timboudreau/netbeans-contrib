@@ -420,8 +420,13 @@ public class PythonPlatformManager implements Serializable {
 //        }catch(PythonException ex){
 //            Exceptions.printStackTrace(ex);
 //            throw ex;
-        }catch(InterruptedException | ExecutionException | IOException ex){
-            Exceptions.printStackTrace(ex);
+        } catch(InterruptedException | ExecutionException | IOException ex) {
+            Throwable cause = ex.getCause();
+            if (cause.getClass() == IOException.class) {
+                platform = null;
+            } else {
+                Exceptions.printStackTrace(ex);
+            }
         }
         return platform;
     }
