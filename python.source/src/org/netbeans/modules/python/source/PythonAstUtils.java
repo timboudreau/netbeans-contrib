@@ -254,6 +254,9 @@ public class PythonAstUtils {
                 Attribute attr = (Attribute)call.getInternalFunc();
                 int start = attr.getInternalValue().getCharStopIndex() + 1; // +1: Skip .
                 String name = attr.getInternalAttr();
+                if (name == null) {
+                    name = "";
+                }
                 return new OffsetRange(start, start + name.length());
             } else {
                 String name = getCallName(call);
