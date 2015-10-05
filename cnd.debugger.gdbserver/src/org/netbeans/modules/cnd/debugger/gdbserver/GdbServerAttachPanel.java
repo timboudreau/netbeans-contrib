@@ -57,6 +57,7 @@ import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerManager;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel;
 import org.netbeans.modules.cnd.debugger.common2.debugger.actions.ExecutableProjectPanel.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
+import org.netbeans.modules.cnd.debugger.common2.debugger.options.DebuggerOption;
 import org.netbeans.modules.cnd.debugger.common2.debugger.remote.CndRemote;
 import org.netbeans.modules.cnd.debugger.gdb2.options.GdbDebuggerInfoFactory;
 import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupport;
@@ -173,6 +174,9 @@ public class GdbServerAttachPanel extends JPanel implements HelpCtx.Provider {
                 // always use gdb
                 NativeDebuggerInfo gdi = GdbDebuggerInfoFactory.create(dt, 
                         CndRemote.userhostFromConfiguration(conf), conf, NativeDebuggerManager.ATTACH, targetValue);                
+                String symbolFile = DebuggerOption.SYMBOL_FILE.getCurrValue(gdi.getDbgProfile().getOptions());
+                symbolFile = ((MakeConfiguration) conf).expandMacros(symbolFile);
+                gdi.setSymbolFile(symbolFile);
                 NativeDebuggerManager.get().debugNoAsk(gdi);
 //                try {
 //                    GdbDebugger.attachGdbServer(target, pi.getProjectInformation());
