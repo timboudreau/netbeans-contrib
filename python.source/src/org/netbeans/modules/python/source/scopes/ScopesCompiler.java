@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.AstPath;
 import org.openide.util.Exceptions;
 import org.python.antlr.ParseException;
@@ -55,6 +58,7 @@ import org.python.antlr.base.stmt;
  */
 @SuppressWarnings("unchecked")
 public class ScopesCompiler extends Visitor implements ScopeConstants {
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
     private SymbolTable symbolTable;
     private Stack scopes;
     private ScopeInfo cur = null;
@@ -334,7 +338,12 @@ public class ScopesCompiler extends Visitor implements ScopeConstants {
             for (int i = 0; i < stmts.size(); i++) {
                 stmt s = stmts.get(i);
                 path.descend(s);
-                visit(s);
+                try {
+                    visit(s);
+                } catch(ClassCastException ex) {
+                    // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                    LOGGER.log(Level.FINE, ex.getMessage());
+                }
                 path.ascend();
             }
         }

@@ -35,6 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
 import org.netbeans.editor.BaseDocument;
@@ -46,6 +48,7 @@ import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.api.StructureScanner.Configuration;
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.scopes.ScopeInfo;
 import org.netbeans.modules.python.source.scopes.SymInfo;
 import org.netbeans.modules.python.source.scopes.SymbolTable;
@@ -63,6 +66,7 @@ import org.python.antlr.ast.Str;
  * @author Tor Norbye
  */
 public class PythonStructureScanner implements StructureScanner {
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
     
     public static AnalysisResult analyze(PythonParserResult info) {
         AnalysisResult analysisResult = new AnalysisResult();
@@ -74,6 +78,13 @@ public class PythonStructureScanner implements StructureScanner {
             try {
                 visitor.visit(root);
                 analysisResult.setElements(visitor.getRoots());
+            } catch(RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -125,6 +136,13 @@ public class PythonStructureScanner implements StructureScanner {
                 folds.put("codeblocks", codeBlocks); // NOI18N
 
                 return folds;
+            } catch (RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             } finally {

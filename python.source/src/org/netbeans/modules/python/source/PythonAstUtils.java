@@ -57,6 +57,7 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.elements.IndexedElement;
 import org.netbeans.modules.python.source.lexer.PythonLexerUtils;
 import org.netbeans.modules.python.source.lexer.PythonTokenId;
@@ -935,6 +936,7 @@ public class PythonAstUtils {
     }
 
     private static class NodeTypeVisitor extends Visitor {
+        private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
         private Class[] nodeClasses;
         private List<PythonTree> result;
 
@@ -952,7 +954,16 @@ public class PythonAstUtils {
                 }
             }
 
-            super.traverse(node);
+            try {
+                super.traverse(node);
+            } catch(RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
+            }
         }
     }
 

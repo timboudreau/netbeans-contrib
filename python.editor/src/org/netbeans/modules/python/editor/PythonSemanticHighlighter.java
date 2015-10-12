@@ -36,11 +36,14 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.csl.api.ColoringAttributes;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.SemanticAnalyzer;
 import org.netbeans.modules.parsing.spi.Scheduler;
 import org.netbeans.modules.parsing.spi.SchedulerEvent;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.scopes.ScopeInfo;
 import org.netbeans.modules.python.source.scopes.SymbolTable;
 import org.openide.util.Exceptions;
@@ -113,6 +116,7 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
     }
 
     private static class SemanticVisitor extends Visitor {
+        private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
         private final PythonParserResult info;
         private Map<OffsetRange, Set<ColoringAttributes>> highlights =
                 new HashMap<>(100);
@@ -128,7 +132,18 @@ public class PythonSemanticHighlighter extends SemanticAnalyzer<PythonParserResu
         public Object visitModule(Module node) throws Exception {
             ScopeInfo oldScope = scope;
             scope = symbolTable.getScopeInfo(node);
-            Object ret = super.visitModule(node);
+            Object ret;
+            try {
+                ret = super.visitModule(node);
+            } catch(RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   ret = null;
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
+            }
             scope = oldScope;
 
             return ret;

@@ -48,12 +48,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.Severity;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.spi.DefaultError;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.PythonAstUtils;
 import org.netbeans.modules.python.source.PythonIndex;
 import org.netbeans.modules.python.source.PythonIndexer;
@@ -97,6 +100,7 @@ public class SymbolTable {
     private final static int YES = 1;
     private final static int NO = 0;
     private final static int CIRCULAR = -1;
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
     private Map<PythonTree, ScopeInfo> scopes = new HashMap<>();
     private PythonTree root;
     private FileObject fileObject;
@@ -632,6 +636,9 @@ public class SymbolTable {
         public void run() {
             try {
                 visit(startScope);
+            } catch(ClassCastException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                LOGGER.log(Level.FINE, ex.getMessage());
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -1174,7 +1181,19 @@ public class SymbolTable {
             if (node != acceptDef) {
                 return null;
             }
-            return super.visitFunctionDef(node);
+            Object ret;
+            try {
+                ret = super.visitFunctionDef(node);
+            } catch (RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   ret = null;
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
+            }
+            return ret;
         }
 
         @Override

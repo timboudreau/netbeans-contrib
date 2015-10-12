@@ -33,6 +33,9 @@ package org.netbeans.modules.python.source;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.python.api.Util;
 import org.openide.util.Exceptions;
 import org.python.antlr.PythonTree;
 import org.python.antlr.Visitor;
@@ -46,6 +49,7 @@ import org.python.antlr.Visitor;
  * @author Tor Norbye
  */
 public class AstPath implements Iterable<PythonTree> {
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
     private ArrayList<PythonTree> path = new ArrayList<>(30);
 
     public AstPath() {
@@ -370,6 +374,13 @@ public class AstPath implements Iterable<PythonTree> {
             }
 
             return path;
+        } catch (RuntimeException ex) {
+            // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+            if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+               LOGGER.log(Level.FINE, ex.getMessage());
+            } else {
+                throw ex;
+            }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }

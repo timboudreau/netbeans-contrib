@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.api.Hint;
 import org.netbeans.modules.csl.api.HintFix;
@@ -49,6 +51,7 @@ import org.netbeans.modules.csl.api.Rule;
 import org.netbeans.modules.csl.api.RuleContext;
 import org.netbeans.modules.csl.spi.GsfUtilities;
 import org.netbeans.modules.csl.spi.ParserResult;
+import org.netbeans.modules.python.api.Util;
 import org.netbeans.modules.python.source.AstPath;
 import org.netbeans.modules.python.source.PythonAstUtils;
 import org.netbeans.modules.python.source.PythonParserResult;
@@ -289,6 +292,9 @@ public class PythonHintsProvider implements HintsProvider {
             PythonParserResult info = (PythonParserResult)context.parserResult;
             int astOffset = PythonAstUtils.getAstOffset(info, caretOffset);
             AstPath path = AstPath.get(root, astOffset);
+            if (path == null) {
+                return;
+            }
             Iterator<PythonTree> it = path.leafToRoot();
             while (it.hasNext()) {
                 if (isCancelled()) {
@@ -391,6 +397,7 @@ public class PythonHintsProvider implements HintsProvider {
     }
 
     private static class RuleApplicator extends Visitor {
+        private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
         private HintsManager manager;
         private RuleContext context;
         private AstPath path;
@@ -410,7 +417,16 @@ public class PythonHintsProvider implements HintsProvider {
         public void traverse(PythonTree node) throws Exception {
             path.descend(node);
             applyHints(node);
-            super.traverse(node);
+            try {
+                super.traverse(node);
+            } catch(RuntimeException ex) {
+                // Fix for https://netbeans.org/bugzilla/show_bug.cgi?id=255247
+                if (ex.getMessage().startsWith("Unexpected node: <mismatched token: [@")) {
+                   LOGGER.log(Level.FINE, ex.getMessage());
+                } else {
+                    throw ex;
+                }
+            }
             path.ascend();
         }
 
