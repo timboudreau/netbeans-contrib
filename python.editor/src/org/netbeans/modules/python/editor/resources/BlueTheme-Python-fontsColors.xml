@@ -74,6 +74,16 @@ made subject to such option by the copyright holder.
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="QUOTED_STRING_LITERAL" default="string"/>
+    <fontcolor foreColor="green" name="TRUE">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor foreColor="green" name="FALSE">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor foreColor="green" name="NONE">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="BUILTIN_FUNCTION" foreColor="cyan" />
 
     <!--"semantic" highlighting:-->
     <fontcolor name="mod-unused" waveUnderlined="ff8888"/>
