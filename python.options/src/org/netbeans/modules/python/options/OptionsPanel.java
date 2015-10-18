@@ -33,6 +33,7 @@ public class OptionsPanel extends javax.swing.JPanel
 {
     private OptionsOptionsPanelController controller;
 
+    final static int DEFAULT_STARTING_PORT = 49152;
     /** Creates new form OptionsPanel */
     public OptionsPanel() {
         initComponents();
@@ -72,7 +73,18 @@ public class OptionsPanel extends javax.swing.JPanel
         PythonOptions pyOptions = PythonOptions.getInstance() ;
         pyOptions.setPromptForArgs(chkPrompt.isSelected());
         // debug options
-        pyOptions.setPythonDebuggingPort(Integer.parseInt(dbgLstnPortStartField.getText())) ;
+        int i;        
+        try {
+            i = Integer.parseInt(dbgLstnPortStartField.getText());
+            if ( (i < 1 ) || (i > 65534)) {
+                i = pyOptions.getPythonDebuggingPort(); }
+        }
+        catch( NumberFormatException e ){ // bad entry - just reset it for now...
+            i = pyOptions.getPythonDebuggingPort();
+        }
+        if ( (i < 1 ) || (i > 65534)) {
+            i = DEFAULT_STARTING_PORT; }
+        pyOptions.setPythonDebuggingPort( i ) ;
         pyOptions.setStopAtFirstLine( stopAtFLineCheck.isSelected() ) ;
         // coloring shell options
         pyOptions.setDbgShellFont(fontBtn.getFont());
@@ -203,8 +215,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 errorColorBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(errorColorBtn);
         errorColorBtn.setBounds(20, 130, 320, 20);
-        jLayeredPane1.add(errorColorBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         fontBtn.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.fontBtn.text")); // NOI18N
         fontBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -212,8 +224,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 fontBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(fontBtn);
         fontBtn.setBounds(20, 30, 320, 20);
-        jLayeredPane1.add(fontBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         backgroundColorBtn.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.backgroundColorBtn.text")); // NOI18N
         backgroundColorBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -221,8 +233,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 backgroundColorBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(backgroundColorBtn);
         backgroundColorBtn.setBounds(20, 50, 320, 20);
-        jLayeredPane1.add(backgroundColorBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         infoColorBtn.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.infoColorBtn.text")); // NOI18N
         infoColorBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -230,8 +242,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 infoColorBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(infoColorBtn);
         infoColorBtn.setBounds(20, 70, 320, 20);
-        jLayeredPane1.add(infoColorBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         headerColorBtn.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.headerColorBtn.text")); // NOI18N
         headerColorBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -239,8 +251,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 headerColorBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(headerColorBtn);
         headerColorBtn.setBounds(20, 90, 320, 20);
-        jLayeredPane1.add(headerColorBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         warningColorBtn.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.warningColorBtn.text")); // NOI18N
         warningColorBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -248,8 +260,8 @@ public class OptionsPanel extends javax.swing.JPanel
                 warningColorBtnActionPerformed(evt);
             }
         });
+        jLayeredPane1.add(warningColorBtn);
         warningColorBtn.setBounds(20, 110, 320, 20);
-        jLayeredPane1.add(warningColorBtn, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         stopAtFLineCheck.setText(org.openide.util.NbBundle.getMessage(OptionsPanel.class, "OptionsPanel.stopAtFLineCheck.text")); // NOI18N
         stopAtFLineCheck.addActionListener(new java.awt.event.ActionListener() {
@@ -299,11 +311,11 @@ public class OptionsPanel extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
+            .addComponent(jTabbedPane6)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+            .addComponent(jTabbedPane6)
         );
     }// </editor-fold>//GEN-END:initComponents
 
