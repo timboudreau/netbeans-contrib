@@ -119,7 +119,7 @@ public class PythonOptions {
     }
 
     public int getPythonDebuggingPort(){
-        return pref.getInt(DBG_LISTENING_PORT, 29100) ;
+        return pref.getInt(DBG_LISTENING_PORT, 49152) ;
     }
 
     public void setStopAtFirstLine( boolean stopAtFirstLine ){
