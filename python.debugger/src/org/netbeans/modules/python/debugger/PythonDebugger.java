@@ -161,7 +161,7 @@ public class PythonDebugger
   private void doStart() {
 
     // Notify Starting
-    _pyCookie.getDebugView().writeLog("PythonDebugger : overall Starting");
+    _pyCookie.getDebugView().writeLog("PythonDebugger : Starting Experimental Debugger");
   }
 
   private void finish() {
@@ -448,7 +448,8 @@ public class PythonDebugger
    */
   void taskStarted(PythonEvent event) {
 
-    _pyCookie.getDebugView().writeLog("PythonDebugger.taskStarted : I am Starting a new Debugging Session ...");
+    _pyCookie.getDebugView().writeLog("PythonDebugger.taskStarted : Starting new Debugging Session using 2008 debugger...");
+    _pyCookie.getDebugView().writeLog("Please do not file bugs about this debugger, which is scheduled to be replaced.");
     _pyCookie.getDebugView().writeLog("This window is an interactive debugging context aware Python Shell ");
     _pyCookie.getDebugView().writeLog("where you can enter python console commands while debugging ");
     // _pyCookie.getDebugView().shellInvite();
