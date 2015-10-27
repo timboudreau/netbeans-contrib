@@ -44,14 +44,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
-import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 import org.openide.util.SharedClassObject;
 
 import org.netbeans.modules.zeroadmin.*;
-import org.netbeans.core.NbTopManager;
+import static org.netbeans.modules.zeroadmin.ZeroAdminInstall.saveWindowSystem;
 
 /**
  * Saves the configuration to the remote storage. Depends
@@ -75,8 +73,7 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                     try {
             
                         // force the core to save pending stuff:
-                        NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
-                        windowSystem.save();
+                        saveWindowSystem();
 
                         XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
                         ZeroAdminInstall.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
