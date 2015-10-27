@@ -49,12 +49,12 @@ import org.openide.filesystems.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
+import static org.netbeans.modules.zeroadmin.ZeroAdminInstall.reloadWindowSystem;
 
 // core dependency
-import org.netbeans.core.NbTopManager;
+import static org.netbeans.modules.zeroadmin.ZeroAdminInstall.saveWindowSystem;
 
 /**
  * Reset to operator configuration.
@@ -71,8 +71,7 @@ public class ResetConfigAction extends CallableSystemAction {
             public void run() {
                 try {
                     // force the core to save pending stuff:
-                    NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
-                    windowSystem.save();
+                    saveWindowSystem();
 
                     final FileObject[] ch = z.writableLayer.getRoot().getChildren();
                     z.writableLayer.runAtomicAction(new FileSystem.AtomicAction() {
@@ -139,7 +138,6 @@ public class ResetConfigAction extends CallableSystemAction {
      * Copied from core from WindowManagerImpl.
      */
     static void updateWindowManager2() {
-        NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
-        windowSystem.load();
+        reloadWindowSystem();
     }
 }

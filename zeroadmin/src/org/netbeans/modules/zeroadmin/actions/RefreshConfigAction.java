@@ -49,10 +49,9 @@ import org.openide.filesystems.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
-import org.netbeans.core.NbTopManager;
+import static org.netbeans.modules.zeroadmin.ZeroAdminInstall.saveWindowSystem;
 
 /**
  * Refresh the operator configuration.
@@ -69,8 +68,7 @@ public class RefreshConfigAction extends CallableSystemAction {
             public void run() {
                 try {
                     // force the core to save pending stuff:
-                    NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
-                    windowSystem.save();
+                    saveWindowSystem();
                     z.writableLayer.runAtomicAction(new FileSystem.AtomicAction() {
                         // atomic action --> should be faster???
                         public void run() throws IOException {

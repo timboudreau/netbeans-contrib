@@ -44,10 +44,10 @@ package org.netbeans.modules.zeroadmin;
 import java.beans.PropertyChangeListener;
 import java.net.*;
 import java.util.*;
-import java.lang.reflect.*;
 import java.io.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -61,11 +61,9 @@ import org.openide.filesystems.*;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.openide.util.Lookup;
-
-import org.netbeans.core.NbTopManager;
 import org.netbeans.modules.remotesfs.MemoryFileSystem;
 import org.openide.NotifyDescriptor;
+import org.openide.windows.WindowManager;
 
 /**
  * This class is needed because
@@ -392,8 +390,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                     return;
                 }
                 // force the core to save pending stuff:
-                NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
-                windowSystem.save();
+                saveWindowSystem();
                 
                 XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
                 copy(writableLayer.getRoot(), bufFs.getRoot(), true);
@@ -572,6 +569,26 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             }
             
             return data.toString();
+        }
+    }
+    
+    public static void saveWindowSystem() {
+        try {
+            WindowManager mgr = WindowManager.getDefault();
+            Method m = mgr.getClass().getDeclaredMethod("save");
+            m.invoke(mgr);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void reloadWindowSystem() {
+        try {
+            WindowManager mgr = WindowManager.getDefault();
+            Method m = mgr.getClass().getDeclaredMethod("load");
+            m.invoke(mgr);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

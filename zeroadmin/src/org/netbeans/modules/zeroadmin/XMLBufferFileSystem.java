@@ -117,11 +117,6 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
         fileChangeListener = FileUtil.weakFileChangeListener(this, null);
     }
     
-    @Override
-    public Status getStatus () {
-        return this;
-    }
-    
     private void writeObject (ObjectOutputStream out) throws IOException {
         throw new NotSerializableException ("XMLBufferFileSystem is not persistent");
     }
