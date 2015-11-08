@@ -31,6 +31,7 @@ import org.openide.util.io.ReaderInputStream;
 /**
  *
  * @author alley
+ * @author Lou Dasaro
  */
 public class PythonPlatformManager implements Serializable {
 
@@ -452,10 +453,7 @@ public class PythonPlatformManager implements Serializable {
 
             if (Utilities.isWindows()) {
                 ad.traverseEnvPaths();
-                ad.traverseDirectory(new File("c:/"));
-                // ad.searchNestedDirectoies = true; // because traverse turns it off
-                // ad.traverse(new File("c:/"), false);
-                //}
+                ad.traverseDirectory(new File("c:/")); // Python defaults to c:\ on Windows
             }else{ 
                 if(Utilities.isMac()){
                     ad.traverseEnvPaths();
@@ -478,6 +476,7 @@ public class PythonPlatformManager implements Serializable {
                         } catch (IOException ioe) {
                             Exceptions.printStackTrace(ioe);
                         }
+                    }
                 }
             }
 
@@ -489,9 +488,9 @@ public class PythonPlatformManager implements Serializable {
                     } catch (IOException ioe) {
                         Exceptions.printStackTrace(ioe);
                     }
-                    }
                 }
             }
+            
         } catch (PythonException py) {
             Exceptions.printStackTrace(py);
         } finally {
