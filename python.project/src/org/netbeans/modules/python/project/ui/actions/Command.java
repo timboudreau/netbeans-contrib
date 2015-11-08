@@ -74,9 +74,9 @@ public abstract class Command {
        if ( platform == null ) {
          // Better to inform the user than try to use a default unsuited
          String platformId = pyProject.getEvaluator().getProperty(PythonProjectProperties.ACTIVE_PLATFORM);
-         showLaunchError( "selected project has broken python platform : " +
+         showLaunchError( "The selected project specifies a missing or invalid Python platform : " + // NOI18N
                            platformId +
-                           " => bind to an existing python platform in project's properties "
+                           "\nPlease add the Python platform or choose an existing one in Project Properties. " // NOI18N
                          );
        }
        return platform ;
