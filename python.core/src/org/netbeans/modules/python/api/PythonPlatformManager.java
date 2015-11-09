@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
@@ -62,6 +63,10 @@ public class PythonPlatformManager implements Serializable {
 
     /** Singleton instance variable **/
     private static PythonPlatformManager instance;
+    
+    protected void showPlatformError( String message ){
+      JOptionPane.showMessageDialog(null,message ,"Python Platform Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     private PythonPlatform getBundledPlatform() {
         PythonPlatform platform = new PythonPlatform(PLATFORM_ID_DEFAULT);
@@ -416,6 +421,10 @@ public class PythonPlatformManager implements Serializable {
             }else{
                 // throw new PythonException("Could not discover Python properties");
                 LOGGER.log(Level.SEVERE, "Could not discover Python properties in ", cmd);
+                showPlatformError( "Unable to discover Python properties in platform : " + // NOI18N
+                                  cmd +
+                                  "\nPlease check the installation path and entry in Python Platforms. " // NOI18N
+                                );                
                 return (PythonPlatform) null;
             }
 //        }catch(PythonException ex){
