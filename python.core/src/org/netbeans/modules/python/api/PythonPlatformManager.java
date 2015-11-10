@@ -420,11 +420,12 @@ public class PythonPlatformManager implements Serializable {
                 platforms.put(platform.getId(), platform);
             }else{
                 // throw new PythonException("Could not discover Python properties");
-                LOGGER.log(Level.SEVERE, "Could not discover Python properties in ", cmd);
-                showPlatformError( "Unable to discover Python properties in platform : " + // NOI18N
-                                  cmd +
-                                  "\nPlease check the installation path and entry in Python Platforms. " // NOI18N
-                                );                
+                String sMessage = "Unable to discover Python properties in platform: " + cmd +
+                     "\nCheck the installation path or entry in Python Platforms";
+                LOGGER.log(Level.SEVERE, sMessage);
+                if(!autoDetecting) { // guard - because it can be problematic to display a user message while autoDetecting
+                    showPlatformError( sMessage );// NOI18N
+                }          
                 return (PythonPlatform) null;
             }
 //        }catch(PythonException ex){

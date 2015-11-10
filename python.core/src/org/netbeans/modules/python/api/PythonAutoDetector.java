@@ -82,16 +82,16 @@ public class PythonAutoDetector {
                 if (Utilities.isWindows()){
                     if (ext.equalsIgnoreCase("exe") || ext.equalsIgnoreCase("bat")) {
                         if( addMatch(dir.getAbsolutePath())) { //don't report duplicates
-                            if (LOGGER.isLoggable(Level.FINE)) {
-                                LOGGER.log(Level.FINE, "Match (Windows): {0}", dir.getAbsolutePath());                           
+                            if (LOGGER.isLoggable(Level.CONFIG)) {
+                                LOGGER.log(Level.CONFIG, "Match (Windows): {0}", dir.getAbsolutePath());                           
                             }
                         }
                     }
                 } else if(Utilities.isMac()) {
                     if (ext.equalsIgnoreCase("")) {
                         if( addMatch(dir.getAbsolutePath())) {
-                            if (LOGGER.isLoggable(Level.FINE)) {
-                                LOGGER.log(Level.FINE, "Match (Mac): {0}", dir.getAbsolutePath());                           
+                            if (LOGGER.isLoggable(Level.CONFIG)) {
+                                LOGGER.log(Level.CONFIG, "Match (Mac): {0}", dir.getAbsolutePath());                           
                             }
                         }
                     }
@@ -173,8 +173,8 @@ public class PythonAutoDetector {
             }
         }
         // no python found!!!
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "Python/Jython not found in environment path {0}", sEnvPath);            
+        if (LOGGER.isLoggable(Level.CONFIG)) {
+            LOGGER.log(Level.CONFIG, "Python/Jython not found in environment path {0}", sEnvPath);            
         }
     }
 
