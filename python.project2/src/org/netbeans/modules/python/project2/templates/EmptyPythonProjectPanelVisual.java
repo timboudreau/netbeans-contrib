@@ -11,9 +11,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Utilities;
 
 public final class EmptyPythonProjectPanelVisual extends SettingsPanel implements DocumentListener {
     
@@ -21,6 +24,14 @@ public final class EmptyPythonProjectPanelVisual extends SettingsPanel implement
     private final PanelConfigureProject panel;
 
     public EmptyPythonProjectPanelVisual(PanelConfigureProject panel) {
+        
+        boolean bIsWindows = Utilities.isWindows();
+        if( bIsWindows) {
+            NotifyDescriptor message = new NotifyDescriptor.Message(
+                    "Cannot create setuptools project for Windows. Press Cancel",
+                    NotifyDescriptor.ERROR_MESSAGE); // invalid
+            DialogDisplayer.getDefault().notify(message);            
+        } 
         initComponents();
         this.panel = panel;
         // Register listener on the textFields to make the automatic updates
@@ -145,7 +156,12 @@ public final class EmptyPythonProjectPanelVisual extends SettingsPanel implement
 
     @Override
     boolean valid(WizardDescriptor wizardDescriptor) {
-
+        boolean bIsWindows = Utilities.isWindows();
+        if( bIsWindows) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    "Cannot create setuptools project for Windows. Press Cancel"); // invalid 
+            return false;
+        } 
         if (projectNameTextField.getText().length() == 0) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
                     "Project Name is not a valid folder name.");
