@@ -1129,17 +1129,17 @@ public final class PythonLexer implements Lexer<PythonTokenId> {
             break;
         case 'F': // False
             if (length == 5 && TokenUtilities.textEquals(s, "False")) { // NOI18N
-                return PythonTokenId.FALSE;
+                return PythonTokenId.BOOL;
             }
             break;
         case 'N': // None
             if (length == 4 && TokenUtilities.textEquals(s, "None")) { // NOI18N
-                return PythonTokenId.NONE;
+                return PythonTokenId.BOOL;
             }
             break;
         case 'T': // True
             if (length == 4 && TokenUtilities.textEquals(s, "True")) { // NOI18N
-                return PythonTokenId.TRUE;
+                return PythonTokenId.BOOL;
             }
             break;
         case '_': // Special symbols of python

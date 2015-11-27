@@ -5,6 +5,14 @@ CONSTANT = "VALUE"
 class Foo(Bar):
     """Class doc"""
 
-    def __init__(self,args=''):
+    CLASS_VARIABLE = True
+
+    def __init__(self, args=''):
         # Comment
-        print 1+2.0
+        print 1 + 2.0
+        self.do()
+
+    @decorator
+    def do(self):
+        # TODO: make it useful
+        pass
