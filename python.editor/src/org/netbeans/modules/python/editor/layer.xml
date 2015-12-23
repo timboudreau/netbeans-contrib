@@ -221,15 +221,6 @@
         </folder>
     </folder>
     
-    <folder name="Services">
-        <folder name="MIMEResolver">
-            <file name="PythonResolver.xml" url="PythonResolver.xml">
-                <attr name="displayName" bundlevalue="org.netbeans.modules.python.editor.Bundle#Services/MIMEResolver/PythonResolver.xml"/>
-                <attr name="position" intvalue="184"/>
-            </file>
-        </folder>
-    </folder>
-
     <folder name="Templates">
         <folder name="Python">
             <attr name="position" intvalue="1403"/>

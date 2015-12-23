@@ -9,7 +9,6 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
@@ -20,17 +19,10 @@ import org.openide.windows.TopComponent;
 @Messages({
     "LBL_Py_LOADER=Files of Py"
 })
-@MIMEResolver.ExtensionRegistration(
-        displayName = "#LBL_Py_LOADER",
-        mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE,
-        extension = {"py"},
-        position = 183
-)
-@DataObject.Registration(
-        mimeType = PythonMIMEResolver.PYTHON_MIME_TYPE,
-        iconBase = "org/netbeans/modules/python/editor/resources/pyNode25.png",
-        displayName = "#LBL_Py_LOADER",
-        position = 300
+@MIMEResolver.Registration(
+    displayName="#LBL_Py_LOADER",
+    resource="../PythonResolver.xml",
+    position=300
 )
 @ActionReferences({
     @ActionReference(
