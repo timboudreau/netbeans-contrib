@@ -73,7 +73,7 @@ public class PythonPlatformManager implements Serializable {
 
         //TODO: 1. Do not hard-code platforms versions.
         //		2. Shouldn't Platform Manager go into python.platform?
-        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.7.0", "org.jython", false); // NOI18N
+        File jythonInstall = InstalledFileLocator.getDefault().locate("jython-2.7.0", "org.jython.distro", false); // NOI18N
         if (!jythonInstall.exists()) {
             return null;
         }
