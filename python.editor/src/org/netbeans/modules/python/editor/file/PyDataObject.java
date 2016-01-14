@@ -22,7 +22,7 @@ import org.openide.windows.TopComponent;
 @MIMEResolver.Registration(
     displayName="#LBL_Py_LOADER",
     resource="../PythonResolver.xml",
-    position=300
+    position=184
 )
 @ActionReferences({
     @ActionReference(
