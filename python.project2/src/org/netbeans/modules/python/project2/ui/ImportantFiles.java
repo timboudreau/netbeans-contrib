@@ -62,6 +62,7 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.python.project2.ImportantFilesImplementation;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
@@ -317,7 +318,9 @@ public class ImportantFiles {
         private void setKeys() {
             List<ImportantFilesImplementation.FileInfo> importantFiles = getImportantFiles();
             Collections.sort(importantFiles, new FileInfoComparator());
-            setKeys(importantFiles);
+            if (!ProjectManager.mutex().isReadAccess() && !ProjectManager.mutex().isWriteAccess()) {
+                setKeys(importantFiles);
+            }
         }
 
         private List<ImportantFilesImplementation.FileInfo> getImportantFiles() {
