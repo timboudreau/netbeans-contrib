@@ -202,7 +202,7 @@ public class ImportantFiles {
     private static final class ImportantFilesNode extends AbstractNode {
 
         @StaticResource
-        private static final String BADGE = "org/netbeans/modules/python/project2/resources/py_25_16.png"; // NOI18N
+        private static final String BADGE = "org/netbeans/modules/python/project2/resources/config-badge.gif"; // NOI18N
 
         private final Node iconDelegate;
 
