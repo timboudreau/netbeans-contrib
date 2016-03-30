@@ -50,7 +50,7 @@ import org.netbeans.spi.project.ui.support.NodeList;
  *
  * @author Julien Enselme <jenselme@netbeans.org>
  */
-@NodeFactory.Registration(projectType = "org-netbeans-modules-python-project2", position = 200)
+@NodeFactory.Registration(projectType = "org-netbeans-modules-python-project2", position = 300)
 public class PythonImportantFilesNodeFactory implements NodeFactory {
     @Override
     public NodeList createNodes(Project project) {
