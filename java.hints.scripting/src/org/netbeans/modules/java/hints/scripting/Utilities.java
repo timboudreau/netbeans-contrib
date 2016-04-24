@@ -41,19 +41,22 @@
 package org.netbeans.modules.java.hints.scripting;
 
 import com.sun.source.util.Trees;
+
 import java.io.EOFException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.java.hints.Hint;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.WeakSet;
 
 /**
  *
@@ -62,24 +65,29 @@ import org.openide.util.Lookup;
 public class Utilities {
     
     public final static List<URL> computeCP() {
-        List<URL> urls = new LinkedList<URL>();
+        List<URL> urls = new LinkedList<>();
 
-        urls.add(CompilationInfo.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(FileObject.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(DataObject.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(Node.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(Trees.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(ErrorDescription.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(AbstractHint.class.getProtectionDomain().getCodeSource().getLocation());
-        urls.add(Lookup.class.getProtectionDomain().getCodeSource().getLocation());
+        urls.add(urlForClass(CompilationInfo.class));
+        urls.add(urlForClass(FileObject.class));
+        urls.add(urlForClass(DataObject.class));
+        urls.add(urlForClass(Node.class));
+        urls.add(urlForClass(Trees.class));
+        urls.add(urlForClass(ErrorDescription.class));
+        urls.add(urlForClass(Hint.class));
+        urls.add(urlForClass(Lookup.class));
+        urls.add(urlForClass(WeakSet.class));
 
         return urls;
     }
 
-    public static FileObject getFolder() {
-        return FileUtil.getConfigFile("hints");
+    private static URL urlForClass(Class c) {
+        URL loc = c.getProtectionDomain().getCodeSource().getLocation();
+
+        if (FileUtil.isArchiveFile(loc))
+            return FileUtil.getArchiveRoot(loc);
+        return loc;
     }
-    
+
     public final static String copyFileToString (FileObject f) throws java.io.IOException {
         //XXX:
         int s = (int)f.getSize();

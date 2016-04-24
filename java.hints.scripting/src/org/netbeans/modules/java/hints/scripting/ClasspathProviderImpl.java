@@ -45,7 +45,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.ErrorManager;
 import java.util.regex.Pattern;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
@@ -55,26 +54,31 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Jan Lahoda
  */
-@org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.java.classpath.ClassPathProvider.class)
+@ServiceProvider(service=ClassPathProvider.class, position=0)
 public class ClasspathProviderImpl implements ClassPathProvider {
 
     private ClassPath boot;
     private ClassPath compile;
     private ClassPath source;
-    
+
     public synchronized ClassPath findClassPath(FileObject file, String type) {
-        if (FileUtil.isParentOf(Utilities.getFolder(), file)) {
+        FileObject rootCand = file.getFileObject("../../..");
+
+        String relPath = rootCand != null ? FileUtil.getRelativePath(rootCand, file) : null;
+
+        if (relPath != null && relPath.startsWith("META-INF/upgrade/")) {
             if (ClassPath.BOOT.equals(type)) {
                 if (boot == null) {
                     boot = ClassPathSupport.createClassPath(getBootClassPath().toArray(new URL[0]));
                     GlobalPathRegistry.getDefault().register(type, new ClassPath[] {boot});
                 }
-                
+
                 return boot;
             }
             if (ClassPath.COMPILE.equals(type)) {
@@ -82,7 +86,7 @@ public class ClasspathProviderImpl implements ClassPathProvider {
                     List<URL> cp = Utilities.computeCP();
                     URL[] us = new URL[cp.size()];
                     int index = 0;
-                    
+
                     for (URL u : cp) {
                         if (FileUtil.isArchiveFile(u)) {
                             us[index++] = FileUtil.getArchiveRoot(u);
@@ -90,23 +94,23 @@ public class ClasspathProviderImpl implements ClassPathProvider {
                             us[index++] = u;
                         }
                     }
-                    
+
                     compile = ClassPathSupport.createClassPath(us);
                     GlobalPathRegistry.getDefault().register(type, new ClassPath[] {compile});
                 }
-                
+
                 return compile;
             }
             if (ClassPath.SOURCE.equals(type)) {
                 if (source == null) {
-                    source = ClassPathSupport.createClassPath(Utilities.getFolder());
+                    source = ClassPathSupport.createClassPath(file.getParent());
                     GlobalPathRegistry.getDefault().register(type, new ClassPath[] {source});
                 }
-                
+
                 return source;
             }
         }
-        
+
         return null;
     }
 
@@ -140,5 +144,5 @@ public class ClasspathProviderImpl implements ClassPathProvider {
             return Collections.emptyList();
         }
     }
-    
+
 }
