@@ -41,7 +41,10 @@
  */
 package org.netbeans.modules.autoproject.profiler;
 
-import org.netbeans.modules.profiler.spi.project.AntProjectSupportProvider;
+import java.util.Map;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.profiler.nbimpl.project.AntProjectSupportProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -52,7 +55,12 @@ import org.openide.modules.InstalledFileLocator;
  * @author Jiri Sedlacek
  */
 @ProjectServiceProvider(service=AntProjectSupportProvider.class, projectType="org-netbeans-modules-autoproject") // NOI18N
-public final class AutomaticAntProjectSupportProvider extends AntProjectSupportProvider {
+public final class AutomaticAntProjectSupportProvider extends AntProjectSupportProvider.Abstract {
+    
+    public AutomaticAntProjectSupportProvider(Project project) {
+        super(project);
+    }
+    
     @Override
     public FileObject getProjectBuildScript() {
         return FileUtil.toFileObject(InstalledFileLocator.getDefault().locate(
@@ -63,5 +71,11 @@ public final class AutomaticAntProjectSupportProvider extends AntProjectSupportP
     public FileObject getProjectBuildScript(String buildFileName) {
         return getProjectBuildScript();
     }
+    
+    @Override
+    public void configurePropertiesForProfiling(Map<String, String> props, FileObject profiledClassFile) {
+        ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE); // ??? (moved here from AutomaticProjectProfilingSupportProvider)
+        props.put("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL)); // NOI18N
+}
     
 }

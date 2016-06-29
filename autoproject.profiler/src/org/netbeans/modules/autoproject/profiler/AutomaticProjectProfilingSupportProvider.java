@@ -41,23 +41,13 @@
  */
 package org.netbeans.modules.autoproject.profiler;
 
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.profiler.api.JavaPlatform;
 import org.netbeans.modules.profiler.nbimpl.project.JavaProjectProfilingSupportProvider;
 import org.netbeans.modules.profiler.spi.project.ProjectProfilingSupportProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
-import java.util.Map;
 
 /**
  *
@@ -71,6 +61,7 @@ public final class AutomaticProjectProfilingSupportProvider extends JavaProjectP
         return fo.hasExt("java"); // NOI18N
     }
 
+    @Override
     protected JavaPlatform resolveProjectJavaPlatform() {
         return null;
     }
@@ -80,15 +71,6 @@ public final class AutomaticProjectProfilingSupportProvider extends JavaProjectP
         return profiledClassFile != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE) != null &&
                 ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE) != null;
-    }
-    
-    public void configurePropertiesForProfiling(Properties props, FileObject profilerClassFile) {
-        // transitional placeholder for API change
-    }
-
-    public void configurePropertiesForProfiling(Map<String, String> props, FileObject profiledClassFile) {
-        ClassPath sourcepath = ClassPath.getClassPath(profiledClassFile, ClassPath.SOURCE);
-        props.put("classpath", ClassPath.getClassPath(profiledClassFile, ClassPath.EXECUTE).toString(ClassPath.PathConversionMode.FAIL)); // NOI18N
     }
     
     public AutomaticProjectProfilingSupportProvider(Project project) {
