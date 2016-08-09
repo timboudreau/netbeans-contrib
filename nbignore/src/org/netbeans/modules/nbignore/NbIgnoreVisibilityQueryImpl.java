@@ -41,13 +41,14 @@ package org.netbeans.modules.nbignore;
 
 import java.io.File;
 import javax.swing.event.ChangeListener;
+import org.netbeans.spi.queries.VisibilityQueryChangeEvent;
 import org.netbeans.spi.queries.VisibilityQueryImplementation;
 import org.netbeans.spi.queries.VisibilityQueryImplementation2;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.ChangeSupport;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 
@@ -114,9 +115,15 @@ public class NbIgnoreVisibilityQueryImpl implements VisibilityQueryImplementatio
             checkNewOrDeletedFile(fe);
         }
 
+        @Override
+        public void fileRenamed(FileRenameEvent fe) {
+            checkNewOrDeletedFile(fe);
+        }
+
         private void checkNewOrDeletedFile(FileEvent fe) {
-            if (fe.getFile().getNameExt().equals(FILE_NAME)) {
-                changeSupport.fireChange();
+            FileObject file = fe.getFile();
+            if (file.getNameExt().equals(FILE_NAME)) {
+                changeSupport.fireChange(new VisibilityQueryChangeEvent(this, new FileObject[] {file.getParent()}));
             }
         }
 
