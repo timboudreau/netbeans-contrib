@@ -41,7 +41,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.lib.callgraph;
 
 import org.netbeans.lib.callgraph.Arguments.InvalidArgumentsException;
@@ -71,8 +70,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
  * Scans a source folder and runs javac against any Java sources present, and
@@ -166,6 +167,7 @@ public final class Callgraph {
                     List<SourceElement> outbounds = new ArrayList<>(arguments.isReverse() ? sce.getInboundReferences() : sce.getOutboundReferences());
                     Collections.sort(outbounds); // also sort connections
                     // Iterate the current method's connections
+                    Set<ComparableCharSequence> mth = new TreeSet<>();
                     for (SourceElement outbound : outbounds) {
                         if (arguments.isExcluded(outbound.qname().toString())) { // Ignore matches
                             continue;
@@ -179,20 +181,12 @@ public final class Callgraph {
                         if (!arguments.isSelfReferences() && sce.typeName().equals(outbound.typeName())) {
                             continue;
                         }
-                        CharSequence line;
-                        // Build our line for the method graph output
-                        if (arguments.isShortNames()) {
-                            line = info.strings.concat(info.strings.QUOTE, sce.shortName(), info.strings.CLOSE_OPEN_QUOTE, outbound.shortName(), info.strings.QUOTE);
-                        } else {
-                            line = info.strings.concat(info.strings.QUOTE, sce.qname(), info.strings.CLOSE_OPEN_QUOTE, outbound.qname(), info.strings.QUOTE);
-                        }
-                        // Print to stdout
-                        if (!arguments.isQuiet()) {
-                            System.out.println(line);
-                        }
-                        // Write to file if necessary
                         if (outStream != null) {
-                            outStream.println(line);
+                            if (arguments.isShortNames()) {
+                                mth.add(outbound.shortName());
+                            } else {
+                                mth.add(outbound.qname());
+                            }
                         }
                         // Build the package graph output if necessary
                         if (packageStream != null) {
@@ -221,6 +215,20 @@ public final class Callgraph {
                                     emittedClassLines.add(classLine);
                                     classStream.println(classLine);
                                 }
+                            }
+                        }
+                    }
+                    if ((!arguments.isQuiet() || outStream != null)) {
+                        if (!mth.isEmpty()) {
+                            CharSequence nm = arguments.isShortNames() ? sce.shortName() : sce.qname();
+                            List<CharSequence> l = new ArrayList<>(mth);
+                            l.add(0, nm);
+                            CharSequence line = info.strings.concatQuoted(l);
+                            if (!arguments.isQuiet()) {
+                                System.out.println(line);
+                            }
+                            if (outStream != null) {
+                                outStream.println(line);
                             }
                         }
                     }

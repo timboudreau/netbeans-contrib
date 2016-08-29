@@ -44,11 +44,11 @@
 
 package org.netbeans.lib.callgraph.javac;
 
-import org.netbeans.lib.callgraph.util.EightBitStrings;
 import com.sun.source.util.TreePath;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
  * Represents a method or field and the things that it references and that
@@ -58,16 +58,16 @@ import java.util.Set;
  */
 public final class SourceElement implements Comparable<SourceElement> {
 
-    private final CharSequence name;
+    private final ComparableCharSequence name;
     private final Set<SourceElement> inbound = new HashSet<>();
     private final Set<SourceElement> outbound = new HashSet<>();
     private final SourceElementKind kind;
-    private final CharSequence type;
-    private final CharSequence typeName;
-    private final CharSequence parameters;
-    private final CharSequence packageName;
-    private final CharSequence qname;
-    private final CharSequence shortName;
+    private final ComparableCharSequence type;
+    private final ComparableCharSequence typeName;
+    private final ComparableCharSequence parameters;
+    private final ComparableCharSequence packageName;
+    private final ComparableCharSequence qname;
+    private final ComparableCharSequence shortName;
     private final boolean abstrakt;
 
     public SourceElement(SourceElementKind kind, TreePath handle, String name, String type, SourcesInfo info, boolean abstrakt) {
@@ -84,11 +84,11 @@ public final class SourceElement implements Comparable<SourceElement> {
         this.abstrakt = abstrakt;
     }
 
-    public CharSequence getType() {
+    public ComparableCharSequence getType() {
         return type;
     }
 
-    public CharSequence getName() {
+    public ComparableCharSequence getName() {
         return name;
     }
 
@@ -116,15 +116,15 @@ public final class SourceElement implements Comparable<SourceElement> {
         return kind;
     }
 
-    public CharSequence typeName() {
+    public ComparableCharSequence typeName() {
         return typeName;
     }
 
-    public CharSequence packageName() {
+    public ComparableCharSequence packageName() {
         return packageName;
     }
 
-    public CharSequence parameters() {
+    public ComparableCharSequence parameters() {
         return parameters;
     }
     
@@ -137,11 +137,11 @@ public final class SourceElement implements Comparable<SourceElement> {
         return qname().toString();
     }
 
-    public CharSequence qname() {
+    public ComparableCharSequence qname() {
         return qname;
     }
 
-    public CharSequence shortName() {
+    public ComparableCharSequence shortName() {
         return shortName;
     }
 
@@ -168,6 +168,6 @@ public final class SourceElement implements Comparable<SourceElement> {
 
     @Override
     public int compareTo(SourceElement o) {
-        return toString().compareTo(o.toString());
+        return qname.compareTo(o.qname);
     }
 }

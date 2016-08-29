@@ -1,7 +1,8 @@
 package org.netbeans.lib.callgraph.util;
 
-import org.netbeans.lib.callgraph.util.EightBitStrings;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -66,7 +67,58 @@ public class SmallStringTest {
         assertEquals("Hello there how are you?", concat.toString());
         assertEquals("Hello there how are you?".hashCode(), concat.toString().hashCode());
         assertEquals(concat, concat2);
+    }
 
+    @Test
+    public void testSorting() {
+        EightBitStrings strings = new EightBitStrings(false);
+        ComparableCharSequence a = strings.concat(strings.create("a"), strings.create("b"), strings.create("c"), strings.create("d"));
+        ComparableCharSequence b = strings.concat(strings.create("a"), strings.create("b"), strings.create("cd"));
+        ComparableCharSequence c = strings.concat(strings.create("ab"), strings.create("cd"));
+        ComparableCharSequence d = strings.concat(strings.create("a"), strings.create("bcd"));
+        ComparableCharSequence e = strings.concat(strings.create("abcd"));
+        assertEquals(4, a.length());
+        assertEquals(4, b.length());
+        assertEquals(4, c.length());
+        assertEquals(4, d.length());
+        assertEquals(4, e.length());
+        for (ComparableCharSequence c1 : new ComparableCharSequence[]{a, b, c, d, e}) {
+            for (ComparableCharSequence c2 : new ComparableCharSequence[]{a, b, c, d, e}) {
+                assertEquals(c1, c2);
+                assertEquals(0, c1.compareTo(c2));
+            }
+        }
+
+        ComparableCharSequence cs = strings.concatQuoted(Arrays.asList(strings.create("a"), strings.create("b"), strings.create("c"), strings.create("d")));
+        assertEquals("\"a\" \"b\" \"c\" \"d\"", cs.toString());
+
+        strings = new EightBitStrings(true);
+        a = strings.concat("a", "b", "c", "d");
+        b = strings.concat("a", "b", "cd");
+        c = strings.concat("ab", "cd");
+        d = strings.concat("a", "bcd");
+        e = strings.concat("abcd");
+        assertEquals(4, a.length());
+        assertEquals(4, b.length());
+        assertEquals(4, c.length());
+        assertEquals(4, d.length());
+        assertEquals(4, e.length());
+        for (ComparableCharSequence c1 : new ComparableCharSequence[]{a, b, c, d, e}) {
+            for (ComparableCharSequence c2 : new ComparableCharSequence[]{a, b, c, d, e}) {
+                assertEquals(c1, c2);
+                assertEquals(0, c1.compareTo(c2));
+            }
+        }
+
+        strings = new EightBitStrings(false);
+        a = strings.concat(strings.create("abc"), strings.create("def"));
+        b = strings.concat("bcd", strings.create("efg"));
+        c = strings.concat("cde", strings.create("fgh"));
+        d = strings.create("defghi");
+        e = strings.create("efghij");
+        List<ComparableCharSequence> l = Arrays.asList(e, c, d, a, b);
+        Collections.sort(l);
+        assertEquals(l, Arrays.asList(a, b, c, d, e));
     }
 
     private static String randomString(int len) {
