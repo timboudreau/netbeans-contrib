@@ -1,4 +1,4 @@
-/* 
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (C) 1997-2015 Oracle and/or its affiliates. All rights reserved.
@@ -41,10 +41,10 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.lib.callgraph;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,6 +64,8 @@ final class Arguments implements CallgraphControl {
         new NoSelfReferencesCommand(),
         new ShortNamesCommand(),
         new MavenCommand(),
+        new GradleCommand(),
+        new IgnoreCommand(),
         new OutfileCommand(),
         new ExcludeCommand(),
         new PackageGraphFileCommand(),
@@ -78,8 +80,10 @@ final class Arguments implements CallgraphControl {
     private boolean noSelfReferences = false;
     private boolean shortNames = false;
     private boolean maven = false;
+    private boolean gradle = false;
     private File outfile;
     private Set<String> exclude = new HashSet<>();
+    private Set<String> ignore = new HashSet<>();
     private boolean quiet;
     private File classGraphFile;
     private File packageGraphFile;
@@ -88,11 +92,11 @@ final class Arguments implements CallgraphControl {
     private boolean disableEightBitStrings;
     private boolean reverse;
 
-    Arguments(String... args) {
+    Arguments(String... args) throws IOException {
         this(true, args);
     }
 
-    Arguments(boolean abortIfWillNotOutput, String... args) {
+    Arguments(boolean abortIfWillNotOutput, String... args) throws IOException {
         List<String> unknownArguments = new LinkedList<>();
         List<String> errors = new LinkedList<>();
         for (int i = 0; i < args.length;) {
@@ -133,13 +137,63 @@ final class Arguments implements CallgraphControl {
                 } else if (!folder.isDirectory()) {
                     errors.add("Not a folder: " + folderName);
                 } else {
-                    this.folders.add(folder);
+                    this.folders.add(folder.getCanonicalFile());
                 }
             }
         }
-        if (maven) {
+        Set<String> origFolders = folders;
+        if (maven && gradle) {
+            errors.add("--maven and --gradle are mutually exclusive");
+        } else if (maven) {
             findMavenSubfolders(errors);
+        } else if (gradle) {
+            findGradleSubfolders(errors);
         }
+        Set<File> toIgnore = new HashSet<>();
+        for (String ig : ignore) {
+            File ff = new File(ig);
+            if (ff.exists() && ff.isDirectory()) {
+                ff = ff.getCanonicalFile();
+                for (File f : this.folders()) {
+                    File f1 = f.getCanonicalFile();
+                    if (f1.equals(ff)) {
+                        toIgnore.add(f1);
+                    } else {
+                        if (f1.getPath().startsWith(ff.getPath())) {
+                            toIgnore.add(f1);
+                        }
+                    }
+                }
+            } else {
+                for (String u : unknownArguments) {
+                    if (!u.startsWith("-")) {
+                        File f = new File(u);
+                        if (f.exists()) {
+                            f = f.getCanonicalFile();
+                            File maybeIgnore = new File(f, ig);
+                            if (maybeIgnore.exists() && maybeIgnore.isDirectory()) {
+                                maybeIgnore = maybeIgnore.getCanonicalFile();
+                                for (File fld : this.folders()) {
+                                    if (fld.equals(maybeIgnore)) {
+                                        toIgnore.add(fld);
+                                    } else if (fld.getAbsolutePath().startsWith(maybeIgnore.getAbsolutePath())) {
+                                        toIgnore.add(fld);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (verbose && !toIgnore.isEmpty()) {
+            System.err.println("Ignoring the following projects:");
+            for (File ti : toIgnore) {
+                System.err.println(" - " + ti.getAbsolutePath());
+            }
+        }
+        this.folders.removeAll(toIgnore);
+
         if (packageGraphFile != null) {
             File parent = packageGraphFile.getParentFile();
             if (!parent.exists() || !parent.isDirectory()) {
@@ -194,6 +248,41 @@ final class Arguments implements CallgraphControl {
     private boolean hasPom(File fld) {
         File pom = new File(fld, "pom.xml");
         return pom.exists() && pom.isFile() && pom.canRead();
+    }
+
+    void findGradleSubfolders(List<String> errors) {
+        Set<File> flds = new HashSet<>(this.folders);
+        this.folders.clear();
+        for (File f : flds) {
+            recurseSubfoldersLookingForGradleProjects(f);
+        }
+        if (this.folders.isEmpty()) {
+            errors.add("Did not find any gradle projects (looked for *.gradle and src/main/java in all subfolders of folder list)");
+        }
+    }
+
+    private void recurseSubfoldersLookingForGradleProjects(File file) {
+        if (file.isDirectory()) {
+            if (hasGradleFile(file)) {
+                File sources = srcMainJavaFolder(file);
+                if (sources != null) {
+                    this.folders.add(sources);
+                }
+            }
+            for (File child : file.listFiles()) {
+                recurseSubfoldersLookingForGradleProjects(child);
+            }
+        }
+    }
+
+    boolean hasGradleFile(File fld) {
+        return fld.listFiles((File pathname) -> {
+            return pathname.getName().endsWith(".gradle") && pathname.isFile() && pathname.canRead();
+        }).length > 0;
+    }
+
+    public boolean isGradle() {
+        return gradle;
     }
 
     private File srcMainJavaFolder(File projectFolder) {
@@ -436,6 +525,24 @@ final class Arguments implements CallgraphControl {
         }
     }
 
+    private static final class GradleCommand extends Command {
+
+        GradleCommand() {
+            super(CMD_GRADLE, "g", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.gradle = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Find all gradle projects that are children of the passed folders, and scan their src/main/java subfolders";
+        }
+    }
+
     private static final class OmitAbstractCommand extends Command {
 
         OmitAbstractCommand() {
@@ -493,7 +600,7 @@ final class Arguments implements CallgraphControl {
     private static final class OutfileCommand extends Command {
 
         OutfileCommand() {
-            super(CMD_METHODGRAPH, "g", true, true);
+            super(CMD_METHODGRAPH, "o", true, true);
         }
 
         @Override
@@ -573,6 +680,29 @@ final class Arguments implements CallgraphControl {
         @Override
         protected String help() {
             return "Exclude any relationships where the fully qualified class name starts with any pattern in this comma-delimited list of strings, e.g. -e foo.bar,foo.baz";
+        }
+    }
+
+    private static final class IgnoreCommand extends Command {
+
+        IgnoreCommand() {
+            super(CMD_IGNORE, "i", true, true);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            if (args.length == i + 1) {
+                throw new IllegalArgumentException("--exclude or -e present but no exclusion list present");
+            }
+            for (String s : args[i + 1].split(",")) {
+                toSet.ignore.add(s);
+            }
+            return 2;
+        }
+
+        @Override
+        protected String help() {
+            return "Comma delimited list of folders or subfolders to ignore, absolute or relative to the base directory.";
         }
     }
 

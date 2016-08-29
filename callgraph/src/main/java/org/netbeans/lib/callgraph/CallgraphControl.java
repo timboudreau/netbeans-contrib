@@ -58,6 +58,8 @@ interface CallgraphControl extends Iterable<File> {
     static final String CMD_NOSELF = "noself";
     static final String CMD_SIMPLE = "simple";
     static final String CMD_MAVEN = "maven";
+    static final String CMD_GRADLE = "gradle";
+    static final String CMD_IGNORE = "ignore";
     static final String CMD_PACKAGEGRAPH = "packagegraph";
     static final String CMD_METHODGRAPH = "methodgraph";
     static final String CMD_CLASSGRAPH = "classgraph";
@@ -83,8 +85,6 @@ interface CallgraphControl extends Iterable<File> {
     boolean isSelfReferences();
 
     boolean isShortNames();
-
-    Iterator<File> iterator();
 
     File methodGraphFile();
 

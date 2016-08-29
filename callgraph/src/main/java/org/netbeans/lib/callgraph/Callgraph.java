@@ -71,6 +71,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * Scans a source folder and runs javac against any Java sources present, and
@@ -139,8 +141,10 @@ public final class Callgraph {
         }
         // The thing that will run javac
         JavacRunner runner = new JavacRunner(info, MergeIterator.toIterable(iterables), listener);
+        AtomicReference<File> lastFile = new AtomicReference<>();
+        Consumer<File> monitor = lastFile::set;
         // run javac
-        Set<SourceElement> allElements = runner.go();
+        Set<SourceElement> allElements = runner.go(monitor, lastFile);
 
         List<SourceElement> all = new ArrayList<>(allElements);
         // Sort, so textual output is more human-friendly
@@ -275,7 +279,7 @@ public final class Callgraph {
         return args;
     }
 
-    CallgraphControl build() {
+    CallgraphControl build() throws IOException {
         List<String> args = toCommandLineArguments();
         // We use regular string processing so we get the argument validation
         String[] argList = args.toArray(new String[args.size()]);

@@ -41,7 +41,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.lib.callgraph.javac;
 
 import org.netbeans.lib.callgraph.Listener;
@@ -58,6 +57,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -89,19 +90,23 @@ public class JavacRunner {
         this.info = info;
     }
 
-    private Iterable<? extends JavaFileObject> javaFileObjects(StandardJavaFileManager m) {
-        return new JavaFileObjectIterable(files, m);
+    private Iterable<? extends JavaFileObject> javaFileObjects(StandardJavaFileManager m, Consumer<File> monitor) {
+        return new JavaFileObjectIterable(files, m, monitor);
     }
-    
-    /** Iterable that converts an Iterable<File> to an Iterable<JavaFileObject>
-    */
+
+    /**
+     * Iterable that converts an Iterable<File> to an Iterable<JavaFileObject>
+     */
     private static final class JavaFileObjectIterable implements Iterable<JavaFileObject> {
+
         private final Iterable<File> files;
         private final StandardJavaFileManager mgr;
+        private final Consumer<File> consumer;
 
-        public JavaFileObjectIterable(Iterable<File> files, final StandardJavaFileManager mgr) {
+        public JavaFileObjectIterable(Iterable<File> files, final StandardJavaFileManager mgr, Consumer<File> consumer) {
             this.files = files;
             this.mgr = mgr;
+            this.consumer = consumer;
         }
 
         @Override
@@ -116,7 +121,9 @@ public class JavacRunner {
 
                 @Override
                 public JavaFileObject next() {
-                    return mgr.getJavaFileObjects(fi.next()).iterator().next();
+                    File f = fi.next();
+                    consumer.accept(f);
+                    return mgr.getJavaFileObjects(f).iterator().next();
                 }
 
                 @Override
@@ -134,6 +141,7 @@ public class JavacRunner {
         options.add("-XDsave-parameter-names");   // Javac runs inside the IDE
         options.add("-XDsuppressAbortOnBadClassFile");   // When a class file cannot be read, produce an error type instead of failing with an exception
         options.add("-XDshouldStopPolicy=GENERATE");   // Parsing should not stop in phase where an error is found
+//        options.add("-attrparseonly");
         options.add("-g:source"); // Make the compiler maintian source file info
         options.add("-g:lines"); // Make the compiler maintain line table
         options.add("-g:vars");  // Make the compiler maintain local variables table
@@ -142,7 +150,7 @@ public class JavacRunner {
         return options;
     }
 
-    public Set<SourceElement> go() throws IOException {
+    public Set<SourceElement> go(Consumer<File> monitor, AtomicReference<File> lastFile) throws IOException {
         listener.onStart();
         try {
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -150,17 +158,17 @@ public class JavacRunner {
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(),
                     Charset.forName("UTF-8"));
             fileManager.setLocation(StandardLocation.CLASS_OUTPUT, outdir);
-            Iterable<? extends JavaFileObject> toCompile = javaFileObjects(fileManager);
+            Iterable<? extends JavaFileObject> toCompile = javaFileObjects(fileManager, monitor);
 
             JavacTaskImpl task = (JavacTaskImpl) compiler.getTask(null,
                     fileManager, diagnostics, options(), null, toCompile);
-            return parse(task).allElements;
+            return parse(task, lastFile).allElements;
         } finally {
             listener.onFinish();
         }
     }
 
-    private SourcesInfo parse(JavacTaskImpl task) throws IOException {
+    private SourcesInfo parse(JavacTaskImpl task, AtomicReference<File> lastFile) throws IOException {
         listener.onStartActivity("Finding and parsing Java sources", -1);
         JavacTrees trees = JavacTrees.instance(task.getContext());
         List<CompilationUnitTree> units = new LinkedList<>();
@@ -169,7 +177,11 @@ public class JavacRunner {
             units.add(tree);
         }
         listener.onStartActivity("Attributing Java sources", -1);
-        task.analyze(); // Run attribution - the compiler flags we have set will have it not abort on unresolvable classes
+        try {
+            task.analyze(); // Run attribution - the compiler flags we have set will have it not abort on unresolvable classes
+        } catch (Throwable err) {
+            throw new Error("Thrown parsing " + lastFile.get(), err);
+        }
         try {
             try {
                 listener.onStartActivity("Cataloging methods", units.size());

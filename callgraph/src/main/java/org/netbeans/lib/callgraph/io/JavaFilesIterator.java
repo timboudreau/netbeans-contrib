@@ -69,15 +69,11 @@ public class JavaFilesIterator implements Iterator<File>, FileFilter {
     }
 
     public static Iterable<File> iterable(final File root) {
-        return new Iterable<File>() {
-
-            @Override
-            public Iterator<File> iterator() {
-                try {
-                    return new JavaFilesIterator(root);
-                } catch (IOException ex) {
-                    throw new IllegalStateException(root + "");
-                }
+        return () -> {
+            try {
+                return new JavaFilesIterator(root);
+            } catch (IOException ex) {
+                throw new IllegalStateException(root + "");
             }
         };
     }
@@ -135,7 +131,9 @@ public class JavaFilesIterator implements Iterator<File>, FileFilter {
 
     @Override
     public boolean accept(File file) {
-        return (file.isDirectory() && !file.getName().startsWith(".")) || (file.isFile() && file.canRead() && file.getName().endsWith(".java"));
+        return (file.isDirectory() && !file.getName().startsWith(".")) 
+                || ((file.isFile() && file.canRead() && file.getName().endsWith(".java") 
+                && !file.getName().equals("package-info.java")));
     }
 
     @Override

@@ -1,10 +1,9 @@
 package org.netbeans.lib.callgraph;
 
-import org.netbeans.lib.callgraph.CallgraphControl;
-import org.netbeans.lib.callgraph.Arguments;
-import org.netbeans.lib.callgraph.Callgraph;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,8 +15,8 @@ import static org.junit.Assert.*;
 public class ArgumentsTest {
 
     @Test
-    public void testBooleanSwitches() {
-        File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+    public void testBooleanSwitches() throws IOException {
+        File tmpdir = new File(System.getProperty("java.io.tmpdir")).getCanonicalFile();
         String tmp = tmpdir.getAbsolutePath();
 
         Arguments args = new Arguments("-s", tmp);
@@ -31,11 +30,11 @@ public class ArgumentsTest {
         assertFalse(args.isSelfReferences());
         assertTrue(args.folders().contains(new File(tmp)));
 
-        args = new Arguments("-n", "-g", tmp + File.separator + "out.txt", 
+        args = new Arguments("-n", "-o", tmp + File.separator + "out.txt", 
                 "--exclude", "foo.bar,foo.baz", System.getProperty("java.io.tmpdir"));
         assertFalse(args.isShortNames());
         assertFalse(args.isSelfReferences());
-        assertTrue(args.folders().contains(new File(tmp)));
+        assertTrue("Looking for " + tmp + " but got " + args.folders().toString(), args.folders().contains(new File(tmp)));
         assertNotNull(args.methodGraphFile());
         assertEquals(new File(tmpdir, "out.txt"), args.methodGraphFile());
         assertFalse(args.excludePrefixes().isEmpty());
@@ -44,7 +43,7 @@ public class ArgumentsTest {
     }
 
     @Test
-    public void testBuilder() {
+    public void testBuilder() throws IOException {
         File tmpdir = new File(System.getProperty("java.io.tmpdir"));
         String tmp = tmpdir.getAbsolutePath();
         CallgraphControl ctrl = Callgraph.configure().classGraphOutput(new File(tmpdir, "classes.txt"))
@@ -54,18 +53,79 @@ public class ArgumentsTest {
     }
 
     @Test(expected = Arguments.InvalidArgumentsException.class)
-    public void testNoArguments() {
+    public void testNoArguments() throws IOException {
         new Arguments();
     }
 
     @Test(expected = Arguments.InvalidArgumentsException.class)
-    public void testQuietAndNoOuput() {
+    public void testQuietAndNoOuput() throws IOException {
         new Arguments("-q", System.getProperty("java.io.tmpdir"));
     }
 
     @Test(expected = Arguments.InvalidArgumentsException.class)
-    public void testNonExistentFolder() {
+    public void testNonExistentFolder() throws IOException {
         new Arguments("/" + System.currentTimeMillis());
+    }
+    
+    @Test
+    public void testGradleScan() throws IOException {
+        File tmp = new File(System.getProperty("java.io.tmpdir"));
+        File dir = new File(tmp, ArgumentsTest.class.getSimpleName() + "_" + System.currentTimeMillis());
+        File project1 = new File(dir, "prj");
+        File project2 = new File(dir, "prj2");
+        File build1 = new File(project1, "a.gradle");
+        File build2 = new File(project2, "b.gradle");
+
+        File src1 = new File(project1, "src");
+        File main1 = new File(src1, "main");
+        File java1 = new File(main1, "java");
+
+        File src2 = new File(project2, "src");
+        File main2 = new File(src2, "main");
+        File java2 = new File(main2, "java");
+
+        assertTrue(java1.mkdirs());
+        assertTrue(java2.mkdirs());
+        build1.createNewFile();
+        build2.createNewFile();
+        java1 = java1.getCanonicalFile();
+        java2 = java2.getCanonicalFile();
+        
+        try {
+            Arguments args = new Arguments(dir.getAbsolutePath());
+            
+            assertTrue(args.hasGradleFile(project1));
+            assertTrue(args.hasGradleFile(project2));
+            
+            List<String> errors = new ArrayList<>();
+            args.findGradleSubfolders(errors);
+            assertFalse(args.folders().isEmpty());
+            assertEquals(args.folders().toString(), 2, args.folders().size());
+            assertTrue(errors + "", errors.isEmpty());
+
+            
+            args = new Arguments("--gradle", "-s", dir.getAbsolutePath());
+            
+            assertTrue(args.isGradle());
+            assertTrue(args.isShortNames());
+            assertTrue(args.isSelfReferences());
+            assertTrue(args.folders().contains(java1));
+            assertTrue(args.folders().contains(java2));
+        } finally {
+            // Clean up
+            assertTrue(build1.delete());
+            assertTrue(build2.delete());
+            assertTrue(java1.delete());
+            assertTrue(java2.delete());
+            assertTrue(main1.delete());
+            assertTrue(main2.delete());
+            assertTrue(src1.delete());
+            assertTrue(src2.delete());
+            assertTrue(project1.delete());
+            assertTrue(project2.delete());
+            assertTrue(dir.delete());
+        }
+        
     }
 
     @Test
@@ -89,6 +149,8 @@ public class ArgumentsTest {
         assertTrue(java2.mkdirs());
         pom1.createNewFile();
         pom2.createNewFile();
+        java1 = java1.getCanonicalFile();
+        java2 = java2.getCanonicalFile();
         try {
 
             Arguments args = new Arguments("--maven", "-s", dir.getAbsolutePath());
