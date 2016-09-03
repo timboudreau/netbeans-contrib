@@ -63,6 +63,8 @@ final class Arguments implements CallgraphControl {
     private static final Command[] commands = new Command[]{
         new NoSelfReferencesCommand(),
         new ShortNamesCommand(),
+        new ExtendedPropertiesCommand(),
+        new AntCommand(),
         new MavenCommand(),
         new GradleCommand(),
         new IgnoreCommand(),
@@ -75,12 +77,16 @@ final class Arguments implements CallgraphControl {
         new OmitAbstractCommand(),
         new QuietCommand(),
         new ReverseCommand(),
+        new AggressiveCommand(),
         new VerboseCommand()
     };
     private boolean noSelfReferences = false;
     private boolean shortNames = false;
     private boolean maven = false;
     private boolean gradle = false;
+    private boolean ant = false;
+    private boolean xprop = false;
+    private boolean aggressive = false;
     private File outfile;
     private Set<String> exclude = new HashSet<>();
     private Set<String> ignore = new HashSet<>();
@@ -141,13 +147,14 @@ final class Arguments implements CallgraphControl {
                 }
             }
         }
-        Set<String> origFolders = folders;
-        if (maven && gradle) {
-            errors.add("--maven and --gradle are mutually exclusive");
+        if ((maven && gradle) || (ant && gradle) || (ant && maven)) {
+            errors.add("--maven, --ant and --gradle are mutually exclusive");
         } else if (maven) {
             findMavenSubfolders(errors);
         } else if (gradle) {
             findGradleSubfolders(errors);
+        } else if (ant) {
+            findAntSubfolders(errors);
         }
         Set<File> toIgnore = new HashSet<>();
         for (String ig : ignore) {
@@ -193,6 +200,12 @@ final class Arguments implements CallgraphControl {
             }
         }
         this.folders.removeAll(toIgnore);
+        if (verbose && !this.folders.isEmpty()) {
+            System.err.println("Will scan the following source roots:");
+            for (File f : folders()) {
+                System.err.println("  " + f.getAbsolutePath());
+            }
+        }
 
         if (packageGraphFile != null) {
             File parent = packageGraphFile.getParentFile();
@@ -247,6 +260,36 @@ final class Arguments implements CallgraphControl {
 
     private boolean hasPom(File fld) {
         File pom = new File(fld, "pom.xml");
+        return pom.exists() && pom.isFile() && pom.canRead();
+    }
+
+    void findAntSubfolders(List<String> errors) {
+        Set<File> flds = new HashSet<>(this.folders);
+        this.folders.clear();
+        for (File f : flds) {
+            recurseSubfoldersLookingForAntProjects(f);
+        }
+        if (this.folders.isEmpty()) {
+            errors.add("Did not find any ant projects (looked for build.xml and src/ in all subfolders of folder list)");
+        }
+    }
+
+    private void recurseSubfoldersLookingForAntProjects(File file) {
+        if (file.isDirectory()) {
+            if (hasBuildXml(file)) {
+                File sources = new File(file, "src");
+                if (sources.exists() && sources.isDirectory()) {
+                    this.folders.add(sources);
+                }
+            }
+            for (File child : file.listFiles()) {
+                recurseSubfoldersLookingForAntProjects(child);
+            }
+        }
+    }
+
+    private boolean hasBuildXml(File fld) {
+        File pom = new File(fld, "build.xml");
         return pom.exists() && pom.isFile() && pom.canRead();
     }
 
@@ -330,6 +373,20 @@ final class Arguments implements CallgraphControl {
     @Override
     public boolean isMaven() {
         return maven;
+    }
+
+    @Override
+    public boolean isAnt() {
+        return ant;
+    }
+
+    @Override
+    public boolean isExtendedProperties() {
+        return xprop;
+    }
+
+    public boolean isAggressive() {
+        return aggressive;
     }
 
     @Override
@@ -467,7 +524,7 @@ final class Arguments implements CallgraphControl {
 
         @Override
         protected String help() {
-            return "Disable string memory optimizations - runs faster but may run out of memory";
+            return "Disable string memory optimizations - runs faster and supports unicode class names, but may run out of memory";
         }
     }
 
@@ -489,6 +546,25 @@ final class Arguments implements CallgraphControl {
         }
     }
 
+    private static final class AggressiveCommand extends Command {
+
+        AggressiveCommand() {
+            super(CMD_AGGRESSIVE_MEMORY, "z", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.aggressive = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Aggressively optimize the 8-bit string intern table "
+                    + "for large graphs, sacrificing performace for space";
+        }
+    }
+
     private static final class ShortNamesCommand extends Command {
 
         ShortNamesCommand() {
@@ -504,6 +580,42 @@ final class Arguments implements CallgraphControl {
         @Override
         protected String help() {
             return "Use simple class names without the package (may confuse results if two classes have the same name)";
+        }
+    }
+
+    private static final class ExtendedPropertiesCommand extends Command {
+
+        ExtendedPropertiesCommand() {
+            super(CMD_EXTENDED_PROPERTIES, "x", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.xprop = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Find all maven projects that are children of the passed folders, and scan their src/main/java subfolders";
+        }
+    }
+
+    private static final class AntCommand extends Command {
+
+        AntCommand() {
+            super(CMD_ANT, "a", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.ant = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Find all ant projects that are children of the passed folders, and scan their src/ subfolders";
         }
     }
 

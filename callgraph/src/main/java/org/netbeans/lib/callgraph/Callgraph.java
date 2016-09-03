@@ -1,7 +1,7 @@
 /* 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (C) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (C) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -70,10 +70,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
  * Scans a source folder and runs javac against any Java sources present, and
@@ -134,7 +132,7 @@ public final class Callgraph {
      * @throws IOException If i/o fails
      */
     static List<SourceElement> invoke(CallgraphControl arguments, Listener listener) throws IOException {
-        SourcesInfo info = new SourcesInfo(arguments.isDisableEightBitStrings());
+        SourcesInfo info = new SourcesInfo(arguments.isDisableEightBitStrings(), arguments.isAggressive());
         // Build an iterable of all Java sources (without collecting them all ahead of time)
         List<Iterable<File>> iterables = new LinkedList<>();
         for (File folder : arguments) {
@@ -158,8 +156,15 @@ public final class Callgraph {
             // duplicate avoidance
             Set<CharSequence> emittedPackageLines = new HashSet<>();
             Set<CharSequence> emittedClassLines = new HashSet<>();
+            List<Object> clazz = new ArrayList<>(5);
+            CharSequence lastClass = null;
+
+            List<Object> pkg = new ArrayList<>(5);
+            CharSequence lastPackage = null;
+            
             try {
                 // Iterate every method
+                outer:
                 for (SourceElement sce : all) {
                     if (arguments.isExcluded(sce.qname().toString())) { // Ignore matches
                         continue;
@@ -167,7 +172,32 @@ public final class Callgraph {
                     List<SourceElement> outbounds = new ArrayList<>(arguments.isReverse() ? sce.getInboundReferences() : sce.getOutboundReferences());
                     Collections.sort(outbounds); // also sort connections
                     // Iterate the current method's connections
-                    Set<ComparableCharSequence> mth = new TreeSet<>();
+                    List<Object> mth = new ArrayList<>(5);
+                    CharSequence currClazz = arguments.isShortNames() ? sce.typeName() : info.strings.concat(sce.packageName(), info.strings.DOT, sce.typeName());
+                    if (!currClazz.equals(lastClass)) {
+                        if (classStream != null) {
+                            writeLine(clazz, info, emittedClassLines, classStream);
+                        }
+                        clazz.clear();
+                        lastClass = currClazz;
+                    }
+                    if (clazz.isEmpty()) {
+                        clazz.add(currClazz);
+                        if (arguments.isExtendedProperties()) {
+                            clazz.add(sce.isAbstract());
+                        }
+                    }
+                    CharSequence currPkg = sce.packageName();
+                    if (pkg.isEmpty()) {
+                        pkg.add(currPkg);
+                    }
+                    if (!currPkg.equals(lastPackage)) {
+                        if (packageStream != null) {
+                            writeLine(pkg, info, emittedPackageLines, packageStream);
+                        }
+                        lastPackage = currPkg;
+                        pkg.clear();
+                    }
                     for (SourceElement outbound : outbounds) {
                         if (arguments.isExcluded(outbound.qname().toString())) { // Ignore matches
                             continue;
@@ -181,24 +211,20 @@ public final class Callgraph {
                         if (!arguments.isSelfReferences() && sce.typeName().equals(outbound.typeName())) {
                             continue;
                         }
-                        if (outStream != null) {
+                        if (outStream != null || !arguments.isQuiet()) {
                             if (arguments.isShortNames()) {
                                 mth.add(outbound.shortName());
                             } else {
                                 mth.add(outbound.qname());
                             }
+                            if (arguments.isExtendedProperties()) {
+                                mth.add(outbound.isAbstract());
+                            }
                         }
                         // Build the package graph output if necessary
                         if (packageStream != null) {
-                            CharSequence pkg1 = sce.packageName();
-                            CharSequence pkg2 = outbound.packageName();
-                            if (!pkg1.equals(pkg2)) {
-//                                CharSequence pkgLine = '"' + pkg1.toString() + "\" \"" + pkg2.toString() + '"';
-                                CharSequence pkgLine = info.strings.concat(info.strings.QUOTE, pkg1, info.strings.CLOSE_OPEN_QUOTE, pkg2, info.strings.QUOTE);
-                                if (!emittedPackageLines.contains(pkgLine)) {
-                                    emittedPackageLines.add(pkgLine);
-                                    packageStream.println(pkgLine);
-                                }
+                            if (!outbound.packageName().equals(currPkg) || arguments.isSelfReferences()) {
+                                pkg.add(outbound.packageName());
                             }
                         }
                         // Build the class graph output if necessary
@@ -206,22 +232,24 @@ public final class Callgraph {
                             CharSequence type1 = sce.typeName();
                             CharSequence type2 = outbound.typeName();
                             if (!arguments.isShortNames()) {
-                                type1 = info.strings.concat(sce.packageName(), info.strings.DOT, type1);
+//                                type1 = info.strings.concat(sce.packageName(), info.strings.DOT, type1);
                                 type2 = info.strings.concat(outbound.packageName(), info.strings.DOT, type2);
                             }
-                            if (!type1.equals(type2)) {
-                                CharSequence classLine = info.strings.concat(info.strings.QUOTE, type1, info.strings.CLOSE_OPEN_QUOTE, type2, info.strings.QUOTE);
-                                if (!emittedClassLines.contains(classLine)) {
-                                    emittedClassLines.add(classLine);
-                                    classStream.println(classLine);
+                            if (!type1.equals(type2) && !clazz.contains(type2)) {
+                                clazz.add(type2);
+                                if (arguments.isExtendedProperties()) {
+                                    clazz.add(outbound.isAbstract());
                                 }
                             }
                         }
                     }
-                    if ((!arguments.isQuiet() || outStream != null)) {
+                    if (!arguments.isQuiet() || outStream != null) {
                         if (!mth.isEmpty()) {
                             CharSequence nm = arguments.isShortNames() ? sce.shortName() : sce.qname();
-                            List<CharSequence> l = new ArrayList<>(mth);
+                            List<Object> l = mth;
+                            if (arguments.isExtendedProperties()) {
+                                mth.add(0, sce.isAbstract());
+                            }
                             l.add(0, nm);
                             CharSequence line = info.strings.concatQuoted(l);
                             if (!arguments.isQuiet()) {
@@ -233,6 +261,12 @@ public final class Callgraph {
                         }
                     }
                 }
+                if (classStream != null && !clazz.isEmpty()) {
+                    writeLine(clazz, info, emittedClassLines, classStream);
+                }
+                if (packageStream != null && !pkg.isEmpty()) {
+                    writeLine(pkg, info, emittedPackageLines, packageStream);
+                }
             } finally {
                 for (PrintStream ps : new PrintStream[]{outStream, packageStream, classStream}) {
                     if (ps != null) {
@@ -242,6 +276,15 @@ public final class Callgraph {
             }
         }
         return all;
+    }
+    private static void writeLine(List<Object> clazz, SourcesInfo info, Set<CharSequence> emittedClassLines, PrintStream classStream) {
+        if (!clazz.isEmpty()) {
+            CharSequence cs = info.strings.concatQuoted(clazz);
+            if (!emittedClassLines.contains(cs)) {
+                classStream.println(cs);
+                emittedClassLines.add(cs);
+            }
+        }
     }
 
     private static PrintStream createPrintStreamIfNotNull(File outputFile) throws IOException {

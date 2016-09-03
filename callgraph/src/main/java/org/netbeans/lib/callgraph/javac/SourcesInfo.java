@@ -75,8 +75,8 @@ public final class SourcesInfo implements AutoCloseable {
 
     public final EightBitStrings strings;
 
-    public SourcesInfo(boolean eightBitStringsDisabled) {
-        this.strings = new EightBitStrings(eightBitStringsDisabled);
+    public SourcesInfo(boolean eightBitStringsDisabled, boolean aggressive) {
+        this.strings = new EightBitStrings(eightBitStringsDisabled, aggressive);
     }
 
     // XXX rewrite to not hold references to ClassTree, just names,

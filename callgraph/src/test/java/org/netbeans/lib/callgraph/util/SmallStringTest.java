@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.netbeans.lib.callgraph.util.EightBitStrings.Concatenation;
 
 /**
  *
@@ -120,7 +121,51 @@ public class SmallStringTest {
         Collections.sort(l);
         assertEquals(l, Arrays.asList(a, b, c, d, e));
     }
+    
+    List<String> stringsOf(List<CharSequence> cs) {
+        List<String> result = new ArrayList<>();
+        for (CharSequence c : cs) {
+            if (c == null) {
+                break;
+            }
+            result.add(c.toString());
+        }
+        return result;
+    }
+    
+    @Test
+    public void testAggressive() {
+        EightBitStrings strings = new EightBitStrings(false, true);
+        ComparableCharSequence c = strings.concat("com.foo.", "bar.baz.", "Hey$You");
+        assertEquals("com.foo.bar.baz.Hey$You", c.toString());
+        ComparableCharSequence c2 = strings.concat("com.foo.", "bar.whoodle.", "Hey$You");
+        List<String> interned = stringsOf(strings.dumpInternTable());
+        for (String cs : interned) {
+            if (cs == null) {
+                break;
+            }
+            System.out.println("  " + cs);
+        }
+        assertTrue(interned.contains("com"));
+        assertTrue(interned.contains("foo"));
+        assertTrue(interned.contains("bar"));
+        assertTrue(interned.contains("baz"));
+        assertTrue(interned.contains("Hey"));
+        assertTrue(interned.contains("You"));
+        assertTrue(interned.contains("whoodle"));
+        assertTrue(interned.contains("."));
+        assertTrue(interned.contains("$"));
+        assertTrue(interned.contains("\""));
+    }
 
+    @Test
+    public void testConcatQuoted() {
+        EightBitStrings strings = new EightBitStrings(false);
+        List<Object> l = Arrays.asList(strings.create("hey"), false, 23, strings.create("bar"), "baz");
+        CharSequence cc = strings.concatQuoted(l);
+        assertEquals("\"hey\" false 23 \"bar\" \"baz\"", cc.toString());
+    }
+    
     private static String randomString(int len) {
         char[] c = new char[len];
         for (int i = 0; i < c.length; i++) {

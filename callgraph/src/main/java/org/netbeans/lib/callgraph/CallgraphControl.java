@@ -1,4 +1,4 @@
-/* 
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (C) 1997-2015 Oracle and/or its affiliates. All rights reserved.
@@ -57,8 +57,11 @@ interface CallgraphControl extends Iterable<File> {
 
     static final String CMD_NOSELF = "noself";
     static final String CMD_SIMPLE = "simple";
+    static final String CMD_ANT = "ant";
     static final String CMD_MAVEN = "maven";
     static final String CMD_GRADLE = "gradle";
+    static final String CMD_EXTENDED_PROPERTIES = "extensions";
+    static final String CMD_AGGRESSIVE_MEMORY = "aggressive";
     static final String CMD_IGNORE = "ignore";
     static final String CMD_PACKAGEGRAPH = "packagegraph";
     static final String CMD_METHODGRAPH = "methodgraph";
@@ -79,6 +82,14 @@ interface CallgraphControl extends Iterable<File> {
     Set<File> folders();
 
     boolean isMaven();
+
+    boolean isGradle();
+
+    boolean isAnt();
+
+    boolean isExtendedProperties();
+
+    boolean isAggressive();
 
     boolean isQuiet();
 

@@ -70,14 +70,22 @@ public class EightBitStrings {
     private final InternTable INTERN_TABLE = new InternTable();
     public final CharSequence DOT = create(".");
     public final CharSequence QUOTE = create("\"");
+    public final CharSequence SPACE = create(" ");
+    public final CharSequence QUOTE_SPACE = create("\" ");
     public final CharSequence CLOSE_OPEN_QUOTE = create("\" \"");
 
-    private boolean disabled;
+    private final boolean disabled;
+    private final boolean aggressive;
 
     public EightBitStrings(boolean disabled) {
-        this.disabled = disabled;
+        this (disabled, false);
     }
 
+    public EightBitStrings(boolean disabled, boolean aggressive) {
+        this.disabled = disabled;
+        this.aggressive = aggressive;
+    }
+    
     public void clear() {
         INTERN_TABLE.dispose();
     }
@@ -86,6 +94,9 @@ public class EightBitStrings {
         if (disabled) {
             return string instanceof ComparableCharSequence ? (ComparableCharSequence) string
                     : new StringWrapper(string.toString());
+        }
+        if (aggressive) {
+            return concat(string);
         }
         return INTERN_TABLE.intern(string);
     }
@@ -100,32 +111,66 @@ public class EightBitStrings {
                 sb.append(c);
             }
             return new StringWrapper(sb.toString());
+        } else if (aggressive) {
+            List<CharSequence> nue = new ArrayList<>(seqs.length + (seqs.length / 2));
+            for (CharSequence seq : seqs) {
+                int ln = seq.length();
+                StringBuilder sb = new StringBuilder();
+                for(int i=0; i < ln; i++) {
+                    char c = seq.charAt(i);
+                    if (Character.isLetter(c) || Character.isDigit(c)) {
+                        sb.append(c);
+                    } else {
+                        nue.add(sb.toString());
+                        sb = new StringBuilder();
+                        nue.add(new String(new char[] { c }));
+                    }
+                }
+                if (sb.length() > 0) {
+                    nue.add(sb.toString());
+                }
+            }
+            if (nue.size() != seqs.length) {
+                seqs = nue.toArray(new CharSequence[nue.size()]);
+            }
         }
         return new Concatenation(seqs);
     }
 
-    public ComparableCharSequence concatQuoted(Collection<CharSequence> seqs) {
+    public ComparableCharSequence concatQuoted(Collection<Object> seqs) {
         if (disabled) {
             StringBuilder sb = new StringBuilder("\"");
-            for (Iterator<CharSequence> it = seqs.iterator(); it.hasNext();) {
-                CharSequence c = it.next();
-                sb.append(c);
-                if (it.hasNext()) {
-                    sb.append("\" \"");
-                } else {
-                    sb.append("\"");
+            boolean first = true;
+            for (Iterator<Object> it = seqs.iterator(); it.hasNext();) {
+                Object c = it.next();
+                if (!first) {
+                    sb.append(SPACE);
                 }
+                if (c instanceof CharSequence) {
+                    sb.append(QUOTE);
+                }
+                sb.append(c);
+                if (c instanceof CharSequence) {
+                    sb.append(QUOTE);
+                }
+                first = false;
             }
             return new StringWrapper(sb.toString());
         } else {
-            List<CharSequence> quoted = new ArrayList<>((seqs.size() * 2) + 1);
-            quoted.add(this.QUOTE);
-            for (Iterator<CharSequence> it = seqs.iterator(); it.hasNext();) {
-                quoted.add(it.next());
-                if (it.hasNext()) {
-                    quoted.add(CLOSE_OPEN_QUOTE);
-                } else {
+            List<CharSequence> quoted = new ArrayList<>((seqs.size() * 3) + 1);
+            for (Iterator<Object> it = seqs.iterator(); it.hasNext();) {
+                Object c = it.next();
+                if (c instanceof CharSequence) {
                     quoted.add(QUOTE);
+                    quoted.add((CharSequence)c);
+                    if (it.hasNext()) {
+                        quoted.add(QUOTE_SPACE);
+                    } else {
+                        quoted.add(QUOTE);
+                    }
+                } else {
+                    quoted.add(create(c.toString()));
+                    quoted.add(SPACE);
                 }
             }
             return new Concatenation(quoted.toArray(new CharSequence[quoted.size()]));
@@ -152,6 +197,10 @@ public class EightBitStrings {
 
     int internTableSize() {
         return INTERN_TABLE.last + 1;
+    }
+    
+    List<CharSequence> dumpInternTable() {
+        return INTERN_TABLE.dumpInternTable();
     }
 
     static class InternTable {
@@ -186,6 +235,10 @@ public class EightBitStrings {
             entries[++last] = entry;
             Arrays.sort(entries, 0, last + 1);
             return entry;
+        }
+        
+        List<CharSequence> dumpInternTable() {
+            return Arrays.asList(entries);
         }
 
         private static final class Entry implements ComparableCharSequence {
@@ -316,10 +369,16 @@ public class EightBitStrings {
         private final InternTable.Entry[] entries;
 
         Concatenation(CharSequence... entries) {
-            this.entries = new InternTable.Entry[entries.length];
-            for (int i = 0; i < entries.length; i++) {
-                this.entries[i] = INTERN_TABLE.intern(entries[i]);
+            List<InternTable.Entry> l = new ArrayList<>(entries.length);
+            for (CharSequence cs : entries) {
+                if (cs instanceof Concatenation) {
+                    Concatenation c1 = (Concatenation) cs;
+                    l.addAll(Arrays.asList(c1.entries));
+                } else {
+                    l.add(INTERN_TABLE.intern(cs));
+                }
             }
+            this.entries = l.toArray(new InternTable.Entry[l.size()]);
         }
 
         @Override
@@ -358,7 +417,7 @@ public class EightBitStrings {
                 sb.append(e);
             }
             if (debug) {
-                sb.append (" - " + Arrays.asList(entries));
+                sb.append(" - ").append (Arrays.asList(entries));
             }
             return sb.toString();
         }

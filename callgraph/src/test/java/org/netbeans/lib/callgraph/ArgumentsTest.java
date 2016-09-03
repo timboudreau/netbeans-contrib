@@ -175,4 +175,59 @@ public class ArgumentsTest {
         }
     }
 
+    
+    @Test
+    public void testAntScan() throws IOException {
+        File tmp = new File(System.getProperty("java.io.tmpdir"));
+        File dir = new File(tmp, ArgumentsTest.class.getSimpleName() + "_" + System.currentTimeMillis());
+        File project1 = new File(dir, "prj");
+        File project2 = new File(dir, "prj2");
+        File pom1 = new File(project1, "build.xml");
+        File pom2 = new File(project2, "build.xml");
+
+        File java1 = new File(project1, "src");
+        File java2 = new File(project2, "src");
+
+        assertTrue(java1.mkdirs());
+        assertTrue(java2.mkdirs());
+        pom1.createNewFile();
+        pom2.createNewFile();
+        dir = dir.getCanonicalFile();
+        java1 = java1.getCanonicalFile();
+        java2 = java2.getCanonicalFile();
+        
+        Arguments a = new Arguments("-v", dir.getAbsolutePath());
+        assertEquals(1, a.folders().size());
+        assertEquals(dir, a.folders().iterator().next());
+        List<String> errors = new ArrayList<>();
+        a.findAntSubfolders(errors);
+        assertTrue(errors.isEmpty());
+        System.out.println("FLDS: ");
+        for (File f : a.folders()) {
+            System.out.println("  " + f.getAbsolutePath());
+        }
+        assertEquals(2, a.folders().size());
+        assertFalse(a.folders().isEmpty());
+        assertTrue(a.folders().contains(java1));
+        assertTrue(a.folders().contains(java2));
+        try {
+
+            Arguments args = new Arguments("--ant", "-s", dir.getAbsolutePath());
+            assertTrue(args.isAnt());
+            assertTrue(args.isShortNames());
+            assertTrue(args.isSelfReferences());
+            assertTrue(args.folders().contains(java1));
+            assertTrue(args.folders().contains(java2));
+        } finally {
+            // Clean up
+            assertTrue(pom1.delete());
+            assertTrue(pom2.delete());
+            assertTrue(java1.delete());
+            assertTrue(java2.delete());
+            assertTrue(project1.delete());
+            assertTrue(project2.delete());
+            assertTrue(dir.delete());
+        }
+    }
+    
 }
