@@ -380,7 +380,7 @@ public class PythonParser extends Parser {
                 fileName = FileUtil.getFileDisplayName(file);
             }
             e = Exceptions.attachMessage(e, "Was parsing " + fileName);
-            Exceptions.printStackTrace(e);
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, e.getMessage());
             return new PythonParserResult(null, context.snapshot);
         } catch (Throwable t) {
             runtimeException = t;
