@@ -476,17 +476,6 @@ public class PythonPlatformManager implements Serializable {
                     ad.traverseEnvPaths();
                     ad.searchNestedDirectoies = true;
                     ad.traverseDirectory(new File("/usr/bin")); // NOI18N // for all other (probably Unix-like) systems
-                    
-                    File fDefault = new File("/usr/bin/python"); // NOI18N  Default Python
-                    String path = fDefault.getAbsolutePath();
-                    PythonPlatform platform = findPlatformProperties(path, null);
-                    if (platform != null) {
-                        try {
-                            storePlatform(platform);
-                        } catch (IOException ioe) {
-                            Exceptions.printStackTrace(ioe);
-                        }
-                    }
                 }
             }
 

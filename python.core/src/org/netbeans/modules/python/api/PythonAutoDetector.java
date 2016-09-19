@@ -78,8 +78,13 @@ public class PythonAutoDetector {
                 name = dir.getName();
                 ext = "";
             }
-            if( name.equalsIgnoreCase("jython") || name.equalsIgnoreCase("python")) {
-                if (Utilities.isWindows()){
+            if (name.equalsIgnoreCase("jython")
+                    || name.equalsIgnoreCase("python")
+                    || name.equalsIgnoreCase("python2")
+                    || name.equalsIgnoreCase("python3")
+                    || name.equalsIgnoreCase("pypy")
+                    || name.equalsIgnoreCase("pypy3")) {
+                if (Utilities.isWindows()) {
                     if (ext.equalsIgnoreCase("exe") || ext.equalsIgnoreCase("bat")) {
                         if( addMatch(dir.getAbsolutePath())) { //don't report duplicates
                             if (LOGGER.isLoggable(Level.CONFIG)) {
@@ -236,7 +241,8 @@ public class PythonAutoDetector {
         if (dir.isDirectory()) { //are we already IN the ?ython dir?
             String spath = dir.getName();
             if( spath.toLowerCase().contains("jython") ||
-                spath.toLowerCase().contains("python") ){
+                spath.toLowerCase().contains("python") ||
+                spath.toLowerCase().contains("pypy") ){
                 searchNestedDirectoies = true; // must set each time
                 processAction(dir);
                 return;
@@ -246,12 +252,13 @@ public class PythonAutoDetector {
             if(children != null){
                 for (int i=0; i<children.length; i++) {
                     File fDirectory = new File(dir, children[i]);
-                    if (fDirectory.isDirectory()){
+                    if (fDirectory.isDirectory() || fDirectory.isFile()) {
                         spath = fDirectory.getName();
-                        if( spath.toLowerCase().contains("jython") ||
-                            spath.toLowerCase().contains("python") ){
-                        searchNestedDirectoies = true; // must set each time
-                        processAction(fDirectory);
+                        if (spath.toLowerCase().contains("jython")
+                                || spath.toLowerCase().contains("python")
+                                || spath.toLowerCase().contains("pypy")) {
+                            searchNestedDirectoies = true; // must set each time
+                            processAction(fDirectory);
                         }
                     }
                 }
