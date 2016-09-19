@@ -396,6 +396,10 @@ public class PythonPlatformManager implements Serializable {
                     command = cmd;
                 }
                 String name = prop.getProperty("platform.name");
+                // If name is null, the command that succeeded is not a Python interpreter (eg /usr/bin/ls)
+                if (name == null) {
+                    return null;
+                }
                 if (id == null) {
                     id = computeId(name);
                 }
