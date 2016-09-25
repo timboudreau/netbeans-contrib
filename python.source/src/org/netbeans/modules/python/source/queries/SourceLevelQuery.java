@@ -72,6 +72,7 @@ public final class SourceLevelQuery {
     private static final Logger LOGGER = Logger.getLogger(SourceLevelQuery.class.getName());
 
     private static final Pattern SOURCE_LEVEL = Pattern.compile("Python.(\\d+\\.\\d+)\\.\\d+"); //NOI18N
+    private static final Pattern SOURCE_LEVEl_SYNONYM = Pattern.compile("(\\d+\\.\\d+)");  //NOI18N
     private static final Pattern SYNONYM = Pattern.compile("\\d+");//NOI18N
 
     private static final Lookup.Result<? extends SourceLevelQueryImplementation> impls =
@@ -109,14 +110,19 @@ public final class SourceLevelQuery {
                 final String s = normalize(result.getSourceLevel());
                 if (s != null) {
                     Matcher matcher = SOURCE_LEVEL.matcher(s);
-                    if (!matcher.matches()) {
+                    Matcher synonymMatcher = SOURCE_LEVEl_SYNONYM.matcher(s);  // On most source, the normalize string is just X.Y
+                    if (!matcher.matches() && !synonymMatcher.matches()) {
                         LOGGER.log(Level.WARNING, "#83994: Ignoring bogus source level {0} for {1} from {2}", new Object[] {s, javaFile, sqi}); //NOI18N
                         continue;
                     }
                     if (LOGGER.isLoggable(Level.FINE)) {
                         LOGGER.log(Level.FINE, "Found source level {0} for {1} from {2}", new Object[] {s, javaFile, sqi});     //NOI18N
                     }
-                    return matcher.group(1);
+                    if (matcher.matches()) {
+                        return matcher.group(1);
+                    } else {
+                        return synonymMatcher.group(1);
+                    }
                 }
             }
         }
