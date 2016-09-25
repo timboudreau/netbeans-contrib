@@ -9,9 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.swing.Icon;
@@ -84,6 +86,7 @@ public class PythonProject2 implements Project {
     private final Info info;
     private final PropertyChangeSupport support;
     private final PythonSources sources;
+    private static final Set<String> REGISTRED_SETUPPY = new HashSet<>();
 
     public PythonProject2(FileObject projectDirectory, ProjectState state) throws PythonException {
         support = new PropertyChangeSupport(this);
@@ -223,7 +226,8 @@ public class PythonProject2 implements Project {
         PythonExecution pye;
         try {
             FileObject setuppy = projectDirectory.getFileObject(SETUPPY);
-            if(listener != null) {
+            if (listener != null && !REGISTRED_SETUPPY.contains(setuppy.getPath())) {
+                REGISTRED_SETUPPY.add(setuppy.getPath());
                 setuppy.addFileChangeListener(listener);
             }
             pye = createProjectPropertiesReader(projectDirectory, setuppy);
