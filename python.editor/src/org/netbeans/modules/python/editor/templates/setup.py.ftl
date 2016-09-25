@@ -1,3 +1,7 @@
+<#if encoding??>
+# -*- coding: utf-8 -*-
+
+</#if>
 from setuptools import setup,find_packages
 
 setup (

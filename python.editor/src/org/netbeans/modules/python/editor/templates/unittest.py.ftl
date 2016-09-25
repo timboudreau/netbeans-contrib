@@ -1,4 +1,8 @@
 <#-- This is a FreeMarker template -->
+<#if encoding??>
+# -*- coding: utf-8 -*-
+
+</#if>
 <#-- You can change the contents of the license inserted into
  #   each template by opening Tools | Templates and editing
  #   Licenses | Default License  -->

@@ -4,7 +4,7 @@
 #!/usr/bin/env python2
 </#if>
 <#if encoding??>
-#encoding: ${encoding}
+# -*- coding: utf-8 -*-
 </#if>
 
 <#-- This is a FreeMarker template -->
