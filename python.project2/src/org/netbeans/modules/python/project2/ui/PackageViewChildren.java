@@ -72,6 +72,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.queries.VisibilityQuery;
+import org.netbeans.modules.python.project2.PythonProject2;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.FileSensitiveActions;
 import org.openide.DialogDisplayer;
@@ -1193,8 +1194,10 @@ final class PackageViewChildren extends Children.Keys<String> implements FileCha
         @Override
         public boolean acceptDataObject(DataObject obj) {  
             // Filter out .pyc or .pyo files!
+            // Filter out PythonProject2.TEMPORARY_SETUPPY
             String ext = obj.getPrimaryFile().getExt();
-            if ("pyc".equals(ext) || "pyo".equals(ext)) { // NOI18N
+            String name = obj.getPrimaryFile().getNameExt();
+            if ("pyc".equals(ext) || "pyo".equals(ext) || PythonProject2.TEMPORARY_SETUPPY.equals(name)) { // NOI18N
                 return false;
             }
             return acceptFileObject(obj.getPrimaryFile());
