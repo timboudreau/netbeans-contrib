@@ -109,6 +109,11 @@ public class ImportantFiles {
         "README.rst", // NOI18N
         "LICENSE", // NOI18N
         "COPYING", // NOI18N
+        // Add various files related to CI
+        "tox.ini", // NOI18N, https://pypi.python.org/pypi/tox
+        ".gitlab-ci.yml", // NOI18N, https://about.gitlab.com/gitlab-ci/
+        "circle.yml", // NOI18N, https://circleci.com/
+        ".travis.yml", // NOI18N, http://travis-ci.org/
     };
 
     private ImportantFiles() {
