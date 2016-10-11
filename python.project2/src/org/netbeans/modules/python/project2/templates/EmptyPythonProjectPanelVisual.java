@@ -147,12 +147,6 @@ public final class EmptyPythonProjectPanelVisual extends SettingsPanel implement
 
     @Override
     boolean valid(WizardDescriptor wizardDescriptor) {
-        boolean bIsWindows = Utilities.isWindows();
-        if( bIsWindows) {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Cannot create setuptools project for Windows. Press Cancel"); // invalid 
-            return false;
-        } 
         if (projectNameTextField.getText().length() == 0) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
                     "Project Name is not a valid folder name.");
