@@ -363,14 +363,29 @@ public class PythonPlatformManager implements Serializable {
         PythonPlatform platform = null;
         try{
             PythonExecution pye = new PythonExecution();
-            int split = cmd.indexOf(" ");
-            pye.setCommand(split > 0 ? cmd.substring(0, split) : cmd);
+            String[] cmdParts = cmd.split(" ");
+            String cmdWithoutArgs = "";
+            String cmdArgs = "";
+            boolean isCommandComplete = false;
+            for (String cmdPart: cmdParts) {
+                if (!isCommandComplete) {
+                    cmdWithoutArgs = cmdWithoutArgs + " " + cmdPart;
+                } else {
+                    cmdArgs = cmdArgs + " " + cmdPart;
+                }
+
+                if (cmdPart.contains("python")) {
+                    isCommandComplete = true;
+                }
+            }
+            cmdWithoutArgs = cmdWithoutArgs.trim();
+            cmdArgs = cmdArgs.trim();
+            pye.setCommand(cmdWithoutArgs);
             pye.setDisplayName("Python Properties");
             File info = InstalledFileLocator.getDefault().locate(
                  "platform_info.py", "org.netbeans.modules.python.core", false);
             pye.setScript(info.getAbsolutePath());
-            if(split > 0) { 
-                String cmdArgs = cmd.substring(split).trim();
+            if(cmdArgs.length() > 0) {
                 pye.setCommandArgs(cmdArgs);
             }
             pye.setShowControls(false);
