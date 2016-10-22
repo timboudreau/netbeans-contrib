@@ -113,6 +113,11 @@ public class TermExecutor extends PtyExecutor {
 		public void cwdChanged(String cwd) {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
+
+		@Override
+		public void externalToolCalled(String command) {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
     }
 
     private static void error(String fmt, Object...args) {

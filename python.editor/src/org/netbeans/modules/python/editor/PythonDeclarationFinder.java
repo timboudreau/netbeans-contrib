@@ -646,7 +646,7 @@ public class PythonDeclarationFinder implements DeclarationFinder {
         // Make sure that the best fit method actually has a corresponding valid source location
         // and parse tree
 
-        Set<IndexedElement> methods = new HashSet<>(methodSet);
+        Set<IndexedElement> methods = new HashSet<IndexedElement>(methodSet);
 
         while (!methods.isEmpty()) {
             IndexedElement method =
