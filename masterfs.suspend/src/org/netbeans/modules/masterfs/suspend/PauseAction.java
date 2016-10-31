@@ -68,7 +68,7 @@ import org.openide.windows.WindowManager;
     iconBase = "org/netbeans/modules/masterfs/suspend/pause.png",
     displayName = "#CTL_PauseAction"
 )
-@ActionReference(path = "Toolbars/Memory", position = 15000)
+@ActionReference(path = "Toolbars/Build", position = 15000)
 @Messages({
     "CTL_PauseAction=Pause I/O Checks",
     "# {0} - number of pending events",
