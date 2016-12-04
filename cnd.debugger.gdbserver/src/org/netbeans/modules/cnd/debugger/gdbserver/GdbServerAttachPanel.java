@@ -49,23 +49,21 @@
 package org.netbeans.modules.cnd.debugger.gdbserver;
 
 import java.beans.PropertyChangeListener;
-import java.lang.invoke.MethodHandles;
 import javax.swing.JPanel;
 import org.netbeans.modules.cnd.api.remote.RemoteSyncSupport;
 import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerInfo;
 import org.netbeans.modules.cnd.debugger.common2.debugger.NativeDebuggerManager;
-import org.netbeans.modules.cnd.debugger.common2.ui.ExecutableProjectPanel;
-import org.netbeans.modules.cnd.debugger.common2.ui.ExecutableProjectPanel.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.common2.debugger.debugtarget.DebugTarget;
 import org.netbeans.modules.cnd.debugger.common2.debugger.options.DebuggerOption;
 import org.netbeans.modules.cnd.debugger.common2.debugger.remote.CndRemote;
+import org.netbeans.modules.cnd.debugger.common2.utils.ProjectComboBoxSupport;
+import org.netbeans.modules.cnd.debugger.common2.utils.ProjectComboBoxSupport.ProjectCBItem;
 import org.netbeans.modules.cnd.debugger.gdb2.options.GdbDebuggerInfoFactory;
 import org.netbeans.modules.cnd.makeproject.api.configurations.ConfigurationSupport;
 import org.netbeans.modules.cnd.makeproject.api.configurations.MakeConfiguration;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.spi.debugger.ui.Controller;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
 /**
@@ -82,7 +80,7 @@ public class GdbServerAttachPanel extends JPanel implements HelpCtx.Provider {
         controller = new GdbServerAttachController();
         initComponents();
         // Fill the Projects combo box
-        ExecutableProjectPanel.fillProjectsCombo(projectCB, null);
+        ProjectComboBoxSupport.fillProjectsCombo(projectCB, null);
         targetTF.setText(NbPreferences.forModule(GdbServerAttachPanel.class).get(TARGET_KEY, "remote host:port")); //NOI18N
     }
 
