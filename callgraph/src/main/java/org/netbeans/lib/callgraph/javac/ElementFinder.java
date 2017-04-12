@@ -50,8 +50,6 @@ import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 import com.sun.source.util.Trees;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;

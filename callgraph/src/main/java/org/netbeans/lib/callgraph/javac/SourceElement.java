@@ -1,4 +1,4 @@
-/* 
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (C) 1997-2015 Oracle and/or its affiliates. All rights reserved.
@@ -45,9 +45,10 @@ package org.netbeans.lib.callgraph.javac;
 
 import com.sun.source.util.TreePath;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
@@ -59,8 +60,8 @@ import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 public final class SourceElement implements Comparable<SourceElement> {
 
     private final ComparableCharSequence name;
-    private volatile Set<SourceElement> inbound;
-    private volatile Set<SourceElement> outbound = new HashSet<>();
+    private volatile Map<SourceElement, Integer> outboundCounts;
+    private volatile Map<SourceElement, Integer> inboundCounts;
     private final SourceElementKind kind;
     private final ComparableCharSequence type;
     private final ComparableCharSequence typeName;
@@ -91,44 +92,119 @@ public final class SourceElement implements Comparable<SourceElement> {
     public ComparableCharSequence getName() {
         return name;
     }
+    
+    public boolean isOrphan() {
+        return (outboundCounts == null || outboundCounts.isEmpty()) 
+                && (inboundCounts == null || inboundCounts.isEmpty());
+    }
 
     public synchronized Set<SourceElement> getOutboundReferences() {
-        return outbound == null ? EMPTY : Collections.unmodifiableSet(outbound);
+        return outboundCounts == null ? EMPTY : Collections.unmodifiableSet(outboundCounts.keySet());
     }
 
     private static final Set<SourceElement> EMPTY = Collections.emptySet();
 
     public synchronized Set<SourceElement> getInboundReferences() {
-        return inbound == null ? EMPTY : Collections.unmodifiableSet(inbound);
+        return inboundCounts == null ? EMPTY : Collections.unmodifiableSet(inboundCounts.keySet());
+    }
+
+    public int inboundCount(SourceElement el) {
+        return inboundCounts == null || !inboundCounts.containsKey(el) ? 0 : inboundCounts.get(el);
+    }
+
+    public int outboundCount(SourceElement el) {
+        return outboundCounts == null || !outboundCounts.containsKey(el) ? 0 : outboundCounts.get(el);
+    }
+
+    public int inboundTypeCount(SourceElement typeProvider) {
+        if (inboundCounts == null) {
+            return 0;
+        }
+        return countTypes(typeProvider, inboundCounts);
+    }
+
+    public int outboundTypeCount(SourceElement typeProvider) {
+        if (outboundCounts == null) {
+            return 0;
+        }
+        return countTypes(typeProvider, outboundCounts);
+    }
+
+    private int countTypes(SourceElement typeProvider, Map<SourceElement, Integer> in) {
+        int result = 0;
+        for (Map.Entry<SourceElement, Integer> e : in.entrySet()) {
+            if (typeProvider.typeName.equals(e.getKey().typeName)) {
+                if (typeProvider.packageName.equals(e.getKey().packageName)) {
+                    result += e.getValue();
+                }
+            }
+        }
+        return result;
+    }
+
+    public int inboundPackageCount(SourceElement typeProvider) {
+        if (inboundCounts == null) {
+            return 0;
+        }
+        return countPackages(typeProvider, inboundCounts);
+    }
+
+    public int outboundPackageCount(SourceElement typeProvider) {
+        if (outboundCounts == null) {
+            return 0;
+        }
+        return countPackages(typeProvider, outboundCounts);
+    }
+
+    private int countPackages(SourceElement typeProvider, Map<SourceElement, Integer> in) {
+        int result = 0;
+        for (Map.Entry<SourceElement, Integer> e : in.entrySet()) {
+            if (typeProvider.packageName.equals(e.getKey().packageName)) {
+                result += e.getValue();
+            }
+        }
+        return result;
     }
 
     void addOutboundReference(SourceElement item) {
         if (item != this) {
-            Set<SourceElement> outbound = this.outbound;
+            Map<SourceElement, Integer> outbound = this.outboundCounts;
             if (outbound == null) {
                 synchronized (this) {
-                    outbound = this.outbound;
+                    outbound = this.outboundCounts;
                     if (outbound == null) {
-                        this.outbound = outbound = new ConcurrentSkipListSet<>();
+                        this.outboundCounts = outbound = new ConcurrentHashMap<>();
                     }
                 }
             }
-            outbound.add(item);
+            Integer val = outbound.get(item);
+            if (val == null) {
+                val = 1;
+            } else {
+                val = val + 1;
+            }
+            outbound.put(item, val);
         }
     }
 
     synchronized void addInboundReference(SourceElement item) {
         if (item != this) {
-            Set<SourceElement> inbound = this.inbound;
+            Map<SourceElement, Integer> inbound = this.inboundCounts;
             if (inbound == null) {
                 synchronized (this) {
-                    inbound = this.inbound;
+                    inbound = this.inboundCounts;
                     if (inbound == null) {
-                        this.inbound = inbound = new ConcurrentSkipListSet<>();
+                        this.inboundCounts = inbound = new ConcurrentHashMap<>();
                     }
                 }
             }
-            inbound.add(item);
+            Integer val = inbound.get(item);
+            if (val == null) {
+                val = 1;
+            } else {
+                val = val + 1;
+            }
+            inbound.put(item, val);
         }
     }
 
@@ -188,5 +264,46 @@ public final class SourceElement implements Comparable<SourceElement> {
     @Override
     public int compareTo(SourceElement o) {
         return qname.compareTo(o.qname);
+    }
+
+    static class Ref {
+
+        public SourceElement element;
+        public int count;
+
+        public Ref(SourceElement element, int count) {
+            this.element = element;
+            this.count = count;
+        }
+
+        public String toString() {
+            return element + "(" + count + ")";
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 59 * hash + Objects.hashCode(this.element);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Ref other = (Ref) obj;
+            if (!Objects.equals(this.element, other.element)) {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

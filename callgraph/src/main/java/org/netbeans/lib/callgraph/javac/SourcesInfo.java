@@ -85,10 +85,10 @@ public final class SourcesInfo implements AutoCloseable {
 
     public SourcesInfo(boolean eightBitStringsDisabled, boolean aggressive) {
         this.strings = new EightBitStrings(eightBitStringsDisabled, aggressive);
-        DOLLARS_DOT = strings.create("$.");
+        DOLLARS_DOT = strings.create("$");
         DEFAULT_PACKAGE = strings.create("<defaultPackage>");
         OPEN_PARENS = strings.create("(");
-        CLOSE_PARENS = strings.create("}");
+        CLOSE_PARENS = strings.create(")");
         OPEN_CLOSE_PARENS = strings.create("()");
         COMMA = strings.create(",");
     }

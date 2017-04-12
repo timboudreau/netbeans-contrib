@@ -43,6 +43,7 @@
  */
 package org.netbeans.lib.callgraph;
 
+import com.sun.javafx.scene.traversal.WeightedClosestCorner;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -84,7 +85,9 @@ final class Arguments implements CallgraphControl {
         new AggressiveCommand(),
         new VerboseCommand(),
         new IgnoreShallowPackagesCommand(),
-        new IgnoreAnonymousClassesCommand()
+        new IgnoreAnonymousClassesCommand(),
+        new IncludeWeightsCommand(),
+        new NoOrphansCommand()
     };
 
     static {
@@ -106,6 +109,7 @@ final class Arguments implements CallgraphControl {
     }
     private boolean ignoreShallowPackages = false;
     private boolean noSelfReferences = false;
+    private boolean weights = false;
     private boolean shortNames = false;
     private boolean maven = false;
     private boolean gradle = false;
@@ -318,6 +322,10 @@ final class Arguments implements CallgraphControl {
     public boolean isIgnoreAnonymous() {
         return ignoreAnonymousClasses;
     }
+    
+    public boolean isWeights() {
+        return weights;
+    }
 
     private void findMavenSubfolders(List<String> errors) {
         Set<File> flds = new HashSet<>(this.folders);
@@ -506,6 +514,11 @@ final class Arguments implements CallgraphControl {
     public boolean isOmitAbstract() {
         return omitAbstract;
     }
+    
+    private boolean noOrphans;
+    public boolean isNoOphans() {
+        return noOrphans;
+    }
 
     private static final Pattern ANONYMOUS = Pattern.compile(".*?\\$\\.\\d+.*");
 
@@ -608,6 +621,41 @@ final class Arguments implements CallgraphControl {
 
         public String toString() {
             return name;
+        }
+    }
+    
+    private static final class NoOrphansCommand extends Command {
+        NoOrphansCommand() {
+            super(CMD_NO_ORPHANS, "N", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.noOrphans = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Do not include elements in the graph which have no "
+                    + "connections at all";
+        }
+    }
+    
+    private static final class IncludeWeightsCommand extends Command {
+        IncludeWeightsCommand() {
+            super(CMD_WEIGHTS, "w", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.weights = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Include edge weights based on the number of times one element references another";
         }
     }
 

@@ -58,7 +58,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -95,8 +94,8 @@ public final class Callgraph {
 
     private Callgraph() {
     }
-    
-    static final class UH  implements Thread.UncaughtExceptionHandler {
+
+    static final class UH implements Thread.UncaughtExceptionHandler {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
@@ -107,7 +106,7 @@ public final class Callgraph {
             System.err.flush();
             System.exit(1);
         }
-        
+
     }
 
     /**
@@ -189,9 +188,11 @@ public final class Callgraph {
             List<Object> clazz = new ArrayList<>(5);
             CharSequence lastClass = null;
 
-            Set<Object> pkg = new LinkedHashSet<>(5);
+            List<Object> pkg = new ArrayList<>(5);
             CharSequence lastPackage = null;
             SourceElement last = null;
+            final boolean quiet = arguments.isQuiet();
+            List<Object> mth = new ArrayList<>(5);
             try {
                 // Iterate every method
                 outer:
@@ -199,16 +200,24 @@ public final class Callgraph {
                     if (arguments.isExcluded(sce.qname()) || arguments.isExcluded(sce.typeName())) { // Ignore matches
                         continue;
                     }
+                    if (arguments.isOmitAbstract() && sce.isAbstract()) {
+                        continue;
+                    }
+                    if (arguments.isNoOphans() && sce.isOrphan()) {
+                        continue;
+                    }
                     List<SourceElement> outbounds = new ArrayList<>(arguments.isReverse() ? sce.getInboundReferences() : sce.getOutboundReferences());
                     Collections.sort(outbounds); // also sort connections
                     // Iterate the current method's connections
-                    List<Object> mth = new ArrayList<>(5);
                     CharSequence currClazz = arguments.isShortNames() ? sce.typeName() : info.strings.concat(sce.packageName(), info.strings.DOT, sce.typeName());
+                    if (!mth.isEmpty()) {
+                        writeLine(mth, info, new HashSet<>(), outStream, quiet);
+                        mth.clear();
+                    }
+                    mth.add(arguments.isShortNames() ? sce.shortName() : sce.qname());
                     if (!currClazz.equals(lastClass)) {
                         if (classStream != null) {
-                            if (!arguments.isIgnoreAnonymous() || !arguments.isExcluded(currClazz)) {
-                                writeLine(clazz, info, emittedClassLines, classStream);
-                            }
+                            writeLine(clazz, info, emittedClassLines, classStream, quiet);
                         }
                         clazz.clear();
                         lastClass = currClazz;
@@ -222,7 +231,7 @@ public final class Callgraph {
                     CharSequence currPkg = sce.packageName();
                     if (!currPkg.equals(lastPackage)) {
                         if (packageStream != null) {
-                            writeLine(pkg, info, emittedPackageLines, packageStream);
+                            writeLine(pkg, info, emittedPackageLines, packageStream, quiet);
                         }
                         lastPackage = currPkg;
                         pkg.clear();
@@ -244,20 +253,28 @@ public final class Callgraph {
                         if (!arguments.isSelfReferences() && sce.typeName().equals(outbound.typeName())) {
                             continue;
                         }
-                        if (outStream != null || !arguments.isQuiet()) {
+                        if (outStream != null) {
                             if (arguments.isShortNames()) {
                                 mth.add(outbound.shortName());
                             } else {
                                 mth.add(outbound.qname());
                             }
-                            if (arguments.isExtendedProperties()) {
-                                mth.add(outbound.isAbstract());
+                            if (arguments.isWeights()) {
+                                Integer weight = arguments.isReverse() ? 
+                                        sce.inboundCount(outbound) : sce.outboundCount(outbound);
+                                mth.add(weight);
                             }
                         }
                         // Build the package graph output if necessary
                         if (packageStream != null) {
                             if (!outbound.packageName().equals(currPkg) && !pkg.contains(outbound.packageName())) {
                                 pkg.add(outbound.packageName());
+                                if (arguments.isWeights()) {
+                                    Integer weight = arguments.isReverse() ?
+                                            sce.inboundPackageCount(outbound)
+                                            : sce.outboundPackageCount(outbound);
+                                    pkg.add(weight);
+                                }
                             }
                         }
                         // Build the class graph output if necessary
@@ -272,33 +289,44 @@ public final class Callgraph {
                                 if (arguments.isExtendedProperties()) {
                                     clazz.add(outbound.isAbstract());
                                 }
+                                if (arguments.isWeights()) {
+                                    Integer weight = arguments.isReverse() ?
+                                            sce.inboundTypeCount(outbound)
+                                            : sce.outboundTypeCount(outbound);
+                                    clazz.add(weight);
+                                }
                             }
                         }
                     }
-                    if (!arguments.isQuiet() || outStream != null) {
-                        if (!mth.isEmpty()) {
-                            CharSequence nm = arguments.isShortNames() ? sce.shortName() : sce.qname();
-                            List<Object> l = mth;
-                            if (arguments.isExtendedProperties()) {
-                                mth.add(0, sce.isAbstract());
-                            }
-                            l.add(0, nm);
-                            CharSequence line = info.strings.concatQuoted(l);
-                            if (!arguments.isQuiet()) {
-                                System.out.println(line);
-                            }
-                            if (outStream != null) {
-                                outStream.println(line);
-                            }
-                        }
-                    }
+//                    if (!arguments.isQuiet() || outStream != null) {
+//                        if (!mth.isEmpty()) {
+//                            CharSequence nm = arguments.isShortNames() ? sce.shortName() : sce.qname();
+//                            List<Object> l = mth;
+//                            if (arguments.isExtendedProperties()) {
+//                                mth.add(0, sce.isAbstract());
+//                            }
+//                            l.add(0, nm);
+//                            CharSequence line = info.strings.concatQuoted(l);
+//                            if (!arguments.isQuiet()) {
+//                                System.out.println(line);
+//                            }
+//                            if (outStream != null) {
+//                                outStream.println(line);
+//                            }
+//                            mth.clear();
+//                        }
+//                    }
+                }
+                if (outStream != null && !mth.isEmpty()) {
+                    writeLine(mth, info, new HashSet<>(), outStream, quiet);
                 }
                 if (classStream != null && !clazz.isEmpty()) {
-                    writeLine(clazz, info, emittedClassLines, classStream);
+                    writeLine(clazz, info, emittedClassLines, classStream, quiet);
                 }
                 if (packageStream != null && !pkg.isEmpty()) {
-                    writeLine(pkg, info, emittedPackageLines, packageStream);
+                    writeLine(pkg, info, emittedPackageLines, packageStream, quiet);
                 }
+
             } finally {
                 for (PrintStream ps : new PrintStream[]{outStream, packageStream, classStream}) {
                     if (ps != null) {
@@ -310,12 +338,15 @@ public final class Callgraph {
         return allElements;
     }
 
-    private static void writeLine(Collection<Object> clazz, SourcesInfo info, Set<CharSequence> emittedClassLines, PrintStream classStream) {
+    private static void writeLine(Collection<Object> clazz, SourcesInfo info, Set<CharSequence> emittedClassLines, PrintStream classStream, boolean quiet) {
         if (!clazz.isEmpty()) {
             CharSequence cs = info.strings.concatQuoted(clazz);
             if (!emittedClassLines.contains(cs)) {
                 classStream.println(cs);
                 emittedClassLines.add(cs);
+                if (!quiet) {
+                    System.out.println(cs);
+                }
             }
         }
     }

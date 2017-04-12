@@ -55,6 +55,7 @@ import java.util.Set;
  */
 interface CallgraphControl extends Iterable<File>, FileFilter {
 
+    static final String CMD_WEIGHTS = "weights";
     static final String CMD_NOSELF = "noself";
     static final String CMD_SIMPLE = "simple";
     static final String CMD_ANT = "ant";
@@ -74,6 +75,7 @@ interface CallgraphControl extends Iterable<File>, FileFilter {
     static final String CMD_REVERSE = "reverse";
     static final String CMD_IGNORE_SINGLE_PACKAGE = "ignore_shallow_packages";
     static final String CMD_IGNORE_ANONYMOUS = "ignore_anonymous";
+    static final String CMD_NO_ORPHANS = "exclude-orphans";
 
     boolean isDisableEightBitStrings();
 
@@ -115,5 +117,9 @@ interface CallgraphControl extends Iterable<File>, FileFilter {
 
     boolean isReverse();
 
-    public boolean isIgnoreAnonymous();
+    boolean isIgnoreAnonymous();
+    
+    boolean isWeights();
+    
+    boolean isNoOphans();
 }
