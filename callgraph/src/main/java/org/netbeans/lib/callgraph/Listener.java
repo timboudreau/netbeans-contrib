@@ -56,7 +56,7 @@ public interface Listener {
 
     void onFinish();
 
-    void onStartActivity(String activity, int steps);
+    void onStartActivity(CharSequence activity, int steps);
 
-    void onStep(String step);
+    void onStep(CharSequence step);
 }

@@ -62,18 +62,23 @@ public class JavaFilesIterator implements Iterator<File>, FileFilter {
 
     private final LinkedList<Iterator<File>> stack = new LinkedList<>();
     private File next;
+    private final FileFilter ignoreFilter;
 
-    public JavaFilesIterator(File root) throws IOException {
+    public JavaFilesIterator(File root, FileFilter ignoreFilter) throws IOException {
+        if (ignoreFilter == null) {
+            throw new IllegalArgumentException("Null filter");
+        }
+        this.ignoreFilter = ignoreFilter;
         Iterator<File> base = list(root);
         stack.push(base);
     }
 
-    public static Iterable<File> iterable(final File root) {
+    public static Iterable<File> iterable(final File root, FileFilter ignoreFilter) {
         return () -> {
             try {
-                return new JavaFilesIterator(root);
+                return new JavaFilesIterator(root, ignoreFilter);
             } catch (IOException ex) {
-                throw new IllegalStateException(root + "");
+                throw new IllegalStateException(root + "", ex);
             }
         };
     }
@@ -131,9 +136,20 @@ public class JavaFilesIterator implements Iterator<File>, FileFilter {
 
     @Override
     public boolean accept(File file) {
-        return (file.isDirectory() && !file.getName().startsWith(".")) 
-                || ((file.isFile() && file.canRead() && file.getName().endsWith(".java") 
-                && !file.getName().equals("package-info.java")));
+        if (file == null) {
+            return false;
+        }
+        if (file.getName() == null) {
+            return false;
+        }
+        boolean nonHiddenFolder = file.isDirectory() && !file.getName().startsWith(".");
+        boolean isJavaFile = file.isFile() && file.canRead() && file.getName().endsWith(".java") ;
+        boolean isNotPackageInfo = !"package-info.java".equals(file.getName());
+        return nonHiddenFolder || ((isJavaFile && isNotPackageInfo) && ignoreFilter.accept(file));
+//        return (
+//                file.isDirectory() && !file.getName().startsWith(".")) 
+//                || ((file.isFile() && file.canRead() && file.getName().endsWith(".java") 
+//                    && !file.getName().equals("package-info.java")));
     }
 
     @Override

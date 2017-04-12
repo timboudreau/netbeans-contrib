@@ -52,13 +52,15 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import javax.lang.model.element.Element;
+import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
  * Container for shared state that is gathered during the parse and discarded
@@ -68,15 +70,27 @@ import javax.lang.model.element.Element;
  */
 public final class SourcesInfo implements AutoCloseable {
 
-    public final Set<SourceElement> allElements = new HashSet<>();
-    public final Map<Element, SourceElement> elements = new HashMap<>();
+    public final Set<SourceElement> allElements = new ConcurrentSkipListSet<>();
+    public final Map<Element, SourceElement> elements = new ConcurrentHashMap<>();
 
-    private final Map<ClassTree, List<ClassTree>> inners = new HashMap<>();
+    private final Map<ClassTree, List<ClassTree>> inners = new ConcurrentHashMap<>();
 
     public final EightBitStrings strings;
+    private final ComparableCharSequence DOLLARS_DOT;
+    private final ComparableCharSequence DEFAULT_PACKAGE;
+    private final ComparableCharSequence OPEN_PARENS;
+    private final ComparableCharSequence COMMA;
+    private final ComparableCharSequence CLOSE_PARENS;
+    private final ComparableCharSequence OPEN_CLOSE_PARENS;
 
     public SourcesInfo(boolean eightBitStringsDisabled, boolean aggressive) {
         this.strings = new EightBitStrings(eightBitStringsDisabled, aggressive);
+        DOLLARS_DOT = strings.create("$.");
+        DEFAULT_PACKAGE = strings.create("<defaultPackage>");
+        OPEN_PARENS = strings.create("(");
+        CLOSE_PARENS = strings.create("}");
+        OPEN_CLOSE_PARENS = strings.create("()");
+        COMMA = strings.create(",");
     }
 
     // XXX rewrite to not hold references to ClassTree, just names,
@@ -92,34 +106,48 @@ public final class SourcesInfo implements AutoCloseable {
         } while (path != null && !CLASS_TREE_KINDS.contains(path.getLeaf().getKind()));
         return path;
     }
+    
+    int edgeCount() {
+        int ct = 0;
+        for (SourceElement e : allElements) {
+            ct += e.getInboundReferences().size() + e.getOutboundReferences().size();
+        }
+        return ct;
+    }
 
-    String parametersOf(TreePath path) {
+    ComparableCharSequence parametersOf(TreePath path) {
         if (path.getLeaf() instanceof MethodTree) {
             MethodTree method = (MethodTree) path.getLeaf();
-            StringBuilder paramsString = new StringBuilder("(");
-            for (Iterator<? extends VariableTree> it = method.getParameters().iterator(); it.hasNext();) {
+            List<? extends VariableTree> params = method.getParameters();
+            if (params.isEmpty()) {
+                return OPEN_CLOSE_PARENS;
+            }
+            List<CharSequence> l = new ArrayList<>(((params.size() -1) * 2) + 2);
+            l.add(OPEN_PARENS);
+            for (Iterator<? extends VariableTree> it = params.iterator(); it.hasNext();) {
                 VariableTree variable = it.next();
-                paramsString.append(variable.getType().toString());
+                l.add(strings.create(variable.getType().toString()));
                 if (it.hasNext()) {
-                    paramsString.append(',');
+                    l.add(COMMA);
                 }
             }
-            return paramsString.append(")").toString();
+            l.add(CLOSE_PARENS);
+            return strings.concat(l.toArray(new CharSequence[l.size()]));
         } else {
-            return "";
+            return ComparableCharSequence.EMPTY;
         }
     }
 
-    String packageNameOf(TreePath path) {
+    ComparableCharSequence packageNameOf(TreePath path) {
         ExpressionTree pkgName = path.getCompilationUnit().getPackageName();
-        return pkgName == null ? "<defaultPackage>" : pkgName.toString();
+        return pkgName == null ? DEFAULT_PACKAGE : strings.create(pkgName.toString());
     }
 
-    String nameOf(TreePath tree) {
+    ComparableCharSequence nameOf(TreePath tree) {
         TreePath containingClass = containingClassOf(tree);
         ClassTree clazz = (ClassTree) containingClass.getLeaf();
-        String name = clazz.getSimpleName().toString();
-        if (name.isEmpty()) {
+        ComparableCharSequence name = strings.create(clazz.getSimpleName());
+        if (name.length() == 0) {
             // Recursively generate $1, $2 names, handling the case of
             // mutiple nesting
             name = nameOf(containingClass);
@@ -127,11 +155,11 @@ public final class SourcesInfo implements AutoCloseable {
             ClassTree nestingParent = (ClassTree) nestedIn.getLeaf();
             List<ClassTree> innerClasses = inners.get(nestingParent);
             if (innerClasses == null) {
-                innerClasses = new ArrayList<>(3);
+                innerClasses = new LinkedList<>();
                 inners.put(nestingParent, innerClasses);
             }
             innerClasses.add(clazz);
-            name = name + ".$" + innerClasses.size();
+            return strings.concat(name, DOLLARS_DOT, Integer.toString(innerClasses.size()));
         }
         return name;
     }

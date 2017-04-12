@@ -45,7 +45,7 @@
 package org.netbeans.lib.callgraph;
 
 import java.io.File;
-import java.util.Iterator;
+import java.io.FileFilter;
 import java.util.Set;
 
 /**
@@ -53,7 +53,7 @@ import java.util.Set;
  *
  * @author Tim Boudreau
  */
-interface CallgraphControl extends Iterable<File> {
+interface CallgraphControl extends Iterable<File>, FileFilter {
 
     static final String CMD_NOSELF = "noself";
     static final String CMD_SIMPLE = "simple";
@@ -72,6 +72,8 @@ interface CallgraphControl extends Iterable<File> {
     static final String CMD_OMIT_ABSTRACT = "omit_abstract";
     static final String CMD_DISABLE_EIGHT_BIT_STRINGS = "use_java_strings";
     static final String CMD_REVERSE = "reverse";
+    static final String CMD_IGNORE_SINGLE_PACKAGE = "ignore_shallow_packages";
+    static final String CMD_IGNORE_ANONYMOUS = "ignore_anonymous";
 
     boolean isDisableEightBitStrings();
 
@@ -97,15 +99,21 @@ interface CallgraphControl extends Iterable<File> {
 
     boolean isShortNames();
 
+    boolean isIgnoreSinglePackage();
+
+    boolean isIgnoreAbstract();
+
     File methodGraphFile();
 
     File packageGraphFile();
 
-    boolean isExcluded(String qname);
+    boolean isExcluded(CharSequence qname);
 
     boolean isVerbose();
 
     boolean isOmitAbstract();
 
     boolean isReverse();
+
+    public boolean isIgnoreAnonymous();
 }

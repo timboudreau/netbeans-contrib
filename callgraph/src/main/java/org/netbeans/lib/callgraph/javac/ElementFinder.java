@@ -50,7 +50,9 @@ import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 import com.sun.source.util.Trees;
-import java.lang.reflect.Modifier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.type.TypeMirror;
@@ -60,21 +62,29 @@ import javax.lang.model.type.TypeMirror;
  * 
  * @author Tim Boudreau
  */
-final class ElementFinder extends TreeScanner<Void, SourcesInfo> {
+final class ElementFinder extends TreeScanner<SourceElement, SourcesInfo> {
 
     private final CompilationUnitTree cc;
     private final Trees trees;
+    private SourceElement last;
+    private final boolean ignoreShallow;
+    private final boolean ignoreAnonymous;
+    private final boolean ignoreAbstract;
 
-    public ElementFinder(CompilationUnitTree cc, Trees trees) {
+    public ElementFinder(CompilationUnitTree cc, Trees trees, boolean ignoreShallow, boolean ignoreAbstract, boolean ignoreAnonymous) {
         this.cc = cc;
         this.trees = trees;
+        this.ignoreShallow = ignoreShallow;
+        this.ignoreAbstract = ignoreAbstract;
+        this.ignoreAnonymous = ignoreAnonymous;
     }
 
     @Override
-    public Void visitMethod(MethodTree tree, SourcesInfo info) {
+    public SourceElement visitMethod(MethodTree tree, SourcesInfo info) {
         String nm = tree.getName().toString();
-        addItem(tree, info, SourceElementKind.METHOD, nm);
-        return super.visitMethod(tree, info);
+        SourceElement last = addItem(tree, info, SourceElementKind.METHOD, nm);
+        super.visitMethod(tree, info);
+        return this.last = last;
     }
 
     // uncomment to also deal in fields
@@ -85,16 +95,36 @@ final class ElementFinder extends TreeScanner<Void, SourcesInfo> {
 //        addItem(tree, set, SceneObjectKind.FIELD, nm);
 //        return super.visitVariable(tree, set);
 //    }
-    private void addItem(Tree tree, SourcesInfo info, SourceElementKind kind, String nm) {
+//    private static final Pattern ANONYMOUS = Pattern.compile(".*\\$\\d+$");
+    private SourceElement addItem(Tree tree, SourcesInfo info, SourceElementKind kind, String nm) {
         TreePath path = TreePath.getPath(cc, tree);
         Element el = trees.getElement(path);
         if (el != null && (el.getKind() == ElementKind.FIELD || el.getKind() == ElementKind.METHOD)) {
-            boolean abstrakt = el.getKind() == ElementKind.METHOD && el.getModifiers().contains(Modifier.ABSTRACT);
+            boolean abstrakt = el.getKind() == ElementKind.METHOD 
+                    && el.getModifiers().contains(Modifier.ABSTRACT);
+            if (ignoreAbstract && abstrakt) {
+                return null;
+            }
             TypeMirror mirror = el.asType();
+            
+//            if (ignoreAnonymous && mirror != null) {
+//                System.out.println(mirror.toString());
+//                Matcher m = ANONYMOUS.matcher(mirror.toString());
+//                if (m.find()) {
+//                    System.out.println("IGNORE " + mirror.toString());
+//                    return null;
+//                }
+//            }
+            
             String typeStr = mirror != null ? mirror.toString() : "void";
+            if (ignoreShallow && typeStr.indexOf('.') == typeStr.lastIndexOf('.')) {
+                return null;
+            }
             SourceElement nue = new SourceElement(kind, path, nm, typeStr, info, abstrakt);
             info.allElements.add(nue);
             info.elements.put(el, nue);
+            return nue;
         }
+        return null;
     }
 }

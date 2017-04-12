@@ -41,13 +41,13 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.lib.callgraph.javac;
 
 import com.sun.source.util.TreePath;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
@@ -59,8 +59,8 @@ import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 public final class SourceElement implements Comparable<SourceElement> {
 
     private final ComparableCharSequence name;
-    private final Set<SourceElement> inbound = new HashSet<>();
-    private final Set<SourceElement> outbound = new HashSet<>();
+    private volatile Set<SourceElement> inbound;
+    private volatile Set<SourceElement> outbound = new HashSet<>();
     private final SourceElementKind kind;
     private final ComparableCharSequence type;
     private final ComparableCharSequence typeName;
@@ -79,8 +79,8 @@ public final class SourceElement implements Comparable<SourceElement> {
         this.typeName = info.strings.create(info.nameOf(handle));
         parameters = info.strings.create(info.parametersOf(handle));
         packageName = info.strings.create(info.packageNameOf(handle));
-        qname = info.strings.concat(packageName, info.strings.DOT, typeName(), info.strings.DOT, getName(), parameters());;
-        shortName = info.strings.concat(typeName(), info.strings.DOT, getName(), parameters());
+        qname = info.strings.concat(packageName, info.strings.DOT, typeName(), info.strings.DOT, name, parameters());;
+        shortName = info.strings.concat(typeName(), info.strings.DOT, name, parameters());
         this.abstrakt = abstrakt;
     }
 
@@ -93,21 +93,41 @@ public final class SourceElement implements Comparable<SourceElement> {
     }
 
     public synchronized Set<SourceElement> getOutboundReferences() {
-        return Collections.unmodifiableSet(outbound);
+        return outbound == null ? EMPTY : Collections.unmodifiableSet(outbound);
     }
+
+    private static final Set<SourceElement> EMPTY = Collections.emptySet();
 
     public synchronized Set<SourceElement> getInboundReferences() {
-        return Collections.unmodifiableSet(inbound);
+        return inbound == null ? EMPTY : Collections.unmodifiableSet(inbound);
     }
 
-    synchronized void addOutboundReference(SourceElement item) {
+    void addOutboundReference(SourceElement item) {
         if (item != this) {
+            Set<SourceElement> outbound = this.outbound;
+            if (outbound == null) {
+                synchronized (this) {
+                    outbound = this.outbound;
+                    if (outbound == null) {
+                        this.outbound = outbound = new ConcurrentSkipListSet<>();
+                    }
+                }
+            }
             outbound.add(item);
         }
     }
 
     synchronized void addInboundReference(SourceElement item) {
         if (item != this) {
+            Set<SourceElement> inbound = this.inbound;
+            if (inbound == null) {
+                synchronized (this) {
+                    inbound = this.inbound;
+                    if (inbound == null) {
+                        this.inbound = inbound = new ConcurrentSkipListSet<>();
+                    }
+                }
+            }
             inbound.add(item);
         }
     }
@@ -127,7 +147,7 @@ public final class SourceElement implements Comparable<SourceElement> {
     public ComparableCharSequence parameters() {
         return parameters;
     }
-    
+
     public boolean isAbstract() {
         return abstrakt;
     }
@@ -160,10 +180,9 @@ public final class SourceElement implements Comparable<SourceElement> {
         return qname().equals(other.qname());
     }
 
-    int hash = 0;
     @Override
     public int hashCode() {
-        return hash == 0 ? hash = 37 * qname().hashCode() : hash;
+        return 37 * qname().hashCode();
     }
 
     @Override

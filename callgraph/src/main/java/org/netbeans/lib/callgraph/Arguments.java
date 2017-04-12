@@ -45,12 +45,17 @@ package org.netbeans.lib.callgraph;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.netbeans.lib.callgraph.util.ComparableCharSequence;
 
 /**
  * Parses and validates command-line arguments.
@@ -59,8 +64,8 @@ import java.util.Set;
  */
 final class Arguments implements CallgraphControl {
 
-    private Set<File> folders = new HashSet<>();
-    private static final Command[] commands = new Command[]{
+    private Set<File> folders = new ConcurrentSkipListSet<>();
+    private static final Command[] COMMANDS = new Command[]{
         new NoSelfReferencesCommand(),
         new ShortNamesCommand(),
         new ExtendedPropertiesCommand(),
@@ -74,12 +79,32 @@ final class Arguments implements CallgraphControl {
         new ClassGraphFileCommand(),
         new OmitAbstractCommand(),
         new DisableEightBitStringsCommand(),
-        new OmitAbstractCommand(),
         new QuietCommand(),
         new ReverseCommand(),
         new AggressiveCommand(),
-        new VerboseCommand()
+        new VerboseCommand(),
+        new IgnoreShallowPackagesCommand(),
+        new IgnoreAnonymousClassesCommand()
     };
+
+    static {
+        if (new HashSet<>(Arrays.asList(COMMANDS)).size() != COMMANDS.length) {
+            throw new AssertionError("Command list contains duplicates");
+        }
+        //sanity check
+        for (int i = 0; i < COMMANDS.length; i++) {
+            Command ca = COMMANDS[i];
+            for (int j = i + 1; j < COMMANDS.length; j++) {
+                Command cb = COMMANDS[j];
+                if (ca.shortcut.equals(cb.shortcut)) {
+                    throw new AssertionError("Conflicting shortcut '" + ca.shortcut
+                            + "' for " + ca.getClass().getSimpleName() + " and "
+                            + cb.getClass().getSimpleName());
+                }
+            }
+        }
+    }
+    private boolean ignoreShallowPackages = false;
     private boolean noSelfReferences = false;
     private boolean shortNames = false;
     private boolean maven = false;
@@ -97,6 +122,8 @@ final class Arguments implements CallgraphControl {
     private boolean omitAbstract;
     private boolean disableEightBitStrings;
     private boolean reverse;
+    final Set<File> ignoreFolders = new HashSet<>();
+    private boolean ignoreAnonymousClasses;
 
     Arguments(String... args) throws IOException {
         this(true, args);
@@ -107,7 +134,7 @@ final class Arguments implements CallgraphControl {
         List<String> errors = new LinkedList<>();
         for (int i = 0; i < args.length;) {
             int oldPos = i;
-            for (Command c : commands) {
+            for (Command c : COMMANDS) {
                 try {
                     @SuppressWarnings("LeakingThisInConstructor")
                     int increment = c.parse(i, args, this);
@@ -147,6 +174,9 @@ final class Arguments implements CallgraphControl {
                 }
             }
         }
+        if (verbose && (maven || gradle || ant)) {
+            System.err.println("Scanning for projects in " + this.folders());
+        }
         if ((maven && gradle) || (ant && gradle) || (ant && maven)) {
             errors.add("--maven, --ant and --gradle are mutually exclusive");
         } else if (maven) {
@@ -160,7 +190,9 @@ final class Arguments implements CallgraphControl {
         for (String ig : ignore) {
             File ff = new File(ig);
             if (ff.exists() && ff.isDirectory()) {
+                ignoreFolders.add(ff);
                 ff = ff.getCanonicalFile();
+                ignoreFolders.add(ff);
                 for (File f : this.folders()) {
                     File f1 = f.getCanonicalFile();
                     if (f1.equals(ff)) {
@@ -193,44 +225,98 @@ final class Arguments implements CallgraphControl {
                 }
             }
         }
-        if (verbose && !toIgnore.isEmpty()) {
-            System.err.println("Ignoring the following projects:");
-            for (File ti : toIgnore) {
-                System.err.println(" - " + ti.getAbsolutePath());
+        if (verbose) {
+            if (toIgnore.isEmpty()) {
+                System.err.println("Not ignoring any folders");
+            } else {
+                System.err.println("Ignoring " + toIgnore.size() + " folders due to -i");
             }
         }
+//        if (verbose && !toIgnore.isEmpty()) {
+//            System.err.println("Ignoring the following projects:");
+//            for (File ti : toIgnore) {
+//                System.err.println(" - " + ti.getAbsolutePath());
+//            }
+//        }
         this.folders.removeAll(toIgnore);
         if (verbose && !this.folders.isEmpty()) {
             System.err.println("Will scan the following source roots:");
-            for (File f : folders()) {
-                System.err.println("  " + f.getAbsolutePath());
+            StringBuilder sb = new StringBuilder();
+
+            for (Iterator<File> it = folders().iterator(); it.hasNext();) {
+                File f = it.next();
+                sb.append(f.getAbsolutePath());
+                if (it.hasNext()) {
+                    sb.append(", ");
+                }
+            }
+            System.err.println(sb);
+            if (maven || gradle || ant) {
+                System.err.println("Found " + folders().size() + " source roots.");
             }
         }
 
         if (packageGraphFile != null) {
             File parent = packageGraphFile.getParentFile();
-            if (!parent.exists() || !parent.isDirectory()) {
+            if (parent == null || !parent.exists() || !parent.isDirectory()) {
                 errors.add("Parent folder for package graph output file does not exist: " + parent);
             }
         }
         if (classGraphFile != null) {
             File parent = classGraphFile.getParentFile();
-            if (!parent.exists() || !parent.isDirectory()) {
+            if (parent == null || !parent.exists() || !parent.isDirectory()) {
                 errors.add("Parent folder for class graph output file does not exist: " + parent);
             }
         }
         if (outfile != null) {
             File parent = outfile.getParentFile();
-            if (!parent.exists() || !parent.isDirectory()) {
+            if (parent == null || !parent.exists() || !parent.isDirectory()) {
                 errors.add("Parent folder for output file does not exist: " + parent);
             }
         } else if (abortIfWillNotOutput && quiet && packageGraphFile == null && classGraphFile == null) {
             errors.add("-q or --quiet specified, but no output file specified - would not produce any output at all");
         }
-        // XXX check if any folders are children of each other?
+        // Ensure no folders are nested inside each other
+        Set<File> all = new HashSet<>(this.folders);
+        int children = 0;
+        for (File f1 : all) {
+            for (File f2 : all) {
+                if (f1 == f2) {
+                    continue;
+                }
+                if (f2.getAbsolutePath().startsWith(f1.getAbsolutePath())) {
+                    children++;
+                    this.folders.remove(f2);
+                }
+            }
+        }
+        if (verbose) {
+            System.err.println("Pruned " + children + " due to being children of other folders");
+        }
         if (!errors.isEmpty()) {
             throw new InvalidArgumentsException(help(errors), errors);
         }
+    }
+
+    @Override
+    public boolean accept(File f) {
+        if (ignoreFolders.contains(f)) {
+            return false;
+        }
+        for (File ig : ignoreFolders) {
+            if (f.getAbsolutePath().startsWith(ig.getAbsolutePath())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isIgnoreAbstract() {
+        return omitAbstract;
+    }
+
+    public boolean isIgnoreAnonymous() {
+        return ignoreAnonymousClasses;
     }
 
     private void findMavenSubfolders(List<String> errors) {
@@ -282,8 +368,15 @@ final class Arguments implements CallgraphControl {
                     this.folders.add(sources);
                 }
             }
-            for (File child : file.listFiles()) {
-                recurseSubfoldersLookingForAntProjects(child);
+            List<File> kids = Arrays.asList(file.listFiles(File::isDirectory));
+            if (kids.size() > 5) {
+                for (File child : file.listFiles()) {
+                    recurseSubfoldersLookingForAntProjects(child);
+                }
+            } else {
+                kids.parallelStream().forEach((File f) -> {
+                    recurseSubfoldersLookingForAntProjects(f);
+                });
             }
         }
     }
@@ -385,6 +478,7 @@ final class Arguments implements CallgraphControl {
         return xprop;
     }
 
+    @Override
     public boolean isAggressive() {
         return aggressive;
     }
@@ -413,9 +507,29 @@ final class Arguments implements CallgraphControl {
         return omitAbstract;
     }
 
-    public boolean isExcluded(String qname) {
-        for (String ex : exclude) {
-            if (qname.startsWith(ex)) {
+    private static final Pattern ANONYMOUS = Pattern.compile(".*?\\$\\.\\d+.*");
+
+    public boolean isExcluded(CharSequence qname) {
+        if (exclude.size() > 0) {
+            if (qname instanceof ComparableCharSequence) {
+                ComparableCharSequence ccs = (ComparableCharSequence) qname;
+                for (String ex : exclude) {
+                    if (ccs.startsWith(ex)) {
+                        return true;
+                    }
+                }
+            } else {
+                String qn = qname.toString();
+                for (String ex : exclude) {
+                    if (qn.startsWith(ex)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        if (isIgnoreAnonymous()) {
+            Matcher m = ANONYMOUS.matcher(qname);
+            if (m.find()) {
                 return true;
             }
         }
@@ -432,7 +546,7 @@ final class Arguments implements CallgraphControl {
                 + "and can output graphs of what methods / classes / packages (or all of the above) call each other\nwithin that"
                 + "source tree."
                 + "\n\nUsage:\njava -jar callgraph.jar ");
-        for (Command c : commands) {
+        for (Command c : COMMANDS) {
             if (c.optional) {
                 sb.append('[');
             }
@@ -447,7 +561,7 @@ final class Arguments implements CallgraphControl {
         }
         sb.append("dir1 [dir2 dir3 ...]");
         sb.append('\n');
-        for (Command c : commands) {
+        for (Command c : COMMANDS) {
             sb.append("\n\t");
             sb.append("--").append(c.name).append(" / -").append(c.shortcut).append(" :\t").append(c.help());
         }
@@ -458,6 +572,11 @@ final class Arguments implements CallgraphControl {
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean isIgnoreSinglePackage() {
+        return ignoreShallowPackages;
     }
 
     private static abstract class Command {
@@ -658,7 +777,7 @@ final class Arguments implements CallgraphControl {
     private static final class OmitAbstractCommand extends Command {
 
         OmitAbstractCommand() {
-            super(CMD_OMIT_ABSTRACT, "a", true, false);
+            super(CMD_OMIT_ABSTRACT, "b", true, false);
         }
 
         @Override
@@ -691,6 +810,44 @@ final class Arguments implements CallgraphControl {
         }
     }
 
+    private static final class IgnoreShallowPackagesCommand extends Command {
+
+        IgnoreShallowPackagesCommand() {
+            super(CMD_IGNORE_SINGLE_PACKAGE, "h", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.ignoreShallowPackages = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Ignore classes in packages just below the default package, "
+                    + "a pattern frequently used in demo code.";
+        }
+    }
+
+    private static final class IgnoreAnonymousClassesCommand extends Command {
+
+        IgnoreAnonymousClassesCommand() {
+            super(CMD_IGNORE_ANONYMOUS, "y", true, false);
+        }
+
+        @Override
+        protected int doParse(int i, String[] args, Arguments toSet) {
+            toSet.ignoreAnonymousClasses = true;
+            return 1;
+        }
+
+        @Override
+        protected String help() {
+            return "Ignore classes in packages just below the default package, "
+                    + "a pattern frequently used in demo code.";
+        }
+    }
+
     private static final class QuietCommand extends Command {
 
         QuietCommand() {
@@ -705,7 +862,7 @@ final class Arguments implements CallgraphControl {
 
         @Override
         protected String help() {
-            return "Supress writing the graph to the standard output";
+            return "Ignore anonymous classes, e.g. com.foo.Bar.$4";
         }
     }
 
@@ -785,6 +942,7 @@ final class Arguments implements CallgraphControl {
             }
             for (String s : args[i + 1].split(",")) {
                 toSet.exclude.add(s);
+                System.out.println("EXCLUDE '" + s + "'");
             }
             return 2;
         }
@@ -807,7 +965,7 @@ final class Arguments implements CallgraphControl {
                 throw new IllegalArgumentException("--exclude or -e present but no exclusion list present");
             }
             for (String s : args[i + 1].split(",")) {
-                toSet.ignore.add(s);
+                toSet.ignore.add(s.trim());
             }
             return 2;
         }

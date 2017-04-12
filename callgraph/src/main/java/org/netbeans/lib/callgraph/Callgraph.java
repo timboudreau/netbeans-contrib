@@ -1,4 +1,4 @@
-/* 
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (C) 1997-2016 Oracle and/or its affiliates. All rights reserved.
@@ -44,17 +44,7 @@
 package org.netbeans.lib.callgraph;
 
 import org.netbeans.lib.callgraph.Arguments.InvalidArgumentsException;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_CLASSGRAPH;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_DISABLE_EIGHT_BIT_STRINGS;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_EXCLUDE;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_MAVEN;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_METHODGRAPH;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_NOSELF;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_OMIT_ABSTRACT;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_PACKAGEGRAPH;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_QUIET;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_REVERSE;
-import static org.netbeans.lib.callgraph.CallgraphControl.CMD_SIMPLE;
+import static org.netbeans.lib.callgraph.CallgraphControl.*;
 import org.netbeans.lib.callgraph.io.JavaFilesIterator;
 import org.netbeans.lib.callgraph.javac.JavacRunner;
 import org.netbeans.lib.callgraph.javac.SourceElement;
@@ -64,12 +54,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -100,6 +95,20 @@ public final class Callgraph {
 
     private Callgraph() {
     }
+    
+    static final class UH  implements Thread.UncaughtExceptionHandler {
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            if (e instanceof ExecutionException && e.getCause() != null) {
+                e = e.getCause();
+            }
+            e.printStackTrace(System.err);
+            System.err.flush();
+            System.exit(1);
+        }
+        
+    }
 
     /**
      * Configure a Callgraph to build.
@@ -110,18 +119,26 @@ public final class Callgraph {
         return new Callgraph();
     }
 
-    public static void main(String[] args) throws IOException {
-        CallgraphControl arguments = null;
-        try {
-            arguments = new Arguments(args);
-        } catch (InvalidArgumentsException ex) {
-            // this will be a help message describing usage and the invalid
-            // arguments
-            System.err.println(ex.getMessage());
-            System.exit(1);
-        }
-        assert arguments != null;
-        invoke(arguments, arguments.isVerbose() ? new LoggingListener() : null);
+    public static void main(String[] args) throws Exception {
+        int threads = Runtime.getRuntime().availableProcessors() * 4;
+        // Threads will spend most of their time blocked waiting for the
+        // I/O controller to shovel data from disk, so we want more threads
+        // than we actually have CPUs
+        new ForkJoinPool(threads, ForkJoinPool.defaultForkJoinWorkerThreadFactory, new UH(), false)
+                .submit(() -> {
+                    CallgraphControl arguments = null;
+                    try {
+                        arguments = new Arguments(args);
+                    } catch (InvalidArgumentsException ex) {
+                        // this will be a help message describing usage and the invalid
+                        // arguments
+                        System.err.println(ex.getMessage());
+                        System.exit(1);
+                    }
+                    assert arguments != null;
+                    invoke(arguments, arguments.isVerbose() ? new LoggingListener() : null);
+                    return null;
+                }).get();
     }
 
     /**
@@ -131,25 +148,38 @@ public final class Callgraph {
      * @return The list of all methods found, sorted by qname
      * @throws IOException If i/o fails
      */
-    static List<SourceElement> invoke(CallgraphControl arguments, Listener listener) throws IOException {
+    static Collection<SourceElement> invoke(CallgraphControl arguments, Listener listener) throws IOException {
         SourcesInfo info = new SourcesInfo(arguments.isDisableEightBitStrings(), arguments.isAggressive());
         // Build an iterable of all Java sources (without collecting them all ahead of time)
         List<Iterable<File>> iterables = new LinkedList<>();
         for (File folder : arguments) {
-            iterables.add(JavaFilesIterator.iterable(folder));
+            iterables.add(JavaFilesIterator.iterable(folder, arguments));
         }
         // The thing that will run javac
-        JavacRunner runner = new JavacRunner(info, MergeIterator.toIterable(iterables), listener);
+        JavacRunner runner = new JavacRunner(info, MergeIterator.toIterable(iterables), listener, arguments.isIgnoreSinglePackage(), arguments.isIgnoreAbstract(), arguments.isIgnoreAnonymous());
         AtomicReference<File> lastFile = new AtomicReference<>();
-        Consumer<File> monitor = lastFile::set;
+        int[] count = new int[1];
+        Consumer<File> monitor = new Consumer<File>() { //lastFile::set;
+
+            @Override
+            public void accept(File t) {
+                lastFile.set(t);
+                if (listener != null && count[0] % 100 == 0) {
+                    listener.onStep("Scanned " + count[0] + " source files...");
+                }
+                count[0]++;
+            }
+        };
+
+        if (listener != null) {
+            listener.onStep("Scan " + arguments.folders().size() + " source roots.");
+        }
         // run javac
         Set<SourceElement> allElements = runner.go(monitor, lastFile);
-
-        List<SourceElement> all = new ArrayList<>(allElements);
-        // Sort, so textual output is more human-friendly
-        Collections.sort(all);
+        allElements = new TreeSet<>(allElements);
+//        Map<CharSequence, List<Object>> packageLineForCharSequence = new TreeMap<>();
         // Now write files and print output
-        if (!all.isEmpty()) {
+        if (!allElements.isEmpty()) {
             PrintStream outStream = createPrintStreamIfNotNull(arguments.methodGraphFile());
             PrintStream packageStream = createPrintStreamIfNotNull(arguments.packageGraphFile());
             PrintStream classStream = createPrintStreamIfNotNull(arguments.classGraphFile());
@@ -159,14 +189,14 @@ public final class Callgraph {
             List<Object> clazz = new ArrayList<>(5);
             CharSequence lastClass = null;
 
-            List<Object> pkg = new ArrayList<>(5);
+            Set<Object> pkg = new LinkedHashSet<>(5);
             CharSequence lastPackage = null;
-            
+            SourceElement last = null;
             try {
                 // Iterate every method
                 outer:
-                for (SourceElement sce : all) {
-                    if (arguments.isExcluded(sce.qname().toString())) { // Ignore matches
+                for (SourceElement sce : allElements) {
+                    if (arguments.isExcluded(sce.qname()) || arguments.isExcluded(sce.typeName())) { // Ignore matches
                         continue;
                     }
                     List<SourceElement> outbounds = new ArrayList<>(arguments.isReverse() ? sce.getInboundReferences() : sce.getOutboundReferences());
@@ -176,7 +206,9 @@ public final class Callgraph {
                     CharSequence currClazz = arguments.isShortNames() ? sce.typeName() : info.strings.concat(sce.packageName(), info.strings.DOT, sce.typeName());
                     if (!currClazz.equals(lastClass)) {
                         if (classStream != null) {
-                            writeLine(clazz, info, emittedClassLines, classStream);
+                            if (!arguments.isIgnoreAnonymous() || !arguments.isExcluded(currClazz)) {
+                                writeLine(clazz, info, emittedClassLines, classStream);
+                            }
                         }
                         clazz.clear();
                         lastClass = currClazz;
@@ -188,9 +220,6 @@ public final class Callgraph {
                         }
                     }
                     CharSequence currPkg = sce.packageName();
-                    if (pkg.isEmpty()) {
-                        pkg.add(currPkg);
-                    }
                     if (!currPkg.equals(lastPackage)) {
                         if (packageStream != null) {
                             writeLine(pkg, info, emittedPackageLines, packageStream);
@@ -198,8 +227,12 @@ public final class Callgraph {
                         lastPackage = currPkg;
                         pkg.clear();
                     }
+                    if (pkg.isEmpty()) {
+                        pkg.add(currPkg);
+                    }
+                    last = sce;
                     for (SourceElement outbound : outbounds) {
-                        if (arguments.isExcluded(outbound.qname().toString())) { // Ignore matches
+                        if (arguments.isExcluded(outbound.qname()) || arguments.isExcluded(outbound.typeName())) { // Ignore matches
                             continue;
                         }
                         // If we are ignoring abstract methods, do that - has no effect on classes
@@ -223,7 +256,7 @@ public final class Callgraph {
                         }
                         // Build the package graph output if necessary
                         if (packageStream != null) {
-                            if (!outbound.packageName().equals(currPkg) || arguments.isSelfReferences()) {
+                            if (!outbound.packageName().equals(currPkg) && !pkg.contains(outbound.packageName())) {
                                 pkg.add(outbound.packageName());
                             }
                         }
@@ -232,7 +265,6 @@ public final class Callgraph {
                             CharSequence type1 = sce.typeName();
                             CharSequence type2 = outbound.typeName();
                             if (!arguments.isShortNames()) {
-//                                type1 = info.strings.concat(sce.packageName(), info.strings.DOT, type1);
                                 type2 = info.strings.concat(outbound.packageName(), info.strings.DOT, type2);
                             }
                             if (!type1.equals(type2) && !clazz.contains(type2)) {
@@ -275,9 +307,10 @@ public final class Callgraph {
                 }
             }
         }
-        return all;
+        return allElements;
     }
-    private static void writeLine(List<Object> clazz, SourcesInfo info, Set<CharSequence> emittedClassLines, PrintStream classStream) {
+
+    private static void writeLine(Collection<Object> clazz, SourcesInfo info, Set<CharSequence> emittedClassLines, PrintStream classStream) {
         if (!clazz.isEmpty()) {
             CharSequence cs = info.strings.concatQuoted(clazz);
             if (!emittedClassLines.contains(cs)) {
@@ -346,7 +379,7 @@ public final class Callgraph {
      * @return Sorted set of source elements
      * @throws IOException If i/o fails
      */
-    public List<SourceElement> run() throws IOException {
+    public Collection<SourceElement> run() throws IOException {
         return Callgraph.invoke(build(), listener);
     }
 
@@ -437,19 +470,20 @@ public final class Callgraph {
 
         @Override
         public void onFinish() {
-            System.out.println("Done.");
+            System.err.println("Done.");
         }
 
         @Override
-        public void onStartActivity(String activity, int steps) {
-            if (steps > 0) {
-                System.out.println(activity + " (" + steps + " steps)");
-            }
+        public void onStartActivity(CharSequence activity, int steps) {
+//            if (steps > 0) {
+//            System.err.println(activity + " (" + steps + " steps)");
+//            }
+            System.err.println(activity);
         }
 
         @Override
-        public void onStep(String step) {
-            System.out.println("\t" + step);
+        public void onStep(CharSequence step) {
+            System.err.println("\t" + step);
         }
     }
 }

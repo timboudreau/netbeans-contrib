@@ -56,7 +56,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.tools.Diagnostic;
@@ -79,15 +81,21 @@ public class JavacRunner {
     private final Iterable<? extends File> outdir = Collections.singleton(new File(System.getProperty("java.io.tmpdir")));
     private final Listener listener;
     private final SourcesInfo info;
+    private final boolean ignoreShallow;
+    private final boolean ignoreAbstract;
+    private boolean ignoreAnonymous;
 
-    public JavacRunner(SourcesInfo info, Iterable<File> files) {
-        this(info, files, new NullListener());
+    public JavacRunner(SourcesInfo info, Iterable<File> files, boolean ignoreShallow, boolean ignoreAbstract, boolean ignoreAnonymous) {
+        this(info, files, new NullListener(), ignoreShallow, ignoreAbstract, ignoreAnonymous);
     }
 
-    public JavacRunner(SourcesInfo info, Iterable<File> files, Listener listener) {
+    public JavacRunner(SourcesInfo info, Iterable<File> files, Listener listener, boolean ignoreShallow, boolean ignoreAbstract, boolean ignoreAnonymous) {
         this.files = files;
         this.listener = listener == null ? new NullListener() : listener;
         this.info = info;
+        this.ignoreAnonymous = ignoreAnonymous;
+        this.ignoreShallow = ignoreShallow;
+        this.ignoreAbstract = ignoreAbstract;
     }
 
     private Iterable<? extends JavaFileObject> javaFileObjects(StandardJavaFileManager m, Consumer<File> monitor) {
@@ -168,15 +176,21 @@ public class JavacRunner {
         }
     }
 
+    @SuppressWarnings("UseSpecificCatch")
     private SourcesInfo parse(JavacTaskImpl task, AtomicReference<File> lastFile) throws IOException {
         listener.onStartActivity("Finding and parsing Java sources", -1);
         JavacTrees trees = JavacTrees.instance(task.getContext());
         List<CompilationUnitTree> units = new LinkedList<>();
         // We need to cache these because calling parse() twice is an error
+        listener.onStartActivity("Parsing sources with javac", -1);
+        int ct = 0;
         for (CompilationUnitTree tree : task.parse()) {
             units.add(tree);
+            if (++ct % 1000 == 0) {
+                listener.onStep("Parsed " + ct + " sources so far...");
+            }
         }
-        listener.onStartActivity("Attributing Java sources", -1);
+        listener.onStartActivity("Attributing " + units.size() + " Java sources", -1);
         try {
             task.analyze(); // Run attribution - the compiler flags we have set will have it not abort on unresolvable classes
         } catch (Throwable err) {
@@ -186,18 +200,48 @@ public class JavacRunner {
             try {
                 listener.onStartActivity("Cataloging methods", units.size());
                 // First pass, find all methods in all classes
-                for (CompilationUnitTree tree : units) {
-                    listener.onStep(tree.getSourceFile().getName());
-                    ElementFinder elementFinder = new ElementFinder(tree, trees);
-                    elementFinder.scan(tree, info);
-                }
+                final AtomicInteger count = new AtomicInteger();
+                units.parallelStream().forEach(new Consumer<CompilationUnitTree>() {
+                    private final ThreadLocal<CharSequence> pkg = new ThreadLocal<>();
+
+                    @Override
+                    public void accept(CompilationUnitTree tree) {
+                        ElementFinder elementFinder = new ElementFinder(tree, trees, ignoreShallow, ignoreAbstract, ignoreAnonymous);
+                        SourceElement last = elementFinder.scan(tree, info);
+                        if (listener != null && !(listener instanceof NullListener)) {
+                            if (last != null && !Objects.equals(last.packageName(), pkg.get())) {
+                                pkg.equals(last.packageName());
+                                listener.onStep(pkg.get() + " scanned");
+                            }
+                            if (count.getAndIncrement() % 1000 == 0) {
+                                listener.onStep(count.get() + " of " + units.size()
+                                        + " classes scanned for methods, "
+                                        + info.allElements.size() + " edges found so far...");
+                            }
+                        }
+                    }
+                });
+
                 listener.onStartActivity("Finding usages", units.size());
+                count.set(0);
                 // Second pass, run find usages on every method we found
-                for (CompilationUnitTree tree : units) {
-                    listener.onStep(tree.getSourceFile().getName());
+//                for (CompilationUnitTree tree : units) {
+////                    listener.onStep(tree.getSourceFile().getName());
+//                    UsageFinder usageFinder = new UsageFinder(tree, trees);
+//                    usageFinder.scan(tree, info);
+//                    if (count++ % 1000 == 0) {
+//                        listener.onStep(count + " classes searched for usages, " + info.edgeCount() + " found so far...");
+//                    }
+//                }
+                units.parallelStream().forEach((tree) -> {
                     UsageFinder usageFinder = new UsageFinder(tree, trees);
                     usageFinder.scan(tree, info);
-                }
+                    if (listener != null && !(listener instanceof NullListener)) {
+                        if (count.getAndIncrement() % 1000 == 0) {
+                            listener.onStep(count.get() + " classes searched for usages, " + info.edgeCount() + " found so far...");
+                        }
+                    }
+                });
             } finally {
                 task.finish();
             }
@@ -230,12 +274,12 @@ public class JavacRunner {
         }
 
         @Override
-        public void onStartActivity(String activity, int steps) {
+        public void onStartActivity(CharSequence activity, int steps) {
 
         }
 
         @Override
-        public void onStep(String step) {
+        public void onStep(CharSequence step) {
 
         }
     }

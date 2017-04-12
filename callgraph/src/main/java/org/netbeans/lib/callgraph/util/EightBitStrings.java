@@ -49,6 +49,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,6 +67,7 @@ import java.util.Locale;
 public class EightBitStrings {
 
     private static final Charset UTF = Charset.forName("UTF-8");
+    private static final Charset ASCII = Charset.forName("US-ASCII");
 
     private final InternTable INTERN_TABLE = new InternTable();
     public final CharSequence DOT = create(".");
@@ -74,18 +76,23 @@ public class EightBitStrings {
     public final CharSequence QUOTE_SPACE = create("\" ");
     public final CharSequence CLOSE_OPEN_QUOTE = create("\" \"");
 
+    private static final boolean ascii = !Boolean.getBoolean("utf");
     private final boolean disabled;
     private final boolean aggressive;
 
     public EightBitStrings(boolean disabled) {
-        this (disabled, false);
+        this(disabled, false);
     }
 
     public EightBitStrings(boolean disabled, boolean aggressive) {
         this.disabled = disabled;
         this.aggressive = aggressive;
     }
-    
+
+    public static Charset charset() {
+        return ascii ? ASCII : UTF;
+    }
+
     public void clear() {
         INTERN_TABLE.dispose();
     }
@@ -114,16 +121,19 @@ public class EightBitStrings {
         } else if (aggressive) {
             List<CharSequence> nue = new ArrayList<>(seqs.length + (seqs.length / 2));
             for (CharSequence seq : seqs) {
+                if (seq == ComparableCharSequence.EMPTY) {
+                    continue;
+                }
                 int ln = seq.length();
                 StringBuilder sb = new StringBuilder();
-                for(int i=0; i < ln; i++) {
+                for (int i = 0; i < ln; i++) {
                     char c = seq.charAt(i);
                     if (Character.isLetter(c) || Character.isDigit(c)) {
                         sb.append(c);
                     } else {
                         nue.add(sb.toString());
-                        sb = new StringBuilder();
-                        nue.add(new String(new char[] { c }));
+                        sb.setLength(0);
+                        nue.add(new String(new char[]{c}));
                     }
                 }
                 if (sb.length() > 0) {
@@ -162,7 +172,7 @@ public class EightBitStrings {
                 Object c = it.next();
                 if (c instanceof CharSequence) {
                     quoted.add(QUOTE);
-                    quoted.add((CharSequence)c);
+                    quoted.add((CharSequence) c);
                     if (it.hasNext()) {
                         quoted.add(QUOTE_SPACE);
                     } else {
@@ -173,14 +183,18 @@ public class EightBitStrings {
                     quoted.add(SPACE);
                 }
             }
-            return new Concatenation(quoted.toArray(new CharSequence[quoted.size()]));
+            Concatenation result = new Concatenation(quoted.toArray(new CharSequence[quoted.size()]));
+            if (result.entries.length == 1) {
+                return result.entries[0];
+            }
+            return result;
         }
     }
 
     private static byte[] toBytes(CharSequence seq) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            out.write(seq.toString().getBytes(UTF));
+            out.write(seq.toString().getBytes(charset()));
             return out.toByteArray();
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex);
@@ -189,7 +203,7 @@ public class EightBitStrings {
 
     private static CharSequence toCharSequence(byte[] bytes) {
         try {
-            return UTF.newDecoder().decode(ByteBuffer.wrap(bytes));
+            return charset().newDecoder().decode(ByteBuffer.wrap(bytes));
         } catch (CharacterCodingException ex) {
             throw new IllegalArgumentException(ex);
         }
@@ -198,14 +212,14 @@ public class EightBitStrings {
     int internTableSize() {
         return INTERN_TABLE.last + 1;
     }
-    
+
     List<CharSequence> dumpInternTable() {
         return INTERN_TABLE.dumpInternTable();
     }
 
     static class InternTable {
 
-        private static final int SIZE_INCREMENT = 50;
+        private static final int SIZE_INCREMENT = 150;
 
         private int last = -1;
         private Entry[] entries = new Entry[SIZE_INCREMENT];
@@ -223,20 +237,28 @@ public class EightBitStrings {
             // here.  This is slower than a HashMap (we sort on insert so
             // we can binary search later), but involves far fewer allocations
             Entry entry = new Entry(toBytes(seq), (short) seq.length());
-            int offset = last == -1 ? -1 : Arrays.binarySearch(entries, 0, last + 1, entry);
-            if (offset > 0) {
-                return entries[offset];
+            synchronized (this) {
+                int offset = last == -1 ? -1 : Arrays.binarySearch(entries, 0, last + 1, entry);
+                if (offset > 0) {
+                    return entries[offset];
+                }
+                if (last == entries.length - 1) {
+                    Entry[] nue = new Entry[entries.length + SIZE_INCREMENT];
+                    System.arraycopy(entries, 0, nue, 0, entries.length);
+                    entries = nue;
+                }
+                entries[++last] = entry;
+                try {
+                    Arrays.sort(entries, 0, last + 1);
+                } catch (IllegalArgumentException e) {
+                    throw new AssertionError("Broken sorting '" + seq
+                            + "' into array for item " + last
+                            + ". Full table: " + dumpInternTable(), e);
+                }
             }
-            if (last == entries.length - 1) {
-                Entry[] nue = new Entry[entries.length + SIZE_INCREMENT];
-                System.arraycopy(entries, 0, nue, 0, entries.length);
-                entries = nue;
-            }
-            entries[++last] = entry;
-            Arrays.sort(entries, 0, last + 1);
             return entry;
         }
-        
+
         List<CharSequence> dumpInternTable() {
             return Arrays.asList(entries);
         }
@@ -254,16 +276,28 @@ public class EightBitStrings {
                 this.length = length;
             }
 
+            int hash = 0;
+
             public int hashCode() {
+                if (hash != 0) {
+                    return hash;
+                }
                 int h = 0;
                 if (h == 0 && bytes.length > 0) {
-                    CharSequence val = toChars();
-                    int max = val.length();
-                    for (int i = 0; i < max; i++) {
-                        h = 31 * h + val.charAt(i);
+                    if (ascii) {
+                        int max = bytes.length;
+                        for (int i = 0; i < max; i++) {
+                            h = 31 * h + ((char) bytes[i]);
+                        }
+                    } else {
+                        CharSequence val = toChars();
+                        int max = val.length();
+                        for (int i = 0; i < max; i++) {
+                            h = 31 * h + val.charAt(i);
+                        }
                     }
                 }
-                return h;
+                return hash = h;
             }
 
             @Override
@@ -277,6 +311,9 @@ public class EightBitStrings {
                     if (other.bytes.length < bytes.length) {
                         return false;
                     }
+                    // XXX if two strings with different unicode encodings,
+                    // such as numeric encoding of ascii chars in one,
+                    // will give the wrong answer
                     return Arrays.equals(bytes, other.bytes);
                 } else if (o instanceof CharSequence) {
                     return charSequencesEqual(this, (CharSequence) o);
@@ -285,10 +322,7 @@ public class EightBitStrings {
                 }
             }
 
-            public int compare(Entry o) {
-                if (o == this) {
-                    return 0;
-                }
+            public int compareChars(Entry o) {
                 int max = Math.min(bytes.length, o.bytes.length);
                 for (int i = 0; i < max; i++) {
                     if (bytes[i] > o.bytes[i]) {
@@ -296,6 +330,17 @@ public class EightBitStrings {
                     } else if (bytes[i] < o.bytes[i]) {
                         return -1;
                     }
+                }
+                return 0;
+            }
+
+            public int compare(Entry o) {
+                if (o == this) {
+                    return 0;
+                }
+                int result = compareChars(o);
+                if (result != 0) {
+                    return result;
                 }
                 if (bytes.length == o.bytes.length) {
                     return 0;
@@ -308,7 +353,7 @@ public class EightBitStrings {
 
             @Override
             public String toString() {
-                return new String(bytes, UTF);
+                return new String(bytes, charset());
             }
 
             @Override
@@ -322,11 +367,17 @@ public class EightBitStrings {
 
             @Override
             public char charAt(int index) {
+                if (ascii) {
+                    return (char) bytes[index];
+                }
                 return toCharSequence(bytes).charAt(index);
             }
 
             @Override
             public CharSequence subSequence(int start, int end) {
+                if (ascii) {
+                    return new String(bytes, start, end - start);
+                }
                 return toCharSequence(bytes).subSequence(start, end);
             }
 
@@ -347,11 +398,17 @@ public class EightBitStrings {
         int aLength = a.length();
         int bLength = b.length();
         int max = Math.min(aLength, bLength);
-        for (int i = 0; i < max; i++) {
-            if (a.charAt(i) > b.charAt(i)) {
-                return 1;
-            } else if (a.charAt(i) < b.charAt(i)) {
-                return -1;
+        if (ascii && a instanceof InternTable.Entry && b instanceof InternTable.Entry) {
+            InternTable.Entry ae = (InternTable.Entry) a;
+            InternTable.Entry be = (InternTable.Entry) b;
+            return ae.compare(be);
+        } else {
+            for (int i = 0; i < max; i++) {
+                if (a.charAt(i) > b.charAt(i)) {
+                    return 1;
+                } else if (a.charAt(i) < b.charAt(i)) {
+                    return -1;
+                }
             }
         }
         if (aLength == bLength) {
@@ -364,6 +421,7 @@ public class EightBitStrings {
     }
 
     static boolean debug;
+
     class Concatenation implements ComparableCharSequence, Comparable<CharSequence> {
 
         private final InternTable.Entry[] entries;
@@ -403,7 +461,9 @@ public class EightBitStrings {
                     return e.charAt(index);
                 }
             }
-            throw new IndexOutOfBoundsException(index + " of " + length() + " in " + this + " with entries " + Arrays.asList(entries));
+            throw new IndexOutOfBoundsException(index + " of "
+                    + length() + " in " + this + " with entries "
+                    + Arrays.asList(entries));
         }
 
         @Override
@@ -417,13 +477,14 @@ public class EightBitStrings {
                 sb.append(e);
             }
             if (debug) {
-                sb.append(" - ").append (Arrays.asList(entries));
+                sb.append(" - ").append(Arrays.asList(entries));
             }
             return sb.toString();
         }
 
         private int hash = 0;
 
+        @Override
         public int hashCode() {
             int h = hash;
             if (h == 0 && length() > 0) {
@@ -472,11 +533,33 @@ public class EightBitStrings {
 
         @Override
         public int compareTo(CharSequence o) {
+            if (o instanceof Concatenation) {
+                Concatenation other = (Concatenation) o;
+                int ec = Math.min(entries.length, other.entries.length);
+                if (ec > 0) {
+                    int res = entries[0].compareChars(other.entries[0]);
+                    if (res != 0) {
+                        return res;
+                    }
+                }
+            }
             return compareCharSequences(this, o);
         }
     }
 
     private static boolean charSequencesEqual(CharSequence a, CharSequence b) {
+        if (ascii && a instanceof InternTable.Entry && b instanceof InternTable.Entry) {
+            return Arrays.equals(((InternTable.Entry) a).bytes, ((InternTable.Entry) b).bytes);
+        }
+        if (a instanceof Concatenation && b instanceof Concatenation) {
+            Concatenation ca = (Concatenation) a;
+            Concatenation cb = (Concatenation) b;
+            if (ca.entries.length > 0 && cb.entries.length > 0) {
+                if (ca.entries[0].compareChars(cb.entries[0]) != 0) {
+                    return false;
+                }
+            }
+        }
         int maxA = a.length();
         int maxB = b.length();
         if (maxA != maxB) {
@@ -497,7 +580,7 @@ public class EightBitStrings {
         private final String s;
 
         public StringWrapper(String s) {
-            this.s = s;
+            this.s = s.intern();
         }
 
         public int length() {
@@ -558,7 +641,10 @@ public class EightBitStrings {
             if (!(anObject instanceof CharSequence)) {
                 return false;
             }
-            return charSequencesEqual(this, (CharSequence) anObject);
+            if (anObject instanceof String) {
+                return s.equals(anObject);
+            }
+            return s.contentEquals((CharSequence) anObject);
         }
 
         public boolean contentEquals(StringBuffer sb) {
@@ -777,6 +863,5 @@ public class EightBitStrings {
         public String intern() {
             return s.intern();
         }
-
     }
 }
