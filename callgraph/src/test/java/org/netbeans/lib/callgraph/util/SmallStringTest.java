@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.netbeans.lib.callgraph.util.EightBitStrings.Concatenation;
 
 /**
  *
@@ -86,7 +85,8 @@ public class SmallStringTest {
         for (ComparableCharSequence c1 : new ComparableCharSequence[]{a, b, c, d, e}) {
             for (ComparableCharSequence c2 : new ComparableCharSequence[]{a, b, c, d, e}) {
                 assertEquals(c1, c2);
-                assertEquals(0, c1.compareTo(c2));
+                int comp = c1.compareTo(c2);
+                assertEquals("'" + c1 + "/ sort with '" + c2 + "' wrongly sorts to " + comp, 0, comp);
             }
         }
 
@@ -94,7 +94,7 @@ public class SmallStringTest {
         assertEquals("\"a\" \"b\" \"c\" \"d\"", cs.toString());
 
         strings = new EightBitStrings(true);
-        a = strings.concat("a", "b", "c", "d");
+        a = strings.concat("a", "b", "c", "d", "");
         b = strings.concat("a", "b", "cd");
         c = strings.concat("ab", "cd");
         d = strings.concat("a", "bcd");
@@ -112,7 +112,7 @@ public class SmallStringTest {
         }
 
         strings = new EightBitStrings(false);
-        a = strings.concat(strings.create("abc"), strings.create("def"));
+        a = strings.concat(strings.create("abc"), strings.create("def"), strings.create(""));
         b = strings.concat("bcd", strings.create("efg"));
         c = strings.concat("cde", strings.create("fgh"));
         d = strings.create("defghi");
@@ -121,7 +121,7 @@ public class SmallStringTest {
         Collections.sort(l);
         assertEquals(l, Arrays.asList(a, b, c, d, e));
     }
-    
+
     List<String> stringsOf(List<CharSequence> cs) {
         List<String> result = new ArrayList<>();
         for (CharSequence c : cs) {
@@ -132,7 +132,7 @@ public class SmallStringTest {
         }
         return result;
     }
-    
+
     @Test
     public void testAggressive() {
         EightBitStrings strings = new EightBitStrings(false, true);
@@ -159,13 +159,48 @@ public class SmallStringTest {
     }
 
     @Test
+    public void testMoreSorting() {
+        EightBitStrings strings = new EightBitStrings(false, true);
+        char[] chars = "QWERTYUIOPASDFGHJKLZXCVBNM<>?:}\"!@#$%^&*()_+1234567890qwertyuiopasdfghjklzxcvbnm,./;'[]=-\\|`~ \t".toCharArray();
+        Arrays.sort(chars);
+        Random r = new Random(5);
+        List<String> l = new ArrayList<>();
+        for (int i = 1; i < 5; i++) {
+            for (int j = 0; j < chars.length - (i + 1); j++) {
+                StringBuilder sb = new StringBuilder();
+                for (int k = 0; k < i; k++) {
+                    if (k == 0) {
+                        sb.append(chars[k]);
+                    } else {
+                        sb.append(chars[r.nextInt(chars.length)]);
+                    }
+                }
+                l.add(sb.toString());
+            }
+            if (i == 4) {
+                l.add("");
+            }
+        }
+        
+        List<ComparableCharSequence> ll = new ArrayList<>();
+        for (String s : l) {
+            ll.add(strings.create(s));
+        }
+        Collections.sort(l);
+        Collections.sort(ll);
+        for (int i=0; i < l.size(); i++) {
+            assertEquals("At " + i + " bad order:\n" + l + "\n" + ll, l.get(i), ll.get(i).toString());
+        }
+    }
+
+    @Test
     public void testConcatQuoted() {
         EightBitStrings strings = new EightBitStrings(false);
         List<Object> l = Arrays.asList(strings.create("hey"), false, 23, strings.create("bar"), "baz");
         CharSequence cc = strings.concatQuoted(l);
         assertEquals("\"hey\" false 23 \"bar\" \"baz\"", cc.toString());
     }
-    
+
     private static String randomString(int len) {
         char[] c = new char[len];
         for (int i = 0; i < c.length; i++) {
