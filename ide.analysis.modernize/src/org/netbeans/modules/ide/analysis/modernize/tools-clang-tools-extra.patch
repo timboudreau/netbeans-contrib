@@ -1,0 +1,139 @@
+Index: clang-tidy/ClangTidy.cpp
+===================================================================
+--- clang-tidy/ClangTidy.cpp	(revision 278390)
++++ clang-tidy/ClangTidy.cpp	(working copy)
+@@ -35,6 +35,7 @@
+ #include "clang/StaticAnalyzer/Frontend/AnalysisConsumer.h"
+ #include "clang/Tooling/Refactoring.h"
+ #include "clang/Tooling/ReplacementsYaml.h"
++#include "clang/Tooling/DiagnosticsYaml.h"
+ #include "clang/Tooling/Tooling.h"
+ #include "llvm/Support/Process.h"
+ #include "llvm/Support/Signals.h"
+@@ -509,13 +510,10 @@
+ 
+ void exportReplacements(const std::vector<ClangTidyError> &Errors,
+                         raw_ostream &OS) {
+-  tooling::TranslationUnitReplacements TUR;
+-  for (const ClangTidyError &Error : Errors)
+-    TUR.Replacements.insert(TUR.Replacements.end(), Error.Fix.begin(),
+-                            Error.Fix.end());
+-
+   yaml::Output YAML(OS);
+-  YAML << TUR;
++  TranslationUnitDiagnostics TUD;
++  TUD.Diags.insert(TUD.Diags.end(), Errors.begin(), Errors.end());
++  YAML << TUD;
+ }
+ 
+ } // namespace tidy
+Index: clang-tidy/ClangTidyDiagnosticConsumer.cpp
+===================================================================
+--- clang-tidy/ClangTidyDiagnosticConsumer.cpp	(revision 278390)
++++ clang-tidy/ClangTidyDiagnosticConsumer.cpp	(working copy)
+@@ -102,25 +102,6 @@
+ };
+ } // end anonymous namespace
+ 
+-ClangTidyMessage::ClangTidyMessage(StringRef Message)
+-    : Message(Message), FileOffset(0) {}
+-
+-ClangTidyMessage::ClangTidyMessage(StringRef Message,
+-                                   const SourceManager &Sources,
+-                                   SourceLocation Loc)
+-    : Message(Message) {
+-  assert(Loc.isValid() && Loc.isFileID());
+-  FilePath = Sources.getFilename(Loc);
+-  FileOffset = Sources.getFileOffset(Loc);
+-}
+-
+-ClangTidyError::ClangTidyError(StringRef CheckName,
+-                               ClangTidyError::Level DiagLevel,
+-                               bool IsWarningAsError,
+-                               StringRef BuildDirectory)
+-    : CheckName(CheckName), BuildDirectory(BuildDirectory), DiagLevel(DiagLevel),
+-      IsWarningAsError(IsWarningAsError) {}
+-
+ // Returns true if GlobList starts with the negative indicator ('-'), removes it
+ // from the GlobList.
+ static bool ConsumeNegativeIndicator(StringRef &GlobList) {
+Index: clang-tidy/ClangTidyDiagnosticConsumer.h
+===================================================================
+--- clang-tidy/ClangTidyDiagnosticConsumer.h	(revision 278390)
++++ clang-tidy/ClangTidyDiagnosticConsumer.h	(working copy)
+@@ -14,6 +14,7 @@
+ #include "clang/Basic/Diagnostic.h"
+ #include "clang/Basic/SourceManager.h"
+ #include "clang/Tooling/Refactoring.h"
++#include "clang/Tooling/Core/Diagnostics.h"
+ #include "llvm/ADT/DenseMap.h"
+ #include "llvm/ADT/StringMap.h"
+ #include "llvm/Support/Regex.h"
+@@ -32,52 +33,9 @@
+ 
+ namespace tidy {
+ 
+-/// \brief A message from a clang-tidy check.
+-///
+-/// Note that this is independent of a \c SourceManager.
+-struct ClangTidyMessage {
+-  ClangTidyMessage(StringRef Message = "");
+-  ClangTidyMessage(StringRef Message, const SourceManager &Sources,
+-                   SourceLocation Loc);
+-  std::string Message;
+-  std::string FilePath;
+-  unsigned FileOffset;
+-};
++typedef clang::tooling::DiagnosticsMessage ClangTidyMessage;
++typedef clang::tooling::Diagnostics ClangTidyError;
+ 
+-/// \brief A detected error complete with information to display diagnostic and
+-/// automatic fix.
+-///
+-/// This is used as an intermediate format to transport Diagnostics without a
+-/// dependency on a SourceManager.
+-///
+-/// FIXME: Make Diagnostics flexible enough to support this directly.
+-struct ClangTidyError {
+-  enum Level {
+-    Warning = DiagnosticsEngine::Warning,
+-    Error = DiagnosticsEngine::Error
+-  };
+-
+-  ClangTidyError(StringRef CheckName, Level DiagLevel, bool IsWarningAsError,
+-                 StringRef BuildDirectory);
+-
+-  std::string CheckName;
+-  ClangTidyMessage Message;
+-  tooling::Replacements Fix;
+-  SmallVector<ClangTidyMessage, 1> Notes;
+-
+-  // A build directory of the diagnostic source file.
+-  //
+-  // It's an absolute path which is `directory` field of the source file in
+-  // compilation database. If users don't specify the compilation database
+-  // directory, it is the current directory where clang-tidy runs.
+-  //
+-  // Note: it is empty in unittest.
+-  std::string BuildDirectory;
+-
+-  Level DiagLevel;
+-  bool IsWarningAsError;
+-};
+-
+ /// \brief Read-only set of strings represented as a list of positive and
+ /// negative globs. Positive globs add all matched strings to the set, negative
+ /// globs remove them in the order of appearance in the list.
+Index: clang-tidy/tool/ClangTidyMain.cpp
+===================================================================
+--- clang-tidy/tool/ClangTidyMain.cpp	(revision 278390)
++++ clang-tidy/tool/ClangTidyMain.cpp	(working copy)
+@@ -389,7 +389,7 @@
+ 
+   // -fix-errors implies -fix.
+   handleErrors(Errors, (FixErrors || Fix) && !DisableFixes, WErrorCount);
+-
++  
+   if (!ExportFixes.empty() && !Errors.empty()) {
+     std::error_code EC;
+     llvm::raw_fd_ostream OS(ExportFixes, EC, llvm::sys::fs::F_None);

@@ -1,0 +1,25 @@
+---
+MainSourceFile:  ''
+Diagnostics:     
+  CheckName:       misc-unused-parameters
+  Level:           Warning
+  MessageFilePath: /media/ilia/SSD/code/sputnik/modules/ide.analysis.modernize/build/test/unit/data/ide/analysis/modernize/YamlTest/hello-world/welcome.cc
+  MessageFileOffset: 1615
+  Message:         'parameter ''argc'' is unused'
+  Replacements:    
+    - FilePath:        $path/ide/analysis/modernize/YamlTest/hello-world/welcome.cc
+      Offset:          1615
+      Length:          4
+      ReplacementText: ' /*argc*/'
+Diagnostics:     
+  CheckName:       misc-unused-parameters
+  Level:           Warning
+  MessageFilePath: /media/ilia/SSD/code/sputnik/modules/ide.analysis.modernize/build/test/unit/data/ide/analysis/modernize/YamlTest/hello-world/welcome.cc
+  MessageFileOffset: 1627
+  Message:         'parameter ''argv'' is unused'
+  Replacements:    
+    - FilePath:        $path/ide/analysis/modernize/YamlTest/hello-world/welcome.cc
+      Offset:          1627
+      Length:          4
+      ReplacementText: ' /*argv*/'
+...

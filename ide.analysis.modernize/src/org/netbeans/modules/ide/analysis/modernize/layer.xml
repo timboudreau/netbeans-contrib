@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Analysis">
+        <folder name="Clang-Tidy">
+            <folder name="Disabled_Default">
+                <file name="misc-unused-parameters">
+                    <![CDATA[False positive activation]]>
+                </file>
+                <file name="misc-unused-parameters">
+                    <![CDATA[False positive activation]]>
+                </file>
+                <file name="google-runtime-int">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="modernize-use-nullptr">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="modernize-use-default">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="google-runtime-references">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="modernize-redundant-void-arg">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="readability-implicit-bool-cast">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="cppcoreguidelines-pro-bounds-pointer-arithmetic">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="google-readability-casting">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                <file name="misc-macro-parentheses">
+                    <![CDATA[Too much warnings]]>
+                </file>
+                
+                <file name="google-readability-braces-around-statements">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="readability-named-parameter">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="llvm-header-guard">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="google-readability-casting">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="google-readability-namespace-comments">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="readability-braces-around-statements">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="llvm-include-order">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="readability-else-after-return">
+                    <![CDATA[Project-specific readability check]]>
+                </file>
+                <file name="cppcoreguidelines-pro-type-union-access">
+                    <![CDATA[Requires specific library]]>
+                </file>
+            </folder>
+            <folder name="Strict_Checks">
+                <file name="readability-inconsistent-declaration-parameter-name"></file>
+                <file name="misc-unused-using-decls"></file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

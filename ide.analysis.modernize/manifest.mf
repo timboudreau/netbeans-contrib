@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: org.netbeans.modules.ide.analysis.modernize
+OpenIDE-Module-Layer: org/netbeans/modules/ide/analysis/modernize/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/ide/analysis/modernize/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.1

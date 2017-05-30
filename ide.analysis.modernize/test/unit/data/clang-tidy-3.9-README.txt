@@ -1,0 +1,2 @@
+File clang-tidy-3.9p should be placed in this directory before testing.
+(Won't commit large, ~25Mb binary file to Mercurial repo).
