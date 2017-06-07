@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: com.sun.tools.ide.analysis.modernize
+OpenIDE-Module-Layer: com/sun/tools/ide/analysis/modernize/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/sun/tools/ide/analysis/modernize/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.1.1
