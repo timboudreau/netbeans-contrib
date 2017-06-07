@@ -155,7 +155,7 @@ public class ModernizeAnalyzerImpl extends AbstractAnalyzer {
         public AnalyzerFactoryImpl() {
             super(ModernizeErrorProvider.NAME,
                     NbBundle.getMessage(ModernizeErrorProvider.class, "Modernize_NAME"), //NOI18N
-                    ImageUtilities.loadImage("ide/analysis/modernize/impl/bugs.png")); //NOI18N
+                    ImageUtilities.loadImage("org/netbeans/modules/ide/analysis/modernize/impl/bugs.png")); //NOI18N
         }
 
         @Override
