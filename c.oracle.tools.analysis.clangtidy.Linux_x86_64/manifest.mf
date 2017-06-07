@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: true
-OpenIDE-Module: com.oracle.tools.analysis.clangtidy.Linux_x86_64
-OpenIDE-Module-Localizing-Bundle: com/oracle/tools/analysis/clangtidy/Linux_x86_64/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.2
-
