@@ -78,6 +78,8 @@ public class ClangAnalyzerOptions {
             String relativePath = String.format("%s/%s-%s", CLANG_BINARY_NAME, CLANG_BINARY_NAME, codeBase); //NOI18N
             File toolFile = InstalledFileLocator.getDefault().locate(relativePath, codeBase, false);
             if (toolFile != null && toolFile.exists()) {
+                toolFile.setExecutable(true);
+                System.out.println(toolFile.canExecute());
                 result = toolFile.getAbsolutePath();
             }
         }
@@ -98,7 +100,7 @@ public class ClangAnalyzerOptions {
     }
 
     public static String getMissingModuleName() {
-        return "com.oracle.tools.analysis.clangtidy." + getCodeBase(); //NOI18N
+        return "org.netbeans.modules.analysis.clangtidy." + getCodeBase(); //NOI18N
     }
 
     public static String getCodeBase() {
