@@ -777,7 +777,12 @@ public final class ImportManager {
                     // TODO - look up for imp.getInternalModule()!
                     boolean isSystemLibrary = systemLibsFirst && index.isSystemModule(imp.getInternalModule());
                     for (alias at : names) {
-                        ImportEntry importEntry = new ImportEntry(imp.getInternalModule(), at.getInternalName(), at.getInternalAsname(), isSystemLibrary,
+                        // In imports like `from . import views` imp.getInternalModule returns an empty string instead of `.`.
+                        // This caused the formated import to become `from import views`. While waiting for this to be fixed in
+                        // jython, we work around it here.
+                        // See: https://netbeans.org/bugzilla/show_bug.cgi?id=270447
+                        String internalModule = "".equals(imp.getInternalModule()) ? "." : imp.getInternalModule();
+                        ImportEntry importEntry = new ImportEntry(internalModule, at.getInternalName(), at.getInternalAsname(), isSystemLibrary,
                                 removeDuplicates ? null : imp, sortImports ? 0 : ordinal++);
                         if (!separateFromImps) {
                             importEntry.sortedFrom = false;
