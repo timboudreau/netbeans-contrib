@@ -49,12 +49,12 @@ import org.netbeans.modules.cnd.api.model.syntaxerr.CsmErrorProvider;
  *
  * @author Ilia Gromov
  */
-public class ResponseMerger implements CsmErrorProvider.Response {
+public class CsmResponseMerger implements CsmErrorProvider.Response {
 
     private final List<ModernizeErrorInfo> bag = new ArrayList<>();
     private final CsmErrorProvider.Response delegate;
 
-    public ResponseMerger(CsmErrorProvider.Response delegate) {
+    public CsmResponseMerger(CsmErrorProvider.Response delegate) {
         this.delegate = delegate;
     }
 

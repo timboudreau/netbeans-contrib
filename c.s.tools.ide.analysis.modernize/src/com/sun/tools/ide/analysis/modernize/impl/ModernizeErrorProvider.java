@@ -39,7 +39,6 @@
  */
 package com.sun.tools.ide.analysis.modernize.impl;
 
-import com.sun.tools.ide.analysis.modernize.impl.ModernizeAnalyzerImpl.ResponseImpl;
 import com.sun.tools.ide.analysis.modernize.impl.YamlParser.Replacement;
 import com.sun.tools.ide.analysis.modernize.options.AnalyzerPreferences;
 import com.sun.tools.ide.analysis.modernize.options.ClangAnalyzerOptions;
@@ -78,6 +77,7 @@ import org.netbeans.modules.cnd.utils.MIMENames;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironmentFactory;
 import org.netbeans.modules.nativeexecution.api.util.ConnectionManager;
+import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.Fix;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -95,8 +95,10 @@ import org.openide.util.lookup.ServiceProviders;
 public final class ModernizeErrorProvider extends CsmErrorProvider implements CodeAuditProvider, AbstractCustomizerProvider {
 
     public static final Logger LOG = Logger.getLogger("ide.analysis.tidy"); //NOI18N
-    private Collection<CodeAudit> audits;
     public static final String NAME = "Modernize"; //NOI18N
+
+    private Collection<CodeAudit> audits;
+    private AnalyzerResponseMerger analyzerResponseMerger;
 
     public static ModernizeErrorProvider getInstance() {
         for (CsmErrorProvider provider : Lookup.getDefault().lookupAll(CsmErrorProvider.class)) {
@@ -187,7 +189,7 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
 
     public void analyze(ExecutionEnvironment execEnv, Item item, Lookup.Provider project, CsmErrorProvider.Request request, CsmErrorProvider.Response response) {
         String binaryPath = ClangAnalyzerOptions.getClangAnalyzerPath();
-        boolean isAnalyzer = response instanceof ModernizeAnalyzerImpl.ResponseImpl;
+        boolean isAnalyzer = response instanceof ModernizeAnalyzerImpl.ModernizeResponse;
         if (binaryPath == null) {
             Level level = isAnalyzer ? Level.INFO : Level.FINE;
             LOG.log(level, "clang-tidy needs to be installed as a plugin"); //NOI18N
@@ -196,6 +198,7 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
 
         if (isAnalyzer && isNewRun()) {
             AnalyzedFiles.getDefault().clear();
+            analyzerResponseMerger = new AnalyzerResponseMerger((ModernizeAnalyzerImpl.ModernizeResponse) response);
         }
 
         DiagnosticsTool diagnosticsTool = new DiagnosticsTool(execEnv, item, (MakeProject) project, binaryPath);
@@ -215,7 +218,7 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
             }
 
             if (!isAnalyzer) {
-                response = new ResponseMerger(response);
+                response = new CsmResponseMerger(response);
             }
 
             for (CsmFile startFile : tu) {
@@ -234,9 +237,7 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
                 response.done();
             }
 
-        } catch (ConnectionManager.CancellationException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (IOException ex) {
+        } catch (ConnectionManager.CancellationException | IOException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
@@ -251,9 +252,13 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
         return false;
     }
 
+    public Collection<ErrorDescription> done() {
+        return analyzerResponseMerger.done();
+    }
+
     public void postProcess(boolean isAnalyzer, CsmFile startFile, Lookup.Provider project, List<YamlParser.Diagnostics> results, CsmErrorProvider.Request request, CsmErrorProvider.Response response) {
         CsmFile file = request.getFile();
-        List<CsmFile> otherCsmFiles = new ArrayList<CsmFile>();
+        List<CsmFile> otherCsmFiles = new ArrayList<>();
 
         for (YamlParser.Diagnostics diag : results) {
             // TODO: don't add "Configure Hint" fix multiple times for one line
@@ -272,7 +277,7 @@ public final class ModernizeErrorProvider extends CsmErrorProvider implements Co
 
             if (isAnalyzer) {
                 // Add found errors for all files (can be other files from compileUnit)
-                ((ResponseImpl) response).addError(AnalyzerResponse.AnalyzerSeverity.DetectedError, null, fo, info);
+                analyzerResponseMerger.addError(info, fo);
 
                 if (!csmFile.equals(file)) {
                     // May be not header (e.g BBB.cc: AAA.cc -> (includes) BBB.cc -> ... )
