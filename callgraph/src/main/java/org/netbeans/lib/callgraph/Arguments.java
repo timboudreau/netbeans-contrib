@@ -43,7 +43,6 @@
  */
 package org.netbeans.lib.callgraph;
 
-import com.sun.javafx.scene.traversal.WeightedClosestCorner;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
