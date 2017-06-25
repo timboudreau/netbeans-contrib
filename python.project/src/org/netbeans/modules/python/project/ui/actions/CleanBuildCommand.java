@@ -154,7 +154,7 @@ public class CleanBuildCommand extends Command {
 
         //System.out.println("Working directory" + path);
 
-        pyexec.setWorkingDirectory(path.toString());
+        pyexec.setWorkingDirectory(path.getPath());
         pyexec.setCommand(platform.getInterpreterCommand());
         //Set python script
         //path = FileUtil.toFile(script).getAbsolutePath();
