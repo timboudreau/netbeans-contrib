@@ -73,6 +73,7 @@ import org.python.antlr.base.slice;
 import org.python.antlr.base.stmt;
 import org.python.antlr.runtime.ANTLRReaderStream;
 import org.python.antlr.runtime.CharStream;
+import org.python.core.PyException;
 
 /**
  * Parser for Python. Wraps Jython.
@@ -374,6 +375,11 @@ public class PythonParser extends Parser {
             } else {
                 return sanitize(context, sanitizing);
             }
+
+        } catch (PyException e) {
+            // This is issue 251705
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, e.getMessage());
+            return new PythonParserResult(null, context.snapshot);
         } catch (IllegalArgumentException e) {
             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, e.getMessage());
             return new PythonParserResult(null, context.snapshot);
