@@ -1,0 +1,13 @@
+target/
+build/
+dist/
+findbugs.settings
+nbproject/private/
+.DS_Store
+.chg
+.conflict
+.orig
+.rej
+~
+nbactions.xml
+
