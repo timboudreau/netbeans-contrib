@@ -78,7 +78,6 @@
         </pluginManagement>
     </build>
     <modules>
-        <module>whichproject</module>
     </modules>
     <repositories>
         <repository>
