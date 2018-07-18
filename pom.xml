@@ -26,7 +26,7 @@
     <description>Modules from the original netbeans.org contrib/ repository</description>
     <properties>
         <netbeans.version>RELEASE82</netbeans.version>
-        <java.source.level>1.5</java.source.level>
+        <java.source.level>1.6</java.source.level>
         <test.skip>true</test.skip>
         <skipTests>true</skipTests>
         <test.skip.exec>true</test.skip.exec>
