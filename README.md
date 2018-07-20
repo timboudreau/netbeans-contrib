@@ -65,7 +65,7 @@ Things That Should Probably Be Deleted
 -----------------------------------
 
  * Rectangular edit tools - the base IDE does this today
- * nodejs - I moved this project to github years ago, so I could use Jackson instead of maintaining my own JSON parser
+ * nodejs - moved to github years ago; this is an obsolete version of it
  * portalpack.* - Portlets - dead technology
  * corba - An even deader technology
  * RMI* - Another circa 1999 set of modules, dependent on long gone openide.src API
