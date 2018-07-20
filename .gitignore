@@ -1,3 +1,11 @@
+*.class
+nbactions.xml
+nb-configuration.xml
+*.jar
+*.war
+*.ear
+*.orig
+*.iml
 target/
 build/
 dist/
@@ -352,3 +360,5 @@ nbactions.xml
 /vcs.profiles.teamware/nbproject/
 /tasklist.swing/nbproject/
 /venice.squeegee/nbproject/
+/other/uberMetaSplitContainer/nbproject/private/
+/other/BeansToNbm/beans2nbm/nbproject/private/

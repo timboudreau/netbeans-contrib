@@ -64,7 +64,7 @@ public class SplitLayoutManager implements LayoutManager {
     public void addLayoutComponent(String str, Component component) {
     }
 
-    public void layoutContainer(Containercontainer) {
+    public void layoutContainer(Container container) {
         SplitLayoutModel mdl = ((SplitContainer) container).getLayoutModel();
         Component[] c = container.getComponents();
         

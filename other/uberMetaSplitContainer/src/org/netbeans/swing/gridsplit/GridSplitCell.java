@@ -61,7 +61,7 @@ public class GridSplitCell {
     public static final int EAST = 8;
 
     public static final int NO_SPLITTER = 0;
-    public staticfinal int HORIZONTAL_SPLITTER = NORTH + SOUTH;
+    public static final int HORIZONTAL_SPLITTER = NORTH + SOUTH;
     public static final int VERTICAL_SPLITTER = WEST + EAST;
     
     
