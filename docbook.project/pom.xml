@@ -133,7 +133,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.docbook.project</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-libs-junit4</id>

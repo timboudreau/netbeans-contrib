@@ -156,17 +156,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration/>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <codeNameBase>org.netbeans.modules.licensechanger</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Tim Boudreau</author>
                     <publicPackages>
                         <publicPackage>org.netbeans.modules.licensechanger.api</publicPackage>

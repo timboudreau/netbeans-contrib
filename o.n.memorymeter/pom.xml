@@ -73,7 +73,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.memorymeter</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>S. Aubrecht</author>
                     <moduleDependencies>
                         <dependency>

@@ -7,7 +7,8 @@
         <version>RELEASE90</version>
         <relativePath>../..</relativePath>
     </parent>
-    <artifactId>org-netbeans-libs-ubermetasplitcontainer</artifactId>
+    <artifactId>org-netbeans-libs-uber-meta-split-container</artifactId>
+    <description>A prototype split container which manages multiple components without nested split containers</description>
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

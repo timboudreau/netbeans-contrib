@@ -87,7 +87,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.whichproject</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Tim Boudreau</author>
                     <moduleDependencies>
                         <dependency>

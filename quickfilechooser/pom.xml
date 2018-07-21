@@ -21,7 +21,12 @@
     </licenses>
     <developers>
         <developer>
-            <name>Jesse Glick &lt;jglick@netbeans.org&gt;</name>
+            <name>Jesse Glick</name>
+            <email>jglick@netbeans.org</email>
+        </developer>
+        <developer>
+            <name>Tim Boudreau</name>
+            <email>tim@timboudreau.com</email>
         </developer>
     </developers>
     <scm>

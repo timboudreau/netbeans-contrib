@@ -45,8 +45,8 @@
  */
 
 package org.netbeans.modules.uidiagnostics;
+import java.awt.Font;
 import org.openide.windows.TopComponent;
-import java.util.*;
 import javax.swing.*;
 import java.beans.*;
 import javax.swing.event.*;
@@ -60,6 +60,13 @@ public class FilterConfigPanel extends TopComponent implements PropertyChangeLis
     public FilterConfigPanel() {
         initComponents();
         list.addListSelectionListener(this);
+        // Cannot edit the form anymore, so do this
+        Font f = UIManager.getFont("Label.font");
+        if (f == null) {
+            Integer sz = UIManager.getInt("customFontSize");
+            f = new Font("Dialog", Font.PLAIN, sz == null ? 14 : sz.intValue());
+        }
+        jTextArea1.setFont(f);
     }
     
     /** This method is called from within the constructor to

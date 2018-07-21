@@ -67,7 +67,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.misc.diff</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Tim Boudreau</author>
                     <moduleType>autoload</moduleType>
                     <publicPackages>

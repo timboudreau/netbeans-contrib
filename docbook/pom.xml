@@ -168,7 +168,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.docbook</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <publicPackages>
                         <publicPackage>org.netbeans.api.docbook</publicPackage>
                     </publicPackages>

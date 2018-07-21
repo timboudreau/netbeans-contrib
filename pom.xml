@@ -25,6 +25,7 @@
     <name>Contrib-Parent</name>
     <description>Modules from the original netbeans.org contrib/ repository</description>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.version>RELEASE82</netbeans.version>
         <java.source.level>1.6</java.source.level>
         <tests.unstable>true</tests.unstable>
@@ -335,6 +336,7 @@
         single-file FAQ -->
         <module>other/faqsuck</module>
         <module>other/hexedit</module>
+        <module>generate-project-index</module>
         <!-- Some misc libraries and prototypes that landed in contrib for lack of a better home -->
         <module>other/uberMetaSplitContainer</module>
         <module>other/misc/cache</module>
@@ -755,6 +757,7 @@
         <module>whitespacetools</module>
         <module>xtc</module>
         <module>zeroadmin</module>
+        <module>generate-project-index</module>
     </modules>
     <repositories>
         <repository>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+    </parent>
+    <artifactId>generate-project-index</artifactId>
+    <version>1.0</version>
+    <properties>
+        <java.source.level>1.8</java.source.level>
+    </properties>
+    <description>Generates a Markdown index of the netbeans modules here from their POM files.</description>
+    <url>http://contrib.netbeans.org/</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Tim Boudreau</name>
+            <email>tim@timboudreau.com</email>
+            <url>https://timboudreau.com</url>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.netbeans.contrib.generate.project.index.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>    
+</project>

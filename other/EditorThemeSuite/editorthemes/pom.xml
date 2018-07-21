@@ -151,7 +151,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.editorthemes</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-jdesktop-layout</id>

@@ -69,7 +69,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.paintcatcher</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-openide-awt</id>

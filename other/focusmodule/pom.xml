@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -9,10 +10,12 @@
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-uidiagnostics</artifactId>
-    <version>1.6</version>
+    <version>1.8</version>
     <packaging>nbm</packaging>
     <name>UIDiagnostics - Focus</name>
-    <description>Adds actions for logging focus events, for diagnosing "focus goes to nowhere" bugs</description>
+    <description>Adds actions to the Tools menu for logging focus events, for diagnosing "focus goes to nowhere" bugs
+        and other focus problems; actions can be filtered.
+    </description>
     <url>http://contrib.netbeans.org/</url>
     <licenses>
         <license>

@@ -41,9 +41,6 @@
 
 package org.netbeans.modules.paintcatcher;
 
-import java.awt.EventQueue;
-import javax.swing.RepaintManager;
-
 /** A handy tool for figuring out who is triggering repaints.
  *
  * @author  Tim Boudreau

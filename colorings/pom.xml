@@ -39,7 +39,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.colorings</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                 </configuration>
             </plugin>
         </plugins>

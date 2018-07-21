@@ -99,7 +99,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.module.copyfqn</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Sandip V. Chitale (Sandip.Chitale@Sun.Com)</author>
                     <moduleDependencies>
                         <dependency>

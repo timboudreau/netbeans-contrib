@@ -8,6 +8,8 @@
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>org-netbeans-libs-faqsuck</artifactId>
+    <name>FaqSuck</name>
+    <description>The tool which scrapes the netbeans.org wiki and generates a giant single-page, self-contained FAQ from it</description>
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
