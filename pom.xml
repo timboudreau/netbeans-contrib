@@ -27,9 +27,7 @@
     <properties>
         <netbeans.version>RELEASE82</netbeans.version>
         <java.source.level>1.6</java.source.level>
-        <test.skip>true</test.skip>
-        <skipTests>true</skipTests>
-        <test.skip.exec>true</test.skip.exec>
+        <tests.unstable>true</tests.unstable>
     </properties>
     <licenses>
         <license>
@@ -93,6 +91,23 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <!-- Tests here are VERY unmaintained, and need to be restored
+                         to working order project-by-project (then just set
+                         tests.unstable to false in that project's POM).
+                         
+                         In many cases, the code has been kept compiling, but the
+                         tests are many API changes away from being compilable.
+                    -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.0</version>
+                    <configuration>
+                        <skip>${tests.unstable}</skip>
+                        <skipTests>${tests.unstable}</skipTests>
+                        <skipExec>${tests.unstable}</skipExec>
+                    </configuration>
+                </plugin>                
             </plugins>
         </pluginManagement>
     </build>
@@ -519,10 +534,10 @@
         <module>packager</module>
         <module>pagelayouts</module>
         <!-- Paint events are the entry point into work happening in GUI applications
-        - while input events are real, it's trying to repaint something because of an
-          input event that actually generates work.  This is good for debugging cases
-          where a single event triggers multiple gratuitous repaints, and was helpful
-          in fine tuning the 3.6 window system -->
+      - while input events are real, it's trying to repaint something because of an
+        input event that actually generates work.  This is good for debugging cases
+        where a single event triggers multiple gratuitous repaints, and was helpful
+        in fine tuning the 3.6 window system -->
         <module>paintcatcher</module>
         <module>pathtools</module>
         <module>performance.insane</module>

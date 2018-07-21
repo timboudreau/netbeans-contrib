@@ -54,7 +54,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.quickfilechooser</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Jesse Glick &lt;jglick@netbeans.org&gt;</author>
                     <moduleDependencies>
                         <dependency>
