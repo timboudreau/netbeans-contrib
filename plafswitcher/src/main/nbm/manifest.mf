@@ -1,7 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.plafswitcher
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/plafswitcher/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
 OpenIDE-Module-Layer: org/netbeans/modules/plafswitcher/mf-layer.xml
 OpenIDE-Module-Install: org/netbeans/modules/plafswitcher/Module.class
 

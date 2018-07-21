@@ -321,6 +321,7 @@
         <module>genericnavigator</module>
         <module>googletoolbar</module>
         <module>graphicclassview</module>
+        <module>generate-project-index</module>
         <module>group</module>
         <module>gsf</module>
         <module>gsf.api</module>
@@ -336,7 +337,6 @@
         single-file FAQ -->
         <module>other/faqsuck</module>
         <module>other/hexedit</module>
-        <module>generate-project-index</module>
         <!-- Some misc libraries and prototypes that landed in contrib for lack of a better home -->
         <module>other/uberMetaSplitContainer</module>
         <module>other/misc/cache</module>
@@ -757,7 +757,6 @@
         <module>whitespacetools</module>
         <module>xtc</module>
         <module>zeroadmin</module>
-        <module>generate-project-index</module>
     </modules>
     <repositories>
         <repository>

@@ -2,5 +2,4 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.rmi.activation/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/rmi/activation/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/rmi/activation/resources/mf-layer.xml
-OpenIDE-Module-Specification-Version: 2.0
 
