@@ -39,7 +39,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletXML
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
-import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier2;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
@@ -181,7 +181,7 @@ public class NetbeansUtil {
      * @throws an IOException if there was a problem adding the reference
      */
     public static boolean addLibraryReferences(Project project, Library[] libraries, String type) throws IOException {
-        WebProjectLibrariesModifier wplm = (WebProjectLibrariesModifier) project.getLookup().lookup(WebProjectLibrariesModifier.class);
+        WebProjectLibrariesModifier2 wplm = (WebProjectLibrariesModifier2) project.getLookup().lookup(WebProjectLibrariesModifier2.class);
         if (wplm == null) {
             // Something is wrong, shouldn't be here.
             return false;
@@ -191,7 +191,7 @@ public class NetbeansUtil {
             
             try { 
                 Class[] paramTypes = {Library[].class};
-                Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
+                Method method = WebProjectLibrariesModifier2.class.getMethod("addCompileLibraries", paramTypes);
                     
                 method.invoke(wplm, new Object[]{libraries});
                 return true;
@@ -204,7 +204,7 @@ public class NetbeansUtil {
             
             try { 
                 Class[] paramTypes = {Library[].class, String.class};
-                Method method = WebProjectLibrariesModifier.class.getMethod("addPackageLibraries", paramTypes);
+                Method method = WebProjectLibrariesModifier2.class.getMethod("addPackageLibraries", paramTypes);
                     
                 method.invoke(wplm, new Object[]{libraries,"WEB-INF/lib"});
                 return true;

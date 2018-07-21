@@ -45,8 +45,6 @@ import java.io.File;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import org.netbeans.modules.cnd.utils.cache.CharSequenceKey;
-import org.openide.util.NotImplementedException;
 
 /**
  * Maintains the correspondence between 
@@ -74,8 +72,11 @@ public class UnitIndex {
     }
     
     private class Delegate {
-	
-	private Map<CharSequenceKey, UnitInfo> nameMap = new HashMap<CharSequenceKey, UnitInfo>();
+
+        // TDB - mavenization CharSequenceKey is missing, but these maps are never
+        // written to
+
+//	private Map<CharSequenceKey, UnitInfo> nameMap = new HashMap<CharSequenceKey, UnitInfo>();
 	private Map<Integer, UnitInfo> idMap = new HashMap<Integer, UnitInfo>();
 	
         Delegate() {	    
@@ -89,7 +90,9 @@ public class UnitIndex {
         }
 
         public UnitInfo getUnitInfo(CharSequence name) {
-            return nameMap.get(name);
+            // tdb - mavenization
+            return null;
+//            return nameMap.get(name);
         }
 	
     }

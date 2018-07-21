@@ -39,7 +39,6 @@
 package org.netbeans.modules.portalpack.commons;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
@@ -48,7 +47,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.openide.util.Lookup;
-import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -58,48 +56,17 @@ import org.openide.filesystems.FileObject;
 public class LibraryHelper {
 
     public static void addCompileRoot(Project project,URL[] roots) {
-        
         Lookup lookup = project.getLookup();
-        Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
-        if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
-            try {
-                //((WebProjectLibrariesModifier) modifierObj).addCompileRoots(roots);
-                
-                Class[] paramTypes = {URL[].class};
-                Method method = WebProjectLibrariesModifier.class.getMethod("addCompileRoots", paramTypes);
-                    
-                method.invoke(modifierObj, new Object[]{roots});
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }else {
-            try {
-                ProjectClassPathModifier.addRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (UnsupportedOperationException ex) {
-                ex.printStackTrace();
-            }
+        try {
+            ProjectClassPathModifier.addRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (UnsupportedOperationException ex) {
+            ex.printStackTrace();
         }
-                
     }
     
     public static void addPackageRoot(Project project,URL[] roots, String path) {
-        
-        Lookup lookup = project.getLookup();
-        Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
-        if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
-            try {
-                //((WebProjectLibrariesModifier) modifierObj).addPackageRoots(roots, path);
-                 Class[] paramTypes = {URL[].class, String.class};
-                 Method method = WebProjectLibrariesModifier.class.getMethod("addPackageRoots", paramTypes);
-                    
-                 method.invoke(modifierObj, new Object[]{roots,path});
-                
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }else {
             try {
                 ProjectClassPathModifier.addRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
             } catch (IOException ex) {
@@ -107,27 +74,10 @@ public class LibraryHelper {
             } catch (UnsupportedOperationException ex) {
                 ex.printStackTrace();
             }
-        }
                 
     }
     
     public static void removePackageRoot(Project project,URL[] roots, String path) {
-        
-        Lookup lookup = project.getLookup();
-        Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
-        if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
-            try {
-                //boolean ret = ((WebProjectLibrariesModifier) modifierObj).removePackageRoots(roots, path);
-                
-                Class[] paramTypes = {URL[].class, String.class};
-                Method method = WebProjectLibrariesModifier.class.getMethod("removePackageRoots", paramTypes);
-                    
-                method.invoke(modifierObj, new Object[]{roots,path});
-               
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }else {
             try {
                 ProjectClassPathModifier.removeRoots(roots, getSourceRoot(project), ClassPath.COMPILE);
             } catch (IOException ex) {
@@ -135,7 +85,6 @@ public class LibraryHelper {
             } catch (UnsupportedOperationException ex) {
                 ex.printStackTrace();
             }
-        }
                 
     }
     

@@ -68,10 +68,6 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -91,59 +87,54 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-api-web-webmodule</id>
-                            <type>spec</type>
-                            <explicitValue>1.8</explicitValue>
+                            <explicitValue>org.netbeans.api.web.webmodule &gt; 1.8</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.web.webmodule specification-version: 1.41.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-j2eeserver</id>
-                            <type>spec</type>
-                            <explicitValue>1.21</explicitValue>
+                            <explicitValue>org.netbeans.modules.j2eeserver/4 &gt; 1.21</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.j2eeserver/4 specification-version: 1.114.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-project-libraries</id>
-                            <type>spec</type>
-                            <explicitValue>1.14</explicitValue>
+                            <explicitValue>org.netbeans.modules.project.libraries/1 &gt; 1.14</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.project.libraries/1 specification-version: 1.53.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
-                            <type>spec</type>
-                            <explicitValue>1.13</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-websvc-restapi</id>
-                            <type>spec</type>
-                            <explicitValue>1.0</explicitValue>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.13</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-websvc-restapi</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.websvc.restapi/0 specification-version: 1.39.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -151,5 +142,3 @@
         </plugins>
     </build>
 </project>
-
-

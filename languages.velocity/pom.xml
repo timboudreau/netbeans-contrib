@@ -53,10 +53,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -68,13 +65,13 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-languages</id>
-                            <type>spec</type>
-                            <explicitValue>1.54</explicitValue>
+                            <explicitValue>org.netbeans.modules.languages/0 &gt; 1.54</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.languages/0 specification-version: 1.121.1.2 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -82,5 +79,3 @@
         </plugins>
     </build>
 </project>
-
-

@@ -76,6 +76,9 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-libs-junit4</id>
+                            <explicitValue>org.netbeans.libs.junit4 &gt; 1.17.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.junit4 specification-version: 1.17.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -83,5 +86,3 @@
         </plugins>
     </build>
 </project>
-
-

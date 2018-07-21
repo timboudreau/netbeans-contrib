@@ -22,7 +22,6 @@ package org.netbeans.modules.portalpack.servers.core.nodes.actions;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.nodes.ContainerNode;
-import org.netbeans.modules.portalpack.servers.core.nodes.ContainersHolderNode;
 import org.netbeans.modules.portalpack.servers.core.ui.CreateContainerChannelPanel;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.util.logging.Level;
@@ -77,7 +76,7 @@ public final class AddPortletAction extends CookieAction {
             dialog.setVisible(true);
             
             String channelName = dialog.getName();
-            String portletName = dialog.getType();
+            String portletName = dialog.getPortletType();
             
             if(channelName == null || channelName.length() == 0)
                 return;

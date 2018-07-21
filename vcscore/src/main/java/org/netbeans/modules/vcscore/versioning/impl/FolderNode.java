@@ -42,7 +42,6 @@
 package org.netbeans.modules.vcscore.versioning.impl;
 
 import org.netbeans.modules.vcscore.VcsProvider;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -57,7 +56,6 @@ import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 import org.openide.util.HelpCtx;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.actions.SystemAction;
@@ -70,7 +68,6 @@ import java.util.Set;
 import java.util.Collections;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
@@ -221,13 +218,13 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         }
         // give chance to annotate icon
         // copied from DataNode to keep the contract
-        try {
-            Set target = Collections.singleton(file);
-            img = file.getFileSystem().
-                  getStatus().annotateIcon(img, type, target);
-        } catch (FileStateInvalidException e) {
-            // no fs, do nothing
-        }
+//        try {
+//            Set target = Collections.singleton(file);
+//            img = file.getFileSystem().
+//                  getStatus().annotateIcon(img, type, target);
+//        } catch (FileStateInvalidException e) {
+//            // no fs, do nothing
+//        }
         return img;
     }
 
@@ -247,13 +244,13 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         }
         // give chance to annotate icon
         // copied from DataNode to keep the contract
-        try {
+//        try {
             Set target = Collections.singleton(file);
-            img = file.getFileSystem().
-            getStatus().annotateIcon(img, type, target);
-        } catch (FileStateInvalidException e) {
-            // no fs, do nothing
-        }
+//            img = file.getFileSystem().
+//            getStatus().annotateIcon(img, type, target);
+//        } catch (FileStateInvalidException e) {
+//            // no fs, do nothing
+//        }
         return img;
     }
 

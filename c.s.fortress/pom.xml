@@ -38,10 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -108,8 +105,8 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:xtc</id>
-                            <type>spec</type>
-                            <explicitValue>1.13.2</explicitValue>
+                            <explicitValue>xtc &gt; 1.13.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: xtc specification-version: 1.15 implementation-version: 1.15 build-version: 201807202259 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -117,5 +114,3 @@
         </plugins>
     </build>
 </project>
-
-

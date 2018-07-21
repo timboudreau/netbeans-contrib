@@ -102,25 +102,58 @@
                     </publicPackages>
                     <moduleDependencies>
                         <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-nbjunit</id>
+                            <explicitValue>org.netbeans.modules.nbjunit/1 &gt; 1.75.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE72-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.nbjunit/1 specification-version: 1.75.1 implementation-version: 201207171143 has-public-packages-->
+                        </dependency>
+                        <dependency>
                             <id>org.netbeans.api:org-openide-compat</id>
+                            <explicitValue>org.openide.compat &gt; 6.39.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.compat specification-version: 6.39.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.10.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 7.66.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-modules</id>
+                            <explicitValue>org.openide.modules &gt; 7.48.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.modules specification-version: 7.48.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-nodes</id>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.nodes &gt; 7.45.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util-enumerations</id>
+                            <explicitValue>org.openide.util.enumerations &gt; 6.33.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.enumerations specification-version: 6.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.33.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 9.6.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -128,5 +161,3 @@
         </plugins>
     </build>
 </project>
-
-

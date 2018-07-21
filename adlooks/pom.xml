@@ -61,10 +61,6 @@
             <artifactId>org-openide-nodes</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -97,49 +93,46 @@
                     </publicPackages>
                     <moduleDependencies>
                         <dependency>
+                            <id>org.netbeans.api:org-openide-nodes</id>
+                            <explicitValue>org.openide.nodes &gt; 6.8</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-api-adnode</id>
-                            <type>spec</type>
-                            <explicitValue>1.0</explicitValue>
+                            <explicitValue>org.netbeans.api.adnode &gt; 1.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.adnode specification-version: 1.0 implementation-version: 1.0 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-adaptable</id>
-                            <type>spec</type>
-                            <explicitValue>0.3</explicitValue>
+                            <explicitValue>org.netbeans.modules.adaptable &gt; 0.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.adaptable specification-version: 0.3 implementation-version: 0.3 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-adlookup</id>
-                            <type>spec</type>
-                            <explicitValue>0.1</explicitValue>
+                            <explicitValue>org.netbeans.modules.adlookup &gt; 0.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.adlookup specification-version: 0.1 implementation-version: 0.1 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-looks</id>
                             <type>impl</type>
-                            <explicitValue/>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-nodes</id>
-                            <type>spec</type>
-                            <explicitValue>6.8</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <!-- <explicitValue>org.netbeans.modules.looks &gt; 1.12</explicitValue> -->
+                            <!--POM-Generation on may have substituted spec version values from 1.12-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.looks specification-version: 1.12 implementation-version: 1.12 build-version: 201807202259 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -147,5 +140,3 @@
         </plugins>
     </build>
 </project>
-
-

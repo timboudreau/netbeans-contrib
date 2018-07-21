@@ -76,7 +76,7 @@ public class CreateContainerChannelPanel extends javax.swing.JDialog {
 
     
 
-    public String getType()
+    public String getPortletType()
 
     {
 

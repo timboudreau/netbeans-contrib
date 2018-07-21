@@ -66,10 +66,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -80,44 +77,44 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.modules:org-netbeans-lib-terminalemulator</id>
-                            <type>spec</type>
-                            <explicitValue>1.7</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-libs-jna</id>
-                            <type>spec</type>
-                            <explicitValue>1.2</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-settings</id>
-                            <type>spec</type>
-                            <explicitValue>1.18</explicitValue>
+                            <explicitValue>org.netbeans.modules.settings/1 &gt; 1.18</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.settings/1 specification-version: 1.49.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-awt</id>
-                            <type>spec</type>
-                            <explicitValue>7.5</explicitValue>
+                            <explicitValue>org.openide.awt &gt; 7.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.awt specification-version: 7.67.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-dialogs</id>
-                            <type>spec</type>
-                            <explicitValue>7.10</explicitValue>
+                            <explicitValue>org.openide.dialogs &gt; 7.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>9.3</explicitValue>
+                            <explicitValue>org.openide.util &gt; 9.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>9.3</explicitValue>
+                            <explicitValue>org.openide.util.ui &gt; 9.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-windows</id>
-                            <type>spec</type>
-                            <explicitValue>6.26</explicitValue>
+                            <explicitValue>org.openide.windows &gt; 6.26</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.windows specification-version: 6.75.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-lib-terminalemulator</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.lib.terminalemulator specification-version: 1.37.7 implementation-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-libs-jna</id>
+                            <explicitValue>org.netbeans.libs.jna/1 &gt; 1.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.jna/1 specification-version: 1.44.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -125,5 +122,3 @@
         </plugins>
     </build>
 </project>
-
-

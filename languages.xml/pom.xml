@@ -52,10 +52,6 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-text</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -78,39 +74,34 @@
                     </publicPackages>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-languages</id>
-                            <type>spec</type>
-                            <explicitValue>1.82</explicitValue>
+                            <explicitValue>org.netbeans.modules.languages/0 &gt; 1.82</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.languages/0 specification-version: 1.121.1.2 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-lexer</id>
-                            <type>spec</type>
-                            <explicitValue>1.11</explicitValue>
+                            <explicitValue>org.netbeans.modules.lexer/2 &gt; 1.11</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.lexer/2 specification-version: 1.63.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-text</id>
-                            <type>spec</type>
-                            <explicitValue>6.16</explicitValue>
+                            <explicitValue>org.openide.text &gt; 6.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.text specification-version: 6.67.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -118,5 +109,3 @@
         </plugins>
     </build>
 </project>
-
-

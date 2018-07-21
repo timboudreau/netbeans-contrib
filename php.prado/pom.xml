@@ -94,10 +94,6 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-mimelookup</artifactId>
             <scope>test</scope>
         </dependency>
@@ -147,10 +143,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -161,112 +154,123 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor</id>
-                            <type>spec</type>
-                            <explicitValue>1.53</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor/3 &gt; 1.53</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor/3 specification-version: 1.87.1.6.3.23.55 implementation-version: 6 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-completion</id>
-                            <type>spec</type>
-                            <explicitValue>1.13</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.completion/1 &gt; 1.13</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.completion/1 specification-version: 1.44.1.2 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-indent</id>
-                            <type>spec</type>
-                            <explicitValue>1.9</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.indent/2 &gt; 1.9</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.indent/2 specification-version: 1.43.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-lib</id>
-                            <type>spec</type>
-                            <explicitValue>3.1</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.contrib:org-netbeans-modules-gsf-api</id>
-                            <type>spec</type>
-                            <explicitValue>1.6</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-html-editor</id>
-                            <type>spec</type>
-                            <explicitValue>1.10</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-html-editor-lib</id>
-                            <type>spec</type>
-                            <explicitValue>1.8</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-html-lexer</id>
-                            <type>spec</type>
-                            <explicitValue>1.3</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-javascript-editing</id>
-                            <type>spec</type>
-                            <explicitValue>0.86</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-lexer</id>
-                            <type>spec</type>
-                            <explicitValue>1.29</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-php-editor</id>
-                            <type>spec</type>
-                            <explicitValue>1.2</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.lib/3 &gt; 3.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.lib/3 specification-version: 4.7.1.23.3.55 implementation-version: 23 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-mimelookup</id>
+                            <explicitValue>org.netbeans.modules.editor.mimelookup/1 &gt; 1.40.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.mimelookup/1 specification-version: 1.40.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-editor-plain-lib</id>
+                            <explicitValue>org.netbeans.modules.editor.plain.lib/1 &gt; 1.33.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.plain.lib/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-editor-util</id>
+                            <explicitValue>org.netbeans.modules.editor.util/1 &gt; 1.64.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.util/1 specification-version: 1.64.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-html-lexer</id>
+                            <explicitValue>org.netbeans.modules.html.lexer/1 &gt; 1.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.html.lexer/1 specification-version: 1.38.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-lexer</id>
+                            <explicitValue>org.netbeans.modules.lexer/2 &gt; 1.29</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.lexer/2 specification-version: 1.63.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-gsf</id>
+                            <explicitValue>org.netbeans.modules.gsf &gt; 0.89.0</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from 0.89.0-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.gsf specification-version: 0.89.0 implementation-version: 0.89.0 build-version: 201807202300 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-gsf-api</id>
+                            <explicitValue>org.netbeans.modules.gsf.api &gt; 1.6</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.gsf.api specification-version: 1.19.0 implementation-version: 1.19.0 build-version: 201807202300 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-editor-mimelookup-impl</id>
                             <type>loose</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.mimelookup.impl/1 specification-version: 1.32.1 implementation-version: 201609300101-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-editor-plain</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.plain/2 specification-version: 1.35.1 implementation-version: 201609300101-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-editor-plain-lib</id>
+                            <id>org.netbeans.modules:org-netbeans-modules-html-editor</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.html.editor/2 specification-version: 2.55.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-editor-util</id>
+                            <id>org.netbeans.modules:org-netbeans-modules-html-editor-lib</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.html.editor.lib/3 specification-version: 3.32.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.contrib:org-netbeans-modules-gsf</id>
+                            <id>org.netbeans.modules:org-netbeans-modules-javascript-editing</id>
+                            <explicitValue>org.netbeans.modules.javascript.editing/1 &gt; 0.86</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.javascript.editing/1 specification-version: 0.107.1 implementation-version: 201210100934 has-friend-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-masterfs</id>
                             <type>loose</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.masterfs/2 specification-version: 2.55.1.2 implementation-version: 2 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-php-editor</id>
+                            <explicitValue>org.netbeans.modules.php.editor &gt; 1.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.php.editor specification-version: 1.71.1.2 implementation-version: 2 build-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -274,5 +278,3 @@
         </plugins>
     </build>
 </project>
-
-

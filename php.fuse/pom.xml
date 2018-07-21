@@ -132,14 +132,6 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-lookup</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-libs-junit4</artifactId>
             <scope>test</scope>
         </dependency>
@@ -169,10 +161,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -184,143 +173,142 @@
                     <author>Martin Fousek</author>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-jdesktop-layout</id>
-                            <type>spec</type>
-                            <explicitValue>1.10</explicitValue>
+                            <explicitValue>org.jdesktop.layout/1 &gt; 1.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.jdesktop.layout/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-libs-junit4</id>
+                            <explicitValue>org.netbeans.libs.junit4 &gt; 1.17.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.junit4 specification-version: 1.17.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-autoupdate-services</id>
-                            <type>spec</type>
-                            <explicitValue>1.16</explicitValue>
+                            <explicitValue>org.netbeans.modules.autoupdate.services &gt; 1.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.autoupdate.services specification-version: 1.52.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-csl-api</id>
-                            <type>spec</type>
-                            <explicitValue>2.2</explicitValue>
+                            <explicitValue>org.netbeans.modules.csl.api/2 &gt; 2.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.csl.api/2 specification-version: 2.54.1.2.1.1.8.1 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor</id>
-                            <type>spec</type>
-                            <explicitValue>1.53</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor/3 &gt; 1.53</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor/3 specification-version: 1.87.1.6.3.23.55 implementation-version: 6 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-completion</id>
-                            <type>spec</type>
-                            <explicitValue>1.17</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.completion/1 &gt; 1.17</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.completion/1 specification-version: 1.44.1.2 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-lib</id>
-                            <type>spec</type>
-                            <explicitValue>3.1</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.lib/3 &gt; 3.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.lib/3 specification-version: 4.7.1.23.3.55 implementation-version: 23 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-lib2</id>
-                            <type>spec</type>
-                            <explicitValue>1.18</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.lib2/1 &gt; 1.18</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.lib2/1 specification-version: 2.16.1.55.3 implementation-version: 55 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-mimelookup</id>
-                            <type>spec</type>
-                            <explicitValue>1.14</explicitValue>
+                            <explicitValue>org.netbeans.modules.editor.mimelookup/1 &gt; 1.14</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.mimelookup/1 specification-version: 1.40.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-editor-util</id>
+                            <explicitValue>org.netbeans.modules.editor.util/1 &gt; 1.64.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.util/1 specification-version: 1.64.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-extexecution</id>
-                            <type>spec</type>
-                            <explicitValue>1.18</explicitValue>
+                            <explicitValue>org.netbeans.modules.extexecution/2 &gt; 1.18</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.extexecution/2 specification-version: 1.48.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-html-lexer</id>
-                            <type>spec</type>
-                            <explicitValue>1.7</explicitValue>
+                            <explicitValue>org.netbeans.modules.html.lexer/1 &gt; 1.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.html.lexer/1 specification-version: 1.38.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-lexer</id>
-                            <type>spec</type>
-                            <explicitValue>1.33</explicitValue>
+                            <explicitValue>org.netbeans.modules.lexer/2 &gt; 1.33</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.lexer/2 specification-version: 1.63.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-nbjunit</id>
+                            <explicitValue>org.netbeans.modules.nbjunit/1 &gt; 1.87.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.nbjunit/1 specification-version: 1.87.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-options-api</id>
-                            <type>spec</type>
-                            <explicitValue>1.16</explicitValue>
+                            <explicitValue>org.netbeans.modules.options.api/1 &gt; 1.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.options.api/1 specification-version: 1.45.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-parsing-api</id>
-                            <type>spec</type>
-                            <explicitValue>1.26</explicitValue>
+                            <explicitValue>org.netbeans.modules.parsing.api/1 &gt; 1.26</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.parsing.api/1 specification-version: 9.6.1.8 implementation-version: 8 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-awt</id>
+                            <explicitValue>org.openide.awt &gt; 7.19</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.awt specification-version: 7.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-dialogs</id>
+                            <explicitValue>org.openide.dialogs &gt; 7.13</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 7.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-text</id>
+                            <explicitValue>org.openide.text &gt; 6.27</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.text specification-version: 6.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-php-api-phpmodule</id>
-                            <type>spec</type>
-                            <explicitValue>1.4</explicitValue>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.php.api.phpmodule specification-version: 2.58.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-php-editor</id>
                             <type>impl</type>
-                            <explicitValue/>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-awt</id>
-                            <type>spec</type>
-                            <explicitValue>7.19</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-dialogs</id>
-                            <type>spec</type>
-                            <explicitValue>7.13</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-loaders</id>
-                            <type>spec</type>
-                            <explicitValue>7.10</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-text</id>
-                            <type>spec</type>
-                            <explicitValue>6.27</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.1</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-libs-junit4</id>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-editor-util</id>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-nbjunit</id>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.php.editor specification-version: 1.71.1.2 implementation-version: 2 build-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -328,5 +316,3 @@
         </plugins>
     </build>
 </project>
-
-

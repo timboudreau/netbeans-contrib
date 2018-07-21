@@ -57,10 +57,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -77,16 +74,19 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-libs-json_simple</id>
-                            <type>spec</type>
-                            <explicitValue>0.7</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.23</explicitValue>
+                            <explicitValue>org.netbeans.libs.json_simple/1 &gt; 0.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.json_simple/1 specification-version: 0.12.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-libs-testng</id>
+                            <explicitValue>org.netbeans.libs.testng/1 &gt; 1.14.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.testng/1 specification-version: 1.14.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.23</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -94,5 +94,3 @@
         </plugins>
     </build>
 </project>
-
-

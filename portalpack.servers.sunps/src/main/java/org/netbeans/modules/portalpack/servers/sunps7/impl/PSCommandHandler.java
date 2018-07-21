@@ -877,7 +877,7 @@ public class PSCommandHandler extends DefaultPSTaskHandler {
             dialog.setVisible(true);
             
             String channelName = dialog.getName();
-            String providerName = dialog.getType();
+            String providerName = dialog.getPortletType();
             if(channelName == null || channelName.trim().length() == 0)
                 return;
             createChannel(dn,providerName,channelName);
@@ -903,7 +903,7 @@ public class PSCommandHandler extends DefaultPSTaskHandler {
             dialog.setVisible(true);
             
             String channelName = dialog.getName();
-            String portletName = dialog.getType();
+            String portletName = dialog.getPortletType();
             if(channelName == null || channelName.trim().length() == 0)
                 return;
             createPortletChannel(dn,channelName,portletName);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -33,15 +33,13 @@
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
         </repository>
     </repositories>
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.openrdf/openrdf-rio-api -->
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.openrdf</groupId>
             <artifactId>openrdf-rio-api</artifactId>
             <version>2.0.1</version>
         </dependency>-->
-
         <!-- https://mvnrepository.com/artifact/org.openrdf/openrdf-rio-rdfxml -->
         <dependency>
             <groupId>org.openrdf</groupId>
@@ -55,7 +53,7 @@
             <version>2.0.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-rio-api -->
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-api</artifactId>
             <version>2.9.0</version>
@@ -85,6 +83,7 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-subversion</artifactId>
+            <version>${netbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -116,21 +115,12 @@
             <version>RELEASE712</version>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-libs-svnClientAdapter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-projectapi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-projectuiapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-modules-subversion</artifactId>
-            <version>RELEASE82</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
@@ -150,8 +140,7 @@
             <artifactId>commons-codec</artifactId>
             <version>1.11</version>
         </dependency>
-        
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-subversion-remote</artifactId>
         </dependency>-->
@@ -161,10 +150,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -175,69 +161,75 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-api-progress-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>1.48</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-api-progress</id>
-                            <type>spec</type>
-                            <explicitValue>1.48</explicitValue>
+                            <explicitValue>org.netbeans.api.progress/1 &gt; 1.48</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.progress/1 specification-version: 1.47.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-api-progress-compat8</id>
+                            <explicitValue>org.netbeans.api.progress.compat8 &gt; 1.48</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.progress.compat8 specification-version: 1.47.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-api-progress-nb</id>
+                            <explicitValue>org.netbeans.api.progress.nb &gt; 1.47.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.progress.nb specification-version: 1.47.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-lib-cvsclient</id>
-                            <type>spec</type>
-                            <explicitValue>1.15</explicitValue>
+                            <explicitValue>org.netbeans.lib.cvsclient/1 &gt; 1.15</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.lib.cvsclient/1 specification-version: 1.29.1 implementation-version: 201204101705 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.13</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectuiapi</id>
+                            <explicitValue>org.netbeans.modules.projectuiapi/1 &gt; 1.23</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectuiapi/1 specification-version: 1.88.1.8 implementation-version: 8 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-awt</id>
+                            <explicitValue>org.openide.awt &gt; 6.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.awt specification-version: 7.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-dialogs</id>
+                            <explicitValue>org.openide.dialogs &gt; 7.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-libs-svnClientAdapter</id>
                             <type>impl</type>
-                            <explicitValue/>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
-                            <type>spec</type>
-                            <explicitValue>1.13</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-projectuiapi</id>
-                            <type>spec</type>
-                            <explicitValue>1.23</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.svnClientAdapter/1 specification-version: 1.40.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-subversion</id>
                             <type>impl</type>
-                            <explicitValue>201609300101</explicitValue>
+                            <!--old-value: 201609300101-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-versioning-system-cvss</id>
                             <type>impl</type>
-                            <explicitValue>1</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-awt</id>
-                            <type>spec</type>
-                            <explicitValue>6.10</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-dialogs</id>
-                            <type>spec</type>
-                            <explicitValue>7.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.versioning.system.cvss/1 specification-version: 1.23.1.1.42.1 implementation-version: 1 build-version: 201107282000 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -245,5 +237,3 @@
         </plugins>
     </build>
 </project>
-
-

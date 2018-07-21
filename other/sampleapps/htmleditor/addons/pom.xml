@@ -53,14 +53,14 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-favorites</id>
-                            <type>spec</type>
-                            <explicitValue>1.11</explicitValue>
+                            <id>org.netbeans.api:org-netbeans-spi-palette</id>
+                            <explicitValue>org.netbeans.spi.palette/1 &gt; 1.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.spi.palette/1 specification-version: 1.46.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-spi-palette</id>
-                            <type>spec</type>
-                            <explicitValue>1.5</explicitValue>
+                            <id>org.netbeans.modules:org-netbeans-modules-favorites</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.favorites/1 specification-version: 1.46.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -68,5 +68,3 @@
         </plugins>
     </build>
 </project>
-
-

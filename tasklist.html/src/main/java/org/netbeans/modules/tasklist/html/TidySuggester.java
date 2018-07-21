@@ -171,7 +171,7 @@ public class TidySuggester extends DocumentSuggestionProvider
         //System.err.println("reportError(" + line + ", " + col + ", " + error + ", " + message + ")");
         
         SuggestionManager manager = SuggestionManager.getDefault();
-        SuggestionAgent s = manager.createSuggestion(TYPE,
+        SuggestionAgent s = manager.createSuggestion(null, TYPE,
                                                 message,
                                                 null,
                                                 this);

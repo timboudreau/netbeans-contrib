@@ -105,6 +105,7 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-visualweb-project-jsf</artifactId>
+            <version>RELEASE65</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -134,10 +135,6 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -154,129 +151,136 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-ui</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-jdesktop-layout</id>
-                            <type>spec</type>
-                            <explicitValue>1.4</explicitValue>
+                            <explicitValue>org.jdesktop.layout/1 &gt; 1.4</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.jdesktop.layout/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-java</id>
-                            <type>spec</type>
-                            <explicitValue>1.18</explicitValue>
+                            <explicitValue>org.netbeans.api.java/1 &gt; 1.18</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.java/1 specification-version: 1.60.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-java-classpath</id>
-                            <type>spec</type>
-                            <explicitValue>1.18</explicitValue>
+                            <explicitValue>org.netbeans.api.java.classpath/1 &gt; 1.18</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.java.classpath/1 specification-version: 1.52.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-web-webmodule</id>
-                            <type>spec</type>
-                            <explicitValue>1.0</explicitValue>
+                            <explicitValue>org.netbeans.api.web.webmodule &gt; 1.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.web.webmodule specification-version: 1.41.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-j2eeserver</id>
-                            <type>spec</type>
-                            <explicitValue>1.23.0</explicitValue>
+                            <explicitValue>org.netbeans.modules.j2eeserver/4 &gt; 1.23.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.j2eeserver/4 specification-version: 1.114.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-java-project</id>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.contrib:org-netbeans-modules-portalpack-jsfportletbridge</id>
-                            <type>spec</type>
-                            <explicitValue>1.0.0.3</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.contrib:org-netbeans-modules-portalpack-portlets-genericportlets</id>
-                            <type>spec</type>
-                            <explicitValue>3.0</explicitValue>
+                            <explicitValue>org.netbeans.modules.java.project/1 &gt; 1.66.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.project/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-project-ant</id>
-                            <type>spec</type>
-                            <explicitValue>1.11.1</explicitValue>
+                            <explicitValue>org.netbeans.modules.project.ant/1 &gt; 1.11.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.project.ant/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-project-libraries</id>
+                            <explicitValue>org.netbeans.modules.project.libraries/1 &gt; 1.53.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.project.libraries/1 specification-version: 1.53.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
-                            <type>spec</type>
-                            <explicitValue>1.17</explicitValue>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.17</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-projectuiapi</id>
+                            <explicitValue>org.netbeans.modules.projectuiapi/1 &gt; 1.88.1.8</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectuiapi/1 specification-version: 1.88.1.8 implementation-version: 8 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-queries</id>
+                            <explicitValue>org.netbeans.modules.queries/1 &gt; 1.43.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.queries/1 specification-version: 1.43.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-schema2beans</id>
-                            <type>spec</type>
-                            <explicitValue>1.16</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-visualweb-project-jsf</id>
-                            <type>spec</type>
-                            <explicitValue>2.2</explicitValue>
+                            <explicitValue>org.netbeans.modules.schema2beans/1 &gt; 1.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.schema2beans/1 specification-version: 1.47.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-actions</id>
-                            <type>spec</type>
-                            <explicitValue>6.2</explicitValue>
+                            <explicitValue>org.openide.actions &gt; 6.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.actions specification-version: 6.39.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-awt</id>
-                            <type>spec</type>
-                            <explicitValue>6.2</explicitValue>
+                            <explicitValue>org.openide.awt &gt; 6.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.awt specification-version: 7.67.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-dialogs</id>
-                            <type>spec</type>
-                            <explicitValue>6.2</explicitValue>
+                            <explicitValue>org.openide.dialogs &gt; 6.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-explorer</id>
-                            <type>spec</type>
-                            <explicitValue>6.8</explicitValue>
+                            <explicitValue>org.openide.explorer &gt; 6.8</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.explorer specification-version: 6.62.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 7.66.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-nodes</id>
-                            <type>spec</type>
-                            <explicitValue>6.2</explicitValue>
+                            <explicitValue>org.openide.nodes &gt; 6.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.0</explicitValue>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-portalpack-jsfportletbridge</id>
+                            <explicitValue>org.netbeans.modules.portalpack.jsfportletbridge &gt; 1.0.0.3</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-portalpack-portlets-genericportlets</id>
+                            <explicitValue>org.netbeans.modules.portalpack.portlets.genericportlets &gt; 3.0</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-visualweb-project-jsf</id>
+                            <explicitValue>org.netbeans.modules.visualweb.project.jsf &gt; 2.2</explicitValue>
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -284,5 +288,3 @@
         </plugins>
     </build>
 </project>
-
-

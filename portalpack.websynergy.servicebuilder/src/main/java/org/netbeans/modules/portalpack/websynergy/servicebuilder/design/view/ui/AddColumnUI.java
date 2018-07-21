@@ -303,7 +303,7 @@ private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         return primaryKey;
     }
 
-    public String getType() {
+    public String getPortletType() {
         return type;
     }
 

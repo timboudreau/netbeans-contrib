@@ -53,13 +53,11 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-vcs-advanced</id>
-                            <type>spec</type>
-                            <explicitValue>1.10</explicitValue>
+                            <explicitValue>org.netbeans.modules.vcs.advanced &gt; 1.10</explicitValue>
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-vcscore</id>
-                            <type>spec</type>
-                            <explicitValue>1.10</explicitValue>
+                            <explicitValue>org.netbeans.modules.vcscore &gt; 1.10</explicitValue>
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -67,5 +65,3 @@
         </plugins>
     </build>
 </project>
-
-

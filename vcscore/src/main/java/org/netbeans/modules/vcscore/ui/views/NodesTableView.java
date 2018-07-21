@@ -802,7 +802,8 @@ public class NodesTableView extends JScrollPane implements Externalizable {
 //                System.out.println("info=" + info.getFile().getAbsolutePath());
 //                System.out.println("path=" + path);
                 try {
-                    Node selNode = NodeOp.findPath(manager.getRootContext(), new StringTokenizer(path, "/"));
+//                    Node selNode = NodeOp.findPath(manager.getRootContext(), new StringTokenizer(path, "/"));
+                    Node selNode = NodeOp.findPath(manager.getRootContext(), path.split("\\/"));
                     nodes[i] = selNode;
 //                    System.out.println("found node..");
                 } catch (NodeNotFoundException exc) {

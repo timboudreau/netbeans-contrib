@@ -50,8 +50,6 @@ import org.netbeans.modules.vcscore.versioning.*;
 
 import javax.swing.*;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.Collections;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
@@ -106,11 +104,8 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
 
     public java.awt.Image getIcon (int type) {
         java.awt.Image img = getBlankIcon(type);
-        try {
-            Set files = Collections.singleton(getFile());
-            img = getFile().getFileSystem().getStatus().annotateIcon(img, type, files);
-        } catch (FileStateInvalidException e) {
-        }
+        // tdb - getStatus() no longer exists
+//            img = getFile().getFileSystem().getStatus().annotateIcon(img, type, files);
         return img;
     }
 

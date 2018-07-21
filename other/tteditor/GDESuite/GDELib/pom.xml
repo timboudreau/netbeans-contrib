@@ -26,6 +26,13 @@
     <properties>
         <module.display.category>Contrib-Modules</module.display.category>
     </properties>
+    <dependencies>
+         <dependency>
+             <groupId>org.netbeans.contrib</groupId>
+             <artifactId>org-netbeans-libs-gdelib</artifactId>
+             <version>1.0</version>
+         </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

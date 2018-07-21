@@ -81,21 +81,31 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-xml-xam</id>
-                            <type>spec</type>
-                            <explicitValue>1.1.20</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-masterfs</id>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-xml-retriever</id>
+                            <explicitValue>org.netbeans.modules.xml.retriever/1 &gt; 1.31.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.xml.retriever/1 specification-version: 1.31.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.modules:org-netbeans-modules-xml-text</id>
+                            <id>org.netbeans.api:org-netbeans-modules-xml-xam</id>
+                            <explicitValue>org.netbeans.modules.xml.xam/1 &gt; 1.1.20</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.xml.xam/1 specification-version: 1.32.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-xml-xdm</id>
+                            <explicitValue>org.netbeans.modules.xml.xdm/1 &gt; 1.34.1.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.xml.xdm/1 specification-version: 1.34.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-masterfs</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.masterfs/2 specification-version: 2.55.1.2 implementation-version: 2 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-xml-text</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.xml.text/2 specification-version: 1.53.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -103,5 +113,3 @@
         </plugins>
     </build>
 </project>
-
-

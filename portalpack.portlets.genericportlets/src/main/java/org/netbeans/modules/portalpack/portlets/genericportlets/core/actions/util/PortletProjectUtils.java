@@ -67,13 +67,13 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 
-// XXX WebProjectLibrariesModifier and WebPropertyEvaluator in org.netbeans.modules.web.project
+// XXX WebProjectLibrariesModifier2 and WebPropertyEvaluator in org.netbeans.modules.web.project
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier2;
 // are not accessible under NetBeans 6.0; need friend-package
 import org.openide.util.Lookup;
 // We now access these APIs by org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil
-// import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+// import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier2;
 // import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
 //import org.netbeans.modules.portalpack.portlets.ruby.RubyProjectConstants;
 //import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupportImpl;
@@ -435,8 +435,8 @@ public class PortletProjectUtils {
      * @throws an IOException if there was a problem adding the reference
      */
     /*public static boolean addLibraryReferences(Project project, Library[] libraries, String type) throws IOException {
-        /* XXX WebProjectLibrariesModifier in org.netbeans.modules.web.project is not accessible; need friend-package
-        WebProjectLibrariesModifier wplm = (WebProjectLibrariesModifier) project.getLookup().lookup(WebProjectLibrariesModifier.class);
+        /* XXX WebProjectLibrariesModifier2 in org.netbeans.modules.web.project is not accessible; need friend-package
+        WebProjectLibrariesModifier2 wplm = (WebProjectLibrariesModifier2) project.getLookup().lookup(WebProjectLibrariesModifier2.class);
         if (wplm == null) {
             // Something is wrong, shouldn't be here.
             return addLibraryReferences(project, libraries);
@@ -636,13 +636,13 @@ public class PortletProjectUtils {
                  bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
              }
              Lookup lookup = project.getLookup();
-             Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
-             if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier)) {
-                 //((WebProjectLibrariesModifier) modifierObj).addCompileLibraries(new Library[]{bpLibrary});
+             Object modifierObj = lookup.lookup(WebProjectLibrariesModifier2.class);
+             if (modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier2)) {
+                 //((WebProjectLibrariesModifier2) modifierObj).addCompileLibraries(new Library[]{bpLibrary});
                  //As the friend-api relationship is now broken. This has to be done through reflection.
                  Library[] libs = {bpLibrary};           
                  Class[] paramTypes = {Library[].class};
-                 Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
+                 Method method = WebProjectLibrariesModifier2.class.getMethod("addCompileLibraries", paramTypes);
                     
                  method.invoke(modifierObj, new Object[]{libs});
              } else {

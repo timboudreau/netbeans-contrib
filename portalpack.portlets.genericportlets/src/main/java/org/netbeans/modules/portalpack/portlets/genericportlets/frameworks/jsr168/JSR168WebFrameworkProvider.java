@@ -20,7 +20,6 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr168;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,13 +38,11 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.Netbea
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletFrameworkUtil;
 import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
 import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -89,17 +86,6 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
                     bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
                 
                 Lookup lookup = project.getLookup();
-                Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
-                if(modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier))
-                {
-                    Library[] libs = {bpLibrary};
-                    //((WebProjectLibrariesModifier)modifierObj).addCompileLibraries(new Library[]{bpLibrary});             
-                    Class[] paramTypes = {Library[].class};
-                    Method method = WebProjectLibrariesModifier.class.getMethod("addCompileLibraries", paramTypes);
-                    
-                    method.invoke(modifierObj, new Object[]{libs});
-                }else {
-                    
                     String classpathType = ClassPath.COMPILE;
                     //check if maven project
                     FileObject pom = project.getProjectDirectory().getFileObject("pom.xml");//NOI18N
@@ -109,7 +95,6 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
 
                     ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, 
                             getSourceRoot(project), classpathType);
-                }
                 
               
          }catch(Exception e){

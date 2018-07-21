@@ -95,16 +95,15 @@ public class RewriteAction extends NodeAction
             return false;
         }
 
-        DataObject dobj = (DataObject)node[0].getCookie(DataObject.class);
+        DataObject dobj = node[0].getLookup().lookup(DataObject.class);
         if (dobj == null) {
             return false;
         }
-        EditorCookie edit = (EditorCookie)dobj.getCookie(
+        EditorCookie edit = dobj.getLookup().lookup(
                                                      EditorCookie.class);
         if (edit == null) {
             return false;
         }
-Object o = org.w3c.tidy.TidySuggester.class;
         if (TidySuggester.isHTML(dobj)) {
             return true;
         }
@@ -133,23 +132,23 @@ Object o = org.w3c.tidy.TidySuggester.class;
             Line l = item.getLine();
             dobj = DataEditorSupport.findDataObject(l);
         } else {
-            dobj = (DataObject)node[0].getCookie(DataObject.class);
+            dobj = node[0].getLookup().lookup(DataObject.class);
         }
         if (dobj == null) {
             return;
         }
         Document doc = TLUtils.getDocument(dobj);
         if (doc == null) {
-            EditorCookie edit = (EditorCookie)dobj.getCookie(
+            EditorCookie edit = dobj.getLookup().lookup(
                                                      EditorCookie.class);
             if (edit == null) {
                 return; // Signal error?
                 //ErrorManager.getDefault().log(ErrorManager.USER, 
                 //   "no editor cookie!");
             }
-	    EditCookie ec = (EditCookie)dobj.getCookie(EditCookie.class);
+	    EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
 	    if (ec == null) {
-	    	OpenCookie oc = (OpenCookie)dobj.getCookie(OpenCookie.class);
+	    	OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
 		    if (oc != null) oc.open();
 	    } else {
 		    ec.edit();
@@ -239,7 +238,7 @@ Object o = org.w3c.tidy.TidySuggester.class;
         } catch (BadLocationException e) {
             ErrorManager.getDefault().notify(e);
         }
-        Suggestion s = (Suggestion)node[0].getCookie(Suggestion.class);
+        Suggestion s = node[0].getLookup().lookup(Suggestion.class);
         if (s != null) {
             Object seed = s.getSeed();
             if (seed instanceof TidySuggester) {

@@ -15,7 +15,7 @@ Contrib was started in 2001, and grew to contain a mix of things:
 What Was Converted and How
 ------------------------
 
-At present, 266 out of 374 projects are buildable (w/o tests).
+At present, 314 out of 374 projects are buildable (w/o tests).
 
 Some years ago I wrote some scrappy tools to convert a large Ant codebase to Maven, which I still use to refactor Maven projects en masse - it was pretty straightforward to read a module manifest, a project.xml and a project.properties and generate a Maven `pom.xml` that, for straightforward projects, would "just work".
 

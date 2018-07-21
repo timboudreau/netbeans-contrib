@@ -49,8 +49,7 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-j2ee-blueprints</id>
-                            <type>spec</type>
-                            <explicitValue>1.7</explicitValue>
+                            <explicitValue>org.netbeans.modules.j2ee.blueprints &gt; 1.7</explicitValue>
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -58,5 +57,3 @@
         </plugins>
     </build>
 </project>
-
-

@@ -37,10 +37,13 @@
  */
 package org.netbeans.modules.jdkblacklist;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.whitelist.WhiteListQuery.Operation;
 import org.netbeans.api.whitelist.WhiteListQuery.Result;
+import org.netbeans.api.whitelist.WhiteListQuery.RuleDescription;
 import org.netbeans.spi.whitelist.WhiteListQueryImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
@@ -64,15 +67,16 @@ public class BlacklistJDK implements WhiteListQueryImplementation {
         @Override
         public Result check(org.netbeans.api.java.source.ElementHandle<?> element, Operation operation) {
             String[] sig = SourceUtils.getJVMSignature(element);
+            List<RuleDescription> rules = new ArrayList<RuleDescription>(2);
             if (sig.length > 0) {
                 if (sig[0].startsWith("sun.")) {
-                    return new Result(false, "private-jdk", Bundle.MSG_NoSun());
+                    rules.add(new RuleDescription("private-jdk", Bundle.MSG_NoSun(), null));
                 }
                 if (sig[0].startsWith("com.sun.")) {
-                    return new Result(false, "private-jdk", Bundle.MSG_NoComSun());
+                    rules.add(new RuleDescription("private-jdk", Bundle.MSG_NoComSun(), null));
                 }
             }
-            return new Result(true, null, null);
+            return new Result(rules);
         }
 
         @Override

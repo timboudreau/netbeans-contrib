@@ -45,10 +45,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -59,17 +56,20 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.modules:org-netbeans-libs-jna</id>
-                            <type>impl</type>
-                            <explicitValue/>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-spellchecker-apimodule</id>
-                            <type>spec</type>
-                            <explicitValue>1.1</explicitValue>
+                            <explicitValue>org.netbeans.modules.spellchecker.apimodule &gt; 1.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.spellchecker.apimodule specification-version: 1.25.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 9.7.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-libs-jna</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.jna/1 specification-version: 1.44.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -77,5 +77,3 @@
         </plugins>
     </build>
 </project>
-
-

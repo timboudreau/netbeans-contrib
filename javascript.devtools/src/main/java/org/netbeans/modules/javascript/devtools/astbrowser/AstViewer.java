@@ -77,8 +77,6 @@ import org.netbeans.modules.editor.NbEditorDocument;
 //import org.netbeans.spi.gsf.DefaultParserFile;
 
 
-import org.netbeans.modules.javascript.devtools.astbrowser.TreeCreator;
-
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Source;
 import org.openide.ErrorManager;

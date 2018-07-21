@@ -88,10 +88,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -103,62 +100,65 @@
                     <author>Sandip V. Chitale (Sandip.Chitale@Sun.Com)</author>
                     <moduleDependencies>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-java-source-base</id>
-                            <type>spec</type>
-                            <explicitValue>2.30</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-java-source-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.4</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
                             <id>org.netbeans.api:org-netbeans-api-debugger</id>
-                            <type>spec</type>
-                            <explicitValue>1.10</explicitValue>
+                            <explicitValue>org.netbeans.api.debugger/1 &gt; 1.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.debugger/1 specification-version: 1.54.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-debugger-jpda</id>
-                            <type>spec</type>
-                            <explicitValue>2.10</explicitValue>
+                            <explicitValue>org.netbeans.api.debugger.jpda/2 &gt; 2.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.api.debugger.jpda/2 specification-version: 3.5.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-libs-javacapi</id>
-                            <type>spec</type>
-                            <explicitValue>0.5</explicitValue>
+                            <explicitValue>org.netbeans.libs.javacapi &gt; 0.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.libs.javacapi specification-version: 8.15.1.3 implementation-version: 3 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-java-source</id>
-                            <type>spec</type>
-                            <explicitValue>0.7</explicitValue>
+                            <explicitValue>org.netbeans.modules.java.source &gt; 0.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source specification-version: 0.158.1.32.2.25.2.1 implementation-version: 32 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-java-source-base</id>
+                            <explicitValue>org.netbeans.modules.java.source.base &gt; 2.30</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source.base specification-version: 2.20.1.2.2.25.8.1 implementation-version: 2 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-java-source-compat8</id>
+                            <explicitValue>org.netbeans.modules.java.source.compat8 &gt; 9.4</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source.compat8 specification-version: 9.3.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-spi-debugger-ui</id>
-                            <type>spec</type>
-                            <explicitValue>2.9</explicitValue>
+                            <explicitValue>org.netbeans.spi.debugger.ui/1 &gt; 2.9</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.spi.debugger.ui/1 specification-version: 2.54.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-spi-viewmodel</id>
-                            <type>spec</type>
-                            <explicitValue>1.9</explicitValue>
+                            <explicitValue>org.netbeans.spi.viewmodel/2 &gt; 1.9</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.spi.viewmodel/2 specification-version: 1.51.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 9.7.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-windows</id>
-                            <type>spec</type>
-                            <explicitValue>6.5</explicitValue>
+                            <explicitValue>org.openide.windows &gt; 6.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.windows specification-version: 6.75.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -166,5 +166,3 @@
         </plugins>
     </build>
 </project>
-
-

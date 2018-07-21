@@ -43,10 +43,8 @@ import org.netbeans.modules.portalpack.websynergy.servicebuilder.design.view.wid
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.api.visual.layout.LayoutFactory;
@@ -231,7 +229,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
             
             String dbName = addColumnUI.getDbName();
             boolean primaryKey = addColumnUI.isPrimaryKey();
-            String type = addColumnUI.getType();
+            String type = addColumnUI.getPortletType();
             
             String enName = entity.getName();
             Entity en = helper.getEntity(enName);
@@ -308,7 +306,7 @@ public class ColumnWidget extends AbstractTitledWidget implements TabWidget,List
             
             String dbName = addColumnUI.getDbName();
             boolean primaryKey = addColumnUI.isPrimaryKey();
-            String type = addColumnUI.getType();
+            String type = addColumnUI.getPortletType();
             
             Entity en = helper.getEntity(entity.getName());
             Column actualCol = helper.getColumn(en, col.getName());

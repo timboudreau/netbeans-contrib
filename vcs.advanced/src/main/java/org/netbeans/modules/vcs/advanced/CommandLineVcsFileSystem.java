@@ -785,10 +785,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
 
     protected void refreshStatusOfExistingFiles() {
-        Enumeration enum = existingFileObjects(getRoot());
+        Enumeration enu = existingFileObjects(getRoot());
         HashSet existingFOs = new HashSet();
-        while (enum.hasMoreElements()) {
-            existingFOs.add(enum.nextElement());
+        while (enu.hasMoreElements()) {
+            existingFOs.add(enu.nextElement());
         }
         fireFileStatusChanged(new org.openide.filesystems.FileStatusEvent(this, existingFOs, false, true));
     }

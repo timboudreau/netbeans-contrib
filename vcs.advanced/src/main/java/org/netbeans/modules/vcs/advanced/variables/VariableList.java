@@ -68,8 +68,8 @@ public class VariableList extends TreeSet {
     
     public void fireChanged() {
         //System.out.println("RevisionList.fireChange()");
-        for(Enumeration enum = listeners.elements(); enum.hasMoreElements(); ) {
-            ChangeListener listener = (ChangeListener) enum.nextElement();
+        for(Enumeration enu = listeners.elements(); enu.hasMoreElements(); ) {
+            ChangeListener listener = (ChangeListener) enu.nextElement();
             listener.stateChanged(new ChangeEvent(this));
         }
     }

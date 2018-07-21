@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.java.tools.nbjad.actions;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.lang.model.element.Element;
 
 import org.netbeans.api.java.classpath.ClassPath;
@@ -67,6 +68,11 @@ public class BinaryElementOpenImpl implements BinaryElementOpen {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean open(ClasspathInfo ci, ElementHandle<? extends Element> eh, AtomicBoolean ab) {
+        return open(ci, eh);
     }
 
 }

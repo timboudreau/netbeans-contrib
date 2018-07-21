@@ -529,11 +529,7 @@ public class VcsUtilities {
             });
         }
         if (sfsCLReset) {
-            try {
-                sfsClassLoader = new NbClassLoader(new FileObject[] { FileUtil.getConfigRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
-            } catch (FileStateInvalidException e) {
-                throw new AssertionError(e);
-            }
+            sfsClassLoader = new NbClassLoader(new FileObject[] { FileUtil.getConfigRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
             sfsCLReset = false;
         }
         return sfsClassLoader;

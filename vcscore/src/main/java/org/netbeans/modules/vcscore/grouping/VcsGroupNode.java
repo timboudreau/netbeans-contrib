@@ -50,8 +50,6 @@ import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.*;
 import java.io.*;
 import java.util.*;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import org.openide.actions.PropertiesAction;
 import org.openide.ErrorManager;
 
@@ -139,7 +137,7 @@ public class VcsGroupNode extends AbstractNode {
                         //FileObject fo = fs.findResource(path);
                         Set foset = new HashSet();
                         foset.add(fo);
-                        SystemAction[] acts = fo.getFileSystem().getActions(foset);
+                        SystemAction[] acts = fo.getFileSystem().findExtrasFor(foset).lookupAll(SystemAction.class).toArray(new SystemAction[0]);
                         for (int m =0; m < acts.length; m++) {
 //                            System.out.println("group action class=" + acts[m]);
                             if (!acts[m].isEnabled()) continue;

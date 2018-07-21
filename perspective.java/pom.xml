@@ -38,10 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -53,8 +50,8 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-perspective</id>
-                            <type>spec</type>
-                            <explicitValue>1.8</explicitValue>
+                            <explicitValue>org.netbeans.modules.perspective &gt; 1.8</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.perspective specification-version: 1.10 implementation-version: 1.10 build-version: 201807202300 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -62,5 +59,3 @@
         </plugins>
     </build>
 </project>
-
-

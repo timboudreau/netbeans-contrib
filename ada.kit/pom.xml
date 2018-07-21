@@ -65,10 +65,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -81,28 +78,28 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-ada-editor</id>
-                            <type>spec</type>
-                            <explicitValue>0.1.9</explicitValue>
+                            <explicitValue>org.netbeans.modules.ada.editor &gt; 0.1.9</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.editor specification-version: 0.1.10 implementation-version: 0.1.10 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-ada-help</id>
-                            <type>spec</type>
-                            <explicitValue>0.1.0</explicitValue>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.help specification-version: 0.1.0 implementation-version: 0.1.0 build-version: 201807202259-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-ada-options</id>
-                            <type>spec</type>
-                            <explicitValue>0.1.4</explicitValue>
+                            <explicitValue>org.netbeans.modules.ada.options &gt; 0.1.4</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.options specification-version: 0.1.4 implementation-version: 0.1.4 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-ada-platform</id>
-                            <type>spec</type>
-                            <explicitValue>0.1.5</explicitValue>
+                            <explicitValue>org.netbeans.modules.ada.platform &gt; 0.1.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.platform specification-version: 0.1.5 implementation-version: 0.1.5 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-ada-project</id>
-                            <type>spec</type>
-                            <explicitValue>0.1.7</explicitValue>
+                            <explicitValue>org.netbeans.modules.ada.project &gt; 0.1.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.project specification-version: 0.1.7 implementation-version: 0.1.7 build-version: 201807202259 has-public-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -110,5 +107,3 @@
         </plugins>
     </build>
 </project>
-
-

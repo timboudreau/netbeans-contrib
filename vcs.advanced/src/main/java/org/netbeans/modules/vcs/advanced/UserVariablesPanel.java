@@ -42,23 +42,14 @@
 package org.netbeans.modules.vcs.advanced;
 import java.util.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
-import java.text.*;
 
 import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.nodes.*;
-import org.openide.util.*;
-
-import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.*;
-import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.variables.*;
 
 /** User variables panel.
@@ -168,8 +159,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         accessoryRoot.setReadOnly(true);
         varCh.add(new Node[] { basicRoot, accessoryRoot });
         Vector variables = (Vector) editor.getValue();
-        for(Enumeration enum = variables.elements(); enum.hasMoreElements(); ) {
-            VcsConfigVariable var = (VcsConfigVariable) enum.nextElement();
+        for(Enumeration enu = variables.elements(); enu.hasMoreElements(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) enu.nextElement();
             String name = var.getName();
             if (var.isBasic()) {
                 basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });

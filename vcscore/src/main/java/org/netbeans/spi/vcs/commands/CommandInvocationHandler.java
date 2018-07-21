@@ -52,7 +52,6 @@ import javax.swing.event.EventListenerList;
 
 import org.openide.filesystems.FileObject;
 
-import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
 /**
@@ -183,10 +182,10 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
             }
         } else throw new NoSuchMethodError(name);
         if (addListener) {
-            listenerList.add(method.getParameterTypes()[0]/*findListenerClass(args[0], propName)*/, (EventListener) args[0]);
+            listenerList.add((Class) method.getParameterTypes()[0]/*findListenerClass(args[0], propName)*/, (EventListener) args[0]);
             return null;
         } else if (removeListener) {
-            listenerList.remove(method.getParameterTypes()[0]/*findListenerClass(args[0], propName)*/, (EventListener) args[0]);
+            listenerList.remove((Class) method.getParameterTypes()[0]/*findListenerClass(args[0], propName)*/, (EventListener) args[0]);
             return null;
         } else if (get) {
             if (args != null) throw new IllegalArgumentException(args.toString());

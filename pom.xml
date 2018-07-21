@@ -161,16 +161,22 @@
                 <module>cnd.fortran/fortran_highlighting</module>
         -->
 
-        <!-- make2netbeans common2 to list it as a friend but this must have been removed
-             subsequent modules likely to have similar problems
-
-                <module>cnd.make2netbeans</module>
-                <module>cnd.persistence</module>
-                <module>cnd.persistence.api</module>
-                <module>cnd.profiler.ui</module>
-                <module>cnd.syntaxerr</module>
-                <module>cnd.update</module>
+        <!--
+        Relies on some utility classes that don't exist anymore in cnd...common2
+        
+        <module>cnd.make2netbeans</module>
         -->
+        <module>cnd.persistence</module>
+        <module>cnd.persistence.api</module>
+        <module>cnd.profiler.ui</module>
+        <!--
+        Some small, probably easily fixable API changes since this was
+        abandoned.
+        
+        <module>cnd.syntaxerr</module>
+        -->
+        <module>cnd.update</module>
+
         <module>codetemplatetools</module>
         <module>colorings</module>
         <module>contrib.javadocfirstsentence</module>
@@ -205,7 +211,9 @@
         <module>cz.solutions.simpleedit</module>
         <module>de.hunsicker.jalopy.plugin.netbeans</module>
         <!--
-        Depends on classes that no longer exist in viewmodel
+        These compile fine on JDK 9, which doesn't have a tools.jar.
+        For JDK 1.8, need to figure out a way to get tools.jar included
+        in the compile classpath with maven.
 
         <module>debugger.callstackviewenhancements</module>
         <module>debugger.threadviewenhancement</module>
@@ -215,8 +223,11 @@
         <module>declarationandjavadoc</module>
         <module>desktopsampler</module>
         <!--
-        Has an implementation dependency on java-source-base which needs to be fixed;
-        remote-project-finder and remote-server depend on dew4nb
+        Seem to have been some changes in java-source-editor since this was
+        written; also it appears some sources may be missing - Utilities
+        references a class "Failure" in the same package, which does not exist.
+        
+        Remote-project-finder and remote-server depend on dew4nb.
 
         <module>dew4nb</module>
         <module>remote.project.finder</module>
@@ -225,11 +236,11 @@
         -->
         <module>diskcleanuptool</module>
         <!--
-        Silly demo for a talk circa 2005; attempted to get it working, but
-        the VCS api changes are causing issues.  Not really worth it.
+        Silly demo for a talk circa 2005; attempted to get it working.
+        Not really worth it, but builds.
+        -->
 
         <module>doap</module>
-        -->
         <module>docbook</module>
         <module>docbook.project</module>
         <!--
@@ -255,9 +266,8 @@
         -->
         <module>editor.nexterror</module>
         <module>editor.probe</module>
-        <!-- Depends on the beans2nbm Ant task which is not yet converted to Maven but is here
-                <module>editorthemes.export</module>
-        -->
+        <!-- The IDE now exports themes decently - not sure this is useful -->
+        <module>editorthemes.export</module>
         <module>encoding</module>
         <module>enode</module>
         <!--
@@ -305,16 +315,25 @@
         <module>gsfpath.api</module>
         <module>gwtsupport</module>
 
-        <!-- Depends on the hexeditor library which is not yet mavenized
 
-                <module>hexeditor</module>
-        -->
+        <!-- The tool which scrapes the NetBeans Wiki and generates the giant unified
+        single-file FAQ -->
+        <module>other/faqsuck</module>
+        <module>other/hexedit</module>
+        <!-- Some misc libraries and prototypes that landed in contrib for lack of a better home -->
+        <module>other/uberMetaSplitContainer</module>
+        <module>other/misc/cache</module>
+        <module>other/misc/storage</module>
+        <module>other/misc/numeric_collections</module>
+        <module>other/misc/combobutton</module>
+        <module>other/misc/Trie</module>
+        <!-- A module for debugging window system focus-goes-to-outer-space bugs -->
+        <module>other/focusmodule</module>
+        <module>hexeditor</module>
         <module>html.preview</module>
 
-        <!-- Needs to be a friend module of diff but isn't
 
-                <module>htmldiff</module>
-        -->
+        <module>htmldiff</module>
         <module>htmlprojects</module>
         <module>imagepaste</module>
         <module>insertunicode</module>
@@ -345,10 +364,12 @@
                 <module>java.additional.refactorings</module>
         -->
 
-        <!-- Seems to use an early, under development version of the refactoring API and probably
-        only needs slight changes
-
-                <module>java.addproperty</module>
+        <!--
+        Relies on non-existent org.netbeans.modules.java.editor.codegen.CodeGenerator; could
+        be modified to use the new official API for that - same class name, slightly different
+        signature.
+        
+        <module>java.addproperty</module>
         -->
 
         <!-- Depends on the very old SourceCookie, removed in AFAIRC 5.x - needs to be modified to
@@ -357,30 +378,22 @@
                 <module>java.closurenavigator</module>
         -->
 
-        <!-- libs.javacimpl needs to list this as a friend module
 
-                <module>java.debugjavac</module>
-        -->
+        <module>java.debugjavac</module>
         <module>java.ext.editor</module>
         <module>java.fscompletion</module>
         <module>java.highlightboxingunboxingvarargs</module>
         <module>java.hints.scripting</module>
         <module>java.reorder</module>
         <module>java.tools.navigation</module>
-        <!--
-        Uses private classes from the Java module; this module's functionality is actually
-        implemented in Java support in netbeans now - no reason to keep it
-
-                <module>java.tools.nbjad</module>
-        -->
+        <module>java.tools.nbjad</module>
         <module>java3d</module>
         <module>javadeclgen</module>
         <module>javahints</module>
         <module>javahints.generate</module>
         <module>javanavigators</module>
         <!--
-        Depends on a version of nashorn which is none of the ones in the
-        NetBeans Maven repo.
+        Uses internal nashorn classes that have changed since this was written
         
         <module>javascript.devtools</module>
         -->
@@ -394,20 +407,11 @@
         -->
         <module>jdic</module>
         <module>jdiclib</module>
-
-        <!-- Uses a constructor signature that no longer exists for org.netbeans.api.whitelist.WhiteListQuery.Result
-        probably was written early in its development and could be fixed easily enough
-
-                <module>jdkblacklist</module>
-        -->
+        <module>jdkblacklist</module>
         <module>jemmysupport</module>
         <module>jmiutils</module>
         <module>jndi</module>
-        <!--
-        Subclasses org.netbeans.Util$PackageAccessibleClassLoader which no longer exists
-
-                <module>jnlpmodules</module>
-        -->
+        <module>jnlpmodules</module>
         <module>json</module>
         <module>keybindings</module>
         <module>languages.beta</module>
@@ -416,7 +420,7 @@
         Depends on HTMLKit from html.editor which seems to be gone; requires html.editor
         to list it as a friend, which it does not
 
-                <module>languages.ejs</module>
+        <module>languages.ejs</module>
         -->
         <module>languages.execution</module>
         <module>languages.fortran</module>
@@ -436,10 +440,10 @@
         <module>languages.tcl</module>
         <module>languages.velocity</module>
         <!--
-        Calls a non-existent org.netbeans.api.languages.Context.getTokenSequence() - probably
-        written while API was under development.
-
-                <module>languages.xml</module>
+        Tries to call org.netbeans.api.languages.Context.getTokenSequence()
+        which no longer exists.
+        
+        <module>languages.xml</module>
         -->
         <module>launch4jint</module>
         <module>lib.graphlayout</module>
@@ -457,15 +461,15 @@
         <module>manifesteditor</module>
         <module>masterfs.suspend</module>
         <!--
-        Missing package org.netbeans.mdr.util, which was probably implemented as a library.
-        Defunct code from NetBeans 4's aborted attempt to use MOF for language metadata.
-
-                <module>mdr</module>
+        Clearly some missing classes this depends on. This was the
+        pre-retouche completion/language implementation.
+        
+        <module>mdr</module>
         -->
 
         <!--
         Depends on openide.src which was removed in (?) 4.x
-                <module>metrics</module>
+        <module>metrics</module>
         -->
         <module>mobility.plugins.blackberry</module>
         <module>mobility.plugins.javase</module>
@@ -484,8 +488,9 @@
         <module>o.n.contrib.debuggerretry</module>
         <module>o.n.erdbeans</module>
         <!--
-        Depends on non existent classes from spi.viewmodel
-
+        These build in JDK 9 which has no tools.jar, but need their maven
+        build to put it on the compiler classpath to build on earlier JDKs.
+        
         <module>o.n.examples.debugger.jpda.callstackviewfilterring</module>
         <module>o.n.examples.debugger.jpda.smartstepping1</module>
         -->
@@ -500,7 +505,6 @@
         <module>o.n.tasklistapi</module>
         <module>o.sample.registry.model</module>
         <module>o.yourorghere.wizard2</module>
-        
         <module>other/EditorThemeSuite/colorchooser</module>
         <module>other/EditorThemeSuite/editorthemes</module>
         <module>other/sampleapps/helloworld/read</module>
@@ -509,14 +513,16 @@
         <module>other/sampleapps/helloworld/sayhello</module>
         <module>other/sampleapps/htmleditor/addons</module>
         <module>other/sampleapps/sau/launch</module>
+        <module>other/tteditor/GDELib</module>
         <module>other/tteditor/GDESuite/GDELib</module>
-        <!--
-        Missing whatever lib contains com.sun.tthub.gdelib.GDEException
-
         <module>other/tteditor/GDESuite/GDEWizard</module>
-        -->
         <module>packager</module>
         <module>pagelayouts</module>
+        <!-- Paint events are the entry point into work happening in GUI applications
+        - while input events are real, it's trying to repaint something because of an
+          input event that actually generates work.  This is good for debugging cases
+          where a single event triggers multiple gratuitous repaints, and was helpful
+          in fine tuning the 3.6 window system -->
         <module>paintcatcher</module>
         <module>pathtools</module>
         <module>performance.insane</module>
@@ -533,27 +539,23 @@
         <module>php.yii</module>
         -->
         <module>plafswitcher</module>
-        <!--
-        These depend on various ancient things
-
-                <module>portalpack.cms</module>
-                <module>portalpack.commons</module>
-                <module>portalpack.commons.palette</module>
-                <module>portalpack.jsfportletbridge</module>
-                <module>portalpack.portlets.genericportlets</module>
-                <module>portalpack.portlets.spring</module>
-                <module>portalpack.samplemodule</module>
-                <module>portalpack.saw</module>
-                <module>portalpack.servers.base_psframework</module>
-                <module>portalpack.servers.opensourcepc</module>
-                <module>portalpack.servers.sunps</module>
-                <module>portalpack.servers.websynergy</module>
-                <module>portalpack.visualweb</module>
-                <module>portalpack.webflow</module>
-                <module>portalpack.websynergy.palette</module>
-                <module>portalpack.websynergy.portlets</module>
-                <module>portalpack.websynergy.servicebuilder</module>
-        -->
+        <module>portalpack.cms</module>
+        <module>portalpack.commons</module>
+        <module>portalpack.commons.palette</module>
+        <module>portalpack.jsfportletbridge</module>
+        <module>portalpack.portlets.genericportlets</module>
+        <module>portalpack.portlets.spring</module>
+        <module>portalpack.samplemodule</module>
+        <module>portalpack.saw</module>
+        <module>portalpack.servers.base_psframework</module>
+        <module>portalpack.servers.opensourcepc</module>
+        <module>portalpack.servers.sunps</module>
+        <module>portalpack.servers.websynergy</module>
+        <module>portalpack.webflow</module>
+        <module>portalpack.visualweb</module>
+        <module>portalpack.websynergy.palette</module>
+        <module>portalpack.websynergy.portlets</module>
+        <module>portalpack.websynergy.servicebuilder</module>
         <module>primitivesettings</module>
         <module>profiles</module>
         <module>progress.transactional</module>
@@ -568,11 +570,7 @@
         <module>python.help</module>
         <module>python.options</module>
         <module>python.platform</module>
-        <!--
-        Missing friend-dependency from lib.terminalemulator
-
         <module>python.qshell</module>
-        -->
         <!--
                 Need to set up the antlr plugin for this
 
@@ -599,6 +597,11 @@
         <module>remoteproject.cvsprj</module>
         <module>remoteproject.svn</module>
         <module>remoteprojectdemo</module>
+        <!-- This may have once contained FTP and other virtual filesystems,
+        but these were deleted and only a sample memory filesystem remains
+        (you can create one with FileUtil.createMemoryFileSystem(), so this
+        module does nothing useful at all.
+        -->
         <module>remotesfs</module>
         <!--
 
@@ -613,11 +616,11 @@
         <module>scanondemand</module>
         <module>scrapbook</module>
         <module>selenium</module>
-        <!--
-        Relies on a module that has not existed since 7.2
-
-        <module>selenium.maven</module>
+        <!--  Had to do some frankenversion stuff with selenium.maven - may be
+        that all the classes it references exist, but in modules that have been
+        renamed since 7.4 beta - imports maven-embedder-3.0.5 from RELEASE74-BETA
         -->
+        <module>selenium.maven</module>
         <module>selenium.php</module>
         <module>selenium.server</module>
         <module>semicolon</module>
@@ -626,7 +629,9 @@
         <module>showtodos</module>
         <!--
         Early prototype of saving the window system configuration and reloading
-        it.  Defunct.
+        it.  Reset Windows now takes care of restoring them in the IDE, and the
+        whole idea is less useful since SDI windows went the way of the dodo, post
+        NetBeans 3.6.  Defunct, relies on NbTopManager.
 
         <module>snapshots</module>
         -->
@@ -654,14 +659,10 @@
         <module>tasklist.editor</module>
         <module>tasklist.export</module>
         <module>tasklist.filter</module>
-        <!--
-        Needs friend dep from org.netbeans.modules.html
-
         <module>tasklist.html</module>
-        -->
-        <!--
-        Depends on MDR - circa NetBeans 5.  Defunct.
-
+        <!-- 
+        Depends on jmi.javamodel from NetBeans 5 MOF/MDR
+        
         <module>tasklist.i18n</module>
         -->
         <!--
@@ -686,32 +687,42 @@
         <module>tomcat5.bundled</module>
         <module>tool</module>
         <module>toolsintegration</module>
+        <module>refactoring.vcs</module>
+        <module>vcscore</module>
         <!--
-All of these require a friend declaration from masterfs for vcscore
-or depend on it
+        vcscore is present here, but evolved significantly after these modules were
+        abandoned; vcs.advanced is missing VcsFileSystem, and the rest of the profiles
+        used vcs.advanced - these were a generic command-line interface to version
+        control systems, where you could write a textual profile of the commands to
+        run to, say, diff or commit.
 
-<module>refactoring.vcs</module>
-<module>vcs.advanced</module>
-<module>vcs.profiles.clearcase</module>
-<module>vcs.profiles.cvsprofiles</module>
-<module>vcs.profiles.perforce</module>
-<module>vcs.profiles.pvcs</module>
-<module>vcs.profiles.starteam</module>
-<module>vcs.profiles.subversion</module>
-<module>vcs.profiles.teamware</module>
-<module>vcs.profiles.vss</module>
-<module>vcscore</module>
-<module>vcscore.javacorebridge</module>
+        <module>vcs.advanced</module>
+        <module>vcs.profiles.clearcase</module>
+        <module>vcs.profiles.cvsprofiles</module>
+        <module>vcs.profiles.perforce</module>
+        <module>vcs.profiles.pvcs</module>
+        <module>vcs.profiles.starteam</module>
+        <module>vcs.profiles.subversion</module>
+        <module>vcs.profiles.teamware</module>
+        <module>vcs.profiles.vss</module>
+        <module>vcscore.javacorebridge</module>
         -->
 
         <!--
         More defunct MOF/MDR dependent stuff
 
-        <module>venice.model</module>
         <module>venice.sourcemodel</module>
         <module>venice.squeegee</module>
+        -->
+        <!--
+        Requires a bunch of classes from Project looking Glass, the
+        cool (but who knows what happened to it) Java3D-based x11
+        window manager:
+        
         <module>venice.viewer</module>
         -->
+        <module>venice.model</module>
+        
         <module>visual.examples</module>
         <module>visual.examples.shapes</module>
         <module>visual.experimental</module>

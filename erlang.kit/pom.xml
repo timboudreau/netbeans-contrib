@@ -62,10 +62,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -77,33 +74,33 @@
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.contrib:com-ericsson-otp-erlang</id>
-                            <type>spec</type>
-                            <explicitValue>1.3</explicitValue>
+                            <explicitValue>com.ericsson.otp.erlang &gt; 1.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: com.ericsson.otp.erlang specification-version: 1.4 implementation-version: 1.4 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-erlang-console</id>
-                            <type>spec</type>
-                            <explicitValue>0.16</explicitValue>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.erlang.console specification-version: 0.17.0 implementation-version: 0.17.0 build-version: 201807202259-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-erlang-editor</id>
-                            <type>spec</type>
-                            <explicitValue>0.1</explicitValue>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.erlang.editor specification-version: 0.1.2 implementation-version: 0.1.2 build-version: 201807202259-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-erlang-makeproject</id>
-                            <type>spec</type>
-                            <explicitValue>0.16</explicitValue>
+                            <explicitValue>org.netbeans.modules.erlang.makeproject &gt; 0.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.erlang.makeproject specification-version: 0.16.0 implementation-version: 0.16.0 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-erlang-platform</id>
-                            <type>spec</type>
-                            <explicitValue>0.16</explicitValue>
+                            <explicitValue>org.netbeans.modules.erlang.platform &gt; 0.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.erlang.platform specification-version: 0.18.0 implementation-version: 0.18.0 build-version: 201807202259 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.contrib:org-netbeans-modules-erlang-project</id>
-                            <type>spec</type>
-                            <explicitValue>0.16</explicitValue>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.erlang.project specification-version: 0.17.0 implementation-version: 0.17.0 build-version: 201807202259-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -111,5 +108,3 @@
         </plugins>
     </build>
 </project>
-
-

@@ -86,7 +86,7 @@ public final class CreateContainerAction extends CookieAction {
             dialog.setVisible(true);
             
             String containerName = dialog.getName();
-            String providerName = dialog.getType();
+            String providerName = dialog.getPortletType();
             
             containerName = containerNamePrefix + containerName;
             

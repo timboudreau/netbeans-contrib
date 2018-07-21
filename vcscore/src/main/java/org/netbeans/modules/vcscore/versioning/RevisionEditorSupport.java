@@ -41,14 +41,10 @@
 
 package org.netbeans.modules.vcscore.versioning;
 
-import java.awt.event.*;
-import java.beans.*;
 import java.io.*;
-import java.util.*;
 
 import javax.swing.text.*;
 
-import org.openide.actions.*;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
@@ -58,7 +54,6 @@ import org.openide.cookies.ViewCookie;
 import org.openide.filesystems.*;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeListener;
-import org.openide.loaders.*;
 import org.openide.text.CloneableEditor;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.windows.*;
@@ -389,7 +384,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         }
         
         public CloneableOpenSupport findCloneableOpenSupport() {
-            return (CloneableOpenSupport) list.getNodeDelegate(revisionItem, null).getCookie(CloneableOpenSupport.class);
+            return (CloneableOpenSupport) list.getNodeDelegate(revisionItem, null).getLookup().lookup(CloneableOpenSupport.class);
         }
         
         /**

@@ -66,10 +66,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgument>-Xlint:-serial</compilerArgument>
-                    <compilerArgument>-Xlint</compilerArgument>
-                </configuration>
+                <configuration/>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -80,44 +77,44 @@
                     <requiresRestart>true</requiresRestart>
                     <moduleDependencies>
                         <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-java-source</id>
+                            <explicitValue>org.netbeans.modules.java.source &gt; 0.80</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source specification-version: 0.158.1.32.2.25.2.1 implementation-version: 32 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-java-source-base</id>
-                            <type>spec</type>
-                            <explicitValue>2.30</explicitValue>
+                            <explicitValue>org.netbeans.modules.java.source.base &gt; 2.30</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source.base specification-version: 2.20.1.2.2.25.8.1 implementation-version: 2 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-java-source-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.4</explicitValue>
+                            <explicitValue>org.netbeans.modules.java.source.compat8 &gt; 9.4</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.source.compat8 specification-version: 9.3.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-filesystems-compat8</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
-                            <id>org.netbeans.api:org-netbeans-modules-java-source</id>
-                            <type>spec</type>
-                            <explicitValue>0.80</explicitValue>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-whitelist</id>
                             <type>impl</type>
-                            <explicitValue/>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-filesystems</id>
-                            <type>spec</type>
-                            <explicitValue>9.0</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util</id>
-                            <type>spec</type>
-                            <explicitValue>8.16</explicitValue>
-                        </dependency>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-util-lookup</id>
-                            <type>spec</type>
-                            <explicitValue>8.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.whitelist specification-version: 1.23.1 implementation-version: 201609300101 has-friend-packages-->
                         </dependency>
                     </moduleDependencies>
                 </configuration>
@@ -125,5 +122,3 @@
         </plugins>
     </build>
 </project>
-
-
