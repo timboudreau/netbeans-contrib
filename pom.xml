@@ -174,7 +174,7 @@
 
         <module>cnd.fortran/grammar</module>
         <module>cnd.fortran</module>
-	<!-- Uses the old DrawLayer API
+        <!-- Uses the old DrawLayer API
 
                 <module>cnd.fortran/fortran_highlighting</module>
         -->
@@ -590,18 +590,14 @@
         <module>python.options</module>
         <module>python.platform</module>
         <module>python.qshell</module>
-        <!--
-                Need to set up the antlr plugin for this
-
-                <module>python.editor</module>
-                <module>python.source</module>
-                <module>python.hints</module>
-                <module>python.project</module>
-                <module>python.project2</module>
-                <module>python.testrunner</module>
-                <module>python.kit</module>
-                <module>python.samples</module>
-        -->
+        <module>python.editor</module>
+        <module>python.source</module>
+        <module>python.hints</module>
+        <module>python.project</module>
+        <module>python.project2</module>
+        <module>python.testrunner</module>
+        <module>python.kit</module>
+        <module>python.samples</module>
         <module>quickfilechooser</module>
         <module>ramos.linkwitheditor</module>
         <module>ramos.localhistory</module>
@@ -779,6 +775,22 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <!-- 
+            Some transitive dependencies with range dependencies
+            (python.kit -> ide.kit -> log4j) cause Maven to attempt to
+            download from this repo found in the transitive POM, and this
+            repo no longer exists.  So blacklisting it here.
+            -->
+            <id>java.net</id>
+            <url>https://maven-repository.dev.java.net/nonav/repository</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>   
     </repositories>
     <dependencyManagement>
         <dependencies>
@@ -994,7 +1006,7 @@
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
-                <artifactId>org-netbeans-modules-editor-errorstripe-api</artifactId>
+                <artifactId>org-netbeans-modules-editor-errorstipe-api</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
             <dependency>

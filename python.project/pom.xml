@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -147,6 +147,10 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openidex-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-jython</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -173,6 +177,10 @@
                         <publicPackage>org.netbeans.modules.python.project.ui.customizer</publicPackage>
                     </publicPackages>
                     <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-jython</id>
+                            <explicitValue>org.jython/2 &gt; 2.70</explicitValue>
+                        </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-annotations-common</id>
                             <explicitValue>org.netbeans.api.annotations.common/1 &gt; 1.25</explicitValue>

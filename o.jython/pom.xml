@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -9,7 +9,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-jython</artifactId>
-    <version>2.70</version>
+    <version>2.71</version>
     <packaging>nbm</packaging>
     <name>jython</name>
     <url>http://nbPython.org</url>
@@ -34,10 +34,18 @@
         <java.source.level>1.7</java.source.level>
     </properties>
     <dependencies>
-        <dependency>
+        <!--        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-libs-xerces</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.python</groupId>
+            <!--<artifactId>jython-standalone</artifactId>-->
+            <artifactId>jython</artifactId>
+            <version>2.7.1b3</version>
+            <type>jar</type>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -56,6 +64,11 @@
                     <author>Jython.org, packaged by nbPython.org</author>
                     <moduleType>autoload</moduleType>
                     <publicPackages>
+                        <!-- XXX should these be needed? -->
+                        <publicPackage>javax.xml.**</publicPackage>
+                        <publicPackage>org.xml.**</publicPackage>
+                        <!-- original public packages: -->
+                        <publicPackage>org.w3c.dom.**</publicPackage>
                         <publicPackage>org.python.antlr</publicPackage>
                         <publicPackage>org.python.antlr.ast</publicPackage>
                         <publicPackage>org.python.antlr.base</publicPackage>

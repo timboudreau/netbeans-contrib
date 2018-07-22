@@ -111,7 +111,7 @@
                 <configuration>
                     <codeNameBase>org.netbeans.modules.modulemanager</codeNameBase>
                     <cluster>extra</cluster>
-                    <requiresRestart>true</requiresRestart>
+                    <requiresRestart>false</requiresRestart>
                     <author>Jirka Rechtacek</author>
                     <moduleDependencies>
                         <dependency>
