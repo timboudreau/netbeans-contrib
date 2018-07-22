@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -9,7 +9,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-cnd-fortran</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>nbm</packaging>
     <name>Fortran</name>
     <licenses>
@@ -24,7 +24,7 @@
         <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
     </scm>
     <properties>
-        <module.display.category>Contrib-Modules</module.display.category>
+        <module.display.category>Fortran</module.display.category>
     </properties>
     <dependencies>
         <dependency>
@@ -46,12 +46,6 @@
         <dependency>
             <groupId>org.netbeans.external</groupId>
             <artifactId>org-netbeans-modules-cnd</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-modules-cnd-antlr</artifactId>
-            <version>RELEASE82</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
@@ -97,6 +91,23 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-cnd-fortran-grammar</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
+            <type>jar</type>
+        </dependency>
+<!--        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>3.5.2</version>
+            <type>jar</type>
+        </dependency>-->
     </dependencies>
     <build>
         <plugins>
@@ -118,6 +129,10 @@
                         <publicPackage>org.netbeans.modules.fortran</publicPackage>
                     </publicPackages>
                     <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-cnd-fortran-grammar</id>
+                            <explicitValue>org.netbeans.modules.cnd.fortran.grammar &gt; 1.0</explicitValue>
+                        </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-completion</id>
                             <explicitValue>org.netbeans.modules.editor.completion/1 &gt; 1.6.22</explicitValue>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>../..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-cnd-fortran-grammar</artifactId>
+    <version>1.0</version>
+    <packaging>nbm</packaging>
+    <name>Fortran ANTLR-2 Grammar</name>
+    <description>Builds and packages an ANTLR grammar of Fortran for use as a library</description>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Fortran</module.display.category>
+        <antlr.source.dir>${basedir}/src/main/antlr</antlr.source.dir>
+        <antlr.output.dir>${basedir}/target/generated-sources/antlr/org/netbeans/modules/fortran/generated</antlr.output.dir>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
+            <scope>provided</scope>
+        </dependency>                    
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
+            </plugin>
+            <!-- The antlr3-maven-plugin chokes on the grammar for some reason, but this works -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target name="antlr" >
+                                <mkdir dir="${antlr.output.dir}" /> 
+                                <!--<antlr target="${antlr.source.dir}/f77-antlr2.g" outputdirectory="${antlr.source.dir}">-->
+                                <!--<antlr target="${basedir}/src/main/antlr/f77-antlr2.g"--> 
+                                <!--<antlr target="${antlr.source.dir}/f77-antlr2.g"--> 
+                                <antlr target="${basedir}/src/main/antlr/f77-antlr2.g" 
+                                       outputdirectory="target/generated-sources/antlr/org/netbeans/modules/fortran/generated"
+                                >
+<!--                                       diagnostic="yes"
+                                       html="yes"-->
+                                    <!-- Is there some maven property to use here instead?  This is ugly, but
+                                    the antlr task doesn't do classpathref="maven.plugins.classpath" -->
+                                    <classpath path="${user.home}/.m2/repository/antlr/antlr/2.7.7/antlr-complete-3.5.2.jar"/>
+                                    <!-- Would be preferable to use 3.x, but the highlighter module relies on 2.x -->
+                                    <!--<classpath path="${user.home}/.m2/repository/org/antlr/antlr-complete/3.5/antlr-complete-3.5.2.jar"/>-->
+                                </antlr>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-antlr</artifactId>
+                        <version>1.8.4</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                    <!--<dependency>
+                        <groupId>org.antlr</groupId>
+                        <artifactId>antlr-complete</artifactId>
+                        <version>3.5.2</version>
+                        <scope>runtime</scope>
+                    </dependency>-->
+                    <dependency>
+                        <groupId>antlr</groupId>
+                        <artifactId>antlr</artifactId>
+                        <version>2.7.7</version>
+                    </dependency>                    
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/antlr/</source>
+<!--                                <source>${project.build.directory}/generated-sources/</source>
+                                <source>target/generated-sources/antlr</source>-->
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.cnd.fortran.grammar</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <publicPackages>
+                        <publicPackage>org.netbeans.modules.fortran.ast</publicPackage>
+                        <publicPackage>org.netbeans.modules.fortran.generated</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

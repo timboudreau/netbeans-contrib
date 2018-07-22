@@ -6,7 +6,7 @@
   
 header {
 package org.netbeans.modules.fortran.generated;
-import org.netbeans.modules.fortran.TokenAST;
+import org.netbeans.modules.fortran.ast.TokenAST;
 import antlr.CommonToken;
 import java.util.HashSet;
 }

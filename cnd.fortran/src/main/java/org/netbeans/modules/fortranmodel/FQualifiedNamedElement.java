@@ -1,6 +1,6 @@
 
 
-package org.yourorghere.codemodel;
+package org.netbeans.modules.fortranmodel;
 
 /**
  * An element, which has qualified name:

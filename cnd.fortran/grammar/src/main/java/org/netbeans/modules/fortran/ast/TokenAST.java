@@ -1,4 +1,4 @@
-package org.netbeans.modules.fortran;
+package org.netbeans.modules.fortran.ast;
 
 import antlr.BaseAST;
 import antlr.CommonToken;

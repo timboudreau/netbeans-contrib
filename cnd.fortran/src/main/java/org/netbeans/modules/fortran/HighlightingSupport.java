@@ -17,10 +17,22 @@ public class HighlightingSupport {
         private static final String MIME_TYPE = "text/fortran";
         private static CharInput input;
         private static int nested = 0;
+//        private static final Language LANGUAGE;
+//        static {
+//            try {
+//                LANGUAGE = LanguagesManager.get().getLanguage(MIME_TYPE);
+//            } catch (LanguageDefinitionNotFoundException ex) {
+//                throw new Error(ex);
+//            }
+//        }
 
     public HighlightingSupport() {
     }
-    
+    /*
+
+    TDB: All of this seems to have been someone's experimental test code,
+    and is called by nothing (and is uncompilable)
+
     private static void skipWS()
     {
       while (!input.eof () &&
@@ -70,7 +82,7 @@ public class HighlightingSupport {
         input.read();
         nested++;
         return new Object[] {
-                ASTToken.create (MIME_TYPE, "operator", "", 0),
+                ASTToken.create (LANGUAGE, "operator", "", 0),
                 "AFTER_IF"
         };
       }
@@ -80,12 +92,12 @@ public class HighlightingSupport {
           nested--;
           if (nested == 0)
             return new Object[] {
-                ASTToken.create (MIME_TYPE, "ERR", "", 0),
+                ASTToken.create (LANGUAGE, "ERR", "", 0),
                 "FIRST_WORD"
             };
           else
             return new Object[] {
-                  ASTToken.create (MIME_TYPE, "operator", "", 0),
+                  ASTToken.create (LANGUAGE, "operator", "", 0),
                  "AFTER_IF"
            };
         }
@@ -114,8 +126,9 @@ public class HighlightingSupport {
               if (!input.eof() && input.next() == ',')
               {
                 input.setIndex(doEnd);
+                Language language = null;
                 return  new Object[] {
-                ASTToken.create (MIME_TYPE, "DO", "", 0),
+                ASTToken.create (LANGUAGE, "DO", "", 0),
                 "LAST"
                 };
               }
@@ -123,7 +136,7 @@ public class HighlightingSupport {
               {
                 input.setIndex(identEnd);
                 return new Object[] {
-                ASTToken.create (MIME_TYPE, "identifier", "", 0),
+                ASTToken.create (LANGUAGE, "identifier", "", 0),
                 "LAST"
                 };
               }
@@ -132,13 +145,13 @@ public class HighlightingSupport {
                 {
                   input.setIndex(doEnd);
                   return new Object[] {
-                  ASTToken.create (MIME_TYPE, "DO", "", 0),
+                  ASTToken.create (LANGUAGE, "DO", "", 0),
                   "BEFORE_WHILE"
                   };
                 }else{
                   input.setIndex(identEnd);
                   return new Object[] {
-                  ASTToken.create (MIME_TYPE, "identifier", "", 0),
+                  ASTToken.create (LANGUAGE, "identifier", "", 0),
                   "LAST"
                   };                
                 }
@@ -146,14 +159,15 @@ public class HighlightingSupport {
         }
         readRestOfIdentifier();
         return new Object[] {
-                ASTToken.create (MIME_TYPE, "identifier", "", 0),
+                ASTToken.create (LANGUAGE, "identifier", "", 0),
                 "LAST"
         };
       }
       readIdentifier();
       return new Object[] {
-                ASTToken.create (MIME_TYPE, "identifier", "", 0),
+                ASTToken.create (LANGUAGE, "identifier", "", 0),
                 "LAST"
         };
     }
+    */
 }

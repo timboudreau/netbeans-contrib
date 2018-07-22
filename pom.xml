@@ -171,9 +171,11 @@
         <module>clang-tidy.wrappers/analysis.clangtidy.Linux_x86_64</module>
         <module>cnd.debugger.gdbserver</module>
 
-        <!-- Needs the Antlr maven plugin to generate its grammar, and to sort out some dependencies
 
-                <module>cnd.fortran</module>
+        <module>cnd.fortran/grammar</module>
+        <module>cnd.fortran</module>
+	<!-- Uses the old DrawLayer API
+
                 <module>cnd.fortran/fortran_highlighting</module>
         -->
 

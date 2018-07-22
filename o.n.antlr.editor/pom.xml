@@ -11,7 +11,7 @@
     <artifactId>org-netbeans-antlr-editor</artifactId>
     <version>0.1</version>
     <packaging>nbm</packaging>
-    <name>ANTLR Editor</name>
+    <name>ANTLR 3 Editor</name>
     <licenses>
         <license>
             <name>Apache 2.0</name>

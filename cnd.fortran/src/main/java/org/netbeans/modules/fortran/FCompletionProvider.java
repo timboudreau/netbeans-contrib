@@ -15,7 +15,6 @@ import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.editor.SyntaxSupport;
-import org.netbeans.editor.Utilities;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -145,7 +144,13 @@ static int indexOfWhite(char[] line){
      * indicates whether the code completion box appears automatically or not
      */
 public int getAutoQueryTypes(JTextComponent component, String string) {
-       SyntaxSupport s = Utilities.getSyntaxSupport(component).get(FSyntaxSupport.class);
+        // TDB - Mavenization - FSyntaxSupport attempts to use non-existent
+        // org.netbeans.modules.cnd.editor.fortran.FTokenContext;
+        // Given the code below, it looks like it was never finished - this
+        // method always returned 0 regardless.
+        
+//       SyntaxSupport s = Utilities.getSyntaxSupport(component).get(FSyntaxSupport.class);
+       SyntaxSupport s = null;
        if (s != null)
            System.out.println("CCC");
         return 0;
