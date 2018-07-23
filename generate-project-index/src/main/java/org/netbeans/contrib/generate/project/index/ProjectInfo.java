@@ -66,7 +66,7 @@ public class ProjectInfo implements Comparable<ProjectInfo> {
         }
         sb.append("\n*Relative Path*: ").append(root.relativize(projectPath).toString()).append("\n\n");
         if (!developers.isEmpty()) {
-            sb.append("*Author(s)*: ").append(authors()).append('\n');
+            sb.append("*Author(s)*: ").append(authors()).append("\n\n");
         }
         if (description != null && !description.isEmpty()) {
             sb.append("> ").append(description());

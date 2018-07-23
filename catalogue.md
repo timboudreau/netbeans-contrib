@@ -25,6 +25,7 @@ NetBeans modules that can be built now.
 *Relative Path*: a11ychecker
 
 *Author(s)*: Max Sauer, Martin Novak, Michal Hapala, Pavel Stehlik
+
 > Accessibility Checker provides easy control over accessibility in design time of a form
 
 
@@ -42,6 +43,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.kit
 
 *Author(s)*: Andrea Lucarelli
+
 > Provides tools and support for Ada development.
 
 
@@ -51,6 +53,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.editor
 
 *Author(s)*: Andrea Lucarelli
+
 > Support for editing Ada files.
 
 
@@ -60,6 +63,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.help
 
 *Author(s)*: Andrea Lucarelli
+
 > Online help pages for the IDE's Ada support
 
 
@@ -69,6 +73,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.options
 
 *Author(s)*: Andrea Lucarelli
+
 > Ada options.
 
 
@@ -78,6 +83,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.platform
 
 *Author(s)*: Andrea Lucarelli
+
 > Infrastructure and APIs for configuring and searching Ada platforms.
 
 
@@ -87,6 +93,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ada.project
 
 *Author(s)*: Andrea Lucarelli
+
 > Support for Ada projects.
 
 
@@ -136,6 +143,7 @@ NetBeans modules that can be built now.
 *Relative Path*: annoyancewhacker
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > A module which turns off various popups and minimizes screen real estate waste
 
 
@@ -161,6 +169,7 @@ NetBeans modules that can be built now.
 *Relative Path*: api.workqueues
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Library that provides a standard way to perform long-running work on an object in a background thread
 
 
@@ -170,6 +179,7 @@ NetBeans modules that can be built now.
 *Relative Path*: autoproject.java
 
 *Author(s)*: [Jesse Glick](jglick@netbeans.org)
+
 > Project type which tries to infer setup automatically.
 
 
@@ -211,6 +221,7 @@ NetBeans modules that can be built now.
 *Relative Path*: autosave
 
 *Author(s)*: Michel Graciano
+
 > Save automatically unsaved files between a predefined interval.
 
 
@@ -308,6 +319,7 @@ NetBeans modules that can be built now.
 *Relative Path*: tasklist.checkstyle
 
 *Author(s)*: tor, hair
+
 > Provides Checkstyle Rule Violations as Suggestions
 
 
@@ -349,6 +361,7 @@ NetBeans modules that can be built now.
 *Relative Path*: apisupport.tc.cobertura
 
 *Author(s)*: [Jesse Glick](jglick@netbeans.org)
+
 > Ant targets for measuring test coverage of apisupport projects using Cobertura.
 
 
@@ -366,6 +379,7 @@ NetBeans modules that can be built now.
 *Relative Path*: codetemplatetools
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Interactively work with Code Templates. Support for Registers.
 
 
@@ -431,6 +445,7 @@ NetBeans modules that can be built now.
 *Relative Path*: o.n.module.copyfqn
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Copy FQN
 
 
@@ -464,6 +479,7 @@ NetBeans modules that can be built now.
 *Relative Path*: nimbus.theme
 
 *Author(s)*: S. Aubrecht
+
 > Dark theme for Nimbus Look and Feel
 
 
@@ -481,6 +497,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.debugjavac
 
 *Author(s)*: Jan Lahoda
+
 > Find out how javac desugars and compiles Java source code
 
 
@@ -490,6 +507,7 @@ NetBeans modules that can be built now.
 *Relative Path*: declarationandjavadoc
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Show declaration and javadoc in top components
 
 
@@ -499,6 +517,7 @@ NetBeans modules that can be built now.
 *Relative Path*: desktopsampler
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Desktop Sampler
 
 
@@ -508,6 +527,7 @@ NetBeans modules that can be built now.
 *Relative Path*: diskcleanuptool
 
 *Author(s)*: Wade Chandler
+
 > A module to delete large directories without consuming disk and processor resources
 
 
@@ -544,12 +564,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Dynamic Actions
 *Version*: 1.0
 
 *Relative Path*: api.dynactions
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 
 
 
@@ -727,6 +749,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.ext.editor
 
 *Author(s)*: jlahoda@netbeans.org
+
 > Additional features for the Java editor
 
 
@@ -776,6 +799,7 @@ NetBeans modules that can be built now.
 *Relative Path*: features2views
 
 *Author(s)*: Jirka Rechtacek
+
 > Provider views of installed modules.
 
 
@@ -785,6 +809,7 @@ NetBeans modules that can be built now.
 *Relative Path*: fileopenserver
 
 *Author(s)*: Sandip V. Chitale ( Sandip.Chitale@Sun.Com)
+
 > File Open Server
 
 
@@ -810,6 +835,7 @@ NetBeans modules that can be built now.
 *Relative Path*: fisheye
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > A module that can provide "fish eye" views over a text component
 
 
@@ -827,6 +853,7 @@ NetBeans modules that can be built now.
 *Relative Path*: editor.fold.support
 
 *Author(s)*: jlahoda@netbeans.org
+
 
 
 
@@ -876,6 +903,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ant.freeform.samples
 
 *Author(s)*: [Jesse Glick](jglick@netbeans.org)
+
 > Tools, technical docs, templates, and samples for freeform (Ant-based) projects.
 
 
@@ -901,6 +929,7 @@ NetBeans modules that can be built now.
 *Relative Path*: cnd.debugger.gdbserver
 
 *Author(s)*: Egor Ushakov
+
 > gdbserver support
 
 
@@ -942,6 +971,7 @@ NetBeans modules that can be built now.
 *Relative Path*: genericnavigator
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Provides navigator panels for fast navigation of plaintext, html and properties files using regexps. You can add navigator views for additional file types by defining your own regexps.
 
 
@@ -975,6 +1005,7 @@ NetBeans modules that can be built now.
 *Relative Path*: graphicclassview
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Provides a diagram of Java classes showing interdependencies between fields and methods in that class
 
 
@@ -1008,6 +1039,7 @@ NetBeans modules that can be built now.
 *Relative Path*: hexeditor
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Integrates a Hex Editor - right click a file and choose Tools > Hex Edit
 
 
@@ -1017,6 +1049,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.highlightboxingunboxingvarargs
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com) and Jan Lahoda
+
 > Highlight occurrences of JDK5 Boxing and Unboxing
 
 
@@ -1042,6 +1075,7 @@ NetBeans modules that can be built now.
 *Relative Path*: html.preview
 
 *Author(s)*: S. Aubrecht
+
 > Enables live preview tab in HTML editors
 
 
@@ -1115,6 +1149,7 @@ NetBeans modules that can be built now.
 *Relative Path*: issuekicker
 
 *Author(s)*: Martin Fousek
+
 > Resolve NB issues with stacktraces, heapdumps, snapshots easily
 
 
@@ -1140,6 +1175,7 @@ NetBeans modules that can be built now.
 *Relative Path*: javadeclgen
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > This module supports several forms of parameter, variable, array parameter and array variable declarations.
 
 
@@ -1165,6 +1201,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.tools.navigation
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Tools for navigating Java.
 
 
@@ -1177,12 +1214,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Java Text Copy Paste Module
 *Version*: 1.3
 
 *Relative Path*: javatextcopypaste
 
 *Author(s)*: Wade Chandler
+
 > Helps copy and paste text from and to Java source code
 
 
@@ -1216,6 +1255,7 @@ NetBeans modules that can be built now.
 *Relative Path*: project.ios
 
 *Author(s)*: Jaroslav Tulach
+
 > Wizards to create JavaFX project for iOS
 
 
@@ -1297,6 +1337,7 @@ NetBeans modules that can be built now.
 *Relative Path*: debugger.localsviewenhancements
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Enhancements to JPDA (Java) Debugger Locals View
 
 
@@ -1317,12 +1358,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Jython Distribution
 *Version*: 2.70
 
 *Relative Path*: o.jython.distro
 
 *Author(s)*: Jython.org, packaged by the volunteers at nbPython.org
+
 > Bundled distribution of Jython
 
 
@@ -1332,6 +1375,7 @@ NetBeans modules that can be built now.
 *Relative Path*: keybindings
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Key Bindings Explorer module
 
 
@@ -1357,6 +1401,7 @@ NetBeans modules that can be built now.
 *Relative Path*: launch4jint
 
 *Author(s)*: Dafe Simonek
+
 > Integration of Launch4j product into NetBeans IDE
 
 
@@ -1382,6 +1427,7 @@ NetBeans modules that can be built now.
 *Relative Path*: licensechanger
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Provides an action on folders to change the license headers on all files underneath
 
 
@@ -1415,6 +1461,7 @@ NetBeans modules that can be built now.
 *Relative Path*: linetools
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Move Line Up, Move Line Down, Copy Line Up, Copy Line Down actions in text editors.
 
 
@@ -1432,6 +1479,7 @@ NetBeans modules that can be built now.
 *Relative Path*: clang-tidy.wrappers/analysis.clangtidy.Linux_x86_64
 
 *Author(s)*: Ilia Gromov
+
 > Bundled clang-tidy binaries for Linux x86-64
 
 
@@ -1441,6 +1489,7 @@ NetBeans modules that can be built now.
 *Relative Path*: o.n.misc.diff
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > A generic lib that can diff two lists to produce a set of transforms which, applied to one, will result in the other
 
 
@@ -1450,6 +1499,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ramos.localhistory
 
 *Author(s)*: Ramón Ramos
+
 > A simple local history module
 
 
@@ -1459,6 +1509,7 @@ NetBeans modules that can be built now.
 *Relative Path*: logmanagement
 
 *Author(s)*: Anuradha G
+
 > Help NetBeans developers monitor runtime events in the IDE
 
 
@@ -1484,6 +1535,7 @@ NetBeans modules that can be built now.
 *Relative Path*: o.n.memorymeter
 
 *Author(s)*: S. Aubrecht
+
 > Shows memory meter in status bar.
 
 
@@ -1509,6 +1561,7 @@ NetBeans modules that can be built now.
 *Relative Path*: moduleresolver
 
 *Author(s)*: Jirka Rechtacek
+
 > Resolve problems if some modules cannot be loaded because are depending on missing modules.
 
 
@@ -1518,6 +1571,7 @@ NetBeans modules that can be built now.
 *Relative Path*: ant.moduleinfotask
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Adds an Ant task <moduleinfotask> to run inside NetBeans to generate an html document with information about installed modules.
 
 
@@ -1527,6 +1581,7 @@ NetBeans modules that can be built now.
 *Relative Path*: modulemanager
 
 *Author(s)*: Jirka Rechtacek
+
 > Manager Module is the browser of installed NetBeans modules and allows basic manipulation on them.
 
 
@@ -1552,6 +1607,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.tools.nbjad
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Netbeans Jad decompiler integration
 
 
@@ -1569,6 +1625,7 @@ NetBeans modules that can be built now.
 *Relative Path*: apisupport.projectinspector
 
 *Author(s)*: [Jesse Glick](jglick@netbeans.org)
+
 > Displays information about the selected project.
 
 
@@ -1658,6 +1715,7 @@ NetBeans modules that can be built now.
 *Relative Path*: pathtools
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Path Tools module provides Copy Paths and Explore actions.
 
 
@@ -1667,6 +1725,7 @@ NetBeans modules that can be built now.
 *Relative Path*: perspective
 
 *Author(s)*: Anuradha G
+
 > Perspective
 
 
@@ -1748,6 +1807,7 @@ NetBeans modules that can be built now.
 *Relative Path*: whichproject
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Adds an action to close all files not in the same project as the file you are editing
 
 
@@ -1781,6 +1841,7 @@ NetBeans modules that can be built now.
 *Relative Path*: python.kit
 
 *Author(s)*: The volunteers at nbPython.org
+
 > An umbrella module covering all modules required for Python support in NetBeans IDE 8.1
 
 
@@ -1793,12 +1854,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Python Core
 *Version*: 1.5
 
 *Relative Path*: python.core
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Core of Python Editor
 
 
@@ -1808,6 +1871,7 @@ NetBeans modules that can be built now.
 *Relative Path*: python.debugger
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Python Debugger
 
 
@@ -1817,6 +1881,7 @@ NetBeans modules that can be built now.
 *Relative Path*: python.editor
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Python Editor
 
 
@@ -1826,6 +1891,7 @@ NetBeans modules that can be built now.
 *Relative Path*: python.help
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Help set for nbPython
 
 
@@ -1838,6 +1904,7 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Python Options
 *Version*: 1.3
 
@@ -1847,12 +1914,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Python Platform
 *Version*: 1.3
 
 *Relative Path*: python.platform
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Python Platform Manager
 
 
@@ -1862,6 +1931,7 @@ NetBeans modules that can be built now.
 *Relative Path*: python.project
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Project type for Python sources.
 
 
@@ -1874,12 +1944,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Python Source
 *Version*: 1.2
 
 *Relative Path*: python.source
 
 *Author(s)*: The volunteers at nbPython.org
+
 
 
 
@@ -1892,12 +1964,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###Python/Jython Sample Projects
 *Version*: 1.3
 
 *Relative Path*: python.samples
 
 *Author(s)*: The volunteers at nbPython.org
+
 > Sample projects in Python and Jython
 
 
@@ -1915,6 +1989,7 @@ NetBeans modules that can be built now.
 *Relative Path*: quickfilechooser
 
 *Author(s)*: [Jesse Glick](mailto:jglick@netbeans.org), [Tim Boudreau](mailto:tim@timboudreau.com)
+
 > Replaces regular Swing file chooser with a keyboard-oriented version.
 
 
@@ -1948,6 +2023,7 @@ NetBeans modules that can be built now.
 *Relative Path*: readonlyeditor
 
 *Author(s)*: Sandip V. Chitale (sandip.chitale@sun.com)
+
 > This module controls the editable property of the text editors.
 
 
@@ -1957,6 +2033,7 @@ NetBeans modules that can be built now.
 *Relative Path*: rectangularedittools
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Rectangular Edit Operations
 
 
@@ -1974,6 +2051,7 @@ NetBeans modules that can be built now.
 *Relative Path*: regexplugin
 
 *Author(s)*: Angad Singh
+
 > An easy to use all-in-one regular expressions tool (builder, tester, organizer)
 
 
@@ -2007,6 +2085,7 @@ NetBeans modules that can be built now.
 *Relative Path*: regexphighlighter
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Regular Expression Highlighter
 
 
@@ -2048,6 +2127,7 @@ NetBeans modules that can be built now.
 *Relative Path*: java.reorder
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Swap parameters, arguments or array initializer expressions.
 
 
@@ -2060,12 +2140,14 @@ NetBeans modules that can be built now.
 
 
 
+
 ###RIM BlackBerry Plugin
 *Version*: 1.0
 
 *Relative Path*: mobility.plugins.blackberry
 
 *Author(s)*: Sun Microsystems
+
 > RIM BlackBerry Plugin Module
 
 
@@ -2147,6 +2229,7 @@ NetBeans modules that can be built now.
 *Relative Path*: libs.selenium
 
 *Author(s)*: Martin Fousek
+
 > Selenium library for testing framework
 
 
@@ -2156,6 +2239,7 @@ NetBeans modules that can be built now.
 *Relative Path*: selenium.maven
 
 *Author(s)*: Jindrich Sedek, Martin Fousek
+
 > Selenium testing framework for web application
 
 
@@ -2165,6 +2249,7 @@ NetBeans modules that can be built now.
 *Relative Path*: selenium.php
 
 *Author(s)*: Jindrich Sedek
+
 > Selenium testing framework for web application
 
 
@@ -2174,6 +2259,7 @@ NetBeans modules that can be built now.
 *Relative Path*: selenium
 
 *Author(s)*: Jindrich Sedek, Martin Fousek
+
 > Selenium testing framework for web application
 
 
@@ -2183,6 +2269,7 @@ NetBeans modules that can be built now.
 *Relative Path*: selenium.server
 
 *Author(s)*: Jindrich Sedek, Martin Fousek
+
 > Selenium Server control
 
 
@@ -2192,6 +2279,7 @@ NetBeans modules that can be built now.
 *Relative Path*: libs.selenium.server
 
 *Author(s)*: Martin Fousek
+
 > Selenium Server Library
 
 
@@ -2273,6 +2361,7 @@ NetBeans modules that can be built now.
 *Relative Path*: nbignore
 
 *Author(s)*: Tomas Mysik, Jaroslav Havlin
+
 > Ignore (hide) folders that contain .nbignore file.
 
 
@@ -2282,6 +2371,7 @@ NetBeans modules that can be built now.
 *Relative Path*: debugger.suspendallbreakpoints
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Suspend/Resume all breakpoints.
 
 
@@ -2315,6 +2405,7 @@ NetBeans modules that can be built now.
 *Relative Path*: sfsexplorer
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > System FileSystem Browser
 
 
@@ -2340,6 +2431,7 @@ NetBeans modules that can be built now.
 *Relative Path*: tanui
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > A module for people who don't like black text on white backgrounds
 
 
@@ -2421,6 +2513,7 @@ NetBeans modules that can be built now.
 *Relative Path*: api.progress.transactional
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > An API for composable transactions each of which make up one element of a background task
 
 
@@ -2438,6 +2531,7 @@ NetBeans modules that can be built now.
 *Relative Path*: other/focusmodule
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Adds actions to the Tools menu for logging focus events, for diagnosing "focus goes to nowhere" bugs and other focus problems; actions can be filtered.
 
 
@@ -2527,6 +2621,7 @@ NetBeans modules that can be built now.
 *Relative Path*: pagelayouts
 
 *Author(s)*: Winston Prakash (Winston.Prakash@Sun.Com)
+
 > Predefined Page Layouts for HTML, JSP, PHP & RHTML
 
 
@@ -2560,6 +2655,7 @@ NetBeans modules that can be built now.
 *Relative Path*: whichelement
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Display Element Information
 
 
@@ -2569,6 +2665,7 @@ NetBeans modules that can be built now.
 *Relative Path*: whitespacetools
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Hightlight and remove traling whitespace
 
 
@@ -2578,6 +2675,7 @@ NetBeans modules that can be built now.
 *Relative Path*: core.windows.options
 
 *Author(s)*: S. Aubrecht
+
 > Additional window system options
 
 
@@ -2587,6 +2685,7 @@ NetBeans modules that can be built now.
 *Relative Path*: languages.powershell
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Support for editing Windows powershell scripts (.ps1) files.
 
 
@@ -2644,10 +2743,20 @@ Libraries which can be built now.
 
 
 
+
+###Generate Index
+*Relative Path*: generate-index
+
+*Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
+> Dummy project that creates this index as part of its install phase.
+
+
 ###Generate Project Index
 *Relative Path*: generate-project-index
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Generates a Markdown index of the netbeans modules here from their POM files.
 
 
@@ -2709,6 +2818,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: java.addproperty
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > A simple UI to create properties
 
 
@@ -2734,6 +2844,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: cnd.syntaxerr
 
 *Author(s)*: Vladimir Kvashin (Vladimir.Kvashin@Sun.COM)
+
 > Provides syntax error highlighting for C/C++ files in editor
 
 
@@ -2757,6 +2868,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: c.s.tools.ide.analysis.modernize
 
 *Author(s)*: Ilia Gromov
+
 > Clang-tidy analyzer integration
 
 
@@ -2822,6 +2934,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: editor.java.doclet
 
 *Author(s)*: Leon Chiver
+
 > Infrastucture for doclet code completion
 
 
@@ -2831,6 +2944,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: dtrace
 
 *Author(s)*: Nasser Nouri
+
 > Graphical User Interface (GUI) for Solaris Dynamic Tracing (DTrace) that can be installed into the Sun Studio IDE and NetBeans IDE.
 
 
@@ -2840,6 +2954,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: editor.java.doclet.ejb
 
 *Author(s)*: Leon Chiver
+
 > Code completion for ejbdoclet
 
 
@@ -2897,6 +3012,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: j2ee.geronimo2
 
 *Author(s)*: Max Å auer
+
 > Integrates Geronimo 2 Server into IDE
 
 
@@ -2914,6 +3030,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: editor.java.doclet.hibernate
 
 *Author(s)*: Leon Chiver
+
 > Code completion for hibernatedoclet
 
 
@@ -2963,6 +3080,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: editor.java.doclet.javadoc
 
 *Author(s)*: Leon Chiver
+
 > Javadoc Code Completion
 
 
@@ -2980,6 +3098,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: j2ee.jetty
 
 *Author(s)*: Martin NovÃ¡k
+
 > Intergates Jetty Web Server into IDE
 
 
@@ -2989,6 +3108,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: debugger.callstackviewenhancements
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Enhancements to JPDA (Java) Debugger Call Stack View
 
 
@@ -2998,6 +3118,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: debugger.threadviewenhancement
 
 *Author(s)*: Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+
 > Unified Thread and Call stack view.
 
 
@@ -3039,6 +3160,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: j2ee.sun.ws7
 
 *Author(s)*: Oracle Corporation
+
 > JSR88 Oracle iPlanet Web Server 7.0 Module
 
 
@@ -3064,6 +3186,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: php.fuse
 
 *Author(s)*: Martin Fousek
+
 > Support for PHP FUSE Framework.
 
 
@@ -3073,6 +3196,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: php.yii
 
 *Author(s)*: Gevik Babakhani
+
 > Support for PHP Yii Framework
 
 
@@ -3160,6 +3284,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: editor.java.doclet.spring
 
 *Author(s)*: Leon Chiver
+
 > Code completion for springdoclet
 
 
@@ -3201,6 +3326,7 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: syntaxtreebrowser
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
+
 > Browse the javac syntax tree of source files
 
 
@@ -3318,12 +3444,5 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: callgraph
 
 
-
-
-###Generate Index
-*Relative Path*: generate-index
-
-*Author(s)*: [Tim Boudreau](https://timboudreau.com)
-> Dummy project that creates this index as part of its install phase.
 
 

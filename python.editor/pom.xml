@@ -259,6 +259,26 @@
                         <scope>compile</scope>
                     </dependency>
                 </dependencies>
+                <!-- with maven-compiler-plugin 3.7.0, use this clause or force javac usage -->
+                <!--                <configuration>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>org.netbeans.modules</groupId>
+                            <artifactId>org-netbeans-modules-editor-errorstripe</artifactId>
+                            <version>${netbeans.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.netbeans.api</groupId>
+                            <artifactId>org-netbeans-modules-editor-errorstripe-api</artifactId>
+                            <version>${netbeans.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.netbeans.api</groupId>
+                            <artifactId>org-openide-util-lookup</artifactId>
+                            <version>${netbeans.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

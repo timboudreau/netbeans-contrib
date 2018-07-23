@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.version>RELEASE82</netbeans.version>
         <java.source.level>1.6</java.source.level>
-        <tests.unstable>true</tests.unstable>
+        <!--<maven.test.skip>true</maven.test.skip>-->
     </properties>
     <licenses>
         <license>
@@ -66,6 +66,11 @@
                     <!-- NetBeans 6.9+ requires JDK 6 -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <!-- If we use 3.x compiler each project will need individually specified
+                    annotationProcessorPaths including all modules whose annotations
+                    it consumes, or we'd need maven.compiler.force.javac=true, which brings
+                    build speed to a crawl.  This is something Maven has not gotten very right.
+                    -->
                     <version>2.5.1</version>
                     <configuration>
                         <source>${java.source.level}</source>
@@ -93,25 +98,40 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <!-- Tests here are VERY unmaintained, and need to be restored
-                         to working order project-by-project (then just set
-                         tests.unstable to false in that project's POM).
-
-                         In many cases, the code has been kept compiling, but the
-                         tests are many API changes away from being compilable.
-                    -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.0</version>
-                    <configuration>
-                        <skip>${tests.unstable}</skip>
-                        <skipTests>${tests.unstable}</skipTests>
-                        <skipExec>${tests.unstable}</skipExec>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>skip-tests</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <missing>${basedir}/tests-should-pass</missing>
+                </file>
+            </activation>
+            <!-- Tests here are VERY unmaintained, and need to be restored
+                 to working order project-by-project, and in many cases
+                 while the module code has been kept buildable, its tests
+                 are many API changes away from being compilable.
+
+                 Tests need to be reenabled on a case-by-case basis.  To
+                 enable test compilation / running for a project, simply add
+                 an empty file named "tests-should-pass" to its basedir.
+
+                 In many cases, the code has been kept compiling, but the
+                 tests are many API changes away from being compilable.
+            -->
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <modules>
         <module>a11y</module>
         <module>a11ychecker</module>
@@ -176,7 +196,7 @@
         <module>cnd.fortran</module>
         <!-- Uses the old DrawLayer API
 
-                <module>cnd.fortran/fortran_highlighting</module>
+        <module>cnd.fortran/fortran_highlighting</module>
         -->
 
         <!--
@@ -257,7 +277,6 @@
         Silly demo for a talk circa 2005; attempted to get it working.
         Not really worth it, but builds.
         -->
-
         <module>doap</module>
         <module>docbook</module>
         <module>docbook.project</module>
@@ -276,11 +295,11 @@
         <module>editor.hints.xml</module>
         <!-- Pre-retouche JMI-based Java hints - dead, dead, dead
 
-                <module>editor.java.doclet</module>
-                <module>editor.java.doclet.ejb</module>
-                <module>editor.java.doclet.hibernate</module>
-                <module>editor.java.doclet.javadoc</module>
-                <module>editor.java.doclet.spring</module>
+        <module>editor.java.doclet</module>
+        <module>editor.java.doclet.ejb</module>
+        <module>editor.java.doclet.hibernate</module>
+        <module>editor.java.doclet.javadoc</module>
+        <module>editor.java.doclet.spring</module>
         -->
         <module>editor.nexterror</module>
         <module>editor.probe</module>
@@ -350,8 +369,6 @@
         <module>other/focusmodule</module>
         <module>hexeditor</module>
         <module>html.preview</module>
-
-
         <module>htmldiff</module>
         <module>htmlprojects</module>
         <module>imagepaste</module>
@@ -612,10 +629,8 @@
         <module>remoteproject.cvsprj</module>
         <module>remoteproject.svn</module>
         <module>remoteprojectdemo</module>
-        <!-- This may have once contained FTP and other virtual filesystems,
-        but these were deleted and only a sample memory filesystem remains
-        (you can create one with FileUtil.createMemoryFileSystem(), so this
-        module does nothing useful at all.
+        <!-- I believe this works with zeroadmin to have
+        the system filesystem be hosted remotely.
         -->
         <module>remotesfs</module>
         <!--
@@ -756,7 +771,7 @@
         <module>xtc</module>
         <module>zeroadmin</module>
         <!-- Generates the table of contents for contrib - leave this as the
-             last entry so it is only updated if all other builds succeed -->
+        last entry so it is only updated if all other builds succeed -->
         <module>generate-index</module>
     </modules>
     <repositories>

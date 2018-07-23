@@ -48,7 +48,7 @@
                 </executions>
                 <configuration>
                     <environmentVariables>
-                        <INDEX_FILE>${basedir}/../contents.md</INDEX_FILE>
+                        <INDEX_FILE>${basedir}/../catalogue.md</INDEX_FILE>
                     </environmentVariables>
                     <executable>${java.home}/bin/java</executable>
                     <arguments>
