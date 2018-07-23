@@ -5,7 +5,7 @@ This is the former netbeans.org contrib repository, converted from NetBeans' Ant
 
  * Read the [catalogue of what's here](catalogue.md) generated from module metadata (updated when the master POM is built), broken out
 into working/not-working and modules/libraries categories
- * See the [commented out modules in the master `pom.xml`](blob/master/pom.xml) - for things that are here but not buildable - most
+ * See the [commented out modules in the master `pom.xml`](https://github.com/timboudreau/netbeans-contrib/blob/master/pom.xml) - for things that are here but not buildable - most
 have detailed notes on what's wrong and whether or not it's likely to be fixable
 
 History
@@ -60,7 +60,7 @@ What Works (or at any rate, builds)
 The majority of modules - over 300 of them - build successfully.  Whether they work as advertised or not remains to be seen, but 
 other than cases where the build script did unusual things, they should.
 
-For those that could not be built, they are commented out in the [master POM](blob/master/pom.xml) with a description of what's wrong 
+For those that could not be built, they are commented out in the [master POM](https://github.com/timboudreau/netbeans-contrib/blob/master/pom.xml) with a description of what's wrong 
 as best I was able to determine it.
 
 
