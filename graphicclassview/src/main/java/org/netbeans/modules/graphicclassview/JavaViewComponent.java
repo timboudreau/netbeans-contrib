@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -23,12 +22,13 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeEvent;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 public class JavaViewComponent extends TopComponent {
+    private static final double DEFAULT_ZOOM_FACTOR = 1.5D;
     private final DataObject ob;
     private JavaScene scene;
     private final JToolBar toolbar = createToolbar();
@@ -62,7 +62,7 @@ public class JavaViewComponent extends TopComponent {
         final JComboBox layoutBox = new JComboBox(mdl);
         layoutBox.setEnabled(false); //#171770 - temporarily disable until a reasonably performant layout can be had
         result.setFloatable(false);
-        final JButton refresh = new JButton(new ImageIcon(Utilities.loadImage("org/netbeans/modules/graphicclassview/resources/refresh.png")));
+        final JButton refresh = new JButton(ImageUtilities.loadImageIcon("org/netbeans/modules/graphicclassview/resources/refresh.png", false));
         refresh.setToolTipText(getString("BTN_REFRESH"));
         refresh.addActionListener(new ActionListener() {
 
@@ -74,7 +74,7 @@ public class JavaViewComponent extends TopComponent {
             }
         });
         result.add(refresh);
-        javax.swing.Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/graphicclassview/resources/reflow.png"));
+        javax.swing.Icon icon = ImageUtilities.loadImageIcon("org/netbeans/modules/graphicclassview/resources/reflow.png", false);
         JButton reflow = new JButton(icon);
         reflow.setToolTipText(getString("BTN_REFLOW"));
         reflow.addActionListener(new ActionListener() {
@@ -85,10 +85,10 @@ public class JavaViewComponent extends TopComponent {
             }
         });
         result.add(reflow);
-        icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/graphicclassview/resources/zoomIn.png"));
+        icon = ImageUtilities.loadImageIcon("org/netbeans/modules/graphicclassview/resources/zoomIn.png", false);
         final JButton zoomIn = new JButton(icon);
         zoomIn.setToolTipText(getString("BTN_ZOOMIN"));
-        icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/graphicclassview/resources/zoomOut.png"));
+        icon = ImageUtilities.loadImageIcon("org/netbeans/modules/graphicclassview/resources/zoomOut.png", false);
         JButton zoomOut = new JButton(icon);
         zoomOut.setToolTipText(getString("BTN_ZOOMOUT"));
         ActionListener al = new ActionListener() {
@@ -170,6 +170,7 @@ public class JavaViewComponent extends TopComponent {
             if (scene == null) {
                 add(createWaitPanel(), "Center");
                 scene = new JavaScene(this, getShowKinds());
+                scene.setZoomFactor(DEFAULT_ZOOM_FACTOR);
                 scene.init(n);
             }
         }
