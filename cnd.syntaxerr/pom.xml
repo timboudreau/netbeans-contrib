@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-cnd-syntaxerr</artifactId>
+    <version>0.3.0</version>
+    <packaging>nbm</packaging>
+    <name>C/C++ Syntax Error Highlighting</name>
+    <description>Provides syntax error highlighting for C/C++ files in editor</description>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Vladimir Kvashin (Vladimir.Kvashin@Sun.COM)</name>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>C/C++</module.display.category>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-compat8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>org-netbeans-modules-cnd</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-api-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-api-project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-makeproject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-model-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-modelutil</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-editor-deprecated-pre61settings</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor-lib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-spi-editor-hints</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-actions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-loaders</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-modules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-cnd-toolchain</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.cnd.syntaxerr</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <author>Vladimir Kvashin (Vladimir.Kvashin@Sun.COM)</author>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-editor-lib</id>
+                            <explicitValue>org.netbeans.modules.editor.lib/3 &gt; 3.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.lib/3 specification-version: 4.7.1.23.3.55 implementation-version: 23 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-spi-editor-hints</id>
+                            <explicitValue>org.netbeans.spi.editor.hints/0 &gt; 1.40.1.7.55</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.spi.editor.hints/0 specification-version: 1.40.1.7.55 implementation-version: 7 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-actions</id>
+                            <explicitValue>org.openide.actions &gt; 6.6</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.actions specification-version: 6.39.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 6.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-modules</id>
+                            <explicitValue>org.openide.modules &gt; 6.5.12</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.modules specification-version: 7.48.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-nodes</id>
+                            <explicitValue>org.openide.nodes &gt; 7.2</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-text</id>
+                            <explicitValue>org.openide.text &gt; 6.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.text specification-version: 6.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-windows</id>
+                            <explicitValue>org.openide.windows &gt; 6.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.windows specification-version: 6.75.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-editor-deprecated-pre61settings</id>
+                            <explicitValue>org.netbeans.modules.editor.deprecated.pre61settings &gt; 1.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.deprecated.pre61settings specification-version: 1.12.0 implementation-version: 1.12.0 build-version: 201807202259 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.external:org-netbeans-modules-cnd</id>
+                            <type>impl</type>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-api-model</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.api.model/1 specification-version: 1.36.10.1 implementation-version: 1 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-api-project</id>
+                            <explicitValue>org.netbeans.modules.cnd.api.project/1 &gt; 1.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.api.project/1 specification-version: 1.36.11.1 implementation-version: 1 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-makeproject</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.makeproject/2 specification-version: 2.58.22.1 implementation-version: 1 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-model-services</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.model.services/1 specification-version: 1.47.11.1 implementation-version: 1 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-modelutil</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.modelutil/1 specification-version: 1.35.9.1 implementation-version: 1 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-utils</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.cnd.utils specification-version: 1.53.6.2 implementation-version: 2 build-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-cnd-toolchain</id>
+                            <type>impl</type>
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

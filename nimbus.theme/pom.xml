@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-nimbus-theme</artifactId>
+    <version>1.1</version>
+    <packaging>nbm</packaging>
+    <name>Dark Nimbus Theme</name>
+    <description>Dark theme for Nimbus Look and Feel</description>
+    <url>www.netbeans.org</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>S. Aubrecht</name>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Base IDE</module.display.category>
+        <java.source.level>1.6</java.source.level>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-modules</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.nimbus.theme</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <author>S. Aubrecht</author>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-modules</id>
+                            <explicitValue>org.openide.modules &gt; 5.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.modules specification-version: 7.48.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

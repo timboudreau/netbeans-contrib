@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+    </parent>
+    <artifactId>generate-index</artifactId>
+    <properties>
+        <java.source.level>1.8</java.source.level>
+    </properties>
+    <description>Dummy project that creates this index as part of its install phase.</description>
+    <url>http://contrib.netbeans.org/</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Tim Boudreau</name>
+            <email>tim@timboudreau.com</email>
+            <url>https://timboudreau.com</url>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>build-module-index</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <inherited>false</inherited>
+                    </execution>
+                </executions>
+                <configuration>
+                    <environmentVariables>
+                        <INDEX_FILE>${basedir}/../catalogue.md</INDEX_FILE>
+                    </environmentVariables>
+                    <executable>${java.home}/bin/java</executable>
+                    <arguments>
+                        <argument>-jar</argument>
+                        <argument>${basedir}/../generate-project-index/target/generate-index.jar</argument>
+                    </arguments>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.netbeans.contrib</groupId>
+                        <artifactId>generate-project-index</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>                
+        </plugins>
+    </build>    
+</project>

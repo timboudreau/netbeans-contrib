@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-tasklist-html</artifactId>
+    <version>1.10.0</version>
+    <packaging>nbm</packaging>
+    <name>HTML Suggestion Provider</name>
+    <description>Provides HTML error suggestions</description>
+    <url>http://tasklist.netbeans.org/updates/tasklist-html.html</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Task List</module.display.category>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.jtidy</groupId>
+            <artifactId>jtidy</artifactId>
+            <version>r938</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-compat8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-diff</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-html</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-tasklist-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-tasklistapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-loaders</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-text</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.tasklist.html</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-diff</id>
+                            <explicitValue>org.netbeans.modules.diff/1 &gt; 1.6</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.diff/1 specification-version: 1.51.1.42.1 implementation-version: 42 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-dialogs</id>
+                            <explicitValue>org.openide.dialogs &gt; 7.6</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 7.66.1</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE82-->
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-nodes</id>
+                            <explicitValue>org.openide.nodes &gt; 7.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-text</id>
+                            <explicitValue>org.openide.text &gt; 6.17</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.text specification-version: 6.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-tasklist-core</id>
+                            <explicitValue>org.netbeans.modules.tasklist.core &gt; 1.39.0</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from 1.39.0-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.tasklist.core specification-version: 1.39.0 implementation-version: 1.39.0 build-version: 201807202300 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-tasklistapi</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.tasklistapi specification-version: 1.22.0 implementation-version: 1.22.0 build-version: 201807202300-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-html</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.html/1 specification-version: 1.61.1 implementation-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

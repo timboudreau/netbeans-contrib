@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.test.au.launch
+OpenIDE-Module-Install: org/netbeans/test/au/launch/Installer.class
+OpenIDE-Module-Layer: org/netbeans/test/au/launch/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/test/au/launch/Bundle.properties
+

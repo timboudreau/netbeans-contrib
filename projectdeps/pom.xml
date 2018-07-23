@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-projectdeps</artifactId>
+    <version>1.0</version>
+    <packaging>nbm</packaging>
+    <name>Visualize Project Dependencies</name>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Contrib-Modules</module.display.category>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-compat8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-lib-graphlayout</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectuiapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.projectdeps</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectuiapi</id>
+                            <explicitValue>org.netbeans.modules.projectuiapi/1 &gt; 1.15</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectuiapi/1 specification-version: 1.88.1.8 implementation-version: 8 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-windows</id>
+                            <explicitValue>org.openide.windows &gt; 6.6</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.windows specification-version: 6.75.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-lib-graphlayout</id>
+                            <explicitValue>org.netbeans.lib.graphlayout &gt; 1.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.lib.graphlayout specification-version: 1.1 implementation-version: 1.1 build-version: 201807202300 has-public-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

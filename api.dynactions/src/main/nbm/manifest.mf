@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.api.dynactions
+OpenIDE-Module-Localizing-Bundle: org/netbeans/api/dynactions/Bundle.properties
+

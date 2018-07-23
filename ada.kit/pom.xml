@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-ada-kit</artifactId>
+    <version>0.1.9</version>
+    <packaging>nbm</packaging>
+    <name>Ada</name>
+    <description>Provides tools and support for Ada development.</description>
+    <url>http://wiki.netbeans.org/Ada</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Andrea Lucarelli</name>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Ada</module.display.category>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-ada-editor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-ada-help</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-ada-options</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-ada-platform</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.contrib</groupId>
+            <artifactId>org-netbeans-modules-ada-project</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.ada.kit</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <author>Andrea Lucarelli</author>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-ada-editor</id>
+                            <explicitValue>org.netbeans.modules.ada.editor &gt; 0.1.9</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.editor specification-version: 0.1.10 implementation-version: 0.1.10 build-version: 201807202259 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-ada-help</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.help specification-version: 0.1.0 implementation-version: 0.1.0 build-version: 201807202259-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-ada-options</id>
+                            <explicitValue>org.netbeans.modules.ada.options &gt; 0.1.4</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.options specification-version: 0.1.4 implementation-version: 0.1.4 build-version: 201807202259 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-ada-platform</id>
+                            <explicitValue>org.netbeans.modules.ada.platform &gt; 0.1.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.platform specification-version: 0.1.5 implementation-version: 0.1.5 build-version: 201807202259 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.contrib:org-netbeans-modules-ada-project</id>
+                            <explicitValue>org.netbeans.modules.ada.project &gt; 0.1.7</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.ada.project specification-version: 0.1.7 implementation-version: 0.1.7 build-version: 201807202259 has-public-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

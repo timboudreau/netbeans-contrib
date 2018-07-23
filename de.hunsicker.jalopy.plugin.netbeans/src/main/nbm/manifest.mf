@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.hunsicker.jalopy.plugin.netbeans
+OpenIDE-Module-Localizing-Bundle: de/hunsicker/jalopy/plugin/netbeans/Bundle.properties
+OpenIDE-Module-Layer: de/hunsicker/jalopy/plugin/netbeans/resources/Layer.xml
+

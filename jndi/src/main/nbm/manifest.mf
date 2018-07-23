@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.jndi/1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jndi/Bundle.properties
+OpenIDE-Module-Layer: org/netbeans/modules/jndi/resources/mf-layer.xml
+OpenIDE-Module-Package-Dependencies: javax.naming[Context]

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Created-By: Nokia
+OpenIDE-Module-Display-Category: Infrastructure
+OpenIDE-Module: org.netbeans.modules.eview
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/eview/resources/Bundle.properties
+

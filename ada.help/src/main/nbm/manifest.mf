@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.ada.help
+OpenIDE-Module-Layer: org/netbeans/modules/ada/help/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/ada/help/Bundle.properties
+OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
+AutoUpdate-Show-In-Client: false

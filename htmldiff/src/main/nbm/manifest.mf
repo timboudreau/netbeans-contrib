@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.htmldiff/1
+OpenIDE-Module-Layer: org/netbeans/modules/htmldiff/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/htmldiff/Bundle.properties
+

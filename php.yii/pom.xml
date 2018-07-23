@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-php-yii</artifactId>
+    <version>1.0.1</version>
+    <packaging>nbm</packaging>
+    <name>PHP Yii Framework</name>
+    <description>Support for PHP Yii Framework</description>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Gevik Babakhani</name>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>PHP</module.display.category>
+        <java.source.level>1.6</java.source.level>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems-compat8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-extexecution</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-options-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-php-api-phpmodule</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-modules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.php.yii</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <author>Gevik Babakhani</author>
+                    <publicPackages>
+                        <publicPackage>org.netbeans.modules.php.yii</publicPackage>
+                        <publicPackage>org.netbeans.modules.php.yii.commands</publicPackage>
+                        <publicPackage>org.netbeans.modules.php.yii.extensions.api</publicPackage>
+                    </publicPackages>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-extexecution</id>
+                            <explicitValue>org.netbeans.modules.extexecution/2 &gt; 1.26</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.extexecution/2 specification-version: 1.48.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-options-api</id>
+                            <explicitValue>org.netbeans.modules.options.api/1 &gt; 1.23</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.options.api/1 specification-version: 1.45.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.37</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-awt</id>
+                            <explicitValue>org.openide.awt &gt; 7.37</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.awt specification-version: 7.67.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-dialogs</id>
+                            <explicitValue>org.openide.dialogs &gt; 7.21</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems-compat8</id>
+                            <explicitValue>org.openide.filesystems.compat8 &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems.compat8 specification-version: 9.9.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-io</id>
+                            <explicitValue>org.openide.io &gt; 1.28</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.io specification-version: 1.49.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-modules</id>
+                            <explicitValue>org.openide.modules &gt; 7.25</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.modules specification-version: 7.48.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 8.16</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-php-api-phpmodule</id>
+                            <type>impl</type>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.php.api.phpmodule specification-version: 2.58.1 implementation-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

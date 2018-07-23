@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.netbeans.contrib</groupId>
+        <artifactId>contrib-parent</artifactId>
+        <version>RELEASE90</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>org-netbeans-modules-selenium-maven</artifactId>
+    <version>1.6</version>
+    <packaging>nbm</packaging>
+    <name>Selenium Module for Maven</name>
+    <description>Selenium testing framework for web application</description>
+    <url>http://wiki.netbeans.org/SeleniumPluginMaven</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Jindrich Sedek, Martin Fousek</name>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/timboudreau/netbeans-contrib</url>
+        <connection>scm:git:https://github.com/timboudreau/netbeans-contrib.git</connection>
+        <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
+    </scm>
+    <properties>
+        <module.display.category>Testing Tools</module.display.category>
+        <java.source.level>1.6</java.source.level>
+        <!--<netbeans.version>RELEASE691</netbeans.version>-->
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-java-project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-java-project-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-maven-embedder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>maven-embedder-3.0.5</artifactId>
+            <version>RELEASE74-BETA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-maven-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectuiapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-xml-xam</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-loaders</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-maven</artifactId>
+            <version>RELEASE802</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <codeNameBase>org.netbeans.modules.selenium.maven</codeNameBase>
+                    <cluster>extra</cluster>
+                    <requiresRestart>true</requiresRestart>
+                    <author>Jindrich Sedek, Martin Fousek</author>
+                    <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-java-project</id>
+                            <explicitValue>org.netbeans.modules.java.project/1 &gt; 1.62</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.project/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-java-project-ui</id>
+                            <explicitValue>org.netbeans.modules.java.project.ui/1 &gt; 1.62</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.java.project.ui/1 specification-version: 1.69.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectapi</id>
+                            <explicitValue>org.netbeans.modules.projectapi/1 &gt; 1.21</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectapi/1 specification-version: 1.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-projectuiapi</id>
+                            <explicitValue>org.netbeans.modules.projectuiapi/1 &gt; 1.78</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.projectuiapi/1 specification-version: 1.88.1.8 implementation-version: 8 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-xml-xam</id>
+                            <explicitValue>org.netbeans.modules.xml.xam/1 &gt; 1.5</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.xml.xam/1 specification-version: 1.32.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-dialogs</id>
+                            <explicitValue>org.openide.dialogs &gt; 7.10</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.dialogs specification-version: 7.42.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-filesystems</id>
+                            <explicitValue>org.openide.filesystems &gt; 9.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.filesystems specification-version: 9.10.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-loaders</id>
+                            <explicitValue>org.openide.loaders &gt; 7.61</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.loaders specification-version: 7.66.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-nodes</id>
+                            <explicitValue>org.openide.nodes &gt; 7.23</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.nodes specification-version: 7.45.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util</id>
+                            <explicitValue>org.openide.util &gt; 9.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util specification-version: 9.7.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-lookup</id>
+                            <explicitValue>org.openide.util.lookup &gt; 8.0</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.lookup specification-version: 8.33.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-openide-util-ui</id>
+                            <explicitValue>org.openide.util.ui &gt; 9.3</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.openide.util.ui specification-version: 9.6.1 implementation-version: 201609300101 has-public-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-maven</id>
+                            <explicitValue>org.netbeans.modules.maven/2 &gt; 2.107.4</explicitValue>
+                            <!--POM-Generation on may have substituted spec version values from RELEASE802-->
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.maven/2 specification-version: 2.107.4 implementation-version: 201411181905 has-friend-packages-->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-maven-embedder</id>
+                            <type>impl</type>
+                            <!--<explicitValue>org.netbeans.modules.maven.embedder &gt; 1.1.1</explicitValue> -->
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-maven-model</id>
+                            <explicitValue>org.netbeans.modules.maven.model/1 &gt; 1.1.1</explicitValue>
+                            <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.maven.model/1 specification-version: 1.42.1 implementation-version: 201609300101 has-friend-packages-->
+                        </dependency>
+                    </moduleDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

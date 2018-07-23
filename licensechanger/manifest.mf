@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.licensechanger/2
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/licensechanger/Bundle.properties
-OpenIDE-Module-Requires: 
-  javax.script.ScriptEngine.FreeMarker,
-  javax.script.ScriptEngine.freemarker
-OpenIDE-Module-Specification-Version: 1.9.3
-

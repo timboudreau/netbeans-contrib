@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: ramos.linkwitheditor
+OpenIDE-Module-Install: ramos/linkwitheditor/Installer.class
+OpenIDE-Module-Layer: ramos/linkwitheditor/layer.xml
+OpenIDE-Module-Localizing-Bundle: ramos/linkwitheditor/Bundle.properties
+

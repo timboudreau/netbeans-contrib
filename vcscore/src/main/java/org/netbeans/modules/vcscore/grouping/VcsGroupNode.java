@@ -1,0 +1,379 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ */
+package org.netbeans.modules.vcscore.grouping;
+
+import org.netbeans.modules.vcscore.VcsProvider;
+import org.openide.actions.*;
+import org.openide.nodes.*;
+import org.openide.loaders.*;
+import org.openide.util.NbBundle;
+import org.openide.util.SharedClassObject;
+import org.openide.util.actions.SystemAction;
+import org.openide.filesystems.*;
+import java.io.*;
+import java.util.*;
+import org.openide.actions.PropertiesAction;
+import org.openide.ErrorManager;
+
+/** A node with some children.
+ *
+ * @author builder
+ */
+public class VcsGroupNode extends AbstractNode {
+    public static final String PROPFILE_EXT = "properties"; //NOI18N
+    private DataFolder groupDO;
+    private String groupName;
+    private String groupDescription = "";
+    
+//    private static ShadowOnlyDataFilter SHADOW_ONLY = new ShadowOnlyDataFilter();
+    
+    public VcsGroupNode(DataFolder dobj) {
+        super (new VcsGroupChildren(dobj));
+        groupDO = dobj;
+        setIconBase("org/netbeans/modules/vcscore/grouping/VcsGroupNodeIcon"); //NOI18N
+        // Whatever is most relevant to a user:
+        // Set FeatureDescriptor stuff:
+        groupName = groupDO.getName();
+        FileObject propsFo = dobj.getPrimaryFile().getParent().getFileObject(dobj.getPrimaryFile().getName(), PROPFILE_EXT);
+        if (propsFo != null) {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(propsFo.getInputStream()));
+                groupName = getBundleValue(reader.readLine());
+                groupDescription = getBundleValue(reader.readLine());
+                groupDescription = org.openide.util.Utilities.replaceString(groupDescription, "\\n", "\n"); //NOI18N
+            } catch (IOException exc) {
+               ErrorManager.getDefault().notify(ErrorManager.WARNING, exc);
+            }
+        }
+        getCookieSet().add(new VcsGroupNode.GroupCookieImpl());
+    }
+    
+    private String getBundleValue(String keyValue) {
+        if (keyValue != null) {
+            int index = keyValue.indexOf('=');
+            if (index > 0 && keyValue.length() > index) {
+                return keyValue.substring(index + 1);
+            }
+        }
+        return "";
+    }
+    
+    
+/*    public Node[] getDataShadowNodesInGroup() {
+        LinkedList list = new LinkedList();
+        Enumeration childs = groupDO.children(false);
+        Set actions = new HashSet();
+        while (childs.hasMoreElements()) {
+            DataObject dos = (DataObject)childs.nextElement();
+            if (dos instanceof DataShadow) {
+                 DataShadow shadow = (DataShadow)dos;
+                 Node node = new VcsGroupFileNode(shadow);
+                 list.add(node);
+            }
+            
+        }
+        Node[] fos = new Node[list.size()];
+        fos = (Node[])list.toArray(fos);
+        return fos;
+        
+    }
+ */
+
+    // Create the popup menu:
+    public SystemAction[] getActions() {
+        Node[] childs = getChildren().getNodes();
+        Set actions = new HashSet();
+        HashMap map = new HashMap();
+        List actionsList = new LinkedList();
+        if (childs != null) {
+            for (int i = 0; i < childs.length; i++) {
+                try {
+                    DataObject dob = (DataObject)childs[i].getCookie(DataObject.class);
+                    if (dob != null) {
+                        FileObject fo = dob.getPrimaryFile();
+                        VcsProvider provider = VcsProvider.getProvider(fo);
+                        if (provider == null) {
+                            continue;
+                        }
+                        //String path = (String) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                        //FileObject fo = fs.findResource(path);
+                        Set foset = new HashSet();
+                        foset.add(fo);
+                        SystemAction[] acts = fo.getFileSystem().findExtrasFor(foset).lookupAll(SystemAction.class).toArray(new SystemAction[0]);
+                        for (int m =0; m < acts.length; m++) {
+//                            System.out.println("group action class=" + acts[m]);
+                            if (!acts[m].isEnabled()) continue;
+                            if (!acts[m].getClass().equals(org.netbeans.modules.vcscore.actions.AddToGroupAction.class)) {
+                                actions.add(acts[m]);
+                                actionsList.add(acts[m]);
+                                LinkedList lst = (LinkedList)map.get(acts[m]);
+                                if (lst == null) {
+                                    lst = new LinkedList();
+                                    map.put(acts[m], lst);
+                                }
+                                lst.add(childs[i]);
+                            }
+                        }
+                        
+                    }
+                } catch (FileStateInvalidException exc) {
+//                    System.out.println("fileystateinvalid..");
+                }
+            }
+        }
+        // now check if the actions are enabled on all the nodes... if not.. remove them
+        Iterator actIt = map.keySet().iterator();
+        while (actIt.hasNext()) {
+            Object act = actIt.next();
+            LinkedList list = (LinkedList)map.get(act);
+            if (list != null) {
+                if (list.size() != childs.length) {
+                    actions.remove(act);
+                }
+            } else {
+                actions.remove(act);
+            }
+            
+        }
+        SystemAction[] toReturn;
+/*        if (actions.size() > 1) {
+            toReturn = new SystemAction[7];
+        } else {
+ */
+            toReturn = new SystemAction[actions.size() + 7];
+//        }
+        Iterator it = actionsList.iterator();
+        int index = 0;
+        while (it.hasNext()) {
+            SystemAction act = (SystemAction)it.next();
+            if (actions.contains(act)) {
+                toReturn[index] = act;
+                index = index + 1;
+                actions.remove(act);
+            }
+            if (actions.size() == 0) {
+                break;
+            }
+        }
+        toReturn[toReturn.length - 6] = (SystemAction)SharedClassObject.findObject(VerifyGroupAction.class, true);
+        toReturn[toReturn.length - 5] = null;
+        toReturn[toReturn.length - 4] = SystemAction.get (DeleteAction.class);
+        toReturn[toReturn.length - 3] = SystemAction.get (RenameAction.class);
+        toReturn[toReturn.length - 2] = null;
+        toReturn[toReturn.length - 1] = SystemAction.get (PropertiesAction.class);
+        return toReturn;
+    }
+    
+
+
+    // RECOMMENDED - handle cloning specially (so as not to invoke the overhead of FilterNode):
+    public Node cloneNode () {
+	// Try to pass in similar constructor params to what you originally got:
+        return new VcsGroupNode (groupDO);
+    }
+
+    // Create a property sheet:
+    protected Sheet createSheet () {
+	Sheet sheet = super.createSheet ();
+	// Make sure there is a "Properties" set:
+	Sheet.Set props = Sheet.createPropertiesSet();
+        sheet.put (props);
+        createProperties(props);
+        return sheet;
+    }
+    
+    private void createProperties(Sheet.Set set) {
+        java.util.ResourceBundle bundle = NbBundle.getBundle(VcsGroupNode.class);
+        set.put(new PropertySupport.ReadWrite("shortDescription", String.class, //NOI18N
+        bundle.getString("LBL_Description"), bundle.getString("DESC_Description")) { //NOI18N
+            public void setValue(Object value) {
+                VcsGroupNode.this.setShortDescription(value.toString());
+            }
+            public Object getValue() {
+                return VcsGroupNode.this.groupDescription;
+            }
+        });
+        set.put(new PropertySupport.ReadWrite("name", String.class, //NOI18N
+        bundle.getString("LBL_GroupName"), bundle.getString("DESC_GroupName")) { //NOI18N
+            public void setValue(Object value) {
+                VcsGroupNode.this.setName(value.toString());
+            }
+            public Object getValue() {
+                return VcsGroupNode.this.getName();
+            }
+        });
+    }
+
+    // Handle renaming:
+    public boolean canRename () {
+	return true;
+    }
+    
+    public void setName(String name) {
+        String oldName = this.groupName;
+        this.groupName = name;
+        super.setName(name);
+        saveProperties();
+        firePropertyChange("name", oldName, name);
+    }
+
+    public String getName() {
+        return this.groupName;
+    }
+    
+    public String getDisplayName() {
+        return this.groupName;
+    }
+    
+    public String getShortDescription() {
+        if (this.groupDescription.length() == 0) {
+            return null;
+        }
+        return this.groupDescription;
+    }
+    
+    public void setShortDescription(String desc) {
+        String oldDesc = this.groupDescription;
+        this.groupDescription = desc;
+        super.setShortDescription(desc);
+        saveProperties();
+        firePropertyChange("shortDescription", oldDesc, desc);
+    }
+
+    // Handle deleting:
+    public boolean canDestroy () {
+	return true;
+    }
+    public void destroy() throws IOException {
+        // Actually remove the node itself and fire property changes:
+        super.destroy();
+        FileObject parent = groupDO.getPrimaryFile().getParent();
+        String name = groupDO.getPrimaryFile().getName();
+        if (groupDO.isValid()) {
+            try {
+                groupDO.delete();
+            } catch (IOException exc) {
+                //TODO
+                ErrorManager.getDefault().annotate(exc, 
+                             NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroup")); //NOI18N
+                return;
+            }
+        }
+        FileObject props = parent.getFileObject(name, PROPFILE_EXT);
+        try {
+            if (props != null) {
+                props.delete(props.lock());
+            }
+        } catch (IOException ex) {
+            ErrorManager.getDefault().annotate(ex, 
+                       NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroupProps")); //NOI18N
+        }
+        // perform additional actions, i.e. delete underlying object
+        // (and don't forget about objects represented by your children!)
+    }
+
+    
+    private void saveProperties() {
+        FileObject fo = groupDO.getPrimaryFile();
+        PrintWriter writer = null;
+        try {
+            FileObject props = fo.getParent().getFileObject(fo.getName(), PROPFILE_EXT);
+            if (props == null) {
+                props = fo.getParent().createData(fo.getName(), PROPFILE_EXT);
+            }
+            writer = new PrintWriter(props.getOutputStream(props.lock()));
+            writer.println(PROP_NAME + "=" + getDisplayName()); //NOI18N
+            String oneLineDescription = org.openide.util.Utilities.replaceString(
+                                                    this.groupDescription, "\n", "\\n"); //NOI18N
+            writer.println(PROP_SHORT_DESCRIPTION + "=" + oneLineDescription); //NOI18N
+            writer.close();
+        } catch (IOException exc) {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+        
+    }
+    
+    public org.openide.nodes.Node.Cookie getCookie(java.lang.Class clazz) {
+        org.openide.nodes.Node.Cookie retValue;
+        if (clazz.equals(DataObject.class)) {
+            return groupDO;
+        }
+        retValue = super.getCookie(clazz);
+        return retValue;
+    }
+    
+    
+    private class GroupCookieImpl implements GroupCookie {
+        
+        /** Get the display name of the group.
+         */
+        public String getDisplayName() {
+            return VcsGroupNode.this.getDisplayName();
+        }
+        
+        /** Get the description of the group. This description is used by the commit
+         * command.
+         */
+        public String getDescription() {
+            return VcsGroupNode.this.getShortDescription();
+        }
+        
+    }
+    
+    private static class ShadowOnlyDataFilter implements DataFilter {
+        
+        private static final long serialVersionUID = 6549358585875198736L;
+        
+        public boolean acceptDataObject(org.openide.loaders.DataObject dataObject) {
+            if (dataObject instanceof DataShadow) {
+                return true;
+            }
+            return false;
+        }
+        
+    }
+    
+    
+
+
+}

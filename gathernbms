@@ -1,0 +1,16 @@
+#!/bin/sh
+
+NBM_FILES=`find . -type f -name *.nbm`
+
+set -e
+
+if [ -z "$1" ]; then
+	echo "No destination directory supplied."
+	echo "Usage: gathernbms /path/to/dest/folder"
+	exit 1
+fi
+
+for NBM in $NBM_FILES; do
+	echo $NBM
+	cp $NBM $1
+done

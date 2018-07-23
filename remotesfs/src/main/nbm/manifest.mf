@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.remotesfs
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/remotesfs/Bundle.properties
+
