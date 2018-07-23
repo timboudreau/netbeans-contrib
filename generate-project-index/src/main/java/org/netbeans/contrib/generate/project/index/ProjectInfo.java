@@ -73,7 +73,7 @@ public class ProjectInfo implements Comparable<ProjectInfo> {
     }
 
     public String toString(Path root) {
-        StringBuilder sb = new StringBuilder("###").append(title());
+        StringBuilder sb = new StringBuilder("### ").append(title());
         if (version != null && !version.isEmpty() && !"RELEASE90".equals(version)) {
             sb.append("\n*Version*: ").append(version).append("\n");
         }
