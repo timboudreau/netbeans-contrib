@@ -1,6 +1,7 @@
 package org.netbeans.modules.graphicclassview;
 
 import com.sun.source.tree.Tree;
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.text.Document;
@@ -23,7 +24,7 @@ public class ModelBuilder {
 
         public void run(CompilationController compiler)
                 throws Exception {
-            Set <SceneElement> result = new HashSet <SceneElement> ();
+            final Set <SceneElement> result = new HashSet <SceneElement> ();
             System.err.println("Starting parse");
             compiler.toPhase(JavaSource.Phase.RESOLVED);
             List types = compiler.getCompilationUnit().getTypeDecls();
@@ -55,7 +56,12 @@ public class ModelBuilder {
                 notifier.failed(e.getLocalizedMessage());
                 System.err.println("Done, notifying view");
             } finally {
-                notifier.done(result);
+                EventQueue.invokeLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        notifier.done(result);
+                    }
+                });
             }
         }
 
