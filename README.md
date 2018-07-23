@@ -14,11 +14,18 @@ History
 Contrib was started in 2001, and grew to contain a mix of things:
 
  * Community contributed plugins (ex: the Jalopy code formatter plugin)
- * Side projects of NetBeans developers - small useful modules, debugging tools only useful when developing NetBeans (ex: quickfilechooser, a command-line friendly replacement for the standard Swing filechooser)
+ * Side projects of NetBeans developers - small useful modules, debugging tools only useful when developing NetBeans (ex: quickfilechooser, a keyboard-friendly replacement for the standard Swing filechooser)
  * A graveyard for
    * Obsoleted modules and technologies (JNDI instead of Lookup, NetBeans 5's MOF metadata repository for code completion / language support)
    * Modules which were retired from active development but might still work (Portlets)
 
+
+Why Mavenize
+------------
+
+ 1.  I haven't heard of any plan for the migration of this code to Apache from Oracle, and there are useful things here - it would be a pity for them to be lost
+ 2.  One of the major limitations to contributions to contrib was the fact that it was tied to being in a physical location next to a full source checkout of NetBeans
+ 3.  I wrote a bunch of the modules here and still use them
 
 What Was Converted and How
 --------------------------
@@ -59,9 +66,7 @@ Things That Would Be Nice To Get Working
 
  * A number of modules need trivial changes to become compatible with modern APIs - the most common culprit is the removal of
 DrawLayer from the editor API, replaced by the [highlighting API](http://bits.netbeans.org/7.4/javadoc/org-netbeans-modules-editor-lib2/org/netbeans/spi/editor/highlighting/package-summary.html)
-
  * The Solaris native tools team did a number of projects that probably need small tweaks to get working - a dependency here or there.  Dtrace support in particular might be interesting to get working again.
-
  * `vcscore` and friends - support for obscure version control systems via a command-line interface - the API for filesystems have changed somewhat - I did get `vcscore` close to buildable.  Whether anyone wants this is an open question - these were a maintenance nightmare.
 
 
@@ -103,8 +108,8 @@ Things That Should Probably Be Deleted
  * linkwitheditor - The base IDE does this today
  * themebuilder - An experiment, defunct
  * core.naming - pre Lookup, this was the alternative considered - using JNDI internally - a road thankfully not taken
-
-Anything relying on `openide.src` - the NetBeans 3.x source model classes is probably more work than it is worth to revive and will never be used again.
+ * Anything relying on `openide.src` - the NetBeans 2.x/3.x Java source model classes is probably more work than it 
+is worth to revive and will never be used again.
 
 
 
