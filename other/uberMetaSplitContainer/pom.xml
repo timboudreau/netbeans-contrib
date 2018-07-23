@@ -12,7 +12,6 @@
     <description>A prototpe of a replacement for JSplitPane which hosts
     multiple components with both vertical and horizontal splitters
     in a single parent component without intermediate ones</description>
-    <description>A prototype split container which manages multiple components without nested split containers</description>
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
