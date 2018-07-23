@@ -133,6 +133,12 @@ public class Main {
         });
 
         String outFile = System.getProperty("index.file");
+        if (outFile == null) {
+            outFile = System.getenv("INDEX_FILE");
+        }
+        if (outFile != null) {
+            System.out.println("Writing index to " + Paths.get(outFile).normalize());
+        }
         try (Output out = outFile == null ? STDOUT : new FileOutput(outFile)) {
             System.err.println("Generating index...");
             out.println("\n## Buildable Modules\n");
@@ -140,7 +146,7 @@ public class Main {
             for (ProjectInfo proj : buildableModules) {
                 out.println(proj.toString(base));
             }
-            System.out.println("\n## Libraries\n");
+            out.println("\n## Libraries\n");
             out.println("Libraries which can be built now.\n");
             for (ProjectInfo proj : libs) {
                 out.println(proj.toString(base));

@@ -96,7 +96,7 @@
                     <!-- Tests here are VERY unmaintained, and need to be restored
                          to working order project-by-project (then just set
                          tests.unstable to false in that project's POM).
-                         
+
                          In many cases, the code has been kept compiling, but the
                          tests are many API changes away from being compilable.
                     -->
@@ -108,7 +108,7 @@
                         <skipTests>${tests.unstable}</skipTests>
                         <skipExec>${tests.unstable}</skipExec>
                     </configuration>
-                </plugin>                
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -161,10 +161,10 @@
         This module has no Java sources at all. Its binaries list includes
         jsr166y.jar and something called plt.jar - presumably it was a library
         wrapper for that.
-        
+
         <module>c.s.fortress</module>
         -->
-        
+
         <!-- Unable to get javax.jms and some nested pom is forcing the build to talk to the dead java.net repo
 
         <module>c.s.tools.ide.analysis.modernize</module> -->
@@ -181,7 +181,7 @@
 
         <!--
         Relies on some utility classes that don't exist anymore in cnd...common2
-        
+
         <module>cnd.make2netbeans</module>
         -->
         <module>cnd.persistence</module>
@@ -190,7 +190,7 @@
         <!--
         Some small, probably easily fixable API changes since this was
         abandoned.
-        
+
         <module>cnd.syntaxerr</module>
         -->
         <module>cnd.update</module>
@@ -244,7 +244,7 @@
         Seem to have been some changes in java-source-editor since this was
         written; also it appears some sources may be missing - Utilities
         references a class "Failure" in the same package, which does not exist.
-        
+
         Remote-project-finder and remote-server depend on dew4nb.
 
         <module>dew4nb</module>
@@ -373,7 +373,7 @@
         constant names were upper-cased - having compiling against 1.x, 2.x and 3.x
         of smackx, I can find none that match the code seen here.  Should be simple
         to fix, and perhaps the result will work.
-        
+
         <module>jabber</module>
         -->
 
@@ -387,7 +387,7 @@
         Relies on non-existent org.netbeans.modules.java.editor.codegen.CodeGenerator; could
         be modified to use the new official API for that - same class name, slightly different
         signature.
-        
+
         <module>java.addproperty</module>
         -->
 
@@ -413,7 +413,7 @@
         <module>javanavigators</module>
         <!--
         Uses internal nashorn classes that have changed since this was written
-        
+
         <module>javascript.devtools</module>
         -->
         <module>javatextcopypaste</module>
@@ -461,7 +461,7 @@
         <!--
         Tries to call org.netbeans.api.languages.Context.getTokenSequence()
         which no longer exists.
-        
+
         <module>languages.xml</module>
         -->
         <module>launch4jint</module>
@@ -482,7 +482,7 @@
         <!--
         Clearly some missing classes this depends on. This was the
         pre-retouche completion/language implementation.
-        
+
         <module>mdr</module>
         -->
 
@@ -509,7 +509,7 @@
         <!--
         These build in JDK 9 which has no tools.jar, but need their maven
         build to put it on the compiler classpath to build on earlier JDKs.
-        
+
         <module>o.n.examples.debugger.jpda.callstackviewfilterring</module>
         <module>o.n.examples.debugger.jpda.smartstepping1</module>
         -->
@@ -675,14 +675,14 @@
         <module>tasklist.export</module>
         <module>tasklist.filter</module>
         <module>tasklist.html</module>
-        <!-- 
+        <!--
         Depends on jmi.javamodel from NetBeans 5 MOF/MDR
-        
+
         <module>tasklist.i18n</module>
         -->
         <!--
         Depends on the old openide.src package removed in 5.x
-        
+
         <module>tasklist.pmd</module>
         -->
         <module>tasklist.scanningscopes</module>
@@ -693,7 +693,7 @@
         modules, and references one class, ObjectList.Owner that has no analogue
         in the current sources.  Probably a few small changes would make it
         buildable; no idea if the result would be useful.
-        
+
         <module>tasklist.timerwin</module>
         -->
         <module>tasklist.usertasks</module>
@@ -733,11 +733,11 @@
         Requires a bunch of classes from Project looking Glass, the
         cool (but who knows what happened to it) Java3D-based x11
         window manager:
-        
+
         <module>venice.viewer</module>
         -->
         <module>venice.model</module>
-        
+
         <module>visual.examples</module>
         <module>visual.examples.shapes</module>
         <module>visual.experimental</module>
@@ -755,6 +755,9 @@
         <module>whitespacetools</module>
         <module>xtc</module>
         <module>zeroadmin</module>
+        <!-- Generates the table of contents for contrib - leave this as the
+             last entry so it is only updated if all other builds succeed -->
+        <module>generate-index</module>
     </modules>
     <repositories>
         <repository>
@@ -776,7 +779,7 @@
             </snapshots>
         </repository>
         <repository>
-            <!-- 
+            <!--
             Some transitive dependencies with range dependencies
             (python.kit -> ide.kit -> log4j) cause Maven to attempt to
             download from this repo found in the transitive POM, and this
@@ -790,7 +793,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </repository>   
+        </repository>
     </repositories>
     <dependencyManagement>
         <dependencies>

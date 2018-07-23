@@ -149,7 +149,7 @@ public class ProjectScanner {
         XPathFactory fac = XPathFactory.newInstance();
         XPath xpath = fac.newXPath();
         XPathExpression findDevelopers = xpath.compile(
-                "/project/developers/developer");
+                "/project/developers/developer/name");
         NodeList nl = (NodeList) findDevelopers.evaluate(d, XPathConstants.NODESET);
         int max = nl.getLength();
         if (max == 0) {
@@ -159,6 +159,25 @@ public class ProjectScanner {
         for (int i = 0; i < max; i++) {
             Node n = nl.item(i);
             String name = n.getTextContent().trim();
+            Element par = (Element) n.getParentNode();
+            NodeList urls = par.getElementsByTagName("url");
+            if (urls.getLength() > 0) {
+                name = '[' + name + "](" + urls.item(0).getTextContent() + ")";
+            } else if (par.getElementsByTagName("email").getLength() > 0) {
+                NodeList emails = par.getElementsByTagName("email");
+                if (emails.getLength() > 0) {
+                    name = '[' + name + "](mailto:" + emails.item(0).getTextContent() + ")";
+                }
+            } else {
+                String nm = name.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+                int oix = nm.indexOf('<');
+                int eix = nm.indexOf('>');
+                if (oix > 0 && eix > 0 && eix > oix+1) {
+                    String baseName = name.substring(0, oix).trim();
+                    String email = name.substring(oix + 1, eix).trim();
+                    name = '[' + baseName + "](" + email + ")";
+                }
+            }
             if (!name.isEmpty()) {
                 result.add(name);
             }
