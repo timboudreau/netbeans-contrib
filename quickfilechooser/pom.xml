@@ -36,7 +36,7 @@
     </scm>
     <properties>
         <module.display.category>Base IDE</module.display.category>
-        <java.source.level>1.7</java.source.level>
+        <java.source.level>1.8</java.source.level>
     </properties>
     <dependencies>
         <dependency>
