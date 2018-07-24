@@ -132,7 +132,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         histPanel.setLayout(new BorderLayout());
         JLabel histInstructions = new JLabel(getBundle().getString("LBL_History"));
         histInstructions.setDisplayedMnemonic(getBundle().getString("MNEM_History").charAt(0));
-        histInstructions.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        histInstructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 12));
         histInstructions.setLabelFor(box);
         histPanel.add(box, BorderLayout.CENTER);
         histPanel.add(histInstructions, BorderLayout.LINE_START);
@@ -182,7 +182,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JLabel instructions = new JLabel(getBundle().getString("LBL_TextField"));
         instructions.setDisplayedMnemonic(getBundle().getString("MNEM_TextField").charAt(0));
         instructions.setLabelFor(text);
-        instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
+        instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 5, 0));
         histPanel.add(instructions, BorderLayout.PAGE_END);
         pnl.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
         pnl.add(histPanel, BorderLayout.PAGE_START);
