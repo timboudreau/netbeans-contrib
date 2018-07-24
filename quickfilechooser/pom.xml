@@ -36,6 +36,7 @@
     </scm>
     <properties>
         <module.display.category>Base IDE</module.display.category>
+        <java.source.level>1.7</java.source.level>
     </properties>
     <dependencies>
         <dependency>
@@ -52,6 +53,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

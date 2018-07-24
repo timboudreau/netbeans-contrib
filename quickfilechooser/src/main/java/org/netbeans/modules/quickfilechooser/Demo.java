@@ -63,6 +63,7 @@ public class Demo extends JPanel {
         chooser.setMultiSelectionEnabled(true);
         chooser.setCurrentDirectory(new File(System.getProperty("java.io.tmpdir")));
         chooser.setFileView(new FileView() {
+            @Override
             public Icon getIcon(File f) {
                 if (f.getName().endsWith(".gif") || f.getName().endsWith(".png")) {
                     Icon icon = new ImageIcon(f.getAbsolutePath());
@@ -87,10 +88,12 @@ public class Demo extends JPanel {
         this.chooser = c;
         initComponents();
         chooser.addPropertyChangeListener(new PropertyChangeListener() {
+            @SuppressWarnings("unchecked")
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 setText(currentDir, chooser.getCurrentDirectory());
                 setText(selectedFile, chooser.getSelectedFile());
-                selectedFiles.setModel(new DefaultComboBoxModel(chooser.getSelectedFiles()));
+                selectedFiles.setModel(new DefaultComboBoxModel<>(chooser.getSelectedFiles()));
             }
             private void setText(JTextField field, File f) {
                 field.setText(f != null ? f.getAbsolutePath() : null);
@@ -234,10 +237,12 @@ public class Demo extends JPanel {
 
     private void htmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_htmlActionPerformed
         chooser.setFileFilter(html.isSelected() ? new FileFilter() {
+            @Override
             public boolean accept(File pathname) {
                 return pathname.isDirectory() ||
                         pathname.getName().toLowerCase().endsWith(".html");
             }
+            @Override
             public String getDescription() {
                 return "HTML Files";
             }
