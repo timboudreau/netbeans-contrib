@@ -586,13 +586,20 @@
         <module>portalpack.servers.base_psframework</module>
         <module>portalpack.servers.opensourcepc</module>
         <module>portalpack.servers.sunps</module>
-        <!--    Some kind of verification failure with jaxws classes
-        <module>portalpack.servers.websynergy</module> -->
-        <module>portalpack.webflow</module>
-        <module>portalpack.visualweb</module>
+        <!--
+            Some kind of verification failure with jaxws classes.
+            nbm-maven-plugin consistently claims we need an implementation
+            or friend dependency on the jaxws wrapper module even though
+            we do have one; most likely relates to the jars not being
+            present in the nbm.
+
+        <module>portalpack.servers.websynergy</module>
         <module>portalpack.websynergy.palette</module>
         <module>portalpack.websynergy.portlets</module>
         <module>portalpack.websynergy.servicebuilder</module>
+        -->
+        <module>portalpack.webflow</module>
+        <module>portalpack.visualweb</module>
         <module>primitivesettings</module>
         <module>profiles</module>
         <module>progress.transactional</module>

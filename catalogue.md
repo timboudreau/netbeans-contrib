@@ -1431,22 +1431,6 @@ NetBeans modules that can be built now.
 > Provides an action on folders to change the license headers on all files underneath
 
 
-### Liferay Plugins
-*Version*: 1.0.5
-
-*Relative Path*: portalpack.websynergy.portlets
-
-> Liferay Plugins
-
-
-### Liferay Service Builder
-*Version*: 0.9.15
-
-*Relative Path*: portalpack.websynergy.servicebuilder
-
-> Liferay Service Builder
-
-
 ### Line Tools
 *Version*: 1.18
 
@@ -2633,14 +2617,6 @@ NetBeans modules that can be built now.
 > Installs the Web Services Interoperability Technology Library
 
 
-### WebSpace/Liferay Palette
-*Version*: 1.0.5
-
-*Relative Path*: portalpack.websynergy.palette
-
-> WebSpace Palette
-
-
 ### Which Element
 *Version*: 1.6
 
@@ -3122,12 +3098,28 @@ Modules not currently included in the build, either because their dependencies h
 > Models NetBeans Sources based on the LG-NB Model API
 
 
+### Liferay Plugins
+*Version*: 1.0.5
+
+*Relative Path*: portalpack.websynergy.portlets
+
+> Liferay Plugins
+
+
 ### Liferay Server Plugin
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.servers.websynergy
 
 > Plugin to develop and deploy portlets on Liferay Portal Server/Sun Glassfish Web Space.
+
+
+### Liferay Service Builder
+*Version*: 0.9.15
+
+*Relative Path*: portalpack.websynergy.servicebuilder
+
+> Liferay Service Builder
 
 
 ### Make2netbeans
@@ -3384,6 +3376,14 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: web.webrest
 
 > REST support for Web Projects
+
+
+### WebSpace/Liferay Palette
+*Version*: 1.0.5
+
+*Relative Path*: portalpack.websynergy.palette
+
+> WebSpace Palette
 
 
 ### XML Editor Support
