@@ -151,9 +151,13 @@
                     </plugins>
                 </pluginManagement>
             </build>
+            <properties>
+                <java.source.level>1.8</java.source.level>
+            </properties>            
         </profile>
     </profiles>
     <modules>
+        <module>other/BeansToNbm/beans2nbm</module>
         <module>a11y</module>
         <module>a11ychecker</module>
         <module>accelerators</module>
