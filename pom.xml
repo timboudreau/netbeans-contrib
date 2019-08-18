@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
         Licensed to the Apache Software Foundation (ASF) under one
         or more contributor license agreements.  See the NOTICE file
@@ -46,9 +45,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>org.apache.netbeans.utilities</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>4.1</version>
+                    <version>4.2</version>
                     <extensions>true</extensions>
                     <configuration>
                         <cluster>extra</cluster>
@@ -587,7 +586,8 @@
         <module>portalpack.servers.base_psframework</module>
         <module>portalpack.servers.opensourcepc</module>
         <module>portalpack.servers.sunps</module>
-        <module>portalpack.servers.websynergy</module>
+        <!--    Some kind of verification failure with jaxws classes
+        <module>portalpack.servers.websynergy</module> -->
         <module>portalpack.webflow</module>
         <module>portalpack.visualweb</module>
         <module>portalpack.websynergy.palette</module>
@@ -1056,6 +1056,11 @@
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-editor-mimelookup</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-editor-mimelookup</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
             <dependency>

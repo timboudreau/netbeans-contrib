@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -174,6 +173,11 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-websvc-jaxws21api</artifactId>
+            <version>RELEASE65</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -182,16 +186,26 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <codeNameBase>org.netbeans.modules.portalpack.servers.websynergy</codeNameBase>
                     <cluster>extra</cluster>
+                    <useOSGiDependencies>false</useOSGiDependencies>
                     <requiresRestart>true</requiresRestart>
                     <publicPackages>
                         <publicPackage>org.netbeans.modules.portalpack.servers.websynergy.common</publicPackage>
                     </publicPackages>
+                    <verifyRuntime>skip</verifyRuntime>
+                    <libraries>
+                        <library>javax.xml.ws:jaxws-api</library>
+                    </libraries>
                     <moduleDependencies>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-websvc-jaxws21api</id>
+                            <!--<explicitValue>org.netbeans.modules.websvc.jaxws21api/1 &gt; 1.10.1</explicitValue>-->
+                            <type>impl</type>
+                        </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-apache-tools-ant-module</id>
                             <explicitValue>org.apache.tools.ant.module/3 &gt; 3.27.1.2</explicitValue>

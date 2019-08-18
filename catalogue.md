@@ -1439,14 +1439,6 @@ NetBeans modules that can be built now.
 > Liferay Plugins
 
 
-### Liferay Server Plugin
-*Version*: 1.0.5
-
-*Relative Path*: portalpack.servers.websynergy
-
-> Plugin to develop and deploy portlets on Liferay Portal Server/Sun Glassfish Web Space.
-
-
 ### Liferay Service Builder
 *Version*: 0.9.15
 
@@ -3128,6 +3120,14 @@ Modules not currently included in the build, either because their dependencies h
 *Relative Path*: venice.sourcemodel
 
 > Models NetBeans Sources based on the LG-NB Model API
+
+
+### Liferay Server Plugin
+*Version*: 1.0.5
+
+*Relative Path*: portalpack.servers.websynergy
+
+> Plugin to develop and deploy portlets on Liferay Portal Server/Sun Glassfish Web Space.
 
 
 ### Make2netbeans

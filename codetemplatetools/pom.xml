@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -48,6 +47,10 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor-settings</artifactId>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -102,7 +105,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <codeNameBase>org.netbeans.modules.codetemplatetools</codeNameBase>
@@ -113,6 +116,7 @@
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-modules-editor-codetemplates</id>
                             <explicitValue>org.netbeans.modules.editor.codetemplates/1 &gt; 1.1.1</explicitValue>
+                            <type>impl</type>
                             <!--Generated 2018-07-21 against code-name-base: org.netbeans.modules.editor.codetemplates/1 specification-version: 1.43.1.1 implementation-version: 1 build-version: 201609300101 has-public-packages-->
                         </dependency>
                         <dependency>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.netbeans.contrib</groupId>
@@ -54,14 +53,12 @@
                     <execution>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <target name="antlr" >
-                                <mkdir dir="${antlr.output.dir}" /> 
+                            <target name="antlr">
+                                <mkdir dir="${antlr.output.dir}"/> 
                                 <!--<antlr target="${antlr.source.dir}/f77-antlr2.g" outputdirectory="${antlr.source.dir}">-->
                                 <!--<antlr target="${basedir}/src/main/antlr/f77-antlr2.g"--> 
                                 <!--<antlr target="${antlr.source.dir}/f77-antlr2.g"--> 
-                                <antlr target="${basedir}/src/main/antlr/f77-antlr2.g" 
-                                       outputdirectory="target/generated-sources/antlr/org/netbeans/modules/fortran/generated"
-                                >
+                                <antlr outputdirectory="target/generated-sources/antlr/org/netbeans/modules/fortran/generated" target="${basedir}/src/main/antlr/f77-antlr2.g">
 <!--                                       diagnostic="yes"
                                        html="yes"-->
                                     <!-- Is there some maven property to use here instead?  This is ugly, but
@@ -119,7 +116,7 @@
                 </executions>
             </plugin>            
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <codeNameBase>org.netbeans.modules.cnd.fortran.grammar</codeNameBase>
