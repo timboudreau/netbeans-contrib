@@ -3,7 +3,7 @@
 
 NetBeans modules that can be built now.
 
-###Accelerators
+### Accelerators
 *Version*: 1.0
 
 *Relative Path*: accelerators
@@ -11,7 +11,7 @@ NetBeans modules that can be built now.
 > Miscellaneous useful shortcuts.
 
 
-###Accessibility
+### Accessibility
 *Version*: 3.7
 
 *Relative Path*: a11y
@@ -19,7 +19,7 @@ NetBeans modules that can be built now.
 > Allows accessibility of forms to be assessed at design-time.
 
 
-###Accessibility Checker
+### Accessibility Checker
 *Version*: 1.1
 
 *Relative Path*: a11ychecker
@@ -29,7 +29,7 @@ NetBeans modules that can be built now.
 > Accessibility Checker provides easy control over accessibility in design time of a form
 
 
-###Action API Helper Utilities
+### Action API Helper Utilities
 *Version*: 0.10
 
 *Relative Path*: spi.actions.support
@@ -37,7 +37,7 @@ NetBeans modules that can be built now.
 
 
 
-###Ada
+### Ada
 *Version*: 0.1.9
 
 *Relative Path*: ada.kit
@@ -47,7 +47,7 @@ NetBeans modules that can be built now.
 > Provides tools and support for Ada development.
 
 
-###Ada Editor
+### Ada Editor
 *Version*: 0.1.10
 
 *Relative Path*: ada.editor
@@ -57,7 +57,7 @@ NetBeans modules that can be built now.
 > Support for editing Ada files.
 
 
-###Ada Help
+### Ada Help
 *Version*: 0.1.0
 
 *Relative Path*: ada.help
@@ -67,7 +67,7 @@ NetBeans modules that can be built now.
 > Online help pages for the IDE's Ada support
 
 
-###Ada Options
+### Ada Options
 *Version*: 0.1.4
 
 *Relative Path*: ada.options
@@ -77,7 +77,7 @@ NetBeans modules that can be built now.
 > Ada options.
 
 
-###Ada Platform
+### Ada Platform
 *Version*: 0.1.5
 
 *Relative Path*: ada.platform
@@ -87,7 +87,7 @@ NetBeans modules that can be built now.
 > Infrastructure and APIs for configuring and searching Ada platforms.
 
 
-###Ada Project
+### Ada Project
 *Version*: 0.1.7
 
 *Relative Path*: ada.project
@@ -97,7 +97,7 @@ NetBeans modules that can be built now.
 > Support for Ada projects.
 
 
-###Adaptable Framework
+### Adaptable Framework
 *Version*: 0.3
 
 *Relative Path*: adaptable
@@ -105,7 +105,7 @@ NetBeans modules that can be built now.
 > Generic interface to query capabilities of an object.
 
 
-###Adaptable Looks Bridge
+### Adaptable Looks Bridge
 *Version*: 0.1
 
 *Relative Path*: adlooks
@@ -113,7 +113,7 @@ NetBeans modules that can be built now.
 > Provides Basic Aspects Based
 
 
-###Adaptable Lookup Framework
+### Adaptable Lookup Framework
 *Version*: 0.1
 
 *Relative Path*: adlookup
@@ -121,7 +121,7 @@ NetBeans modules that can be built now.
 > Bridge between Adaptable Framework and Lookup
 
 
-###Adaptable Node
+### Adaptable Node
 *Version*: 1.0
 
 *Relative Path*: api.adnode
@@ -129,7 +129,7 @@ NetBeans modules that can be built now.
 
 
 
-###Additional Java Navigator Panels
+### Additional Java Navigator Panels
 *Version*: 1.9
 
 *Relative Path*: javanavigators
@@ -137,7 +137,7 @@ NetBeans modules that can be built now.
 > A list-style navigator panel for Java sources
 
 
-###Annoyance Whacker
+### Annoyance Whacker
 *Version*: 1.0
 
 *Relative Path*: annoyancewhacker
@@ -147,7 +147,7 @@ NetBeans modules that can be built now.
 > A module which turns off various popups and minimizes screen real estate waste
 
 
-###ANTLR 3 Editor
+### ANTLR 3 Editor
 *Version*: 0.1
 
 *Relative Path*: o.n.antlr.editor
@@ -155,7 +155,7 @@ NetBeans modules that can be built now.
 
 
 
-###Archiver
+### Archiver
 *Version*: 1.7
 
 *Relative Path*: archiver
@@ -163,7 +163,7 @@ NetBeans modules that can be built now.
 > Work with the Java XML bean archiver.
 
 
-###Asynchronous Work Queues
+### Asynchronous Work Queues
 *Version*: 1.1
 
 *Relative Path*: api.workqueues
@@ -173,7 +173,7 @@ NetBeans modules that can be built now.
 > Library that provides a standard way to perform long-running work on an object in a background thread
 
 
-###Automatic Projects
+### Automatic Projects
 *Version*: 1.40
 
 *Relative Path*: autoproject.java
@@ -183,7 +183,7 @@ NetBeans modules that can be built now.
 > Project type which tries to infer setup automatically.
 
 
-###Automatic Projects Core
+### Automatic Projects Core
 *Version*: 1.21
 
 *Relative Path*: autoproject.core
@@ -191,7 +191,7 @@ NetBeans modules that can be built now.
 
 
 
-###Automatic Projects for Web
+### Automatic Projects for Web
 *Version*: 1.6
 
 *Relative Path*: autoproject.web
@@ -199,7 +199,7 @@ NetBeans modules that can be built now.
 
 
 
-###Automatic Projects Profiling
+### Automatic Projects Profiling
 *Version*: 1.6
 
 *Relative Path*: autoproject.profiler
@@ -207,7 +207,7 @@ NetBeans modules that can be built now.
 
 
 
-###Automatically close least used editors
+### Automatically close least used editors
 *Version*: 1.0
 
 *Relative Path*: autoclose
@@ -215,7 +215,7 @@ NetBeans modules that can be built now.
 > Sample autoclose module
 
 
-###AutoSave Module
+### AutoSave Module
 *Version*: 1.9
 
 *Relative Path*: autosave
@@ -225,7 +225,7 @@ NetBeans modules that can be built now.
 > Save automatically unsaved files between a predefined interval.
 
 
-###Beta Editor Support
+### Beta Editor Support
 *Version*: 1.3
 
 *Relative Path*: languages.beta
@@ -233,7 +233,7 @@ NetBeans modules that can be built now.
 > Support for editing Beta language files.
 
 
-###Blacklist JDK Non Public Classes
+### Blacklist JDK Non Public Classes
 *Version*: 1.0
 
 *Relative Path*: jdkblacklist
@@ -241,7 +241,7 @@ NetBeans modules that can be built now.
 
 
 
-###Bluej Upgrade
+### Bluej Upgrade
 *Version*: 1.0
 
 *Relative Path*: bluej-suite/bluej-upgrade
@@ -249,7 +249,7 @@ NetBeans modules that can be built now.
 > Import IDE environment and settings.
 
 
-###Bluej Welcome
+### Bluej Welcome
 *Version*: 1.0
 
 *Relative Path*: bluej-suite/bluej-welcome
@@ -257,7 +257,7 @@ NetBeans modules that can be built now.
 
 
 
-###Bookmarks
+### Bookmarks
 *Version*: 1.0
 
 *Relative Path*: bookmarks
@@ -265,7 +265,7 @@ NetBeans modules that can be built now.
 > Navigation bookmarks
 
 
-###Breadcrumb
+### Breadcrumb
 *Version*: 1.0
 
 *Relative Path*: breadcrumb
@@ -273,7 +273,7 @@ NetBeans modules that can be built now.
 > Provides a "breadcrumb" list of recently edited files at the bottom of the main window. Click a file name to navigate to it
 
 
-###Bug List
+### Bug List
 *Version*: 0.21.0
 
 *Relative Path*: tasklist.bugs
@@ -281,7 +281,7 @@ NetBeans modules that can be built now.
 > This module lists your bugs
 
 
-###Bundled Tomcat 5 Server
+### Bundled Tomcat 5 Server
 *Version*: 1.7
 
 *Relative Path*: tomcat5.bundled
@@ -289,7 +289,7 @@ NetBeans modules that can be built now.
 > Tomcat 5 server software distributed with the IDE.
 
 
-###C/C++ Language Model Persistence
+### C/C++ Language Model Persistence
 *Version*: 1.0
 
 *Relative Path*: cnd.persistence
@@ -297,7 +297,7 @@ NetBeans modules that can be built now.
 > Allows C/C++ Language Model elements to be stored to disk
 
 
-###C/C++ Language Model Persistence API
+### C/C++ Language Model Persistence API
 *Version*: 1.0
 
 *Relative Path*: cnd.persistence.api
@@ -305,7 +305,7 @@ NetBeans modules that can be built now.
 > C/C++ Language Model Persistence API
 
 
-###C/C++ Update
+### C/C++ Update
 *Version*: 1.2
 
 *Relative Path*: cnd.update
@@ -313,7 +313,7 @@ NetBeans modules that can be built now.
 > Enables dynamic updating of C/C++ Pack through the Update Center.
 
 
-###Checkstyle Suggestion Provider
+### Checkstyle Suggestion Provider
 *Version*: 1.38.0
 
 *Relative Path*: tasklist.checkstyle
@@ -323,7 +323,7 @@ NetBeans modules that can be built now.
 > Provides Checkstyle Rule Violations as Suggestions
 
 
-###Checkstyle TaskList Integration
+### Checkstyle TaskList Integration
 *Version*: 1.0
 
 *Relative Path*: tasklist.checkstyleint
@@ -331,7 +331,7 @@ NetBeans modules that can be built now.
 > Show Checkstyle warnings in TaskList window
 
 
-###Close Editor Tabs
+### Close Editor Tabs
 *Version*: 1.0
 
 *Relative Path*: cz.solutions.simpleedit
@@ -339,7 +339,7 @@ NetBeans modules that can be built now.
 > Allow automatic closing of editor tabs
 
 
-###CMS FrameWork
+### CMS FrameWork
 *Version*: 1.0.4
 
 *Relative Path*: portalpack.cms
@@ -347,7 +347,7 @@ NetBeans modules that can be built now.
 > Plugin to develop CMS applications
 
 
-###Cobertura Integration
+### Cobertura Integration
 *Version*: 1.0
 
 *Relative Path*: libs.cobertura
@@ -355,7 +355,7 @@ NetBeans modules that can be built now.
 > Bundles the Cobertura library.
 
 
-###Cobertura Module Test Coverage
+### Cobertura Module Test Coverage
 *Version*: 1.5
 
 *Relative Path*: apisupport.tc.cobertura
@@ -365,7 +365,7 @@ NetBeans modules that can be built now.
 > Ant targets for measuring test coverage of apisupport projects using Cobertura.
 
 
-###Cobol Editor Support
+### Cobol Editor Support
 *Version*: 1.3
 
 *Relative Path*: languages.cobol
@@ -373,7 +373,7 @@ NetBeans modules that can be built now.
 > Support for editing Cobol files.
 
 
-###Code Template Tools
+### Code Template Tools
 *Version*: 1.34
 
 *Relative Path*: codetemplatetools
@@ -383,7 +383,7 @@ NetBeans modules that can be built now.
 > Interactively work with Code Templates. Support for Registers.
 
 
-###Color Chooser
+### Color Chooser
 *Version*: 1.0
 
 *Relative Path*: other/EditorThemeSuite/colorchooser
@@ -391,7 +391,7 @@ NetBeans modules that can be built now.
 
 
 
-###Colorings
+### Colorings
 *Version*: 1.0
 
 *Relative Path*: colorings
@@ -399,7 +399,7 @@ NetBeans modules that can be built now.
 > Contains font and color schemes.
 
 
-###Common Scripting Language API
+### Common Scripting Language API
 *Version*: 1.19.0
 
 *Relative Path*: gsf.api
@@ -407,7 +407,7 @@ NetBeans modules that can be built now.
 > API for defining custom languages in the IDE
 
 
-###Common Scripting Language Platform Support
+### Common Scripting Language Platform Support
 *Version*: 0.45
 
 *Relative Path*: gsfpath.api
@@ -415,7 +415,7 @@ NetBeans modules that can be built now.
 > APIs for handling paths in the Common Scripting Language Framework
 
 
-###Common Scripting Language Support
+### Common Scripting Language Support
 *Version*: 0.89.0
 
 *Relative Path*: gsf
@@ -423,7 +423,7 @@ NetBeans modules that can be built now.
 > Generic support for language integration in the IDE
 
 
-###Commons Lang Integration
+### Commons Lang Integration
 *Version*: 1.1.0
 
 *Relative Path*: libs.commons_lang
@@ -431,7 +431,7 @@ NetBeans modules that can be built now.
 > This module bundles Apache Commons Lang Library.
 
 
-###Convertor API
+### Convertor API
 *Version*: 1.4
 
 *Relative Path*: convertor
@@ -439,7 +439,7 @@ NetBeans modules that can be built now.
 > Infrastructure for object persistence
 
 
-###Copy FQN
+### Copy FQN
 *Version*: 2.4
 
 *Relative Path*: o.n.module.copyfqn
@@ -449,7 +449,7 @@ NetBeans modules that can be built now.
 > Copy FQN
 
 
-###Copy Path
+### Copy Path
 *Version*: 1.0
 
 *Relative Path*: copypath
@@ -457,7 +457,7 @@ NetBeans modules that can be built now.
 
 
 
-###CVS Remote Projects
+### CVS Remote Projects
 *Version*: 1.0
 
 *Relative Path*: remoteproject.cvsprj
@@ -465,7 +465,7 @@ NetBeans modules that can be built now.
 
 
 
-###CVSROOT Selector
+### CVSROOT Selector
 *Version*: 1.1
 
 *Relative Path*: net.java.dev.cvsrootselector
@@ -473,7 +473,7 @@ NetBeans modules that can be built now.
 > Changes working directory binding to a CVS repository.
 
 
-###Dark Nimbus Theme
+### Dark Nimbus Theme
 *Version*: 1.1
 
 *Relative Path*: nimbus.theme
@@ -483,7 +483,7 @@ NetBeans modules that can be built now.
 > Dark theme for Nimbus Look and Feel
 
 
-###Debugger Retry Support
+### Debugger Retry Support
 *Version*: 1.6
 
 *Relative Path*: o.n.contrib.debuggerretry
@@ -491,7 +491,7 @@ NetBeans modules that can be built now.
 > Action that combines "Pop Stack Frame" with "Step Into"
 
 
-###Debugging for javac
+### Debugging for javac
 *Version*: 2.7
 
 *Relative Path*: java.debugjavac
@@ -501,7 +501,7 @@ NetBeans modules that can be built now.
 > Find out how javac desugars and compiles Java source code
 
 
-###Declaration And Javadoc
+### Declaration And Javadoc
 *Version*: 1.1
 
 *Relative Path*: declarationandjavadoc
@@ -511,7 +511,7 @@ NetBeans modules that can be built now.
 > Show declaration and javadoc in top components
 
 
-###Desktop Sampler
+### Desktop Sampler
 *Version*: 1.3
 
 *Relative Path*: desktopsampler
@@ -521,7 +521,7 @@ NetBeans modules that can be built now.
 > Desktop Sampler
 
 
-###Disk Cleanup Tool
+### Disk Cleanup Tool
 *Version*: 1.0.0
 
 *Relative Path*: diskcleanuptool
@@ -531,7 +531,7 @@ NetBeans modules that can be built now.
 > A module to delete large directories without consuming disk and processor resources
 
 
-###DOAP Projects
+### DOAP Projects
 *Version*: 1.0
 
 *Relative Path*: doap
@@ -539,7 +539,7 @@ NetBeans modules that can be built now.
 
 
 
-###DocBook Projects
+### DocBook Projects
 *Version*: 1.13
 
 *Relative Path*: docbook.project
@@ -547,7 +547,7 @@ NetBeans modules that can be built now.
 > Project type for DocBook documents.
 
 
-###DocBook XML
+### DocBook XML
 *Version*: 1.36
 
 *Relative Path*: docbook
@@ -555,7 +555,7 @@ NetBeans modules that can be built now.
 > Author documentation with Solbook and DocBook
 
 
-###Dynamic Action Nodes
+### Dynamic Action Nodes
 *Version*: 1.0
 
 *Relative Path*: dynactions.nodes
@@ -565,7 +565,7 @@ NetBeans modules that can be built now.
 
 
 
-###Dynamic Actions
+### Dynamic Actions
 *Version*: 1.0
 
 *Relative Path*: api.dynactions
@@ -575,7 +575,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor Code Completion Prior 6.1 Separation
+### Editor Code Completion Prior 6.1 Separation
 *Version*: 1.3
 
 *Relative Path*: editor.deprecated.pre61completion
@@ -583,7 +583,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor Hints for XML
+### Editor Hints for XML
 *Version*: 1.0
 
 *Relative Path*: editor.hints.xml
@@ -591,7 +591,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor Probe
+### Editor Probe
 *Version*: 1.6.0
 
 *Relative Path*: editor.probe
@@ -599,7 +599,7 @@ NetBeans modules that can be built now.
 > Probes the editor infrastructure and displays its status
 
 
-###Editor Settings Prior 6.1 Separation
+### Editor Settings Prior 6.1 Separation
 *Version*: 1.12.0
 
 *Relative Path*: editor.deprecated.pre61settings
@@ -607,7 +607,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor Theme Export
+### Editor Theme Export
 *Version*: 1.0
 
 *Relative Path*: editorthemes.export
@@ -615,7 +615,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor Themes
+### Editor Themes
 *Version*: 1.1
 
 *Relative Path*: other/EditorThemeSuite/editorthemes
@@ -623,7 +623,7 @@ NetBeans modules that can be built now.
 
 
 
-###Editor TODO Highlighting
+### Editor TODO Highlighting
 *Version*: 2.9.0
 
 *Relative Path*: showtodos
@@ -631,7 +631,7 @@ NetBeans modules that can be built now.
 > Highlights TODO items in source editor comments
 
 
-###Encoding Support
+### Encoding Support
 *Version*: 1.2
 
 *Relative Path*: encoding
@@ -639,7 +639,7 @@ NetBeans modules that can be built now.
 > Provides utilities for handling files in various encodings
 
 
-###Entity Relationship Diagram Support
+### Entity Relationship Diagram Support
 *Version*: 1.5
 
 *Relative Path*: o.n.erdbeans
@@ -647,7 +647,7 @@ NetBeans modules that can be built now.
 > The module allows to visually represent data model using entity relationship diagram.
 
 
-###Erlang Console
+### Erlang Console
 *Version*: 0.17.0
 
 *Relative Path*: erlang.console
@@ -655,7 +655,7 @@ NetBeans modules that can be built now.
 > Erlang Console
 
 
-###Erlang Editing
+### Erlang Editing
 *Version*: 0.15.6
 
 *Relative Path*: erlang.editing
@@ -663,7 +663,7 @@ NetBeans modules that can be built now.
 > Support for editing Erlang files.
 
 
-###Erlang Editor
+### Erlang Editor
 *Version*: 0.1.2
 
 *Relative Path*: erlang.editor
@@ -671,7 +671,7 @@ NetBeans modules that can be built now.
 > Support for processing Erlang files.
 
 
-###Erlang JInterface
+### Erlang JInterface
 *Version*: 1.4
 
 *Relative Path*: c.ericsson.otp.erlang
@@ -679,7 +679,7 @@ NetBeans modules that can be built now.
 > Erlang/OTP JInterface
 
 
-###Erlang Kit
+### Erlang Kit
 *Version*: 0.17.0
 
 *Relative Path*: erlang.kit
@@ -687,7 +687,7 @@ NetBeans modules that can be built now.
 > Wrapper module for all Erlana functionality
 
 
-###Erlang Makefile Project
+### Erlang Makefile Project
 *Version*: 0.16.0
 
 *Relative Path*: erlang.makeproject
@@ -695,7 +695,7 @@ NetBeans modules that can be built now.
 > Erlang Makefile based project support
 
 
-###Erlang Platform
+### Erlang Platform
 *Version*: 0.18.0
 
 *Relative Path*: erlang.platform
@@ -703,7 +703,7 @@ NetBeans modules that can be built now.
 > Erlang Platform Support
 
 
-###Erlang Project
+### Erlang Project
 *Version*: 0.17.0
 
 *Relative Path*: erlang.project
@@ -711,7 +711,7 @@ NetBeans modules that can be built now.
 > Supports plain Erlang projects
 
 
-###EView
+### EView
 *Version*: 0.2
 
 *Relative Path*: eview
@@ -719,7 +719,7 @@ NetBeans modules that can be built now.
 > EView provides a view with expandable handler
 
 
-###Experimental Editor Hints SPI Support
+### Experimental Editor Hints SPI Support
 *Version*: 1.0
 
 *Relative Path*: editor.hints.spi.support
@@ -727,7 +727,7 @@ NetBeans modules that can be built now.
 
 
 
-###Experimental Java Hints
+### Experimental Java Hints
 *Version*: 2.62.0
 
 *Relative Path*: javahints
@@ -735,7 +735,7 @@ NetBeans modules that can be built now.
 > Experimental Java Hints
 
 
-###Explore From Here
+### Explore From Here
 *Version*: 1.3
 
 *Relative Path*: explorefromhere
@@ -743,7 +743,7 @@ NetBeans modules that can be built now.
 > Adds an Explore From Here action to folders
 
 
-###Extended Java Editor
+### Extended Java Editor
 *Version*: 1.30.0
 
 *Relative Path*: java.ext.editor
@@ -753,7 +753,7 @@ NetBeans modules that can be built now.
 > Additional features for the Java editor
 
 
-###Extensible Node
+### Extensible Node
 *Version*: 1.2
 
 *Relative Path*: enode
@@ -761,7 +761,7 @@ NetBeans modules that can be built now.
 > Small extension to Nodes API.
 
 
-###External Tools Intergation
+### External Tools Intergation
 *Version*: 1.0
 
 *Relative Path*: toolsintegration
@@ -769,7 +769,7 @@ NetBeans modules that can be built now.
 
 
 
-###Extra Task List Scanning Scope
+### Extra Task List Scanning Scope
 *Version*: 1.0
 
 *Relative Path*: tasklist.scanningscopes
@@ -777,7 +777,7 @@ NetBeans modules that can be built now.
 > Additional task scanning scopes for Task List window in NetBeans 6.0
 
 
-###Feature Entry Points
+### Feature Entry Points
 *Version*: 1.1
 
 *Relative Path*: featureentries
@@ -785,7 +785,7 @@ NetBeans modules that can be built now.
 
 
 
-###Feature On Demand
+### Feature On Demand
 *Version*: 1.3
 
 *Relative Path*: autoupdate.featureondemand
@@ -793,7 +793,7 @@ NetBeans modules that can be built now.
 
 
 
-###Features As Views
+### Features As Views
 *Version*: 1.0
 
 *Relative Path*: features2views
@@ -803,7 +803,7 @@ NetBeans modules that can be built now.
 > Provider views of installed modules.
 
 
-###File Open Server
+### File Open Server
 *Version*: 1.1
 
 *Relative Path*: fileopenserver
@@ -813,7 +813,7 @@ NetBeans modules that can be built now.
 > File Open Server
 
 
-###FileSystem based code completion for Java
+### FileSystem based code completion for Java
 *Version*: 1.0
 
 *Relative Path*: java.fscompletion
@@ -821,7 +821,7 @@ NetBeans modules that can be built now.
 > An experimental FileSystem based code completion for Java
 
 
-###FileSystem Completion
+### FileSystem Completion
 *Version*: 1.1
 
 *Relative Path*: editor.fscompletion
@@ -829,7 +829,7 @@ NetBeans modules that can be built now.
 > Support SPI for FileObject based completion
 
 
-###Fisheye Text View Factory
+### Fisheye Text View Factory
 *Version*: 2.3
 
 *Relative Path*: fisheye
@@ -839,7 +839,7 @@ NetBeans modules that can be built now.
 > A module that can provide "fish eye" views over a text component
 
 
-###Flying Saucer Nb Integration
+### Flying Saucer Nb Integration
 *Version*: 1.0
 
 *Relative Path*: flyingsaucer
@@ -847,7 +847,7 @@ NetBeans modules that can be built now.
 > Integrates the Flying Saucer XHTML renderer into NetBeans
 
 
-###Fold Support
+### Fold Support
 *Version*: 1.5
 
 *Relative Path*: editor.fold.support
@@ -857,7 +857,7 @@ NetBeans modules that can be built now.
 
 
 
-###Folder to HTML
+### Folder to HTML
 *Version*: 1.3
 
 *Relative Path*: folder2html
@@ -865,7 +865,7 @@ NetBeans modules that can be built now.
 > Adds an action to folders that dumps the file tree to the output window in html
 
 
-###Format Many
+### Format Many
 *Version*: 1.3
 
 *Relative Path*: formatmany
@@ -873,7 +873,7 @@ NetBeans modules that can be built now.
 > Format files in projects, directories and packages
 
 
-###Fortran
+### Fortran
 *Version*: 1.1
 
 *Relative Path*: cnd.fortran
@@ -881,7 +881,7 @@ NetBeans modules that can be built now.
 
 
 
-###Fortran ANTLR 2 Grammar
+### Fortran ANTLR 2 Grammar
 *Version*: 1.0
 
 *Relative Path*: cnd.fortran/grammar
@@ -889,7 +889,7 @@ NetBeans modules that can be built now.
 > Builds and packages an ANTLR grammar of Fortran for use as a library
 
 
-###Fortran Editor Support
+### Fortran Editor Support
 *Version*: 1.3
 
 *Relative Path*: languages.fortran
@@ -897,7 +897,7 @@ NetBeans modules that can be built now.
 > Support for editing Fortran files.
 
 
-###Freeform Project Extras
+### Freeform Project Extras
 *Version*: 1.20
 
 *Relative Path*: ant.freeform.samples
@@ -907,7 +907,7 @@ NetBeans modules that can be built now.
 > Tools, technical docs, templates, and samples for freeform (Ant-based) projects.
 
 
-###FreeMarker Editor Support
+### FreeMarker Editor Support
 *Version*: 1.5
 
 *Relative Path*: languages.freemarker
@@ -915,7 +915,7 @@ NetBeans modules that can be built now.
 > Support for editing FreeMarker files.
 
 
-###Freemarker templates
+### Freemarker templates
 *Version*: 1.2
 
 *Relative Path*: freemarker
@@ -923,7 +923,7 @@ NetBeans modules that can be built now.
 > Nicer display of freemarker templates
 
 
-###Gdbserver
+### Gdbserver
 *Version*: 2.6
 
 *Relative Path*: cnd.debugger.gdbserver
@@ -933,7 +933,7 @@ NetBeans modules that can be built now.
 > gdbserver support
 
 
-###GDELib
+### GDELib
 *Version*: 1.0
 
 *Relative Path*: other/tteditor/GDESuite/GDELib
@@ -941,7 +941,7 @@ NetBeans modules that can be built now.
 
 
 
-###GDEWizard
+### GDEWizard
 *Version*: 1.0
 
 *Relative Path*: other/tteditor/GDESuite/GDEWizard
@@ -949,7 +949,7 @@ NetBeans modules that can be built now.
 
 
 
-###Generate Java Hints Wiki
+### Generate Java Hints Wiki
 *Version*: 1.0
 
 *Relative Path*: javahints.generate
@@ -957,7 +957,7 @@ NetBeans modules that can be built now.
 
 
 
-###Generic Languages Framework Studio
+### Generic Languages Framework Studio
 *Version*: 1.20
 
 *Relative Path*: languages.studio
@@ -965,7 +965,7 @@ NetBeans modules that can be built now.
 > Support for writing GLF Plug-ins.
 
 
-###Generic Navigator
+### Generic Navigator
 *Version*: 1.14
 
 *Relative Path*: genericnavigator
@@ -975,7 +975,7 @@ NetBeans modules that can be built now.
 > Provides navigator panels for fast navigation of plaintext, html and properties files using regexps. You can add navigator views for additional file types by defining your own regexps.
 
 
-###Generic Portlets
+### Generic Portlets
 *Version*: 3.0.5
 
 *Relative Path*: portalpack.portlets.genericportlets
@@ -983,7 +983,7 @@ NetBeans modules that can be built now.
 > Plugin to create JSR 168 based generic portlet
 
 
-###Google toolbar
+### Google toolbar
 *Version*: 1.0
 
 *Relative Path*: googletoolbar
@@ -991,7 +991,7 @@ NetBeans modules that can be built now.
 
 
 
-###Graph Layout Visualizer
+### Graph Layout Visualizer
 *Version*: 1.1
 
 *Relative Path*: lib.graphlayout
@@ -999,8 +999,8 @@ NetBeans modules that can be built now.
 
 
 
-###Graphical Class View
-*Version*: 1.5
+### Graphical Class View
+*Version*: 1.6
 
 *Relative Path*: graphicclassview
 
@@ -1009,7 +1009,7 @@ NetBeans modules that can be built now.
 > Provides a diagram of Java classes showing interdependencies between fields and methods in that class
 
 
-###Group of Files
+### Group of Files
 *Version*: 1.6
 
 *Relative Path*: group
@@ -1017,7 +1017,7 @@ NetBeans modules that can be built now.
 > Support for groups of files.
 
 
-###GWT Support
+### GWT Support
 *Version*: 1.2
 
 *Relative Path*: gwtsupport
@@ -1025,7 +1025,7 @@ NetBeans modules that can be built now.
 
 
 
-###Haml Editor Support
+### Haml Editor Support
 *Version*: 1.4
 
 *Relative Path*: languages.haml
@@ -1033,7 +1033,7 @@ NetBeans modules that can be built now.
 > Support for editing Haml files.
 
 
-###Hex Editor
+### Hex Editor
 *Version*: 1.3
 
 *Relative Path*: hexeditor
@@ -1043,7 +1043,7 @@ NetBeans modules that can be built now.
 > Integrates a Hex Editor - right click a file and choose Tools > Hex Edit
 
 
-###Highlight Boxing Unboxing Varargs
+### Highlight Boxing Unboxing Varargs
 *Version*: 1.6
 
 *Relative Path*: java.highlightboxingunboxingvarargs
@@ -1053,7 +1053,7 @@ NetBeans modules that can be built now.
 > Highlight occurrences of JDK5 Boxing and Unboxing
 
 
-###HTML Diff
+### HTML Diff
 *Version*: 0.3
 
 *Relative Path*: htmldiff
@@ -1061,7 +1061,7 @@ NetBeans modules that can be built now.
 > Adds support for visualization of differences in HTML pages.
 
 
-###HTML Editor Add Ons
+### HTML Editor Add Ons
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/htmleditor/addons
@@ -1069,7 +1069,7 @@ NetBeans modules that can be built now.
 
 
 
-###HTML Preview
+### HTML Preview
 *Version*: 1.0
 
 *Relative Path*: html.preview
@@ -1079,7 +1079,7 @@ NetBeans modules that can be built now.
 > Enables live preview tab in HTML editors
 
 
-###HTML Project Support
+### HTML Project Support
 *Version*: 1.15
 
 *Relative Path*: htmlprojects
@@ -1087,7 +1087,7 @@ NetBeans modules that can be built now.
 > Recognizes web sites as a simple kind of project.
 
 
-###HTML Suggestion Provider
+### HTML Suggestion Provider
 *Version*: 1.10.0
 
 *Relative Path*: tasklist.html
@@ -1095,7 +1095,7 @@ NetBeans modules that can be built now.
 > Provides HTML error suggestions
 
 
-###Hunspell
+### Hunspell
 *Version*: 1.0
 
 *Relative Path*: spellchecker.hunspell
@@ -1103,7 +1103,7 @@ NetBeans modules that can be built now.
 
 
 
-###I18N Checker
+### I18N Checker
 *Version*: 1.10.0
 
 *Relative Path*: editor.hints.i18n
@@ -1111,7 +1111,7 @@ NetBeans modules that can be built now.
 
 
 
-###ICal4j Integration
+### ICal4j Integration
 *Version*: 1.2.0
 
 *Relative Path*: libs.ical4j
@@ -1119,7 +1119,7 @@ NetBeans modules that can be built now.
 > This module bundles iCal4j.
 
 
-###Image Paste Support
+### Image Paste Support
 *Version*: 1.3
 
 *Relative Path*: imagepaste
@@ -1127,7 +1127,7 @@ NetBeans modules that can be built now.
 > Enables text editors to paste images from the clipboard, creating a file relative to the one being edited and inserting a reference to it into the file
 
 
-###INSANE Memory Profiler
+### INSANE Memory Profiler
 *Version*: 1.5
 
 *Relative Path*: performance.insane
@@ -1135,7 +1135,7 @@ NetBeans modules that can be built now.
 > Solution for reflective inspection of heap from inside of running VM.
 
 
-###Insert Unicode
+### Insert Unicode
 *Version*: 1.15
 
 *Relative Path*: insertunicode
@@ -1143,7 +1143,7 @@ NetBeans modules that can be built now.
 > Permits arbitrary Unicode characters to be inserted in the editor.
 
 
-###Issue Kicker
+### Issue Kicker
 *Version*: 1.0
 
 *Relative Path*: issuekicker
@@ -1153,7 +1153,7 @@ NetBeans modules that can be built now.
 > Resolve NB issues with stacktraces, heapdumps, snapshots easily
 
 
-###Jalopy Java Source Code Formatter
+### Jalopy Java Source Code Formatter
 *Version*: 0.8
 
 *Relative Path*: de.hunsicker.jalopy.plugin.netbeans
@@ -1161,7 +1161,7 @@ NetBeans modules that can be built now.
 > Provides the ability to format Java source files in your favourite coding style.
 
 
-###Java & JavaScript Project Support
+### Java & JavaScript Project Support
 *Version*: 1.0
 
 *Relative Path*: project.jsjava
@@ -1169,7 +1169,7 @@ NetBeans modules that can be built now.
 > Mixing Java and JavaScript code made easy.
 
 
-###Java Decl Gen
+### Java Decl Gen
 *Version*: 1.2
 
 *Relative Path*: javadeclgen
@@ -1179,7 +1179,7 @@ NetBeans modules that can be built now.
 > This module supports several forms of parameter, variable, array parameter and array variable declarations.
 
 
-###Java Editor Support
+### Java Editor Support
 *Version*: 1.2
 
 *Relative Path*: languages.java
@@ -1187,7 +1187,7 @@ NetBeans modules that can be built now.
 > Support for editing Java files.
 
 
-###Java Hints Scripting
+### Java Hints Scripting
 *Version*: 1.0.0
 
 *Relative Path*: java.hints.scripting
@@ -1195,7 +1195,7 @@ NetBeans modules that can be built now.
 
 
 
-###Java Navigation Tools
+### Java Navigation Tools
 *Version*: 1.2
 
 *Relative Path*: java.tools.navigation
@@ -1205,7 +1205,7 @@ NetBeans modules that can be built now.
 > Tools for navigating Java.
 
 
-###Java SE Mobility Plugin
+### Java SE Mobility Plugin
 *Version*: 1.0
 
 *Relative Path*: mobility.plugins.javase
@@ -1215,7 +1215,7 @@ NetBeans modules that can be built now.
 
 
 
-###Java Text Copy Paste Module
+### Java Text Copy Paste Module
 *Version*: 1.3
 
 *Relative Path*: javatextcopypaste
@@ -1225,7 +1225,7 @@ NetBeans modules that can be built now.
 > Helps copy and paste text from and to Java source code
 
 
-###Java.Net Wizard Project Integration
+### Java.Net Wizard Project Integration
 *Version*: 1.0
 
 *Relative Path*: o.yourorghere.wizard2
@@ -1233,7 +1233,7 @@ NetBeans modules that can be built now.
 
 
 
-###Java3D
+### Java3D
 *Version*: 1.0
 
 *Relative Path*: java3d
@@ -1241,7 +1241,7 @@ NetBeans modules that can be built now.
 
 
 
-###Javadoc First Sentence
+### Javadoc First Sentence
 *Version*: 1.0
 
 *Relative Path*: contrib.javadocfirstsentence
@@ -1249,7 +1249,7 @@ NetBeans modules that can be built now.
 > Highlights the first sentence of javadoc comments.
 
 
-###JavaFX for iOS Project Support
+### JavaFX for iOS Project Support
 *Version*: 1.3
 
 *Relative Path*: project.ios
@@ -1259,7 +1259,7 @@ NetBeans modules that can be built now.
 > Wizards to create JavaFX project for iOS
 
 
-###JCalendar Integration
+### JCalendar Integration
 *Version*: 1.1.0
 
 *Relative Path*: libs.jcalendar
@@ -1267,7 +1267,7 @@ NetBeans modules that can be built now.
 > This module bundles JCalendar.
 
 
-###JDIC Browser
+### JDIC Browser
 *Version*: 1.0
 
 *Relative Path*: jdic
@@ -1275,7 +1275,7 @@ NetBeans modules that can be built now.
 > JDIC Browser module
 
 
-###JDIC Library
+### JDIC Library
 *Version*: 1.0
 
 *Relative Path*: jdiclib
@@ -1283,7 +1283,7 @@ NetBeans modules that can be built now.
 > JDIC Library Short
 
 
-###JemmySupport
+### JemmySupport
 *Version*: 1.43
 
 *Relative Path*: jemmysupport
@@ -1291,7 +1291,7 @@ NetBeans modules that can be built now.
 > Support module for Jemmy components automated generation
 
 
-###JMI generated API for MOF model
+### JMI generated API for MOF model
 *Version*: 1.8
 
 *Relative Path*: javax.jmi.model
@@ -1299,7 +1299,7 @@ NetBeans modules that can be built now.
 > JMI interfaces generated for MOF metamodel.
 
 
-###JMI reflective API
+### JMI reflective API
 *Version*: 1.8
 
 *Relative Path*: javax.jmi.reflect
@@ -1307,7 +1307,7 @@ NetBeans modules that can be built now.
 > JMI reflective API
 
 
-###JMI Utilities
+### JMI Utilities
 *Version*: 1.6.0
 
 *Relative Path*: jmiutils
@@ -1315,7 +1315,7 @@ NetBeans modules that can be built now.
 > Set of JMI tools.
 
 
-###JNDI
+### JNDI
 *Version*: 1.8
 
 *Relative Path*: jndi
@@ -1323,7 +1323,7 @@ NetBeans modules that can be built now.
 > Helps you write programs that use JNDI to access naming services technology.
 
 
-###JNLP Modules
+### JNLP Modules
 *Version*: 0.2
 
 *Relative Path*: jnlpmodules
@@ -1331,7 +1331,7 @@ NetBeans modules that can be built now.
 > JNLP Modules
 
 
-###JPDA (Java) Debugger Locals View Enhancements
+### JPDA (Java) Debugger Locals View Enhancements
 *Version*: 1.14
 
 *Relative Path*: debugger.localsviewenhancements
@@ -1341,7 +1341,7 @@ NetBeans modules that can be built now.
 > Enhancements to JPDA (Java) Debugger Locals View
 
 
-###JSF Portlet Bridge Library
+### JSF Portlet Bridge Library
 *Version*: 2.0.4
 
 *Relative Path*: portalpack.jsfportletbridge
@@ -1349,7 +1349,7 @@ NetBeans modules that can be built now.
 > Wrapper Module for JSF Portlet Bridge Library
 
 
-###Jython
+### Jython
 *Version*: 2.71
 
 *Relative Path*: o.jython
@@ -1359,7 +1359,7 @@ NetBeans modules that can be built now.
 
 
 
-###Jython Distribution
+### Jython Distribution
 *Version*: 2.70
 
 *Relative Path*: o.jython.distro
@@ -1369,7 +1369,7 @@ NetBeans modules that can be built now.
 > Bundled distribution of Jython
 
 
-###Key Bindings Explorer
+### Key Bindings Explorer
 *Version*: 1.2
 
 *Relative Path*: keybindings
@@ -1379,7 +1379,7 @@ NetBeans modules that can be built now.
 > Key Bindings Explorer module
 
 
-###Languages External Execution Support
+### Languages External Execution Support
 *Version*: 0.12
 
 *Relative Path*: languages.execution
@@ -1387,7 +1387,7 @@ NetBeans modules that can be built now.
 > Exceution Supporting for Generic Languages
 
 
-###Launch
+### Launch
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/sau/launch
@@ -1395,7 +1395,7 @@ NetBeans modules that can be built now.
 
 
 
-###Launch4j Integration
+### Launch4j Integration
 *Version*: 1.0
 
 *Relative Path*: launch4jint
@@ -1405,7 +1405,7 @@ NetBeans modules that can be built now.
 > Integration of Launch4j product into NetBeans IDE
 
 
-###LG NB Model API
+### LG NB Model API
 *Version*: 1.0
 
 *Relative Path*: venice.model
@@ -1413,7 +1413,7 @@ NetBeans modules that can be built now.
 > A simple tree model API for things that can be visualized in 3D
 
 
-###Lg3d Integration
+### Lg3d Integration
 *Version*: 1.0
 
 *Relative Path*: o.jdesktop.lg3d
@@ -1421,7 +1421,7 @@ NetBeans modules that can be built now.
 
 
 
-###License Changer
+### License Changer
 *Version*: 1.9.3
 
 *Relative Path*: licensechanger
@@ -1431,7 +1431,7 @@ NetBeans modules that can be built now.
 > Provides an action on folders to change the license headers on all files underneath
 
 
-###Liferay Plugins
+### Liferay Plugins
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.websynergy.portlets
@@ -1439,7 +1439,7 @@ NetBeans modules that can be built now.
 > Liferay Plugins
 
 
-###Liferay Server Plugin
+### Liferay Server Plugin
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.servers.websynergy
@@ -1447,7 +1447,7 @@ NetBeans modules that can be built now.
 > Plugin to develop and deploy portlets on Liferay Portal Server/Sun Glassfish Web Space.
 
 
-###Liferay Service Builder
+### Liferay Service Builder
 *Version*: 0.9.15
 
 *Relative Path*: portalpack.websynergy.servicebuilder
@@ -1455,7 +1455,7 @@ NetBeans modules that can be built now.
 > Liferay Service Builder
 
 
-###Line Tools
+### Line Tools
 *Version*: 1.18
 
 *Relative Path*: linetools
@@ -1465,7 +1465,7 @@ NetBeans modules that can be built now.
 > Move Line Up, Move Line Down, Copy Line Up, Copy Line Down actions in text editors.
 
 
-###Link With Editor
+### Link With Editor
 *Version*: 0.4.4
 
 *Relative Path*: ramos.linkwitheditor
@@ -1473,7 +1473,7 @@ NetBeans modules that can be built now.
 > Experimental Link With Editor
 
 
-###Linux x86 64 clang Tidy
+### Linux x86 64 clang Tidy
 *Version*: 1.0.2
 
 *Relative Path*: clang-tidy.wrappers/analysis.clangtidy.Linux_x86_64
@@ -1483,7 +1483,7 @@ NetBeans modules that can be built now.
 > Bundled clang-tidy binaries for Linux x86-64
 
 
-###List Diffs
+### List Diffs
 *Version*: 1.2
 
 *Relative Path*: o.n.misc.diff
@@ -1493,7 +1493,7 @@ NetBeans modules that can be built now.
 > A generic lib that can diff two lists to produce a set of transforms which, applied to one, will result in the other
 
 
-###Local History
+### Local History
 *Version*: 1.61
 
 *Relative Path*: ramos.localhistory
@@ -1503,7 +1503,7 @@ NetBeans modules that can be built now.
 > A simple local history module
 
 
-###Log Management
+### Log Management
 *Version*: 1.8
 
 *Relative Path*: logmanagement
@@ -1513,7 +1513,7 @@ NetBeans modules that can be built now.
 > Help NetBeans developers monitor runtime events in the IDE
 
 
-###Looks API
+### Looks API
 *Version*: 1.12
 
 *Relative Path*: looks
@@ -1521,7 +1521,7 @@ NetBeans modules that can be built now.
 > Looks API and implementation
 
 
-###Manifest Editor
+### Manifest Editor
 *Version*: 1.3
 
 *Relative Path*: manifesteditor
@@ -1529,7 +1529,7 @@ NetBeans modules that can be built now.
 
 
 
-###Memory meter in status line
+### Memory meter in status line
 *Version*: 1.0
 
 *Relative Path*: o.n.memorymeter
@@ -1539,7 +1539,7 @@ NetBeans modules that can be built now.
 > Shows memory meter in status bar.
 
 
-###Metadata Repository API
+### Metadata Repository API
 *Version*: 1.5
 
 *Relative Path*: api.mdr
@@ -1547,7 +1547,7 @@ NetBeans modules that can be built now.
 > Defines an API for metadata repositories.
 
 
-###Miscellaneous Swing Components
+### Miscellaneous Swing Components
 *Version*: 1.1.0
 
 *Relative Path*: tasklist.swing
@@ -1555,7 +1555,7 @@ NetBeans modules that can be built now.
 > Provides some Swing-based components for use in the Task List.
 
 
-###Missing Modules Resolver
+### Missing Modules Resolver
 *Version*: 1.3
 
 *Relative Path*: moduleresolver
@@ -1565,7 +1565,7 @@ NetBeans modules that can be built now.
 > Resolve problems if some modules cannot be loaded because are depending on missing modules.
 
 
-###Module Info Ant Task
+### Module Info Ant Task
 *Version*: 1.2
 
 *Relative Path*: ant.moduleinfotask
@@ -1575,7 +1575,7 @@ NetBeans modules that can be built now.
 > Adds an Ant task <moduleinfotask> to run inside NetBeans to generate an html document with information about installed modules.
 
 
-###Module Manager
+### Module Manager
 *Version*: 1.3
 
 *Relative Path*: modulemanager
@@ -1585,7 +1585,7 @@ NetBeans modules that can be built now.
 > Manager Module is the browser of installed NetBeans modules and allows basic manipulation on them.
 
 
-###Mount Filesystems
+### Mount Filesystems
 *Version*: 1.6
 
 *Relative Path*: mount
@@ -1593,7 +1593,7 @@ NetBeans modules that can be built now.
 > Simulates some of NetBeans 3.x's "mounting" functionality.
 
 
-###Naming (NetBeans JNDI)
+### Naming (NetBeans JNDI)
 *Version*: 1.4
 
 *Relative Path*: core.naming
@@ -1601,7 +1601,7 @@ NetBeans modules that can be built now.
 > Implementation of JNDI.
 
 
-###NBJAD
+### NBJAD
 *Version*: 1.10
 
 *Relative Path*: java.tools.nbjad
@@ -1611,7 +1611,7 @@ NetBeans modules that can be built now.
 > Netbeans Jad decompiler integration
 
 
-###NetBeans JSON
+### NetBeans JSON
 *Version*: 1.1
 
 *Relative Path*: json
@@ -1619,7 +1619,7 @@ NetBeans modules that can be built now.
 
 
 
-###NetBeans Project Metadata Inspector
+### NetBeans Project Metadata Inspector
 *Version*: 1.11
 
 *Relative Path*: apisupport.projectinspector
@@ -1629,7 +1629,7 @@ NetBeans modules that can be built now.
 > Displays information about the selected project.
 
 
-###NetBeans Runtime Inspector
+### NetBeans Runtime Inspector
 *Version*: 1.10
 
 *Relative Path*: apisupport.beanbrowser
@@ -1637,7 +1637,7 @@ NetBeans modules that can be built now.
 > Shows various aspects of live NetBeans system.
 
 
-###Netbeans.org Source Browser
+### Netbeans.org Source Browser
 *Version*: 1.9
 
 *Relative Path*: nborgsourcebrowse
@@ -1645,7 +1645,7 @@ NetBeans modules that can be built now.
 > Easy links to various online displays of NetBeans sources.
 
 
-###Next Error Action
+### Next Error Action
 *Version*: 1.5
 
 *Relative Path*: editor.nexterror
@@ -1653,7 +1653,7 @@ NetBeans modules that can be built now.
 > Jump to Next Error Action
 
 
-###Node.js Projects
+### Node.js Projects
 *Version*: 1.20
 
 *Relative Path*: nodejs
@@ -1661,7 +1661,7 @@ NetBeans modules that can be built now.
 > Provides trivial support for Node.js server-side projects This module is obsoleted by https://github.com/timboudreau/netbeans-nodejs
 
 
-###Object Loader
+### Object Loader
 *Version*: 1.0
 
 *Relative Path*: api.objectloader
@@ -1669,7 +1669,7 @@ NetBeans modules that can be built now.
 > API for loading objects asynchronously
 
 
-###Object Registries
+### Object Registries
 *Version*: 1.0
 
 *Relative Path*: api.objectregistries
@@ -1677,7 +1677,7 @@ NetBeans modules that can be built now.
 
 
 
-###Object Type Changer
+### Object Type Changer
 *Version*: 2.3.0
 
 *Relative Path*: loaderswitcher
@@ -1685,7 +1685,7 @@ NetBeans modules that can be built now.
 > Change the way you view your files
 
 
-###OpenPortal Portlet Container
+### OpenPortal Portlet Container
 *Version*: 3.0.5
 
 *Relative Path*: portalpack.servers.opensourcepc
@@ -1693,7 +1693,7 @@ NetBeans modules that can be built now.
 > Plugin to deploy/undeploy portlet application on OpenPortal Portlet Container available on java.net
 
 
-###Packager
+### Packager
 *Version*: 1.0
 
 *Relative Path*: packager
@@ -1701,7 +1701,7 @@ NetBeans modules that can be built now.
 > Packages stuff
 
 
-###Paint Catcher
+### Paint Catcher
 *Version*: 1.4
 
 *Relative Path*: paintcatcher
@@ -1709,7 +1709,7 @@ NetBeans modules that can be built now.
 > Find out who is causing extra repaints given a target component class
 
 
-###Path Tools
+### Path Tools
 *Version*: 1.5
 
 *Relative Path*: pathtools
@@ -1719,7 +1719,7 @@ NetBeans modules that can be built now.
 > Path Tools module provides Copy Paths and Explore actions.
 
 
-###Perspective
+### Perspective
 *Version*: 1.10
 
 *Relative Path*: perspective
@@ -1729,7 +1729,7 @@ NetBeans modules that can be built now.
 > Perspective
 
 
-###Perspective Java
+### Perspective Java
 *Version*: 1.1.2
 
 *Relative Path*: perspective.java
@@ -1737,7 +1737,7 @@ NetBeans modules that can be built now.
 > Java Perspective
 
 
-###Pluggable Look & Feel Switcher
+### Pluggable Look & Feel Switcher
 *Version*: 1.0
 
 *Relative Path*: plafswitcher
@@ -1745,7 +1745,7 @@ NetBeans modules that can be built now.
 > Supports switching between all registered L&Fs
 
 
-###Portal Pack Common Palette Library
+### Portal Pack Common Palette Library
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.commons.palette
@@ -1753,7 +1753,7 @@ NetBeans modules that can be built now.
 > Portal Pack Common Palette Library
 
 
-###Portal Pack WebSpace Commons
+### Portal Pack WebSpace Commons
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.commons
@@ -1761,7 +1761,7 @@ NetBeans modules that can be built now.
 > Portal Pack Liferay Common Library Module
 
 
-###Portal Server Integration Framework
+### Portal Server Integration Framework
 *Version*: 3.0.5
 
 *Relative Path*: portalpack.servers.base_psframework
@@ -1769,7 +1769,7 @@ NetBeans modules that can be built now.
 > Base framework for Portal Server Integration
 
 
-###Portalpack.webflow
+### Portalpack.webflow
 *Version*: 1.0
 
 *Relative Path*: portalpack.webflow
@@ -1777,7 +1777,7 @@ NetBeans modules that can be built now.
 
 
 
-###Primitive Settings
+### Primitive Settings
 *Version*: 1.0
 
 *Relative Path*: primitivesettings
@@ -1785,7 +1785,7 @@ NetBeans modules that can be built now.
 > Primitive Settings Support
 
 
-###Profiler UI
+### Profiler UI
 *Version*: 0.9
 
 *Relative Path*: cnd.profiler.ui
@@ -1793,7 +1793,7 @@ NetBeans modules that can be built now.
 
 
 
-###Profiles
+### Profiles
 *Version*: 1.1
 
 *Relative Path*: profiles
@@ -1801,7 +1801,7 @@ NetBeans modules that can be built now.
 > Provides Tools/Profiles Manager.
 
 
-###Project Minder
+### Project Minder
 *Version*: 1.6
 
 *Relative Path*: whichproject
@@ -1811,7 +1811,7 @@ NetBeans modules that can be built now.
 > Adds an action to close all files not in the same project as the file you are editing
 
 
-###Prolog Editor Support
+### Prolog Editor Support
 *Version*: 1.5
 
 *Relative Path*: languages.prolog
@@ -1819,7 +1819,7 @@ NetBeans modules that can be built now.
 > Support for editing Prolog files.
 
 
-###Properties File Editor Support
+### Properties File Editor Support
 *Version*: 1.2
 
 *Relative Path*: languages.properties
@@ -1827,7 +1827,7 @@ NetBeans modules that can be built now.
 > Support for editing .properties files.
 
 
-###Properties Tool
+### Properties Tool
 *Version*: 1.1
 
 *Relative Path*: propertiestool
@@ -1835,7 +1835,7 @@ NetBeans modules that can be built now.
 > Properties Tool replaces the original Properties window
 
 
-###Python
+### Python
 *Version*: 0.151118
 
 *Relative Path*: python.kit
@@ -1845,7 +1845,7 @@ NetBeans modules that can be built now.
 > An umbrella module covering all modules required for Python support in NetBeans IDE 8.1
 
 
-###Python Console
+### Python Console
 *Version*: 1.3
 
 *Relative Path*: python.console
@@ -1855,7 +1855,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python Core
+### Python Core
 *Version*: 1.5
 
 *Relative Path*: python.core
@@ -1865,7 +1865,7 @@ NetBeans modules that can be built now.
 > Core of Python Editor
 
 
-###Python Debugger
+### Python Debugger
 *Version*: 1.4
 
 *Relative Path*: python.debugger
@@ -1875,7 +1875,7 @@ NetBeans modules that can be built now.
 > Python Debugger
 
 
-###Python Editor
+### Python Editor
 *Version*: 1.9.0
 
 *Relative Path*: python.editor
@@ -1885,7 +1885,7 @@ NetBeans modules that can be built now.
 > Python Editor
 
 
-###Python Help
+### Python Help
 *Version*: 1.2
 
 *Relative Path*: python.help
@@ -1895,7 +1895,7 @@ NetBeans modules that can be built now.
 > Help set for nbPython
 
 
-###Python Hints
+### Python Hints
 *Version*: 1.1
 
 *Relative Path*: python.hints
@@ -1905,7 +1905,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python Options
+### Python Options
 *Version*: 1.3
 
 *Relative Path*: python.options
@@ -1915,7 +1915,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python Platform
+### Python Platform
 *Version*: 1.3
 
 *Relative Path*: python.platform
@@ -1925,7 +1925,7 @@ NetBeans modules that can be built now.
 > Python Platform Manager
 
 
-###Python Project
+### Python Project
 *Version*: 0.5
 
 *Relative Path*: python.project
@@ -1935,7 +1935,7 @@ NetBeans modules that can be built now.
 > Project type for Python sources.
 
 
-###Python Project 2
+### Python Project 2
 *Version*: 1.1
 
 *Relative Path*: python.project2
@@ -1945,7 +1945,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python Source
+### Python Source
 *Version*: 1.2
 
 *Relative Path*: python.source
@@ -1955,7 +1955,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python Testrunner
+### Python Testrunner
 *Version*: 1.8
 
 *Relative Path*: python.testrunner
@@ -1965,7 +1965,7 @@ NetBeans modules that can be built now.
 
 
 
-###Python/Jython Sample Projects
+### Python/Jython Sample Projects
 *Version*: 1.3
 
 *Relative Path*: python.samples
@@ -1975,7 +1975,7 @@ NetBeans modules that can be built now.
 > Sample projects in Python and Jython
 
 
-###Q Shell integration
+### Q Shell integration
 *Version*: 1.2
 
 *Relative Path*: python.qshell
@@ -1983,8 +1983,8 @@ NetBeans modules that can be built now.
 
 
 
-###Quick File Chooser
-*Version*: 1.19
+### Quick File Chooser
+*Version*: 1.20
 
 *Relative Path*: quickfilechooser
 
@@ -1993,7 +1993,7 @@ NetBeans modules that can be built now.
 > Replaces regular Swing file chooser with a keyboard-oriented version.
 
 
-###Rats! Editor
+### Rats! Editor
 *Version*: 0.1.2
 
 *Relative Path*: rats.editor
@@ -2001,7 +2001,7 @@ NetBeans modules that can be built now.
 > Support for processing Rats! files.
 
 
-###Rats! Packrat Parser
+### Rats! Packrat Parser
 *Version*: 1.15
 
 *Relative Path*: xtc
@@ -2009,7 +2009,7 @@ NetBeans modules that can be built now.
 > Extensible parser generator for C-like languages
 
 
-###Read
+### Read
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/helloworld/read
@@ -2017,7 +2017,7 @@ NetBeans modules that can be built now.
 
 
 
-###Readonly Editors Mode
+### Readonly Editors Mode
 *Version*: 1.1
 
 *Relative Path*: readonlyeditor
@@ -2027,7 +2027,7 @@ NetBeans modules that can be built now.
 > This module controls the editable property of the text editors.
 
 
-###Rectangular Edit Tools
+### Rectangular Edit Tools
 *Version*: 1.7
 
 *Relative Path*: rectangularedittools
@@ -2037,7 +2037,7 @@ NetBeans modules that can be built now.
 > Rectangular Edit Operations
 
 
-###Refactoring VCS Bridge
+### Refactoring VCS Bridge
 *Version*: 1.4
 
 *Relative Path*: refactoring.vcs
@@ -2045,7 +2045,7 @@ NetBeans modules that can be built now.
 > Module that improves integration between refactoring commands and version control commands.
 
 
-###RegExPlugin
+### RegExPlugin
 *Version*: 0.1
 
 *Relative Path*: regexplugin
@@ -2055,7 +2055,7 @@ NetBeans modules that can be built now.
 > An easy to use all-in-one regular expressions tool (builder, tester, organizer)
 
 
-###RegexTester
+### RegexTester
 *Version*: 1.0
 
 *Relative Path*: regextester
@@ -2063,7 +2063,7 @@ NetBeans modules that can be built now.
 > Simple tool for testing regular expression
 
 
-###Registry API
+### Registry API
 *Version*: 1.9
 
 *Relative Path*: registry
@@ -2071,7 +2071,7 @@ NetBeans modules that can be built now.
 > Registry service for settings management
 
 
-###Registry over FileSystem
+### Registry over FileSystem
 *Version*: 1.9
 
 *Relative Path*: core.registry
@@ -2079,7 +2079,7 @@ NetBeans modules that can be built now.
 > Registry implementation over Filesystem
 
 
-###Regular Expression Highlighter
+### Regular Expression Highlighter
 *Version*: 1.8
 
 *Relative Path*: regexphighlighter
@@ -2089,7 +2089,7 @@ NetBeans modules that can be built now.
 > Regular Expression Highlighter
 
 
-###Remember The Milk Services
+### Remember The Milk Services
 *Version*: 1.1
 
 *Relative Path*: websvc.saas.services.rtm
@@ -2097,7 +2097,7 @@ NetBeans modules that can be built now.
 > Remember The Milk SaaS Support
 
 
-###Remote Project Demo
+### Remote Project Demo
 *Version*: 1.0
 
 *Relative Path*: remoteprojectdemo
@@ -2105,7 +2105,7 @@ NetBeans modules that can be built now.
 
 
 
-###Remote Projects
+### Remote Projects
 *Version*: 1.0
 
 *Relative Path*: remoteproject
@@ -2113,7 +2113,7 @@ NetBeans modules that can be built now.
 
 
 
-###Remote System File System
+### Remote System File System
 *Version*: 1.0
 
 *Relative Path*: remotesfs
@@ -2121,7 +2121,7 @@ NetBeans modules that can be built now.
 
 
 
-###Reorder
+### Reorder
 *Version*: 1.2
 
 *Relative Path*: java.reorder
@@ -2131,7 +2131,7 @@ NetBeans modules that can be built now.
 > Swap parameters, arguments or array initializer expressions.
 
 
-###ResourceBundleEditor
+### ResourceBundleEditor
 *Version*: 1.0.1
 
 *Relative Path*: properties.rbe
@@ -2141,7 +2141,7 @@ NetBeans modules that can be built now.
 
 
 
-###RIM BlackBerry Plugin
+### RIM BlackBerry Plugin
 *Version*: 1.0
 
 *Relative Path*: mobility.plugins.blackberry
@@ -2151,7 +2151,7 @@ NetBeans modules that can be built now.
 > RIM BlackBerry Plugin Module
 
 
-###Run Terminal
+### Run Terminal
 *Version*: 1.6
 
 *Relative Path*: accelerators.terminal
@@ -2159,7 +2159,7 @@ NetBeans modules that can be built now.
 > Open a terminal emulator from NetBeans.
 
 
-###Runtime Tab As Menu
+### Runtime Tab As Menu
 *Version*: 1.0
 
 *Relative Path*: runtimetabmenu
@@ -2167,7 +2167,7 @@ NetBeans modules that can be built now.
 
 
 
-###Sample Kit Model
+### Sample Kit Model
 *Version*: 1.0
 
 *Relative Path*: o.sample.registry.model
@@ -2175,7 +2175,7 @@ NetBeans modules that can be built now.
 > Example domain model based on XAM framework
 
 
-###Sample Module
+### Sample Module
 *Version*: 0.1
 
 *Relative Path*: portalpack.samplemodule
@@ -2183,7 +2183,7 @@ NetBeans modules that can be built now.
 
 
 
-###Saybonjour
+### Saybonjour
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/helloworld/saybonjour
@@ -2191,7 +2191,7 @@ NetBeans modules that can be built now.
 
 
 
-###Sayciao
+### Sayciao
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/helloworld/sayciao
@@ -2199,7 +2199,7 @@ NetBeans modules that can be built now.
 
 
 
-###Sayhello
+### Sayhello
 *Version*: 1.0
 
 *Relative Path*: other/sampleapps/helloworld/sayhello
@@ -2207,7 +2207,7 @@ NetBeans modules that can be built now.
 
 
 
-###Scan On Demand
+### Scan On Demand
 *Version*: 2.20
 
 *Relative Path*: scanondemand
@@ -2215,7 +2215,7 @@ NetBeans modules that can be built now.
 > Are seeking for a way to control source scanning?
 
 
-###Scrapbook
+### Scrapbook
 *Version*: 1.0
 
 *Relative Path*: scrapbook
@@ -2223,7 +2223,7 @@ NetBeans modules that can be built now.
 
 
 
-###Selenium Driver Library
+### Selenium Driver Library
 *Version*: 1.1
 
 *Relative Path*: libs.selenium
@@ -2233,7 +2233,7 @@ NetBeans modules that can be built now.
 > Selenium library for testing framework
 
 
-###Selenium Module for Maven
+### Selenium Module for Maven
 *Version*: 1.6
 
 *Relative Path*: selenium.maven
@@ -2243,7 +2243,7 @@ NetBeans modules that can be built now.
 > Selenium testing framework for web application
 
 
-###Selenium Module for PHP
+### Selenium Module for PHP
 *Version*: 1.5
 
 *Relative Path*: selenium.php
@@ -2253,7 +2253,7 @@ NetBeans modules that can be built now.
 > Selenium testing framework for web application
 
 
-###Selenium Plugin for Ant Projects
+### Selenium Plugin for Ant Projects
 *Version*: 1.7
 
 *Relative Path*: selenium
@@ -2263,7 +2263,7 @@ NetBeans modules that can be built now.
 > Selenium testing framework for web application
 
 
-###Selenium Server
+### Selenium Server
 *Version*: 1.8
 
 *Relative Path*: selenium.server
@@ -2273,7 +2273,7 @@ NetBeans modules that can be built now.
 > Selenium Server control
 
 
-###Selenium Server Binary
+### Selenium Server Binary
 *Version*: 1.1
 
 *Relative Path*: libs.selenium.server
@@ -2283,7 +2283,7 @@ NetBeans modules that can be built now.
 > Selenium Server Library
 
 
-###Semicolon Module
+### Semicolon Module
 *Version*: 1.3
 
 *Relative Path*: semicolon
@@ -2291,7 +2291,7 @@ NetBeans modules that can be built now.
 
 
 
-###Simple API For Workflow(SAW) Plugin
+### Simple API For Workflow(SAW) Plugin
 *Version*: 1.0.4
 
 *Relative Path*: portalpack.saw
@@ -2299,7 +2299,7 @@ NetBeans modules that can be built now.
 > Plugin to develop Workflow Applications
 
 
-###Source Copyright Suggestions
+### Source Copyright Suggestions
 *Version*: 1.10.0
 
 *Relative Path*: tasklist.copyright
@@ -2307,7 +2307,7 @@ NetBeans modules that can be built now.
 > This module scans sources for copyrights
 
 
-###Spring Portlets
+### Spring Portlets
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.portlets.spring
@@ -2315,7 +2315,7 @@ NetBeans modules that can be built now.
 > This module provides support for developing portlets using Spring MVC framework
 
 
-###Spring.lookup
+### Spring.lookup
 *Version*: 1.1
 
 *Relative Path*: spring.lookup
@@ -2323,7 +2323,7 @@ NetBeans modules that can be built now.
 
 
 
-###SQL Editor Support
+### SQL Editor Support
 *Version*: 1.4
 
 *Relative Path*: languages.sql
@@ -2331,7 +2331,7 @@ NetBeans modules that can be built now.
 > Support for editing SQL files.
 
 
-###Suggestions Framework
+### Suggestions Framework
 *Version*: 1.17.0
 
 *Relative Path*: suggestions_framework
@@ -2339,7 +2339,7 @@ NetBeans modules that can be built now.
 > This module implements suggestions functionality needed by other modules.
 
 
-###Suggestions Window
+### Suggestions Window
 *Version*: 1.27.0
 
 *Relative Path*: tasklist.suggestions
@@ -2347,7 +2347,7 @@ NetBeans modules that can be built now.
 > This module provides the Suggestions View, where various suggestions from other modules may appear.
 
 
-###Sun Java System Portal Server 7.x
+### Sun Java System Portal Server 7.x
 *Version*: 3.0.4
 
 *Relative Path*: portalpack.servers.sunps
@@ -2355,7 +2355,7 @@ NetBeans modules that can be built now.
 > Plugin for Sun Java System Portal Server 7.x
 
 
-###Support for .nbignore files
+### Support for .nbignore files
 *Version*: 0.2
 
 *Relative Path*: nbignore
@@ -2365,7 +2365,7 @@ NetBeans modules that can be built now.
 > Ignore (hide) folders that contain .nbignore file.
 
 
-###Suspend All Breakpoints
+### Suspend All Breakpoints
 *Version*: 1.5
 
 *Relative Path*: debugger.suspendallbreakpoints
@@ -2375,7 +2375,7 @@ NetBeans modules that can be built now.
 > Suspend/Resume all breakpoints.
 
 
-###Suspend I/O
+### Suspend I/O
 *Version*: 1.2
 
 *Relative Path*: masterfs.suspend
@@ -2383,7 +2383,7 @@ NetBeans modules that can be built now.
 > Provides action in Performance toolbar to suspend the IDE
 
 
-###Svn Remote Projects
+### Svn Remote Projects
 *Version*: 1.0
 
 *Relative Path*: remoteproject.svn
@@ -2391,7 +2391,7 @@ NetBeans modules that can be built now.
 
 
 
-###SwingX Support
+### SwingX Support
 *Version*: 0.1.0
 
 *Relative Path*: form.swingx
@@ -2399,7 +2399,7 @@ NetBeans modules that can be built now.
 > Support for visual design of SwingX components
 
 
-###System FileSystem Browser
+### System FileSystem Browser
 *Version*: 1.13
 
 *Relative Path*: sfsexplorer
@@ -2409,7 +2409,7 @@ NetBeans modules that can be built now.
 > System FileSystem Browser
 
 
-###System Properties Viewer
+### System Properties Viewer
 *Version*: 1.13
 
 *Relative Path*: sysprops
@@ -2417,7 +2417,7 @@ NetBeans modules that can be built now.
 > Show system properties from the Java VM.
 
 
-###Table View
+### Table View
 *Version*: 1.0
 
 *Relative Path*: tableview
@@ -2425,7 +2425,7 @@ NetBeans modules that can be built now.
 > TableView and OutlineView Components
 
 
-###Tan UI and Editor Theme
+### Tan UI and Editor Theme
 *Version*: 1.3
 
 *Relative Path*: tanui
@@ -2435,7 +2435,7 @@ NetBeans modules that can be built now.
 > A module for people who don't like black text on white backgrounds
 
 
-###Targets
+### Targets
 *Version*: 1.0
 
 *Relative Path*: targets
@@ -2443,7 +2443,7 @@ NetBeans modules that can be built now.
 > A place to drag and drop ant targets
 
 
-###Task List APIs
+### Task List APIs
 *Version*: 1.22.0
 
 *Relative Path*: o.n.tasklistapi
@@ -2451,7 +2451,7 @@ NetBeans modules that can be built now.
 > APIs for Task List support modules.
 
 
-###Task List Core Support
+### Task List Core Support
 *Version*: 1.39.0
 
 *Relative Path*: tasklist.core
@@ -2459,7 +2459,7 @@ NetBeans modules that can be built now.
 > Basic infrastructure for tasklists
 
 
-###Task List Editor Support
+### Task List Editor Support
 *Version*: 1.16.0
 
 *Relative Path*: tasklist.editor
@@ -2467,7 +2467,7 @@ NetBeans modules that can be built now.
 > This module adds editor integration to the tasklist module
 
 
-###Task List Export/Import Framework
+### Task List Export/Import Framework
 *Version*: 1.1.0
 
 *Relative Path*: tasklist.export
@@ -2475,7 +2475,7 @@ NetBeans modules that can be built now.
 > Export/Import Framework
 
 
-###Task List Filters
+### Task List Filters
 *Version*: 1.2.0
 
 *Relative Path*: tasklist.filter
@@ -2483,7 +2483,7 @@ NetBeans modules that can be built now.
 > Filters infrastructure
 
 
-###Tcl Editor Support
+### Tcl Editor Support
 *Version*: 1.5
 
 *Relative Path*: languages.tcl
@@ -2491,7 +2491,7 @@ NetBeans modules that can be built now.
 > Support for editing Tcl files.
 
 
-###To Do Tasks Scanning
+### To Do Tasks Scanning
 *Version*: 1.26.0
 
 *Relative Path*: tasklist.docscan
@@ -2499,7 +2499,7 @@ NetBeans modules that can be built now.
 > This module scans documents and creates tasks from them
 
 
-###Tool
+### Tool
 *Version*: 1.2
 
 *Relative Path*: tool
@@ -2507,7 +2507,7 @@ NetBeans modules that can be built now.
 > Common superclass for tools (TopComponents)
 
 
-###Transactional Progress API
+### Transactional Progress API
 *Version*: 1.0
 
 *Relative Path*: api.progress.transactional
@@ -2517,7 +2517,7 @@ NetBeans modules that can be built now.
 > An API for composable transactions each of which make up one element of a background task
 
 
-###Transactional Progress Implementation
+### Transactional Progress Implementation
 *Version*: 1.0
 
 *Relative Path*: progress.transactional
@@ -2525,7 +2525,7 @@ NetBeans modules that can be built now.
 
 
 
-###UIDiagnostics   Focus
+### UIDiagnostics   Focus
 *Version*: 1.8
 
 *Relative Path*: other/focusmodule
@@ -2535,7 +2535,7 @@ NetBeans modules that can be built now.
 > Adds actions to the Tools menu for logging focus events, for diagnosing "focus goes to nowhere" bugs and other focus problems; actions can be filtered.
 
 
-###User Tasks
+### User Tasks
 *Version*: 1.31.0
 
 *Relative Path*: tasklist.usertasks
@@ -2543,7 +2543,7 @@ NetBeans modules that can be built now.
 > This module helps you track your tasks
 
 
-###User Tasks Ant Integration
+### User Tasks Ant Integration
 *Version*: 1.0
 
 *Relative Path*: tasklist.usertasksant
@@ -2551,7 +2551,7 @@ NetBeans modules that can be built now.
 > Provides an Ant task for exporting .ics files as XML, HTML or plain text.
 
 
-###Various Experimental Support SPI
+### Various Experimental Support SPI
 *Version*: 1.0
 
 *Relative Path*: support
@@ -2559,7 +2559,7 @@ NetBeans modules that can be built now.
 > Various Experimental Support SPI
 
 
-###VCS Core
+### VCS Core
 *Version*: 1.19.0
 
 *Relative Path*: vcscore
@@ -2567,7 +2567,7 @@ NetBeans modules that can be built now.
 > Provides basis for integration of version control systems.
 
 
-###Velocity Editor Support
+### Velocity Editor Support
 *Version*: 1.7
 
 *Relative Path*: languages.velocity
@@ -2575,7 +2575,7 @@ NetBeans modules that can be built now.
 > Support for editing Velocity files.
 
 
-###Visual Library   Shapes Integration Example
+### Visual Library   Shapes Integration Example
 *Version*: 1.0
 
 *Relative Path*: visual.examples.shapes
@@ -2583,7 +2583,7 @@ NetBeans modules that can be built now.
 
 
 
-###Visual Library API   Examples
+### Visual Library API   Examples
 *Version*: 2.0
 
 *Relative Path*: visual.examples
@@ -2591,7 +2591,7 @@ NetBeans modules that can be built now.
 
 
 
-###Visual Library API   Experimental
+### Visual Library API   Experimental
 *Version*: 1.0
 
 *Relative Path*: visual.experimental
@@ -2599,7 +2599,7 @@ NetBeans modules that can be built now.
 > Visual Library API - Experimental
 
 
-###Visual Web JSF Portlet Support
+### Visual Web JSF Portlet Support
 *Version*: 2.0.4
 
 *Relative Path*: portalpack.visualweb
@@ -2607,7 +2607,7 @@ NetBeans modules that can be built now.
 > VisualWeb JSF Portlet Builder
 
 
-###Visualize Project Dependencies
+### Visualize Project Dependencies
 *Version*: 1.0
 
 *Relative Path*: projectdeps
@@ -2615,7 +2615,7 @@ NetBeans modules that can be built now.
 
 
 
-###Web Page Layouts
+### Web Page Layouts
 *Version*: 1.0
 
 *Relative Path*: pagelayouts
@@ -2625,7 +2625,7 @@ NetBeans modules that can be built now.
 > Predefined Page Layouts for HTML, JSP, PHP & RHTML
 
 
-###Web Preview
+### Web Preview
 *Version*: 1.2.1
 
 *Relative Path*: webpreview
@@ -2633,7 +2633,7 @@ NetBeans modules that can be built now.
 > Preview of files in Embedded Web browser
 
 
-###Web Services Interoperability Technology Library
+### Web Services Interoperability Technology Library
 *Version*: 1.01
 
 *Relative Path*: websvc.wsitlib
@@ -2641,7 +2641,7 @@ NetBeans modules that can be built now.
 > Installs the Web Services Interoperability Technology Library
 
 
-###WebSpace/Liferay Palette
+### WebSpace/Liferay Palette
 *Version*: 1.0.5
 
 *Relative Path*: portalpack.websynergy.palette
@@ -2649,7 +2649,7 @@ NetBeans modules that can be built now.
 > WebSpace Palette
 
 
-###Which Element
+### Which Element
 *Version*: 1.6
 
 *Relative Path*: whichelement
@@ -2659,7 +2659,7 @@ NetBeans modules that can be built now.
 > Display Element Information
 
 
-###White Space Tools
+### White Space Tools
 *Version*: 1.2
 
 *Relative Path*: whitespacetools
@@ -2669,7 +2669,7 @@ NetBeans modules that can be built now.
 > Hightlight and remove traling whitespace
 
 
-###Window System Options
+### Window System Options
 *Version*: 1.0
 
 *Relative Path*: core.windows.options
@@ -2679,7 +2679,7 @@ NetBeans modules that can be built now.
 > Additional window system options
 
 
-###Windows powershell script Editor Support
+### Windows powershell script Editor Support
 *Version*: 1.7
 
 *Relative Path*: languages.powershell
@@ -2689,7 +2689,7 @@ NetBeans modules that can be built now.
 > Support for editing Windows powershell scripts (.ps1) files.
 
 
-###Woodstock Components Theme Builder
+### Woodstock Components Theme Builder
 *Version*: 2.0
 
 *Relative Path*: themebuilder
@@ -2697,7 +2697,7 @@ NetBeans modules that can be built now.
 > Woodstock Components Theme Builder project module
 
 
-###Zeroadmin
+### Zeroadmin
 *Version*: 0.2
 
 *Relative Path*: zeroadmin
@@ -2710,7 +2710,7 @@ NetBeans modules that can be built now.
 
 Libraries which can be built now.
 
-###Cache
+### Cache
 *Version*: 1.0
 
 *Relative Path*: other/misc/cache
@@ -2718,7 +2718,7 @@ Libraries which can be built now.
 
 
 
-###Combobutton
+### Combobutton
 *Version*: 1.0
 
 *Relative Path*: other/misc/combobutton
@@ -2726,7 +2726,7 @@ Libraries which can be built now.
 
 
 
-###FaqSuck
+### FaqSuck
 *Version*: 1.0
 
 *Relative Path*: other/faqsuck
@@ -2734,7 +2734,7 @@ Libraries which can be built now.
 > The tool which scrapes the netbeans.org wiki and generates a giant single-page, self-contained FAQ from it
 
 
-###Gdelib
+### Gdelib
 *Version*: 1.0
 
 *Relative Path*: other/tteditor/GDELib
@@ -2744,7 +2744,7 @@ Libraries which can be built now.
 
 
 
-###Generate Index
+### Generate Index
 *Relative Path*: generate-index
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
@@ -2752,7 +2752,7 @@ Libraries which can be built now.
 > Dummy project that creates this index as part of its install phase.
 
 
-###Generate Project Index
+### Generate Project Index
 *Relative Path*: generate-project-index
 
 *Author(s)*: [Tim Boudreau](https://timboudreau.com)
@@ -2760,7 +2760,7 @@ Libraries which can be built now.
 > Generates a Markdown index of the netbeans modules here from their POM files.
 
 
-###Hex Editor
+### Hex Editor
 *Version*: 1.1
 
 *Relative Path*: other/hexedit
@@ -2768,7 +2768,7 @@ Libraries which can be built now.
 > A standalone Java hex editor application
 
 
-###Numeric Collections
+### Numeric Collections
 *Version*: 1.0
 
 *Relative Path*: other/misc/numeric_collections
@@ -2776,7 +2776,7 @@ Libraries which can be built now.
 
 
 
-###Storage
+### Storage
 *Version*: 1.0
 
 *Relative Path*: other/misc/storage
@@ -2784,7 +2784,7 @@ Libraries which can be built now.
 
 
 
-###Trie
+### Trie
 *Version*: 1.0
 
 *Relative Path*: other/misc/Trie
@@ -2792,7 +2792,7 @@ Libraries which can be built now.
 
 
 
-###Uber Meta Split Container
+### Uber Meta Split Container
 *Version*: 1.0
 
 *Relative Path*: other/uberMetaSplitContainer
@@ -2804,7 +2804,7 @@ Libraries which can be built now.
 ## Unbuildable Modules
 
 Modules not currently included in the build, either because their dependencies have changed incompatibly, don't exist anymore, or in some cases something trivial needs to be done.
-###3D Viewer
+### 3D Viewer
 *Version*: 1.0
 
 *Relative Path*: venice.viewer
@@ -2812,7 +2812,7 @@ Modules not currently included in the build, either because their dependencies h
 > Provides the 3D viewer component and a place to register models by DataObject type
 
 
-###Add Property
+### Add Property
 *Version*: 1.10
 
 *Relative Path*: java.addproperty
@@ -2822,7 +2822,7 @@ Modules not currently included in the build, either because their dependencies h
 > A simple UI to create properties
 
 
-###Additional Refactorings
+### Additional Refactorings
 *Version*: 1.2
 
 *Relative Path*: java.additional.refactorings
@@ -2830,7 +2830,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Adventure Builder application
+### Adventure Builder application
 *Version*: 1.0
 
 *Relative Path*: j2ee.adventure
@@ -2838,7 +2838,7 @@ Modules not currently included in the build, either because their dependencies h
 > Contains Adventure Builder application
 
 
-###C/C++ Syntax Error Highlighting
+### C/C++ Syntax Error Highlighting
 *Version*: 0.3.0
 
 *Relative Path*: cnd.syntaxerr
@@ -2848,13 +2848,13 @@ Modules not currently included in the build, either because their dependencies h
 > Provides syntax error highlighting for C/C++ files in editor
 
 
-###Callstack View Filtering Example
+### Callstack View Filtering Example
 *Relative Path*: o.n.examples.debugger.jpda.callstackviewfilterring
 
 > Hides all javax.swing call stack frames.
 
 
-###Careditor
+### Careditor
 *Version*: 1.0
 
 *Relative Path*: o.n.pojoeditors.api/demo/careditor
@@ -2862,7 +2862,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Clang Tidy integration
+### Clang Tidy integration
 *Version*: 1.1.2
 
 *Relative Path*: c.s.tools.ide.analysis.modernize
@@ -2872,7 +2872,7 @@ Modules not currently included in the build, either because their dependencies h
 > Clang-tidy analyzer integration
 
 
-###ClearCase Profile for Generic VCS
+### ClearCase Profile for Generic VCS
 *Version*: 1.5
 
 *Relative Path*: vcs.profiles.clearcase
@@ -2880,7 +2880,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of ClearCase command-line interface into generic VCS support.
 
 
-###Closure
+### Closure
 *Version*: 1.0
 
 *Relative Path*: java.closurenavigator
@@ -2888,7 +2888,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Common Scripting Language Development Tools
+### Common Scripting Language Development Tools
 *Version*: 0.19.0
 
 *Relative Path*: gsf.tools
@@ -2896,7 +2896,7 @@ Modules not currently included in the build, either because their dependencies h
 > Tools for developing language plugins
 
 
-###CORBA
+### CORBA
 *Version*: 1.6
 
 *Relative Path*: corba
@@ -2904,7 +2904,7 @@ Modules not currently included in the build, either because their dependencies h
 > Helps you write programs that use CORBA technology.
 
 
-###CVS Profile for Generic VCS
+### CVS Profile for Generic VCS
 *Version*: 1.8.3
 
 *Relative Path*: vcs.profiles.cvsprofiles
@@ -2912,7 +2912,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of command-line CVS client and Java CVS client into generic VCS support.
 
 
-###DD API
+### DD API
 *Version*: 1.9.0
 
 *Relative Path*: api.web.dd
@@ -2920,7 +2920,7 @@ Modules not currently included in the build, either because their dependencies h
 > Deployment Descriptor API.
 
 
-###Dev Env 4 Web in Nb
+### Dev Env 4 Web in Nb
 *Version*: 1.1
 
 *Relative Path*: dew4nb
@@ -2928,7 +2928,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Doclet Code Completion
+### Doclet Code Completion
 *Version*: 1.1.3
 
 *Relative Path*: editor.java.doclet
@@ -2938,7 +2938,7 @@ Modules not currently included in the build, either because their dependencies h
 > Infrastucture for doclet code completion
 
 
-###DTrace
+### DTrace
 *Version*: 1.2
 
 *Relative Path*: dtrace
@@ -2948,7 +2948,7 @@ Modules not currently included in the build, either because their dependencies h
 > Graphical User Interface (GUI) for Solaris Dynamic Tracing (DTrace) that can be installed into the Sun Studio IDE and NetBeans IDE.
 
 
-###EJBdoclet Code Completion
+### EJBdoclet Code Completion
 *Version*: 1.1.3
 
 *Relative Path*: editor.java.doclet.ejb
@@ -2958,7 +2958,7 @@ Modules not currently included in the build, either because their dependencies h
 > Code completion for ejbdoclet
 
 
-###Embedded Browser UI   DJ Native Swing (SWT)
+### Embedded Browser UI   DJ Native Swing (SWT)
 *Version*: 1.0.0
 
 *Relative Path*: core.browser.djnsswt
@@ -2966,7 +2966,7 @@ Modules not currently included in the build, either because their dependencies h
 > <html>Embedded browser implementation based on DJ Native Swing library which
 
 
-###Embedded Browser UI   XUL Runner
+### Embedded Browser UI   XUL Runner
 *Version*: 1.2.0
 
 *Relative Path*: core.browser.xulrunner
@@ -2974,7 +2974,7 @@ Modules not currently included in the build, either because their dependencies h
 > <html>Embedded browser implementation based on Mozilla's XUL Runner using <a href="http://sourceforge.net/projects/mozswing/">MozSwing</a>'s libraries.<br> This module adds an extra option to web browser selection in Options window. Additional OS-specific binaries are automatically downloaded from Update Center upon the first use of embedded browser.
 
 
-###Embedded JavaScript (EJS)
+### Embedded JavaScript (EJS)
 *Version*: 1.8.1
 
 *Relative Path*: languages.ejs
@@ -2982,7 +2982,7 @@ Modules not currently included in the build, either because their dependencies h
 > Embedded JavaScript (EJS) editor support
 
 
-###Fortran Syntax Highlighting
+### Fortran Syntax Highlighting
 *Version*: 1.0
 
 *Relative Path*: cnd.fortran/fortran_highlighting
@@ -2990,7 +2990,7 @@ Modules not currently included in the build, either because their dependencies h
 > Syntax highlighting for Fortran fiiles
 
 
-###Fortress Editing
+### Fortress Editing
 *Version*: 0.12
 
 *Relative Path*: fortress.editing
@@ -2998,7 +2998,7 @@ Modules not currently included in the build, either because their dependencies h
 > Fortress Editing
 
 
-###Fortress Implementation
+### Fortress Implementation
 *Version*: 1.1
 
 *Relative Path*: c.s.fortress
@@ -3006,7 +3006,7 @@ Modules not currently included in the build, either because their dependencies h
 > Fortress Implementation
 
 
-###Geronimo 2 Application Server
+### Geronimo 2 Application Server
 *Version*: 1.2.0
 
 *Relative Path*: j2ee.geronimo2
@@ -3016,7 +3016,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integrates Geronimo 2 Server into IDE
 
 
-###GlassFish V3 Module
+### GlassFish V3 Module
 *Version*: 0.3.19
 
 *Relative Path*: j2ee.hk2
@@ -3024,7 +3024,7 @@ Modules not currently included in the build, either because their dependencies h
 > GlassFish V3 Module
 
 
-###Hibernatedoclet Code Completion
+### Hibernatedoclet Code Completion
 *Version*: 1.1.3
 
 *Relative Path*: editor.java.doclet.hibernate
@@ -3034,7 +3034,7 @@ Modules not currently included in the build, either because their dependencies h
 > Code completion for hibernatedoclet
 
 
-###HTML Editor Support
+### HTML Editor Support
 *Version*: 1.25
 
 *Relative Path*: languages.html
@@ -3042,7 +3042,7 @@ Modules not currently included in the build, either because their dependencies h
 > Support for editing HTML files.
 
 
-###I18N Checker
+### I18N Checker
 *Version*: 1.6.0
 
 *Relative Path*: tasklist.i18n
@@ -3050,7 +3050,7 @@ Modules not currently included in the build, either because their dependencies h
 > This module scans sources for i18n comments
 
 
-###Jabber
+### Jabber
 *Version*: 1.0
 
 *Relative Path*: jabber
@@ -3058,7 +3058,7 @@ Modules not currently included in the build, either because their dependencies h
 > Implements a Jabber instant messenger integration with some advanced features.
 
 
-###Java BluePrints Solutions Catalog
+### Java BluePrints Solutions Catalog
 *Version*: 1.13
 
 *Relative Path*: j2ee.blueprints
@@ -3066,7 +3066,7 @@ Modules not currently included in the build, either because their dependencies h
 > Browses BluePrints Solutions Catalog
 
 
-###Java Metrics Module
+### Java Metrics Module
 *Version*: 1.1.1
 
 *Relative Path*: metrics
@@ -3074,7 +3074,7 @@ Modules not currently included in the build, either because their dependencies h
 > OO metrics for class files.
 
 
-###Javadoc Code Completion
+### Javadoc Code Completion
 *Version*: 1.1.3
 
 *Relative Path*: editor.java.doclet.javadoc
@@ -3084,7 +3084,7 @@ Modules not currently included in the build, either because their dependencies h
 > Javadoc Code Completion
 
 
-###JavaScript DevTools
+### JavaScript DevTools
 *Version*: 1
 
 *Relative Path*: javascript.devtools
@@ -3092,7 +3092,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Jetty
+### Jetty
 *Version*: 1.2
 
 *Relative Path*: j2ee.jetty
@@ -3102,7 +3102,7 @@ Modules not currently included in the build, either because their dependencies h
 > Intergates Jetty Web Server into IDE
 
 
-###JPDA (Java) Debugger Call Stack View Enhancements
+### JPDA (Java) Debugger Call Stack View Enhancements
 *Version*: 1.16
 
 *Relative Path*: debugger.callstackviewenhancements
@@ -3112,7 +3112,7 @@ Modules not currently included in the build, either because their dependencies h
 > Enhancements to JPDA (Java) Debugger Call Stack View
 
 
-###JPDA (Java) Debugger Threads View Enhancements
+### JPDA (Java) Debugger Threads View Enhancements
 *Version*: 1.1
 
 *Relative Path*: debugger.threadviewenhancement
@@ -3122,7 +3122,7 @@ Modules not currently included in the build, either because their dependencies h
 > Unified Thread and Call stack view.
 
 
-###LG NB Java Source Model
+### LG NB Java Source Model
 *Version*: 1.0
 
 *Relative Path*: venice.sourcemodel
@@ -3130,7 +3130,7 @@ Modules not currently included in the build, either because their dependencies h
 > Models NetBeans Sources based on the LG-NB Model API
 
 
-###Make2netbeans
+### Make2netbeans
 *Version*: 1.0
 
 *Relative Path*: cnd.make2netbeans
@@ -3138,7 +3138,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###MOF Metadata Repository
+### MOF Metadata Repository
 *Version*: 1.6.0
 
 *Relative Path*: mdr
@@ -3146,7 +3146,7 @@ Modules not currently included in the build, either because their dependencies h
 > The module implements a MOF and JMI compliant metadata repository.
 
 
-###OC4J J2EE Container
+### OC4J J2EE Container
 *Version*: 0.12
 
 *Relative Path*: j2ee.oc4j
@@ -3154,7 +3154,7 @@ Modules not currently included in the build, either because their dependencies h
 > Plugin For Oracle Application Server
 
 
-###Oracle iPlanet Web Server 7.0
+### Oracle iPlanet Web Server 7.0
 *Version*: 1.8.0
 
 *Relative Path*: j2ee.sun.ws7
@@ -3164,7 +3164,7 @@ Modules not currently included in the build, either because their dependencies h
 > JSR88 Oracle iPlanet Web Server 7.0 Module
 
 
-###Perforce Profile for Generic VCS
+### Perforce Profile for Generic VCS
 *Version*: 1.1
 
 *Relative Path*: vcs.profiles.perforce
@@ -3172,7 +3172,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of command-line Perforce client into generic VCS support.
 
 
-###PHP Development Support Tools
+### PHP Development Support Tools
 *Version*: 1.0
 
 *Relative Path*: php.devtools
@@ -3180,7 +3180,7 @@ Modules not currently included in the build, either because their dependencies h
 > Tools for supporting writing php modules
 
 
-###PHP Fuse Framework
+### PHP Fuse Framework
 *Version*: 1.0
 
 *Relative Path*: php.fuse
@@ -3190,7 +3190,7 @@ Modules not currently included in the build, either because their dependencies h
 > Support for PHP FUSE Framework.
 
 
-###PHP Yii Framework
+### PHP Yii Framework
 *Version*: 1.0.1
 
 *Relative Path*: php.yii
@@ -3200,7 +3200,7 @@ Modules not currently included in the build, either because their dependencies h
 > Support for PHP Yii Framework
 
 
-###PMD Suggestion Provider
+### PMD Suggestion Provider
 *Version*: 1.11.0
 
 *Relative Path*: tasklist.pmd
@@ -3208,7 +3208,7 @@ Modules not currently included in the build, either because their dependencies h
 > Provides PMD Rule Violations as Suggestions
 
 
-###Prado Support
+### Prado Support
 *Version*: 1.0
 
 *Relative Path*: php.prado
@@ -3216,7 +3216,7 @@ Modules not currently included in the build, either because their dependencies h
 > Support for PHP Prado Framework
 
 
-###PVCS Profile for Generic VCS
+### PVCS Profile for Generic VCS
 *Version*: 1.8.1
 
 *Relative Path*: vcs.profiles.pvcs
@@ -3224,7 +3224,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of PVCS Version Manager command-line interface into generic VCS support.
 
 
-###Remote   Http Server Integration
+### Remote   Http Server Integration
 *Version*: 1.0
 
 *Relative Path*: remote.server
@@ -3232,7 +3232,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Remote   Project Finder
+### Remote   Project Finder
 *Version*: 1.0
 
 *Relative Path*: remote.project.finder
@@ -3240,7 +3240,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###RMI
+### RMI
 *Version*: 2.0
 
 *Relative Path*: rmi
@@ -3248,7 +3248,7 @@ Modules not currently included in the build, either because their dependencies h
 > Helps you write RMI programs with templates, a wizard, a registry browser, and an activation system browser.
 
 
-###RMI Activation Browser
+### RMI Activation Browser
 *Version*: 2.0
 
 *Relative Path*: rmi.activation
@@ -3256,7 +3256,7 @@ Modules not currently included in the build, either because their dependencies h
 > RMI Activation Browser
 
 
-###RMI Registry Browser
+### RMI Registry Browser
 *Version*: 2.0
 
 *Relative Path*: rmi.registry
@@ -3264,13 +3264,13 @@ Modules not currently included in the build, either because their dependencies h
 > RMI Registry Browser
 
 
-###Smart Stepping 1 Example
+### Smart Stepping 1 Example
 *Relative Path*: o.n.examples.debugger.jpda.smartstepping1
 
 > Disables get... methods for debugging.
 
 
-###Snapshots
+### Snapshots
 *Version*: 1.0
 
 *Relative Path*: snapshots
@@ -3278,7 +3278,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Springdoclet Code Completion
+### Springdoclet Code Completion
 *Version*: 1.1.3
 
 *Relative Path*: editor.java.doclet.spring
@@ -3288,7 +3288,7 @@ Modules not currently included in the build, either because their dependencies h
 > Code completion for springdoclet
 
 
-###Squeegee!!!
+### Squeegee!!!
 *Version*: 1.0
 
 *Relative Path*: venice.squeegee
@@ -3296,7 +3296,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###StarTeam Profile for Generic VCS
+### StarTeam Profile for Generic VCS
 *Version*: 1.3
 
 *Relative Path*: vcs.profiles.starteam
@@ -3304,7 +3304,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of StarTeam command-line interface into generic VCS support.
 
 
-###Subversion Profile for Generic VCS
+### Subversion Profile for Generic VCS
 *Version*: 1.1.7
 
 *Relative Path*: vcs.profiles.subversion
@@ -3312,7 +3312,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of Subversion command-line interface into generic VCS support.
 
 
-###Sun Java System Application Verification Kit (AVK)
+### Sun Java System Application Verification Kit (AVK)
 *Version*: 1.2
 
 *Relative Path*: j2ee.sun.avk
@@ -3320,7 +3320,7 @@ Modules not currently included in the build, either because their dependencies h
 > Sun Java System Application Verification Kit (AVK)
 
 
-###Syntax Tree Browser
+### Syntax Tree Browser
 *Version*: 1.1
 
 *Relative Path*: syntaxtreebrowser
@@ -3330,7 +3330,7 @@ Modules not currently included in the build, either because their dependencies h
 > Browse the javac syntax tree of source files
 
 
-###Tab Character Highlighting
+### Tab Character Highlighting
 *Version*: 1.3
 
 *Relative Path*: fixtabs
@@ -3338,7 +3338,7 @@ Modules not currently included in the build, either because their dependencies h
 > Highlights and converts Tab characters to spaces
 
 
-###Teamware Profile for Generic VCS
+### Teamware Profile for Generic VCS
 *Version*: 0.4.2.4
 
 *Relative Path*: vcs.profiles.teamware
@@ -3346,7 +3346,7 @@ Modules not currently included in the build, either because their dependencies h
 > The Teamware Command-Line Support Profile module enables you to use the SCCS command-line interface as a version control system within the IDE. The module provides basic SCCS functionality. Note that installing this module disables the built-in NetBeans 5.0 CVS support.
 
 
-###Timer Window
+### Timer Window
 *Version*: 1.1.0
 
 *Relative Path*: tasklist.timerwin
@@ -3354,7 +3354,7 @@ Modules not currently included in the build, either because their dependencies h
 > Provides an always-on-top window for selected currently running task.
 
 
-###VCS Generic Command Line Support
+### VCS Generic Command Line Support
 *Version*: 1.16.2
 
 *Relative Path*: vcs.advanced
@@ -3362,7 +3362,7 @@ Modules not currently included in the build, either because their dependencies h
 > Enables you to integrate any version control system that has a command-line interface.
 
 
-###VCS Java Bridge
+### VCS Java Bridge
 *Version*: 1.3
 
 *Relative Path*: vcscore.javacorebridge
@@ -3370,7 +3370,7 @@ Modules not currently included in the build, either because their dependencies h
 > Bridge module between Java and VCS modules.
 
 
-###Visual SourceSafe (Generic VCS)
+### Visual SourceSafe (Generic VCS)
 *Version*: 1.7.2
 
 *Relative Path*: vcs.profiles.vss
@@ -3378,7 +3378,7 @@ Modules not currently included in the build, either because their dependencies h
 > Integration of VSS command-line interface into generic VCS support.
 
 
-###Web Projects REST Support
+### Web Projects REST Support
 *Version*: 1.0
 
 *Relative Path*: web.webrest
@@ -3386,7 +3386,7 @@ Modules not currently included in the build, either because their dependencies h
 > REST support for Web Projects
 
 
-###XML Editor Support
+### XML Editor Support
 *Version*: 1.3
 
 *Relative Path*: languages.xml
@@ -3394,7 +3394,7 @@ Modules not currently included in the build, either because their dependencies h
 > Support for editing XML files.
 
 
-###XUL Runner Linux
+### XUL Runner Linux
 *Version*: 1.2.0
 
 *Relative Path*: core.browser.xulrunner.linux
@@ -3402,7 +3402,7 @@ Modules not currently included in the build, either because their dependencies h
 > <html>Linux-specific binaries for embedded browser.<br><b>Warning:</b> the embedded browser is known to cause JVM crashes when running under GTK look & feel, use at your own risk!
 
 
-###XUL Runner Mac OS X
+### XUL Runner Mac OS X
 *Version*: 1.2.0
 
 *Relative Path*: core.browser.xulrunner.macosx
@@ -3410,7 +3410,7 @@ Modules not currently included in the build, either because their dependencies h
 > <html>Mac OS X-specific binaries for embedded browser.<br><b>Warning:</b> the embedded browser is known to cause JVM crashes, use at your own risk!
 
 
-###XUL Runner Solaris
+### XUL Runner Solaris
 *Version*: 1.2.0
 
 *Relative Path*: core.browser.xulrunner.solaris
@@ -3418,7 +3418,7 @@ Modules not currently included in the build, either because their dependencies h
 > <html>Solaris-specific binaries for embedded browser.<br><b>Warning:</b> the embedded browser is known to cause JVM crashes when running under GTK look & feel, use at your own risk!
 
 
-###XUL Runner Windows
+### XUL Runner Windows
 *Version*: 1.2.0
 
 *Relative Path*: core.browser.xulrunner.win
@@ -3430,7 +3430,7 @@ Modules not currently included in the build, either because their dependencies h
 ## Unbuildable Libraries
 
 Modules not currently included in the build, either because their dependencies have changed incompatibly, don't exist anymore, or in some cases something trivial needs to be done.
-###Beans2nbm
+### Beans2nbm
 *Version*: 1.1
 
 *Relative Path*: other/BeansToNbm/beans2nbm
@@ -3438,7 +3438,7 @@ Modules not currently included in the build, either because their dependencies h
 
 
 
-###Callgraph Utility
+### Callgraph Utility
 *Version*: 1.3
 
 *Relative Path*: callgraph

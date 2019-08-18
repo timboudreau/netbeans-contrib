@@ -61,6 +61,7 @@ import java.io.FilenameFilter;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -86,6 +87,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
@@ -99,14 +102,20 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 public class ChooserComponentUI extends BasicFileChooserUI {
     
     private JTextField text;
-    private DefaultListModel completionsModel;
-    private JList completions;
+    private DefaultListModel<File> completionsModel;
+    private JList<File> completions;
     private String maximalCompletion;
     private boolean currentDirectoryChanging;
     private JButton approve;
     private JPanel buttons;
     private JLabel filterLabel;
     private boolean historyChanging;
+    private CycleMatchesAction cycleMatchesAction;
+    private JLabel matchCountLabel;
+    private static final String CMD_UP = "up"; //NOI18N
+    private static final String CMD_DOWN = "down"; //NOI18N
+    private static final String CMD_HIST_UP = "histUp"; //NOI18N
+    private static final String CMD_HIST_DOWN = "histDown"; //NOI18N
 
     public ChooserComponentUI(JFileChooser jfc) {
         super(jfc);
@@ -117,30 +126,30 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     }
     
     private JFileChooser filechooser = null;
-    private JComboBox box = null;
+    private JComboBox<String> box = null;
+    @Override
     public void installComponents(JFileChooser fc) {
         super.installComponents(fc);
         fc.setLayout(new BorderLayout());
         filechooser = fc;
         
-        String[] hist = getHistory();
+        Collection<String> hist = getHistory();
         JPanel histPanel = new JPanel();
         histPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        box = new JComboBox(hist);
+        box = new JComboBox<>(hist.toArray(new String[hist.size()]));
         box.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); // #126475
         box.addActionListener(new HAL());
         histPanel.setLayout(new BorderLayout());
         JLabel histInstructions = new JLabel(getBundle().getString("LBL_History"));
         histInstructions.setDisplayedMnemonic(getBundle().getString("MNEM_History").charAt(0));
-        histInstructions.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        histInstructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 12));
         histInstructions.setLabelFor(box);
         histPanel.add(box, BorderLayout.CENTER);
         histPanel.add(histInstructions, BorderLayout.LINE_START);
-        if (getHistory().length == 0) {
-            box.setEnabled(false);
-        }
+        box.setEnabled(!hist.isEmpty());
         
         text = new JTextField(100) {
+            @Override
             public void addNotify() {
                 super.addNotify();
                 // #62761: need to set this up on the focus cycle root, not the text field:
@@ -153,27 +162,40 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, InputEvent.CTRL_DOWN_MASK), "delete-path-component");
         text.getActionMap().put("delete-path-component", new DeletePathComponentAction());
         text.setFont(new Font("Monospaced", Font.PLAIN, text.getFont().getSize())); // NOI18N
-        Action up = new UpDownAction(true);
-        Action down = new UpDownAction(false);
-        text.getActionMap().put("up", up);
-        text.getActionMap().put("down", down);
-        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up"); //NOI18N
-        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
-                "down"); //NOI18N
-        
+        cycleMatchesAction = new CycleMatchesAction();
+        Action histUp = new UpDownAction(true);
+        Action histDown = new UpDownAction(false);
+
+        text.getActionMap().put(CMD_DOWN, cycleMatchesAction);
+        text.getActionMap().put(CMD_UP, cycleMatchesAction.reverseCycleAction());
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), CMD_UP);
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),CMD_DOWN);
+
+        text.getActionMap().put(CMD_HIST_UP, histUp);
+        text.getActionMap().put(CMD_HIST_DOWN, histDown);
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), CMD_HIST_UP);
+        text.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), CMD_HIST_DOWN);
+
         text.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void insertUpdate(DocumentEvent e) {
+                maybeResetCyclingThroughMatches();
                 refreshCompletions();
             }
+            @Override
             public void removeUpdate(DocumentEvent e) {
+                maybeResetCyclingThroughMatches();
                 refreshCompletions();
             }
+            @Override
             public void changedUpdate(DocumentEvent e) {}
         });
         JPanel pnl = new JPanel() {
             // XXX crude but I'm not sure how else to give text focus before box:
+            @Override
             public void addNotify() {
                 super.addNotify();
+                maybeResetCyclingThroughMatches();
                 text.requestFocus();
             }
         };
@@ -182,27 +204,36 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         JLabel instructions = new JLabel(getBundle().getString("LBL_TextField"));
         instructions.setDisplayedMnemonic(getBundle().getString("MNEM_TextField").charAt(0));
         instructions.setLabelFor(text);
-        instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
+        instructions.setBorder(BorderFactory.createEmptyBorder(12, 0, 5, 0));
         histPanel.add(instructions, BorderLayout.PAGE_END);
         pnl.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
         pnl.add(histPanel, BorderLayout.PAGE_START);
         
         fc.add(pnl, BorderLayout.PAGE_START);
-        completionsModel = new DefaultListModel();
-        completions = new JList(completionsModel);
+        completionsModel = new DefaultListModel<>();
+        completions = new JList<>(completionsModel);
         completions.addMouseListener(new CML());
         
         completions.setVisibleRowCount(25);
         completions.setEnabled(false);
         completions.setCellRenderer(new FileCellRenderer());
+        // Umm, this is going to get a much longer value on mac os, e.g. /System/private/....
         completions.setPrototypeCellValue(new File(System.getProperty("java.io.tmpdir")));
         JScrollPane jsc = new JScrollPane(completions);
         JPanel pnl2 = new JPanel();
         pnl2.setLayout(new BorderLayout());
         filterLabel = new JLabel();
+        filterLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
         pnl2.add(filterLabel, BorderLayout.PAGE_START);
         pnl2.add(jsc, BorderLayout.CENTER);
         pnl2.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 0));
+        matchCountLabel = new JLabel();
+        matchCountLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        matchCountLabel.setText(" ");
+        matchCountLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+        pnl2.add(matchCountLabel, BorderLayout.PAGE_END);
+        // Only shows when using down-arrow to cycle through matches
+        matchCountLabel.setVisible(false);
         
         fc.add(pnl2, BorderLayout.CENTER);
         approve = new JButton(getApproveButtonText(fc));
@@ -220,6 +251,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         classic.setMnemonic(getBundle().getString("MNEM_Classic").charAt(0));
         classic.setEnabled(Install.isInstalled());
         classic.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 // Just calling setUI does not work well:
                 // JFileChooser.updateUI is needed to update JFC.uiFileView;
@@ -228,6 +260,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 filechooser.updateUI();
                 // When closed, reinstall UI so it will be available for the next chooser.
                 filechooser.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         Install.install();
                     }
@@ -276,12 +309,14 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     }
     
     
+    @Override
     protected JButton getApproveButton(JFileChooser fc) {
         return approve;
     }
     
     
     private class HAL implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent ae) {
             if (historyChanging) {
                 return;
@@ -299,11 +334,19 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         if (!name.endsWith(File.separator)) {
             name += File.separatorChar;
         }
+        cycleMatchesAction.reset();
         text.setText(name);
         refreshCompletions();
         text.requestFocus();
     }
 
+    private void maybeResetCyclingThroughMatches() {
+        if (!cycleMatchesAction.isUpdating()) {
+            cycleMatchesAction.reset();
+        }
+    }
+
+    @Override
     public void uninstallComponents(JFileChooser fc) {
         fc.removeAll();
         text = null;
@@ -312,6 +355,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         super.uninstallComponents(fc);
     }
     
+    @Override
     public String getFileName() {
         return normalizeFile(text.getText());
     }
@@ -354,8 +398,10 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
     }
     
+    @Override
     public PropertyChangeListener createPropertyChangeListener(JFileChooser fc) {
         return new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent e) {
                 String name = e.getPropertyName();
                 if (JFileChooser.ACCESSORY_CHANGED_PROPERTY.equals(name)) {
@@ -468,6 +514,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 if (wildcard != null) {
                     final Pattern _wildcard = wildcard;
                     getFileChooser().setSelectedFiles(file.getParentFile().listFiles(new FilenameFilter() {
+                        @Override
                         public boolean accept(File dir, String name) {
                             return _wildcard.matcher(name).matches();
                         }
@@ -486,6 +533,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private final class CompleteAction extends AbstractAction {
         
+        @Override
         public void actionPerformed(ActionEvent e) {
             String name = getFileName();
             int slash = name.lastIndexOf(File.separatorChar);
@@ -534,6 +582,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private final class DeletePathComponentAction extends AbstractAction {
         
+        @Override
         public void actionPerformed(ActionEvent e) {
             String t = text.getText();
             if (text.getCaretPosition() < t.length()) {
@@ -563,6 +612,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private final class FileCellRenderer extends DefaultListCellRenderer/*<File>*/ {
         
+        @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             File f = (File) value;
             Component soop = super.getListCellRendererComponent(list, f.getName(), index, isSelected, cellHasFocus);
@@ -573,6 +623,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         
     }
     
+    @Override
     public Action getApproveSelectionAction() {
         return new ProxyApproveSelectionAction(super.getApproveSelectionAction());
     }
@@ -586,7 +637,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         }
         String pth = f.getParent();
         if (history == null) {
-            history = new ArrayList();
+            history = new ArrayList<>();
         }
         // Always put the new entry at the front:
         history.remove(pth);
@@ -594,7 +645,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         if (history.size() > HISTORY_MAX_SIZE) {
             history.subList(HISTORY_MAX_SIZE, history.size()).clear();
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (Iterator i = history.iterator(); i.hasNext();) {
             buf.append((String) i.next());
             if (i.hasNext()) {
@@ -607,18 +658,18 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private static final String KEY = "recentFolders";
     
-    private static List/*<String>*/ history = null;
-    private static String[] getHistory() {
+    private static List<String> history = null;
+    private static Collection<String> getHistory() {
         if (history == null) {
             loadHistory();
         }
-        return (String[]) history.toArray(new String[history.size()]);
+        return history;
     }
     
     private static void loadHistory() {
         Preferences prefs = Preferences.userNodeForPackage(ChooserComponentUI.class);
         String hist = prefs.get(KEY, "");
-        history = new ArrayList();
+        history = new ArrayList<>();
         if (hist.length() > 0) {
             for (StringTokenizer tok = new StringTokenizer(hist, File.pathSeparator); tok.hasMoreTokens();) {
                 String f = tok.nextToken();
@@ -641,27 +692,32 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private class ProxyApproveSelectionAction implements Action, PropertyChangeListener {
         private final Action delegate;
-        public ProxyApproveSelectionAction(Action delegate) {
+        ProxyApproveSelectionAction(Action delegate) {
             this.delegate = delegate;
         }
         
+        @Override
         public Object getValue(String key) {
             return delegate.getValue(key);
         }
         
+        @Override
         public void putValue(String key, Object value) {
             delegate.putValue(key, value);
         }
         
+        @Override
         public void setEnabled(boolean b) {
             delegate.setEnabled(b);
         }
         
+        @Override
         public boolean isEnabled() {
             return delegate.isEnabled();
         }
         
-        private List l = new ArrayList();
+        private final List<PropertyChangeListener> l = new ArrayList<>();
+        @Override
         public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
             l.add(listener);
             if (l.size() == 1) {
@@ -669,6 +725,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             }
         }
         
+        @Override
         public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
             l.remove(listener);
             if (l.isEmpty()) {
@@ -676,6 +733,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             }
         }
         
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (filechooser.getSelectedFiles().length > 1) {
                 // BasicFileChooserUI tries to do its own glob handling.
@@ -686,23 +744,25 @@ public class ChooserComponentUI extends BasicFileChooserUI {
             updateHistory(filechooser);
         }
         
+        @Override
         public void propertyChange(PropertyChangeEvent old) {
             PropertyChangeListener[] pcl;
             synchronized (this) {
-                pcl = (PropertyChangeListener[]) l.toArray(new PropertyChangeListener[l.size()]);
+                pcl = l.toArray(new PropertyChangeListener[l.size()]);
             }
             if (pcl.length > 0) {
                 PropertyChangeEvent nue = new PropertyChangeEvent(this,
                         old.getPropertyName(), old.getOldValue(),
                         old.getNewValue());
-                for (int i=0; i < pcl.length; i++) {
-                    pcl[i].propertyChange(nue);
+                for (PropertyChangeListener pcl1 : pcl) {
+                    pcl1.propertyChange(nue);
                 }
             }
         }
     }
     
     private class CML extends MouseAdapter {
+        @Override
         public void mousePressed(MouseEvent me) {
             JList jl = (JList) me.getSource();
             int idx = jl.locationToIndex(me.getPoint());
@@ -720,6 +780,7 @@ public class ChooserComponentUI extends BasicFileChooserUI {
         UpDownAction(boolean up) {
             this.up = up;
         }
+        @Override
         public void actionPerformed(ActionEvent ae) {
             updateFromHistory();
             int sel = box.getSelectedIndex();
@@ -742,8 +803,164 @@ public class ChooserComponentUI extends BasicFileChooserUI {
                 historyChanging = false;
             }
         }
+        @Override
         public boolean isEnabled() {
             return box.getModel().getSize() > 0;
+        }
+    }
+
+    private void setMatchingAgainst(String txt) {
+        if (txt == null) {
+            updateFilterDisplay();
+        } else {
+            if (txt.indexOf('*') < 0) {
+                txt += "*";
+            }
+            filterLabel.setText(txt);
+        }
+        updateMatchCount();
+    }
+
+    private void updateMatchCount() {
+        String val = cycleMatchesAction.toString();
+        matchCountLabel.setText(val);
+        matchCountLabel.setVisible(!val.isEmpty());
+    }
+
+    private class CycleMatchesAction extends AbstractAction {
+        private FileCursor cursor;
+        private ReverseCycleDelegate down;
+
+        CycleMatchesAction() {
+            super(CMD_UP);
+            down = new ReverseCycleDelegate();
+        }
+
+        Action reverseCycleAction() {
+            return down;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return (cursor != null && cursor.hasFiles()) || completionsModel.getSize() > 0;
+        }
+
+        boolean isActive() {
+            return cursor != null;
+        }
+
+        void reset() {
+            maybeFireEnablementChange(() -> {
+                cursor = null;
+                setMatchingAgainst(null);
+            });
+        }
+
+        void maybeFireEnablementChange(Runnable r) {
+            boolean wasEnabled = isEnabled();
+            r.run();
+            boolean nowEnabled = isEnabled();
+            if (wasEnabled != nowEnabled) {
+                firePropertyChange("enabled", wasEnabled, nowEnabled);
+                down.fire("enabled", wasEnabled, nowEnabled);
+            }
+        }
+
+        public String toString() {
+            return cursor == null ? "" : cursor.toString();
+        }
+
+        boolean isUpdating() {
+            return updating;
+        }
+
+        private boolean updating;
+        private void updateSelection(File file) {
+            updating = true;
+            try {
+                text.setText(file.getPath());
+                updateMatchCount();
+            } finally {
+                updating = false;
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            if (!isEnabled()) {
+                return;
+            }
+            actionPerformed(ae, true);
+        }
+
+        public void actionPerformed(ActionEvent ae, boolean up) {
+            if (cursor == null) {
+                setMatchingAgainst(text.getText());
+                cursor = new FileCursor(completionsModel);
+            }
+            File newSelection = up ? cursor.next() : cursor.prev();
+            if (newSelection != null) {
+                updateSelection(newSelection);
+            }
+        }
+
+        class ReverseCycleDelegate extends AbstractAction {
+            ReverseCycleDelegate() {
+                super(CMD_DOWN);
+            }
+
+            void fire(String prop, boolean old, boolean nue) {
+                firePropertyChange(prop, old, nue);
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CycleMatchesAction.this.actionPerformed(e, false);
+            }
+
+            @Override
+            public boolean isEnabled() {
+                return CycleMatchesAction.this.isEnabled();
+            }
+        }
+    }
+
+    static final class FileCursor {
+        private int index = -1;
+        private final File[] files;
+        FileCursor(ListModel<File> model) {
+            int size = model.getSize();
+            files = new File[size];
+            for (int i = 0; i < size; i++) {
+                files[i] = model.getElementAt(i);
+            }
+        }
+
+        boolean hasFiles() {
+            return files.length > 0;
+        }
+
+        public File next() {
+            if (files.length == 0) {
+                return null;
+            }
+            return files[++index % files.length];
+        }
+
+        public File prev() {
+            if (files.length == 0) {
+                return null;
+            }
+            index--;
+            if (index < 0) {
+                index = files.length-1;
+            }
+            return files[index % files.length];
+        }
+
+        @Override
+        public String toString() {
+            return ((index % files.length) + 1) + " / " + files.length;
         }
     }
 }

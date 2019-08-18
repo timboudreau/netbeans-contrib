@@ -9,7 +9,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-quickfilechooser</artifactId>
-    <version>1.19</version>
+    <version>1.20</version>
     <packaging>nbm</packaging>
     <name>Quick File Chooser</name>
     <description>Replaces regular Swing file chooser with a keyboard-oriented version.</description>
@@ -36,6 +36,7 @@
     </scm>
     <properties>
         <module.display.category>Base IDE</module.display.category>
+        <java.source.level>1.8</java.source.level>
     </properties>
     <dependencies>
         <dependency>
@@ -52,6 +53,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

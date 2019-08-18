@@ -9,7 +9,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-graphicclassview</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <packaging>nbm</packaging>
     <name>Graphical Class View</name>
     <description>Provides a diagram of Java classes showing interdependencies between fields and methods in that class</description>
@@ -188,3 +188,4 @@
         </plugins>
     </build>
 </project>
+

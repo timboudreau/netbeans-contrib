@@ -29,6 +29,7 @@
         <netbeans.version>RELEASE82</netbeans.version>
         <java.source.level>1.6</java.source.level>
         <!--<maven.test.skip>true</maven.test.skip>-->
+        <netbeans.hint.licensePath>${project.parent.relativePath}/apache-license-header.txt</netbeans.hint.licensePath>
     </properties>
     <licenses>
         <license>

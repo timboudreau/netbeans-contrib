@@ -94,6 +94,9 @@
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
             <version>7.8.1</version>
+<!--        Fixes a github security alert, but makes the module
+            uncompilable
+            <version>8.18</version> -->
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -192,3 +195,4 @@
         </plugins>
     </build>
 </project>
+

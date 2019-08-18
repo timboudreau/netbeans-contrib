@@ -52,11 +52,13 @@ public class Module extends ModuleInstall {
     /** @see org.netbeans.swing.dirchooser.Module#FORCE_STANDARD_CHOOSER */
     private static final String FORCE_STANDARD_CHOOSER = "standard-file-chooser";
 
+    @Override
     public void restored() {
         System.setProperty(FORCE_STANDARD_CHOOSER, "true");
         Install.install();
     }
 
+    @Override
     public void uninstalled() {
         super.uninstalled();
         Install.uninstall();

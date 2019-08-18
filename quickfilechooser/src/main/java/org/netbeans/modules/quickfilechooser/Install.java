@@ -74,6 +74,7 @@ public class Install {
             uid.put(val, impl);
             // #61147: prevent NB from switching to a different UI later (under GTK):
             uid.addPropertyChangeListener(pcl = new PropertyChangeListener() {
+                @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     String name = evt.getPropertyName();
                     if ((name.equals(KEY) || name.equals("UIDefaults")) && !val.equals(uid.get(KEY))) {
