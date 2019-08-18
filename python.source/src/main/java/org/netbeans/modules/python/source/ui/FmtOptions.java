@@ -78,7 +78,6 @@ import javax.swing.text.Document;
 import org.netbeans.api.editor.settings.SimpleValueNames;
 import static org.netbeans.modules.python.source.CodeStyle.*;
 import org.netbeans.modules.options.editor.spi.PreferencesCustomizer;
-import org.netbeans.modules.options.editor.spi.PreviewProvider;
 import org.netbeans.modules.python.api.PythonMIMEResolver;
 import org.netbeans.modules.python.source.PythonFormatter;
 import org.netbeans.modules.python.source.PythonParserResult;
@@ -453,7 +452,7 @@ public class FmtOptions {
     }
 
     // Support section ---------------------------------------------------------
-    public static class CategorySupport implements ActionListener, DocumentListener, PreviewProvider, PreferencesCustomizer {
+    public static class CategorySupport implements ActionListener, DocumentListener, org.netbeans.modules.options.editor.spi.PreviewProvider, PreferencesCustomizer {
         public static final String OPTION_ID = "org.netbeans.modules.python.editor.options.FormatingOptions.ID";
         private static final int LOAD = 0;
         private static final int STORE = 1;
