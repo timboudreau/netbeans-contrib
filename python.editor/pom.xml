@@ -31,6 +31,7 @@
         <developerConnection>git@github.com/timboudreau/netbeans-contrib.git</developerConnection>
     </scm>
     <properties>
+        <netbeans.version>RELEASE90</netbeans.version>
         <module.display.category>Python</module.display.category>
         <java.source.level>1.7</java.source.level>
     </properties>

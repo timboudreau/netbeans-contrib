@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+JAVA_FILES=`find . -type f -name "*.java"`
+
+LINES=`git --no-pager log -5 --follow --date=format-local:%Y-%m-%dT%H:%M:%S.000000Z "--format=format:%cd %f" -- .`
+#IFS='
+#'
+
+while read -r line; do
+	if [[ "$line"=="*Mavenized-contrib" ]]; then
+		echo $line
+	fi
+done <<< $LINES
+
+#for SOURCE in $JAVA_FILES; do
+#	OLD=$IFS
+#	INFO=`git --no-pager log -5 --follow --date=format-local:%Y-%m-%dT%H:%M:%S.000000Z "--format=format:%cd %f" -- $SOURCE`
+#	IFS='
+#'
+#	while read -r line; do
+#		echo LINE: $line
+#		if [[ "$line"~="^Mavenized-contrib$" ]]; then
+#			echo $line $SOURCE
+#			echo GOT ONE: $line
+#		fi
+#	done <<< $INFO
+#	IFS=$OLD
+#done

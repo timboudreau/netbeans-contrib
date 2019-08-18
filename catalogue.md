@@ -2760,12 +2760,12 @@ Libraries which can be built now.
 > Generates a Markdown index of the netbeans modules here from their POM files.
 
 
-###Hexedit
+###Hex Editor
 *Version*: 1.1
 
 *Relative Path*: other/hexedit
 
-
+> A standalone Java hex editor application
 
 
 ###Numeric Collections
@@ -2797,7 +2797,7 @@ Libraries which can be built now.
 
 *Relative Path*: other/uberMetaSplitContainer
 
-> A prototype split container which manages multiple components without nested split containers
+> A prototpe of a replacement for JSplitPane which hosts multiple components with both vertical and horizontal splitters in a single parent component without intermediate ones
 
 
 
