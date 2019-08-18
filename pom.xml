@@ -91,13 +91,14 @@
                             <goals>
                                 <goal>jar</goal>
                             </goals>
-                            <configuration>
-                                <quiet>true</quiet>
-                                <doclint>none</doclint>
-                                <source>8</source>
-                            </configuration>
                         </execution>
                     </executions>
+                    <configuration>
+                        <quiet>true</quiet>
+                        <doclint>none</doclint>
+                        <source>8</source>
+                        <additionalOptions>-Xdoclint:none</additionalOptions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
