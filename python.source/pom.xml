@@ -31,6 +31,7 @@
     <properties>
         <module.display.category>Contrib-Modules</module.display.category>
         <java.source.level>1.7</java.source.level>
+        <netbeans.version>RELEASE90</netbeans.version>
     </properties>
     <dependencies>
         <dependency>
