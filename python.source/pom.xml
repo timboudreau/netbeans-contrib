@@ -150,13 +150,24 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration/>
+                <configuration>
+                    <fork>true</fork>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <verbose>true</verbose>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.netbeans.utilities</groupId>

@@ -452,7 +452,11 @@ public class FmtOptions {
     }
 
     // Support section ---------------------------------------------------------
-    public static class CategorySupport implements ActionListener, DocumentListener, /* org.netbeans.modules.options.editor.spi.PreviewProvider, */ PreferencesCustomizer {
+    /** Not clear from javac diagnostics why, but the build fails with 'cannot
+     * find symbol' if the last two interfaces below are not imported by FQN;
+     * Works fine on my laptop, but not on SmartOS + Jenkins + JDK 1.8.0_221.
+     */
+    public static class CategorySupport implements ActionListener, DocumentListener, org.netbeans.modules.options.editor.spi.PreviewProvider, org.netbeans.modules.options.editor.spi.PreferencesCustomizer {
         public static final String OPTION_ID = "org.netbeans.modules.python.editor.options.FormatingOptions.ID";
         private static final int LOAD = 0;
         private static final int STORE = 1;
