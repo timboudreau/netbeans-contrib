@@ -452,7 +452,7 @@ public class FmtOptions {
     }
 
     // Support section ---------------------------------------------------------
-    public static class CategorySupport implements ActionListener, DocumentListener, org.netbeans.modules.options.editor.spi.PreviewProvider, PreferencesCustomizer {
+    public static class CategorySupport implements ActionListener, DocumentListener, /* org.netbeans.modules.options.editor.spi.PreviewProvider, */ PreferencesCustomizer {
         public static final String OPTION_ID = "org.netbeans.modules.python.editor.options.FormatingOptions.ID";
         private static final int LOAD = 0;
         private static final int STORE = 1;
@@ -545,7 +545,7 @@ public class FmtOptions {
         }
 
         // PreviewProvider methods -----------------------------------------------------
-        @Override
+//        @Override
         public JComponent getPreviewComponent() {
             if (previewPane == null) {
                 previewPane = new JEditorPane();
@@ -558,7 +558,7 @@ public class FmtOptions {
             return previewPane;
         }
 
-        @Override
+//        @Override
         public void refreshPreview() {
             JEditorPane jep = (JEditorPane)getPreviewComponent();
             try {
