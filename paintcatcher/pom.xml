@@ -8,7 +8,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-paintcatcher</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <packaging>nbm</packaging>
     <name>Paint Catcher</name>
     <description>Find out who is causing extra repaints given a target component class</description>

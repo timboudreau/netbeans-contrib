@@ -50,11 +50,12 @@ import org.openide.modules.ModuleInstall;
  */
 public class PaintCatcherModule extends ModuleInstall {
 
+    @Override
     public void restored() {
         boolean start = Boolean.getBoolean("org.netbeans.modules.paintcatcher");
         if (start) {
             System.out.println("start paint logging");
-            ConfigureAction.classToLog = java.awt.Component.class;
+            ConfigureAction.classToLog = java.awt.Component.class.getName();
             ConfigureAction.matchIfAncestor = true;
             ConfigureAction.matchIfSubclass = true;
             LogAction log = (LogAction)LogAction.get(LogAction.class);

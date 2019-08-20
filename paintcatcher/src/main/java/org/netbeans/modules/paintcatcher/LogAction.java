@@ -70,7 +70,8 @@ public class LogAction extends BooleanStateAction {
         Filter filter = new ComponentPaintFilter (
             ConfigureAction.classToLog, 
             ConfigureAction.matchIfSubclass, 
-            ConfigureAction.matchIfAncestor);
+            ConfigureAction.matchIfAncestor,
+            ConfigureAction.fuzzyMatch);
         
         Logger logger = new ConsoleLogger(ConfigureAction.dumpStack);  
         

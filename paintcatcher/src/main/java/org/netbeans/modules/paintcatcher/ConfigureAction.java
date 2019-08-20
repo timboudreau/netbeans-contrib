@@ -54,11 +54,12 @@ import org.openide.util.actions.CallableSystemAction;
  * @author tim
  */
 public class ConfigureAction extends CallableSystemAction {
-    static Class classToLog = null;
+    static String classToLog = null;
     static boolean logAWTEvents = true;
     static boolean matchIfAncestor = false;
     static boolean matchIfSubclass = false;
     static boolean dumpStack = false;
+    static boolean fuzzyMatch = true;
     static LogAction logAction = null;
     
     public ConfigureAction() {
@@ -83,6 +84,7 @@ public class ConfigureAction extends CallableSystemAction {
             matchIfAncestor = panel.isMatchIfAncestor();
             matchIfSubclass = panel.isMatchSubclasses();
             dumpStack = panel.isDumpStack();
+            fuzzyMatch = panel.isFuzzyMatch();
             classToLog = panel.getTargetClass();
             if (classToLog == null) {
                 StatusDisplayer.getDefault().setStatusText("Empty or unresolvable class");

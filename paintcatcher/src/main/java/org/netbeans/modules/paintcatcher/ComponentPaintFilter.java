@@ -38,51 +38,91 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
+ /*
  * ClassNameFilter.java
  *
  * Created on February 23, 2004, 9:57 PM
  */
-
 package org.netbeans.modules.paintcatcher;
 
 import java.awt.Component;
 import java.awt.event.PaintEvent;
-import javax.swing.SwingUtilities;
+import java.util.Set;
+import org.openide.util.WeakSet;
 
 /**
  *
- * @author  tim
+ * @author tim
  */
 public class ComponentPaintFilter implements Filter {
-    private Class clazz;
+
     private boolean subs = false;
     private boolean anc = false;
+    private final String typeName;
+    private final boolean fuzzyMatch;
+    private final Set<Component> matched = new WeakSet<Component>();
 
-    /** Creates a new instance of ClassNameFilter */
-    public ComponentPaintFilter (Class clazz, boolean allowSubclasses, boolean matchIfAncestor) {
-this.clazz = clazz;
+    /**
+     * Creates a new instance of ClassNameFilter
+     */
+    public ComponentPaintFilter(String className, boolean allowSubclasses, boolean matchIfAncestor, boolean fuzzyMatch) {
+        this.typeName = className.trim();
         this.subs = allowSubclasses;
         this.anc = matchIfAncestor;
+        this.fuzzyMatch = fuzzyMatch;
     }
-    
-    
-    
+
     public boolean match(Component c) {
         if (c == null) {
             return false;
         }
-        boolean result = c.getClass() == clazz;
-        if (subs) {
-            result |= clazz.isAssignableFrom(c.getClass());
-        }
-        if (anc) {
-            Object o = SwingUtilities.getAncestorOfClass(clazz, c);
-            result |= o != null;
+        boolean result = matched.contains(c);
+        if (!result) {
+            result = isAssignable(c);
+            if (subs) {
+                result |= isAssignable(c);
+            }
+            if (anc) {
+                result |= hasAncestorOfClass(c);
+            }
+            if (result) {
+                matched.add(c);
+            }
         }
         return result;
-    }    
-    
+    }
+
+    private boolean isAssignable(Component c) {
+        if (c.getClass().getName().equals(typeName) || (fuzzyMatch && c.getClass().getName().contains(typeName))) {
+            return true;
+        }
+        if (subs) {
+            Class<?> type = c.getClass();
+            while (type != Object.class) {
+                if (type.getName().equals(typeName) || (fuzzyMatch && type.getName().contains(typeName))) {
+                    return true;
+                }
+                for (Class<?> iface : type.getInterfaces()) {
+                    if (type.getName().contains(typeName)) {
+                        return true;
+                    }
+                }
+                type = type.getSuperclass();
+            }
+        }
+        return false;
+    }
+
+    private boolean hasAncestorOfClass(Component c) {
+        while (c != null) {
+            if (isAssignable(c)) {
+                return true;
+            }
+            c = c.getParent();
+        }
+        return false;
+    }
+
     public boolean match(java.util.EventObject eo) {
         /*
         boolean result = false;
@@ -92,13 +132,10 @@ this.clazz = clazz;
          */
         boolean result = eo instanceof PaintEvent;
         return result;
-    }    
-    
-    public void foo() {
-        
     }
-    
-    
-    
-    
+
+    public void foo() {
+
+    }
+
 }
