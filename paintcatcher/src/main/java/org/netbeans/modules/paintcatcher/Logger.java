@@ -53,8 +53,8 @@ import java.util.EventObject;
  * @author  tim
  */
 public interface Logger {
-    public void log (String msg);
-    public void log (String msg, Component c);
-    public void log (String msg, EventObject eo);
+    public void log (String msg, boolean isStackTraceThreshold);
+    public void log (String msg, Component c, boolean isStackTraceThreshold);
+    public void log (String msg, EventObject eo, boolean isStackTraceThreshold);
 
 }

@@ -47,7 +47,9 @@ package org.netbeans.modules.paintcatcher;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.PaintEvent;
 import java.lang.reflect.Method;
 import java.util.Stack;
 
@@ -66,7 +68,17 @@ class LoggingEventQueue extends EventQueue {
 
     public void postEvent(AWTEvent e) {
         if (filter.match(e)) {
-            logger.log("posted", e);
+            boolean threshold = true;
+            if (e instanceof PaintEvent) {
+                PaintEvent pe = (PaintEvent) e;
+                Rectangle r = pe.getUpdateRect();
+                if (r != null) {
+                    if (Math.max(r.width, r.height) < ConfigureAction.minDimensionForStackTrace) {
+                        threshold = false;
+                    }
+                }
+            }
+            logger.log("posted", e, threshold);
         }
         super.postEvent (e);
     }

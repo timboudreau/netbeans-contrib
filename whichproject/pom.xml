@@ -8,7 +8,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-whichproject</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
     <packaging>nbm</packaging>
     <name>Project Minder</name>
     <description>Adds an action to close all files not in the same project as the file you are editing</description>

@@ -1678,7 +1678,7 @@ NetBeans modules that can be built now.
 
 
 ### Paint Catcher
-*Version*: 1.4
+*Version*: 1.6
 
 *Relative Path*: paintcatcher
 
@@ -1778,7 +1778,7 @@ NetBeans modules that can be built now.
 
 
 ### Project Minder
-*Version*: 1.6
+*Version*: 1.7
 
 *Relative Path*: whichproject
 
@@ -2678,6 +2678,14 @@ NetBeans modules that can be built now.
 
 Libraries which can be built now.
 
+### Beans2nbm
+*Version*: 1.1
+
+*Relative Path*: other/BeansToNbm/beans2nbm
+
+
+
+
 ### Cache
 *Version*: 1.0
 
@@ -3430,14 +3438,6 @@ Modules not currently included in the build, either because their dependencies h
 ## Unbuildable Libraries
 
 Modules not currently included in the build, either because their dependencies have changed incompatibly, don't exist anymore, or in some cases something trivial needs to be done.
-### Beans2nbm
-*Version*: 1.1
-
-*Relative Path*: other/BeansToNbm/beans2nbm
-
-
-
-
 ### Callgraph Utility
 *Version*: 1.3
 

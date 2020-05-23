@@ -91,7 +91,8 @@ class LoggingRepaintManager extends RepaintManager {
     private boolean hasDirtyMatches = false;
     public synchronized void addDirtyRegion(JComponent c, int x, int y, int w, int h) {
         if (w != 0 && h != 0 && filter.match (c)) {
-            logger.log ("addDirtyRegion " + x + "," + y + "," + w + "," + h, c);
+            boolean threshold = Math.max(w, h) > ConfigureAction.minDimensionForStackTrace;
+            logger.log ("addDirtyRegion " + x + "," + y + "," + w + "," + h, c, threshold);
             hasDirtyMatches = true;
         }
         super.addDirtyRegion (c, x, y, w, h);
@@ -99,7 +100,7 @@ class LoggingRepaintManager extends RepaintManager {
     
     public synchronized void addInvalidComponent(JComponent c) {
         if (filter.match(c)) {
-            logger.log ("addInvalidComponent", c);
+            logger.log ("addInvalidComponent", c, false);
             hasValidateMatches = true;
         }
         super.addInvalidComponent(c);
@@ -107,7 +108,7 @@ class LoggingRepaintManager extends RepaintManager {
     
     public void paintDirtyRegions() {
         if (hasDirtyMatches) {
-            logger.log("paintDirtyRegions");
+            logger.log("paintDirtyRegions", false);
             hasDirtyMatches = false;
         }
         super.paintDirtyRegions();
@@ -115,7 +116,7 @@ class LoggingRepaintManager extends RepaintManager {
     
     public void validateInvalidComponents() {
         if (hasValidateMatches) {
-            logger.log("validateInvalidComponents");
+            logger.log("validateInvalidComponents", false);
             hasValidateMatches = false;
         }
         super.validateInvalidComponents();

@@ -76,6 +76,8 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         ancestorBox = new javax.swing.JCheckBox();
         fuzzyMatchBox = new javax.swing.JCheckBox();
         stackTraceBox = new javax.swing.JCheckBox();
+        dimensionLabel = new javax.swing.JLabel();
+        dimensionBox = new javax.swing.JTextField();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(11, 11, 11, 11));
         setLayout(new java.awt.GridBagLayout());
@@ -145,7 +147,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -161,6 +163,25 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 0.1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(stackTraceBox, gridBagConstraints);
+
+        dimensionLabel.setLabelFor(dimensionBox);
+        dimensionLabel.setText("If dirty region larger than");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
+        gridBagConstraints.insets = new java.awt.Insets(0, 24, 11, 0);
+        add(dimensionLabel, gridBagConstraints);
+
+        dimensionBox.setColumns(5);
+        dimensionBox.setText("0");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 11, 0);
+        add(dimensionBox, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void fuzzyMatchBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fuzzyMatchBoxActionPerformed
@@ -219,6 +240,15 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         String s = classNameField.getText().trim();
         return s.isEmpty() ? null : s;
     }
+
+    public int getMinDimension() {
+        String s = dimensionBox.getText().trim();
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
     
     
     
@@ -226,11 +256,17 @@ public class ConfigurationPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox ancestorBox;
     private javax.swing.JTextField classNameField;
     private javax.swing.JLabel classNameLabel;
+    private javax.swing.JTextField dimensionBox;
+    private javax.swing.JLabel dimensionLabel;
     private javax.swing.JCheckBox fuzzyMatchBox;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JCheckBox logPaintEventsBox;
     private javax.swing.JCheckBox matchSubclassesBox;
     private javax.swing.JCheckBox stackTraceBox;
     // End of variables declaration//GEN-END:variables
+
+    void setMinDimensionForStackTrace(int minDimensionForStackTrace) {
+        dimensionBox.setText(Integer.toString(minDimensionForStackTrace));
+    }
     
 }

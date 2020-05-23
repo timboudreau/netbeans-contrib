@@ -61,6 +61,7 @@ public class ConfigureAction extends CallableSystemAction {
     static boolean dumpStack = false;
     static boolean fuzzyMatch = true;
     static LogAction logAction = null;
+    static int minDimensionForStackTrace = 0;
     
     public ConfigureAction() {
     }
@@ -73,6 +74,7 @@ public class ConfigureAction extends CallableSystemAction {
         panel.setMatchIfAncestor(matchIfAncestor);
         panel.setMatchSubclasses(matchIfSubclass);
         panel.setDumpStack(dumpStack);
+        panel.setMinDimensionForStackTrace(minDimensionForStackTrace);
         
         DialogDescriptor dd = new DialogDescriptor(panel, "Configure logging");
         
@@ -86,6 +88,7 @@ public class ConfigureAction extends CallableSystemAction {
             dumpStack = panel.isDumpStack();
             fuzzyMatch = panel.isFuzzyMatch();
             classToLog = panel.getTargetClass();
+            minDimensionForStackTrace = panel.getMinDimension();
             if (classToLog == null) {
                 StatusDisplayer.getDefault().setStatusText("Empty or unresolvable class");
             }

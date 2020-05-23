@@ -47,7 +47,6 @@ package org.netbeans.modules.paintcatcher;
 
 import java.awt.Component;
 import java.awt.event.PaintEvent;
-import java.lang.StackTraceElement;
 import java.util.EventObject;
 import javax.swing.AbstractButton;
 
@@ -64,7 +63,7 @@ class ConsoleLogger implements Logger {
         this.dumpStack = dumpStack;
     }
     
-    public void log(String msg) {
+    public void log(String msg, boolean isStackTraceThreshold) {
         maybePrintBreak();
         long time = System.currentTimeMillis();
         if (time - lastLogTime > 10000) {
@@ -74,18 +73,18 @@ class ConsoleLogger implements Logger {
         System.err.println((idx++) + ":" + System.currentTimeMillis() + ":" + msg);
     }    
     
-    public void log(String msg, Component c) {
+    public void log(String msg, Component c, boolean isStackTraceThreshold) {
         maybePrintBreak();
         System.err.println((idx++) + ":" + System.currentTimeMillis() + ":" + msg + " " + componentToString(c));
-        if (dumpStack) {
+        if (dumpStack && isStackTraceThreshold) {
             dumpStack();
         }
     }    
     
-    public void log(String msg, EventObject eo) {
+    public void log(String msg, EventObject eo, boolean isStackTraceThreshold) {
         maybePrintBreak();
         System.err.println((idx++) + ":" + System.currentTimeMillis() + ":" + (msg != null ? msg + " " : "") + "on " + eventToString(eo));
-        if (dumpStack) {
+        if (dumpStack && isStackTraceThreshold) {
             dumpStack();
         }
     }    
