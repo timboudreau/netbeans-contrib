@@ -10,8 +10,8 @@
     <artifactId>org-netbeans-modules-sfsexplorer</artifactId>
     <version>1.13</version>
     <packaging>nbm</packaging>
-    <name>System FileSystem Browser</name>
-    <description>System FileSystem Browser</description>
+    <name>System FileSystem Browser II</name>
+    <description>System FileSystem Browser II</description>
     <url>http://blogs.sun.com/scblog</url>
     <licenses>
         <license>
@@ -48,10 +48,6 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-jdesktop-layout</artifactId>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -124,11 +120,6 @@
                     <requiresRestart>true</requiresRestart>
                     <author>Sandip V. Chitale (Sandip.Chitale@Sun.Com)</author>
                     <moduleDependencies>
-                        <dependency>
-                            <id>org.netbeans.api:org-jdesktop-layout</id>
-                            <explicitValue>org.jdesktop.layout/1 &gt; 1.4</explicitValue>
-                            <!--Generated 2018-07-21 against code-name-base: org.jdesktop.layout/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages-->
-                        </dependency>
                         <dependency>
                             <id>org.netbeans.api:org-openide-awt</id>
                             <explicitValue>org.openide.awt &gt; 6.7.22</explicitValue>

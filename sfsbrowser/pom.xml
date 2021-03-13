@@ -51,10 +51,6 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-jdesktop-layout</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-java</artifactId>
         </dependency>
         <dependency>
@@ -128,11 +124,11 @@
                     <requiresRestart>true</requiresRestart>
                     <author>Sandip V. Chitale (Sandip.Chitale@Sun.Com)</author>
                     <moduleDependencies>
-                        <dependency>
+<!--                        <dependency>
                             <id>org.netbeans.api:org-jdesktop-layout</id>
                             <explicitValue>org.jdesktop.layout/1 &gt; 1.4</explicitValue>
-                            <!--Generated 2018-07-21 against code-name-base: org.jdesktop.layout/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages-->
-                        </dependency>
+                            Generated 2018-07-21 against code-name-base: org.jdesktop.layout/1 specification-version: 1.33.1 implementation-version: 201609300101 has-public-packages
+                        </dependency>-->
                         <dependency>
                             <id>org.netbeans.api:org-netbeans-api-java</id>
                             <explicitValue>org.netbeans.api.java/1 &gt; 1.18</explicitValue>
