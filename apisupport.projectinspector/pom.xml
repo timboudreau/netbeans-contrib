@@ -12,7 +12,6 @@
     <packaging>nbm</packaging>
     <name>NetBeans Project Metadata Inspector</name>
     <description>Displays information about the selected project.</description>
-    <url>http://bits.netbeans.org/dev/javadoc/org-netbeans-modules-projectapi/org/netbeans/api/project/Project.html#getLookup%28%29</url>
     <licenses>
         <license>
             <name>Apache 2.0</name>

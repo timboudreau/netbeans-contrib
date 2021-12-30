@@ -813,8 +813,9 @@
         <repository>
             <id>netbeans</id>
             <name>NetBeans</name>
-            <url>http://bits.netbeans.org/nexus/content/groups/netbeans</url>
+            <url>http://netbeans.apidesign.org/maven2</url>
         </repository>
+<!--
         <repository>
             <id>timboudreau-builds</id>
             <name>timboudreau.com builds</name>
@@ -828,6 +829,7 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
+-->
         <repository>
             <!--
             Some transitive dependencies with range dependencies
