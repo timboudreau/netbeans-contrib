@@ -304,7 +304,8 @@
         Silly demo for a talk circa 2005; attempted to get it working.
         Not really worth it, but builds.
         -->
-        <module>doap</module>
+        <!-- Make that built - uses a now decommissioned repository.
+        <module>doap</module> -->
         <module>docbook</module>
         <module>docbook.project</module>
         <!--
