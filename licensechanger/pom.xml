@@ -8,7 +8,7 @@
         <relativePath>..</relativePath>
     </parent>
     <artifactId>org-netbeans-modules-licensechanger</artifactId>
-    <version>1.9.3</version>
+    <version>1.9.4</version>
     <packaging>nbm</packaging>
     <name>License Changer</name>
     <description>Provides an action on folders to change the license headers on all files underneath</description>
@@ -33,7 +33,7 @@
     </scm>
     <properties>
         <module.display.category>Infrastructure</module.display.category>
-        <java.source.level>1.6</java.source.level>
+        <java.source.level>8</java.source.level>
     </properties>
     <dependencies>
         <dependency>

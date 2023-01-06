@@ -25,7 +25,7 @@
     <description>Modules from the original netbeans.org contrib/ repository</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.version>RELEASE82</netbeans.version>
+        <netbeans.version>RELEASE126</netbeans.version>
         <java.source.level>1.6</java.source.level>
         <!--<maven.test.skip>true</maven.test.skip>-->
         <netbeans.hint.licensePath>${project.parent.relativePath}/apache-license-header.txt</netbeans.hint.licensePath>

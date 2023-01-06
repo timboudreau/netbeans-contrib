@@ -64,7 +64,7 @@ import org.openide.util.lookup.ProxyLookup;
  */
 public abstract class FolderChildren extends ChildFactory.Detachable<FileObject> implements Runnable {
 
-    private FileObject[] roots;
+    private final FileObject[] roots;
     volatile int keyCount = 0;
     private int nodeCount = 0;
     private volatile boolean cancelled = false;
@@ -98,6 +98,7 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
         // XXX use VisibilityQuery instead
         String path = folder.getPath();
         return path.contains(".svn") || path.contains(".cvs") || path.contains(".hg")
+                || path.contains(".git") || path.contains("node_modules")
                 || path.endsWith(".svn") || path.endsWith(".cvs") || path.endsWith(".hg")
                 || path.contains("target") || path.endsWith("target") || path.contains("build") || path.endsWith("build");
     }
@@ -134,7 +135,7 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
             if (nodeCount == keyCount) {
                 EventQueue.invokeLater(this);
             }
-            return new FN(n, f);
+            return new FN(n, f, roots);
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
             return null;
@@ -148,9 +149,34 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
         onAllNodesCreated();
     }
 
+    static FileObject rootFor(FileObject forFile, FileObject[] roots) {
+        for (FileObject root : roots) {
+            if (FileUtil.isParentOf(root, forFile)) {
+                return root;
+            }
+        }
+        return null;
+    }
+
+    static String displayNameFor(FileObject forFile, FileObject[] roots) {
+        FileObject root = rootFor(forFile, roots);
+        if (root == null) {
+            return FileUtil.getFileDisplayName(forFile);
+        }
+        String rootName = FileUtil.getFileDisplayName(root);
+        String childName = FileUtil.getFileDisplayName(forFile);
+        if (childName.equals(rootName)) {
+            return rootName;
+        }
+        if (childName.startsWith(rootName)) {
+            return childName.substring(rootName.length() + 1);
+        }
+        return childName;
+    }
+
     private static final class FN extends FilterNode {
 
-        FN(Node orig, FileObject f) {
+        FN(Node orig, FileObject f, FileObject[] roots) {
             super(orig, Children.LEAF, new ProxyLookup(
                     Lookups.fixed(f, new CheckableNodeCapability()),
                     orig.getLookup()));
@@ -173,7 +199,7 @@ public abstract class FolderChildren extends ChildFactory.Detachable<FileObject>
                 }
             }
             setName(p);
-            setDisplayName(FileUtil.getFileDisplayName(f));
+            setDisplayName(displayNameFor(f, roots));
         }
 
         @Override
