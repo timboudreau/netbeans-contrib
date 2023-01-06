@@ -816,6 +816,11 @@
             <name>NetBeans</name>
             <url>http://netbeans.apidesign.org/maven2</url>
         </repository>
+        <repository>
+            <id>imagej</id>
+            <name>NetBeans</name>
+            <url>http://maven.imagej.net/content/repositories/public/</url>
+        </repository>
 <!--
         <repository>
             <id>timboudreau-builds</id>

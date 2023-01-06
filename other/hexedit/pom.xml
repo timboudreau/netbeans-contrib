@@ -5,7 +5,7 @@
         <groupId>org.netbeans.contrib</groupId>
         <artifactId>contrib-parent</artifactId>
         <version>RELEASE90</version>
-        <relativePath>../../..</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
     <name>Hex Editor</name>
     <description>A standalone Java hex editor application</description>
